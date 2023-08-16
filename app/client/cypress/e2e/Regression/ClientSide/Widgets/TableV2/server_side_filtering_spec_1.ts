@@ -70,11 +70,6 @@ describe("Table widget v2: test server side filtering", function () {
     // set execute select SQL query action on table filter update:
     propPane.SelectPlatformFunction("onTableFilterUpdate", "Execute a query");
     agHelper.GetNClickByContains(".single-select", "Select_public_users1");
-    agHelper.GetNClick(
-      `${propPane._propertyControl("ontablefilterupdate")} ${
-        propPane._actionCallbacks
-      }`,
-    );
     agHelper.GetNClick(propPane._actionAddCallback("success"));
     agHelper.GetNClick(locators._dropDownValue("Show alert"));
     agHelper.EnterActionValue("Message", ALERT_SUCCESS_MSG);
