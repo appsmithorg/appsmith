@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { noop } from "utils/AppsmithUtils";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 

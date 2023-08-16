@@ -12,7 +12,11 @@ import { Colors } from "constants/Colors";
 export class EChartsConfigurationBuilder {
   fontFamily: string | undefined;
 
-  #seriesConfigurationForPieChart(seriesID: string, seriesData: ChartData) {
+  #seriesConfigurationForPieChart(
+    seriesID: string,
+    seriesData: ChartData,
+    showDataPointLabel: boolean,
+  ) {
     let seriesName = messages.Undefined;
     if (seriesData.seriesName && seriesData.seriesName.length > 0) {
       seriesName = seriesData.seriesName;
@@ -24,7 +28,7 @@ export class EChartsConfigurationBuilder {
       center: ["50%", "55%"],
       name: seriesName,
       label: {
-        show: true,
+        show: showDataPointLabel,
         fontFamily: this.fontFamily,
         color: Colors.DOVE_GRAY2,
         formatter: `{b} : {d}%`,
@@ -63,7 +67,7 @@ export class EChartsConfigurationBuilder {
       }
 
       let config: Record<string, unknown> = {
-        label: { show: true, position: "top" },
+        label: { show: props.showDataPointLabel, position: "top" },
         name: seriesName,
         itemStyle: { color: color },
       };
@@ -89,7 +93,11 @@ export class EChartsConfigurationBuilder {
           };
           break;
         case "PIE_CHART":
-          config = this.#seriesConfigurationForPieChart(seriesID, seriesData);
+          config = this.#seriesConfigurationForPieChart(
+            seriesID,
+            seriesData,
+            props.showDataPointLabel,
+          );
           break;
       }
 

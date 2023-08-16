@@ -108,31 +108,40 @@ const useDependencyList = (name: string) => {
   );
   const guidedTour = useSelector(inGuidedTour);
 
-  const getEntityId = useCallback((name) => {
-    const entity = dataTree[name];
+  const getEntityId = useCallback(
+    (name) => {
+      const entity = dataTree[name];
 
-    if (isWidget(entity)) {
-      return entity.widgetId;
-    } else if (isAction(entity)) {
-      return entity.actionId;
-    }
-  }, []);
+      if (isWidget(entity)) {
+        return entity.widgetId;
+      } else if (isAction(entity)) {
+        return entity.actionId;
+      }
+    },
+    [dataTree],
+  );
 
   const entityDependencies = useMemo(() => {
     if (guidedTour) return null;
     return getDependenciesFromInverseDependencies(inverseDependencyMap, name);
   }, [name, inverseDependencyMap, guidedTour]);
 
-  const dependencyOptions =
-    entityDependencies?.directDependencies.map((e) => ({
-      label: e,
-      value: getEntityId(e) ?? e,
-    })) ?? [];
-  const inverseDependencyOptions =
-    entityDependencies?.inverseDependencies.map((e) => ({
-      label: e,
-      value: getEntityId(e),
-    })) ?? [];
+  const dependencyOptions = useMemo(
+    () =>
+      entityDependencies?.directDependencies.map((e) => ({
+        label: e,
+        value: getEntityId(e) ?? e,
+      })) ?? [],
+    [entityDependencies?.directDependencies, getEntityId],
+  );
+  const inverseDependencyOptions = useMemo(
+    () =>
+      entityDependencies?.inverseDependencies.map((e) => ({
+        label: e,
+        value: getEntityId(e),
+      })) ?? [],
+    [entityDependencies?.inverseDependencies, getEntityId],
+  );
 
   return {
     dependencyOptions,

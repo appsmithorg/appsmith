@@ -7,16 +7,12 @@ import { base64ToBlob, createBlobUrl } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { FileDataTypes } from "widgets/constants";
+import { DefaultMobileCameraTypes, FileDataTypes } from "widgets/constants";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import CameraComponent from "../component";
 import type { CameraMode } from "../constants";
-import {
-  CameraModeTypes,
-  DefaultMobileCameraTypes,
-  MediaCaptureStatusTypes,
-} from "../constants";
+import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import {
   BACK_CAMERA_LABEL,

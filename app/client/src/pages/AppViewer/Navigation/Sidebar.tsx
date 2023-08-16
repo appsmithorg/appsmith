@@ -129,7 +129,7 @@ export function Sidebar(props: SidebarProps) {
     const suffix = ")";
 
     if (isPreviewMode) {
-      prefix += theme.smallHeaderHeight;
+      prefix += `${theme.smallHeaderHeight} - ${theme.bottomBarHeight}`;
     } else if (isAppSettingsPaneWithNavigationTabOpen) {
       // We deduct 64px as well since it is the margin coming from "m-8" class from tailwind
       prefix += `${theme.smallHeaderHeight} - ${theme.bottomBarHeight} - 64px`;
