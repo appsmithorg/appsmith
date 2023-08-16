@@ -114,6 +114,8 @@ export const SettingCategories = {
   ACCESS_CONTROL: "access-control",
   PROVISIONING: "provisioning",
   BRANDING: "branding",
+  SAML_AUTH: "saml-auth",
+  OIDC_AUTH: "oidc-auth",
 };
 
 export enum CategoryType {
