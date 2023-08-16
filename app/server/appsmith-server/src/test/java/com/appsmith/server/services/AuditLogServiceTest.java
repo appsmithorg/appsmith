@@ -10,7 +10,6 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
@@ -3578,11 +3577,8 @@ public class AuditLogServiceTest {
         testDatasource.setWorkspaceId(createdWorkspace.getId());
         testDatasource.setName("CRUD-Page-Table-DS");
         datasourceConfiguration.setUrl("http://test.com");
-        testDatasource.setDatasourceConfiguration(datasourceConfiguration);
-
-        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         testDatasource.setDatasourceStorages(storages);
 
         datasourceService

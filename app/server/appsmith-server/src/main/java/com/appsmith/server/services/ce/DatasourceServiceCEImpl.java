@@ -34,7 +34,6 @@ import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ObjectUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -58,6 +57,7 @@ import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
+import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.FALSE;
@@ -78,7 +78,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final DatasourceContextService datasourceContextService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
-    private final DatasourceStorageService datasourceStorageService;
+    protected final DatasourceStorageService datasourceStorageService;
     private final AnalyticsService analyticsService;
     private final EnvironmentPermission environmentPermission;
 
@@ -196,7 +196,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
                     return datasourceStorageService.create(datasourceStorage);
                 })
-                .map(DatasourceStorageDTO::new)
+                .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
                 .collectMap(DatasourceStorageDTO::getEnvironmentId)
                 .map(savedStorages -> {
                     savedDatasource.setDatasourceStorages(savedStorages);
@@ -228,7 +228,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                 null)
                         .map(trueEnvironmentId -> {
                             datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
-                            DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+                            DatasourceStorage datasourceStorage =
+                                    datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(
+                                            datasourceStorageDTO);
                             datasourceStorage.prepareTransientFields(savedDatasource);
                             storagesToBeSaved.put(trueEnvironmentId, datasourceStorage);
                             return datasourceStorage;
@@ -325,12 +327,13 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             String trueEnvironmentId = tuple2.getT2();
 
             datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
-            DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+            DatasourceStorage datasourceStorage =
+                    datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
             datasourceStorage.prepareTransientFields(dbDatasource);
 
             return datasourceStorageService
                     .updateDatasourceStorage(datasourceStorage, activeEnvironmentId, Boolean.TRUE)
-                    .map(DatasourceStorageDTO::new)
+                    .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
                     .map(datasourceStorageDTO1 -> {
                         dbDatasource.getDatasourceStorages().put(trueEnvironmentId, datasourceStorageDTO1);
                         return dbDatasource;
@@ -414,7 +417,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Mono<DatasourceTestResult> testDatasource(
             DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId) {
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+        DatasourceStorage datasourceStorage =
+                datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
         Mono<DatasourceStorage> datasourceStorageMono;
 
         // Ideally there should also be a check for missing environmentId,
@@ -560,9 +564,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         return repository.findById(id).flatMap(datasource -> {
             return datasourceStorageService
                     .findByDatasource(datasource)
-                    .collectMap(
-                            datasourceStorage -> datasourceStorage.getEnvironmentId(),
-                            datasourceStorage -> new DatasourceStorageDTO(datasourceStorage))
+                    .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
+                    .collectMap(DatasourceStorageDTO::getEnvironmentId)
                     .map(storages -> {
                         datasource.setDatasourceStorages(storages);
                         return datasource;
@@ -577,7 +580,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     .findByDatasourceAndEnvironmentId(datasource, environmentId)
                     .map(storage -> {
                         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                        storages.put(environmentId, new DatasourceStorageDTO(storage));
+                        storages.put(
+                                environmentId,
+                                datasourceStorageService.createDatasourceStorageDTOFromDatasourceStorage(storage));
                         datasource.setDatasourceStorages(storages);
                         return datasource;
                     });
@@ -624,7 +629,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         .findByDatasource(datasource)
                         .publishOn(Schedulers.boundedElastic())
                         .flatMap(datasourceStorageService::populateHintMessages)
-                        .map(DatasourceStorageDTO::new)
+                        .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
                         .collectMap(DatasourceStorageDTO::getEnvironmentId)
                         .flatMap(datasourceStorages -> {
                             datasource.setDatasourceStorages(datasourceStorages);
@@ -682,17 +687,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendDeleteEvent(datasource, analyticsProperties);
                 });
-    }
-
-    @Override
-    public Map<String, Object> getAnalyticsProperties(Datasource datasource) {
-        Map<String, Object> analyticsProperties = new HashMap<>();
-        analyticsProperties.put("orgId", datasource.getWorkspaceId());
-        analyticsProperties.put("pluginName", datasource.getPluginName());
-        analyticsProperties.put("dsName", datasource.getName());
-        analyticsProperties.put("dsIsTemplate", ObjectUtils.defaultIfNull(datasource.getIsTemplate(), ""));
-        analyticsProperties.put("dsIsMock", ObjectUtils.defaultIfNull(datasource.getIsMock(), ""));
-        return analyticsProperties;
     }
 
     /**
@@ -766,7 +760,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         if (hasText(datasourceStorage.getEnvironmentId())) {
             datasource
                     .getDatasourceStorages()
-                    .put(datasourceStorage.getEnvironmentId(), new DatasourceStorageDTO(datasourceStorage));
+                    .put(
+                            datasourceStorage.getEnvironmentId(),
+                            datasourceStorageService.createDatasourceStorageDTOFromDatasourceStorage(
+                                    datasourceStorage));
         }
 
         return datasource;

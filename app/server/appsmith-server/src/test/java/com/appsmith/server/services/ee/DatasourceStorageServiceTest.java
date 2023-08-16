@@ -74,7 +74,8 @@ public class DatasourceStorageServiceTest {
         renderedConfiguration.setHeaders(List.of(renderedHeader));
 
         String environmentId = "mockEnvironmentId";
-        DatasourceStorage mockStorage = new DatasourceStorage(testDatasource, environmentId);
+        DatasourceStorage mockStorage =
+                datasourceStorageService.createDatasourceStorageFromDatasource(testDatasource, environmentId);
         Mockito.when(variableReplacementService.replaceValue(Mockito.any())).thenReturn(Mono.just(renderedValue));
         Mockito.when(variableReplacementService.replaceAll(Mockito.any(AppsmithDomain.class)))
                 .thenReturn(Mono.just(renderedConfiguration));

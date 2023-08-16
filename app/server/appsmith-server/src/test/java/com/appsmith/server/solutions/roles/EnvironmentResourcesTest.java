@@ -2,7 +2,6 @@ package com.appsmith.server.solutions.roles;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
@@ -351,10 +350,10 @@ public class EnvironmentResourcesTest {
         Plugin installed_plugin =
                 pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
-        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environment.getId());
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environment.getId(), new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                environment.getId(),
+                new DatasourceStorageDTO(null, environment.getId(), new DatasourceConfiguration()));
         datasource.setDatasourceStorages(storages);
         Datasource savedDs = datasourceService.create(datasource).block();
 

@@ -5,7 +5,6 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.PluginType;
@@ -233,9 +232,8 @@ public class WorkspaceResourcesTest {
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(toCreate, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
         toCreate.setDatasourceStorages(storages);
 
         createdDatasource = datasourceService.create(toCreate).block();
@@ -641,14 +639,13 @@ public class WorkspaceResourcesTest {
         Plugin installed_plugin =
                 pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
-        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
         datasource.setWorkspaceId(createdWorkspace1.getId());
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(createdWorkspace1.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, new DatasourceConfiguration()));
         datasource.setDatasourceStorages(storages);
         Datasource createdDatasource1 = datasourceService.create(datasource).block();
 
@@ -1820,13 +1817,11 @@ public class WorkspaceResourcesTest {
         Plugin installed_plugin =
                 pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
-        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(createdWorkspace1.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, new DatasourceConfiguration()));
         datasource.setDatasourceStorages(storages);
         Datasource createdDatasource = datasourceService.create(datasource).block();
 
