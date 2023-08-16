@@ -16,6 +16,7 @@ const _Flex = (props: FlexProps, ref: React.Ref<HTMLDivElement>) => {
     flexShrink,
     gap,
     height,
+    id,
     isContainer = false,
     isHidden = false,
     justifyContent,
@@ -38,7 +39,6 @@ const _Flex = (props: FlexProps, ref: React.Ref<HTMLDivElement>) => {
     rowGap,
     width,
     wrap,
-    ...rest
   } = props;
 
   const renderFlex = () => {
@@ -76,8 +76,8 @@ const _Flex = (props: FlexProps, ref: React.Ref<HTMLDivElement>) => {
         $rowGap={rowGap}
         $width={width}
         $wrap={wrap}
+        id={id}
         ref={ref}
-        {...rest}
       >
         {children}
       </StyledFlex>
