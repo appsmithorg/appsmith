@@ -1,5 +1,6 @@
-import { difference, some } from "lodash";
+import { difference } from "lodash";
 import { isChildPropertyPath } from "utils/DynamicBindingUtils";
+import { sort } from "fast-sort";
 
 export type TDependencies = Map<string, Set<string>>;
 export default class DependencyMap {
@@ -150,7 +151,10 @@ export default class DependencyMap {
    */
 
   addNodes = (nodes: Record<string, true>, strict = true) => {
-    const nodesToAdd = Object.keys(nodes);
+    const nodesToAdd = strict
+      ? Object.keys(nodes)
+      : sort(Object.keys(nodes)).desc((node) => node.split(".").length);
+
     let didUpdateGraph = false;
     for (const newNode of nodesToAdd) {
       if (this.#nodes.has(newNode)) continue;
@@ -169,13 +173,7 @@ export default class DependencyMap {
           .#invalidDependenciesInverse) {
           if (
             !nodesToAdd.includes(invalidNode) &&
-            isChildPropertyPath(newNode, invalidNode, true) &&
-            !some(
-              nodesToAdd,
-              (node) =>
-                isChildPropertyPath(newNode, node, true) &&
-                isChildPropertyPath(node, invalidNode, true),
-            )
+            isChildPropertyPath(newNode, invalidNode, true)
           ) {
             dependants.forEach((dependant) => {
               nodesThatAlreadyDependedOnThis.add(dependant);
