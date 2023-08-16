@@ -2,5 +2,7 @@
 #cypress/e2e/**/**/*
 
 # To run only limited tests - give the spec names in below format:
-#cypress/e2e/Regression/ClientSide/Widgets/Dropdown/Dropdown_onOptionChange_spec.js
-cypress/e2e/Regression/ClientSide/BugTests/DatasourceSchema_spec.ts
+cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+
+
+

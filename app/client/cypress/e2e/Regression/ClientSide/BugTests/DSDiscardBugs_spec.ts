@@ -19,7 +19,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       _.agHelper.Sleep();
       _.dataSources.EditDatasource();
       _.agHelper.GoBack();
-      _.agHelper.AssertElementVisible(_.dataSources._activeDS);
+      _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
       _.dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
   });
@@ -43,7 +43,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // as those are not initialized by user
       _.dataSources.EditDatasource();
       _.agHelper.GoBack();
-      _.agHelper.AssertElementVisible(_.dataSources._activeDS);
+      _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
 
       // Edit DS from active tab and add oauth2 details
       _.dataSources.EditDSFromActiveTab(dsName);
@@ -61,7 +61,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // as those are not initialized by user
       _.dataSources.EditDatasource();
       _.agHelper.GoBack();
-      _.agHelper.AssertElementVisible(_.dataSources._activeDS);
+      _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
 
       _.dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
@@ -165,7 +165,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // validate the input field value still remains as the saved value
       _.agHelper.ValidateFieldInputValue(
         _.dataSources._host,
-        _.tedTestConfig.dsValues.staging.mongo_host,
+        _.tedTestConfig.dsValues.Staging.mongo_host,
       );
 
       _.dataSources.DeleteDatasouceFromActiveTab(dsName);

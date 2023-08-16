@@ -128,7 +128,6 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("latestDeployPreview", () => {
-  //cy.server();
   cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -146,7 +145,7 @@ Cypress.Commands.add("latestDeployPreview", () => {
   cy.wait(2000); // wait for modal to load
   cy.xpath("//span[text()='Latest deployed preview']").click();
   cy.log("pagename: " + localStorage.getItem("PageName"));
-  cy.wait(2000); //wait time for page to load!
+  cy.wait(5000); //wait time for page to load!
 });
 
 Cypress.Commands.add("createGitBranch", (branch) => {

@@ -146,7 +146,7 @@ describe("AForce - Community Issues page validations", function () {
 
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     //propPane.EnterJSContext("Default search text", "Question", false);
-    propPane.TypeTextIntoField("Default search text", "Quest");
+    propPane.TypeTextIntoField("Default search text", "Quest", true, false);
 
     deployMode.DeployApp();
     table.AssertSearchText("Quest", 2);
@@ -264,7 +264,7 @@ describe("AForce - Community Issues page validations", function () {
     // table.WaitUntilTableLoad(0,0,"v2")
 
     cy.get(table._addIcon).closest("div").click();
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
     agHelper.SelectFromDropDown("Suggestion", "t--modal-widget");
 
     cy.get(locators._inputWidgetv1InDeployed)
@@ -310,7 +310,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
     agHelper.Sleep(2000);
     table.SelectTableRow(0, 1, true, "v2");
-    agHelper.AssertElementVisible(locators._widgetInDeployed("tabswidget"));
+    agHelper.AssertElementVisibility(locators._widgetInDeployed("tabswidget"));
     agHelper
       .GetNClick(locators._inputWidgetv1InDeployed, 0, true, 0)
       .type("-updating title");
@@ -375,7 +375,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.Sleep(2000);
     agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
     table.SelectTableRow(0, 0, true, "v2");
-    agHelper.AssertElementVisible(locators._widgetInDeployed("tabswidget"));
+    agHelper.AssertElementVisibility(locators._widgetInDeployed("tabswidget"));
     agHelper.Sleep();
     cy.get(table._trashIcon).closest("div").click({ force: true });
     agHelper.WaitUntilEleDisappear(locators._widgetInDeployed("tabswidget"));

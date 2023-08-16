@@ -14,6 +14,7 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import { setEvalContext } from "./evaluate";
+import { generateOptimisedUpdatesAndSetPrevState } from "./helpers";
 
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
@@ -31,7 +32,7 @@ export function evalTreeWithChanges(
   const dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [...metaUpdates];
   let staleMetaIds: string[] = [];
-  const pathsToClearErrorsFor: any[] = [];
+  const removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let unevalTree: UnEvalTree = {};
   let configTree: ConfigTree = {};
 
@@ -63,17 +64,26 @@ export function evalTreeWithChanges(
 
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
       evalProps: dataTreeEvaluator.evalProps,
+      identicalEvalPathsPatches:
+        dataTreeEvaluator.getEvalPathsIdenticalToState(),
     });
 
-    evalMetaUpdates = [...evalMetaUpdates, ...updateResponse.evalMetaUpdates];
+    /** Make sure evalMetaUpdates is sanitized to prevent postMessage failure */
+    evalMetaUpdates = JSON.parse(
+      JSON.stringify([...evalMetaUpdates, ...updateResponse.evalMetaUpdates]),
+    );
 
     staleMetaIds = updateResponse.staleMetaIds;
     unevalTree = dataTreeEvaluator.getOldUnevalTree();
     configTree = dataTreeEvaluator.oldConfigTree;
   }
 
-  const evalTreeResponse: EvalTreeResponseData = {
+  const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
+    dataTreeEvaluator,
+  );
+  const evalTreeResponse: EvalTreeResponseData = {
+    updates,
     dependencies,
     errors,
     evalMetaUpdates,
@@ -85,7 +95,7 @@ export function evalTreeWithChanges(
     isCreateFirstTree,
     configTree,
     staleMetaIds,
-    pathsToClearErrorsFor,
+    removedPaths,
     isNewWidgetAdded: false,
     undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
     jsVarsCreatedEvent: [],

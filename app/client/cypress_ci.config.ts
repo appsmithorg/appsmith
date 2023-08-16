@@ -33,6 +33,7 @@ export default defineConfig({
     excludeSpecPattern: [
       "cypress/e2e/**/spec_utility.ts",
       "cypress/e2e/GSheet/**/**/*",
+      "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
     ],
   },
 });

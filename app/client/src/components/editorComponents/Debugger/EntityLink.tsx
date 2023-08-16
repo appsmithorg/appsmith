@@ -37,7 +37,13 @@ function ActionLink(props: EntityLinkProps) {
         entityType: actionType,
       });
     }
-  }, [action]);
+  }, [
+    action,
+    props.propertyPath,
+    props.errorType,
+    props.errorSubType,
+    props.appsmithErrorCode,
+  ]);
 
   return (
     <DebuggerEntityLink
@@ -78,7 +84,13 @@ function JSCollectionLink(props: EntityLinkProps) {
         entityType: "JSACTION",
       });
     }
-  }, [props.id, props.propertyPath]);
+  }, [
+    props.id,
+    props.propertyPath,
+    props.errorType,
+    props.errorSubType,
+    props.appsmithErrorCode,
+  ]);
   return (
     <DebuggerEntityLink
       entityType={props.type}
@@ -107,7 +119,13 @@ function WidgetLink(props: EntityLinkProps) {
       appsmithErrorCode: props.appsmithErrorCode,
       entityType: "WIDGET",
     });
-  }, [props.id, props.propertyPath]);
+  }, [
+    props.id,
+    props.propertyPath,
+    props.errorType,
+    props.errorSubType,
+    props.appsmithErrorCode,
+  ]);
 
   return (
     <DebuggerEntityLink

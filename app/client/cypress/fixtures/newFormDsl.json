@@ -95,6 +95,7 @@
                 "sourceData": "",
                 "optionLabel": "label",
                 "optionValue": "value",
+                "dynamicPropertyPathList": [{"key": "sourceData"}],
                 "widgetName": "Dropdown1",
                 "type": "SELECT_WIDGET",
                 "isLoading": false,
@@ -135,6 +136,7 @@
                 "leftColumn": 10,
                 "optionLable": "label",
                 "optionValue": "value",
+                "dynamicPropertyPathList": [{"key": "sourceData"}],
                 "sourceData": [
                   {
                     "label": "Hashirama Senju",

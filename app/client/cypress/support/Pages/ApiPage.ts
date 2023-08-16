@@ -77,6 +77,9 @@ export class ApiPage {
   _nextCursorValue = ".t--apiFormPaginationNextCursorValue";
   _fileOperation = "[data-testid='t--file-operation']";
   _addMore = ".t--addApiHeader";
+  public _editorDS = ".t--datasource-editor";
+  public _addMoreHeaderFieldButton = ".t--addApiHeader";
+  public jsonBody = `.t--apiFormPostBody`;
 
   CreateApi(
     apiName = "",
@@ -131,7 +134,9 @@ export class ApiPage {
       propFieldName: this._resourceUrl,
       directInput: true,
       inputFieldName: "",
+      apiOrQuery: "api",
     });
+    //this.agHelper.GetNClick(this._resourceUrl);
     this.agHelper.Sleep();
     if (evaluatedValue) {
       this.agHelper.VerifyEvaluatedValue(evaluatedValue);
@@ -291,10 +296,13 @@ export class ApiPage {
     this.agHelper.ValidateCodeEditorContent(this._paramValue(0), param.value);
   }
 
-  ValidateHeaderParams(header: { key: string; value: string }) {
+  ValidateHeaderParams(header: { key: string; value: string }, index = 0) {
     this.SelectPaneTab("Headers");
-    this.agHelper.ValidateCodeEditorContent(this._headerKey(0), header.key);
-    this.agHelper.ValidateCodeEditorContent(this._headerValue(0), header.value);
+    this.agHelper.ValidateCodeEditorContent(this._headerKey(index), header.key);
+    this.agHelper.ValidateCodeEditorContent(
+      this._headerValue(index),
+      header.value,
+    );
   }
 
   ValidateImportedHeaderParams(
@@ -401,7 +409,7 @@ export class ApiPage {
   }
 
   ResponseStatusCheck(statusCode: string) {
-    this.agHelper.AssertElementVisible(this._responseStatus);
+    this.agHelper.AssertElementVisibility(this._responseStatus);
     this.agHelper.GetNAssertContains(this._responseStatus, statusCode);
   }
   public SelectPaginationTypeViaIndex(index: number) {
@@ -430,7 +438,7 @@ export class ApiPage {
   }
 
   AssertEmptyHeaderKeyValuePairsPresent(index: number) {
-    this.agHelper.AssertElementVisible(this._headerKey(index));
-    this.agHelper.AssertElementVisible(this._headerValue(index));
+    this.agHelper.AssertElementVisibility(this._headerKey(index));
+    this.agHelper.AssertElementVisibility(this._headerValue(index));
   }
 }

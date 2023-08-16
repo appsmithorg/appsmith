@@ -11,10 +11,8 @@ import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -51,6 +49,7 @@ import static com.appsmith.server.constants.Url.APPLICATION_URL;
 import static com.appsmith.server.constants.Url.ASSET_URL;
 import static com.appsmith.server.constants.Url.CUSTOM_JS_LIB_URL;
 import static com.appsmith.server.constants.Url.PAGE_URL;
+import static com.appsmith.server.constants.Url.PRODUCT_ALERT;
 import static com.appsmith.server.constants.Url.TENANT_URL;
 import static com.appsmith.server.constants.Url.THEME_URL;
 import static com.appsmith.server.constants.Url.USAGE_PULSE_URL;
@@ -120,14 +119,12 @@ public class SecurityConfig {
 
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @Bean
-    @ConditionalOnExpression(value = "'${appsmith.internal.password}'.length() > 0")
     public SecurityWebFilterChain internalWebFilterChain(ServerHttpSecurity http) {
         return http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
                 .authorizeExchange(authorizeExchangeSpec ->
                         authorizeExchangeSpec.anyExchange().authenticated())
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationManager(authentication -> {
-                    if (isAuthorizedToAccessInternal(
-                            authentication.getCredentials().toString())) {
+                    if (INTERNAL_PASSWORD.equals(authentication.getCredentials().toString())) {
                         return Mono.just(UsernamePasswordAuthenticationToken.authenticated(
                                 authentication.getPrincipal(),
                                 authentication.getCredentials(),
@@ -150,6 +147,16 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .addFilterAt(new CSRFFilter(), SecurityWebFiltersOrder.CSRF)
+                // Default security headers configuration from
+                // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html
+                .headers()
+                // Disabled here because add it in NGINX instead.
+                .contentTypeOptions()
+                .disable()
+                // Disabled because we use CSP's `frame-ancestors` instead.
+                .frameOptions()
+                .disable()
+                .and()
                 .anonymous()
                 .principal(createAnonymousUser())
                 .and()
@@ -182,9 +189,10 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"))
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PRODUCT_ALERT + "/alert"))
                 .permitAll()
-                .pathMatchers("/public/**", "/oauth2/**", "/actuator/**")
+                .pathMatchers("/public/**", "/oauth2/**")
                 .permitAll()
                 .anyExchange()
                 .authenticated()
@@ -213,11 +221,6 @@ public class SecurityConfig {
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
                 .and()
                 .build();
-    }
-
-    private boolean isAuthorizedToAccessInternal(String password) {
-        // Either configured password is empty, or it's equal to what we received.
-        return StringUtils.isEmpty(INTERNAL_PASSWORD) || INTERNAL_PASSWORD.equals(password);
     }
 
     /**

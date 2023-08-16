@@ -32,7 +32,7 @@ interface RunQueryParams {
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private table = ObjectsRegistry.Table;
-  private ee = ObjectsRegistry.EntityExplorer;
+  private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   private apiPage = ObjectsRegistry.ApiPage;
   private tedTestConfig = ObjectsRegistry.TEDTestConfigs;
@@ -62,7 +62,7 @@ export class DataSources {
   private _sectionState = (name: string) =>
     this._section(name) +
     "/following-sibling::div/div[@class ='bp3-collapse-body']";
-  private _password =
+  public _password =
     "input[name $= '.datasourceConfiguration.authentication.password']";
   private defaultDatabaseName =
     "input[name*='datasourceConfiguration.connection.defaultDatabaseName']";
@@ -92,6 +92,7 @@ export class DataSources {
     ddTitle +
     "']/following-sibling::span//button";
   _reconnectModal = "[data-testid='reconnect-datasource-modal']";
+  _reconnect = ".t--reconnect-btn";
   _dropdown = (ddTitle: string) =>
     "//span[contains(@title, '" +
     ddTitle +
@@ -106,7 +107,8 @@ export class DataSources {
   _selectDatasourceDropdown = "[data-testid=t--datasource-dropdown]";
   _selectTableDropdown =
     "[data-testid=t--table-dropdown] .rc-select-selection-item";
-  _selectSheetNameDropdown = "[data-testid=t--sheetName-dropdown]";
+  _selectSheetNameDropdown =
+    "[data-testid=t--sheetName-dropdown] .rc-select-selector";
   _selectTableHeaderIndexInput = "[data-testid=t--tableHeaderIndex]";
   _dropdownOption = ".rc-select-item-option-content";
   _generatePageBtn = "[data-testid=t--generate-page-form-submit]";
@@ -174,8 +176,7 @@ export class DataSources {
   };
   _queryDoc = ".t--datasource-documentation-link";
   _globalSearchModal = ".t--global-search-modal";
-  _globalSearchInput = (inputText: string) =>
-    "//input[@id='global-search'][@value='" + inputText + "']";
+  _globalSearchInput = ".t--global-search-input";
   _gsScopeDropdown =
     "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
   _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
@@ -193,7 +194,7 @@ export class DataSources {
     dbName +
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//p[text()='Schema not available']";
   // Authenticated API locators
-  private _authApiDatasource = ".t--createAuthApiDatasource";
+  public _authApiDatasource = ".t--createAuthApiDatasource";
   private _authType = "[data-testid=authType]";
   private _oauth2 = ".rc-select-item-option:contains('OAuth 2.0')";
   private _accessTokenUrl =
@@ -208,8 +209,8 @@ export class DataSources {
   private _grantType = "[data-testid='authentication.grantType']";
   private _authorizationURL =
     "[data-testid='authentication.authorizationUrl'] input";
-  private _consent = '[name="confirm"]';
-  private _consentSubmit = "//button[text()='Submit']";
+  _consent = '[name="confirm"]';
+  _consentSubmit = "//button[text()='Submit']";
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
@@ -237,14 +238,20 @@ export class DataSources {
     "//p[contains(text(),'" +
     ddName +
     "')]/ancestor::div[@class='form-config-top']/following-sibling::div//div[contains(@class, 'rc-select-multiple')]";
-  private _datasourceTableSchemaInQueryEditor =
-    ".datasourceStructure-query-editor";
+  private _datasourceTableSchemaInQueryEditor = (schemaName: string) =>
+    `//div[contains(@class, 'datasourceStructure-query-editor')]//div[contains(@class, 't--entity-name')][text()='${schemaName}']`;
   private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
   private _datasourceStructureHeader = ".datasourceStructure-header";
   private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
   private _datasourceStructureSearchInput = ".datasourceStructure-search input";
   _jsModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
   public _queryEditorCollapsibleIcon = ".collapsible-icon";
+  _globalSearchTrigger = ".t--global-search-modal-trigger";
+  _globalSearchOptions = ".t--searchHit";
+  private _dataSourceInfo = (dsName: string) =>
+    "//span[text()='" +
+    dsName +
+    "']/ancestor::div[contains(@class, 't--datasource')]//div[@data-testid='datasource-collapse-wrapper']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -252,7 +259,7 @@ export class DataSources {
   }
 
   public GeneratePageWithDB(datasourceName: any, tableName: string) {
-    this.ee.AddNewPage("Generate page with data");
+    this.entityExplorer.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClickByContains(
       this.locator._dropdownText,
@@ -268,7 +275,7 @@ export class DataSources {
   }
 
   public GeneratePageWithMockDB() {
-    this.ee.AddNewPage("Generate page with data");
+    this.entityExplorer.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClickByContains(
       this._dropdownOption,
@@ -391,7 +398,7 @@ export class DataSources {
   }
 
   public NavigateToDSCreateNew() {
-    this.ee.HoverOnEntityItem("Datasources");
+    this.entityExplorer.HoverOnEntityItem("Datasources");
     Cypress._.times(2, () => {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
@@ -429,7 +436,7 @@ export class DataSources {
       this.tedTestConfig.dsValues[environment].postgres_port.toString(),
     );
     this.agHelper.UpdateInputValue(this._host, hostAddress);
-    cy.get(this._databaseName).clear().type(databaseName);
+    this.agHelper.ClearNType(this._databaseName, databaseName);
     cy.get(this._username).type(
       username == ""
         ? this.tedTestConfig.dsValues[environment].postgres_username
@@ -499,9 +506,10 @@ export class DataSources {
       this._port,
       this.tedTestConfig.dsValues[environment].mongo_port.toString(),
     );
-    cy.get(this._databaseName)
-      .clear()
-      .type(this.tedTestConfig.dsValues[environment].mongo_databaseName);
+    this.agHelper.ClearNType(
+      this._databaseName,
+      this.tedTestConfig.dsValues[environment].mongo_databaseName,
+    );
   }
 
   public FillMySqlDSForm(
@@ -520,7 +528,7 @@ export class DataSources {
       this._port,
       this.tedTestConfig.dsValues[environment].mysql_port.toString(),
     );
-    cy.get(this._databaseName).clear().type(databaseName);
+    this.agHelper.ClearNType(this._databaseName, databaseName);
     this.agHelper.UpdateInputValue(
       this._username,
       this.tedTestConfig.dsValues[environment].mysql_username,
@@ -801,9 +809,11 @@ export class DataSources {
 
   public DeleteDSDirectly(
     expectedRes: number | number[] = 200 || 409 || [200 | 409],
+    toNavigateToDSInfoPage = true,
   ) {
-    this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
-    cy.get(this._contextMenuDSReviewPage).click({ force: true });
+    toNavigateToDSInfoPage &&
+      this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
+    this.agHelper.GetNClick(this._contextMenuDSReviewPage);
     this.agHelper.GetNClick(this._contextMenuDelete);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
     this.ValidateDSDeletion(expectedRes);
@@ -813,8 +823,8 @@ export class DataSources {
     dsName: string,
     expectedRes: number | number[] = 200,
   ) {
-    this.ee.SelectEntityByName(dsName, "Datasources");
-    this.ee.ActionContextMenuByEntityName({
+    this.entityExplorer.SelectEntityByName(dsName, "Datasources");
+    this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: dsName,
       action: "Delete",
       entityType: EntityItems.Datasource,
@@ -848,13 +858,17 @@ export class DataSources {
     });
   }
 
-  public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {
+  public NavigateFromActiveDS(
+    datasourceName: string,
+    createQuery: boolean,
+    validateTableDropdown = true,
+  ) {
     const btnLocator =
       createQuery == true
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
-    this.AssertDSActive(datasourceName)
+    this.AssertDSActive(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
       .then(($element) => {
@@ -865,21 +879,17 @@ export class DataSources {
           });
       });
     this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
-    createQuery &&
-      this.agHelper.AssertElementVisible(
-        this.locator._spanButton("Run"),
-        0,
-        20000,
-      );
-    !createQuery &&
+    createQuery && this.AssertRunButtonVisibility();
+    validateTableDropdown &&
+      !createQuery &&
       this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
   }
 
-  public AssertDSActive(dsName: string) {
-    this.ee.NavigateToSwitcher("Explorer", 0, true);
-    this.ee.ExpandCollapseEntity("Datasources", false);
-    //this.ee.SelectEntityByName(datasourceName, "Datasources");
-    //this.ee.ExpandCollapseEntity(datasourceName, false);
+  public AssertDSActive(dsName: string | RegExp) {
+    this.entityExplorer.NavigateToSwitcher("Explorer", 0, true);
+    this.entityExplorer.ExpandCollapseEntity("Datasources", false);
+    //this.entityExplorer.SelectEntityByName(datasourceName, "Datasources");
+    //this.entityExplorer.ExpandCollapseEntity(datasourceName, false);
     this.NavigateToActiveTab();
     return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
@@ -891,7 +901,7 @@ export class DataSources {
     if (toNavigateToActive) this.NavigateToActiveTab();
     cy.get(this._datasourceCard, { withinSubject: null })
       .find(this._activeDS)
-      .contains(datasourceName)
+      .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
       .closest(this._datasourceCard)
@@ -901,21 +911,13 @@ export class DataSources {
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
-    this.agHelper.AssertElementVisible(
-      this.locator._spanButton("Run"),
-      0,
-      20000,
-    );
+    this.AssertRunButtonVisibility();
   }
 
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
-    this.agHelper.AssertElementVisible(
-      this.locator._spanButton("Run"),
-      0,
-      20000,
-    );
+    this.AssertRunButtonVisibility();
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
       this.EnterQuery(query);
@@ -923,21 +925,37 @@ export class DataSources {
     }
   }
 
-  public CreateQueryForDS(datasourceName: string, query = "", queryName = "") {
+  private AssertRunButtonVisibility() {
+    this.agHelper.AssertElementVisibility(
+      this.locator._spanButton("Run"),
+      true,
+      0,
+      20000,
+    );
+  }
+
+  public CreateQueryForDS(
+    datasourceName: string,
+    query = "",
+    queryName = "",
+    cancelEditDs = true,
+  ) {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
-      .contains(datasourceName)
+      .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
       .click();
     this.agHelper.Sleep(); //for the Datasource page to open
-    this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
+    if (cancelEditDs) {
+      this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
+    }
     this.CreateQueryAfterDSSaved(query, queryName);
   }
 
   DeleteQuery(queryName: string) {
-    this.ee.ExpandCollapseEntity("Queries/JS");
-    this.ee.ActionContextMenuByEntityName({
+    this.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: queryName,
       action: "Delete",
       entityType: EntityItems.Query,
@@ -987,26 +1005,38 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
+  public AssertReconnectDS(datasourceName: string) {
+    cy.get(this._datasourceCard, { withinSubject: null })
+      .find(this._activeDS)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .closest(this._datasourceCard)
+      .scrollIntoView()
+      .within(() => {
+        this.agHelper.AssertElementVisibility(this._reconnect, true, 0, 20000);
+      });
+  }
   public ReconnectModalValidation(
     dbName: string,
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
   ) {
     this.WaitForReconnectModalToAppear();
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._activeDSListReconnectModal(dsName),
     );
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._activeDSListReconnectModal(dbName),
     );
 
     //Checking if tooltip for Ds name & icon is present (useful in cases of long name for ds)
     this.agHelper.AssertText(this._reconnectModalDSToolTip, "text", dbName);
-    this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
+    this.agHelper.AssertElementVisibility(this._reconnectModalDSToopTipIcon);
   }
 
   public WaitForReconnectModalToAppear() {
-    this.agHelper.AssertElementVisible(this._reconnectModal);
-    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
+    this.agHelper.AssertElementVisibility(this._reconnectModal);
+    this.agHelper.AssertElementVisibility(this._testDs); //Making sure modal is fully loaded
   }
 
   public ReconnectDSbyType(
@@ -1074,7 +1104,7 @@ export class DataSources {
 
   public AssertQueryResponseHeaders(columnHeaders: string[]) {
     columnHeaders.forEach(($header) =>
-      this.agHelper.AssertElementVisible(this._queryResponseHeader($header)),
+      this.agHelper.AssertElementVisibility(this._queryResponseHeader($header)),
     );
   }
 
@@ -1113,7 +1143,11 @@ export class DataSources {
   }
 
   public EnterQuery(query: string, sleep = 500) {
-    this.agHelper.UpdateCodeInput(this.locator._codeEditorTarget, query);
+    this.agHelper.UpdateCodeInput(
+      this.locator._codeEditorTarget,
+      query,
+      "query",
+    );
     this.agHelper.AssertAutoSave();
     this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
     cy.wait("@saveAction");
@@ -1125,14 +1159,14 @@ export class DataSources {
   ) {
     this.RunQuery();
     tableCheck &&
-      this.agHelper.AssertElementVisible(this._queryResponse("TABLE"));
-    this.agHelper.AssertElementVisible(this._queryResponse("JSON"));
-    this.agHelper.AssertElementVisible(this._queryResponse("RAW"));
+      this.agHelper.AssertElementVisibility(this._queryResponse("TABLE"));
+    this.agHelper.AssertElementVisibility(this._queryResponse("JSON"));
+    this.agHelper.AssertElementVisibility(this._queryResponse("RAW"));
     this.CheckResponseRecordsCount(expectedRecordsCount);
   }
 
   public CheckResponseRecordsCount(expectedRecordCount: number) {
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._queryRecordResult(expectedRecordCount),
     );
   }
@@ -1218,7 +1252,7 @@ export class DataSources {
     sleep = 500,
   ) {
     this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
-    this.ee.CreateNewDsQuery(dsName);
+    this.entityExplorer.CreateNewDsQuery(dsName);
     if (query) {
       this.EnterQuery(query, sleep);
     }
@@ -1320,7 +1354,7 @@ export class DataSources {
     } else {
       this.SaveDatasource();
     }
-    this.ee.ActionContextMenuByEntityName({
+    this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: dataSourceName,
       action: "Refresh",
     });
@@ -1330,9 +1364,9 @@ export class DataSources {
   }
 
   public VerifyTableSchemaOnQueryEditor(schema: string) {
-    this.agHelper
-      .GetElement(this._datasourceTableSchemaInQueryEditor)
-      .contains(schema);
+    this.agHelper.AssertElementVisibility(
+      this._datasourceTableSchemaInQueryEditor(schema),
+    );
   }
 
   public VerifySchemaAbsenceInQueryEditor() {
@@ -1352,7 +1386,9 @@ export class DataSources {
 
   public VerifySchemaCollapsibleOpenState(isOpen = false) {
     if (isOpen) {
-      this.agHelper.AssertElementVisible(this._datasourceStructureSearchInput);
+      this.agHelper.AssertElementVisibility(
+        this._datasourceStructureSearchInput,
+      );
     } else {
       this.agHelper.AssertElementAbsence(this._datasourceStructureSearchInput);
     }
@@ -1360,24 +1396,22 @@ export class DataSources {
 
   public FilterAndVerifyDatasourceSchemaBySearch(
     search: string,
-    verifySearch = false,
-    filterBy: "table" | "column" = "column",
+    filterBy?: "table" | "column",
   ) {
+    this.agHelper.Sleep(2500); //for query editor to load
     this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
-
-    if (verifySearch) {
-      if (filterBy === "column") {
-        this.VerifyColumnSchemaOnQueryEditor(search);
-      } else {
-        this.VerifyTableSchemaOnQueryEditor(search);
-      }
+    this.agHelper.Sleep(); //for search result to load
+    if (filterBy === "column") {
+      this.VerifyColumnSchemaOnQueryEditor(search);
+    } else if (filterBy === "table") {
+      this.VerifyTableSchemaOnQueryEditor(search);
     }
   }
 
   public AssertDSDialogVisibility(isVisible = true) {
     if (isVisible) {
-      this.agHelper.AssertElementVisible(this._datasourceModalDoNotSave);
-      this.agHelper.AssertElementVisible(this._datasourceModalSave);
+      this.agHelper.AssertElementVisibility(this._datasourceModalDoNotSave);
+      this.agHelper.AssertElementVisibility(this._datasourceModalSave);
     } else {
       this.agHelper.AssertElementAbsence(this._datasourceModalDoNotSave);
       this.agHelper.AssertElementAbsence(this._datasourceModalSave);
@@ -1457,7 +1491,6 @@ export class DataSources {
   public FillMongoDatasourceFormWithURI(
     environment = this.tedTestConfig.defaultEnviorment,
   ) {
-    const uri = this.tedTestConfig.mongo_uri(environment);
     this.ValidateNSelectDropdown(
       "Use mongo connection string URI",
       "No",
@@ -1465,7 +1498,7 @@ export class DataSources {
     );
     this.agHelper.UpdateInputValue(
       this.locator._inputFieldByName("Connection string URI") + "//input",
-      uri,
+      this.tedTestConfig.mongo_uri(environment),
     );
   }
 
@@ -1590,29 +1623,29 @@ export class DataSources {
     );
   }
 
-  public AddSuggesstedWidget(widget: Widgets) {
+  public AddSuggestedWidget(widget: Widgets) {
     switch (widget) {
       case Widgets.Dropdown:
         this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.SELECT),
         );
         break;
       case Widgets.Table:
         this.agHelper.GetNClick(this._suggestedWidget("TABLE_WIDGET_V2"));
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TABLE),
         );
         break;
       case Widgets.Chart:
         this.agHelper.GetNClick(this._suggestedWidget("CHART_WIDGET"));
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.CHART),
         );
         break;
       case Widgets.Text:
         this.agHelper.GetNClick(this._suggestedWidget("TEXT_WIDGET"));
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TEXT),
         );
         break;
@@ -1740,5 +1773,26 @@ export class DataSources {
       .GetElement(this._jsModeSortingControl)
       .find("button[data-testid='t--sorting-add-field']")
       .click({ force: true });
+  }
+
+  public AddQueryFromGlobalSearch(datasourceName: string) {
+    this.agHelper.GetNClick(this._globalSearchTrigger);
+    this.agHelper.Sleep(500);
+    this.agHelper.TypeText(this._globalSearchInput, datasourceName);
+    this.agHelper.Sleep(500);
+    this.agHelper.GetNClickByContains(
+      this._globalSearchOptions,
+      new RegExp("^" + datasourceName + "$"),
+    );
+    this.agHelper.WaitUntilEleAppear(this._createQuery);
+    this.agHelper.GetNClick(this._createQuery);
+  }
+
+  public AssertDataSourceInfo(info: string[]) {
+    info.forEach(($infs) => {
+      this.agHelper.AssertElementVisibility(
+        this.locator._visibleTextDiv($infs),
+      );
+    });
   }
 }

@@ -181,7 +181,7 @@ describe("GSheet-Functional Tests With Selected Access", function () {
   it("5. Update a record which is not present and verify the error", () => {
     //preparing data
     const data = GSHEET_DATA[1];
-    data.rowIndex = "15";
+    data.rowIndex = `${Cypress._.random(100, 1031)}`;
 
     // add update one query and verify
     gsheetHelper.EnterBasicQueryValues(
@@ -258,7 +258,7 @@ describe("GSheet-Functional Tests With Selected Access", function () {
   });
 
   it("7. Verify Delete query", function () {
-    // Delete spreadsheet and app
+    // Delete data on the basis of row index
     gsheetHelper.EnterBasicQueryValues(
       "Delete One",
       dataSourceName,

@@ -4,9 +4,11 @@ import {
   entityExplorer,
   homePage,
   jsEditor,
+  apiPage,
+  dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe.skip("JSEditor Indendation - Visual tests", () => {
+describe("JSEditor Indendation - Visual tests", () => {
   it("6. TC 1933 - jSEditor prettify verification on cloned application", () => {
     const appname = localStorage.getItem("AppName");
     jsEditor.CreateJSObject(
@@ -340,5 +342,22 @@ myFun2: async () => {
 
     cy.get("div.CodeMirror").type("{cmd+leftArrow}");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterGoLineStartSmart5");
+  });
+
+  it("5. Bug 25325 Check if the JS Object in body field is formatted properly on save", () => {
+    apiPage.CreateApi("FirstAPI");
+    apiPage.SelectPaneTab("Body");
+    apiPage.SelectSubTab("JSON");
+    dataSources.EnterQuery(
+      `{{
+        {
+          "title": this.params.title,
+              "due": this.params.due,
+                  assignee: this.params.assignee 
+                  }
+      }}`,
+    );
+    cy.get("body").type(agHelper.isMac ? "{meta}S" : "{ctrl}S");
+    cy.get(apiPage.jsonBody).matchImageSnapshot("formattedJSONBodyAfterSave");
   });
 });

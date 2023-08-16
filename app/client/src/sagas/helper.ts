@@ -22,6 +22,9 @@ import type { Action } from "entities/Action";
 import get from "lodash/get";
 import set from "lodash/set";
 import log from "loglevel";
+import { isPlainObject, isString } from "lodash";
+import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import { klona } from "klona/lite";
 
 // function to extract all objects that have dynamic values
 export const extractFetchDynamicValueFormConfigs = (
@@ -141,14 +144,62 @@ export const enhanceRequestPayloadWithEventData = (
   try {
     switch (type) {
       case ReduxActionTypes.COPY_ACTION_INIT:
-        const actionObject = payload as Action;
+        const actionObject = klona(payload) as Action;
         const path = `${RequestPayloadAnalyticsPath}.originalActionId`;
         const originalActionId = get(actionObject, path, actionObject.id);
         if (originalActionId !== undefined)
           return set(actionObject, path, originalActionId);
     }
   } catch (e) {
-    log.error("Failed to enhance payload with event data");
+    log.error("Failed to enhance payload with event data", e);
   }
   return payload;
 };
+
+/**
+ *
+ * @param obj : A plain object to be cleaned for hashing
+ * @returns A clone of the object with all string values without SQL comments, spaces, bindings and new lines
+ */
+export const cleanValuesInObjectForHashing = (
+  obj: Record<string, unknown>,
+): Record<string, unknown> => {
+  const cleanObj: Record<string, unknown> = {};
+  for (const key in obj) {
+    if (isString(obj[key])) {
+      cleanObj[key] = (obj[key] as string)
+        .replace(DATA_BIND_REGEX_GLOBAL, "") // Remove bindings
+        .replace(/\s/g, "") // Remove spaces
+        .replace(/--.*/g, "") // Remove comments
+        .replace(/\n/g, "") // Remove new lines
+        .toLowerCase();
+    } else if (isPlainObject(obj[key])) {
+      cleanObj[key] = cleanValuesInObjectForHashing(
+        obj[key] as Record<string, unknown>,
+      );
+    } else {
+      cleanObj[key] = obj[key];
+    }
+  }
+  return cleanObj;
+};
+
+/**
+ * Function to generate a hash from string
+ * Note: Although it uses SHA1 in the digest, the output is a hex string which is not
+ * exactly the same as the SHA1 of the string. This is not meant to be a secure hash
+ * function, but a way to generate a hash from a string that is consistent across
+ * different runs for the same string and different for different strings.
+ * @param str : String to be hashed
+ * @returns A hashed string, that will be the same for the same string and different for different strings
+ */
+export async function generateHashFromString(str: unknown) {
+  const msgUint8 = new TextEncoder().encode(JSON.stringify(str));
+  const hashBuffer = await crypto.subtle.digest("SHA-1", msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  return hashHex;
+}

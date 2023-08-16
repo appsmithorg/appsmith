@@ -4,11 +4,10 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { intersection, union } from "lodash";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import type { Diff } from "deep-diff";
 import type { QueryActionConfig } from "entities/Action";
 import type { DatasourceConfiguration } from "entities/Datasource";
+import type { DiffWithReferenceState } from "workers/Evaluation/helpers";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
@@ -158,8 +157,8 @@ export function shouldLog(action: ReduxAction<unknown>) {
 }
 
 export const setEvaluatedTree = (
-  updates: Diff<DataTree, DataTree>[],
-): ReduxAction<{ updates: Diff<DataTree, DataTree>[] }> => {
+  updates: DiffWithReferenceState[],
+): ReduxAction<{ updates: DiffWithReferenceState[] }> => {
   return {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: { updates },

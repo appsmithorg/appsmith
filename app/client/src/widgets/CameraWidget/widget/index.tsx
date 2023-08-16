@@ -7,13 +7,20 @@ import { base64ToBlob, createBlobUrl } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { FileDataTypes } from "widgets/constants";
+import { DefaultMobileCameraTypes, FileDataTypes } from "widgets/constants";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import CameraComponent from "../component";
 import type { CameraMode } from "../constants";
 import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import {
+  BACK_CAMERA_LABEL,
+  createMessage,
+  DEFAULT_CAMERA_LABEL,
+  DEFAULT_CAMERA_LABEL_DESCRIPTION,
+  FRONT_CAMERA_LABEL,
+} from "@appsmith/constants/messages";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -91,6 +98,35 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "defaultCamera",
+            label: createMessage(DEFAULT_CAMERA_LABEL),
+            helpText: createMessage(DEFAULT_CAMERA_LABEL_DESCRIPTION),
+            controlType: "DROP_DOWN",
+            defaultValue: DefaultMobileCameraTypes.BACK,
+            options: [
+              {
+                label: createMessage(FRONT_CAMERA_LABEL),
+                value: DefaultMobileCameraTypes.FRONT,
+              },
+              {
+                label: createMessage(BACK_CAMERA_LABEL),
+                value: DefaultMobileCameraTypes.BACK,
+              },
+            ],
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  DefaultMobileCameraTypes.FRONT,
+                  DefaultMobileCameraTypes.BACK,
+                ],
+                default: DefaultMobileCameraTypes.BACK,
+              },
+            },
           },
         ],
       },
@@ -242,6 +278,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   getPageView() {
     const {
       bottomRow,
+      defaultCamera,
       isDisabled,
       isMirrored,
       leftColumn,
@@ -261,6 +298,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       <CameraComponent
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
+        defaultCamera={defaultCamera}
         disabled={isDisabled}
         height={height}
         mirrored={isMirrored}
@@ -401,6 +439,7 @@ export interface CameraWidgetProps extends WidgetProps {
   borderRadius: string;
   boxShadow: string;
   isDirty: boolean;
+  defaultCamera: string;
 }
 
 export default CameraWidget;

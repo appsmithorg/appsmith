@@ -3,6 +3,7 @@ import {
   locators,
   agHelper,
   draggableWidgets,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
@@ -20,6 +21,8 @@ describe("Dynamic Height Width validation", function () {
         entityExplorer.SelectEntityByName("Button1", "Container1");
         agHelper.PressDelete();
         agHelper.WaitUntilAllToastsDisappear();
+        assertHelper.AssertNetworkStatus("updateLayout");
+        agHelper.Sleep(2000);
         agHelper
           .GetWidgetCSSHeight(
             locators._widgetInDeployed(draggableWidgets.CONTAINER),
@@ -27,7 +30,9 @@ describe("Dynamic Height Width validation", function () {
           .then((updatedContainerHeight: number) => {
             expect(initialContainerHeight).to.not.equal(updatedContainerHeight);
             expect(updatedContainerHeight).to.equal("100px");
-            agHelper.TypeText(locators._body, `{${modifierKey}}z`, 0, true);
+            agHelper.TypeText(locators._body, `{${modifierKey}}z`, {
+              parseSpecialCharSeq: true,
+            });
             agHelper.Sleep(2000);
             agHelper
               .GetWidgetCSSHeight(

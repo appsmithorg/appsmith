@@ -1,69 +1,83 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-import { EntityItems } from "../../../../support/Pages/AssertHelper";
+/// <reference types="cypress-tags" />
 
-describe("Query pane navigation", () => {
-  let ds1Name: any;
-  let ds2Name: any;
+import {
+  agHelper,
+  homePage,
+  dataSources,
+  entityExplorer,
+  entityItems,
+  debuggerHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
-  beforeEach("Add dsl and create datasource", () => {
-    _.dataSources.CreateDataSource("S3", true, false);
-    cy.get("@dsName").then(($dsName) => {
-      ds1Name = $dsName;
+describe("excludeForAirgap", "Query pane navigation", () => {
+  let ds1Name: string;
+  let ds2Name: string;
+
+  before("Add dsl and create datasource from the", () => {
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      homePage.CreateNewWorkspace("Workspace" + uid, true);
+      homePage.CreateAppInWorkspace("Workspace" + uid, "App" + uid);
     });
-    _.dataSources.CreateDataSource("Firestore", true, false);
+    dataSources.CreateDataSource("S3", true, false);
     cy.get("@dsName").then(($dsName) => {
-      ds2Name = $dsName;
+      ds1Name = $dsName as unknown as string;
+    });
+    dataSources.CreateDataSource("Firestore", true, false);
+    cy.get("@dsName").then(($dsName) => {
+      ds2Name = $dsName as unknown as string;
     });
   });
 
-  it("Switching between S3 query and firestore query", () => {
-    _.entityExplorer.CreateNewDsQuery(ds1Name);
-    _.agHelper.EnterValue("{{test}}", {
+  it("1. Switching between S3 query and firestore query from the debugger", () => {
+    entityExplorer.CreateNewDsQuery(ds1Name);
+    agHelper.EnterValue("{{test}}", {
       propFieldName:
         ".t--actionConfiguration\\.formData\\.list\\.sortBy\\.data\\[0\\]\\.column",
       directInput: true,
       inputFieldName: "",
     });
-    _.agHelper.UpdateCodeInput(
+    agHelper.UpdateCodeInput(
       ".t--actionConfiguration\\.formData\\.bucket\\.data",
       "test",
     );
-    _.debuggerHelper.AssertErrorCount(1);
+    debuggerHelper.AssertErrorCount(1);
 
     cy.get("@dsName").then(($dsName) => {
-      ds2Name = $dsName;
+      ds2Name = $dsName as unknown as string;
     });
-    _.entityExplorer.CreateNewDsQuery(ds2Name);
-    _.agHelper.UpdateCodeInput(
+    entityExplorer.CreateNewDsQuery(ds2Name);
+    agHelper.UpdateCodeInput(
       ".t--actionConfiguration\\.formData\\.limitDocuments\\.data",
       "{{test}}",
     );
-    _.agHelper.UpdateCodeInput(
+    agHelper.UpdateCodeInput(
       ".t--actionConfiguration\\.formData\\.path\\.data",
       "test",
     );
-    _.debuggerHelper.AssertErrorCount(2);
+    debuggerHelper.AssertErrorCount(2);
 
-    _.debuggerHelper.ClickDebuggerIcon();
-    _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.AssertElementVisible(
+    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.ClicklogEntityLink();
+    agHelper.AssertElementVisibility(
       ".t--actionConfiguration\\.formData\\.limitDocuments\\.data",
     );
 
-    _.debuggerHelper.ClicklogEntityLink(true);
-    _.agHelper.AssertElementVisible(
+    debuggerHelper.ClicklogEntityLink(true);
+    agHelper.AssertElementVisibility(
       ".t--actionConfiguration\\.formData\\.list\\.sortBy\\.data\\[0\\]\\.column",
     );
 
-    _.dataSources.DeleteDSFromEntityExplorer(ds1Name);
-    _.dataSources.DeleteDSFromEntityExplorer(ds2Name);
-    _.entityExplorer.ActionContextMenuByEntityName({
+    entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query1",
-      entityType: EntityItems.Query,
+      entityType: entityItems.Query,
     });
-    _.entityExplorer.ActionContextMenuByEntityName({
+    entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query2",
-      entityType: EntityItems.Query,
+      entityType: entityItems.Query,
     });
+
+    dataSources.DeleteDSFromEntityExplorer(ds1Name);
+    dataSources.DeleteDSFromEntityExplorer(ds2Name);
   });
 });
