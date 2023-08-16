@@ -57,10 +57,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
@@ -167,10 +167,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
       # actions/setup-node@v3 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488

@@ -35,7 +35,6 @@ import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { importRemixIcon } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
 const AddLineIcon = importRemixIcon(
   () => import("remixicon-react/AddLineIcon"),
 );
@@ -44,12 +43,13 @@ export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const recentDatasourceIds = useSelector(getRecentDatasourceIds);
   // helper map for sorting based on recent usage
-  const recentlyUsedOrderMap = recentDatasourceIds.reduce(
-    (map: Record<string, number>, id, index) => {
-      map[id] = index;
-      return map;
-    },
-    {},
+  const recentlyUsedOrderMap = useMemo(
+    () =>
+      recentDatasourceIds.reduce((map: Record<string, number>, id, index) => {
+        map[id] = index;
+        return map;
+      }, {}),
+    [recentDatasourceIds],
   );
   /**
    *  Work around to get the rest api cloud image.
@@ -89,7 +89,15 @@ export const useFilteredFileOperations = (query = "") => {
         canCreateDatasource,
         pagePermissions,
       ),
-    [query, appWideDS, otherDS],
+    [
+      appWideDS,
+      canCreateActions,
+      canCreateDatasource,
+      otherDS,
+      pagePermissions,
+      query,
+      recentlyUsedOrderMap,
+    ],
   );
 };
 
@@ -198,8 +206,8 @@ export const getFilteredAndSortedFileOperations = (
 
 export const useFilteredWidgets = (query: string) => {
   const allWidgets = useSelector(getAllPageWidgets);
-  const pages = useSelector(getPageList) || [];
-  const pageMap = keyBy(pages, "pageId");
+  const pages = useSelector(getPageList);
+  const pageMap = useMemo(() => keyBy(pages || [], "pageId"), [pages]);
   const searchableWidgets = useMemo(
     () =>
       allWidgets.filter(
@@ -218,7 +226,7 @@ export const useFilteredWidgets = (query: string) => {
 
       return isWidgetNameMatching || isPageNameMatching;
     });
-  }, [allWidgets, query, pages]);
+  }, [query, searchableWidgets, pageMap]);
 };
 
 export const useFilteredActions = (query: string) => {
@@ -234,7 +242,7 @@ export const useFilteredActions = (query: string) => {
 
       return isActionNameMatching || isPageNameMatching;
     });
-  }, [actions, query, pages]);
+  }, [query, actions, pageMap]);
 };
 
 export const useFilteredJSCollections = (query: string) => {
@@ -252,12 +260,14 @@ export const useFilteredJSCollections = (query: string) => {
 
       return isActionNameMatching || isPageNameMatching;
     });
-  }, [jsActions, query, pages]);
+  }, [query, jsActions, pageMap]);
 };
 
 export const useFilteredPages = (query: string) => {
-  const pages = useSelector(getPageList) || [];
+  const pages = useSelector(getPageList);
+
   return useMemo(() => {
+    if (!pages) return [];
     if (!query) return attachKind(pages, SEARCH_ITEM_TYPES.page);
     return attachKind(
       pages.filter(
