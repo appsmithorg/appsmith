@@ -14,4 +14,5 @@ export const config: AdminConfigType = {
   title: "Branding",
   icon: "pantone",
   component: BrandingPage,
+  needsUpgrade: true,
 };
