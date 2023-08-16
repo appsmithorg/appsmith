@@ -114,7 +114,8 @@ describe("Shopping cart App", function () {
     // Adding the books to the Add cart form
     agHelper.GetNClick(appPage.bookname);
     //Wait for element to be in DOM
-    agHelper.Sleep(4000);
+    agHelper.Sleep(3000);
+    agHelper.GetElement(appPage.inputValues).should("have.length.least", 8);
     agHelper.AssertElementLength(appPage.inputValues, 9);
     agHelper.UpdateInput(appPage.bookname, "Atomic habits", true);
     agHelper.UpdateInput(appPage.bookgenre, "Self help", true);
@@ -139,7 +140,7 @@ describe("Shopping cart App", function () {
     agHelper.AssertElementLength(appPage.deleteButton + "/parent::div", 1);
     // Updating the book quantity from edit cart
     agHelper.UpdateInput(appPage.editbookquantity, "3", true);
-    agHelper.Sleep(1000);
+    agHelper.Sleep(3000);
 
     agHelper.GetNClick(appPage.editButton, 0, true);
 
