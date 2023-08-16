@@ -2236,7 +2236,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                             .getGitApplicationMetadata()
                                                             .getIsRepoPrivate(),
                                                     false,
-                                                    true))
+                                                    mergeStatusDTO.isMergeAble()))
                                             .then(Mono.just(mergeStatusDTO))))
                             .onErrorResume(error -> {
                                 try {
