@@ -9,6 +9,7 @@ import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { serialiseUpdates as serialiseUpdates } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   CrashingError,
   getSafeToRenderDataTree,
@@ -224,8 +225,18 @@ export default function (request: EvalWorkerSyncRequest) {
     dataTreeEvaluator,
   );
 
+  let serUpdates = "[]";
+  try {
+    serUpdates = serialiseUpdates(updates);
+  } catch (error) {
+    errors.push({
+      type: EvalErrorTypes.SERIALIZATION_ERROR,
+      message: (error as Error).message,
+    });
+  }
+
   const evalTreeResponse: EvalTreeResponseData = {
-    updates,
+    updates: serUpdates,
     dependencies,
     errors,
     evalMetaUpdates,

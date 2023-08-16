@@ -159,8 +159,13 @@ export function* updateDataTreeHandler(
   if (!isEmpty(staleMetaIds)) {
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
-
-  yield put(setEvaluatedTree(updates));
+  let parsedUpdates = [];
+  try {
+    parsedUpdates = JSON.parse(updates);
+  } catch (e) {
+    log.error("Failed to parse updates", e);
+  }
+  yield put(setEvaluatedTree(parsedUpdates));
 
   ConfigTreeActions.setConfigTree(configTree);
 

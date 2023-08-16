@@ -1,7 +1,7 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { get, set, unset } from "lodash";
+import produce from "immer";
+import { cloneDeep, get, set } from "lodash";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
-import { removeFunctionsAndSerialzeBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 /**
  * This method loops through each entity object of dataTree and sets the entity config from prototype as object properties.
@@ -15,19 +15,9 @@ export function makeEntityConfigsAsObjProperties(
     identicalEvalPathsPatches?: Record<string, string>;
   },
 ): DataTree {
-  const {
-    evalProps,
-    identicalEvalPathsPatches,
-    sanitizeDataTree = true,
-  } = option;
-  const newDataTree: DataTree = {};
-  for (const entityName of Object.keys(dataTree)) {
-    const entity = dataTree[entityName];
-    newDataTree[entityName] = Object.assign({}, entity);
-  }
-  const dataTreeToReturn = sanitizeDataTree
-    ? removeFunctionsAndSerialzeBigInt(newDataTree)
-    : newDataTree;
+  const { evalProps, identicalEvalPathsPatches } = option;
+
+  const dataTreeToReturn = cloneDeep(dataTree);
 
   if (!evalProps) return dataTreeToReturn;
 
@@ -41,42 +31,21 @@ export function makeEntityConfigsAsObjProperties(
     },
   );
 
-  // decompressIdenticalEvalPaths
-  Object.entries(identicalEvalPathsPatches || {}).forEach(
-    ([evalPath, statePath]) => {
-      const referencePathValue = get(dataTreeToReturn, statePath);
-      set(evalProps, evalPath, referencePathValue);
-    },
-  );
+  const evalPropsCopy = cloneDeep(evalProps);
+  const newState = produce(dataTreeToReturn, (draft) => {
+    // decompressIdenticalEvalPaths
 
-  const alreadySanitisedDataSet = {} as EvalProps;
-  Object.keys(identicalEvalPathsPatches || {}).forEach((evalPath) => {
-    const val = get(evalProps, evalPath);
-    //serialised already
-    alreadySanitisedDataSet[evalPath] = val;
-    //we are seperating it from evalProps because we don't want to serialise this identical data unecessarily again
-    unset(evalProps, evalPath);
-  });
+    for (const [entityName, entityEvalProps] of Object.entries(evalPropsCopy)) {
+      if (!entityEvalProps.__evaluation__) continue;
 
-  const sanitizedEvalProps = removeFunctionsAndSerialzeBigInt(
-    evalProps,
-  ) as EvalProps;
-  Object.entries(alreadySanitisedDataSet).forEach(([path, val]) => {
-    // add it to sanitised Eval props
-    set(sanitizedEvalProps, path, val);
-    //restore it to evalProps
-    set(evalProps, path, val);
-  });
-  for (const [entityName, entityEvalProps] of Object.entries(
-    sanitizedEvalProps,
-  )) {
-    if (!entityEvalProps.__evaluation__) continue;
-    set(
-      dataTreeToReturn[entityName],
-      "__evaluation__",
-      entityEvalProps.__evaluation__,
+      set(draft[entityName], "__evaluation__", entityEvalProps.__evaluation__);
+    }
+    Object.entries(identicalEvalPathsPatches || {}).forEach(
+      ([evalPath, statePath]) => {
+        const referencePathValue = get(draft, statePath);
+        set(draft, evalPath, referencePathValue);
+      },
     );
-  }
-
-  return dataTreeToReturn;
+  });
+  return newState;
 }

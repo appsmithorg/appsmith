@@ -5,8 +5,10 @@ import type {
 } from "entities/DataTree/dataTreeFactory";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { serialiseUpdates } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
+import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import type { EvalTreeResponseData } from "./types";
 import { MessageType, sendMessage } from "utils/MessageUtil";
@@ -82,8 +84,19 @@ export function evalTreeWithChanges(
     dataTree,
     dataTreeEvaluator,
   );
+
+  let serUpdates = "[]";
+  try {
+    serUpdates = serialiseUpdates(updates);
+  } catch (error) {
+    errors.push({
+      type: EvalErrorTypes.SERIALIZATION_ERROR,
+      message: (error as Error).message,
+    });
+  }
+
   const evalTreeResponse: EvalTreeResponseData = {
-    updates,
+    updates: serUpdates,
     dependencies,
     errors,
     evalMetaUpdates,
