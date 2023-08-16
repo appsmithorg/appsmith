@@ -11,7 +11,8 @@
     "lint": "yarn g:lint",
     "prettier": "yarn g:prettier",
     "build": "rollup -c",
-    "start": "rollup -c"
+    "start": "rollup -c",
+    "postinstall": "yarn build"
   },
   "main": "build/index.js",
   "module": "build/index.es.js",
