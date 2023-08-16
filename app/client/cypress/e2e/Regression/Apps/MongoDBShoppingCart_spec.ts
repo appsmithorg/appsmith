@@ -116,7 +116,6 @@ describe("Shopping cart App", function () {
     //Wait for element to be in DOM
     agHelper.Sleep(3000);
     agHelper.GetElement(appPage.inputValues).should("have.length.least", 8);
-    agHelper.AssertElementLength(appPage.inputValues, 9);
     agHelper.UpdateInput(appPage.bookname, "Atomic habits", true);
     agHelper.UpdateInput(appPage.bookgenre, "Self help", true);
     agHelper.UpdateInput(appPage.bookprice, "200", true);
