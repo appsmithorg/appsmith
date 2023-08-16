@@ -9,8 +9,7 @@
     "lint": "yarn g:lint",
     "prettier": "yarn g:prettier",
     "build": "rollup -c",
-    "start": "rollup -c",
-    "postinstall": "yarn build"
+    "start": "rollup -c"
   },
   "main": "build/index.js",
   "module": "build/index.es.js",
