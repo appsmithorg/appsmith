@@ -121,7 +121,7 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.c = 0;
     }
 
-    if (this.seedIsAchromatic) {
+    if (!this.seedIsAchromatic) {
       color.oklch.c = 0.064;
     }
 
@@ -580,7 +580,7 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.c = 0;
     }
 
-    if (this.seedIsAchromatic) {
+    if (!this.seedIsAchromatic) {
       color.oklch.c = 0.024;
     }
 
@@ -599,7 +599,7 @@ export class DarkModeTheme implements ColorModeTheme {
         color.oklch.c = 0;
       }
 
-      if (this.seedIsAchromatic) {
+      if (!this.seedIsAchromatic) {
         color.oklch.c = 0.136;
       }
     }

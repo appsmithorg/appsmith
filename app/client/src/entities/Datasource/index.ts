@@ -53,6 +53,7 @@ export interface DatasourceAuthentication {
   authenticationStatus?: string;
   authenticationType?: string;
   secretExists?: Record<string, boolean>;
+  isAuthorized?: boolean;
 }
 
 export interface DatasourceColumns {

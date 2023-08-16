@@ -6,6 +6,7 @@ export const WIDGET = {
   CURRENCY_INPUT: "currencyinputwidget",
   BUTTON: "buttonwidget",
   BUTTONNAME: (index: string) => `Button${index}`,
+  CODESCANNER: "codescannerwidget",
   CONTAINER: "containerwidget",
   MULTISELECT: "multiselectwidgetv2",
   BUTTON_GROUP: "buttongroupwidget",
@@ -26,7 +27,6 @@ export const WIDGET = {
   CHART: "chartwidget",
   AUDIO: "audiowidget",
   AUDIORECORDER: "audiorecorderwidget",
-  PHONEINPUT: "phoneinputwidget",
   CAMERA: "camerawidget",
   FILEPICKER: "filepickerwidgetv2",
   DOCUMENT_VIEWER: "documentviewerwidget",
@@ -43,7 +43,7 @@ export const WIDGET = {
   IMAGE: "imagewidget",
   STATBOX: "statboxwidget",
   JSONFORM: "jsonformwidget",
-  MENUBUTTON: "menubuttonwidget"
+  MENUBUTTON: "menubuttonwidget",
 } as const;
 
 // property pane element selector are maintained here
@@ -67,3 +67,23 @@ export const getWidgetInputSelector = (widget: ValueOf<typeof WIDGET>) =>
   `.t--widget-${widget} input`;
 
 export const modalWidgetSelector = ".t--modal-widget";
+
+// export data-testid with user input 
+export const progressWidgetProgress = (input: any) => `[data-testid='${input}']`
+
+//switch widget locators
+export const switchlocators = {
+  switchGroupLabel: ".switchgroup-label",
+  switchTooltip: "//*[@data-testid='switchgroup-container']//*[@class='bp3-popover-target']",
+  switchWidget:"//*[@data-testid='switchgroup-container']",
+  switchWidgetHeight: (height: string) => `//*[@data-testid='switchgroup-container']//div[@height="${height}"]`,
+  switchGroupToggleChecked : (value: string) =>
+  `//*[text()='${value}']//input[@type="checkbox"]`,
+}
+
+export const checkboxlocators = {
+  // read Blue here
+  checkBoxLabel: (value: string) => `//*[contains(@class,'t--checkbox-widget-label') and text()='${value}']`,
+}
+
+

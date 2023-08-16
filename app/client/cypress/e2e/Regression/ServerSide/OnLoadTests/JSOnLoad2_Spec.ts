@@ -227,7 +227,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     shouldCheckImport = false,
     faliureMsg = "",
   ) {
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       jsEditor._dialogBody("JSObject1." + jsMethod),
     );
     jsEditor.ConfirmationClick("No");
@@ -236,7 +236,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     shouldCheckImport && homePage.AssertNCloseImport();
 
     deployMode.DeployApp();
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       jsEditor._dialogBody("JSObject1." + jsMethod),
     );
     jsEditor.ConfirmationClick("Yes");
