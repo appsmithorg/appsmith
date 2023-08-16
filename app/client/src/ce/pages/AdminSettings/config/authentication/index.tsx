@@ -223,7 +223,7 @@ export const GithubAuthCallout: AuthMethodType = {
 
 export const SamlAuthCallout: AuthMethodType = {
   id: "APPSMITH_SAML_AUTH",
-  category: "saml",
+  category: SettingCategories.SAML_AUTH,
   label: "SAML 2.0",
   subText: createMessage(SAML_AUTH_DESC),
   image: SamlSso,
@@ -232,7 +232,7 @@ export const SamlAuthCallout: AuthMethodType = {
 
 export const OidcAuthCallout: AuthMethodType = {
   id: "APPSMITH_OIDC_AUTH",
-  category: "oidc",
+  category: SettingCategories.OIDC_AUTH,
   label: "OIDC",
   subText: createMessage(OIDC_AUTH_DESC),
   image: OIDC,
