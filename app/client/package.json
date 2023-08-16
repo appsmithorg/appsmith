@@ -12,7 +12,8 @@
   "packageManager": "yarn@3.5.1",
   "cracoConfig": "craco.dev.config.js",
   "workspaces": [
-    "packages/**/!(build)*"
+    "packages/**",
+    "!packages/**/build"
   ],
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
