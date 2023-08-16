@@ -1,5 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
+import { widgetInitialisationSuccess } from "../../actions/widgetActions";
+import { useDispatch } from "react-redux";
+import { editorInitializer } from "../../utils/editor/EditorUtils";
+import SideBar from "./Sidebar";
 
 const Body = styled.div`
   background: #f1f5f9;
@@ -10,13 +14,6 @@ const Body = styled.div`
   grid-gap: 4px;
 `;
 
-const SideBar = styled.div`
-  background-color: white;
-  margin-top: 4px;
-  border-top-right-radius: 4px;
-  grid-row-start: 1;
-  grid-row-end: 3;
-`;
 const LeftPane = styled.div`
   background-color: white;
   margin-top: 4px;
@@ -38,6 +35,12 @@ const DebugBar = styled.div`
 `;
 
 const IDE = function () {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    editorInitializer().then(() => {
+      dispatch(widgetInitialisationSuccess());
+    });
+  }, []);
   return (
     <Body id="IDE-body">
       <SideBar />
