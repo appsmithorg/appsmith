@@ -21,6 +21,7 @@ module.exports = {
   },
   stories: getStories(),
   addons: [
+    "@storybook/addon-a11y",
     "@storybook/addon-viewport",
     "@storybook/addon-docs",
     "@storybook/addon-actions",

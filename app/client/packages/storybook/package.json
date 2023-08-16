@@ -10,6 +10,7 @@
     "chromatic": "CHROMATIC=1 storybook dev -p 6006"
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "^7.3.1",
     "@storybook/addon-actions": "^7.3.1",
     "@storybook/addon-controls": "^7.3.1",
     "@storybook/addon-docs": "^7.3.1",
