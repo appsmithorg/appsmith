@@ -71,18 +71,25 @@ import HelpBar from "../../components/editorComponents/GlobalSearch/HelpBar";
 import GlobalSearch from "components/editorComponents/GlobalSearch";
 
 const Header = styled.div`
-  background-color: white;
+  background-color: #f1f5f9;
   height: 40px;
   display: grid;
-  grid-template-columns: 50px 1fr max-content;
-  border-bottom-right-radius: 4px;
-  border-bottom-left-radius: 4px;
+  grid-template-columns: 50px 1fr;
+  grid-column-gap: 4px;
 `;
 
 const LogoContainer = styled.div`
+  background-color: white;
+  border-bottom-right-radius: 4px;
   display: grid;
   align-items: center;
   justify-content: center;
+`;
+
+const TopBarContainer = styled.div`
+  background-color: white;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
 `;
 
 const AppsmithLink = styled((props) => {
@@ -238,118 +245,126 @@ const IDEHeader = function () {
           </AppsmithLink>
         </Tooltip>
       </LogoContainer>
-      {currentWorkspace.name && (
-        <AppNameContainer>
-          <span id="workspace-name">{currentWorkspace.name} / </span>
-          <EditorAppName
-            applicationId={currentApplication?.applicationId}
-            className="t--application-name editable-application-name max-w-48"
-            defaultSavingState={
-              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-            }
-            defaultValue={currentApplication?.name || ""}
-            editInteractionKind={EditInteractionKind.SINGLE}
-            fill
-            isError={isErroredSavingName}
-            isNewApp={
-              applicationList.filter((el) => el.id === applicationId).length > 0
-            }
-            isPopoverOpen={isPopoverOpen}
-            onBlur={(value: string) =>
-              updateApplicationDispatch(applicationId || "", {
-                name: value,
-                currentApp: true,
-              })
-            }
-            setIsPopoverOpen={setIsPopoverOpen}
-          />
-        </AppNameContainer>
-      )}
-      <EditorActionsContainer>
-        <EditorSaveIndicator />
-        <HelpBar />
-        <Divider />
-        <ToggleModeButton />
-        {applicationId && (
-          <Tooltip
-            content={
-              filteredSharedUserList.length
-                ? createMessage(
-                    SHARE_BUTTON_TOOLTIP_WITH_USER(
-                      filteredSharedUserList.length,
-                    ),
-                  )
-                : createMessage(SHARE_BUTTON_TOOLTIP)
-            }
-            placement="bottom"
-          >
-            <Button
-              className="t--application-share-btn"
-              kind="tertiary"
-              onClick={() => setShowModal(true)}
-              size="md"
-              startIcon="share-line"
-            >
-              {createMessage(EDITOR_HEADER.share)}
-            </Button>
-          </Tooltip>
+      <TopBarContainer>
+        {currentWorkspace.name && (
+          <AppNameContainer>
+            <span id="workspace-name">{currentWorkspace.name} / </span>
+            <EditorAppName
+              applicationId={currentApplication?.applicationId}
+              className="t--application-name editable-application-name max-w-48"
+              defaultSavingState={
+                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+              }
+              defaultValue={currentApplication?.name || ""}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              fill
+              isError={isErroredSavingName}
+              isNewApp={
+                applicationList.filter((el) => el.id === applicationId).length >
+                0
+              }
+              isPopoverOpen={isPopoverOpen}
+              onBlur={(value: string) =>
+                updateApplicationDispatch(applicationId || "", {
+                  name: value,
+                  currentApp: true,
+                })
+              }
+              setIsPopoverOpen={setIsPopoverOpen}
+            />
+          </AppNameContainer>
         )}
-        <Modal onOpenChange={(isOpen) => setShowModal(isOpen)} open={showModal}>
-          <ModalContent style={{ width: "640px" }}>
-            <ModalHeader>Application Invite</ModalHeader>
-            <ModalBody>
-              <Tabs
-                onValueChange={(value) => setActiveTab(value)}
-                value={activeTab}
-              >
-                <TabsList>
-                  <Tab data-testid="t--tab-INVITE" value="invite">
-                    {createMessage(INVITE_TAB)}
-                  </Tab>
-                  <Tab data-tesid="t--tab-EMBED" value="embed">
-                    {createMessage(IN_APP_EMBED_SETTING.embed)}
-                  </Tab>
-                </TabsList>
-                <TabPanel value="invite">
-                  <AppInviteUsersForm
-                    applicationId={applicationId}
-                    placeholder={createMessage(
-                      INVITE_USERS_PLACEHOLDER,
-                      cloudHosting,
-                    )}
-                    workspaceId={workspaceId}
-                  />
-                </TabPanel>
-                <TabPanel value="embed">
-                  <EmbedSnippetForm changeTab={() => setActiveTab("invite")} />
-                </TabPanel>
-              </Tabs>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-        <div className="flex items-center">
-          <Tooltip
-            content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
-            placement="bottomRight"
-          >
-            <Button
-              className="t--application-publish-btn"
-              data-guided-tour-iid="deploy"
-              isLoading={isPublishing}
-              kind="tertiary"
-              onClick={() => handleClickDeploy(true)}
-              size="md"
-              startIcon={"rocket"}
+        <EditorActionsContainer>
+          <EditorSaveIndicator />
+          <HelpBar />
+          <Divider />
+          <ToggleModeButton />
+          {applicationId && (
+            <Tooltip
+              content={
+                filteredSharedUserList.length
+                  ? createMessage(
+                      SHARE_BUTTON_TOOLTIP_WITH_USER(
+                        filteredSharedUserList.length,
+                      ),
+                    )
+                  : createMessage(SHARE_BUTTON_TOOLTIP)
+              }
+              placement="bottom"
             >
-              {DEPLOY_MENU_OPTION()}
-            </Button>
-          </Tooltip>
-          <DeployLinkButtonDialog link={deployLink} trigger="" />
-        </div>
-      </EditorActionsContainer>
-      <Suspense fallback={<span />}>
-        <GlobalSearch />
-      </Suspense>
+              <Button
+                className="t--application-share-btn"
+                kind="tertiary"
+                onClick={() => setShowModal(true)}
+                size="md"
+                startIcon="share-line"
+              >
+                {createMessage(EDITOR_HEADER.share)}
+              </Button>
+            </Tooltip>
+          )}
+          <Modal
+            onOpenChange={(isOpen) => setShowModal(isOpen)}
+            open={showModal}
+          >
+            <ModalContent style={{ width: "640px" }}>
+              <ModalHeader>Application Invite</ModalHeader>
+              <ModalBody>
+                <Tabs
+                  onValueChange={(value) => setActiveTab(value)}
+                  value={activeTab}
+                >
+                  <TabsList>
+                    <Tab data-testid="t--tab-INVITE" value="invite">
+                      {createMessage(INVITE_TAB)}
+                    </Tab>
+                    <Tab data-tesid="t--tab-EMBED" value="embed">
+                      {createMessage(IN_APP_EMBED_SETTING.embed)}
+                    </Tab>
+                  </TabsList>
+                  <TabPanel value="invite">
+                    <AppInviteUsersForm
+                      applicationId={applicationId}
+                      placeholder={createMessage(
+                        INVITE_USERS_PLACEHOLDER,
+                        cloudHosting,
+                      )}
+                      workspaceId={workspaceId}
+                    />
+                  </TabPanel>
+                  <TabPanel value="embed">
+                    <EmbedSnippetForm
+                      changeTab={() => setActiveTab("invite")}
+                    />
+                  </TabPanel>
+                </Tabs>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+          <div className="flex items-center">
+            <Tooltip
+              content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
+              placement="bottomRight"
+            >
+              <Button
+                className="t--application-publish-btn"
+                data-guided-tour-iid="deploy"
+                isLoading={isPublishing}
+                kind="tertiary"
+                onClick={() => handleClickDeploy(true)}
+                size="md"
+                startIcon={"rocket"}
+              >
+                {DEPLOY_MENU_OPTION()}
+              </Button>
+            </Tooltip>
+            <DeployLinkButtonDialog link={deployLink} trigger="" />
+          </div>
+        </EditorActionsContainer>
+        <Suspense fallback={<span />}>
+          <GlobalSearch />
+        </Suspense>
+      </TopBarContainer>
     </Header>
   );
 };
