@@ -172,7 +172,7 @@ export default class DependencyMap {
         for (const [invalidNode, dependants] of this
           .#invalidDependenciesInverse) {
           if (
-            !nodesToAdd.includes(invalidNode) &&
+            !nodes.hasOwnProperty(invalidNode) &&
             isChildPropertyPath(newNode, invalidNode, true)
           ) {
             dependants.forEach((dependant) => {
