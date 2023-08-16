@@ -140,6 +140,7 @@
                                     "sourceData": "[\n  {\n    \"label\": \"Blue\",\n    \"value\": 0\n  },\n  {\n    \"label\": \"Green\",\n    \"value\": \"GREEN\"\n  },\n  {\n    \"label\": \"Red\",\n    \"value\": \"RED\"\n  },\n\t{\n    \"label\": \"Red2\",\n    \"value\": \"\"\n  }\n]",
                                     "optionLabel": "label",
                                     "optionValue": "value",
+                                    "dynamicPropertyPathList": [{"key": "sourceData"}],
                                     "placeholderText": "Select option",
                                     "isDisabled": false,
                                     "key": "ber0u80gjl",

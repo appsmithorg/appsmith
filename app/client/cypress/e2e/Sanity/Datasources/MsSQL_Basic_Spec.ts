@@ -125,6 +125,9 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       "IS_NULLABLE",
       "SS_DATA_TYPE",
     ]);
+
+    runQueryNValidateResponseData("SELECT COUNT(*) FROM Amazon_Sales;", "10");
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -150,7 +153,9 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
   it.skip("3.One click binding - should check that queries are created and bound to table widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
 
-    oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", "title");
+    oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", {
+      searchableColumn: "title",
+    });
 
     agHelper.GetNClick(oneClickBindingLocator.connectData);
 
@@ -287,5 +292,15 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(columnHeaders);
+  }
+
+  function runQueryNValidateResponseData(
+    query: string,
+    expectedResponse: string,
+    index = 0,
+  ) {
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.AssertQueryTableResponse(index, expectedResponse);
   }
 });
