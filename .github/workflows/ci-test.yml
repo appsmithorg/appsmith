@@ -179,6 +179,7 @@ jobs:
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
             -e KEYGEN_API_URL=http://host.docker.internal:5001 \
             -e KEYGEN_BYPASS_SIGNATURE_VERIFICATION=true \
+            -e CREATE_DUMMY_LICENSES=true \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_URI=mongodb://host.docker.internal:27017 \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_DATABASE=cs \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_AUTH_DATABASE=admin \
