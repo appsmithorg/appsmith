@@ -51,7 +51,6 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { showProductRamps } from "utils/ProductRamps";
-import { isCEMode } from "@appsmith/utils";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -116,8 +115,7 @@ function AppViewer(props: Props) {
   const showBottomBar = useSelector((state: AppState) => {
     return (
       areEnvironmentsFetched(state, workspaceId) &&
-      datasourceEnvEnabled(state) &&
-      (isCEMode() ? showProductRamps(RAMP_NAME.MULTIPLE_ENV) : true)
+      (datasourceEnvEnabled(state) || showProductRamps(RAMP_NAME.MULTIPLE_ENV))
     );
   });
 
