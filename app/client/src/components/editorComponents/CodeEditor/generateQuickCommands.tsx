@@ -364,37 +364,38 @@ export const generateBindingSuggestionCommands = (
   const jsActionEntities = entitiesForSuggestions.filter((suggestion: any) => {
     return suggestion.ENTITY_TYPE === ENTITY_TYPE.JSACTION;
   });
-  const suggestionsJSAction = jsActionEntities.map((suggestion: any) => {
+  const suggestionsJSAction = jsActionEntities.flatMap((suggestion: any) => {
     const name = suggestion.entityName;
-    return {
-      text:
-        suggestion.ENTITY_TYPE === ENTITY_TYPE.JSACTION
-          ? `{{${name}.}}`
-          : `{{${name}}}`,
-      displayText: `${name}`,
-      className: "CodeMirror-commands",
-      data: suggestion,
-      triggerCompletionsPostPick: suggestion.ENTITY_TYPE !== ENTITY_TYPE.ACTION,
-      render: (element: HTMLElement, self: any, data: any) => {
-        const pluginType = data.data.pluginType as PluginType;
-        let icon = null;
-        if (pluginType === PluginType.JS) {
-          icon = JsFileIconV2();
-        } else if (pluginIdToImageLocation[data.data.pluginId]) {
-          icon = (
-            <EntityIcon>
-              <img
-                src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
-              />
-            </EntityIcon>
+    const keys = Object.keys(suggestion);
+    return keys.map((key: string) => {
+      return {
+        text: `{{${name}.${key}}}`,
+        displayText: `${name}.${key}`,
+        className: "CodeMirror-commands",
+        data: suggestion,
+        triggerCompletionsPostPick:
+          suggestion.ENTITY_TYPE !== ENTITY_TYPE.ACTION,
+        render: (element: HTMLElement, self: any, data: any) => {
+          const pluginType = data.data.pluginType as PluginType;
+          let icon = null;
+          if (pluginType === PluginType.JS) {
+            icon = JsFileIconV2();
+          } else if (pluginIdToImageLocation[data.data.pluginId]) {
+            icon = (
+              <EntityIcon>
+                <img
+                  src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
+                />
+              </EntityIcon>
+            );
+          }
+          ReactDOM.render(
+            <Command icon={icon} name={data.displayText} />,
+            element,
           );
-        }
-        ReactDOM.render(
-          <Command icon={icon} name={data.displayText} />,
-          element,
-        );
-      },
-    };
+        },
+      };
+    });
   });
 
   const suggestions = [...suggestionsAction, ...suggestionsJSAction];
