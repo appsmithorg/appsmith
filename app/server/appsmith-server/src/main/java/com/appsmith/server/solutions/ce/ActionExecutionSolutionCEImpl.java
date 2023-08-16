@@ -529,7 +529,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         datasourceStorageMono = Mono.empty();
                     } else {
                         // For embedded datasource, we are simply relying on datasource configuration property
-                        datasourceStorageMono = Mono.just(new DatasourceStorage(datasource, environmentId));
+                        datasourceStorageMono =
+                                Mono.just(datasourceStorageService.createDatasourceStorageFromDatasource(
+                                        datasource, environmentId));
                     }
 
                     return datasourceStorageMono
@@ -538,7 +540,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             .flatMap(datasourceStorage -> {
                                 // For embedded datasourceStorage, validate the datasourceStorage for each execution
                                 if (datasourceStorage.getDatasourceId() == null) {
-                                    return datasourceStorageService.validateDatasourceStorage(datasourceStorage, true);
+                                    return datasourceStorageService.validateDatasourceConfiguration(datasourceStorage);
                                 }
 
                                 // The external datasourceStorage have already been validated. No need to validate
