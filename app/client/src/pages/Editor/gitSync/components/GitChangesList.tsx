@@ -3,8 +3,11 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
+  getGitRemoteStatus,
   getGitStatus,
   getIsFetchingGitStatus,
+  getIsFetchingGitRemoteStatus,
+  getIsGitStatusLiteEnabled,
 } from "selectors/gitSyncSelectors";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import {
@@ -66,59 +69,59 @@ type GitStatusProps = {
 };
 
 type GitStatusMap = {
-  [key in Kind]: (status: GitStatusData) => GitStatusProps;
+  [key in Kind]: (status: Partial<GitStatusData>) => GitStatusProps;
 };
 
 const STATUS_MAP: GitStatusMap = {
-  [Kind.AHEAD_COMMIT]: (status: GitStatusData) => ({
+  [Kind.AHEAD_COMMIT]: (status) => ({
     message: aheadCommitMessage(status),
     iconName: "git-commit",
     hasValue: (status?.aheadCount || 0) > 0,
   }),
-  [Kind.BEHIND_COMMIT]: (status: GitStatusData) => ({
+  [Kind.BEHIND_COMMIT]: (status) => ({
     message: behindCommitMessage(status),
     iconName: "git-commit",
     hasValue: (status?.behindCount || 0) > 0,
   }),
-  [Kind.SETTINGS]: (status: GitStatusData) => ({
+  [Kind.SETTINGS]: (status) => ({
     message: createMessage(CHANGES_APP_SETTINGS),
     iconName: "settings-2-line",
     hasValue: (status?.modified || []).includes("application.json"),
   }),
-  [Kind.THEME]: (status: GitStatusData) => ({
+  [Kind.THEME]: (status) => ({
     message: createMessage(CHANGES_THEME),
     iconName: "sip-line",
     hasValue: (status?.modified || []).includes("theme.json"),
   }),
-  [Kind.DATA_SOURCE]: (status: GitStatusData) => ({
+  [Kind.DATA_SOURCE]: (status) => ({
     message: `${status?.modifiedDatasources || 0} ${
       status?.modifiedDatasources || 0 ? "datasource" : "datasources"
     } modified`,
     iconName: "database-2-line",
     hasValue: (status?.modifiedDatasources || 0) > 0,
   }),
-  [Kind.JS_OBJECT]: (status: GitStatusData) => ({
+  [Kind.JS_OBJECT]: (status) => ({
     message: `${status?.modifiedJSObjects || 0} JS ${
       (status?.modifiedJSObjects || 0) <= 1 ? "Object" : "Objects"
     } modified`,
     iconName: "js",
     hasValue: (status?.modifiedJSObjects || 0) > 0,
   }),
-  [Kind.PAGE]: (status: GitStatusData) => ({
+  [Kind.PAGE]: (status) => ({
     message: `${status?.modifiedPages || 0} ${
       (status?.modifiedPages || 0) <= 1 ? "page" : "pages"
     } modified`,
     iconName: "widget",
     hasValue: (status?.modifiedPages || 0) > 0,
   }),
-  [Kind.QUERY]: (status: GitStatusData) => ({
+  [Kind.QUERY]: (status) => ({
     message: `${status?.modifiedQueries || 0} ${
       (status?.modifiedQueries || 0) <= 1 ? "query" : "queries"
     } modified`,
     iconName: "query",
     hasValue: (status?.modifiedQueries || 0) > 0,
   }),
-  [Kind.JS_LIB]: (status: GitStatusData) => ({
+  [Kind.JS_LIB]: (status) => ({
     message: `${status?.modifiedJSLibs || 0} ${
       (status?.modifiedJSLibs || 0) <= 1 ? "library" : "libraries"
     } modified`,
@@ -127,7 +130,7 @@ const STATUS_MAP: GitStatusMap = {
   }),
 };
 
-function behindCommitMessage(status: GitStatusData) {
+function behindCommitMessage(status: Partial<GitStatusData>) {
   const behindCount = status?.behindCount || 0;
   let behindMessage =
     (behindCount || 0) === 1
@@ -137,7 +140,7 @@ function behindCommitMessage(status: GitStatusData) {
   return behindMessage;
 }
 
-function aheadCommitMessage(status: GitStatusData) {
+function aheadCommitMessage(status: Partial<GitStatusData>) {
   const aheadCount = status?.aheadCount || 0;
   let aheadMessage =
     (aheadCount || 0) === 1
@@ -183,7 +186,7 @@ const defaultStatus: GitStatusData = {
  * @returns {JSX.Element[]}
  */
 export function gitChangeListData(
-  status: GitStatusData = defaultStatus,
+  status: Partial<GitStatusData> = defaultStatus,
 ): JSX.Element[] {
   const changeKind = [
     Kind.SETTINGS,
@@ -205,8 +208,29 @@ export function gitChangeListData(
 
 export default function GitChangesList() {
   const status = useSelector(getGitStatus);
-  const loading = useSelector(getIsFetchingGitStatus);
-  const changes = gitChangeListData(status);
+  const remoteStatus = useSelector(getGitRemoteStatus);
+  const isGitStatusLiteEnabled = useSelector(getIsGitStatusLiteEnabled);
+
+  const derivedStatus: Partial<GitStatusData> = {
+    ...status,
+    aheadCount: isGitStatusLiteEnabled
+      ? remoteStatus?.aheadCount
+      : status?.aheadCount,
+    behindCount: isGitStatusLiteEnabled
+      ? remoteStatus?.behindCount
+      : status?.behindCount,
+    remoteBranch: isGitStatusLiteEnabled
+      ? remoteStatus?.remoteTrackingBranch
+      : status?.remoteBranch,
+  };
+
+  const statusLoading = useSelector(getIsFetchingGitStatus);
+  const remoteStatusLoading = useSelector(getIsFetchingGitRemoteStatus);
+  const loading = isGitStatusLiteEnabled
+    ? statusLoading || remoteStatusLoading
+    : statusLoading;
+
+  const changes = gitChangeListData(derivedStatus);
   const currentApplication = useSelector(getCurrentApplication);
   const { isAutoUpdate } = changeInfoSinceLastCommit(currentApplication);
   if (isAutoUpdate && !status?.isClean) {
@@ -219,16 +243,21 @@ export default function GitChangesList() {
       />,
     );
   }
-  return loading ? (
-    <DummyChange data-testid={"t--git-change-loading-dummy"} />
-  ) : changes.length ? (
-    <Changes data-testid={"t--git-change-statuses"}>
-      {changes}
-      {status?.migrationMessage ? (
-        <CalloutContainer>
-          <Callout kind="info">{status.migrationMessage}</Callout>
-        </CalloutContainer>
+  return (
+    <>
+      {changes.length ? (
+        <Changes data-testid={"t--git-change-statuses"}>
+          {changes}
+          {status?.migrationMessage ? (
+            <CalloutContainer>
+              <Callout kind="info">{status.migrationMessage}</Callout>
+            </CalloutContainer>
+          ) : null}
+        </Changes>
       ) : null}
-    </Changes>
-  ) : null;
+      {loading ? (
+        <DummyChange data-testid={"t--git-change-loading-dummy"} />
+      ) : null}
+    </>
+  );
 }

@@ -15,6 +15,7 @@ export const FEATURE_FLAG = {
   ab_gsheet_schema_enabled: "ab_gsheet_schema_enabled",
   ab_wds_enabled: "ab_wds_enabled",
   release_widgetdiscovery_enabled: "release_widgetdiscovery_enabled",
+  release_git_status_lite_enabled: "release_git_status_lite_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -34,6 +35,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_gsheet_schema_enabled: false,
   ab_wds_enabled: false,
   release_widgetdiscovery_enabled: false,
+  release_git_status_lite_enabled: true,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
