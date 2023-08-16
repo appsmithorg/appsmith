@@ -90,6 +90,7 @@ Object.keys(MULTIPLEXING_MODE_CONFIGS).forEach((key) => {
         delimStyle: "binding-brackets",
         mode: CodeMirror.getMode(config, {
           name: "javascript",
+          json: true,
         }),
       })),
     );

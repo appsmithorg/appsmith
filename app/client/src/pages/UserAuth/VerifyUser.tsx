@@ -33,23 +33,28 @@ enum ErrorType {
 }
 
 const VerifyUser = (
-  props: RouteComponentProps<{ email: string; token: string }>,
+  props: RouteComponentProps<{
+    email: string;
+    token: string;
+    redirectUrl: string;
+  }>,
 ) => {
   const queryParams = new URLSearchParams(props.location.search);
   const token = queryParams.get("token");
   const email = queryParams.get("email");
+  const redirectUrl = queryParams.get("redirectUrl");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ErrorType>(ErrorType.UNKNOWN);
 
   useEffect(() => {
-    if (!token || !email) {
-      Sentry.captureMessage("User Email Verification without email or token");
+    if (!token || !email || !redirectUrl) {
+      Sentry.captureMessage("User Email Verification link is damaged");
       setLoading(false);
       setError(ErrorType.UNKNOWN);
       return;
     }
-    UserApi.verifyUser(token, email)
+    UserApi.verifyUser(token, email, redirectUrl)
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       .then((response: ApiResponse) => {
