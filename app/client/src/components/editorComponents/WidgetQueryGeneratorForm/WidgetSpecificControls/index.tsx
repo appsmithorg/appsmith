@@ -24,13 +24,14 @@ export default function WidgetSpecificControls(props: Props) {
   }
 
   if (props.aliases?.length) {
-    aliases = props.aliases.map(({ name }) => {
+    aliases = props.aliases.map(({ isSearcheable, name }) => {
       const label = name.slice(0, 1).toUpperCase() + name.slice(1);
 
       return (
         <ColumnDropdown
           alias={`alias.${name}`}
           id={name}
+          isSearcheable={isSearcheable}
           key={name}
           label={label}
           onSelect={noop}
