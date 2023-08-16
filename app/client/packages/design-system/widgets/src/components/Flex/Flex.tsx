@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { StyledContainerFlex, StyledFlex } from "./index.styled";
 import type { FlexProps } from "./types";
 
@@ -92,4 +92,4 @@ const _Flex = (props: FlexProps, ref: React.Ref<HTMLDivElement>) => {
   );
 };
 
-export const Flex = React.forwardRef(_Flex);
+export const Flex = forwardRef(_Flex);
