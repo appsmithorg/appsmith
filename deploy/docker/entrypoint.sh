@@ -10,6 +10,8 @@ export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor p
 export NGINX_CONF_PATH="$TMP/nginx.conf"  # export for use in supervisor process editor.conf
 export NGINX_WWW_PATH="$TMP/www"  # export for use in supervisor process editor.conf and supervisor plugin starting-page-init.py
 
+CERTBOT_CONFIG_DIR="$stacks_path/letsencrypt"
+
 mkdir -pv "$SUPERVISORD_CONF_TARGET" "$NGINX_WWW_PATH"
 
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
@@ -244,14 +246,6 @@ use-mongodb-key() {
   chmod 600 "$MONGODB_TMP_KEY_PATH"
 }
 
-# Keep Let's Encrypt directory persistent
-mount_letsencrypt_directory() {
-  echo "Mounting Let's encrypt directory"
-  rm -rf /etc/letsencrypt
-  mkdir -p /appsmith-stacks/{letsencrypt,ssl}
-  ln -s /appsmith-stacks/letsencrypt /etc/letsencrypt
-}
-
 is_empty_directory() {
   [[ -d $1 && -z "$(ls -A "$1")" ]]
 }
@@ -285,7 +279,7 @@ check_setup_custom_ca_certificates() {
     echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up autatically.".
   fi
 
-  update-ca-certificates --fresh
+#  update-ca-certificates --fresh
 }
 
 configure_supervisord() {
@@ -306,9 +300,6 @@ configure_supervisord() {
       # Initialize Redis rdb directory
       local redis_db_path="$stacks_path/data/redis"
       mkdir -p "$redis_db_path"
-    fi
-    if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
-      cp "$supervisord_conf_source/cron.conf" "$SUPERVISORD_CONF_TARGET"/
     fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"/
@@ -462,7 +453,6 @@ else
 fi
 
 check_setup_custom_ca_certificates
-mount_letsencrypt_directory
 
 check_redis_compatible_page_size
 
@@ -472,11 +462,13 @@ configure_supervisord
 
 echo "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 "$APPSMITH_SUPERVISOR_PASSWORD")" > "$TMP/nginx-passwords"
 
+mkdir -p "$CERTBOT_CONFIG_DIR" /appsmith-stacks/ssl
+
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+mkdir -p /appsmith-stacks/logs/{supervisor,backend,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 # Stop nginx gracefully
 nginx -c "$NGINX_CONF_PATH" -s quit

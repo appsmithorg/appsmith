@@ -14,13 +14,12 @@ fi
 
 if [[ -n $APPSMITH_CUSTOM_DOMAIN ]]; then
   data_path="/appsmith-stacks/data/certificate"
-  domain="$APPSMITH_CUSTOM_DOMAIN"
-  rsa_key_size=4096
 
   certbot certonly --webroot --webroot-path="$data_path/certbot" \
+    --config-dir "/appsmith-stacks/letsencrypt" \
     --register-unsafely-without-email \
-    --domains $domain \
-    --rsa-key-size $rsa_key_size \
+    --domains "$APPSMITH_CUSTOM_DOMAIN" \
+    --rsa-key-size 4096 \
     --agree-tos \
     --force-renewal
   supervisorctl restart editor

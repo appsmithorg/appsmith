@@ -6,6 +6,7 @@ import type { LogLevelDesc } from "loglevel";
 import log from "loglevel";
 import { VERSION as buildVersion } from "./version"; // release version of the api
 import { initializeSockets } from "./sockets";
+import { cronStart } from "./cron";
 
 // routes
 import ast_routes from "./routes/ast_routes";
@@ -57,5 +58,7 @@ server.listen(APPSMITH_RTS_PORT, () => {
     `RTS version ${buildVersion} running at http://localhost:${APPSMITH_RTS_PORT}`,
   );
 });
+
+cronStart();
 
 export default server;

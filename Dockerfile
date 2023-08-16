@@ -13,7 +13,7 @@ ENV LC_ALL C.UTF-8
 RUN apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
-    supervisor curl cron nfs-common certbot nginx gnupg wget netcat openssh-client \
+    supervisor curl nfs-common certbot nginx gnupg wget netcat openssh-client \
     software-properties-common gettext \
     python3-pip python3-requests python-setuptools git ca-certificates-java \
   && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add - \
@@ -91,10 +91,6 @@ RUN cd ./utils && npm install --only=prod && npm install --only=prod -g .
 # Add process config to be run by supervisord
 COPY ./deploy/docker/templates/supervisord.conf /etc/supervisor/supervisord.conf
 COPY ./deploy/docker/templates/supervisord/ templates/supervisord/
-
-# Add defined cron job
-COPY ./deploy/docker/templates/cron.d /etc/cron.d/
-RUN chmod 0644 /etc/cron.d/*
 
 RUN chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh
 
