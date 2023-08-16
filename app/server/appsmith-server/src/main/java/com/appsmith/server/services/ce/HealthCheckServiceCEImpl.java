@@ -21,6 +21,7 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
     private final ReactiveRedisConnectionFactory reactiveRedisConnectionFactory;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
 
+
     public HealthCheckServiceCEImpl(
             ReactiveRedisConnectionFactory reactiveRedisConnectionFactory,
             ReactiveMongoTemplate reactiveMongoTemplate) {

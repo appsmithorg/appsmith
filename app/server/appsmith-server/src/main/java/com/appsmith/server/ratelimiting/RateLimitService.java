@@ -1,4 +1,4 @@
-package com.appsmith.ratelimiting;
+package com.appsmith.server.ratelimiting;
 
 import io.github.bucket4j.distributed.BucketProxy;
 import org.springframework.stereotype.Service;

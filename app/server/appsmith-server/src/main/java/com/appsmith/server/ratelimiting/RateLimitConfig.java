@@ -1,4 +1,4 @@
-package com.appsmith.ratelimiting;
+package com.appsmith.server.ratelimiting;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.BucketConfiguration;
@@ -26,9 +26,7 @@ public class RateLimitConfig {
 
     @Bean
     public LettuceBasedProxyManager<byte[]> proxyManager() {
-        return LettuceBasedProxyManager.builderFor(createRedisClient())
-                .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(Duration.ofDays(1)))
-                .build();
+        return LettuceBasedProxyManager.builderFor(createRedisClient()).withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(Duration.ofDays(1))).build();
     }
 
     @Bean
