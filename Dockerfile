@@ -86,7 +86,7 @@ COPY ./deploy/docker/entrypoint.sh ./deploy/docker/scripts/* info.*json ./
 
 # Add util tools
 COPY ./deploy/docker/utils ./utils
-RUN cd ./utils && npm install && npm install -g .
+RUN cd ./utils && npm install --only=prod && npm install --only=prod -g .
 
 # Add process config to be run by supervisord
 COPY ./deploy/docker/templates/supervisord.conf /etc/supervisor/supervisord.conf

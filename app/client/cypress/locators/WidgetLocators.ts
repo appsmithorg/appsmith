@@ -6,6 +6,7 @@ export const WIDGET = {
   CURRENCY_INPUT: "currencyinputwidget",
   BUTTON: "buttonwidget",
   BUTTONNAME: (index: string) => `Button${index}`,
+  CODESCANNER: "codescannerwidget",
   CONTAINER: "containerwidget",
   MULTISELECT: "multiselectwidgetv2",
   BUTTON_GROUP: "buttongroupwidget",
@@ -69,5 +70,20 @@ export const modalWidgetSelector = ".t--modal-widget";
 
 // export data-testid with user input 
 export const progressWidgetProgress = (input: any) => `[data-testid='${input}']`
+
+//switch widget locators
+export const switchlocators = {
+  switchGroupLabel: ".switchgroup-label",
+  switchTooltip: "//*[@data-testid='switchgroup-container']//*[@class='bp3-popover-target']",
+  switchWidget:"//*[@data-testid='switchgroup-container']",
+  switchWidgetHeight: (height: string) => `//*[@data-testid='switchgroup-container']//div[@height="${height}"]`,
+  switchGroupToggleChecked : (value: string) =>
+  `//*[text()='${value}']//input[@type="checkbox"]`,
+}
+
+export const checkboxlocators = {
+  // read Blue here
+  checkBoxLabel: (value: string) => `//*[contains(@class,'t--checkbox-widget-label') and text()='${value}']`,
+}
 
 

@@ -14,6 +14,7 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import { setEvalContext } from "./evaluate";
+import { generateOptimisedUpdatesAndSetPrevState } from "./helpers";
 
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
@@ -63,6 +64,8 @@ export function evalTreeWithChanges(
 
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
       evalProps: dataTreeEvaluator.evalProps,
+      identicalEvalPathsPatches:
+        dataTreeEvaluator.getEvalPathsIdenticalToState(),
     });
 
     /** Make sure evalMetaUpdates is sanitized to prevent postMessage failure */
@@ -75,8 +78,12 @@ export function evalTreeWithChanges(
     configTree = dataTreeEvaluator.oldConfigTree;
   }
 
-  const evalTreeResponse: EvalTreeResponseData = {
+  const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
+    dataTreeEvaluator,
+  );
+  const evalTreeResponse: EvalTreeResponseData = {
+    updates,
     dependencies,
     errors,
     evalMetaUpdates,

@@ -125,6 +125,9 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       "IS_NULLABLE",
       "SS_DATA_TYPE",
     ]);
+
+    runQueryNValidateResponseData("SELECT COUNT(*) FROM Amazon_Sales;", "10");
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -289,5 +292,15 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(columnHeaders);
+  }
+
+  function runQueryNValidateResponseData(
+    query: string,
+    expectedResponse: string,
+    index = 0,
+  ) {
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.AssertQueryTableResponse(index, expectedResponse);
   }
 });

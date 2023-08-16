@@ -45,6 +45,7 @@ export class DebuggerHelper {
     _helpButton: "[data-testid='t--help-button']",
     _intercomOption: "#intercom-trigger",
     _intercomConsentText: "[data-testid='t--intercom-consent-text']",
+    _logsTab: "[data-testid='t--tab-LOGS_TAB']",
   };
 
   ClickDebuggerIcon(
@@ -83,6 +84,10 @@ export class DebuggerHelper {
     this.agHelper.GetNClick(this.commonLocators._responseTab);
   }
 
+  ClickLogsTab() {
+    this.agHelper.GetNClick(this.locators._logsTab);
+  }
+
   CloseBottomBar() {
     this.agHelper.GetNClick(this.locators._closeButton);
   }
@@ -106,7 +111,7 @@ export class DebuggerHelper {
         break;
       // case PageType.Query:
       // case PageType.DataSources:
-      //   this.agHelper.AssertElementVisible(
+      //   this.agHelper.AssertElementVisibility(
       //     this.locators._bottomPaneContainer[pageType],
       //   );
       //   // this.agHelper.AssertHeight(

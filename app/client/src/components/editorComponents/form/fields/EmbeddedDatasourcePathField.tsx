@@ -544,7 +544,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     };
 
     return (
-      <DatasourceContainer data-replay-id={btoa(props.input.name || "")}>
+      <DatasourceContainer data-location-id={btoa(props.input.name || "")}>
         <LazyCodeEditor
           {...props}
           border={CodeEditorBorder.ALL_SIDE}
