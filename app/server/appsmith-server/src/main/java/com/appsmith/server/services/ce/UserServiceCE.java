@@ -51,7 +51,8 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> updateWithoutPermission(String id, User update);
 
-    Mono<Boolean> emailVerificationTokenGenerate(ResendEmailVerificationDTO resendEmailVerificationDTO);
+    Mono<Boolean> emailVerificationTokenGenerate(
+            ResendEmailVerificationDTO resendEmailVerificationDTO, String customVerificationUrl);
 
     Mono<Void> verifyEmailVerificationToken(Map<String, String> params, ServerWebExchange exchange);
 }

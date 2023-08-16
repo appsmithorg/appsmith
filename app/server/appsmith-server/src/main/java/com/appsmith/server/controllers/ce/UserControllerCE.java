@@ -236,7 +236,7 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
             @RequestBody ResendEmailVerificationDTO resendEmailVerificationDTO,
             @RequestHeader("Origin") String originHeader) {
         resendEmailVerificationDTO.setBaseUrl(originHeader);
-        return service.emailVerificationTokenGenerate(resendEmailVerificationDTO)
+        return service.emailVerificationTokenGenerate(resendEmailVerificationDTO, null)
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 

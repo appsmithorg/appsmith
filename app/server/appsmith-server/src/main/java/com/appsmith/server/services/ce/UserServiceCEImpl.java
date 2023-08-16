@@ -120,7 +120,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     public static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
 
-    private static final String EMAIL_VERIFICATION_CLIENT_URL_FORMAT = "%s/user/verifyEmail?token=%s&email=%s";
+    private static final String EMAIL_VERIFICATION_CLIENT_URL_FORMAT =
+            "%s/user/verifyEmail?token=%s&email=%s&redirectUrl=%s";
     private static final String USER_EMAIL_VERIFICATION_EMAIL_TEMPLATE = "email/emailVerificationTemplate.html";
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
 
@@ -875,7 +876,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     @Override
-    public Mono<Boolean> emailVerificationTokenGenerate(ResendEmailVerificationDTO resendEmailVerificationDTO) {
+    public Mono<Boolean> emailVerificationTokenGenerate(
+            ResendEmailVerificationDTO resendEmailVerificationDTO, String redirectUrl) {
+
         if (resendEmailVerificationDTO.getEmail() == null
                 || resendEmailVerificationDTO.getEmail().isBlank()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
@@ -934,11 +937,16 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     nameValuePairs.add(new BasicNameValuePair("email", emailVerificationToken.getEmail()));
                     nameValuePairs.add(new BasicNameValuePair("token", token));
                     String urlParams = URLEncodedUtils.format(nameValuePairs, StandardCharsets.UTF_8);
+                    String redirectUrlCopy = redirectUrl;
+                    if (redirectUrlCopy == null) {
+                        redirectUrlCopy = String.format("%s/applications", resendEmailVerificationDTO.getBaseUrl());
+                    }
                     String verificationUrl = String.format(
                             EMAIL_VERIFICATION_CLIENT_URL_FORMAT,
                             resendEmailVerificationDTO.getBaseUrl(),
                             encryptionService.encryptString(urlParams),
-                            emailVerificationToken.getEmail());
+                            emailVerificationToken.getEmail(),
+                            redirectUrlCopy);
 
                     log.debug(
                             "Email Verification url for email: {}: {}",

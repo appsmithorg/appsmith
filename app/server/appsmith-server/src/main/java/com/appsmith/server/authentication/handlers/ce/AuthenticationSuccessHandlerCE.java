@@ -40,6 +40,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -157,7 +159,6 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                             return createDefaultApplication(defaultWorkspaceId, authentication)
                                     .flatMap(defaultApplication -> redirectHelper.getAuthSuccessRedirectUrl(
                                             webFilterExchange, defaultApplication, true))
-                                    .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
                                     .flatMap(url -> {
                                         String baseUrl = webFilterExchange
                                                 .getExchange()
@@ -168,10 +169,19 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                                 new ResendEmailVerificationDTO();
                                         resendEmailVerificationDTO.setEmail(user.getEmail());
                                         resendEmailVerificationDTO.setBaseUrl(baseUrl);
+                                        try {
+                                            url = url.split("redirectUrl=")[1];
+                                        } catch (Exception e) {
+                                            log.error(String.valueOf(e));
+                                            log.debug("Redirect Url not present from form signup:  ", url);
+                                        }
+                                        url = URLDecoder.decode(url, StandardCharsets.UTF_8);
+
                                         return userService
-                                                .emailVerificationTokenGenerate(resendEmailVerificationDTO)
+                                                .emailVerificationTokenGenerate(resendEmailVerificationDTO, url)
                                                 .then(Mono.just(url));
                                     })
+                                    .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
                                     .map(URI::create)
                                     .flatMap(redirectUri -> redirectStrategy.sendRedirect(
                                             webFilterExchange.getExchange(), redirectUri));
@@ -202,8 +212,15 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                                 new ResendEmailVerificationDTO();
                                         resendEmailVerificationDTO.setEmail(user.getEmail());
                                         resendEmailVerificationDTO.setBaseUrl(baseUrl);
+                                        try {
+                                            url = url.split("redirectUrl=")[1];
+                                        } catch (Exception e) {
+                                            log.error(String.valueOf(e));
+                                            log.debug("Redirect Url not present from form signup:  ", url);
+                                        }
+                                        url = URLDecoder.decode(url, StandardCharsets.UTF_8);
                                         return userService
-                                                .emailVerificationTokenGenerate(resendEmailVerificationDTO)
+                                                .emailVerificationTokenGenerate(resendEmailVerificationDTO, url)
                                                 .then(Mono.just(url));
                                     })
                                     .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
@@ -237,8 +254,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                             new ResendEmailVerificationDTO();
                                     resendEmailVerificationDTO.setEmail(user.getEmail());
                                     resendEmailVerificationDTO.setBaseUrl(baseUrl);
+                                    url = URLDecoder.decode(url, StandardCharsets.UTF_8);
                                     return userService
-                                            .emailVerificationTokenGenerate(resendEmailVerificationDTO)
+                                            .emailVerificationTokenGenerate(resendEmailVerificationDTO, url)
                                             .then(Mono.just(url));
                                 })
                                 .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
