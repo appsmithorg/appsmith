@@ -95,6 +95,8 @@ import {
   onUpdateFilterSuccess,
 } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -130,6 +132,7 @@ interface ReduxStateProps {
   defaultKeyValueArrayConfig: Array<string>;
   initialValue: Datasource | ApiDatasourceForm | undefined;
   showDebugger: boolean;
+  isEnabledForDSViewModeSchema: boolean;
 }
 
 const Form = styled.div`
@@ -750,6 +753,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           formData={formData}
           formName={DATASOURCE_DB_FORM}
           hiddenHeader={isInsideReconnectModal}
+          isEnabledForDSViewModeSchema={this.props.isEnabledForDSViewModeSchema}
           isSaving={isSaving}
           pageId={pageId}
           pluginType={pluginType}
@@ -793,6 +797,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       formData,
       history,
       isDeleting,
+      isEnabledForDSViewModeSchema,
       isInsideReconnectModal,
       isNewDatasource,
       isPluginAuthorized,
@@ -855,6 +860,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             datasourceId={datasourceId}
             isDeleting={isDeleting}
             isNewDatasource={isNewDatasource}
+            isNewQuerySecondaryButton={isEnabledForDSViewModeSchema}
             isPluginAuthorized={isPluginAuthorized}
             pluginImage={pluginImage}
             pluginName={pluginName}
@@ -999,6 +1005,12 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId,
   );
 
+  //   A/B feature flag for datasource view mode preview data.
+  const isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.ab_gsheet_schema_enabled,
+  );
+
   return {
     canCreateDatasourceActions,
     canDeleteDatasource,
@@ -1016,6 +1028,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource,
+    isEnabledForDSViewModeSchema,
     pageId: props.pageId ?? props.match?.params?.pageId,
     viewMode,
     pluginType: plugin?.type ?? "",
