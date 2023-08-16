@@ -97,7 +97,7 @@ export interface Category {
   categoryType: string;
   needsUpgrade?: boolean;
   isEnterprise?: boolean;
-  isEnabled?: boolean;
+  isFeatureEnabled?: boolean;
 }
 
 export const SettingCategories = {
@@ -137,5 +137,5 @@ export type AdminConfigType = {
   needsUpgrade?: boolean;
   categoryType: CategoryType;
   isEnterprise?: boolean;
-  isEnabled?: boolean;
+  isFeatureEnabled?: boolean;
 };

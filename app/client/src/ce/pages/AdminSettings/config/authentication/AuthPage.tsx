@@ -94,7 +94,7 @@ export type AuthMethodType = {
   isConnected?: boolean;
   calloutBanner?: banner;
   icon?: string;
-  isEnabled?: boolean;
+  isFeatureEnabled: boolean;
 };
 
 const ButtonWrapper = styled.div`
@@ -184,7 +184,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       renderAs="p"
                     >
                       {method.label}&nbsp;
-                      {!method.isEnabled && <BusinessTag />}
+                      {!method.isFeatureEnabled && <BusinessTag />}
                       {method.isConnected && (
                         <Tooltip
                           content={createMessage(

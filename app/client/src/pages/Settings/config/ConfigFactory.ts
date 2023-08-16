@@ -47,7 +47,7 @@ export class ConfigFactory {
       needsUpgrade: config.needsUpgrade,
       isEnterprise: config.isEnterprise,
       needsRefresh: config.needsRefresh,
-      isEnabled: config.isEnabled,
+      isFeatureEnabled: config.isFeatureEnabled,
       children: config?.children?.map((child) =>
         ConfigFactory.getCategory(child),
       ),

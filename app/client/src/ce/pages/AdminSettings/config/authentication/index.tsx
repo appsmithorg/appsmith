@@ -200,7 +200,7 @@ export const FormAuthCallout: AuthMethodType = {
   subText: createMessage(FORM_LOGIN_DESC),
   image: Lock,
   icon: "lock-password-line",
-  isEnabled: true,
+  isFeatureEnabled: true,
 };
 
 export const GoogleAuthCallout: AuthMethodType = {
@@ -209,7 +209,7 @@ export const GoogleAuthCallout: AuthMethodType = {
   label: "Google",
   subText: createMessage(GOOGLE_AUTH_DESC),
   image: Google,
-  isEnabled: true,
+  isFeatureEnabled: true,
 };
 
 export const GithubAuthCallout: AuthMethodType = {
@@ -218,7 +218,7 @@ export const GithubAuthCallout: AuthMethodType = {
   label: "GitHub",
   subText: createMessage(GITHUB_AUTH_DESC),
   image: Github,
-  isEnabled: true,
+  isFeatureEnabled: true,
 };
 
 export const SamlAuthCallout: AuthMethodType = {
@@ -227,7 +227,7 @@ export const SamlAuthCallout: AuthMethodType = {
   label: "SAML 2.0",
   subText: createMessage(SAML_AUTH_DESC),
   image: SamlSso,
-  isEnabled: isSSOEnabled(featureFlags),
+  isFeatureEnabled: isSSOEnabled(featureFlags),
 };
 
 export const OidcAuthCallout: AuthMethodType = {
@@ -236,7 +236,7 @@ export const OidcAuthCallout: AuthMethodType = {
   label: "OIDC",
   subText: createMessage(OIDC_AUTH_DESC),
   image: OIDC,
-  isEnabled: isSSOEnabled(featureFlags),
+  isFeatureEnabled: isSSOEnabled(featureFlags),
 };
 
 const AuthMethods = [

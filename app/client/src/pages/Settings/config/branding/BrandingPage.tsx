@@ -30,7 +30,7 @@ type BrandingPageProps = {
 
 function BrandingPage(props: BrandingPageProps) {
   const { category } = props;
-  const isBrandingEnabled = category?.isEnabled ?? false;
+  const isBrandingEnabled = category?.isFeatureEnabled ?? false;
   const tentantConfig = useSelector(getTenantConfig);
   const defaultValues = {
     brandColors: tentantConfig.brandColors,
