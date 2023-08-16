@@ -31,34 +31,19 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "@appsmith/pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
-import ApplicationCard from "pages/Applications/ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
 import {
-  DropdownOnSelectActions,
-  getOnSelectAction,
-} from "pages/common/CustomizedDropdown/dropdownHelpers";
-import {
   AppIconCollection,
   Classes,
   EditableText,
-  EditInteractionKind,
   MenuItem as ListItem,
-  notEmptyValidator,
-  SavingState,
   Text,
   TextType,
 } from "design-system-old";
-import {
-  Button,
-  Icon,
-  Menu,
-  MenuItem,
-  MenuContent,
-  MenuTrigger,
-} from "design-system";
+import { Button, Icon } from "design-system";
 import {
   setShowAppInviteUsersDialog,
   updateApplication,
@@ -110,9 +95,12 @@ import {
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { importSvg } from "design-system-old";
-
-const NoAppsFoundIcon = importSvg(() => import("assets/svg/no-apps-icon.svg"));
+// import { fetchAllPackages } from "actions/packageActions";
+// import { packagesList } from "selectors/packageSelectors";
+// import { queryModuleFlagEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import WorkspaceMenu from "./WorkspaceMenu";
+import type { PackageMetadata } from "constants/packageConstants";
+import ApplicationCardList from "./ApplicationCardList";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -132,85 +120,8 @@ export const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   `}
 `;
 
-export const ApplicationCardsWrapper = styled.div<{ isMobile?: boolean }>`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${({ isMobile }) => (isMobile ? 12 : 20)}px;
-  font-size: ${(props) => props.theme.fontSizes[4]}px;
-  padding: ${({ isMobile }) => (isMobile ? `10px 16px` : `10px 0`)};
-`;
-
 export const WorkspaceSection = styled.div<{ isMobile?: boolean }>`
   margin-bottom: ${({ isMobile }) => (isMobile ? `8` : `40`)}px;
-`;
-
-export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  width: ${(props) => props.theme.card.minWidth}px;
-
-  @media screen and (min-width: 1500px) {
-    .bp3-card {
-      width: ${(props) => props.theme.card.minWidth}px;
-      height: ${(props) => props.theme.card.minHeight}px;
-    }
-  }
-
-  @media screen and (min-width: 1500px) and (max-width: 1512px) {
-    .bp3-card {
-      width: ${(props) => props.theme.card.minWidth - 5}px;
-      height: ${(props) => props.theme.card.minHeight - 5}px;
-    }
-  }
-  @media screen and (min-width: 1478px) and (max-width: 1500px) {
-    .bp3-card {
-      width: ${(props) => props.theme.card.minWidth - 8}px;
-      height: ${(props) => props.theme.card.minHeight - 8}px;
-    }
-  }
-
-  @media screen and (min-width: 1447px) and (max-width: 1477px) {
-    width: ${(props) =>
-      props.theme.card.minWidth + props.theme.spaces[3] * 2}px;
-    .bp3-card {
-      width: ${(props) => props.theme.card.minWidth - 8}px;
-      height: ${(props) => props.theme.card.minHeight - 8}px;
-    }
-  }
-
-  @media screen and (min-width: 1417px) and (max-width: 1446px) {
-    width: ${(props) =>
-      props.theme.card.minWidth + props.theme.spaces[3] * 2}px;
-    .bp3-card {
-      width: ${(props) => props.theme.card.minWidth - 11}px;
-      height: ${(props) => props.theme.card.minHeight - 11}px;
-    }
-  }
-
-  @media screen and (min-width: 1400px) and (max-width: 1417px) {
-    width: ${(props) =>
-      props.theme.card.minWidth + props.theme.spaces[2] * 2}px;
-    .bp3-card {
-      width: ${(props) => props.theme.card.minWidth - 15}px;
-      height: ${(props) => props.theme.card.minHeight - 15}px;
-    }
-  }
-
-  @media screen and (max-width: 1400px) {
-    width: ${(props) =>
-      props.theme.card.minWidth + props.theme.spaces[2] * 2}px;
-    .bp3-card {
-      width: ${(props) => props.theme.card.minWidth - 15}px;
-      height: ${(props) => props.theme.card.minHeight - 15}px;
-    }
-  }
-
-  ${({ isMobile }) =>
-    isMobile &&
-    `
-    width: 100% !important;
-  `}
 `;
 
 export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
@@ -570,7 +481,7 @@ export function ApplicationsSection(props: any) {
     [dispatch],
   );
 
-  const WorkspaceNameChange = (newName: string, workspaceId: string) => {
+  const workspaceNameChange = (newName: string, workspaceId: string) => {
     dispatch(
       saveWorkspace({
         id: workspaceId as string,
@@ -763,190 +674,57 @@ export function ApplicationsSection(props: any) {
                   {(currentUser || isFetchingApplications) &&
                     !isMobile &&
                     showWorkspaceMenuOptions && (
-                      <Menu
-                        className="t--workspace-name"
-                        data-testid="t--workspace-name"
-                        onOpenChange={handleWorkspaceMenuClose}
-                        open={workspace.id === workspaceToOpenMenu}
-                      >
-                        <MenuTrigger>
-                          <Button
-                            className="t--options-icon"
-                            isDisabled={isFetchingApplications}
-                            isIconButton
-                            kind="tertiary"
-                            onClick={() => {
-                              setWorkspaceToOpenMenu(workspace.id);
-                            }}
-                            size="md"
-                            startIcon="context-menu"
-                          />
-                        </MenuTrigger>
-                        <MenuContent
-                          align="end"
-                          onEscapeKeyDown={handleResetMenuState}
-                          onInteractOutside={handleResetMenuState}
-                          width="205px"
-                        >
-                          {hasManageWorkspacePermissions && (
-                            <>
-                              <div
-                                className="px-3 py-2"
-                                onKeyDown={(e) => {
-                                  // This is to prevent the Menu component to take focus away from the input
-                                  // https://github.com/radix-ui/primitives/issues/1175
-                                  e.stopPropagation();
-                                }}
-                              >
-                                <WorkspaceRename
-                                  className="t--workspace-rename-input"
-                                  defaultValue={workspace.name}
-                                  editInteractionKind={
-                                    EditInteractionKind.SINGLE
-                                  }
-                                  fill
-                                  hideEditIcon={false}
-                                  isEditingDefault={false}
-                                  isInvalid={(value: string) => {
-                                    return notEmptyValidator(value).message;
-                                  }}
-                                  onBlur={(value: string) => {
-                                    WorkspaceNameChange(value, workspace.id);
-                                  }}
-                                  placeholder="Workspace name"
-                                  savingState={
-                                    isSavingWorkspaceInfo
-                                      ? SavingState.STARTED
-                                      : SavingState.NOT_STARTED
-                                  }
-                                  underline
-                                />
-                              </div>
-                              <MenuItem
-                                data-testid="t--workspace-setting"
-                                onSelect={() =>
-                                  getOnSelectAction(
-                                    DropdownOnSelectActions.REDIRECT,
-                                    {
-                                      path: `/workspace/${workspace.id}/settings/general`,
-                                    },
-                                  )
-                                }
-                                startIcon="settings-2-line"
-                              >
-                                Settings
-                              </MenuItem>
-                            </>
-                          )}
-                          {enableImportExport &&
-                            hasCreateNewApplicationPermission && (
-                              <MenuItem
-                                data-testid="t--workspace-import-app"
-                                onSelect={() =>
-                                  setSelectedWorkspaceIdForImportApplication(
-                                    workspace.id,
-                                  )
-                                }
-                                startIcon="download"
-                              >
-                                Import
-                              </MenuItem>
-                            )}
-                          {hasManageWorkspacePermissions &&
-                            canInviteToWorkspace && (
-                              <MenuItem
-                                onSelect={() =>
-                                  getOnSelectAction(
-                                    DropdownOnSelectActions.REDIRECT,
-                                    {
-                                      path: `/workspace/${workspace.id}/settings/members`,
-                                    },
-                                  )
-                                }
-                                startIcon="member"
-                              >
-                                Members
-                              </MenuItem>
-                            )}
-                          {canInviteToWorkspace && (
-                            <MenuItem
-                              className="error-menuitem"
-                              onSelect={() => {
-                                !warnLeavingWorkspace
-                                  ? setWarnLeavingWorkspace(true)
-                                  : leaveWS(workspace.id);
-                              }}
-                              startIcon="logout"
-                            >
-                              {!warnLeavingWorkspace
-                                ? "Leave workspace"
-                                : "Are you sure?"}
-                            </MenuItem>
-                          )}
-                          {applications.length === 0 && canDeleteWorkspace && (
-                            <MenuItem
-                              className="error-menuitem"
-                              onSelect={() => {
-                                warnDeleteWorkspace
-                                  ? handleDeleteWorkspace(workspace.id)
-                                  : setWarnDeleteWorkspace(true);
-                              }}
-                              startIcon="delete-bin-line"
-                            >
-                              {!warnDeleteWorkspace
-                                ? "Delete workspace"
-                                : "Are you sure?"}
-                            </MenuItem>
-                          )}
-                        </MenuContent>
-                      </Menu>
+                      <WorkspaceMenu
+                        canDeleteWorkspace={
+                          applications.length === 0 && canDeleteWorkspace
+                        }
+                        canInviteToWorkspace={canInviteToWorkspace}
+                        enableImportExport={enableImportExport}
+                        handleDeleteWorkspace={handleDeleteWorkspace}
+                        handleResetMenuState={handleResetMenuState}
+                        handleWorkspaceMenuClose={handleWorkspaceMenuClose}
+                        hasCreateNewApplicationPermission={
+                          hasCreateNewApplicationPermission
+                        }
+                        hasManageWorkspacePermissions={
+                          hasManageWorkspacePermissions
+                        }
+                        isFetchingApplications={isFetchingApplications}
+                        isSavingWorkspaceInfo={isSavingWorkspaceInfo}
+                        leaveWS={leaveWS}
+                        setSelectedWorkspaceIdForImportApplication={
+                          setSelectedWorkspaceIdForImportApplication
+                        }
+                        setWarnDeleteWorkspace={setWarnDeleteWorkspace}
+                        setWarnLeavingWorkspace={setWarnLeavingWorkspace}
+                        setWorkspaceToOpenMenu={setWorkspaceToOpenMenu}
+                        warnDeleteWorkspace={warnDeleteWorkspace}
+                        warnLeavingWorkspace={warnLeavingWorkspace}
+                        workspace={workspace}
+                        workspaceNameChange={workspaceNameChange}
+                        workspaceToOpenMenu={workspaceToOpenMenu}
+                      />
                     )}
                 </WorkspaceShareUsers>
               )}
             </WorkspaceDropDown>
-            <ApplicationCardsWrapper isMobile={isMobile} key={workspace.id}>
-              {applications.map((application: any) => {
-                return (
-                  <PaddingWrapper isMobile={isMobile} key={application.id}>
-                    <ApplicationCard
-                      application={application}
-                      delete={deleteApplication}
-                      enableImportExport={enableImportExport}
-                      isMobile={isMobile}
-                      key={application.id}
-                      permissions={{
-                        hasCreateNewApplicationPermission,
-                        hasManageWorkspacePermissions,
-                        canInviteToWorkspace,
-                      }}
-                      update={updateApplicationDispatch}
-                      workspaceId={workspace.id}
-                    />
-                  </PaddingWrapper>
-                );
-              })}
-              {applications.length === 0 && (
-                <NoAppsFound>
-                  <NoAppsFoundIcon />
-                  <span>There’s nothing inside this workspace</span>
-                  {/* below component is duplicate. This is because of cypress test were failing */}
-                  {hasCreateNewApplicationPermission && (
-                    <Button
-                      className="t--new-button createnew"
-                      isLoading={
-                        creatingApplicationMap &&
-                        creatingApplicationMap[workspace.id]
-                      }
-                      onClick={() => onClickAddNewButton(workspace.id)}
-                      size="md"
-                      startIcon={"plus"}
-                    >
-                      New
-                    </Button>
-                  )}
-                </NoAppsFound>
-              )}
-            </ApplicationCardsWrapper>
+            <ApplicationCardList
+              applications={applications}
+              canInviteToWorkspace={canInviteToWorkspace}
+              deleteApplication={deleteApplication}
+              enableImportExport={enableImportExport}
+              hasCreateNewApplicationPermission={
+                hasCreateNewApplicationPermission
+              }
+              hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+              isCreatingApplication={
+                creatingApplicationMap && creatingApplicationMap[workspace.id]
+              }
+              isMobile={isMobile}
+              onClickAddNewButton={onClickAddNewButton}
+              updateApplicationDispatch={updateApplicationDispatch}
+              workspace={workspace}
+            />
           </WorkspaceSection>
         );
       },
@@ -985,6 +763,9 @@ export interface ApplicationProps {
     showHeaderSeparator: boolean,
   ) => void;
   resetEditor: () => void;
+  queryModuleFeatureFlagEnabled: boolean;
+  fetchAllPackages: () => void;
+  packagesList: PackageMetadata[];
 }
 
 export interface ApplicationState {
@@ -1010,6 +791,10 @@ export class Applications<
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
     this.props.setHeaderMetaData(true, true);
+
+    if (this.props.queryModuleFeatureFlagEnabled) {
+      this.props.fetchAllPackages();
+    }
   }
 
   componentWillUnmount() {
@@ -1050,12 +835,15 @@ const mapStateToProps = (state: AppState) => ({
   userWorkspaces: getUserApplicationsWorkspacesList(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),
+  // packagesList: packagesList(state),
+  // queryModuleFlagEnabled: queryModuleFlagEnabled(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   getAllApplication: () => {
     dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
   },
+  // fetchAllPackages: () => dispatch(fetchAllPackages()),
   resetEditor: () => {
     dispatch(resetEditorRequest());
   },
