@@ -56,6 +56,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.server.DefaultServerRedirectStrategy;
+import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -69,6 +71,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -84,6 +87,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -121,9 +125,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
 
     private static final String EMAIL_VERIFICATION_CLIENT_URL_FORMAT =
-            "%s/user/verifyEmail?token=%s&email=%s&redirectUrl=%s";
+            "%s/user/verify?token=%s&email=%s&redirectUrl=%s";
     private static final String USER_EMAIL_VERIFICATION_EMAIL_TEMPLATE = "email/emailVerificationTemplate.html";
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
+
+    private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
     @Autowired
     public UserServiceCEImpl(
@@ -972,6 +978,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         EmailTokenDTO parsedEmailTokenDTO;
         String requestEmail = params.get("email");
         String requestedToken = params.get("token");
+        String redirectUrl = params.get("redirectUrl");
+        String baseUrl = exchange.getRequest().getHeaders().getOrigin();
+        if (redirectUrl == null) {
+            redirectUrl = baseUrl + DEFAULT_REDIRECT_URL;
+        }
+
+        String postVerificationRedirectUrl = "/signup-success?redirectUrl=" + redirectUrl;
 
         if (requestEmail == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
@@ -1030,7 +1043,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                     final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, EMPTY_WEB_FILTER_CHAIN);
                     user.setEmailVerified(TRUE);
-                    return repository.save(user).then(redirectHelper.handleRedirect(webFilterExchange, null, false));
+
+                    return repository
+                            .save(user)
+                            .then(redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(postVerificationRedirectUrl)));
                 });
     }
 }
