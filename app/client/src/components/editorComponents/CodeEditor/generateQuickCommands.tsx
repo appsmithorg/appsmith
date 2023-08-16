@@ -373,8 +373,7 @@ export const generateBindingSuggestionCommands = (
         displayText: `${name}.${key}`,
         className: "CodeMirror-commands",
         data: suggestion,
-        triggerCompletionsPostPick:
-          suggestion.ENTITY_TYPE !== ENTITY_TYPE.ACTION,
+        triggerCompletionsPostPick: false,
         render: (element: HTMLElement, self: any, data: any) => {
           const pluginType = data.data.pluginType as PluginType;
           let icon = null;
