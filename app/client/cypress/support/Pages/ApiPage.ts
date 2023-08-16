@@ -79,6 +79,7 @@ export class ApiPage {
   _addMore = ".t--addApiHeader";
   public _editorDS = ".t--datasource-editor";
   public _addMoreHeaderFieldButton = ".t--addApiHeader";
+  public jsonBody = `.t--apiFormPostBody`;
 
   CreateApi(
     apiName = "",

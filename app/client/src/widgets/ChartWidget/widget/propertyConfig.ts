@@ -162,6 +162,7 @@ export const contentConfig = [
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
+                default: [],
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
@@ -247,6 +248,16 @@ export const contentConfig = [
         isTriggerProperty: false,
         hidden: (x: ChartWidgetProps) =>
           x.chartType === "CUSTOM_FUSION_CHART" || x.chartType === "PIE_CHART",
+        dependencies: ["chartType"],
+      },
+      {
+        helpText: "Hides/Display data point labels on series data",
+        propertyName: "showDataPointLabel",
+        label: "Show Labels",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        hidden: (x: ChartWidgetProps) => x.chartType === "CUSTOM_FUSION_CHART",
         dependencies: ["chartType"],
       },
     ],

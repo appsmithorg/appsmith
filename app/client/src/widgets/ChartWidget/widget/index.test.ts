@@ -18,6 +18,7 @@ describe("emptyChartData", () => {
   };
   const defaultProps: ChartWidgetProps = {
     allowScroll: true,
+    showDataPointLabel: true,
     chartData: {
       seriesID1: seriesData1,
       seriesID2: seriesData2,
@@ -88,7 +89,7 @@ describe("emptyChartData", () => {
   });
 
   describe("when chart type is custom fusion charts", () => {
-    it("returns true customFusionChartConfig property is empty", () => {
+    it("returns true if customFusionChartConfig property is empty", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "CUSTOM_FUSION_CHART";
       props.customFusionChartConfig = {};
@@ -96,7 +97,7 @@ describe("emptyChartData", () => {
       expect(emptyChartData(props)).toEqual(true);
     });
 
-    it("returns false customFusionChartConfig property is not empty", () => {
+    it("returns false if customFusionChartConfig property is not empty", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "CUSTOM_FUSION_CHART";
       props.customFusionChartConfig = { key: "value" };

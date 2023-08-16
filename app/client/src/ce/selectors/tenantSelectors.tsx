@@ -27,7 +27,7 @@ export const isValidLicense = () => {
   return true;
 };
 
-export const getIsTenantLoading = (state: AppState) => {
+export const isTenantLoading = (state: AppState) => {
   return state.tenant?.isLoading;
 };
 
