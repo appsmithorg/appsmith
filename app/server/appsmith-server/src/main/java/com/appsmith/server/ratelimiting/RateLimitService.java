@@ -1,6 +1,7 @@
 package com.appsmith.server.ratelimiting;
 
 import io.github.bucket4j.distributed.BucketProxy;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 

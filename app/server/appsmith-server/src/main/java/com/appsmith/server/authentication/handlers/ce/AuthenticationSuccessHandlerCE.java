@@ -10,6 +10,7 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -62,6 +63,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final CommonConfig commonConfig;
 
     private final UserIdentifierService userIdentifierService;
+    private final RateLimitService rateLimitService;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -86,6 +88,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
         Mono<Void> redirectionMono;
         User user = (User) authentication.getPrincipal();
+        rateLimitService.resetCounter(user.getEmail(), "authentication");
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             // In case of OAuth2 based authentication, there is no way to identify if this was a user signup (new user

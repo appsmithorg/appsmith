@@ -1,11 +1,17 @@
 package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.server.constants.Security;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
@@ -27,63 +33,88 @@ import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARA
 public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailureHandler {
 
     private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
+    private final RateLimitService rateLimitService;
 
     @Override
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
         log.error("In the login failure handler. Cause: {}", exception.getMessage(), exception);
         ServerWebExchange exchange = webFilterExchange.getExchange();
 
-        // On authentication failure, we send a redirect to the client's login error page. The browser will re-load the
-        // login page again with an error message shown to the user.
+        Mono<String> userEmailMono = getUserEmailFromSecurityContext();
+        String apiIdentifier = "authentication";
+        Mono<Boolean> isRateLimitedMono = userEmailMono.flatMap(userEmail ->
+                rateLimitService.tryIncreaseCounter(apiIdentifier, userEmail)
+        );
+
+        return isRateLimitedMono.flatMap(isRateLimited -> {
+            if (isRateLimited) {
+                return handleRateLimitExceeded(exchange, apiIdentifier);
+            } else {
+                return handleAuthenticationFailure(exchange, exception);
+            }
+        });
+    }
+
+    private Mono<Void> handleRateLimitExceeded(ServerWebExchange exchange, String apiIdentifier) {
+        // Set the error in the URL query parameter for rate limiting
+        String url = "/user/login?error=true&message=" + URLEncoder.encode("Rate limit exceeded", StandardCharsets.UTF_8);
+        return redirectWithUrl(exchange, url);
+    }
+
+    private Mono<Void> handleAuthenticationFailure(ServerWebExchange exchange, AuthenticationException exception) {
         MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
         String state = queryParams.getFirst(Security.QUERY_PARAMETER_STATE);
         String originHeader = "/";
         String redirectUrl = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
 
         if (state != null && !state.isEmpty()) {
-            // This is valid for OAuth2 login failures. We derive the client login URL from the state query parameter
-            // that would have been set when we initiated the OAuth2 request.
-            String[] stateArray = state.split(",");
-            for (int i = 0; i < stateArray.length; i++) {
-                String stateVar = stateArray[i];
-                if (stateVar != null
-                        && stateVar.startsWith(Security.STATE_PARAMETER_ORIGIN)
-                        && stateVar.contains("=")) {
-                    // This is the origin of the request that we want to redirect to
-                    originHeader = stateVar.split("=")[1];
-                }
-            }
+            originHeader = getOriginFromState(state);
         } else {
-            // This is a form login authentication failure
-            originHeader = exchange.getRequest().getHeaders().getOrigin();
-            if (originHeader == null || originHeader.isEmpty()) {
-                // Check the referer header if the origin is not available
-                String refererHeader = exchange.getRequest().getHeaders().getFirst(Security.REFERER_HEADER);
-                if (refererHeader != null && !refererHeader.isBlank()) {
-                    URI uri = null;
-                    try {
-                        uri = new URI(refererHeader);
-                        String authority = uri.getAuthority();
-                        String scheme = uri.getScheme();
-                        originHeader = scheme + "://" + authority;
-                    } catch (URISyntaxException e) {
-                        originHeader = "/";
-                    }
-                }
-            }
+            originHeader = getOriginFromReferer(exchange.getRequest().getHeaders().getOrigin());
         }
 
-        // Authentication failure message can hold sensitive information, directly or indirectly. So we don't show all
-        // possible error messages. Only the ones we know are okay to be read by the user. Like a whitelist.
-        URI defaultRedirectLocation;
+        // Construct the redirect URL based on the exception type
+        String url = constructRedirectUrl(exception, originHeader, redirectUrl);
+
+        return redirectWithUrl(exchange, url);
+    }
+
+    private String getOriginFromState(String state) {
+        String[] stateArray = state.split(",");
+        for (int i = 0; i < stateArray.length; i++) {
+            String stateVar = stateArray[i];
+            if (stateVar != null
+                    && stateVar.startsWith(Security.STATE_PARAMETER_ORIGIN)
+                    && stateVar.contains("=")) {
+                return stateVar.split("=")[1];
+            }
+        }
+        return "/";
+    }
+
+    private String getOriginFromReferer(String refererHeader) {
+        if (refererHeader != null && !refererHeader.isBlank()) {
+            try {
+                URI uri = new URI(refererHeader);
+                String authority = uri.getAuthority();
+                String scheme = uri.getScheme();
+                return scheme + "://" + authority;
+            } catch (URISyntaxException e) {
+                return "/";
+            }
+        }
+        return "/";
+    }
+
+    private String constructRedirectUrl(AuthenticationException exception, String originHeader, String redirectUrl) {
         String url = "";
         if (exception instanceof OAuth2AuthenticationException
                 && AppsmithError.SIGNUP_DISABLED
-                        .getAppErrorCode()
-                        .toString()
-                        .equals(((OAuth2AuthenticationException) exception)
-                                .getError()
-                                .getErrorCode())) {
+                .getAppErrorCode()
+                .toString()
+                .equals(((OAuth2AuthenticationException) exception)
+                        .getError()
+                        .getErrorCode())) {
             url = "/user/signup?error=" + URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
         } else {
             if (exception instanceof InternalAuthenticationServiceException) {
@@ -96,7 +127,19 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
         if (redirectUrl != null && !redirectUrl.trim().isEmpty()) {
             url = url + "&" + REDIRECT_URL_QUERY_PARAM + "=" + redirectUrl;
         }
-        defaultRedirectLocation = URI.create(url);
+        return url;
+    }
+
+    private Mono<Void> redirectWithUrl(ServerWebExchange exchange, String url) {
+        URI defaultRedirectLocation = URI.create(url);
         return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
+    }
+
+    private Mono<String> getUserEmailFromSecurityContext() {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(SecurityContext::getAuthentication)
+                .map(Authentication::getPrincipal)
+                .ofType(User.class)
+                .map(User::getEmail);
     }
 }
