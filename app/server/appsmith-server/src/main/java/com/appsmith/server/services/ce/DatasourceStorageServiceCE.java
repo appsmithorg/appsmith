@@ -29,7 +29,7 @@ public interface DatasourceStorageServiceCE {
     Mono<DatasourceStorage> updateDatasourceStorage(
             DatasourceStorage datasourceStorage, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);
 
-    Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage, Boolean onlyConfiguration);
+    Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage);
 
     Mono<DatasourceStorage> validateDatasourceConfiguration(DatasourceStorage datasourceStorage);
 
@@ -44,4 +44,10 @@ public interface DatasourceStorageServiceCE {
     DatasourceStorage getDatasourceStorageFromDatasource(Datasource datasource, String environmentId);
 
     Mono<String> getEnvironmentNameFromEnvironmentIdForAnalytics(String environmentId);
+
+    DatasourceStorage createDatasourceStorageFromDatasourceStorageDTO(DatasourceStorageDTO datasourceStorageDTO);
+
+    DatasourceStorageDTO createDatasourceStorageDTOFromDatasourceStorage(DatasourceStorage datasourceStorage);
+
+    DatasourceStorage createDatasourceStorageFromDatasource(Datasource datasource, String environmentId);
 }
