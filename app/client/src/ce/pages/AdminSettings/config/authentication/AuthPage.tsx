@@ -110,7 +110,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
   });
 
   const onClickHandler = (method: AuthMethodType) => {
-    if (method?.isEnabled || method.isConnected) {
+    if (method?.isFeatureEnabled || method.isConnected) {
       AnalyticsUtil.logEvent(
         method.isConnected
           ? "ADMIN_SETTINGS_EDIT_AUTH_METHOD"
