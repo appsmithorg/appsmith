@@ -84,6 +84,7 @@ function WidgetCard(props: CardProps) {
       className={className}
       data-guided-tour-id={`widget-card-${type}`}
       draggable
+      id={`widget-card-draggable-${type}`}
       onDragStart={onDragStart}
     >
       <div className="gap-2 mt-2">

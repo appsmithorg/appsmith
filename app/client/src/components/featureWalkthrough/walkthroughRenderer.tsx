@@ -16,13 +16,13 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 const CLIPID = "clip__feature";
 const Z_INDEX = 1000;
 
-const WalkthroughWrapper = styled.div`
+const WalkthroughWrapper = styled.div<{ overlayColor?: string }>`
   left: 0px;
   top: 0px;
   position: fixed;
   width: 100%;
   height: 100%;
-  color: transparent;
+  color: ${(props) => props.overlayColor ?? "rgb(0, 0, 0, 0.7)"};
   z-index: ${Z_INDEX};
   // This allows the user to click on the target element rather than the overlay div
   pointer-events: none;
@@ -128,7 +128,7 @@ const WalkthroughRenderer = ({
   targetId,
   eventParams = {},
   multipleHighlights,
-  backgroundOverlay = true,
+  overlayColor,
 }: FeatureParams) => {
   const [boundingRects, setBoundingRects] =
     useState<BoundingRectTargets | null>(null);
@@ -199,7 +199,10 @@ const WalkthroughRenderer = ({
   if (!targetBounds) return null;
 
   return (
-    <WalkthroughWrapper className="t--walkthrough-overlay">
+    <WalkthroughWrapper
+      className="t--walkthrough-overlay"
+      overlayColor={overlayColor}
+    >
       <SvgWrapper
         height={targetBounds.bh}
         onClick={onDismissWalkthrough}

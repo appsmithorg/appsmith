@@ -463,7 +463,7 @@ export default function OnboardingChecklist() {
           description: "Datasources can be directly and easily accessed here",
           imageURL: `${ASSETS_CDN_URL}/schema.gif`,
         },
-        backgroundOverlay: false,
+        overlayColor: "transparent",
         offset: {
           position: "right",
           // left: -40,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useContext, useEffect } from "react";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
@@ -89,7 +90,7 @@ function ExplorerContent() {
   const checkAndShowWalkthrough = async () => {
     pushFeature &&
       pushFeature({
-        targetId: `#explorer-tab-options > [data-value*="widgets"]`,
+        targetId: `#explorer-tab-options [data-value*="widgets"]`,
         details: {
           title: "Switch to Widgets section",
           description:
@@ -98,13 +99,15 @@ function ExplorerContent() {
         },
         offset: {
           position: "right",
-          left: -40,
           highlightPad: 5,
           indicatorLeft: -3,
           style: {
             transform: "none",
+            boxShadow: "var(--ads-v2-shadow-popovers)",
+            border: "1px solid var(--ads-v2-color-border-muted)",
           },
         },
+        overlayColor: "transparent",
         delay: 1000,
       });
   };
@@ -125,7 +128,7 @@ function ExplorerContent() {
         />
       </div>
 
-      {featureFlags.release_widgetdiscovery_enabled ? (
+      {false ? (
         <WidgetSidebarWithTags isActive={activeOption === "widgets"} />
       ) : (
         <WidgetSidebar isActive={activeOption === "widgets"} />

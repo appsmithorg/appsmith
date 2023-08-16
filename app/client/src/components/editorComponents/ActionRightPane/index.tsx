@@ -66,6 +66,7 @@ import { Tooltip } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import log from "loglevel";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
 
@@ -387,7 +388,7 @@ function ActionSidebar({
     const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
     // Adding walkthrough tutorial
     true &&
-      !isFeatureWalkthroughShown &&
+      true &&
       pushFeature &&
       pushFeature({
         targetId: `#${SCHEMA_SECTION_ID}`,
@@ -442,15 +443,12 @@ function ActionSidebar({
             border: "1px solid var(--ads-v2-color-border-muted)",
           },
         },
-        eventParams: {
-          [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-            FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
-          [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
-        },
         delay: 1000,
+        overlayColor: "transparent",
       });
   };
   useEffect(() => {
+    log.debug(widgets, "widgets");
     if (Object.keys(widgets).length <= 1 && signpostingEnabled) {
       checkAndShowBackToCanvasWalkthrough();
     }

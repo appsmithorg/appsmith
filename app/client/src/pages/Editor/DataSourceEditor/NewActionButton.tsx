@@ -66,6 +66,7 @@ function NewActionButton(props: NewActionButtonProps) {
             border: "1px solid var(--ads-v2-color-border-muted)",
           },
         },
+        overlayColor: "transparent",
         delay: 1000,
       });
   };
