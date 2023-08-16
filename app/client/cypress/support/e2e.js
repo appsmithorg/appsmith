@@ -22,7 +22,7 @@ import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
 import "./ApiCommands";
 // Import commands.js using ES2015 syntax:
 import "./commands";
-import { initLocalstorage } from "./commands";
+import { initLocalstorage, removeUserSignupKey } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
@@ -35,6 +35,7 @@ import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
 import "cypress-plugin-tab";
+import { WALKTHROUGH_TEST_PAGE } from "./Constants.js";
 /// <reference types="cypress-xpath" />
 
 Cypress.on("uncaught:exception", () => {
@@ -107,6 +108,11 @@ before(function () {
       cy.LogOut();
     }
   });
+
+  if (!Cypress.currentTest.titlePath[0].includes(WALKTHROUGH_TEST_PAGE)) {
+    // Clearing key USER_SIGN_UP which is used to show walkthrough for non walkthrough cypress tests
+    removeUserSignupKey();
+  }
 
   //console.warn = () => {};
   //Cypress.Cookies.preserveOnce("SESSION", "remember_token");

@@ -11,6 +11,7 @@ const dayjs = require("dayjs");
 const {
   addMatchImageSnapshotCommand,
 } = require("cypress-image-snapshot/command");
+const localforage = require("localforage");
 const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
@@ -50,6 +51,13 @@ export const initLocalstorage = () => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
     window.localStorage.setItem("updateDismissed", "true");
   });
+};
+
+export const removeUserSignupKey = () => {
+  const store = localforage.createInstance({
+    name: "Appsmith",
+  });
+  store.removeItem("USER_SIGN_UP");
 };
 
 // Cypress.Commands.add("goToEditFromPublish", () => {
