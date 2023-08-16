@@ -516,7 +516,9 @@ export function EditorHeader() {
                       />
                     </TabPanel>
                     <TabPanel value="publish">
-                      <CommunityTemplatesPublish />
+                      <CommunityTemplatesPublish
+                        setShowHostModal={setShowModal}
+                      />
                     </TabPanel>
                   </Tabs>
                 </ModalBody>

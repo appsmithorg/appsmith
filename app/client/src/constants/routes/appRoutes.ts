@@ -29,6 +29,7 @@ export const WIDGETS_EDITOR_ID_PATH = `${WIDGETS_EDITOR_BASE_PATH}/:widgetIds`;
 export const API_EDITOR_BASE_PATH = `/api`;
 export const API_EDITOR_ID_PATH = `${API_EDITOR_BASE_PATH}/:apiId`;
 export const API_EDITOR_PATH_WITH_SELECTED_PAGE_ID = `${API_EDITOR_BASE_PATH}?importTo=:importTo`;
+export const PUBLISH_COMMUNITY_TEMPLATE_EDITOR_BASE_PATH = `/publish/community-template`;
 export const QUERIES_EDITOR_BASE_PATH = `/queries`;
 export const QUERIES_EDITOR_ID_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId`;
 export const JS_COLLECTION_EDITOR_PATH = `/jsObjects`;

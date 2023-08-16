@@ -5,14 +5,21 @@ import {
 } from "@appsmith/constants/messages";
 import { Button, Icon, Text } from "design-system";
 import React from "react";
+import history from "utils/history";
 import styled from "styled-components";
+import { builderURL } from "RouteBuilder";
+import { useSelector } from "react-redux";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
-const CommunityTemplatesPublish = () => {
-  const isPublished = true;
+type Props = {
+  setShowHostModal: (showModal: boolean) => void;
+};
+const CommunityTemplatesPublish = ({ setShowHostModal }: Props) => {
+  const isPublished = false;
   return isPublished ? (
     <PublishedAppInstructions />
   ) : (
-    <UnPublishedAppInstructions />
+    <UnPublishedAppInstructions setShowHostModal={setShowHostModal} />
   );
 };
 
@@ -38,7 +45,19 @@ const PublishedAppInstructions = () => {
     </section>
   );
 };
-const UnPublishedAppInstructions = () => {
+const UnPublishedAppInstructions = ({ setShowHostModal }: Props) => {
+  const pageId = useSelector(getCurrentPageId);
+
+  const takeUserToPublishFormPage = () => {
+    history.push(
+      builderURL({
+        pageId,
+        persistExistingParams: true,
+        suffix: "publish/community-template",
+      }),
+    );
+    setShowHostModal(false);
+  };
   return (
     <section>
       <InfoContainer>
@@ -53,7 +72,9 @@ const UnPublishedAppInstructions = () => {
         <Button endIcon="external-link-line" kind="tertiary" size="md">
           {createMessage(LEARN_MORE)}
         </Button>
-        <Button size="md">{createMessage(COMMUNITY_TEMPLATES.publish)}</Button>
+        <Button onClick={takeUserToPublishFormPage} size="md">
+          {createMessage(COMMUNITY_TEMPLATES.publish)}
+        </Button>
       </InfoFooter>
     </section>
   );

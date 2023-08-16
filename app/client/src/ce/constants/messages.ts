@@ -1908,6 +1908,9 @@ export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";
 export const COMMUNITY_TEMPLATES = {
   publish: () => "Publish",
   cancel: () => "Cancel",
+  publishForm: {
+    title: () => "Publish to community",
+  },
   unpublishedInfo: {
     title: () => "Publish to app community",
     description: () =>
