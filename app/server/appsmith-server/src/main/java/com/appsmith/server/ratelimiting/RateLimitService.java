@@ -1,11 +1,13 @@
 package com.appsmith.server.ratelimiting;
 
 import io.github.bucket4j.distributed.BucketProxy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
+@Slf4j
 @Service
 public class RateLimitService {
 
@@ -20,6 +22,7 @@ public class RateLimitService {
     }
 
     public Mono<Boolean> tryIncreaseCounter(String apiIdentifier, String userIdentifier) {
+        log.info("RateLimitService.tryIncreaseCounter() called with apiIdentifier = {}, userIdentifier = {}", apiIdentifier, userIdentifier);
         // handle the case where API itself is not rate limited
         if (!apiBuckets.containsKey(apiIdentifier)) return Mono.just(false);
 

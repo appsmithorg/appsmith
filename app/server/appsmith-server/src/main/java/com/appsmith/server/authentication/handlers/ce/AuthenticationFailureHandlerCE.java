@@ -46,8 +46,10 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
 
         return isRateLimitedMono.flatMap(isRateLimited -> {
             if (isRateLimited) {
+                log.error("Rate limit exceeded. Redirecting to login page.");
                 return handleRateLimitExceeded(exchange);
             } else {
+                log.error("Rate limit not exceeded. handling authentication failure.");
                 return handleAuthenticationFailure(exchange, exception);
             }
         });
