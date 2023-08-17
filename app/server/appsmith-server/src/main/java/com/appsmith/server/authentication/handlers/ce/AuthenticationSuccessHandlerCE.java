@@ -88,7 +88,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
         Mono<Void> redirectionMono;
         User user = (User) authentication.getPrincipal();
-        rateLimitService.resetCounter(user.getEmail(), "authentication");
+        rateLimitService.resetCounter("authentication", user.getEmail());
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             // In case of OAuth2 based authentication, there is no way to identify if this was a user signup (new user
