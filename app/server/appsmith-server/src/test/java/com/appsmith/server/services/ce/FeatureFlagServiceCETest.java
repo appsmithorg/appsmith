@@ -10,6 +10,7 @@ import com.appsmith.server.services.FeatureFlagService;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.conf.XmlParser;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,20 +144,83 @@ public class FeatureFlagServiceCETest {
                 cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantIdentifier);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
         StepVerifier.create(cachedFeaturesMono.then(hasKeyMono))
-                .assertNext(isKeyPresent -> {
-                    assertTrue(isKeyPresent);
-                })
+                .assertNext(Assertions::assertTrue)
                 .verifyComplete();
     }
 
     @Test
     public void evictFeatures_withTenantIdentifier_redisKeyDoesNotExist() {
+        // Insert dummy value for tenant flags
+        Map<String, Boolean> flags = new HashMap<>();
+        flags.put(UUID.randomUUID().toString(), true);
+        flags.put(UUID.randomUUID().toString(), false);
+        FeaturesResponseDTO featuresResponseDTO = new FeaturesResponseDTO();
+        featuresResponseDTO.setFeatures(flags);
+
+        doReturn(Mono.just(featuresResponseDTO))
+                .when(cacheableFeatureFlagHelper)
+                .getRemoteFeaturesForTenant(any());
+
         String tenantIdentifier = UUID.randomUUID().toString();
-        Mono<Void> evictCache = cacheableFeatureFlagHelper.evictCachedTenantNewFeatures(tenantIdentifier);
+        Mono<CachedFeatures> cachedFeaturesMono =
+                cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantIdentifier);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
+        // Assert key is inserted in cache
+        StepVerifier.create(cachedFeaturesMono.then(hasKeyMono))
+                .assertNext(Assertions::assertTrue)
+                .verifyComplete();
+
+        Mono<Void> evictCache = cacheableFeatureFlagHelper.evictCachedTenantNewFeatures(tenantIdentifier);
+        hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
+        // Assert key is evicted from cache
         StepVerifier.create(evictCache.then(hasKeyMono))
-                .assertNext(isKeyPresent -> {
-                    assertFalse(isKeyPresent);
+                .assertNext(Assertions::assertFalse)
+                .verifyComplete();
+    }
+
+    @Test
+    public void forceUpdateFeatures_withTenantIdentifier_cacheUpdate() {
+        // Insert dummy value for tenant flags
+        Map<String, Boolean> flags = new HashMap<>();
+        String feature1 = UUID.randomUUID().toString();
+        String feature2 = UUID.randomUUID().toString();
+        String feature3 = UUID.randomUUID().toString();
+
+        flags.put(feature1, true);
+        flags.put(feature2, false);
+        FeaturesResponseDTO featuresResponseDTO = new FeaturesResponseDTO();
+        featuresResponseDTO.setFeatures(flags);
+
+        FeaturesResponseDTO updatedFeaturesResponseDTO = new FeaturesResponseDTO();
+        Map<String, Boolean> updatedFlags = new HashMap<>();
+        updatedFlags.put(feature1, false);
+        updatedFlags.put(feature2, true);
+        updatedFlags.put(feature3, true);
+        updatedFeaturesResponseDTO.setFeatures(updatedFlags);
+
+        doReturn(Mono.just(featuresResponseDTO), Mono.just(updatedFeaturesResponseDTO))
+                .when(cacheableFeatureFlagHelper)
+                .getRemoteFeaturesForTenant(any());
+
+        String tenantIdentifier = UUID.randomUUID().toString();
+        Mono<CachedFeatures> cachedFeaturesMono =
+                cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantIdentifier);
+        // Assert key is inserted in cache
+        StepVerifier.create(cachedFeaturesMono)
+                .assertNext(cachedFeatures -> {
+                    assertTrue(cachedFeatures.getFeatures().get(feature1));
+                    assertFalse(cachedFeatures.getFeatures().get(feature2));
+                })
+                .verifyComplete();
+
+        // Check after force update if we get updated values for existing features
+        Mono<CachedFeatures> updatedCacheMono = cacheableFeatureFlagHelper.forceUpdateTenantFeatures(tenantIdentifier);
+        // Assert if the cache entry is updated
+        StepVerifier.create(updatedCacheMono)
+                .assertNext(cachedFeatures -> {
+                    assertFalse(cachedFeatures.getFeatures().get(feature1));
+                    assertTrue(cachedFeatures.getFeatures().get(feature2));
+                    assertTrue(cachedFeatures.getFeatures().get(feature3));
                 })
                 .verifyComplete();
     }

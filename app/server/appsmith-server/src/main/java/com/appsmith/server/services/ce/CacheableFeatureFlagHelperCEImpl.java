@@ -239,12 +239,14 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
 
     /**
      * Method to force update the tenant level feature flags. This will be utilised in scenarios where we don't want
-     * to wait for the flags to get updated for cron scheduled time
+     * to wait for the flags to get updated as per cron scheduled time
      * @param tenantId  tenant for which the features need to be updated
      * @return          Cached features
      */
     @Override
+    @CacheEvict(cacheName = "tenantNewFeatures", key = "{#tenantId}")
     public Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId) {
-        return this.evictCachedTenantNewFeatures(tenantId).then(this.fetchCachedTenantNewFeatures(tenantId));
+        log.debug("Force updating the feature flags for tenant {}", tenantId);
+        return this.fetchCachedTenantNewFeatures(tenantId);
     }
 }
