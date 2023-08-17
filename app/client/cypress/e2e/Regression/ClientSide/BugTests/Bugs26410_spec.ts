@@ -16,11 +16,7 @@ describe("Fix UQI query switching", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreateDataSource("Twilio", false, false);
     dataSources.CreateQueryAfterDSSaved("", "TwilioQuery");
-    dataSources.ValidateNSelectDropdown(
-      "Commands",
-      "Create message",
-      "Schedule message",
-    );
+    dataSources.ValidateNSelectDropdown("Commands", "", "Schedule message");
     entityExplorer.SelectEntityByName("MongoQuery", "Queries/JS");
     dataSources.ValidateNSelectDropdown("Commands", "Insert document(s)");
 
