@@ -126,6 +126,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private static final String EMAIL_VERIFICATION_CLIENT_URL_FORMAT =
             "%s/user/verify?token=%s&email=%s&redirectUrl=%s";
+
+    private static final String EMAIL_VERIFICATION_ERROR_URL_FORMAT = "/user/verify-error?code=%s&message=%s&email=%s";
     private static final String USER_EMAIL_VERIFICATION_EMAIL_TEMPLATE = "email/emailVerificationTemplate.html";
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
 
@@ -973,9 +975,17 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .thenReturn(true);
     }
 
+    private String getEmailVerificationErrorRedirectUrl(AppsmithError appsmithError, String userEmail, Object... args) {
+        String appErrorCode = appsmithError.getAppErrorCode();
+        String errorMessage = appsmithError.getMessage(args);
+        errorMessage = errorMessage.replace(" ", "-").replace(".", "");
+        return String.format(EMAIL_VERIFICATION_ERROR_URL_FORMAT, appErrorCode, errorMessage, userEmail);
+    }
+
     @Override
     public Mono<Void> verifyEmailVerificationToken(ServerWebExchange exchange) {
         return exchange.getFormData().flatMap(formData -> {
+            final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, EMPTY_WEB_FILTER_CHAIN);
             EmailTokenDTO parsedEmailTokenDTO;
             String requestEmail = formData.getFirst("email");
             String requestedToken = formData.getFirst("token");
@@ -987,66 +997,76 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             }
 
             String postVerificationRedirectUrl = "/signup-success?redirectUrl=" + redirectUrl;
+            String errorRedirectUrl = "";
 
             if (requestEmail == null) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
+                errorRedirectUrl =
+                        getEmailVerificationErrorRedirectUrl(AppsmithError.INVALID_PARAMETER, "", FieldName.EMAIL);
+                return redirectStrategy.sendRedirect(webFilterExchange.getExchange(), URI.create(errorRedirectUrl));
             }
             if (requestedToken == null) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
+                errorRedirectUrl = getEmailVerificationErrorRedirectUrl(
+                        AppsmithError.INVALID_PARAMETER, requestEmail, FieldName.TOKEN);
+                return redirectStrategy.sendRedirect(webFilterExchange.getExchange(), URI.create(errorRedirectUrl));
             }
 
             try {
                 parsedEmailTokenDTO = parseValueFromEncryptedToken(requestedToken);
             } catch (ArrayIndexOutOfBoundsException | IllegalStateException | IllegalArgumentException e) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
+                errorRedirectUrl = getEmailVerificationErrorRedirectUrl(
+                        AppsmithError.INVALID_PARAMETER, requestEmail, FieldName.TOKEN);
+                return redirectStrategy.sendRedirect(webFilterExchange.getExchange(), URI.create(errorRedirectUrl));
             }
 
             Mono<WebSession> sessionMono = exchange.getSession();
             Mono<SecurityContext> securityContextMono = ReactiveSecurityContextHolder.getContext();
-            Mono<User> userMono =
-                    repository.findByEmail(parsedEmailTokenDTO.getEmail()).cache();
+            Mono<User> userMono = repository.findByEmail(parsedEmailTokenDTO.getEmail());
 
-            return emailVerificationTokenRepository
-                    .findByEmail(parsedEmailTokenDTO.getEmail())
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION)))
-                    .flatMap(obj -> {
-                        if (!Objects.equals(obj.getEmail(), requestEmail)) {
-                            return Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION));
-                        }
-                        if (FALSE.equals(isEmailVerificationTokenValid(obj))) {
-                            return Mono.error(new AppsmithException(AppsmithError.EMAIL_VERIFICATION_TOKEN_EXPIRED));
-                        }
-                        return Mono.zip(userMono, Mono.just(obj));
-                    })
+            Mono<EmailVerificationToken> emailVerificationTokenMono =
+                    emailVerificationTokenRepository.findByEmail(parsedEmailTokenDTO.getEmail());
+
+            return Mono.zip(emailVerificationTokenMono, userMono, sessionMono, securityContextMono)
                     .flatMap(tuple -> {
-                        User user = tuple.getT1();
-                        EmailVerificationToken emailVerificationToken = tuple.getT2();
+                        EmailVerificationToken emailVerificationToken = tuple.getT1();
+                        User user = tuple.getT2();
+                        WebSession session = tuple.getT3();
+                        SecurityContext securityContext = tuple.getT4();
+                        String errorRedirectUrl1 = "";
+
+                        if (!Objects.equals(emailVerificationToken.getEmail(), requestEmail)) {
+                            errorRedirectUrl1 = getEmailVerificationErrorRedirectUrl(
+                                    AppsmithError.INVALID_PARAMETER, requestEmail, FieldName.TOKEN);
+                            return redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
+                        }
+                        if (FALSE.equals(isEmailVerificationTokenValid(emailVerificationToken))) {
+                            errorRedirectUrl1 = getEmailVerificationErrorRedirectUrl(
+                                    AppsmithError.EMAIL_VERIFICATION_TOKEN_EXPIRED, requestEmail);
+                            return redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
+                        }
+
                         if (TRUE.equals(user.getEmailVerified())) {
-                            return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_VERIFIED));
+                            errorRedirectUrl1 = getEmailVerificationErrorRedirectUrl(
+                                    AppsmithError.USER_ALREADY_VERIFIED, requestEmail);
+                            return redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
                         }
-                        return Mono.just(this.passwordEncoder.matches(
-                                parsedEmailTokenDTO.getToken(), emailVerificationToken.getTokenHash()));
-                    })
-                    .flatMap(tokenMatched -> {
+                        Boolean tokenMatched = this.passwordEncoder.matches(
+                                parsedEmailTokenDTO.getToken(), emailVerificationToken.getTokenHash());
                         if (!tokenMatched) {
-                            return Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION));
+                            errorRedirectUrl1 = getEmailVerificationErrorRedirectUrl(
+                                    AppsmithError.INVALID_EMAIL_VERIFICATION, requestEmail);
+                            return redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
                         }
-                        return Mono.zip(userMono, sessionMono, securityContextMono);
-                    })
-                    .flatMap(tuple -> {
-                        User user = tuple.getT1();
-                        final WebSession session = tuple.getT2();
-                        final SecurityContext securityContext = tuple.getT3();
-                        // Setting session cookie
+
                         Authentication authentication =
                                 new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                         securityContext.setAuthentication(authentication);
                         session.getAttributes().put(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, securityContext);
 
-                        final WebFilterExchange webFilterExchange =
-                                new WebFilterExchange(exchange, EMPTY_WEB_FILTER_CHAIN);
                         user.setEmailVerified(TRUE);
-
                         return repository
                                 .save(user)
                                 .then(redirectStrategy.sendRedirect(
