@@ -23,6 +23,7 @@ const Body = styled.div`
 `;
 
 export enum VerificationErrorType {
+  MISSING_PARAMETER = "AE-APP-4000",
   ALREADY_VERIFIED = "AE-EMV-4095",
   EXPIRED = "AE-EMV-4096",
   MISMATCH = "AE-EMV-4098",
@@ -56,6 +57,23 @@ const VerificationError = (
             <Text kind={"body-m"}>
               {createMessage(VERIFY_ERROR_EXPIRED_TITLE)}
             </Text>
+          </Callout>
+        </Body>
+        <Body>
+          <Button isDisabled={!enabled} onClick={resendVerificationLink}>
+            Send new link
+          </Button>
+        </Body>
+      </Container>
+    );
+  }
+
+  if (code === VerificationErrorType.MISSING_PARAMETER) {
+    return (
+      <Container testId="verification-error" title="">
+        <Body>
+          <Callout kind="error">
+            <Text kind={"body-m"}>{message}</Text>
           </Callout>
         </Body>
         <Body>
