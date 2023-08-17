@@ -17,6 +17,7 @@ import PublishedInfo from "./components/PublishedInfo";
 import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
+import ApplicationSettings from "./components/ApplicationSettings";
 
 const PublishCommunityTemplate = () => {
   const currentUser = useSelector(getCurrentUser);
@@ -49,6 +50,7 @@ const PublishCommunityTemplate = () => {
             setAuthorEmail={setAuthorEmail}
             setAuthorName={setAuthorName}
           />
+          <ApplicationSettings isForkable isPublic />
           <PublishedInfo />
         </PublishPageTemplateDetailsInputContainer>
       </PublishPageBodyContainer>

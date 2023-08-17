@@ -1933,6 +1933,11 @@ export const COMMUNITY_TEMPLATES = {
       emailLabel: () => "Email",
       emailPlaceholder: () => "Email",
     },
+    applicationSettings: {
+      title: () => "Application Settings",
+      publicSetting: () => "Make application public",
+      forkableSetting: () => "Make application forkable",
+    },
     publishedInfo: {
       title: () => "What is published?",
       correct: [
