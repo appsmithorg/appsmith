@@ -7,6 +7,7 @@ import React from "react";
 import styled from "styled-components";
 import BackButton from "../DataSourceEditor/BackButton";
 import TemplateCardPreview from "./TemplateCardPreview";
+import TemplateInfoForm from "./TemplateInfoForm";
 
 const PublishCommunityTemplate = () => {
   return (
@@ -25,6 +26,9 @@ const PublishCommunityTemplate = () => {
           templateName="Open AI usage Dashboard"
           useCases={["Operations", "DevOps"]}
         />
+        <TemplateDetailsInputContainer>
+          <TemplateInfoForm />
+        </TemplateDetailsInputContainer>
       </BodyContainer>
     </>
   );
@@ -41,13 +45,18 @@ const Header = styled.div`
 `;
 const defaultContainer = styled.div`
   display: flex;
-  flex-direction: column;
   overflow-y: auto;
   padding: var(--ads-v2-spaces-7);
 `;
 const HeaderContainer = styled(defaultContainer)`
+  flex-direction: column;
   border-bottom: 1px solid var(--ads-v2-color-border);
 `;
 const BodyContainer = styled(defaultContainer)`
   height: 100%;
+  gap: var(--ads-v2-spaces-7);
+`;
+const TemplateDetailsInputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
 `;

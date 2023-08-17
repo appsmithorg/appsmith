@@ -18,11 +18,11 @@ type Props = {
 const TemplateCardPreview = ({ excerpt, templateName, useCases }: Props) => {
   return (
     <CardContainer>
-      <ImageContainer>
-        <Text kind="body-s" renderAs="p">
+      <ImgPreviewContainer>
+        <Text kind="body-m" renderAs="p">
           {createMessage(COMMUNITY_TEMPLATES.publishForm.preview.thumbnail)}
         </Text>
-      </ImageContainer>
+      </ImgPreviewContainer>
       <Text kind="heading-m" renderAs="h2">
         {templateName}
       </Text>
@@ -62,6 +62,7 @@ const CardContainer = styled.div`
   padding: var(--ads-v2-spaces-6);
   min-height: 360px;
   gap: 4px;
+  height: fit-content;
 
   .strong {
     font-weight: 500;
@@ -72,13 +73,12 @@ const CardContainer = styled.div`
   }
 `;
 
-const ImageContainer = styled.div`
-  width: 100%;
-  height: 100%;
+const ImgPreviewContainer = styled.div`
+  width: 360px;
+  height: 220px;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex: 1;
 `;
 
 const ProfileContainer = styled.div`
