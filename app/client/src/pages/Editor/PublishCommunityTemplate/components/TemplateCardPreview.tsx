@@ -24,7 +24,7 @@ const TemplateCardPreview = ({ excerpt, templateName, useCases }: Props) => {
     <TemplatePreviewCardContainer>
       <TemplatePreviewImgPreviewContainer>
         <Text kind="body-m" renderAs="p">
-          {createMessage(COMMUNITY_TEMPLATES.publishForm.preview.thumbnail)}
+          {createMessage(COMMUNITY_TEMPLATES.publishFormPage.preview.thumbnail)}
         </Text>
       </TemplatePreviewImgPreviewContainer>
       <Text kind="heading-m" renderAs="h2">

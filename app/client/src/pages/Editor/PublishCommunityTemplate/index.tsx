@@ -23,7 +23,7 @@ const PublishCommunityTemplate = () => {
           <BackButton />
         </PublishPageHeader>
         <Text className="title" kind="heading-xl" renderAs="h1">
-          {createMessage(COMMUNITY_TEMPLATES.publishForm.title)}
+          {createMessage(COMMUNITY_TEMPLATES.publishFormPage.title)}
         </Text>
       </PublishPageHeaderContainer>
       <PublishPageBodyContainer>

@@ -1908,7 +1908,7 @@ export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";
 export const COMMUNITY_TEMPLATES = {
   publish: () => "Publish",
   cancel: () => "Cancel",
-  publishForm: {
+  publishFormPage: {
     title: () => "Publish to community",
     preview: {
       thumbnail: () => "Thumbnail will be generated automatically",

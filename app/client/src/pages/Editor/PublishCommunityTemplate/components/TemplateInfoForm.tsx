@@ -18,11 +18,12 @@ const TemplateInfoForm = () => {
         <Input
           isRequired
           label={createMessage(
-            COMMUNITY_TEMPLATES.publishForm.templateForm.titleInputLabel,
+            COMMUNITY_TEMPLATES.publishFormPage.templateForm.titleInputLabel,
           )}
           labelPosition="top"
           placeholder={createMessage(
-            COMMUNITY_TEMPLATES.publishForm.templateForm.titleInputPlaceholder,
+            COMMUNITY_TEMPLATES.publishFormPage.templateForm
+              .titleInputPlaceholder,
           )}
           renderAs="input"
           size="md"
@@ -32,11 +33,11 @@ const TemplateInfoForm = () => {
       <TemplateInfoFormFieldWrapper>
         <Input
           label={createMessage(
-            COMMUNITY_TEMPLATES.publishForm.templateForm.excerptInputLabel,
+            COMMUNITY_TEMPLATES.publishFormPage.templateForm.excerptInputLabel,
           )}
           labelPosition="top"
           placeholder={createMessage(
-            COMMUNITY_TEMPLATES.publishForm.templateForm
+            COMMUNITY_TEMPLATES.publishFormPage.templateForm
               .excerptInputPlaceholder,
           )}
           renderAs="input"
@@ -47,11 +48,12 @@ const TemplateInfoForm = () => {
       <TemplateInfoFormFieldWrapper>
         <Input
           label={createMessage(
-            COMMUNITY_TEMPLATES.publishForm.templateForm.descriptionInputLabel,
+            COMMUNITY_TEMPLATES.publishFormPage.templateForm
+              .descriptionInputLabel,
           )}
           labelPosition="top"
           placeholder={createMessage(
-            COMMUNITY_TEMPLATES.publishForm.templateForm
+            COMMUNITY_TEMPLATES.publishFormPage.templateForm
               .descriptionInputPlaceholder,
           )}
           renderAs="textarea"
@@ -62,7 +64,7 @@ const TemplateInfoForm = () => {
       <TemplateInfoFormFieldWrapper>
         <TemplateInfoFormLabelWrapper>
           {createMessage(
-            COMMUNITY_TEMPLATES.publishForm.templateForm.useCasesInputLabel,
+            COMMUNITY_TEMPLATES.publishFormPage.templateForm.useCasesInputLabel,
           )}
         </TemplateInfoFormLabelWrapper>
         <Select isMultiSelect>
