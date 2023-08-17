@@ -1,7 +1,49 @@
-import React from "react";
+import {
+  COMMUNITY_TEMPLATES,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { Icon, Text } from "design-system";
+import React, { useCallback } from "react";
+import styled from "styled-components";
 
 const PublishedInfo = () => {
-  return <div>PublishedInfo</div>;
+  const getItem = useCallback(
+    (text: () => string, index: number, correct: boolean) => (
+      <ItemWrapper key={index}>
+        <Icon name={correct ? "check-line" : "close-fill"} />
+        <Text kind="body-m" renderAs="p">
+          {createMessage(text)}
+        </Text>
+      </ItemWrapper>
+    ),
+    [],
+  );
+
+  return (
+    <Container>
+      <Text kind="heading-s" renderAs="h2">
+        {createMessage(COMMUNITY_TEMPLATES.publishFormPage.publishedInfo.title)}
+      </Text>
+      {COMMUNITY_TEMPLATES.publishFormPage.publishedInfo.correct.map(
+        (item, index) => getItem(item, index, true),
+      )}
+      {COMMUNITY_TEMPLATES.publishFormPage.publishedInfo.incorrect.map(
+        (item, index) => getItem(item, index, false),
+      )}
+    </Container>
+  );
 };
 
 export default PublishedInfo;
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const ItemWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+`;

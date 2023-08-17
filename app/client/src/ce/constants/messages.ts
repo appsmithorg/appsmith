@@ -1926,6 +1926,20 @@ export const COMMUNITY_TEMPLATES = {
       useCasesInputLabel: () => "Use-cases",
       useCasesInputPlaceholder: () => "Select use cases",
     },
+    publishedInfo: {
+      title: () => "What is published?",
+      correct: [
+        () => "Widgets & their properties",
+        () => "Queries & JS Objects",
+        () => "Datasource types",
+      ],
+      incorrect: [
+        () => "Datasource credentials",
+        () => "API authentication details",
+        () => "Environment variables",
+        () => "Git credentials",
+      ],
+    },
   },
   modals: {
     unpublishedInfo: {
