@@ -114,10 +114,6 @@ describe("Test Top + Stacked navigation style", function () {
       "exist",
       0,
     );
-    // .GetElement(appSettings.locators._navigationMenuItem)
-    // .contains
-    // .contains(pageName)
-    // .should("be.visible");
   });
 
   it("4. Navigation's background should be default to white, and should change when background color is set to theme", () => {
