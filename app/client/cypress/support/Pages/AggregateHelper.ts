@@ -975,7 +975,8 @@ export class AggregateHelper extends ReusableHelper {
     });
     this.assertHelper.AssertDocumentReady();
     this.Sleep(2000);
-    this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
+    networkCallAlias &&
+      this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
 
   public ActionContextMenuWithInPane({
