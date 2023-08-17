@@ -1,4 +1,4 @@
-import type { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetBlueprint } from "WidgetProvider/constants";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";

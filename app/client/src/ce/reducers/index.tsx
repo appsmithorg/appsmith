@@ -8,7 +8,6 @@ import type { ErrorReduxState } from "reducers/uiReducers/errorReducer";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import type { TemplatesReduxState } from "reducers/uiReducers/templateReducer";
-import type { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import type { DatasourceDataState } from "reducers/entityReducers/datasourceReducer";
 import type { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import type { DatasourcePaneReduxState } from "reducers/uiReducers/datasourcePaneReducer";
@@ -145,7 +144,6 @@ export interface AppState {
     canvasWidgets: CanvasWidgetsReduxState;
     metaWidgets: MetaWidgetsReduxState;
     actions: ActionDataState;
-    widgetConfig: WidgetConfigReducerState;
     datasources: DatasourceDataState;
     pageList: PageListReduxState;
     plugins: PluginDataState;

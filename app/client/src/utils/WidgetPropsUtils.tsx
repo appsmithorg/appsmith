@@ -1,5 +1,5 @@
 import type { FetchPageResponse } from "api/PageApi";
-import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetConfigProps } from "WidgetProvider/constants";
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import { WidgetOperations } from "widgets/BaseWidget";
 import type { RenderMode } from "constants/WidgetConstants";

@@ -12,7 +12,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetBlueprint } from "WidgetProvider/constants";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";

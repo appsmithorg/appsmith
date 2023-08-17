@@ -9,7 +9,6 @@ import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
-import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import type {
   LayoutDirection,
   Positioning,
@@ -391,4 +390,22 @@ export type SnipingModeProperty = Record<"data" | "run", string>;
 export enum DefaultMobileCameraTypes {
   FRONT = "user",
   BACK = "environment",
+}
+
+export type WidgetBlueprint = {
+  view?: Array<{
+    type: string;
+    size?: { rows: number; cols: number };
+    position: { top?: number; left?: number };
+    props: Record<string, any>;
+  }>;
+  operations?: any;
+};
+
+export interface WidgetConfigProps {
+  rows: number;
+  columns: number;
+  blueprint?: WidgetBlueprint;
+  widgetName: string;
+  enhancements?: Record<string, unknown>; // TODO(abhinav): SPECIFY TYPES
 }

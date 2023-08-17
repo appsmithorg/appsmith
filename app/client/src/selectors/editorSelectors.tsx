@@ -69,8 +69,6 @@ const getIsDraggingOrResizing = (state: AppState) =>
 
 const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
 
-export const getWidgetConfigs = (state: AppState) =>
-  state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
 export const getProviderCategories = (state: AppState) =>
