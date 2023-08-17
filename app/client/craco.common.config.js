@@ -2,6 +2,7 @@ const CracoAlias = require("craco-alias");
 const CracoBabelLoader = require("craco-babel-loader");
 const path = require("path");
 const webpack = require("webpack");
+const CircularDependencyPlugin = require('circular-dependency-plugin')
 
 module.exports = {
   devServer: {

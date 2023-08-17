@@ -15,9 +15,9 @@ import type {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+// import type { any } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
-import type { WidgetProps } from "../widgets/BaseWidget";
+// import type { WidgetProps } from "../widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 import type {
@@ -48,7 +48,7 @@ export type AutoLayoutConfig = {
   // default values for the widget specifi to auto-layout
   defaults?: Partial<WidgetConfigProps>;
   // default values for the properties that are hidden/disabled in auto-layout
-  disabledPropsDefaults?: Partial<WidgetProps>;
+  disabledPropsDefaults?: Partial<any>;
 };
 
 export interface WidgetBaseConfiguration {
@@ -65,7 +65,7 @@ export interface WidgetBaseConfiguration {
   needsHeightForContent?: boolean;
 }
 
-export type WidgetDefaultProps = Partial<WidgetProps> & WidgetConfigProps;
+export type WidgetDefaultProps = Partial<any> & WidgetConfigProps;
 
 export interface WidgetConfiguration extends WidgetBaseConfiguration {
   autoLayout?: AutoLayoutConfig;
@@ -77,7 +77,7 @@ export interface WidgetConfiguration extends WidgetBaseConfiguration {
     styleConfig?: PropertyPaneConfig[];
     default: Record<string, string>;
     meta: Record<string, any>;
-    derived: DerivedPropertiesMap;
+    derived: any;
     loadingProperties?: Array<RegExp>;
     stylesheetConfig?: Stylesheet;
     autocompleteDefinitions?: AutocompletionDefinitions;
@@ -101,12 +101,12 @@ export type WidgetMethods = {
 };
 
 export type GetQueryGenerationConfig = (
-  widgetProps: WidgetProps,
+  widgetProps: any,
 ) => WidgetQueryGenerationConfig;
 
 export type GetPropertyUpdatesForQueryBinding = (
   queryConfig: WidgetQueryConfig,
-  widget: WidgetProps,
+  widget: any,
   formConfig: WidgetQueryGenerationFormConfig,
 ) => Record<string, unknown>;
 
@@ -114,7 +114,7 @@ export type GetSnipingModeUpdates = (
   propValueMap: Record<"data" | "run", string>,
 ) => Array<PropertyUpdates>;
 
-export type GetCanvasHeightOffset = (widgetProps: WidgetProps) => number;
+export type GetCanvasHeightOffset = (widgetProps: any) => number;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 
@@ -128,11 +128,11 @@ export enum BlueprintOperationTypes {
   UPDATE_CREATE_PARAMS_BEFORE_ADD = "UPDATE_CREATE_PARAMS_BEFORE_ADD",
 }
 
-export type FlattenedWidgetProps = WidgetProps & {
+export type FlattenedWidgetProps = any & {
   children?: string[];
 };
 
-export interface DSLWidget extends WidgetProps {
+export interface DSLWidget extends any {
   children?: DSLWidget[];
 }
 
@@ -145,7 +145,7 @@ interface LayoutProps {
 }
 
 export type AutocompleteDefinitionFunction = (
-  widgetProps: WidgetProps,
+  widgetProps: any,
   extraDefsToDefine?: ExtraDef,
   configTree?: WidgetEntityConfig,
 ) => Record<string, any>;
@@ -160,10 +160,7 @@ const staticProps = omit(
   "topRowBeforeCollapse",
   "bottomRowBeforeCollapse",
 );
-export type CanvasWidgetStructure = Pick<
-  WidgetProps,
-  keyof typeof staticProps
-> &
+export type CanvasWidgetStructure = Pick<any, keyof typeof staticProps> &
   LayoutProps & {
     children?: CanvasWidgetStructure[];
     selected?: boolean;

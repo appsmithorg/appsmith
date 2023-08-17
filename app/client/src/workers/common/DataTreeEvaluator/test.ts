@@ -15,16 +15,9 @@ import { updateDependencyMap } from "workers/common/DependencyMap";
 import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
 import widgets from "widgets";
-import type { WidgetConfiguration } from "WidgetProvider/constants";
+// import type { WidgetConfiguration } from "WidgetProvider/constants";
 
-const widgetConfigMap: Record<
-  string,
-  {
-    defaultProperties: WidgetConfiguration["properties"]["default"];
-    derivedProperties: WidgetConfiguration["properties"]["derived"];
-    metaProperties: WidgetConfiguration["properties"]["meta"];
-  }
-> = {};
+const widgetConfigMap: any = {};
 widgets.map((widget) => {
   if (widget.type) {
     widgetConfigMap[widget.type] = {

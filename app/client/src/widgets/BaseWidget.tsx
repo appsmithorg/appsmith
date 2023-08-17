@@ -57,15 +57,15 @@ import type {
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type {
-  AutoLayoutConfig,
-  CanvasWidgetStructure,
-  FlattenedWidgetProps,
-  WidgetBaseConfiguration,
-  WidgetDefaultProps,
-  WidgetMethods,
-} from "../WidgetProvider/constants";
+// import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+// import type {
+//   AutoLayoutConfig,
+//   CanvasWidgetStructure,
+//   FlattenedWidgetProps,
+//   WidgetBaseConfiguration,
+//   WidgetDefaultProps,
+//   WidgetMethods,
+// } from "../WidgetProvider/constants";
 import Skeleton from "./Skeleton";
 import {
   getWidgetMaxAutoHeight,
@@ -75,12 +75,12 @@ import {
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
-import WidgetFactory from "WidgetProvider/factory";
+// import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
-import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
+// import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
-import type { WidgetFeatures } from "utils/WidgetFeatures";
+// import type { WidgetFeatures } from "utils/WidgetFeatures";
 
 /***
  * BaseWidget
@@ -107,25 +107,25 @@ abstract class BaseWidget<
 
   static type = "BASE_WIDGET";
 
-  static getDefaults(): WidgetDefaultProps {
-    return {} as WidgetDefaultProps;
+  static getDefaults(): any {
+    return {} as any;
   }
 
-  static getConfig(): WidgetBaseConfiguration {
+  static getConfig(): any {
     return {
       name: "baseWidget",
     };
   }
 
-  static getFeatures(): WidgetFeatures | null {
+  static getFeatures(): any {
     return null;
   }
 
-  static getMethods(): WidgetMethods {
+  static getMethods(): any {
     return {};
   }
 
-  static getAutoLayoutConfig(): AutoLayoutConfig | null {
+  static getAutoLayoutConfig(): any {
     return null;
   }
 
@@ -145,7 +145,7 @@ abstract class BaseWidget<
     return [];
   }
 
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+  static getDerivedPropertiesMap(): any {
     return {};
   }
 
@@ -162,7 +162,7 @@ abstract class BaseWidget<
     return {};
   }
 
-  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+  static getAutocompleteDefinitions(): any {
     return {};
   }
 
@@ -673,9 +673,10 @@ abstract class BaseWidget<
       );
     }
     if (this.props.isFlexChild && !this.props.detachFromLayout) {
-      const autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
-        this.props.type,
-      ).autoDimension;
+      const autoDimensionConfig = {
+        width: true,
+        height: true,
+      };
 
       const shouldObserveWidth = isFunction(autoDimensionConfig)
         ? autoDimensionConfig(this.props).width
@@ -821,10 +822,7 @@ export interface BaseStyle {
 
 export type WidgetState = Record<string, unknown>;
 
-export interface WidgetBuilder<
-  T extends CanvasWidgetStructure,
-  S extends WidgetState,
-> {
+export interface WidgetBuilder<T extends any, S extends WidgetState> {
   buildWidget(widgetProps: T): JSX.Element;
 }
 
@@ -837,8 +835,8 @@ export interface WidgetBaseProps {
   renderMode: RenderMode;
   version: number;
   childWidgets?: WidgetEntity[];
-  flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
-  metaWidgetChildrenStructure?: CanvasWidgetStructure[];
+  flattenedChildCanvasWidgets?: Record<string, any>;
+  metaWidgetChildrenStructure?: any[];
   referencedWidgetId?: string;
   requiresFlatWidgetChildren?: boolean;
   hasMetaWidgets?: boolean;

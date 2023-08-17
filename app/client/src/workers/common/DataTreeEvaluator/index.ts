@@ -18,7 +18,7 @@ import {
   isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+// import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import type {
   DataTree,
   DataTreeEntity,
@@ -133,7 +133,7 @@ export default class DataTreeEvaluator {
   sortedDependencies: SortedDependencies = [];
   dependencies: Record<string, string[]> = {};
   inverseDependencies: Record<string, string[]> = {};
-  widgetConfigMap: WidgetTypeConfigMap = {};
+  widgetConfigMap: any = {};
   evalTree: DataTree = {};
   configTree: ConfigTree = {};
 
@@ -168,7 +168,7 @@ export default class DataTreeEvaluator {
 
   public hasCyclicalDependency = false;
   constructor(
-    widgetConfigMap: WidgetTypeConfigMap,
+    widgetConfigMap: any,
     allActionValidationConfig?: {
       [actionId: string]: ActionValidationConfigMap;
     },

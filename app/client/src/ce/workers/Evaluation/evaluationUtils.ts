@@ -18,7 +18,7 @@ import type {
 } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import _, { difference, find, get, has, isNil, set } from "lodash";
-import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+// import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
@@ -540,7 +540,7 @@ export const trimDependantChangePaths = (
 
 export function getSafeToRenderDataTree(
   tree: DataTree,
-  widgetTypeConfigMap: WidgetTypeConfigMap,
+  widgetTypeConfigMap: any,
   configTree: ConfigTree,
 ) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {

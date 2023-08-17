@@ -17,11 +17,10 @@ import {
 } from "workers/common/DataTreeEvaluator/mockData/mockConfigTree";
 
 import { getEntityPathDependencies } from "./utils/getEntityDependencies";
-import type BaseWidget from "widgets/BaseWidget";
 
 const widgetConfigMap = {};
 
-[ButtonWidget, SelectWidget].forEach((widget: typeof BaseWidget) => {
+[ButtonWidget, SelectWidget].forEach((widget: any) => {
   if (widget.type) {
     // @ts-expect-error: Types are not available
     widgetConfigMap[widget.type] = {

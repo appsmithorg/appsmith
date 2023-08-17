@@ -14,7 +14,7 @@ import type {
   EVAL_WORKER_SYNC_ACTION,
 } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import type { JSUpdate } from "utils/JSPaneUtils";
-import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+// import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import type { WorkerRequest } from "@appsmith/workers/common/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -29,7 +29,7 @@ export type EvalWorkerResponse = EvalTreeResponseData | boolean | unknown;
 
 export interface EvalTreeRequestData {
   unevalTree: unEvalAndConfigTree;
-  widgetTypeConfigMap: WidgetTypeConfigMap;
+  widgetTypeConfigMap: any;
   widgets: CanvasWidgetsReduxState;
   theme: AppTheme;
   shouldReplay: boolean;

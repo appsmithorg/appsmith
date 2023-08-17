@@ -1,13 +1,12 @@
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import setters from "../setters";
-import TableWidget from "widgets/TableWidgetV2/widget";
-import { CONFIG } from "widgets/TableWidgetV2/index";
+import TableWidget from "widgets/TableWidgetV2";
 import { RenderModes } from "constants/WidgetConstants";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
-import { registerWidget } from "WidgetProvider/factory/WidgetRegisterHelpers";
 import { createEvaluationContext } from "../evaluate";
+import WidgetFactory from "WidgetProvider/factory";
 
-registerWidget(TableWidget, CONFIG);
+WidgetFactory.initialize([TableWidget]);
 
 const evalTree: DataTree = {};
 const configTree: ConfigTree = {};
