@@ -251,35 +251,34 @@ is_empty_directory() {
 }
 
 check_setup_custom_ca_certificates() {
-  local stacks_ca_certs_path
-  stacks_ca_certs_path="$stacks_path/ca-certs"
+  local stacks_ca_certs_path="$stacks_path/ca-certs"
+  local store="$TMP/cacerts"
 
-  local container_ca_certs_path
-  container_ca_certs_path="/usr/local/share/ca-certificates"
+  echo > "$TMP/java-cacerts-opts"
+  rm -f "$store"
 
-  if [[ -d $stacks_ca_certs_path ]]; then
-    if [[ ! -L $container_ca_certs_path ]]; then
-      if is_empty_directory "$container_ca_certs_path"; then
-        rmdir -v "$container_ca_certs_path"
-      else
-        echo "The 'ca-certificates' directory inside the container is not empty. Please clear it and restart to use certs from 'stacks/ca-certs' directory." >&2
-        return
-      fi
-    fi
-
-    ln --verbose --force --symbolic --no-target-directory "$stacks_ca_certs_path" "$container_ca_certs_path"
-
-  elif [[ ! -e $container_ca_certs_path ]]; then
-    rm -vf "$container_ca_certs_path"  # If it exists as a broken symlink, this will be needed.
-    mkdir -v "$container_ca_certs_path"
-
+  if [[ ! -d /appsmith-stacks/ca-certs ]]; then
+    echo "No custom CA certificates found"
+    return
   fi
 
   if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
     echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up autatically.".
   fi
 
-#  update-ca-certificates --fresh
+  keytool -importkeystore -srckeystore /usr/lib/jvm/temurin-17-jdk-arm64/lib/security/cacerts -destkeystore "$store" -srcstorepass changeit -deststorepass changeit
+  find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
+    -exec keytool -import -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
+
+  keytool -list -keystore "$store" -storepass changeit
+
+  {
+    echo "-Djavax.net.ssl.trustStore=$store"
+    echo "-Djavax.net.ssl.trustStorePassword=changeit"
+  } > "$TMP/java-cacerts-opts"
+
+  # todo: add the javax.net.ssl.trustStore to both server and Keycloak
+  # todo: add to nodejs, for RTS too
 }
 
 configure_supervisord() {

@@ -69,4 +69,5 @@ exec java ${APPSMITH_JAVA_ARGS:-} ${APPSMITH_JAVA_HEAP_ARG:-} \
   -Djava.security.egd=file:/dev/./urandom \
   -Dlog4j2.formatMsgNoLookups=true \
   "${proxy_args[@]}" \
+  @"$TMP/java-cacerts-opts" \
   -jar server.jar
