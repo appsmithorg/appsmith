@@ -26,25 +26,6 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
     String pluginId;
     String workspaceId;
 
-    public DatasourceStorageDTO(DatasourceStorage datasourceStorage) {
-        this.id = datasourceStorage.getId();
-        this.datasourceId = datasourceStorage.getDatasourceId();
-        this.environmentId = datasourceStorage.getEnvironmentId();
-        this.datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
-        this.isConfigured = datasourceStorage.getIsConfigured();
-        this.invalids = datasourceStorage.getInvalids();
-        this.messages = datasourceStorage.getMessages();
-    }
-
-    public DatasourceStorageDTO(DatasourceDTO datasource, String environmentId) {
-        this.datasourceId = datasource.getId();
-        this.environmentId = environmentId;
-        this.datasourceConfiguration = datasource.getDatasourceConfiguration();
-        this.isConfigured = datasource.getIsConfigured();
-        this.invalids = datasource.getInvalids();
-        this.messages = datasource.getMessages();
-    }
-
     /**
      * This constructor is used when we have datasource config readily available for creation of datasource.
      * or, for updating the datasource storages.

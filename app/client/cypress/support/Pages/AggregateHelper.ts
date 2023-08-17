@@ -748,19 +748,24 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(selector).type(this.selectAll + "{del}");
   }
 
-  public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
+  public RemoveCharsNType(
+    selector: string,
+    charCount = 0,
+    totype: string,
+    index = 0,
+  ) {
     if (charCount > 0)
       this.GetElement(selector)
+        .eq(index)
         .focus()
         .type("{backspace}".repeat(charCount), { timeout: 2, force: true })
         .wait(50)
         .type(totype);
     else {
-      if (charCount == -1) this.GetElement(selector).clear();
-      this.TypeText(selector, totype);
+      if (charCount == -1) this.GetElement(selector).eq(index).clear();
+      this.TypeText(selector, totype, index);
     }
   }
-
   public ClearTextField(selector: string, force = false) {
     this.GetElement(selector).clear({ force });
     this.Sleep(500); //for text to clear for CI runs
@@ -1388,6 +1393,17 @@ export class AggregateHelper extends ReusableHelper {
       .scrollIntoView()
       .should(visibility == true ? "be.visible" : "not.be.visible");
     //return this.ScrollIntoView(selector, index, timeout).should("be.visible");//to find out why this is failing.
+  }
+
+  public AssertElementNotVisible(
+    selector: ElementType,
+    index = 0,
+    timeout = 20000,
+  ) {
+    return this.GetElement(selector, timeout)
+      .eq(index)
+      .scrollIntoView()
+      .should("not.be.visible");
   }
 
   public CheckForErrorToast(error: string) {

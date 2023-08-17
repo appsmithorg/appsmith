@@ -180,8 +180,8 @@ export class DataSources {
   _gsScopeDropdown =
     "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
   _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
-  private _queryTimeout =
-    "//input[@name='actionConfiguration.timeoutInMillisecond']";
+  _queryTimeout = "//input[@name='actionConfiguration.timeoutInMillisecond']";
+  _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
   private _suggestedWidget = (widgetType: string) =>
@@ -1323,13 +1323,19 @@ export class DataSources {
     this.agHelper.Sleep();
   }
 
-  public SetQueryTimeout(queryTimeout = 20000) {
+  public SetQueryTimeout(
+    queryTimeout = 20000,
+    action: "QUERY" | "API" = "QUERY",
+  ) {
     this.agHelper.GetNClick(this._queryEditorTabs("Settings"));
     cy.xpath(this._queryTimeout)
       .clear()
       .type(queryTimeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
-    this.agHelper.GetNClick(this._queryEditorTabs("Query"));
+
+    if (action === "QUERY") {
+      this.agHelper.GetNClick(this._queryEditorTabs("Query"));
+    }
   }
 
   //Update with new password in the datasource conf page

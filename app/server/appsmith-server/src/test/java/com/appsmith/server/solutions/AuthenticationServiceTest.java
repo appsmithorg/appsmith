@@ -3,7 +3,6 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
@@ -111,11 +110,11 @@ public class AuthenticationServiceTest {
         datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         datasource.setDatasourceStorages(storages);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         Mono<Datasource> datasourceMono = pluginMono
                 .map(plugin -> {
                     datasource.setPluginId(plugin.getId());
@@ -193,11 +192,11 @@ public class AuthenticationServiceTest {
         authenticationDTO.setScope(Set.of("Scope1", "Scope2"));
         authenticationDTO.setCustomAuthenticationParameters(Set.of(new Property("key", "value")));
         datasourceConfiguration.setAuthentication(authenticationDTO);
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         datasource.setDatasourceStorages(storages);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         Mono<Datasource> datasourceMono = pluginMono
                 .map(plugin -> {
                     datasource.setPluginId(plugin.getId());
