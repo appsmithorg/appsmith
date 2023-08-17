@@ -7,7 +7,11 @@ import ProfileImage from "pages/common/ProfileImage";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
-import styled from "styled-components";
+import {
+  TemplatePreviewCardContainer,
+  TemplatePreviewImgPreviewContainer,
+  TemplatePreviewProfileContainer,
+} from "./StylesComponents";
 
 type Props = {
   excerpt: string;
@@ -17,12 +21,12 @@ type Props = {
 
 const TemplateCardPreview = ({ excerpt, templateName, useCases }: Props) => {
   return (
-    <CardContainer>
-      <ImgPreviewContainer>
+    <TemplatePreviewCardContainer>
+      <TemplatePreviewImgPreviewContainer>
         <Text kind="body-m" renderAs="p">
           {createMessage(COMMUNITY_TEMPLATES.publishForm.preview.thumbnail)}
         </Text>
-      </ImgPreviewContainer>
+      </TemplatePreviewImgPreviewContainer>
       <Text kind="heading-m" renderAs="h2">
         {templateName}
       </Text>
@@ -33,7 +37,7 @@ const TemplateCardPreview = ({ excerpt, templateName, useCases }: Props) => {
         {excerpt}
       </Text>
       <UserProfile />
-    </CardContainer>
+    </TemplatePreviewCardContainer>
   );
 };
 
@@ -43,7 +47,7 @@ const UserProfile = () => {
   const currentUser = useSelector(getCurrentUser);
 
   return (
-    <ProfileContainer>
+    <TemplatePreviewProfileContainer>
       <ProfileImage
         size="24px"
         userName={currentUser?.name || currentUser?.username}
@@ -51,39 +55,6 @@ const UserProfile = () => {
       <Text className="strong" kind="body-s" renderAs="p">
         {currentUser?.name || currentUser?.username || currentUser?.email}
       </Text>
-    </ProfileContainer>
+    </TemplatePreviewProfileContainer>
   );
 };
-
-const CardContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  border: 24px solid var(--ads-v2-color-bg-muted);
-  padding: var(--ads-v2-spaces-6);
-  min-height: 360px;
-  gap: 4px;
-  height: fit-content;
-
-  .strong {
-    font-weight: 500;
-  }
-
-  .excerpt {
-    color: var(--colors-ui-control-value);
-  }
-`;
-
-const ImgPreviewContainer = styled.div`
-  width: 360px;
-  height: 220px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const ProfileContainer = styled.div`
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;

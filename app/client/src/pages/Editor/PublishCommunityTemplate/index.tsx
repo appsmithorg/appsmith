@@ -4,59 +4,39 @@ import {
 } from "@appsmith/constants/messages";
 import { Text } from "design-system";
 import React from "react";
-import styled from "styled-components";
 import BackButton from "../DataSourceEditor/BackButton";
+import {
+  PublishPageBodyContainer,
+  PublishPageHeader,
+  PublishPageHeaderContainer,
+  PublishPageTemplateDetailsInputContainer,
+} from "./StylesComponents";
 import TemplateCardPreview from "./TemplateCardPreview";
 import TemplateInfoForm from "./TemplateInfoForm";
 
 const PublishCommunityTemplate = () => {
   return (
     <>
-      <HeaderContainer>
-        <Header>
+      <PublishPageHeaderContainer>
+        <PublishPageHeader>
           <BackButton />
-        </Header>
+        </PublishPageHeader>
         <Text className="title" kind="heading-xl" renderAs="h1">
           {createMessage(COMMUNITY_TEMPLATES.publishForm.title)}
         </Text>
-      </HeaderContainer>
-      <BodyContainer>
+      </PublishPageHeaderContainer>
+      <PublishPageBodyContainer>
         <TemplateCardPreview
           excerpt="A cost tracker for OpenAI API"
           templateName="Open AI usage Dashboard"
           useCases={["Operations", "DevOps"]}
         />
-        <TemplateDetailsInputContainer>
+        <PublishPageTemplateDetailsInputContainer>
           <TemplateInfoForm />
-        </TemplateDetailsInputContainer>
-      </BodyContainer>
+        </PublishPageTemplateDetailsInputContainer>
+      </PublishPageBodyContainer>
     </>
   );
 };
 
 export default PublishCommunityTemplate;
-
-const Header = styled.div`
-  width: 100%;
-
-  > a {
-    margin: 0;
-  }
-`;
-const defaultContainer = styled.div`
-  display: flex;
-  overflow-y: auto;
-  padding: var(--ads-v2-spaces-7);
-`;
-const HeaderContainer = styled(defaultContainer)`
-  flex-direction: column;
-  border-bottom: 1px solid var(--ads-v2-color-border);
-`;
-const BodyContainer = styled(defaultContainer)`
-  height: 100%;
-  gap: var(--ads-v2-spaces-7);
-`;
-const TemplateDetailsInputContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;

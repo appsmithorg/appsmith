@@ -1,0 +1,59 @@
+import styled from "styled-components";
+
+export const PublishPageHeader = styled.div`
+  width: 100%;
+
+  > a {
+    margin: 0;
+  }
+`;
+const _defaultContainer = styled.div`
+  display: flex;
+  overflow-y: auto;
+  padding: var(--ads-v2-spaces-7);
+`;
+export const PublishPageHeaderContainer = styled(_defaultContainer)`
+  flex-direction: column;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+`;
+export const PublishPageBodyContainer = styled(_defaultContainer)`
+  height: 100%;
+  gap: var(--ads-v2-spaces-7);
+`;
+export const PublishPageTemplateDetailsInputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const TemplatePreviewCardContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  border: 24px solid var(--ads-v2-color-bg-muted);
+  padding: var(--ads-v2-spaces-6);
+  min-height: 360px;
+  gap: 4px;
+  height: fit-content;
+
+  .strong {
+    font-weight: 500;
+  }
+
+  .excerpt {
+    color: var(--colors-ui-control-value);
+  }
+`;
+
+export const TemplatePreviewImgPreviewContainer = styled.div`
+  width: 360px;
+  height: 220px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const TemplatePreviewProfileContainer = styled.div`
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
