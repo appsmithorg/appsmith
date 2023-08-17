@@ -11,6 +11,8 @@ public class RateLimitService {
 
     private final Map<String, BucketProxy> apiBuckets;
     private final RateLimitConfig rateLimitConfig;
+    // this number of tokens var can later be customised per API in the configuration.
+    private final Integer DEFAULT_NUMBER_OF_TOKENS_CONSUMED_PER_REQUEST = 1;
 
     public RateLimitService(Map<String, BucketProxy> apiBuckets, RateLimitConfig rateLimitConfig) {
         this.apiBuckets = apiBuckets;
@@ -23,7 +25,7 @@ public class RateLimitService {
 
         BucketProxy userSpecificBucket =
                 rateLimitConfig.getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier);
-        return Mono.just(userSpecificBucket.tryConsume(1));
+        return Mono.just(userSpecificBucket.tryConsume(DEFAULT_NUMBER_OF_TOKENS_CONSUMED_PER_REQUEST));
     }
 
     public void resetCounter(String apiIdentifier, String userIdentifier) {
