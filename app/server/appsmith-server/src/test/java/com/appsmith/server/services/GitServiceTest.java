@@ -8,7 +8,6 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
@@ -3590,9 +3589,8 @@ public class GitServiceTest {
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
         datasource.setDatasourceStorages(storages);
 
         datasourceService.create(datasource).block();
@@ -3654,9 +3652,8 @@ public class GitServiceTest {
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
         datasource.setDatasourceStorages(storages);
 
         datasourceService.create(datasource).block();
@@ -3727,9 +3724,8 @@ public class GitServiceTest {
         datasource.setName("db-auth-1");
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, null));
         datasource.setDatasourceStorages(storages);
 
         datasourceService.create(datasource).block();
