@@ -31,15 +31,15 @@ const PublishedAppInstructions = () => {
       <InfoContainer>
         <Text kind="heading-s" renderAs="h2">
           <Icon name="checkbox-circle-line" size="md" />{" "}
-          {createMessage(COMMUNITY_TEMPLATES.publishedInfo.title)}
+          {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.title)}
         </Text>
         <Text kind="body-m" renderAs="p">
-          {createMessage(COMMUNITY_TEMPLATES.publishedInfo.description)}
+          {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.description)}
         </Text>
       </InfoContainer>
       <InfoFooter>
         <Button endIcon="external-link-line" size="md">
-          {createMessage(COMMUNITY_TEMPLATES.publishedInfo.viewTemplate)}
+          {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.viewTemplate)}
         </Button>
       </InfoFooter>
     </section>
@@ -62,10 +62,12 @@ const UnPublishedAppInstructions = ({ setShowHostModal }: Props) => {
     <section>
       <InfoContainer>
         <Text kind="heading-s" renderAs="h2">
-          {createMessage(COMMUNITY_TEMPLATES.unpublishedInfo.title)}
+          {createMessage(COMMUNITY_TEMPLATES.modals.unpublishedInfo.title)}
         </Text>
         <Text kind="body-m" renderAs="p">
-          {createMessage(COMMUNITY_TEMPLATES.unpublishedInfo.description)}
+          {createMessage(
+            COMMUNITY_TEMPLATES.modals.unpublishedInfo.description,
+          )}
         </Text>
       </InfoContainer>
       <InfoFooter>
