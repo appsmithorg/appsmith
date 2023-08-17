@@ -19,8 +19,9 @@ import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdow
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
+import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
 
-export function useColumns(alias: string) {
+export function useColumns(alias: string, isSearcheable: boolean) {
   const { config, propertyName, updateConfig, widgetId } = useContext(
     WidgetQueryGeneratorFormContext,
   );
@@ -69,21 +70,29 @@ export function useColumns(alias: string) {
         };
       });
     } else if (isArray(columns)) {
-      return columns.map((column: any) => {
-        return {
-          id: column.name,
-          label: column.name,
-          value: column.name,
-          subText: column.type,
-          icon: (
-            <Icon
-              color="var(--ads-v2-color-fg)"
-              name="layout-column-line"
-              size="md"
-            />
-          ),
-        };
-      });
+      return columns
+        .filter((column: any) => {
+          return (
+            !isSearcheable ||
+            (column.type &&
+              ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase()))
+          );
+        })
+        .map((column: any) => {
+          return {
+            id: column.name,
+            label: column.name,
+            value: column.name,
+            subText: column.type,
+            icon: (
+              <Icon
+                color="var(--ads-v2-color-fg)"
+                name="layout-column-line"
+                size="md"
+              />
+            ),
+          };
+        });
     } else {
       return [];
     }

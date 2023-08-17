@@ -43,7 +43,7 @@ export class LightModeTheme implements ColorModeTheme {
 
   public getColors = () => {
     return {
-      bg: this.bg.toString(),
+      bg: this.bg.to("sRGB").toString(),
       bgAccent: this.bgAccent.toString(),
       bgAccentHover: this.bgAccentHover.toString(),
       bgAccentActive: this.bgAccentActive.toString(),

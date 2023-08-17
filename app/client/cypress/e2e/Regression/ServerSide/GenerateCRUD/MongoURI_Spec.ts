@@ -155,7 +155,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
     table.OpenNFilterTable("title", "contains", "USB");
     for (let i = 0; i < 3; i++) {
-      table.ReadTableRowColumnData(i, 5, "v1").then(($cellData) => {
+      table.ReadTableRowColumnData(i, 6, "v1").then(($cellData) => {
         expect($cellData).contains("USB");
       });
     }
