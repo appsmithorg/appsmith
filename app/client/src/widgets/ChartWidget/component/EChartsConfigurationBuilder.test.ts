@@ -31,6 +31,7 @@ describe("EChartsConfigurationBuilder", () => {
 
   const defaultProps: ChartComponentProps = {
     allowScroll: false,
+    showDataPointLabel: true,
     chartData: chartData,
     chartName: "chart name",
     chartType: "LINE_CHART",
@@ -531,6 +532,49 @@ describe("EChartsConfigurationBuilder", () => {
       });
       firstSeriesName = (output.series as any[])[0].name;
       expect(firstSeriesName).toEqual("Undefined");
+    });
+
+    it("6.10 shows labels on series data if Show Labels if true otherwise false", () => {
+      const props = JSON.parse(JSON.stringify(defaultProps));
+      props.showDataPointLabel = true;
+
+      const expectedConfig: any = JSON.parse(
+        JSON.stringify(defaultExpectedConfig),
+      );
+
+      expectedConfig.series[0].label.show = true;
+      expectedConfig.series[1].label.show = true;
+
+      let output = builder.prepareEChartConfig(props, chartData);
+      expect(output.series).toStrictEqual(expectedConfig.series);
+
+      props.showDataPointLabel = false;
+      expectedConfig.series[0].label.show = false;
+      expectedConfig.series[1].label.show = false;
+
+      output = builder.prepareEChartConfig(props, chartData);
+      expect(output.series).toStrictEqual(expectedConfig.series);
+    });
+
+    it("6.11 shows labels on series data if Show Labels if true, else false for PIE Chart as well", () => {
+      const props = JSON.parse(JSON.stringify(defaultProps));
+      props.chartType = "PIE_CHART";
+      props.showDataPointLabel = true;
+
+      let output = builder.prepareEChartConfig(props, chartData);
+      let seriesConfig = output.series as Record<
+        string,
+        Record<string, unknown>
+      >[];
+
+      expect(seriesConfig[0].label.show).toEqual(true);
+
+      props.showDataPointLabel = false;
+
+      output = builder.prepareEChartConfig(props, chartData);
+      seriesConfig = output.series as Record<string, Record<string, unknown>>[];
+
+      expect(seriesConfig[0].label.show).toEqual(false);
     });
   });
 

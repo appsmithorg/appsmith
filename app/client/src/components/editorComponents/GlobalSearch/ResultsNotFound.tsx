@@ -71,4 +71,4 @@ function ResultsNotFound() {
   );
 }
 
-export default ResultsNotFound;
+export default React.memo(ResultsNotFound);
