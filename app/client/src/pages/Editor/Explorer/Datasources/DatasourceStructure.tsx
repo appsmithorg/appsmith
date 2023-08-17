@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { datasourceTableIcon } from "../ExplorerIcons";
 import QueryTemplates from "./QueryTemplates";
@@ -14,11 +14,19 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "design-system";
 import { SHOW_TEMPLATES, createMessage } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Plugin } from "api/PluginApi";
+import { omit } from "lodash";
+import { Virtuoso } from "react-virtuoso";
 
-type DatasourceStructureProps = {
+export enum DatasourceStructureContext {
+  EXPLORER = "entity-explorer",
+  QUERY_EDITOR = "query-editor",
+  // this does not exist yet, but in case it does in the future.
+  API_EDITOR = "api-editor",
+}
+
+type DatasourceStructureItemProps = {
   dbStructure: DatasourceTable;
   step: number;
   datasourceId: string;
@@ -33,11 +41,18 @@ const StyledMenuContent = styled(MenuContent)`
   max-height: 200px;
 `;
 
-export function DatasourceStructure(props: DatasourceStructureProps) {
+const StructureWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+`;
+
+const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   const dbStructure = props.dbStructure;
   let templateMenu = null;
   const [active, setActive] = useState(false);
   useCloseMenuOnScroll(SIDEBAR_ID, active, () => setActive(false));
+  const collapseRef = useRef<HTMLDivElement | null>(null);
 
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
@@ -119,6 +134,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
         props.context !== DatasourceStructureContext.EXPLORER &&
         `-${props.context}`
       }`}
+      collapseRef={collapseRef}
       contextMenu={templateMenu}
       entityId={`${props.datasourceId}-${dbStructure.name}-${props.context}`}
       forceExpand={props.forceExpand}
@@ -140,6 +156,51 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
       </>
     </Entity>
   );
-}
+});
+
+type DatasourceStructureProps = Partial<DatasourceStructureItemProps> & {
+  tables: Array<DatasourceTable>;
+  step: number;
+  datasourceId: string;
+  context: DatasourceStructureContext;
+  isDefaultOpen?: boolean;
+  forceExpand?: boolean;
+  currentActionId: string;
+};
+
+const DatasourceStructure = (props: DatasourceStructureProps) => {
+  const [containerHeight, setContainerHeight] = useState<number>();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current?.offsetHeight) {
+      setContainerHeight(containerRef.current?.offsetHeight);
+    }
+  }, []);
+
+  const Row = (index: number) => {
+    const structure = props.tables[index];
+
+    return (
+      <DatasourceStructureItem
+        {...omit(props, ["tables"])}
+        dbStructure={structure}
+        key={`${props.datasourceId}${structure.name}-${props.context}`}
+      />
+    );
+  };
+
+  return (
+    <StructureWrapper ref={containerRef}>
+      {containerHeight && (
+        <Virtuoso
+          itemContent={Row}
+          style={{ height: `${containerHeight}px` }}
+          totalCount={props.tables.length}
+        />
+      )}
+    </StructureWrapper>
+  );
+};
 
 export default DatasourceStructure;

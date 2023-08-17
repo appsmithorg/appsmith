@@ -13,10 +13,8 @@ import {
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import {
-  DatasourceStructureContainer,
-  DatasourceStructureContext,
-} from "./DatasourceStructureContainer";
+import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
+import { DatasourceStructureContext } from "./DatasourceStructure";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import {
   getAction,
@@ -34,6 +32,7 @@ import { useLocation } from "react-router";
 import omit from "lodash/omit";
 import { getQueryParams } from "utils/URLUtils";
 import { debounce } from "lodash";
+import styled from "styled-components";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -44,6 +43,14 @@ type ExplorerDatasourceEntityProps = {
   isActive: boolean;
   canManageDatasource?: boolean;
 };
+
+const DataStructureListWrapper = styled.div`
+  overflow-y: scroll;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+`;
 
 const ExplorerDatasourceEntity = React.memo(
   (props: ExplorerDatasourceEntityProps) => {
@@ -167,12 +174,14 @@ const ExplorerDatasourceEntity = React.memo(
         step={props.step}
         updateEntityName={updateDatasourceNameCall}
       >
-        <DatasourceStructureContainer
-          context={DatasourceStructureContext.EXPLORER}
-          datasourceId={props.datasource.id}
-          datasourceStructure={datasourceStructure}
-          step={props.step}
-        />
+        <DataStructureListWrapper>
+          <DatasourceStructureContainer
+            context={DatasourceStructureContext.EXPLORER}
+            datasourceId={props.datasource.id}
+            datasourceStructure={datasourceStructure}
+            step={props.step}
+          />
+        </DataStructureListWrapper>
       </Entity>
     );
   },

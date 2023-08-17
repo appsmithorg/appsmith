@@ -21,7 +21,7 @@ import {
 import { getDatasource } from "selectors/entitiesSelector";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
-import { DatasourceStructureContext } from "./DatasourceStructureContainer";
+import { DatasourceStructureContext } from "./DatasourceStructure";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;

@@ -14,7 +14,7 @@ import type { PluginType } from "entities/Action";
 import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
 import type { ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructure";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,

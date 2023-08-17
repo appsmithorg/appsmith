@@ -40,7 +40,7 @@ import {
   DatasourceStructureContainer as DataStructureList,
   SCHEMALESS_PLUGINS,
 } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructure";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   AB_TESTING_EVENT_KEYS,
@@ -189,15 +189,20 @@ const Placeholder = styled.div`
 const DataStructureListWrapper = styled.div`
   overflow-y: scroll;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
-const SchemaSideBarSection = styled.div<{ height: number; marginTop?: number }>`
+const SchemaSideBarSection = styled.div<{ height: string; marginTop?: number }>`
   margin-top: ${(props) => props?.marginTop && `${props.marginTop}px`};
   height: auto;
   display: flex;
   width: 100%;
   flex-direction: column;
-  ${(props) => props.height && `max-height: ${props.height}%;`}
+  ${(props) => props.height && `height: ${props.height};`}
+  & > div {
+    height: 100%;
+  }
 `;
 
 type CollapsibleProps = {
@@ -461,7 +466,10 @@ function ActionSidebar({
       </BackToCanvasLink>
 
       {showSchema && (
-        <SchemaSideBarSection height={50} id={SCHEMA_SECTION_ID}>
+        <SchemaSideBarSection
+          height={datasourceStructure?.tables?.length ? "50%" : "auto"}
+          id={SCHEMA_SECTION_ID}
+        >
           <Collapsible
             CustomLabelComponent={DatasourceStructureHeader}
             datasourceId={datasourceId}
@@ -508,7 +516,7 @@ function ActionSidebar({
           </Collapsible>
         )}
       {showSuggestedWidgets ? (
-        <SchemaSideBarSection height={40} marginTop={12}>
+        <SchemaSideBarSection height={"40%"} marginTop={12}>
           <SuggestedWidgets
             actionName={actionName}
             hasWidgets={hasWidgets}

@@ -9102,24 +9102,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@virtuoso.dev/react-urx@npm:^0.2.5":
-  version: 0.2.6
-  resolution: "@virtuoso.dev/react-urx@npm:0.2.6"
-  dependencies:
-    "@virtuoso.dev/urx": ^0.2.6
-  peerDependencies:
-    react: ">=16"
-  checksum: 877760d0f4e56e4514a1f4f2e0160a99834b06b3c24bab32e569cadd06a3cb18e651bb60824a105d0abf4cc943630c2f68d0f461931b89f9e5f3ffff497f5c2b
-  languageName: node
-  linkType: hard
-
-"@virtuoso.dev/urx@npm:^0.2.5, @virtuoso.dev/urx@npm:^0.2.6":
-  version: 0.2.6
-  resolution: "@virtuoso.dev/urx@npm:0.2.6"
-  checksum: d1942a81a828e250030a1a3dbf66545b1539c29c62d519b1bcaa1a45badf4e1baaa9efecf13238ca6c45555673fe5e12f3aba7d1c4fa2d7ab3e0a9a1504cf153
-  languageName: node
-  linkType: hard
-
 "@vitejs/plugin-react@npm:^3.0.1":
   version: 3.1.0
   resolution: "@vitejs/plugin-react@npm:3.1.0"
@@ -10045,7 +10027,7 @@ __metadata:
     react-test-renderer: ^16.11.0
     react-timer-hook: ^3.0.4
     react-use-gesture: ^7.0.4
-    react-virtuoso: ^1.9.0
+    react-virtuoso: ^4.5.0
     react-webcam: ^7.0.1
     react-window: ^1.8.6
     react-zoom-pan-pinch: ^1.6.1
@@ -12638,7 +12620,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.0.1, core-js@npm:^3.19.2, core-js@npm:^3.5.0, core-js@npm:^3.9.1":
+"core-js@npm:^3.0.1, core-js@npm:^3.19.2, core-js@npm:^3.9.1":
   version: 3.29.0
   resolution: "core-js@npm:3.29.0"
   checksum: 2bd69d783efcd2ef9197ce892a8b91d7b2fd86dddce805a3be0ff721013a2342eeab0f7d0b4b5548c1377b9846a8fb81485054efd39618b9d1a1fca04af81ccf
@@ -23765,7 +23747,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"promise@npm:^8.0.3, promise@npm:^8.1.0":
+"promise@npm:^8.1.0":
   version: 8.1.0
   resolution: "promise@npm:8.1.0"
   dependencies:
@@ -24380,20 +24362,6 @@ __metadata:
   peerDependencies:
     reselect: ">1.0.0"
   checksum: ead25756ba1c607a100f9110fe501a6dbeb29deaf5b4a22ad678f7ca2a7b3492fcccf62cbd02316ca2aa622640e57c939b63077cfacbf67389eedceae6d73df3
-  languageName: node
-  linkType: hard
-
-"react-app-polyfill@npm:^1.0.6":
-  version: 1.0.6
-  resolution: "react-app-polyfill@npm:1.0.6"
-  dependencies:
-    core-js: ^3.5.0
-    object-assign: ^4.1.1
-    promise: ^8.0.3
-    raf: ^3.4.1
-    regenerator-runtime: ^0.13.3
-    whatwg-fetch: ^3.0.0
-  checksum: d38fb0e5f773eb618e39832e78e34b2382a33a2f633ecbc7aba3af819134938f25f4b6915f40dcbb46efa1096efdfabe44030165142000dcf522f564db7cb3b9
   languageName: node
   linkType: hard
 
@@ -25409,17 +25377,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-virtuoso@npm:^1.9.0":
-  version: 1.9.0
-  resolution: "react-virtuoso@npm:1.9.0"
-  dependencies:
-    "@virtuoso.dev/react-urx": ^0.2.5
-    "@virtuoso.dev/urx": ^0.2.5
-    react-app-polyfill: ^1.0.6
-    resize-observer-polyfill: ^1.5.1
+"react-virtuoso@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "react-virtuoso@npm:4.5.0"
   peerDependencies:
-    react: ">=16"
-  checksum: b43c683d5bc06b792ab823421962d7f87b3f8f2b2a297047b3bdb9b36b388c066282d479a2aed621438c58ac2543d3c757d11c3d63839e82d945004ef5f6a08e
+    react: ">=16 || >=17 || >= 18"
+    react-dom: ">=16 || >=17 || >= 18"
+  checksum: 5de22196428e318a0a1454cfcd8d73a1495a19471a895b2d943a86c80a5d9d3ab3637ef81c1612c270a1f362285403d3d2a918da7ec40e3c4aecbe0b28f77776
   languageName: node
   linkType: hard
 
@@ -25735,7 +25699,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"regenerator-runtime@npm:^0.13.11, regenerator-runtime@npm:^0.13.3, regenerator-runtime@npm:^0.13.4, regenerator-runtime@npm:^0.13.9":
+"regenerator-runtime@npm:^0.13.11, regenerator-runtime@npm:^0.13.4, regenerator-runtime@npm:^0.13.9":
   version: 0.13.11
   resolution: "regenerator-runtime@npm:0.13.11"
   checksum: 27481628d22a1c4e3ff551096a683b424242a216fee44685467307f14d58020af1e19660bf2e26064de946bad7eff28950eae9f8209d55723e2d9351e632bbb4
@@ -29866,7 +29830,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"whatwg-fetch@npm:^3.0.0, whatwg-fetch@npm:^3.6.2":
+"whatwg-fetch@npm:^3.6.2":
   version: 3.6.2
   resolution: "whatwg-fetch@npm:3.6.2"
   checksum: ee976b7249e7791edb0d0a62cd806b29006ad7ec3a3d89145921ad8c00a3a67e4be8f3fb3ec6bc7b58498724fd568d11aeeeea1f7827e7e1e5eae6c8a275afed
