@@ -22,7 +22,7 @@ import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
 import "./ApiCommands";
 // Import commands.js using ES2015 syntax:
 import "./commands";
-import { initLocalstorage, removeUserSignupKey } from "./commands";
+import { initLocalstorage, removeIndexedDBKey } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
@@ -111,7 +111,7 @@ before(function () {
 
   if (!Cypress.currentTest.titlePath[0].includes(WALKTHROUGH_TEST_PAGE)) {
     // Clearing key USER_SIGN_UP which is used to show walkthrough for non walkthrough cypress tests
-    removeUserSignupKey();
+    removeIndexedDBKey("USER_SIGN_UP");
   }
 
   //console.warn = () => {};

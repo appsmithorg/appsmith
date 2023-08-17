@@ -11,7 +11,6 @@ const dayjs = require("dayjs");
 const {
   addMatchImageSnapshotCommand,
 } = require("cypress-image-snapshot/command");
-const localforage = require("localforage");
 const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
@@ -53,11 +52,42 @@ export const initLocalstorage = () => {
   });
 };
 
-export const removeUserSignupKey = () => {
-  const store = localforage.createInstance({
-    name: "Appsmith",
+export const removeIndexedDBKey = (keyToDelete) => {
+  cy.window().then((window) => {
+    // Opening the database
+    const request = window.indexedDB.open("Appsmith", 2);
+
+    // Handling database opening success
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+
+      // Creating a transaction to access the object store : keyvaluepairs
+      const transaction = db.transaction(["keyvaluepairs"], "readwrite");
+      const objectStore = transaction.objectStore("keyvaluepairs");
+
+      // Deleting the key
+      const deleteRequest = objectStore.delete(keyToDelete);
+
+      // Handling delete success
+      deleteRequest.onsuccess = () => {
+        console.log("Key deleted successfully");
+        // Closing the database connection
+        db.close();
+      };
+
+      // Handling delete error
+      deleteRequest.onerror = (event) => {
+        console.log("Error deleting key:", event.target.error);
+        // Closing the database connection
+        db.close();
+      };
+    };
+
+    // Handling database opening error
+    request.onerror = (event) => {
+      console.log("Error opening database:", event.target.error);
+    };
   });
-  store.removeItem("USER_SIGN_UP");
 };
 
 // Cypress.Commands.add("goToEditFromPublish", () => {
