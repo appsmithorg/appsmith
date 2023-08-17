@@ -2223,3 +2223,11 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 Cypress.Commands.add("skipSignposting", () => {
   onboarding.closeIntroModal();
 });
+
+Cypress.Commands.add("stubPricingPage", () => {
+  cy.window().then((win) => {
+    cy.stub(win, "open", (url) => {
+      win.location.href = "https://www.appsmith.com/pricing?";
+    }).as("pricingPage");
+  });
+});
