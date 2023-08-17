@@ -6,7 +6,6 @@ import com.appsmith.server.dtos.UserSessionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.lettuce.core.RedisClient;
-import io.lettuce.core.RedisURI;
 import io.lettuce.core.resource.ClientResources;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -94,7 +93,8 @@ public class RedisConfig {
 
     @Bean
     public RedisClient redisClient() {
-        return RedisClient.create((RedisURI) reactiveRedisConnectionFactory().getReactiveConnection());
+        final URI redisUri = URI.create(redisURL);
+        return RedisClient.create(redisUri.getScheme() + "://" + redisUri.getHost() + ":" + redisUri.getPort());
     }
 
     private void fillAuthentication(URI redisUri, RedisConfiguration.WithAuthentication config) {

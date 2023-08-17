@@ -36,20 +36,11 @@ public class RateLimitAspect {
 
             try {
                 Object result = joinPoint.proceed();
-                if (isSuccessfulResponse(result)) {
-                    rateLimitService.resetCounter(apiIdentifier, userIdentifier);
-                }
-                return Mono.just(result);
+                return result instanceof Mono ? (Mono) result : Mono.just(result);
             } catch (Throwable e) {
                 AppsmithError error = AppsmithError.INTERNAL_SERVER_ERROR;
                 throw new AppsmithException(error, e.getMessage());
             }
         });
-    }
-
-    private boolean isSuccessfulResponse(Object result) {
-        return result instanceof ResponseDTO
-                && ((ResponseDTO<?>) result).getResponseMeta().getStatus() >= 200
-                && ((ResponseDTO<?>) result).getResponseMeta().getStatus() < 300;
     }
 }

@@ -5,13 +5,11 @@ import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.ratelimiting.RateLimitService;
+import com.appsmith.server.services.SessionUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
@@ -34,6 +32,7 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
 
     private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
     private final RateLimitService rateLimitService;
+    private final SessionUserService sessionUserService;
 
     @Override
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
@@ -135,10 +134,6 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
     }
 
     private Mono<String> getUserEmailFromSecurityContext() {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication)
-                .map(Authentication::getPrincipal)
-                .ofType(User.class)
-                .map(User::getEmail);
+        return sessionUserService.getCurrentUser().map(User::getEmail);
     }
 }
