@@ -63,7 +63,7 @@ const FlexWrapper = styled.div<{ disabled?: boolean }>`
 `;
 
 export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
-  const { columns: data, primaryColumn } = useColumns("");
+  const { columns: data, primaryColumn } = useColumns("", false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updatedData, setUpdatedData] = useState<any>([]);
   const dispatch = useDispatch();
