@@ -19,6 +19,7 @@ import java.util.Optional;
 @Configuration
 public class RateLimitConfig {
     private static final Map<String, BucketConfiguration> apiConfigurations = new HashMap<>();
+
     @Autowired
     private final RedisClient redisClient;
 
@@ -33,14 +34,17 @@ public class RateLimitConfig {
 
     @Bean
     public LettuceBasedProxyManager<byte[]> proxyManager() {
-        return LettuceBasedProxyManager.builderFor(redisClient).withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(Duration.ofDays(1))).build();
+        return LettuceBasedProxyManager.builderFor(redisClient)
+                .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(Duration.ofDays(1)))
+                .build();
     }
 
     @Bean
     public Map<String, BucketProxy> apiBuckets() {
         Map<String, BucketProxy> apiBuckets = new HashMap<>();
 
-        apiConfigurations.forEach((apiIdentifier, configuration) -> apiBuckets.put(apiIdentifier, proxyManager().builder().build(apiIdentifier.getBytes(), configuration)));
+        apiConfigurations.forEach((apiIdentifier, configuration) ->
+                apiBuckets.put(apiIdentifier, proxyManager().builder().build(apiIdentifier.getBytes(), configuration)));
 
         return apiBuckets;
     }

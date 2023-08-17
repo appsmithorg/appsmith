@@ -1,7 +1,6 @@
 package com.appsmith.server.ratelimiting;
 
 import io.github.bucket4j.distributed.BucketProxy;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -22,11 +21,14 @@ public class RateLimitService {
         // handle the case where API itself is not rate limited
         if (!apiBuckets.containsKey(apiIdentifier)) return Mono.just(false);
 
-        BucketProxy userSpecificBucket = rateLimitConfig.getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier);
+        BucketProxy userSpecificBucket =
+                rateLimitConfig.getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier);
         return Mono.just(userSpecificBucket.tryConsume(1));
     }
 
     public void resetCounter(String apiIdentifier, String userIdentifier) {
-        rateLimitConfig.getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier).reset();
+        rateLimitConfig
+                .getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier)
+                .reset();
     }
 }

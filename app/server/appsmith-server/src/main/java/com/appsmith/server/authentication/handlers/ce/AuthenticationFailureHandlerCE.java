@@ -41,9 +41,8 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
 
         String apiIdentifier = "authentication";
         Mono<String> userEmailMono = getUserEmailFromSecurityContext();
-        Mono<Boolean> isRateLimitedMono = userEmailMono.flatMap(userEmail ->
-                rateLimitService.tryIncreaseCounter(apiIdentifier, userEmail)
-        );
+        Mono<Boolean> isRateLimitedMono =
+                userEmailMono.flatMap(userEmail -> rateLimitService.tryIncreaseCounter(apiIdentifier, userEmail));
 
         return isRateLimitedMono.flatMap(isRateLimited -> {
             if (isRateLimited) {
@@ -56,7 +55,8 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
 
     private Mono<Void> handleRateLimitExceeded(ServerWebExchange exchange) {
         // Set the error in the URL query parameter for rate limiting
-        String url = "/user/login?error=true&message=" + URLEncoder.encode("Rate limit exceeded", StandardCharsets.UTF_8);
+        String url =
+                "/user/login?error=true&message=" + URLEncoder.encode("Rate limit exceeded", StandardCharsets.UTF_8);
         return redirectWithUrl(exchange, url);
     }
 
@@ -69,7 +69,8 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
         if (state != null && !state.isEmpty()) {
             originHeader = getOriginFromState(state);
         } else {
-            originHeader = getOriginFromReferer(exchange.getRequest().getHeaders().getOrigin());
+            originHeader =
+                    getOriginFromReferer(exchange.getRequest().getHeaders().getOrigin());
         }
 
         // Construct the redirect URL based on the exception type
@@ -82,9 +83,7 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
         String[] stateArray = state.split(",");
         for (int i = 0; i < stateArray.length; i++) {
             String stateVar = stateArray[i];
-            if (stateVar != null
-                    && stateVar.startsWith(Security.STATE_PARAMETER_ORIGIN)
-                    && stateVar.contains("=")) {
+            if (stateVar != null && stateVar.startsWith(Security.STATE_PARAMETER_ORIGIN) && stateVar.contains("=")) {
                 return stateVar.split("=")[1];
             }
         }
@@ -109,11 +108,11 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
         String url = "";
         if (exception instanceof OAuth2AuthenticationException
                 && AppsmithError.SIGNUP_DISABLED
-                .getAppErrorCode()
-                .toString()
-                .equals(((OAuth2AuthenticationException) exception)
-                        .getError()
-                        .getErrorCode())) {
+                        .getAppErrorCode()
+                        .toString()
+                        .equals(((OAuth2AuthenticationException) exception)
+                                .getError()
+                                .getErrorCode())) {
             url = "/user/signup?error=" + URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
         } else {
             if (exception instanceof InternalAuthenticationServiceException) {

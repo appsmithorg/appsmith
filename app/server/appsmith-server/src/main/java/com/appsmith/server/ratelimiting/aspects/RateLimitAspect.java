@@ -3,7 +3,6 @@ package com.appsmith.server.ratelimiting.aspects;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.ratelimiting.RateLimitConfig;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.ratelimiting.annotations.RateLimit;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -47,6 +46,8 @@ public class RateLimitAspect {
     }
 
     private boolean isSuccessfulResponse(Object result) {
-        return result instanceof ResponseDTO && ((ResponseDTO<?>) result).getResponseMeta().getStatus() >= 200 && ((ResponseDTO<?>) result).getResponseMeta().getStatus() < 300;
+        return result instanceof ResponseDTO
+                && ((ResponseDTO<?>) result).getResponseMeta().getStatus() >= 200
+                && ((ResponseDTO<?>) result).getResponseMeta().getStatus() < 300;
     }
 }
