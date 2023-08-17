@@ -34,6 +34,11 @@ public class RateLimitConfig {
 
     @Bean
     public LettuceBasedProxyManager<byte[]> proxyManager() {
+        /*
+         we want a single proxyManager to manage all buckets.
+         If we set too short an expiration time,
+         the proxyManager expires and renews the buckets with their initial configuration
+        */
         Duration longExpiration = Duration.ofDays(3650); // 10 years
         return LettuceBasedProxyManager.builderFor(redisClient)
                 .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(longExpiration))

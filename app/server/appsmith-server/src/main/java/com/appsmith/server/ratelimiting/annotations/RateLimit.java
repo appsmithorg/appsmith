@@ -17,6 +17,4 @@ public @interface RateLimit {
     String[] value() default {};
 
     String api() default "";
-
-    String userIdentifier() default "";
 }

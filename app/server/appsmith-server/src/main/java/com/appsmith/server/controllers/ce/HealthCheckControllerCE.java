@@ -18,7 +18,7 @@ public class HealthCheckControllerCE {
     private final HealthCheckService healthCheckService;
 
     @JsonView(Views.Public.class)
-    @RateLimit(api = "health-check", userIdentifier = "anonymous-1")
+    @RateLimit(api = "health-check")
     @GetMapping
     public Mono<ResponseDTO<String>> getHealth() {
         return healthCheckService.getHealth().map(health -> new ResponseDTO<>(HttpStatus.OK.value(), health, null));
