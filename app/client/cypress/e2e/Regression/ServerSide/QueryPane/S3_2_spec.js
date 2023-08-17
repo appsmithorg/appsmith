@@ -7,6 +7,7 @@ const dsl = require("../../../../fixtures/snippingTableDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formControls = require("../../../../locators/FormControl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 
 let datasourceName;
 
@@ -218,7 +219,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       _.agHelper.GetNClick(_.propPane._deleteWidget);
 
       _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");
-      cy.get(queryLocators.suggestedTableWidget).click().wait(1000);
+      _.dataSources.AddSuggestedWidget(Widgets.Table);
       cy.get(commonlocators.TableV2Row).validateWidgetExists();
       _.entityExplorer.SelectEntityByName("Table1", "Widgets");
       _.agHelper.GetNClick(_.propPane._deleteWidget);

@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
+import { WALKTHROUGH_TEST_PAGE } from "../Constants";
 
 const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -1624,6 +1625,14 @@ export class DataSources {
   }
 
   public AddSuggestedWidget(widget: Widgets) {
+    // Only applicable to table widget for now
+    // Change whenever the walkthrough is available for any type of Widgets
+    const removeWidgetIDFromLS = () => {
+      if (!Cypress.currentTest.titlePath[0].includes(WALKTHROUGH_TEST_PAGE)) {
+        // Clearing key WIDGET_ID_SHOW_WALKTHROUGH which is used to show walkthrough for widgets to non walkthrough cypress tests
+        localStorage.removeItem("WIDGET_ID_SHOW_WALKTHROUGH");
+      }
+    };
     switch (widget) {
       case Widgets.Dropdown:
         this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
@@ -1633,6 +1642,7 @@ export class DataSources {
         break;
       case Widgets.Table:
         this.agHelper.GetNClick(this._suggestedWidget("TABLE_WIDGET_V2"));
+        removeWidgetIDFromLS();
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TABLE),
         );
