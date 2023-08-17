@@ -31,6 +31,10 @@ const ActionSelectorReduxActionTypes = {
     "CLEAR_EVALUATED_ACTION_SELECTOR_FIELD",
 };
 
+const IDEReduxActionTypes = {
+  SET_IDE_APP_STATE: "SET_IDE_APP_STATE",
+};
+
 const ActionTypes = {
   TOGGLE_INSTALLER: "TOGGLE_INSTALLER",
   FETCH_JS_LIBRARIES_INIT: "FETCH_JS_LIBRARIES_INIT",
@@ -857,6 +861,7 @@ const ActionTypes = {
 export const ReduxActionTypes = {
   ...ActionTypes,
   ...ActionSelectorReduxActionTypes,
+  ...IDEReduxActionTypes,
 };
 
 export type ReduxActionType =

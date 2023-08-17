@@ -1,6 +1,11 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
+import { useDispatch, useSelector } from "react-redux";
+import { getIdeAppState } from "./ideSelector";
+import { IDEAppState } from "./ideReducer";
+import { setIdeAppState } from "./ideActions";
+import classNames from "classnames";
 
 const DataIcon = importSvg(
   () => import("assets/icons/header/IA-POC/database-2-line.svg"),
@@ -89,23 +94,43 @@ const IconButtonContainer = styled.div`
 `;
 
 const Sidebar = () => {
+  const dispatch = useDispatch();
+  const selectedState: IDEAppState = useSelector(getIdeAppState);
+  const setAppState = useCallback((state: IDEAppState) => {
+    dispatch(setIdeAppState(state));
+  }, []);
   return (
     <SideBarContainer>
       <TopButtons>
         <IconButtonContainer>
-          <ButtonContainer>
+          <ButtonContainer
+            className={classNames({
+              selected: selectedState === IDEAppState.Data,
+            })}
+            onClick={() => setAppState(IDEAppState.Data)}
+          >
             <DataIcon />
           </ButtonContainer>
           <span>Data</span>
         </IconButtonContainer>
         <IconButtonContainer>
-          <ButtonContainer>
+          <ButtonContainer
+            className={classNames({
+              selected: selectedState === IDEAppState.Page,
+            })}
+            onClick={() => setAppState(IDEAppState.Page)}
+          >
             <PagesIcon />
           </ButtonContainer>
           <span>Pages</span>
         </IconButtonContainer>
         <IconButtonContainer>
-          <ButtonContainer>
+          <ButtonContainer
+            className={classNames({
+              selected: selectedState === IDEAppState.Add,
+            })}
+            onClick={() => setAppState(IDEAppState.Add)}
+          >
             <AddIcon />
           </ButtonContainer>
           <span>Add</span>
@@ -113,12 +138,22 @@ const Sidebar = () => {
       </TopButtons>
       <BottomButtons>
         <IconButtonContainer>
-          <ButtonContainer>
+          <ButtonContainer
+            className={classNames({
+              selected: selectedState === IDEAppState.Libraries,
+            })}
+            onClick={() => setAppState(IDEAppState.Libraries)}
+          >
             <LibraryIcon />
           </ButtonContainer>
         </IconButtonContainer>
         <IconButtonContainer>
-          <ButtonContainer>
+          <ButtonContainer
+            className={classNames({
+              selected: selectedState === IDEAppState.Settings,
+            })}
+            onClick={() => setAppState(IDEAppState.Settings)}
+          >
             <SettingsIcon />
           </ButtonContainer>
         </IconButtonContainer>
