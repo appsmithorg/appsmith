@@ -9,13 +9,14 @@ import {
   locators,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
+import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
 
 describe("Validate Arango & CURL Import Datasources", () => {
   let dsName: any,
-    collectionName = "countries_places_to_visit4",
+    collectionName = "countries_places_to_visit",
     containerName = "arangodb";
   before("Create a new Arango DS", () => {
-    //dataSources.StartContainerNVerify("Arango", containerName, 20000);
+    dataSources.StartContainerNVerify("Arango", containerName, 20000);
     dataSources.CreateDataSource("ArangoDB");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -292,11 +293,20 @@ describe("Validate Arango & CURL Import Datasources", () => {
     entityExplorer.DeleteWidgetFromEntityExplorer("Input1");
   });
 
-  it("3. Arango Widget Binding - from Suggested widget", () => {
+  it("3. Arango Widget Binding - from Suggested widget, Schema filter for Arango DS", () => {
+    featureFlagIntercept(
+      {
+        ab_ds_schema_enabled: true,
+      },
+      false,
+    );
+    agHelper.RefreshPage();
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Connect data");
-    dataSources.FilterAndVerifyDatasourceSchemaBySearch("country", "column");
+    entityExplorer.NavigateToSwitcher("Explorer");
     entityExplorer.SelectEntityByName("Query6");
+    dataSources.FilterAndVerifyDatasourceSchemaBySearch("country", "column");
+    dataSources.RunQuery();
     dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
     entityExplorer.SelectEntityByName("Query6");
@@ -323,19 +333,19 @@ describe("Validate Arango & CURL Import Datasources", () => {
       `/_db/_system/_api/collection/${collectionName} --header 'authorization: Basic cm9vdDpBcmFuZ28='`;
     //dataSources.ImportCurlNRun(curlDeleteCol);
     dataSources.FillCurlNImport(curlDeleteCol);
-    // agHelper.ActionContextMenuWithInPane({
-    //   action: "Delete",
-    //   entityType: entityItems.Api,
-    // }); //Deleting api created
-    // entityExplorer.ExpandCollapseEntity(dsName);
-    // entityExplorer.ActionContextMenuByEntityName({
-    //   entityNameinLeftSidebar: dsName,
-    //   action: "Refresh",
-    // }); //needed for the deltion of ds to reflect
-    // agHelper.AssertElementVisibility(dataSources._noSchemaAvailable(dsName));
-    // //Deleting datasource finally
-    // dataSources.DeleteDatasouceFromActiveTab(dsName);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
+    }); //Deleting api created
+    entityExplorer.ExpandCollapseEntity(dsName);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    }); //needed for the deltion of ds to reflect
+    agHelper.AssertElementVisibility(dataSources._noSchemaAvailable(dsName));
+    //Deleting datasource finally
+    dataSources.DeleteDatasouceFromActiveTab(dsName);
 
-    //dataSources.StopNDeleteContainer(containerName);
+    dataSources.StopNDeleteContainer(containerName);
   });
 });
