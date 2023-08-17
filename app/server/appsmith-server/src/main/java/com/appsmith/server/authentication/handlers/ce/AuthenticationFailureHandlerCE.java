@@ -1,5 +1,6 @@
 package com.appsmith.server.authentication.handlers.ce;
 
+import com.appsmith.server.constants.ApiConstants;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -55,8 +56,8 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
 
     private Mono<Void> handleRateLimitExceeded(ServerWebExchange exchange) {
         // Set the error in the URL query parameter for rate limiting
-        String url =
-                "/user/login?error=true&message=" + URLEncoder.encode("Rate limit exceeded", StandardCharsets.UTF_8);
+        String url = "/user/login?error=true&message="
+                + URLEncoder.encode(ApiConstants.RATE_LIMIT_EXCEEDED_ERROR, StandardCharsets.UTF_8);
         return redirectWithUrl(exchange, url);
     }
 

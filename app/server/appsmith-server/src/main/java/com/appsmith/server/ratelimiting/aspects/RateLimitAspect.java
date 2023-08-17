@@ -1,5 +1,6 @@
 package com.appsmith.server.ratelimiting.aspects;
 
+import com.appsmith.server.constants.ApiConstants;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -29,7 +30,8 @@ public class RateLimitAspect {
         Mono<Boolean> isAllowedMono = rateLimitService.tryIncreaseCounter(apiIdentifier, userIdentifier);
         return isAllowedMono.flatMap(isAllowed -> {
             if (!isAllowed) {
-                return Mono.just(new ResponseDTO<>(HttpStatus.TOO_MANY_REQUESTS.value(), "Rate limit exceeded", null));
+                return Mono.just(new ResponseDTO<>(
+                        HttpStatus.TOO_MANY_REQUESTS.value(), ApiConstants.RATE_LIMIT_EXCEEDED_ERROR, null));
             }
 
             try {
