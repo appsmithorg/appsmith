@@ -28,7 +28,7 @@ public class RateLimitConfig {
     }
 
     static {
-        apiConfigurations.put("health-check", createBucketConfiguration(Duration.ofDays(1), 5));
+        apiConfigurations.put("authentication", createBucketConfiguration(Duration.ofDays(1), 5));
         // Add more API configurations as needed
     }
 
