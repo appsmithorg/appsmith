@@ -35,22 +35,23 @@ const VerifyUser = (
     window.location.origin,
   ).toString();
 
-  if (token && email && redirectUrl) {
+  if (!token || !email || !redirectUrl) {
     return (
-      <Container title={"Verifying"}>
-        <form action={submitUrl} id="verification-form" method="POST">
-          <input name="token" type="hidden" value={token} />
-          <input name="email" type="hidden" value={email} />
-          <input name="redirectUrl" type="hidden" value={redirectUrl} />
-        </form>
-        <Spinner size="lg" />
-      </Container>
+      <Redirect
+        to={`/user/verify-error?code=${VerificationErrorType.MISMATCH}`}
+      />
     );
   }
+
   return (
-    <Redirect
-      to={`/user/verify-error?code=${VerificationErrorType.MISMATCH}`}
-    />
+    <Container title={"Verifying"}>
+      <form action={submitUrl} id="verification-form" method="POST">
+        <input name="token" type="hidden" value={token} />
+        <input name="email" type="hidden" value={email} />
+        <input name="redirectUrl" type="hidden" value={redirectUrl} />
+      </form>
+      <Spinner size="lg" />
+    </Container>
   );
 };
 
