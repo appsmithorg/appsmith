@@ -154,8 +154,8 @@ class ChartComponent extends React.Component<
         : "null";
 
     this.props.onDataPointClick({
-      x: x,
-      y: y,
+      x: x ?? -1,
+      y: y ?? -1,
       seriesTitle: seriesName,
       rawEventData: eventData,
     });
