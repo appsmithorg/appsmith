@@ -28,14 +28,15 @@ public class RateLimitConfig {
     }
 
     static {
-        apiConfigurations.put("authentication", createBucketConfiguration(Duration.ofDays(1), 5));
+        apiConfigurations.put("health-check", createBucketConfiguration(Duration.ofDays(1), 5));
         // Add more API configurations as needed
     }
 
     @Bean
     public LettuceBasedProxyManager<byte[]> proxyManager() {
+        Duration longExpiration = Duration.ofDays(3650); // 10 years
         return LettuceBasedProxyManager.builderFor(redisClient)
-                .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(Duration.ofDays(1)))
+                .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(longExpiration))
                 .build();
     }
 
