@@ -200,7 +200,6 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Envir
 app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/**/Datasource* @nidhi-nair @sondermanish @tkappsmith
 app/server/appsmith-server/src/main/java/com/appsmith/server/exceptions/AppsmithError* @nidhi-nair @sondermanish @tkappsmith
 
-
 # Team Managers pod
 app/client/src/ce/* @ankitakinger
 app/client/src/ee/* @ankitakinger
