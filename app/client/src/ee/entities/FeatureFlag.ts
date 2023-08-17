@@ -7,11 +7,15 @@ import {
 const EE_FEATURE_FLAG = {
   TEST_EE_FLAG: "TEST_EE_FLAG",
   license_audit_logs_enabled: "license_audit_logs_enabled",
+  license_gac_enabled: "license_gac_enabled",
+  license_scim_enabled: "license_scim_enabled",
 } as const;
 
 export const EE_DEFAULT_FEATURE_FLAG_VALUE: EE_FeatureFlags = {
   TEST_EE_FLAG: true,
   license_audit_logs_enabled: false,
+  license_gac_enabled: true,
+  license_scim_enabled: true,
 };
 
 export type EE_FeatureFlag = keyof typeof EE_FEATURE_FLAG;

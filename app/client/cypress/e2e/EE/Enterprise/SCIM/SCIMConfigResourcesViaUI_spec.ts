@@ -10,6 +10,7 @@ import {
   UserAttributes,
 } from "../../../../support/Pages/ProvisioningHelper";
 import adminsSettings from "../../../../locators/AdminsSettings";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("SCIM Provisioning", function () {
   let scimEndpointUrl: any, apiKey: any;
@@ -55,10 +56,40 @@ describe("SCIM Provisioning", function () {
       agHelper.GetNClick(adminsSettings.provisioning);
       agHelper.AssertURL("/settings/provisioning");
       cy.get(adminsSettings.provisioning).within(() => {
-        cy.get(adminsSettings.businessTag)
+        cy.get(adminsSettings.enterpriseTag)
           .should("exist")
           .should("contain", "Enterprise");
       });
+      deployMode.StubWindowNAssert(
+        adminsSettings.upgrade,
+        "https://www.appsmith.com/pricing?source=BE",
+        "getEnvVariables",
+      );
+      cy.wait(2000);
+    },
+  );
+
+  it(
+    "excludeForAirgap",
+    "1. Go to admin settings and check provisioning should show upgrade page for free plan",
+    function () {
+      agHelper.VisitNAssert("/settings/general", "getEnvVariables");
+
+      featureFlagIntercept({ license_scim_enabled: false });
+
+      // click provisioning tab
+      agHelper.GetNClick(adminsSettings.provisioning);
+      agHelper.AssertURL("/settings/provisioning");
+      cy.get(adminsSettings.provisioning).within(() => {
+        cy.get(adminsSettings.enterpriseTag)
+          .should("exist")
+          .should("contain", "Enterprise");
+      });
+
+      cy.get(provisioning.locators.upgradeContainer).should("be.visible");
+      cy.get(provisioning.locators.upgradeButton)
+        .should("be.visible")
+        .should("have.text", "Upgrade");
       deployMode.StubWindowNAssert(
         adminsSettings.upgrade,
         "https://www.appsmith.com/pricing?source=BE",
