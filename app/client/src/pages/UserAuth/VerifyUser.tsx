@@ -10,14 +10,13 @@ import {
   VERIFY_ERROR_MISMATCH_TITLE,
 } from "@appsmith/constants/messages";
 import type { RouteComponentProps } from "react-router-dom";
-import { Button, Callout, Link, Spinner, Text, toast } from "design-system";
+import { Button, Callout, Link, Spinner, Text } from "design-system";
 import styled from "styled-components";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import UserApi from "@appsmith/api/UserApi";
 import * as Sentry from "@sentry/react";
-import type { ApiResponse } from "api/ApiResponses";
 import { useResendEmailVerification } from "./helpers";
-import AnalyticsUtil from "../../utils/AnalyticsUtil";
+// import AnalyticsUtil from "../../utils/AnalyticsUtil";
+import { EMAIL_VERIFICATION_PATH } from "@appsmith/constants/ApiConstants";
 
 const Body = styled.div`
   display: flex;
@@ -54,35 +53,51 @@ const VerifyUser = (
       setError(ErrorType.UNKNOWN);
       return;
     }
-    UserApi.verifyUser(token, email, redirectUrl)
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      .then((response: ApiResponse) => {
-        if (!response.responseMeta.success) {
-          const errorCode =
-            (response.responseMeta.error?.code as ErrorType) ||
-            ErrorType.UNKNOWN;
-          setLoading(false);
-          setError(errorCode);
-          AnalyticsUtil.logEvent("EMAIL_VERIFICATION_FAILED", {
-            response: response.responseMeta,
-          });
-          return;
-        }
+    const formElement: HTMLFormElement = document.getElementById(
+      "verification-form",
+    ) as HTMLFormElement;
 
-        toast.show("Email verified successfully", { kind: "success" });
-      })
-      .catch(() => {
-        setLoading(false);
-        setError(ErrorType.UNKNOWN);
-      });
+    formElement && formElement.submit();
+
+    // UserApi.verifyUser(token, email, redirectUrl)
+    //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //   // @ts-ignore
+    //   .then((response: ApiResponse) => {
+    //     if (!response.responseMeta.success) {
+    //       const errorCode =
+    //         (response.responseMeta.error?.code as ErrorType) ||
+    //         ErrorType.UNKNOWN;
+    //       setLoading(false);
+    //       setError(errorCode);
+    //       AnalyticsUtil.logEvent("EMAIL_VERIFICATION_FAILED", {
+    //         response: response.responseMeta,
+    //       });
+    //       return;
+    //     }
+    //
+    //     toast.show("Email verified successfully", { kind: "success" });
+    //   })
+    //   .catch(() => {
+    //     setLoading(false);
+    //     setError(ErrorType.UNKNOWN);
+    //   });
   }, [token, email]);
 
   const [resendVerificationLink, enabled] = useResendEmailVerification(email);
 
-  if (loading) {
+  const submitUrl = new URL(
+    `/api/v1/` + EMAIL_VERIFICATION_PATH,
+    window.location.origin,
+  ).toString();
+
+  if (loading && token && email && redirectUrl) {
     return (
       <Container title={"Verifying"}>
+        <form action={submitUrl} id="verification-form" method="POST">
+          <input name="token" type="hidden" value={token} />
+          <input name="email" type="hidden" value={email} />
+          <input name="redirectUrl" type="hidden" value={redirectUrl} />
+        </form>
         {loading && <Spinner size="lg" />}
       </Container>
     );
