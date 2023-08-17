@@ -38,7 +38,6 @@ const featureFlags = selectFeatureFlags(store.getState());
 import { getAppsmithConfigs } from "@appsmith/configs";
 const { mailEnabled } = getAppsmithConfigs();
 
-
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
   categoryType: CategoryType.GENERAL,
