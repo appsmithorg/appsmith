@@ -30,3 +30,18 @@ export function isValidURL(url: string): boolean {
     ) !== null
   );
 }
+
+// update URL query params without reloading the page and changing current params
+export function updateURLParams(params: Record<string, string>) {
+  const urlParams = new URLSearchParams(window.location.search);
+  for (const key in params) {
+    urlParams.set(key, params[key]);
+  }
+  // check if hash is present in the url
+  const hash = window.location.hash;
+  window.history.replaceState(
+    {},
+    "",
+    hash.includes("?") ? "&" : "?" + urlParams.toString(), // if hash is present, append params with & else append with ?
+  );
+}
