@@ -1926,6 +1926,13 @@ export const COMMUNITY_TEMPLATES = {
       useCasesInputLabel: () => "Use-cases",
       useCasesInputPlaceholder: () => "Select use cases",
     },
+    authorDetails: {
+      title: () => "Author details",
+      displayNameLabel: () => "Display name",
+      displayNamePlaceholder: () => "Display name",
+      emailLabel: () => "Email",
+      emailPlaceholder: () => "Email",
+    },
     publishedInfo: {
       title: () => "What is published?",
       correct: [

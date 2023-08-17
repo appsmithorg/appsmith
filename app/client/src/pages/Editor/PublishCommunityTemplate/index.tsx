@@ -14,6 +14,7 @@ import {
 import TemplateCardPreview from "./components/TemplateCardPreview";
 import TemplateInfoForm from "./components/TemplateInfoForm";
 import PublishedInfo from "./components/PublishedInfo";
+import AuthorDetailsInput from "./components/AuthorDetailsInput";
 
 const PublishCommunityTemplate = () => {
   return (
@@ -34,6 +35,7 @@ const PublishCommunityTemplate = () => {
         />
         <PublishPageTemplateDetailsInputContainer>
           <TemplateInfoForm />
+          <AuthorDetailsInput />
           <PublishedInfo />
         </PublishPageTemplateDetailsInputContainer>
       </PublishPageBodyContainer>
