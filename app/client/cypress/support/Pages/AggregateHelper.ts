@@ -1395,6 +1395,28 @@ export class AggregateHelper extends ReusableHelper {
     //return this.ScrollIntoView(selector, index, timeout).should("be.visible");//to find out why this is failing.
   }
 
+  public AssertElementNotVisible(
+    selector: ElementType,
+    index = 0,
+    timeout = 20000,
+  ) {
+    return this.GetElement(selector, timeout)
+      .eq(index)
+      .scrollIntoView()
+      .should("not.be.visible");
+  }
+
+  public AssertElementNotVisible(
+    selector: ElementType,
+    index = 0,
+    timeout = 20000,
+  ) {
+    return this.GetElement(selector, timeout)
+      .eq(index)
+      .scrollIntoView()
+      .should("not.be.visible");
+  }
+
   public CheckForErrorToast(error: string) {
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._toastMsg).length) {
@@ -1592,6 +1614,23 @@ export class AggregateHelper extends ReusableHelper {
     //passing 1 works as browser back
     //passing -1 works as browser forward
     cy.go(direction);
+  }
+
+  public AssertCursorInput($selector: string, cursor = { ch: 0, line: 0 }) {
+    this.EnableAllCodeEditors();
+    cy.get($selector)
+      .first()
+      .find(".CodeMirror")
+      .first()
+      .then((ins) => {
+        const input = (ins[0] as any).CodeMirror;
+        // The input gets focused with a slight delay so we need to wait for it
+        cy.waitUntil(() => input.hasFocus()).then(() => {
+          const editorCursor = input.getCursor();
+          expect(editorCursor.ch).to.equal(cursor.ch);
+          expect(editorCursor.line).to.equal(cursor.line);
+        });
+      });
   }
 
   //Not used:
