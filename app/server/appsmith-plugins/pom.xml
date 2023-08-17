@@ -106,6 +106,7 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
             <version>${mockito.version}</version>
+            <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/mockwebserver3 -->
         <dependency>
