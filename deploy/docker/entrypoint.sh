@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
 set -e
-set -o xtrace
+
+if [[ ${DEBUG-0} == 1 ]]; then
+  set -o xtrace
+fi
 
 stacks_path=/appsmith-stacks
 
@@ -331,21 +334,22 @@ init_postgres() {
     echo "Checking initialized local postgres"
     POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
 
-    if [ -e "$POSTGRES_DB_PATH/PG_VERSION" ]; then
-        echo "Found existing Postgres, Skipping initialization"
-        chown -R postgres:postgres "$POSTGRES_DB_PATH"
+    mkdir -p "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
+
+    # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
+    chown -R postgres:postgres "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
+
+    if [[ -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
+      echo "Found existing Postgres, Skipping initialization"
     else
       echo "Initializing local postgresql database"
-      mkdir -p "$POSTGRES_DB_PATH"
 
-      # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-      chown postgres:postgres "$POSTGRES_DB_PATH"
-
-      # Initialize the postgres db file system
+      # Initialize the postgres db file system and config.
       su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
+      echo "unix_socket_directories = '/tmp/appsmith/pg-runtime'" >> "$POSTGRES_DB_PATH/postgresql.conf"
 
       # Start the postgres server in daemon mode
-      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
+      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl start -D $POSTGRES_DB_PATH"
 
       # Create mockdb db and user and populate it with the data
       seed_embedded_postgres
@@ -428,10 +432,15 @@ EOF
 }
 
 # Main Section
+echo "APPSMITH_ENABLE_EMBEDDED_DB: ${APPSMITH_ENABLE_EMBEDDED_DB-}"
 init_loading_pages
+echo "APPSMITH_ENABLE_EMBEDDED_DB: ${APPSMITH_ENABLE_EMBEDDED_DB-}"
 init_env_file
+echo "APPSMITH_ENABLE_EMBEDDED_DB: ${APPSMITH_ENABLE_EMBEDDED_DB-}"
 setup_proxy_variables
+echo "APPSMITH_ENABLE_EMBEDDED_DB: ${APPSMITH_ENABLE_EMBEDDED_DB-}"
 unset_unused_variables
+echo "APPSMITH_ENABLE_EMBEDDED_DB: ${APPSMITH_ENABLE_EMBEDDED_DB-}"
 
 check_mongodb_uri
 if [[ -z "${DYNO}" ]]; then
