@@ -35,7 +35,10 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
-import { getCurrentEnvName } from "@appsmith/utils/Environments";
+import {
+  getCurrentEnvName,
+  getCurrentEditingEnvID,
+} from "@appsmith/utils/Environments";
 
 interface Props {
   datasource: Datasource;
@@ -236,9 +239,12 @@ function DatasourceAuth({
     }
   }, [triggerSave]);
   const isAuthorized =
-    datasource?.datasourceStorages &&
-    datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
-      ?.authentication?.authenticationStatus === AuthenticationStatus.SUCCESS;
+    datasource?.datasourceStorages && authType === AuthType.OAUTH2
+      ? datasource?.datasourceStorages[getCurrentEditingEnvID()]
+          ?.datasourceConfiguration?.authentication?.isAuthorized
+      : datasource?.datasourceStorages[currentEnvironment]
+          ?.datasourceConfiguration?.authentication?.authenticationStatus ===
+        AuthenticationStatus.SUCCESS;
 
   // Button Operations for respective buttons.
 

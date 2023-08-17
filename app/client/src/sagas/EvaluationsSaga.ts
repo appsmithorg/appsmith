@@ -68,7 +68,6 @@ import {
   TriggerKind,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { validate } from "workers/Evaluation/validations";
-import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 
@@ -103,7 +102,6 @@ import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
-
 export const evalWorker = new GracefulWorkerService(
   new Worker(
     new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
@@ -132,7 +130,6 @@ export function* updateDataTreeHandler(
 
   const {
     configTree,
-    dataTree,
     dependencies,
     errors,
     evalMetaUpdates = [],
@@ -147,6 +144,7 @@ export function* updateDataTreeHandler(
     undefinedEvalValuesMap,
     unEvalUpdates,
     jsVarsCreatedEvent,
+    updates,
   } = evalTreeResponse;
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -157,14 +155,13 @@ export function* updateDataTreeHandler(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  const oldDataTree: ReturnType<typeof getDataTree> = yield select(getDataTree);
-
-  const updates = diff(oldDataTree, dataTree) || [];
 
   if (!isEmpty(staleMetaIds)) {
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
+
   yield put(setEvaluatedTree(updates));
+
   ConfigTreeActions.setConfigTree(configTree);
 
   PerformanceTracker.stopAsyncTracking(
