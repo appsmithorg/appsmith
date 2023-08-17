@@ -94,8 +94,17 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
               ENVIRONMENT_QUERY_KEY,
               seletedEnv.name.toLowerCase(),
             );
-            // Replace current querystring with the new one.
-            window.history.replaceState({}, "", "?" + queryParams.toString());
+            // Replace current querystring with the new one. Make sure the # stays intact
+            // We also need to make sure hash doesn't have any query params
+            // TODO: Convert this to a util function in utils/URLUtils.ts
+            const hash = window.location.hash;
+            window.history.replaceState(
+              {},
+              "",
+              `${hash}${
+                hash.includes("?") ? "&" : "?"
+              }${queryParams.toString()}`,
+            );
           }
         }
         setCurrentEditingEnvID(seletedEnv.id);
