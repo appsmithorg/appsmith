@@ -1913,6 +1913,19 @@ export const COMMUNITY_TEMPLATES = {
     preview: {
       thumbnail: () => "Thumbnail will be generated automatically",
     },
+    templateForm: {
+      titleInputLabel: () => "Title",
+      titleInputPlaceholder: () => "Title of the template",
+
+      excerptInputLabel: () => "Headline",
+      excerptInputPlaceholder: () => "One line excerpt",
+
+      descriptionInputLabel: () => "Description",
+      descriptionInputPlaceholder: () => "Description of the template",
+
+      useCasesInputLabel: () => "Use-cases",
+      useCasesInputPlaceholder: () => "Select use cases",
+    },
   },
   unpublishedInfo: {
     title: () => "Publish to app community",

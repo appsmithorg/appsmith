@@ -10,7 +10,7 @@ import {
   PublishPageHeader,
   PublishPageHeaderContainer,
   PublishPageTemplateDetailsInputContainer,
-} from "./StylesComponents";
+} from "./styledComponents";
 import TemplateCardPreview from "./TemplateCardPreview";
 import TemplateInfoForm from "./TemplateInfoForm";
 

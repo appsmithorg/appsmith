@@ -11,7 +11,7 @@ import {
   TemplatePreviewCardContainer,
   TemplatePreviewImgPreviewContainer,
   TemplatePreviewProfileContainer,
-} from "./StylesComponents";
+} from "./styledComponents";
 
 type Props = {
   excerpt: string;

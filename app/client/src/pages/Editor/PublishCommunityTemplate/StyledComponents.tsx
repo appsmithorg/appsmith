@@ -23,6 +23,7 @@ export const PublishPageBodyContainer = styled(_defaultContainer)`
 export const PublishPageTemplateDetailsInputContainer = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1;
 `;
 
 export const TemplatePreviewCardContainer = styled.div`
@@ -44,8 +45,8 @@ export const TemplatePreviewCardContainer = styled.div`
 `;
 
 export const TemplatePreviewImgPreviewContainer = styled.div`
-  width: 360px;
-  height: 220px;
+  width: 320px;
+  height: 180px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -56,4 +57,24 @@ export const TemplatePreviewProfileContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+`;
+
+export const TemplateInfoFormWrapper = styled.div`
+  width: 480px;
+  & > div {
+    margin-bottom: 16px;
+  }
+`;
+export const TemplateInfoFormFieldWrapper = styled.div`
+  .user-profile-image-picker {
+    width: 166px;
+    margin-top: 4px;
+  }
+`;
+
+export const TemplateInfoFormLabelWrapper = styled.div`
+  .self-center {
+    align-self: center;
+  }
+  color: var(--ads-v2-color-fg);
 `;
