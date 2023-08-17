@@ -3,7 +3,6 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.QUserData;
-import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -304,9 +303,8 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser() {
-        Mono<Tenant> tenantMono = tenantService.getDefaultTenant();
-        return tenantMono
-                .flatMap(tenant -> featureFlagService.getCurrentTenantFeatures(tenant.getId()))
+        return Mono.zip(featureFlagService.getAllFeatureFlagsForUser(), featureFlagService.getCurrentTenantFeatures())
+                .flatMap(tenant -> featureFlagService.getCurrentTenantFeatures())
                 .zipWith(featureFlagService.getAllFeatureFlagsForUser())
                 .map(tuple -> {
                     Map<String, Boolean> featureFlags = tuple.getT1();

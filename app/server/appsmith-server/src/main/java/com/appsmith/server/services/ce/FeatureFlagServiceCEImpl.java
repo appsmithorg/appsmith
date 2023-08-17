@@ -10,10 +10,10 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserIdentifierService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.core.FlippingExecutionContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -23,11 +23,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final SessionUserService sessionUserService;
 
     private final FF4j ff4j;
+
+    private final TenantService tenantService;
 
     private final ConfigService configService;
 
@@ -40,23 +43,6 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private final UserIdentifierService userIdentifierService;
 
     private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
-
-    @Autowired
-    public FeatureFlagServiceCEImpl(
-            SessionUserService sessionUserService,
-            FF4j ff4j,
-            TenantService tenantService,
-            ConfigService configService,
-            CloudServicesConfig cloudServicesConfig,
-            UserIdentifierService userIdentifierService,
-            CacheableFeatureFlagHelper cacheableFeatureFlagHelper) {
-        this.sessionUserService = sessionUserService;
-        this.ff4j = ff4j;
-        this.configService = configService;
-        this.cloudServicesConfig = cloudServicesConfig;
-        this.userIdentifierService = userIdentifierService;
-        this.cacheableFeatureFlagHelper = cacheableFeatureFlagHelper;
-    }
 
     private Mono<Boolean> checkAll(String featureName, User user) {
         Boolean check = check(featureName, user);
@@ -137,39 +123,33 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      * To get all features of the tenant from Cloud Services and store them locally
      * @return Mono of Void
      */
-    public Mono<Void> getAllRemoteFeaturesForTenant(String tenantId) {
-        return cacheableFeatureFlagHelper
-                .fetchCachedTenantNewFeatures(tenantId)
-                .flatMap(cachedFeatures -> {
-                    if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
-                            < this.tenantFeaturesCacheTimeMin) {
-                        return Mono.just(cachedFeatures);
-                    } else {
-                        return this.forceUpdateTenantFeatures(tenantId);
-                    }
+    public Mono<Void> getAllRemoteFeaturesForTenant() {
+        return tenantService
+                .getDefaultTenantId()
+                .flatMap(defaultTenantId -> {
+                    return cacheableFeatureFlagHelper
+                            .fetchCachedTenantNewFeatures(defaultTenantId)
+                            .flatMap(cachedFeatures -> {
+                                if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
+                                        < this.tenantFeaturesCacheTimeMin) {
+                                    return Mono.just(cachedFeatures);
+                                } else {
+                                    return cacheableFeatureFlagHelper.forceUpdateTenantFeatures(defaultTenantId);
+                                }
+                            });
                 })
                 .then();
-    }
-
-    /**
-     * Method to force update the tenant level feature flags. This will be utilised in scenarios where we don't want
-     * to wait for the flags to get updated for cron scheduled time
-     * @param tenantId  tenant for which the features need to be updated
-     * @return          Cached features
-     */
-    @Override
-    public Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId) {
-        return cacheableFeatureFlagHelper
-                .evictCachedTenantNewFeatures(tenantId)
-                .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantId));
     }
 
     /**
      * To get all features of the current tenant.
      * @return Mono of Map
      */
-    public Mono<Map<String, Boolean>> getCurrentTenantFeatures(String tenantId) {
-        // TODO: Update to call fetchCachedTenantCurrentFeatures once default value storing is complete
-        return cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantId).map(CachedFeatures::getFeatures);
+    public Mono<Map<String, Boolean>> getCurrentTenantFeatures() {
+        return tenantService
+                .getDefaultTenantId()
+                // TODO: Update to call fetchCachedTenantCurrentFeatures once default value storing is complete
+                .flatMap(cacheableFeatureFlagHelper::fetchCachedTenantNewFeatures)
+                .map(CachedFeatures::getFeatures);
     }
 }
