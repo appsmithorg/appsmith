@@ -38,17 +38,17 @@ const VerificationError = (
 ) => {
   const queryParams = new URLSearchParams(props.location.search);
   const email = queryParams.get("email");
-  const error = queryParams.get("errorCode");
+  const code = queryParams.get("code");
   const message = queryParams.get("message");
   const [resendVerificationLink, enabled] = useResendEmailVerification(email);
   useEffect(() => {
     AnalyticsUtil.logEvent("EMAIL_VERIFICATION_FAILED", {
-      error,
+      errorCode: code,
       message,
     });
-  }, [error, message]);
+  }, [code, message]);
 
-  if (error === ErrorType.EXPIRED) {
+  if (code === ErrorType.EXPIRED) {
     return (
       <Container title="">
         <Body>
@@ -67,7 +67,7 @@ const VerificationError = (
     );
   }
 
-  if (error === ErrorType.ALREADY_VERIFIED) {
+  if (code === ErrorType.ALREADY_VERIFIED) {
     return (
       <Container
         footer={
@@ -95,7 +95,7 @@ const VerificationError = (
     );
   }
 
-  if (error === ErrorType.MISMATCH) {
+  if (code === ErrorType.MISMATCH) {
     return (
       <Container title="">
         <Body>
