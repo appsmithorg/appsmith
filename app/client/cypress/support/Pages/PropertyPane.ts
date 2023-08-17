@@ -151,7 +151,6 @@ export class PropertyPane {
   _checkbox = ".bp3-checkbox";
   _roundCursorPointer = ".rounded-full.cursor-pointer";
   _sliderMark = ".slider-mark";
-  _optionsDeleteButton = "[orientation='HORIZONTAL'] .ads-v2-button";
   _styleSize = (size: string) => `.ads-v2-segmented-control-value-${size}`;
   _themeColor =
     "//h3[text()='Theme Colors']//..//div[contains(@class, 't--colorpicker-v2-color')]";
@@ -240,6 +239,7 @@ export class PropertyPane {
     propertyName: string,
     toggle: "On" | "Off" = "On",
     networkCall = "updateLayout",
+    toValidateNetworkCall = true
   ) {
     if (toggle == "On") {
       this.agHelper
@@ -253,7 +253,10 @@ export class PropertyPane {
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
+    if(toValidateNetworkCall)
+    {
     networkCall && this.assertHelper.AssertNetworkStatus(networkCall);
+    }
   }
 
   public MoveToTab(tab: "Content" | "Style") {
