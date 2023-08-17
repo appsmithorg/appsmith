@@ -26,6 +26,13 @@ export const PublishPageTemplateDetailsInputContainer = styled.div`
   flex: 1;
 `;
 
+export const PublishPageAppSettingContainer = styled.div`
+  margin-top: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+`;
+
 export const TemplatePreviewCardContainer = styled.div`
   display: flex;
   flex-direction: column;

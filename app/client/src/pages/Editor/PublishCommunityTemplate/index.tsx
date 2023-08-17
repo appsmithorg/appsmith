@@ -6,6 +6,7 @@ import { Text } from "design-system";
 import React, { useState } from "react";
 import BackButton from "../DataSourceEditor/BackButton";
 import {
+  PublishPageAppSettingContainer,
   PublishPageBodyContainer,
   PublishPageHeader,
   PublishPageHeaderContainer,
@@ -50,7 +51,9 @@ const PublishCommunityTemplate = () => {
             setAuthorEmail={setAuthorEmail}
             setAuthorName={setAuthorName}
           />
-          <ApplicationSettings isForkable isPublic />
+          <PublishPageAppSettingContainer>
+            <ApplicationSettings isForkable isPublic />
+          </PublishPageAppSettingContainer>
           <PublishedInfo />
         </PublishPageTemplateDetailsInputContainer>
       </PublishPageBodyContainer>
