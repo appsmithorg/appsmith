@@ -1,23 +1,28 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-import { EntityItems } from "../../../../support/Pages/AssertHelper";
+import {
+  jsEditor,
+  agHelper,
+  entityExplorer,
+  debuggerHelper,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("excludeForAirgap", "JSObjects", () => {
-  it("Switch to settings pane when clicked on update logs", () => {
-    _.jsEditor.NavigateToNewJSEditor();
-    _.jsEditor.EnableDisableAsyncFuncSettings("myFun2");
-    _.agHelper.GetNClick(_.jsEditor._codeTab);
-    _.entityExplorer.NavigateToSwitcher("Widgets");
-    _.debuggerHelper.ClickDebuggerIcon();
-    _.debuggerHelper.ClickLogsTab();
-    _.debuggerHelper.ClicklogEntityLink(true);
+  it("1. Switch to settings pane when clicked on update logs", () => {
+    jsEditor.NavigateToNewJSEditor();
+    jsEditor.EnableDisableAsyncFuncSettings("myFun2");
+    agHelper.GetNClick(jsEditor._codeTab);
+    entityExplorer.NavigateToSwitcher("Widgets");
+    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.ClickLogsTab();
+    debuggerHelper.ClicklogEntityLink(true);
 
-    _.agHelper.AssertElementVisibility(_.jsEditor._asyncJSFunctionSettings);
-    _.entityExplorer.ActionContextMenuByEntityName({
+    agHelper.AssertElementVisibility(jsEditor._asyncJSFunctionSettings);
+    entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
-      entityType: EntityItems.JSObject,
+      entityType: entityItems.JSObject,
     });
   });
-  it("Focus and position cursor on the ch,line having an error", () => {
+  it("2. Focus and position cursor on the ch,line having an error", () => {
     const JS_OBJECT_BODY = `export default {
         myVar1: [],
         myVar2: {},
@@ -32,20 +37,20 @@ describe("excludeForAirgap", "JSObjects", () => {
             //	await storeValue('varName', 'hello world')
         }
     }`;
-    _.jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+    jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
     });
 
-    _.debuggerHelper.ClickDebuggerIcon();
-    _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.AssertCursorInput(".js-editor", { ch: 20, line: 6 });
+    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.ClicklogEntityLink();
+    agHelper.AssertCursorInput(".js-editor", { ch: 20, line: 6 });
 
-    _.entityExplorer.ActionContextMenuByEntityName({
+    entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
-      entityType: EntityItems.JSObject,
+      entityType: entityItems.JSObject,
     });
   });
 });

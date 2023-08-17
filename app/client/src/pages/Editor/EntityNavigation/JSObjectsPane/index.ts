@@ -5,7 +5,6 @@ import {
 import PaneNavigation from "../PaneNavigation";
 import type { JSCollection } from "entities/JSCollection";
 import { call, delay, put, select } from "redux-saga/effects";
-import log from "loglevel";
 import history from "utils/history";
 import { jsCollectionIdURL } from "RouteBuilder";
 import type { EntityInfo, IJSPaneNavigationConfig } from "../types";
@@ -32,7 +31,6 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
 
   *init() {
     if (!this?.entityInfo) throw Error(`Initialisation failed`);
-    log.debug(this.entityInfo, "this.entityInfo");
     const jsCollection: JSCollection | undefined = yield select(
       getJSCollectionById,
       {
