@@ -2,12 +2,13 @@ import {
   COMMUNITY_TEMPLATES,
   createMessage,
 } from "@appsmith/constants/messages";
-import { Text } from "design-system";
+import { Button, Text } from "design-system";
 import React, { useState } from "react";
 import BackButton from "../DataSourceEditor/BackButton";
 import {
   PublishPageAppSettingContainer,
   PublishPageBodyContainer,
+  PublishPageFooterContainer,
   PublishPageHeader,
   PublishPageHeaderContainer,
   PublishPageTemplateDetailsInputContainer,
@@ -57,6 +58,13 @@ const PublishCommunityTemplate = () => {
           <PublishedInfo />
         </PublishPageTemplateDetailsInputContainer>
       </PublishPageBodyContainer>
+      <PublishPageFooterContainer>
+        <Button size="md">
+          {createMessage(
+            COMMUNITY_TEMPLATES.publishFormPage.footerPublishButton,
+          )}
+        </Button>
+      </PublishPageFooterContainer>
     </>
   );
 };

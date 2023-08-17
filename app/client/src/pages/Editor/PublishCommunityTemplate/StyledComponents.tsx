@@ -16,6 +16,11 @@ export const PublishPageHeaderContainer = styled(_defaultContainer)`
   flex-direction: column;
   border-bottom: 1px solid var(--ads-v2-color-border);
 `;
+export const PublishPageFooterContainer = styled(_defaultContainer)`
+  border-top: 1px solid var(--ads-v2-color-border);
+  justify-content: flex-end;
+  padding: var(--ads-v2-spaces-5);
+`;
 export const PublishPageBodyContainer = styled(_defaultContainer)`
   height: 100%;
   gap: var(--ads-v2-spaces-7);

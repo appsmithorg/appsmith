@@ -1910,6 +1910,7 @@ export const COMMUNITY_TEMPLATES = {
   cancel: () => "Cancel",
   publishFormPage: {
     title: () => "Publish to community",
+    footerPublishButton: () => "Publish to community",
     preview: {
       thumbnail: () => "Thumbnail will be generated automatically",
     },
