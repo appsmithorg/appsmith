@@ -5,8 +5,6 @@ import {
   entityExplorer,
   dataSources,
   draggableWidgets,
-  assertHelper,
-  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const oneClickBinding = new OneClickBinding();
@@ -34,6 +32,13 @@ describe("JSONForm widget one click binding feature", () => {
     // Open the column selector modal
     agHelper.GetNClick(oneClickBindingLocator.columnSelectorModalTrigger);
 
+    // Assert that the primary column is unchecked
+    agHelper.AssertAttribute(
+      oneClickBindingLocator.checkBox,
+      "data-checked",
+      "false",
+    );
+
     // Deselect some columns
     const deselectColumns = ["title_of_courtesy", "birth_date", "hire_date"];
 
@@ -52,7 +57,7 @@ describe("JSONForm widget one click binding feature", () => {
 
     agHelper.Sleep(2000);
 
-    const selectedColumns = ["employee_id", "last_name", "first_name", "title"];
+    const selectedColumns = ["last_name", "first_name", "title"];
 
     // Assert that the selected columns are present in the form
     selectedColumns.forEach((column) => {

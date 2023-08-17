@@ -5,8 +5,6 @@ import {
   entityExplorer,
   dataSources,
   draggableWidgets,
-  assertHelper,
-  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const oneClickBinding = new OneClickBinding();
@@ -36,7 +34,6 @@ describe("JSONForm widget one click binding feature", () => {
     agHelper.Sleep(2000);
 
     const columns = [
-      "employee_id",
       "last_name",
       "first_name",
       "title",

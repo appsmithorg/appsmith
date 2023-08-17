@@ -60,4 +60,5 @@ export default {
   columnselectorModalCancelBtn: '[data-testid="t--edit-fields-cancel-btn"]',
   columnSelectorField: (columnName: string) =>
     `[data-column-id="t--edit-field-${columnName}"]`,
+  checkBox: ".ads-v2-checkbox",
 };
