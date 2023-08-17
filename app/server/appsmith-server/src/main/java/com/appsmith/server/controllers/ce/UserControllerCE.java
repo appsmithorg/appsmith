@@ -241,10 +241,10 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/verifyEmailVerificationToken")
-    public Mono<ResponseDTO<Void>> verifyEmailVerificationToken(
-            @RequestParam Map<String, String> params, ServerWebExchange exchange) {
-        return service.verifyEmailVerificationToken(params, exchange)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    @PostMapping(
+            value = "/verifyEmailVerificationToken",
+            consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    public Mono<Void> verifyEmailVerificationToken(ServerWebExchange exchange) {
+        return service.verifyEmailVerificationToken(exchange);
     }
 }
