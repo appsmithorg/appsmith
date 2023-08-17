@@ -3,7 +3,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { Text } from "design-system";
-import React from "react";
+import React, { useState } from "react";
 import BackButton from "../DataSourceEditor/BackButton";
 import {
   PublishPageBodyContainer,
@@ -15,8 +15,14 @@ import TemplateCardPreview from "./components/TemplateCardPreview";
 import TemplateInfoForm from "./components/TemplateInfoForm";
 import PublishedInfo from "./components/PublishedInfo";
 import AuthorDetailsInput from "./components/AuthorDetailsInput";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { useSelector } from "react-redux";
 
 const PublishCommunityTemplate = () => {
+  const currentUser = useSelector(getCurrentUser);
+
+  const [authorName, setAuthorName] = useState(currentUser?.name || "");
+  const [authorEmail, setAuthorEmail] = useState(currentUser?.email || "");
   return (
     <>
       <PublishPageHeaderContainer>
@@ -35,7 +41,14 @@ const PublishCommunityTemplate = () => {
         />
         <PublishPageTemplateDetailsInputContainer>
           <TemplateInfoForm />
-          <AuthorDetailsInput />
+          <AuthorDetailsInput
+            authorEmail={authorEmail}
+            authorName={authorName}
+            disableEmail={!!currentUser?.email}
+            disableName={!!currentUser?.name}
+            setAuthorEmail={setAuthorEmail}
+            setAuthorName={setAuthorName}
+          />
           <PublishedInfo />
         </PublishPageTemplateDetailsInputContainer>
       </PublishPageBodyContainer>
