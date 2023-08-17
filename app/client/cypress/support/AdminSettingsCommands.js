@@ -76,5 +76,8 @@ Cypress.Commands.add("waitForServerRestart", () => {
   cy.waitUntil(() => !Cypress.$(adminSettings.restartNotice).length, {
     timeout: 120000,
   });
+  cy.window().then((win) => {
+    win.location.reload();
+  });
   cy.get(adminSettings.saveButton).should("be.visible");
 });
