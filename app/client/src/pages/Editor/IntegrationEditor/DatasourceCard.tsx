@@ -312,9 +312,9 @@ function DatasourceCard(props: DatasourceCardProps) {
             {supportTemplateGeneration && !showReconnectButton && (
               <Button
                 className={"t--generate-template"}
-                disable={canGeneratePage}
+                isDisabled={canGeneratePage}
                 kind="secondary"
-                onClick={(e: Event) => {
+                onClick={(e: any) => {
                   e.stopPropagation();
                   e.preventDefault();
                   routeToGeneratePage();
