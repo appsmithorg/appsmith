@@ -145,11 +145,11 @@ describe("Chart Widget", () => {
   });
 
   it("3. adds a click event when user adds a click callback", async () => {
-    const mockCallback = jest.fn();
+    const mockCallback = jest.fn((params) => params);
     const props = { ...defaultProps };
     props.onDataPointClick = (point) => {
       point;
-      mockCallback();
+      mockCallback(point);
     };
 
     render(<ChartComponent {...props} />);
@@ -158,5 +158,26 @@ describe("Chart Widget", () => {
     const el = await screen.findByText("1000");
     userEvent.click(el);
     expect(mockCallback.mock.calls.length).toEqual(1);
+  });
+
+  /**
+   * TODO - @rajatagrawal
+   *
+   * https://github.com/appsmithorg/appsmith/issues/26419
+   */
+  it("4. check if rawEventData property is present in onDataPointClick's response", async () => {
+    const mockCallback = jest.fn((params) => params);
+    const props = { ...defaultProps };
+    props.onDataPointClick = (point) => {
+      point;
+      mockCallback(point);
+    };
+
+    render(<ChartComponent {...props} />);
+
+    const el = await screen.findByText("1000");
+
+    userEvent.click(el);
+    expect(mockCallback.mock.results?.[0].value).toHaveProperty("rawEventData");
   });
 });
