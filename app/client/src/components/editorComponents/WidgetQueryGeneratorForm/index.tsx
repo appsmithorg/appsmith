@@ -15,6 +15,10 @@ import {
 } from "selectors/oneClickBindingSelectors";
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
 import type { Alias } from "./types";
+import {
+  TABLE_CONNECT_BUTTON_TEXT,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 type WidgetQueryGeneratorFormContextType = {
   widgetId: string;
@@ -88,6 +92,7 @@ type Props = {
   searchableColumn: boolean;
   sampleData: string;
   allowFieldConfigurations?: boolean;
+  ctaText?: string;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -98,12 +103,14 @@ function WidgetQueryGeneratorForm(props: Props) {
   const {
     aliases,
     allowFieldConfigurations = false,
+    ctaText = createMessage(TABLE_CONNECT_BUTTON_TEXT),
     errorMsg,
     expectedType,
     onUpdate,
     propertyPath,
     propertyValue,
     sampleData,
+    searchableColumn,
     widgetId,
   } = props;
 
@@ -239,10 +246,10 @@ function WidgetQueryGeneratorForm(props: Props) {
         <CommonControls allowFieldConfig={allowFieldConfigurations} />
         <DatasourceSpecificControls />
         <WidgetSpecificControls
-          aliases={props.aliases}
-          hasSearchableColumn={props.searchableColumn}
+          aliases={aliases}
+          hasSearchableColumn={searchableColumn}
         />
-        <ConnectData />
+        <ConnectData btnText={ctaText} />
       </WidgetQueryGeneratorFormContext.Provider>
     </Wrapper>
   );

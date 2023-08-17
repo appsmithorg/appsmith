@@ -39,6 +39,11 @@ import StaticTable from "./StaticTable";
 import VirtualTable from "./VirtualTable";
 import fastdom from "fastdom";
 import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
+import {
+  TABLE_CONNECT_BUTTON_TEXT,
+  TABLE_CONNECT_OVERLAY_TEXT,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -321,7 +326,8 @@ export function Table(props: TableProps) {
     <>
       {showConnectDataOverlay && (
         <ConnectDataOverlay
-          message="Connect your data or use sample data to display table"
+          btnText={createMessage(TABLE_CONNECT_BUTTON_TEXT)}
+          message={createMessage(TABLE_CONNECT_OVERLAY_TEXT)}
           onConnectData={props.onConnectData}
         />
       )}

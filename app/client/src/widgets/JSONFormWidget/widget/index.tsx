@@ -36,7 +36,6 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import { RenderModes } from "constants/WidgetConstants";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -146,20 +145,15 @@ class JSONFormWidget extends BaseWidget<
     formConfig: WidgetQueryGenerationFormConfig,
   ) {
     let modify = {};
-    const dynamicPropertyPathList: DynamicPath[] = [];
     if (queryConfig.create) {
       modify = {
         sourceData: getDefaultValues(formConfig),
         onSubmit: queryConfig.create.run,
       };
-      dynamicPropertyPathList.push({ key: "sourceData" });
     }
 
     return {
       modify,
-      dynamicUpdates: {
-        dynamicPropertyPathList,
-      },
     };
   }
 

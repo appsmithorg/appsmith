@@ -245,10 +245,10 @@ const computeDynamicPropertyPathList = (
   const pathListFromProps = (currentDynamicPropertyPathList || []).map(
     ({ key }) => key,
   );
-
   const newPaths = difference(pathListFromSchema, pathListFromProps);
-
-  return [...pathListFromProps, ...newPaths].map((path) => ({ key: path }));
+  return [...pathListFromProps, ...newPaths, "sourceData"].map((path) => ({
+    key: path,
+  }));
 };
 
 /**

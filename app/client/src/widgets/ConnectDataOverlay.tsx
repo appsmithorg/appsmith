@@ -44,6 +44,7 @@ const ConnecData = styled(Button)`
 export function ConnectDataOverlay(props: {
   onConnectData: () => void;
   message: string;
+  btnText: string;
 }) {
   return (
     <Wrapper>
@@ -56,7 +57,7 @@ export function ConnectDataOverlay(props: {
           onClick={props.onConnectData}
           size="md"
         >
-          Connect data
+          {props.btnText}
         </ConnecData>
       </Container>
     </Wrapper>

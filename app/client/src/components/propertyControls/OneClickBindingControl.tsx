@@ -3,6 +3,10 @@ import type { Alias } from "components/editorComponents/WidgetQueryGeneratorForm
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
+import {
+  TABLE_CONNECT_BUTTON_TEXT,
+  createMessage,
+} from "@appsmith/constants/messages";
 class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   constructor(props: OneClickBindingControlProps) {
     super(props);
@@ -63,6 +67,10 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
         allowFieldConfigurations={
           this.props.controlConfig?.allowFieldConfigurations
         }
+        ctaText={
+          this.props.controlConfig.ctaText ||
+          createMessage(TABLE_CONNECT_BUTTON_TEXT)
+        }
         errorMsg={this.getErrorMessage()}
         expectedType={this.props.expected?.autocompleteDataType || ""}
         onUpdate={this.onUpdatePropertyValue}
@@ -84,5 +92,6 @@ export type OneClickBindingControlProps = ControlProps & {
     searchableColumn: boolean;
     sampleData: string;
     allowFieldConfigurations: boolean;
+    ctaText: string;
   };
 };

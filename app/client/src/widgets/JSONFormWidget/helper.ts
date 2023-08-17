@@ -13,6 +13,8 @@ import {
   inverseFieldType,
   getBindingTemplate,
 } from "./constants";
+import moment from "moment";
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 
 type ConvertFormDataOptions = {
   fromId: keyof SchemaItem | (keyof SchemaItem)[];
@@ -363,9 +365,9 @@ export const isEmpty = (value?: string | null): value is null | undefined => {
 
 export const getDefaultValues = (formConfig: any) => {
   const typeMappings: Record<string, unknown> = {
-    number: 1,
+    number: 0,
     string: "",
-    date: new Date("1970-01-01"),
+    date: moment(moment.now()).format(ISO_DATE_FORMAT),
     array: [],
   };
 

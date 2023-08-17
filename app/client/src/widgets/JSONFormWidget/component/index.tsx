@@ -16,6 +16,11 @@ import { RenderModes, TEXT_SIZES } from "constants/WidgetConstants";
 import type { Action, JSONFormWidgetState } from "../widget";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
+import {
+  JSON_FORM_CONNECT_BUTTON_TEXT,
+  JSON_FORM_CONNECT_OVERLAY_TEXT,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 type StyledContainerProps = {
   backgroundColor?: string;
@@ -174,7 +179,8 @@ function JSONFormComponent<TValues>(
       return (
         <div style={{ height: "200px" }}>
           <ConnectDataOverlay
-            message="Connect data or use a JSON Scheme to generate a form"
+            btnText={createMessage(JSON_FORM_CONNECT_BUTTON_TEXT)}
+            message={createMessage(JSON_FORM_CONNECT_OVERLAY_TEXT)}
             onConnectData={onConnectData}
           />
         </div>

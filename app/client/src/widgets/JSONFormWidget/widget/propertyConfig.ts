@@ -2,6 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
+import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 // import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -12,6 +13,10 @@ import { ROOT_SCHEMA_KEY } from "../constants";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
 import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import {
+  JSON_FORM_CONNECT_BUTTON_TEXT,
+  createMessage,
+} from "@appsmith/constants/messages";
 const MAX_NESTING_LEVEL = 5;
 
 const panelConfig = generatePanelPropertyConfig(MAX_NESTING_LEVEL);
@@ -20,7 +25,7 @@ export const sourceDataValidationFn = (
   value: any,
   props: JSONFormWidgetProps,
   _?: any,
-) => {
+): ValidationResponse => {
   if (_.isNumber(value) || _.isBoolean(value)) {
     return {
       isValid: false,
@@ -38,6 +43,19 @@ export const sourceDataValidationFn = (
     return {
       isValid: true,
       parsed: {},
+    };
+  }
+
+  if (_.isArray(value)) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: [
+        {
+          name: "TypeError",
+          message: `The value does not evaluate to type Object`,
+        },
+      ],
     };
   }
 
@@ -119,6 +137,7 @@ export const contentConfig = [
         controlType: "ONE_CLICK_BINDING_CONTROL",
         controlConfig: {
           allowFieldConfigurations: true,
+          ctaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
         },
         isJSConvertible: true,
         placeholderText: '{ "name": "John", "age": 24 }',
