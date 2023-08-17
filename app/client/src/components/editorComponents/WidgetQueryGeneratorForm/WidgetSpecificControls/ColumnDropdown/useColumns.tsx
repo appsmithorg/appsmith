@@ -16,7 +16,10 @@ import {
 } from "selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdown/DropdownOption";
-import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
+import {
+  getOneClickBindingSelectedColumns,
+  getisOneClickBindingConnectingForWidget,
+} from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
 
@@ -31,6 +34,10 @@ export function useColumns(alias: string) {
 
   const columns = useSelector(
     getDatasourceTableColumns(config.datasource, config.table),
+  );
+
+  const selectedColumns = useSelector((state: AppState) =>
+    getOneClickBindingSelectedColumns(state),
   );
 
   const sheetColumns = useSelector(
@@ -199,7 +206,7 @@ export function useColumns(alias: string) {
       !!config.table,
     primaryColumn,
     columns: columnList.columns,
-    selectedColumnNames: columnList.selectedColumnNames,
+    selectedColumnNames: selectedColumns,
     disabled: isConnecting,
     onClear,
   };

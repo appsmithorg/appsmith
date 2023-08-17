@@ -48,7 +48,7 @@ export function useConnectData() {
         selectedColumnNames === undefined
           ? columns
           : columns.filter((column) =>
-              selectedColumnNames.includes(column.name),
+              (selectedColumnNames as string[])?.includes(column.name),
             ),
       primaryColumn,
       connectionMode: config.datasourceConnectionMode,

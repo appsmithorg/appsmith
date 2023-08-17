@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -11,12 +11,10 @@ import {
   Tooltip,
 } from "design-system";
 import { EditFieldsButton } from "../styles";
-import { Table } from "design-system-old";
 import styled from "styled-components";
 import { uniqBy } from "lodash";
 import { klona } from "klona";
 import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns";
-import { WidgetQueryGeneratorFormContext } from "..";
 import {
   CANCEL_DIALOG,
   COLUMN_NAME,
@@ -27,6 +25,9 @@ import {
   SAVE_CHANGES,
   createMessage,
 } from "@appsmith/constants/messages";
+import { useDispatch } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import EditFieldsTable from "./EditFieldsTable";
 
 const StyledCheckbox = styled(Checkbox)`
   input {
@@ -65,11 +66,12 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
   const { columns: data, primaryColumn } = useColumns("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updatedData, setUpdatedData] = useState<any>([]);
-  const { updateConfig } = useContext(WidgetQueryGeneratorFormContext);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const clonedData = klona(data);
     setUpdatedData([...clonedData]);
+    updateSelectedColumnNames(clonedData);
   }, [data]);
 
   const setIsOpen = (isOpen: boolean) => {
@@ -93,11 +95,18 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
     setIsOpen(false);
   };
 
-  const handleSave = () => {
-    const selectedColumnNames = updatedData
+  const updateSelectedColumnNames = (data: any[]) => {
+    const selectedColumnNames = data
       .filter((col: any) => col.isSelected)
       .map((col: any) => col.name);
-    updateConfig("selectedColumnNames", selectedColumnNames);
+    dispatch({
+      type: ReduxActionTypes.SET_SELECTED_COLUMNS,
+      payload: selectedColumnNames,
+    });
+  };
+
+  const handleSave = () => {
+    updateSelectedColumnNames(updatedData);
     setIsOpen(false);
   };
 
@@ -157,7 +166,21 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
             </Text>
           </ModalHeader>
           <StyledModalBody>
-            <Table columns={columns} data={updatedData || []} />
+            <EditFieldsTable
+              columns={columns}
+              data={updatedData || []}
+              rowProps={(row: any) => {
+                const isDisabled = row.original.name === primaryColumn;
+                return {
+                  onClick: () => isDisabled && null,
+                  style: {
+                    backgroundColor: isDisabled
+                      ? "var(--ads-v2-color-bg-subtle)"
+                      : "transparent",
+                  },
+                };
+              }}
+            />
           </StyledModalBody>
           <ModalFooter>
             <Button
