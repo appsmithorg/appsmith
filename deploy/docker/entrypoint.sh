@@ -219,7 +219,7 @@ init_replica_set() {
     )"
     echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
-    mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$TMP/mongodb-key" --bind_ip localhost
+    mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGODB_TMP_KEY_PATH" --bind_ip localhost
     echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
     mongosh "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
@@ -269,11 +269,16 @@ check_setup_custom_ca_certificates() {
     echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up autatically.".
   fi
 
-  keytool -importkeystore -srckeystore /usr/lib/jvm/temurin-17-jdk-arm64/lib/security/cacerts -destkeystore "$store" -srcstorepass changeit -deststorepass changeit
+  # Import the system CA certificates into the store.
+  keytool -importkeystore \
+    -srckeystore /usr/lib/jvm/temurin-17-jdk-arm64/lib/security/cacerts \
+    -destkeystore "$store" \
+    -srcstorepass changeit \
+    -deststorepass changeit
+
+  # Add the custom CA certificates to the store.
   find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
     -exec keytool -import -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
-
-  keytool -list -keystore "$store" -storepass changeit
 
   {
     echo "-Djavax.net.ssl.trustStore=$store"
@@ -432,15 +437,10 @@ EOF
 }
 
 # Main Section
-echo "APPSMITH_ENABLE_EMBEDDED_DB: ${APPSMITH_ENABLE_EMBEDDED_DB-}"
 init_loading_pages
-echo "APPSMITH_ENABLE_EMBEDDED_DB: ${APPSMITH_ENABLE_EMBEDDED_DB-}"
 init_env_file
-echo "APPSMITH_ENABLE_EMBEDDED_DB: ${APPSMITH_ENABLE_EMBEDDED_DB-}"
 setup_proxy_variables
-echo "APPSMITH_ENABLE_EMBEDDED_DB: ${APPSMITH_ENABLE_EMBEDDED_DB-}"
 unset_unused_variables
-echo "APPSMITH_ENABLE_EMBEDDED_DB: ${APPSMITH_ENABLE_EMBEDDED_DB-}"
 
 check_mongodb_uri
 if [[ -z "${DYNO}" ]]; then

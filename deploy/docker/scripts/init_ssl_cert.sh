@@ -54,10 +54,12 @@ init_ssl_cert() {
     --agree-tos \
     --force-renewal
 
+  local status=$?
+
   echo "Stop Nginx"
   nginx -c "$NGINX_CONF_PATH" -s stop
 
-  if (($? != 0)); then
+  if [[ $status != 0 ]]; then
     echo "Provisioning failed"
     return 1
   fi

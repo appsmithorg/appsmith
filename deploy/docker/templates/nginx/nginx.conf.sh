@@ -7,8 +7,8 @@ custom_domain="${2:-_}"
 
 if [[ $use_https == 1 ]]; then
   # By default, container will use the auto-generate certificate by Let's Encrypt
-  ssl_cert_path="/etc/letsencrypt/live/$custom_domain/fullchain.pem"
-  ssl_key_path="/etc/letsencrypt/live/$custom_domain/privkey.pem"
+  ssl_cert_path="/appsmith-stacks/letsencrypt/live/$custom_domain/fullchain.pem"
+  ssl_key_path="/appsmith-stacks/letsencrypt/live/$custom_domain/privkey.pem"
 
   # In case of existing custom certificate, container will use them to configure SSL
   if [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] && [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
