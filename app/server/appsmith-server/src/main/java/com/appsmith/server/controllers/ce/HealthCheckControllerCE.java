@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 @RequestMapping(Url.HEALTH_CHECK)
 @AllArgsConstructor
 public class HealthCheckControllerCE {
-
     private final HealthCheckService healthCheckService;
 
     @JsonView(Views.Public.class)
