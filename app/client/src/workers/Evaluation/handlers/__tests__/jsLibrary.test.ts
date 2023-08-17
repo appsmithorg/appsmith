@@ -1,5 +1,8 @@
 import { installLibrary, uninstallLibrary } from "../jsLibrary";
-import { EVAL_WORKER_SYNC_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import {
+  EVAL_WORKER_ASYNC_ACTION,
+  EVAL_WORKER_SYNC_ACTION,
+} from "@appsmith/workers/Evaluation/evalWorkerActions";
 import * as mod from "../../../common/JSLibrary/ternDefinitionGenerator";
 
 jest.mock("../../../common/JSLibrary/ternDefinitionGenerator");
@@ -27,7 +30,7 @@ describe("Tests to assert install/uninstall flows", function () {
         takenAccessors: [],
         takenNamesMap: {},
       },
-      method: EVAL_WORKER_SYNC_ACTION.INSTALL_LIBRARY,
+      method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
     });
     //
     expect(self.importScripts).toHaveBeenCalled();
@@ -50,7 +53,7 @@ describe("Tests to assert install/uninstall flows", function () {
         takenAccessors: ["lodash"],
         takenNamesMap: {},
       },
-      method: EVAL_WORKER_SYNC_ACTION.INSTALL_LIBRARY,
+      method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
     });
     expect(res).toEqual({
       success: false,
@@ -68,7 +71,7 @@ describe("Tests to assert install/uninstall flows", function () {
         takenAccessors: [],
         takenNamesMap: { lodash: true },
       },
-      method: EVAL_WORKER_SYNC_ACTION.INSTALL_LIBRARY,
+      method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
     });
     expect(res).toEqual({
       success: false,
