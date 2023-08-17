@@ -94,7 +94,7 @@ export interface Row extends PositionsAlignmentInfo {
 
 export interface LayoutComponentProps {
   layoutId: string;
-  layoutStyle?: { [key: string]: string | number | number[] | string[] };
+  layoutStyle?: { [key: string]: any };
   layoutType: string;
   layout: LayoutComponentProps[] | string[] | string[][];
   isDropTarget?: boolean;

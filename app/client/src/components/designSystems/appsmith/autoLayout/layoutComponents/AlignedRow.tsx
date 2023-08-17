@@ -90,6 +90,7 @@ const AlignedRow = (props: LayoutComponentProps) => {
       <FlexLayout
         canvasId={props.containerProps?.widgetId || ""}
         flexDirection="row"
+        flexWrap={layoutStyle?.flexWrap || "wrap"}
         isDropTarget={isDropTarget}
         layoutId={layoutId}
         {...(layoutStyle || {})}

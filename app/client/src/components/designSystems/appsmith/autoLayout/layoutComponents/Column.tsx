@@ -147,4 +147,22 @@ Column.getHeight = (
   }
 };
 
+Column.getChildTemplate = (
+  layoutProps: LayoutComponentProps,
+): LayoutComponentProps | undefined => {
+  const { childTemplate } = layoutProps;
+  if (childTemplate) return childTemplate;
+  return {
+    canBeDeleted: true,
+    insertChild: true,
+    layoutId: "",
+    layoutType: "ROW",
+    layoutStyle: {
+      alignSelf: "stretch",
+    },
+    layout: [],
+    rendersWidgets: true,
+  };
+};
+
 export default Column;

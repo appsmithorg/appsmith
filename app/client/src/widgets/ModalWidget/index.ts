@@ -339,6 +339,7 @@ export const CONFIG = {
                       minHeight: 40,
                       flexGrow: 1,
                       border: "1px dashed #979797",
+                      width: "100%",
                     },
                     layoutType: "ALIGNED_COLUMN",
                     layout: [
