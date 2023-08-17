@@ -32,6 +32,7 @@ export interface ChartSelectedDataPoint {
   x: any;
   y: any;
   seriesTitle: string;
+  rawEventData: unknown[];
 }
 
 export const messages = {

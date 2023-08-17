@@ -157,6 +157,7 @@ class ChartComponent extends React.Component<
       x: x,
       y: y,
       seriesTitle: seriesName,
+      rawEventData: eventData,
     });
   };
 
@@ -306,21 +307,13 @@ class ChartComponent extends React.Component<
         dataPlotClick: (evt: any) => {
           const data = evt.data;
           const seriesTitle = get(data, "datasetName", "");
-          const { type } = this.getCustomFusionChartDataSource();
-
-          if (type === "sankey") {
-            this.props.onDataPointClick({
-              x: data.categoryLabel,
-              y: data.dataValue,
-              seriesTitle,
-            });
-          } else {
-            this.props.onDataPointClick({
-              x: data.categoryLabel,
-              y: data.dataValue,
-              seriesTitle,
-            });
-          }
+          // pass -1 when x and y are not present
+          this.props.onDataPointClick({
+            x: data.categoryLabel ?? -1,
+            y: data.dataValue ?? -1,
+            seriesTitle,
+            rawEventData: data,
+          });
         },
       },
       ...this.getCustomFusionChartDataSource(),
