@@ -166,7 +166,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
             return mongoOperations
                     .query(this.genericDomain)
-                    .matching(query)
+                    .matching(query.cursorBatchSize(10000))
                     .one()
                     .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
         });
@@ -539,7 +539,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         sortOptional.ifPresent(sort -> query.with(sort));
         return mongoOperations
                 .query(this.genericDomain)
-                .matching(query)
+                .matching(query.cursorBatchSize(10000))
                 .all()
                 .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
     }
