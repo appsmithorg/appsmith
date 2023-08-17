@@ -717,7 +717,7 @@ export class DataSources {
   }
 
   public fillTwilioDSForm(environment = this.tedTestConfig.defaultEnviorment) {
-    this.ValidateNSelectDropdown("Authentication type", "Basic auth");
+    this.ValidateNSelectDropdown("Authentication type", "", "Basic auth");
     this.agHelper.UpdateInputValue(
       this._username,
       this.tedTestConfig.dsValues[environment].twilio_username.toString(),
