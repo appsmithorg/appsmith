@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
@@ -40,22 +39,22 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
         log.error("In the login failure handler. Cause: {}", exception.getMessage(), exception);
         ServerWebExchange exchange = webFilterExchange.getExchange();
 
-        Mono<String> userEmailMono = getUserEmailFromSecurityContext();
         String apiIdentifier = "authentication";
+        Mono<String> userEmailMono = getUserEmailFromSecurityContext();
         Mono<Boolean> isRateLimitedMono = userEmailMono.flatMap(userEmail ->
                 rateLimitService.tryIncreaseCounter(apiIdentifier, userEmail)
         );
 
         return isRateLimitedMono.flatMap(isRateLimited -> {
             if (isRateLimited) {
-                return handleRateLimitExceeded(exchange, apiIdentifier);
+                return handleRateLimitExceeded(exchange);
             } else {
                 return handleAuthenticationFailure(exchange, exception);
             }
         });
     }
 
-    private Mono<Void> handleRateLimitExceeded(ServerWebExchange exchange, String apiIdentifier) {
+    private Mono<Void> handleRateLimitExceeded(ServerWebExchange exchange) {
         // Set the error in the URL query parameter for rate limiting
         String url = "/user/login?error=true&message=" + URLEncoder.encode("Rate limit exceeded", StandardCharsets.UTF_8);
         return redirectWithUrl(exchange, url);

@@ -7,6 +7,7 @@ import io.github.bucket4j.distributed.BucketProxy;
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
 import io.lettuce.core.RedisClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,15 +19,21 @@ import java.util.Optional;
 @Configuration
 public class RateLimitConfig {
     private static final Map<String, BucketConfiguration> apiConfigurations = new HashMap<>();
+    @Autowired
+    private final RedisClient redisClient;
+
+    public RateLimitConfig(RedisClient redisClient) {
+        this.redisClient = redisClient;
+    }
 
     static {
-        apiConfigurations.put("health-check", createBucketConfiguration(Duration.ofDays(1), 5));
+        apiConfigurations.put("authentication", createBucketConfiguration(Duration.ofDays(1), 5));
         // Add more API configurations as needed
     }
 
     @Bean
     public LettuceBasedProxyManager<byte[]> proxyManager() {
-        return LettuceBasedProxyManager.builderFor(createRedisClient()).withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(Duration.ofDays(1))).build();
+        return LettuceBasedProxyManager.builderFor(redisClient).withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(Duration.ofDays(1))).build();
     }
 
     @Bean
@@ -46,10 +53,6 @@ public class RateLimitConfig {
         }
 
         return proxyManager().builder().build(bucketIdentifier.getBytes(), apiConfigurations.get(apiIdentifier));
-    }
-
-    private RedisClient createRedisClient() {
-        return RedisClient.create("redis://127.0.0.1:6379");
     }
 
     private static BucketConfiguration createBucketConfiguration(Duration refillDuration, int limit) {
