@@ -9853,6 +9853,7 @@ __metadata:
     esm: ^3.2.25
     factory.ts: ^0.5.1
     fast-deep-equal: ^3.1.3
+    fast-sort: ^3.4.0
     fast-xml-parser: ^3.17.5
     fastdom: ^1.0.11
     focus-trap-react: ^8.9.2
@@ -15866,6 +15867,13 @@ __metadata:
   version: 2.1.1
   resolution: "fast-safe-stringify@npm:2.1.1"
   checksum: a851cbddc451745662f8f00ddb622d6766f9bd97642dabfd9a405fb0d646d69fc0b9a1243cbf67f5f18a39f40f6fa821737651ff1bceeba06c9992ca2dc5bd3d
+  languageName: node
+  linkType: hard
+
+"fast-sort@npm:^3.4.0":
+  version: 3.4.0
+  resolution: "fast-sort@npm:3.4.0"
+  checksum: b925d68438629b7176dc52c6f5bb88162675e88286b6e06041c6fb1095ec44af6aac3edd5b7e09ada044b90bced078a013683d2d75337ae6f5e7224f7e073019
   languageName: node
   linkType: hard
 
