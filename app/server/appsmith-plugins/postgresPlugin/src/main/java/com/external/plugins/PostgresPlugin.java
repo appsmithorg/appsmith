@@ -1070,6 +1070,13 @@ public class PostgresPlugin extends BasePlugin {
         StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
 
         List<String> hosts = datasourceConfiguration.getEndpoints().stream()
+                .map(endpoint -> {
+                    if ("1".equals(System.getenv("_IS_EMBEDDED_POSTGRES_RUNNING"))
+                            && "mockdb.internal.appsmith.com".equals(endpoint.getHost())) {
+                        endpoint.setHost("127.0.0.1");
+                    }
+                    return endpoint;
+                })
                 .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
                 .collect(Collectors.toList());
 

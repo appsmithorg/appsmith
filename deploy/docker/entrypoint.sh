@@ -253,9 +253,9 @@ is_empty_directory() {
 check_setup_custom_ca_certificates() {
   local stacks_ca_certs_path="$stacks_path/ca-certs"
   local store="$TMP/cacerts"
+  local opts_file="$TMP/java-cacerts-opts"
 
-  echo > "$TMP/java-cacerts-opts"
-  rm -f "$store"
+  rm -f "$store" "$opts_file"
 
   if [[ ! -d /appsmith-stacks/ca-certs ]]; then
     echo "No custom CA certificates found"
@@ -275,10 +275,7 @@ check_setup_custom_ca_certificates() {
   {
     echo "-Djavax.net.ssl.trustStore=$store"
     echo "-Djavax.net.ssl.trustStorePassword=changeit"
-  } > "$TMP/java-cacerts-opts"
-
-  # todo: add the javax.net.ssl.trustStore to both server and Keycloak
-  # todo: add to nodejs, for RTS too
+  } > "$opts_file"
 }
 
 configure_supervisord() {
@@ -302,8 +299,6 @@ configure_supervisord() {
     fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"/
-      # Update hosts lookup to resolve to embedded postgres
-      echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
     fi
 
   fi
@@ -456,6 +451,7 @@ check_setup_custom_ca_certificates
 check_redis_compatible_page_size
 
 safe_init_postgres
+export "_IS_EMBEDDED_POSTGRES_RUNNING=$runEmbeddedPostgres"
 
 configure_supervisord
 
