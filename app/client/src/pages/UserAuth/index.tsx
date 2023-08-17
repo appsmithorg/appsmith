@@ -13,6 +13,7 @@ import type { AppState } from "@appsmith/reducers";
 import { ThemeProvider } from "styled-components";
 import VerificationPending from "./VerificationPending";
 import VerifyUser from "./VerifyUser";
+import VerificationError from "./VerificationError";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -46,6 +47,11 @@ export function UserAuth() {
             path={`${path}/verificationPending`}
           />
           <SentryRoute component={VerifyUser} exact path={`${path}/verify`} />
+          <SentryRoute
+            component={VerificationError}
+            exact
+            path={`${path}/verify-error`}
+          />
           <SentryRoute component={PageNotFound} />
         </Switch>
       </div>
