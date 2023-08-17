@@ -285,7 +285,7 @@ function GoogleSheetSchema(props: Props) {
   );
   const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
-  const showSubmitButton =
+  const showGeneratePageBtn =
     !isLoading &&
     !isError &&
     currentSheetData &&
@@ -351,7 +351,7 @@ function GoogleSheetSchema(props: Props) {
             </SelectWrapper>
           </SelectListWrapper>
         ) : null}
-        {showSubmitButton && (
+        {showGeneratePageBtn && (
           <Button
             className="t--gsheet-generate-page"
             key="gsheet-generate-page"

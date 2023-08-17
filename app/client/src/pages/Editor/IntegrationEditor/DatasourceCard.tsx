@@ -38,7 +38,9 @@ import {
   getPagePermissions,
 } from "selectors/editorSelectors";
 import {
+  hasCreateActionPermission,
   hasCreateDatasourceActionPermission,
+  hasCreatePagePermission,
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
@@ -51,6 +53,7 @@ import {
   doesAnyDsConfigExist,
   DB_NOT_SUPPORTED,
 } from "@appsmith/utils/Environments";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -145,8 +148,6 @@ function DatasourceCard(props: DatasourceCardProps) {
   );
   const { datasource, plugin } = props;
   const envSupportedDs = !DB_NOT_SUPPORTED.includes(plugin.type);
-  const supportTemplateGeneration =
-    !!generateCRUDSupportedPlugin[datasource.pluginId];
 
   const pageId = useSelector(getCurrentPageId);
 
@@ -163,6 +164,13 @@ function DatasourceCard(props: DatasourceCardProps) {
   const datasourcePermissions = datasource?.userPermissions || [];
 
   const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateActions = hasCreateActionPermission(pagePermissions);
+
+  const userAppPermissions = useSelector(
+    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+  );
+  const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
   const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
     ...datasourcePermissions,
@@ -182,6 +190,10 @@ function DatasourceCard(props: DatasourceCardProps) {
   const isDeletingDatasource = !!datasource.isDeleting;
 
   const onCloseMenu = debounce(() => setConfirmDelete(false), 20);
+
+  const supportTemplateGeneration =
+    !!generateCRUDSupportedPlugin[datasource.pluginId];
+  const canGeneratePage = canCreateActions && canCreatePages;
 
   useEffect(() => {
     if (confirmDelete && !isDeletingDatasource) {
@@ -230,7 +242,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   }, [datasource.id, plugin]);
 
   const routeToGeneratePage = () => {
-    if (!supportTemplateGeneration) {
+    if (!supportTemplateGeneration || !canGeneratePage) {
       // disable button when it doesn't support page generation
       return;
     }
@@ -300,8 +312,9 @@ function DatasourceCard(props: DatasourceCardProps) {
             {supportTemplateGeneration && !showReconnectButton && (
               <Button
                 className={"t--generate-template"}
+                disable={canGeneratePage}
                 kind="secondary"
-                onClick={(e) => {
+                onClick={(e: Event) => {
                   e.stopPropagation();
                   e.preventDefault();
                   routeToGeneratePage();
