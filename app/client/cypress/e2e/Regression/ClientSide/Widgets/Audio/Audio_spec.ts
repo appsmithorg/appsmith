@@ -63,5 +63,6 @@ describe("Audio Widget functionality tests", () => {
     // Verify audio played in deploy mode
     deployMode.DeployApp();
     agHelper.ValidateToastMessage("Audio Ended", 0, 1);
+    // Because of bug:13876, audio play alert in deploy mode cant be tested
   });
 });
