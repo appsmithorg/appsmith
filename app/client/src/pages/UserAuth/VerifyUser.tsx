@@ -5,6 +5,7 @@ import { Spinner } from "design-system";
 import * as Sentry from "@sentry/react";
 import { EMAIL_VERIFICATION_PATH } from "@appsmith/constants/ApiConstants";
 import { Redirect } from "react-router-dom";
+import { VerificationErrorType } from "./VerificationError";
 
 const VerifyUser = (
   props: RouteComponentProps<{
@@ -46,7 +47,11 @@ const VerifyUser = (
       </Container>
     );
   }
-  return <Redirect to={"user/verify-error"} />;
+  return (
+    <Redirect
+      to={`/user/verify-error?code=${VerificationErrorType.MISMATCH}`}
+    />
+  );
 };
 
 export default VerifyUser;

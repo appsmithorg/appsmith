@@ -31,7 +31,10 @@ const VerificationPending = (props: RouteComponentProps<{ email: string }>) => {
     useResendEmailVerification(email);
 
   return (
-    <Container title={createMessage(VERIFICATION_PENDING_TITLE)}>
+    <Container
+      testId="verification-pending"
+      title={createMessage(VERIFICATION_PENDING_TITLE)}
+    >
       <Body>
         <Text kind={"body-m"}>
           {createMessage(VERIFICATION_PENDING_BODY)} <Email>{email}</Email>
