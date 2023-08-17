@@ -4,13 +4,14 @@ import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import { useDispatch } from "react-redux";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import SideBar from "./Sidebar";
+import DebugBar from "./BottomBar";
 
 const Body = styled.div`
   background: #f1f5f9;
   height: calc(100vh - 40px);
   display: grid;
   grid-template-columns: 50px 300px auto;
-  grid-template-rows: 1fr 32px;
+  grid-template-rows: 1fr 37px;
   grid-gap: 4px;
 `;
 
@@ -24,14 +25,6 @@ const MainPane = styled.div`
   background-color: white;
   border-radius: 4px;
   margin-right: 5px;
-`;
-
-const DebugBar = styled.div`
-  background-color: white;
-  grid-column-start: 2;
-  grid-column-end: 4;
-  border-top-right-radius: 4px;
-  border-top-left-radius: 4px;
 `;
 
 const IDE = function () {
