@@ -1910,6 +1910,9 @@ export const COMMUNITY_TEMPLATES = {
   cancel: () => "Cancel",
   publishForm: {
     title: () => "Publish to community",
+    preview: {
+      thumbnail: () => "Thumbnail will be generated automatically",
+    },
   },
   unpublishedInfo: {
     title: () => "Publish to app community",

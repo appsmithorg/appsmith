@@ -1,11 +1,12 @@
-import React from "react";
-import BackButton from "../DataSourceEditor/BackButton";
-import styled from "styled-components";
-import { Text } from "design-system";
 import {
   COMMUNITY_TEMPLATES,
   createMessage,
 } from "@appsmith/constants/messages";
+import { Text } from "design-system";
+import React from "react";
+import styled from "styled-components";
+import BackButton from "../DataSourceEditor/BackButton";
+import TemplateCardPreview from "./TemplateCardPreview";
 
 const PublishCommunityTemplate = () => {
   return (
@@ -19,7 +20,11 @@ const PublishCommunityTemplate = () => {
         </Text>
       </HeaderContainer>
       <BodyContainer>
-        <h1>Rahul</h1>
+        <TemplateCardPreview
+          excerpt="A cost tracker for OpenAI API"
+          templateName="Open AI usage Dashboard"
+          useCases={["Operations", "DevOps"]}
+        />
       </BodyContainer>
     </>
   );
