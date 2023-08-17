@@ -960,8 +960,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             verificationUrl);
 
                     Map<String, String> params = new HashMap<>();
-                    params.put("userFirstName", user.getName());
-                    params.put("resetUrl", verificationUrl);
+
+                    params.put("verificationUrl", verificationUrl);
 
                     return updateTenantLogoInParams(params, resendEmailVerificationDTO.getBaseUrl())
                             .flatMap(updatedParams -> emailSender.sendMail(
