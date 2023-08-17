@@ -22,7 +22,7 @@ const Body = styled.div`
   align-items: center;
 `;
 
-enum ErrorType {
+export enum VerificationErrorType {
   ALREADY_VERIFIED = "AE-EMV-4095",
   EXPIRED = "AE-EMV-4096",
   MISMATCH = "AE-EMV-4098",
@@ -48,9 +48,9 @@ const VerificationError = (
     });
   }, [code, message]);
 
-  if (code === ErrorType.EXPIRED) {
+  if (code === VerificationErrorType.EXPIRED) {
     return (
-      <Container title="">
+      <Container testId="verification-error" title="">
         <Body>
           <Callout kind="error">
             <Text kind={"body-m"}>
@@ -67,7 +67,7 @@ const VerificationError = (
     );
   }
 
-  if (code === ErrorType.ALREADY_VERIFIED) {
+  if (code === VerificationErrorType.ALREADY_VERIFIED) {
     return (
       <Container
         footer={
@@ -82,6 +82,7 @@ const VerificationError = (
             </Link>
           </div>
         }
+        testId="verification-error"
         title=""
       >
         <Body>
@@ -95,9 +96,9 @@ const VerificationError = (
     );
   }
 
-  if (code === ErrorType.MISMATCH) {
+  if (code === VerificationErrorType.MISMATCH) {
     return (
-      <Container title="">
+      <Container testId="verification-error" title="">
         <Body>
           <Callout kind="error">
             <Text kind={"body-m"}>
@@ -115,7 +116,10 @@ const VerificationError = (
   }
 
   return (
-    <Container title={createMessage(DEFAULT_ERROR_MESSAGE)}>
+    <Container
+      testId="verification-error"
+      title={createMessage(DEFAULT_ERROR_MESSAGE)}
+    >
       <Body>
         <Callout kind="error">
           <Text kind={"body-m"}>

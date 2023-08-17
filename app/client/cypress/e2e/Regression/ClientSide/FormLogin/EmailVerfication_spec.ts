@@ -3,53 +3,44 @@ describe("Email verification", () => {
     cy.LogOut();
     cy.visit("/user/verificationPending?email=test@appsmith.com");
     cy.wait(1000);
-    cy.matchImageSnapshot();
+    cy.get("[data-testid='verification-pending']").matchImageSnapshot(
+      "VerificationPendingScreen",
+    );
   });
-  it("Handles verification", () => {
-    const wrongToken = "wrongToken";
-    const verifiedToken = "verifiedToken";
-    const correctToken = "correctToken";
-    cy.intercept(
-      "POST",
-      "/api/v1/users/verifyEmailVerificationToken",
-      (req) => {
-        if (req.body.token === wrongToken) {
-          req.reply(400, {
-            responseMeta: {
-              success: false,
-              error: {
-                code: "AE-APP-4028",
-              },
-            },
-          });
-        }
-        if (req.body.token === verifiedToken) {
-          req.reply(400, {
-            responseMeta: {
-              success: false,
-              error: {
-                code: "AE-APP-4095",
-              },
-            },
-          });
-        }
-        if (req.body.token === correctToken) {
-          req.reply(200, {
-            responseMeta: {
-              success: true,
-            },
-          });
-        }
-      },
-    ).as("EmailVerification");
-    cy.visit(`/user/verify?email=abc&token=${wrongToken}`);
+  it("Verification error pages", () => {
+    const errorCode = {
+      ALREADY_VERIFIED: "AE-EMV-4095",
+      EXPIRED: "AE-EMV-4096",
+      MISMATCH: "AE-EMV-4098",
+      UNKNOWN: "UNKNOWN",
+    };
+    cy.visit(
+      `/user/verify-error?email=abc&code=${errorCode.MISMATCH}&message=xyz`,
+    );
     cy.wait(1000);
-    cy.matchImageSnapshot("WrongToken");
-    cy.visit(`/user/verify?email=abc&token=${verifiedToken}`);
+    cy.get("[data-testid='verification-error']").matchImageSnapshot(
+      "WrongToken",
+    );
+    cy.visit(
+      `/user/verify-error?email=abc&code=${errorCode.ALREADY_VERIFIED}&message=xyz`,
+    );
     cy.wait(1000);
-    cy.matchImageSnapshot("Verified Token");
-    cy.visit(`/user/verify?email=abc&token=${correctToken}`);
+    cy.get("[data-testid='verification-error']").matchImageSnapshot(
+      "Verified Token",
+    );
+    cy.visit(
+      `/user/verify-error?email=abc&code=${errorCode.EXPIRED}&message=xyz`,
+    );
     cy.wait(1000);
-    cy.matchImageSnapshot("Correct token");
+    cy.get("[data-testid='verification-error']").matchImageSnapshot(
+      "Expired Token",
+    );
+    cy.visit(
+      `/user/verify-error?email=abc&code=${errorCode.UNKNOWN}&message=xyz`,
+    );
+    cy.wait(1000);
+    cy.get("[data-testid='verification-error']").matchImageSnapshot(
+      "Unknown error",
+    );
   });
 });
