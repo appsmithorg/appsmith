@@ -11,8 +11,9 @@ import {
   PublishPageHeaderContainer,
   PublishPageTemplateDetailsInputContainer,
 } from "./styledComponents";
-import TemplateCardPreview from "./TemplateCardPreview";
-import TemplateInfoForm from "./TemplateInfoForm";
+import TemplateCardPreview from "./components/TemplateCardPreview";
+import TemplateInfoForm from "./components/TemplateInfoForm";
+import PublishedInfo from "./components/PublishedInfo";
 
 const PublishCommunityTemplate = () => {
   return (
@@ -33,6 +34,7 @@ const PublishCommunityTemplate = () => {
         />
         <PublishPageTemplateDetailsInputContainer>
           <TemplateInfoForm />
+          <PublishedInfo />
         </PublishPageTemplateDetailsInputContainer>
       </PublishPageBodyContainer>
     </>

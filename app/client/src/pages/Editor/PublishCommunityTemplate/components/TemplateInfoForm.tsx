@@ -3,7 +3,7 @@ import {
   TemplateInfoFormLabelWrapper,
   TemplateInfoFormFieldWrapper,
   TemplateInfoFormWrapper,
-} from "./styledComponents";
+} from "../styledComponents";
 import { Input, Select, Option } from "design-system";
 import {
   COMMUNITY_TEMPLATES,
