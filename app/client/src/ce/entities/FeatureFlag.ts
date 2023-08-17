@@ -15,6 +15,9 @@ export const FEATURE_FLAG = {
   ab_gsheet_schema_enabled: "ab_gsheet_schema_enabled",
   ab_wds_enabled: "ab_wds_enabled",
   release_widgetdiscovery_enabled: "release_widgetdiscovery_enabled",
+  license_sso_enabled: "license_sso_enabled",
+  license_branding_enabled: "license_branding_enabled",
+  ab_table_widget_activation_enabled: "ab_table_widget_activation_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -34,6 +37,9 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_gsheet_schema_enabled: false,
   ab_wds_enabled: false,
   release_widgetdiscovery_enabled: false,
+  license_sso_enabled: false,
+  license_branding_enabled: false,
+  ab_table_widget_activation_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

@@ -217,7 +217,7 @@ function PaginationTypeBasedWrapper({
     .join(".")}`;
   return (
     <PaginationFieldContainer>
-      <PaginationFieldWrapper data-replay-id={dataReplayId}>
+      <PaginationFieldWrapper data-location-id={dataReplayId}>
         <Step>
           <FormLabel>
             {variableTooltip ? (
@@ -275,7 +275,7 @@ function PaginationTypeBasedWrapper({
             </ErrorMsg>
           ))}
       </PaginationFieldWrapper>
-      <PaginationFieldWrapper data-replay-id={dataReplayId}>
+      <PaginationFieldWrapper data-location-id={dataReplayId}>
         <Step>
           <FormLabel>
             {valueTooltip ? (
@@ -402,7 +402,7 @@ function Pagination(props: PaginationProps) {
                   actionName={props.actionName}
                   className="t--apiFormPaginationLimit"
                   dataReplayId={btoa(
-                    `${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.${PaginationSubComponent.Limit}`,
+                    `${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.${PaginationSubComponent.Limit}.value`,
                   )}
                   onInputChange={(value: any) => {
                     setPaginationValue(
@@ -438,7 +438,7 @@ function Pagination(props: PaginationProps) {
                   actionName={props.actionName}
                   className="t--apiFormPaginationOffset"
                   dataReplayId={btoa(
-                    `${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.${PaginationSubComponent.Offset}`,
+                    `${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.${PaginationSubComponent.Offset}.value`,
                   )}
                   onInputChange={(value: any) => {
                     setPaginationValue(
@@ -494,7 +494,7 @@ function Pagination(props: PaginationProps) {
                   actionName={props.actionName}
                   className="t--apiFormPaginationPrevLimit"
                   dataReplayId={btoa(
-                    `${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}`,
+                    `${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Limit}.value`,
                   )}
                   onInputChange={(value: any) => {
                     setSeparateOrSameLimitValue({
@@ -531,7 +531,7 @@ function Pagination(props: PaginationProps) {
                   actionName={props.actionName}
                   className="t--apiFormPaginationPrevCursor"
                   dataReplayId={btoa(
-                    `${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Cursor}`,
+                    `${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Cursor}.value`,
                   )}
                   onInputChange={(value: any) => {
                     setPaginationValue(
@@ -572,7 +572,7 @@ function Pagination(props: PaginationProps) {
                   actionName={props.actionName}
                   className="t--apiFormPaginationNextLimit"
                   dataReplayId={btoa(
-                    `${PAGINATION_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Limit}`,
+                    `${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Limit}.value`,
                   )}
                   onInputChange={(value: any) => {
                     setPaginationValue(
@@ -619,7 +619,7 @@ function Pagination(props: PaginationProps) {
                   actionName={props.actionName}
                   className="t--apiFormPaginationNextCursor"
                   dataReplayId={btoa(
-                    `${PAGINATION_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Cursor}`,
+                    `${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Cursor}.value`,
                   )}
                   onInputChange={(value: any) => {
                     setPaginationValue(

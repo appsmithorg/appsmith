@@ -106,7 +106,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
   it("3. Verify Add/Insert from Deploy page - on MongoMart - new record - few validations", () => {
     agHelper.GetNClick(dataSources._addIcon);
     agHelper.Sleep();
-    //agHelper.AssertElementVisible(locators._jsonFormWidget, 1); //Insert Modal
+    //agHelper.AssertElementVisibility(locators._jsonFormWidget, 1); //Insert Modal
     agHelper.AssertElementVisibility(
       locators._visibleTextDiv("Insert Document"),
     );
@@ -155,7 +155,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
     table.OpenNFilterTable("title", "contains", "USB");
     for (let i = 0; i < 3; i++) {
-      table.ReadTableRowColumnData(i, 5, "v1").then(($cellData) => {
+      table.ReadTableRowColumnData(i, 6, "v1").then(($cellData) => {
         expect($cellData).contains("USB");
       });
     }

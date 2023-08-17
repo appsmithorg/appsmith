@@ -25,6 +25,7 @@ export const CONFIG = {
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
+    showDataPointLabel: false,
     chartData: {
       [generateReactKey()]: {
         seriesName: "2023",

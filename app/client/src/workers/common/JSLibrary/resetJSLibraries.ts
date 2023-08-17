@@ -5,7 +5,6 @@ import forge from "node-forge";
 import { defaultLibraries } from "./index";
 import { JSLibraries, libraryReservedIdentifiers } from "./index";
 import { invalidEntityIdentifiers } from "../DependencyMap/utils";
-
 const defaultLibImplementations = {
   lodash: _,
   moment: moment,

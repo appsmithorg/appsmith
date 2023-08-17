@@ -1,8 +1,8 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import type { EntityPane } from "./factory";
+import type { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 export interface EntityInfo {
-  entityType: EntityPane;
+  entityType: ENTITY_TYPE;
   id: string;
   // The propertyPath to a control field
   propertyPath?: string;
@@ -25,4 +25,12 @@ export interface IPanelStack {
 export interface IMatchedSection {
   id?: string;
   propertyName: string;
+}
+
+export interface IApiPaneNavigationConfig {
+  tabIndex?: number;
+}
+
+export interface IQueryPaneNavigationConfig {
+  tab: string;
 }
