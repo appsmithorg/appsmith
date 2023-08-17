@@ -93,8 +93,12 @@ import {
   toast,
 } from "design-system";
 import { importSvg } from "design-system-old";
-import { getRampLink, showProductRamps } from "utils/ProductRamps";
-import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import { getRampLink, showProductRamps } from "selectors/rampSelectors";
+import {
+  RAMP_NAME,
+  RampFeature,
+  RampSection,
+} from "utils/ProductRamps/RampsControlList";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -190,18 +194,27 @@ function InviteUserText({
 }) {
   let content: JSX.Element;
 
+  const showRampSelector = showProductRamps(RAMP_NAME.INVITE_USER_TO_APP);
+  const canShowRamp = useSelector(showRampSelector);
+
+  const rampLinkSelector = getRampLink({
+    section: RampSection.AppShare,
+    feature: RampFeature.Gac,
+  });
+  const rampLink = useSelector(rampLinkSelector);
+
   if (isAppLevelInviteOnSelfHost) {
     content = <>{createMessage(USERS_HAVE_ACCESS_TO_ONLY_THIS_APP)}</>;
   } else {
     content = <>{createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}</>;
   }
 
-  if (cloudHosting && showProductRamps(RAMP_NAME.INVITE_USER_TO_APP)) {
+  if (cloudHosting && canShowRamp) {
     if (isApplicationInvite) {
       content = (
         <>
           {createMessage(INVITE_USER_RAMP_TEXT)}
-          <Link kind="primary" target="_blank" to={getRampLink("app_share")}>
+          <Link kind="primary" target="_blank" to={rampLink}>
             {createMessage(BUSINESS_EDITION_TEXT)}
           </Link>
         </>
