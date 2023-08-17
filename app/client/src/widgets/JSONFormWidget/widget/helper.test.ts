@@ -603,6 +603,7 @@ describe(".computeSchema", () => {
     const expectedDynamicPropertyPathList = [
       { key: "schema.__root_schema__.children.dob.defaultValue" },
       { key: "schema.__root_schema__.children.boolean.defaultValue" },
+      { key: "sourceData" },
     ];
 
     expect(response.status).toEqual(ComputedSchemaStatus.UPDATED);
@@ -622,6 +623,7 @@ describe(".computeSchema", () => {
       ...existingDynamicBindingPropertyPathList,
       { key: "schema.__root_schema__.children.dob.defaultValue" },
       { key: "schema.__root_schema__.children.boolean.defaultValue" },
+      { key: "sourceData" },
     ];
 
     const response = computeSchema({
@@ -647,6 +649,7 @@ describe(".computeSchema", () => {
     const expectedDynamicPropertyPathList = [
       ...existingDynamicBindingPropertyPathList,
       { key: "schema.__root_schema__.children.dob.defaultValue" },
+      { key: "sourceData" },
     ];
     const response = computeSchema({
       currSourceData:
