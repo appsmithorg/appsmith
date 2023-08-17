@@ -572,9 +572,8 @@ export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
   "Function Timeout (in milliseconds)";
-export const ASYNC_FUNCTION_SETTINGS_HEADING = () => "Async function settings";
-export const NO_ASYNC_FUNCTIONS = () =>
-  "There is no asynchronous function in this JSObject";
+export const FUNCTION_SETTINGS_HEADING = () => "Function settings";
+export const NO_JS_FUNCTIONS = () => "There is no function in this JSObject";
 export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
@@ -1387,9 +1386,9 @@ export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
 export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 
 // Branding
-export const ADMIN_BRANDING_SETTINGS_TITLE = () =>
+export const ADMIN_BRANDING_SETTINGS_TITLE_UPGRADE = () =>
   "Custom Branding for your workspaces";
-export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
+export const ADMIN_BRANDING_SETTINGS_SUBTITLE_UPGRADE = () =>
   "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business Edition.";
 export const ADMIN_BRANDING_COLOR_TOOLTIP = () =>
   `When you choose a primary color, we auto-magically fill in the secondary and accent colors. You can change them to get the look you want.`;
@@ -1755,6 +1754,12 @@ export const DATASOURCE_INTERCOM_TEXT = () =>
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
+export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate new page";
+export const GSHEETS_ERR_FETCHING_PREVIEW_DATA = () =>
+  "Some problem occured while fetching data";
+export const GSHEETS_FETCHING_PREVIEW_DATA = () => "Loading data";
+export const GSHEETS_SCHEMA_NO_DATA = () =>
+  "No data records to show or the table header begins with an index other than 1";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
@@ -1874,7 +1879,9 @@ export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
 export const START_SWITCH_ENVIRONMENT = (environment: string) =>
   `Switching your environment to ${environment}, and running all associated pageload actions`;
 export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
-  `Environment switched to ${environment}`;
+  `Environment switched to ${environment} successfully`;
+export const SWITCH_ENV_DISABLED_TOOLTIP_TEXT = () =>
+  "To access environments for datasources, try out our ";
 
 export const TEST_DATASOURCE_SUCCESS = (
   datasourceName: string,
@@ -1894,3 +1901,6 @@ export const DEFAULT_CAMERA_LABEL_DESCRIPTION = () =>
   "Default choice for mobile users. Not applicable for other devices";
 export const FRONT_CAMERA_LABEL = () => "Front (Selfie)";
 export const BACK_CAMERA_LABEL = () => "Back (Rear)";
+
+// Color picker
+export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";

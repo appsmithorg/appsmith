@@ -93,6 +93,8 @@ export class CommonLocators {
   _responseTab = "[data-testid=t--tab-response]";
   _modal = ".t--modal-widget";
   _closeModal = "button:contains('Close')";
+  _buttonText = (btnText: string) =>
+    "//*[contains(@class, 'bp3-button-text') and text()='" + btnText + "']";
   _entityProperties = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
@@ -241,7 +243,7 @@ export class CommonLocators {
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
   _fixedLayout = "#t--layout-conversion-cta:contains('fixed')";
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
-  _errorToolTip = ".bp3-popover-content";
+  _popoverToolTip = ".bp3-popover-content";
   _selectedWidget = "div[data-testid='t--selected']";
   _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
@@ -250,6 +252,8 @@ export class CommonLocators {
   _appEditMenu = "[data-testid='t--application-edit-menu']";
   _appEditMenuBtn = "[data-testid='t--application-edit-menu-cta']";
   _appEditMenuSettings = "[data-testid='t--application-edit-menu-settings']";
+  _appEditExportSettings =
+    "[data-testid='t--application-edit-menu-export-application']";
   _appThemeSettings = "#t--theme-settings-header";
   _appChangeThemeBtn = ".t--change-theme-btn";
   _appThemeCard = ".t--theme-card";

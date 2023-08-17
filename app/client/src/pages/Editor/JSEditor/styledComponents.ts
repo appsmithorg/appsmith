@@ -105,7 +105,7 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
     }
     .ads-v2-tabs__panel {
       ${CodeEditorWithGutterStyles};
-      height: calc(100% - 40px);
+      height: calc(100% - 38px);
       margin-top: 0px;
       background-color: var(--ads-v2-color-bg);
       .CodeEditorTarget {

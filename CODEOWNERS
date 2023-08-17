@@ -23,7 +23,8 @@ app/client/tsconfig.json @KelvinOm
 app/client/tsconfig.path.json @KelvinOm
 
 # App viewers pod
-app/client/src/widgets/* @appsmithorg/app-viewers
+app/client/src/widgets/* @appsmithorg/app-viewers @rajatagrawal
+app/client/cypress/e2e/Regression/ClientSide/Widgets/* @rajatagrawal
 app/client/src/components/propertyControls/* @appsmithorg/app-viewers
 app/client/src/sagas/OneClickBindingSaga.ts @sbalaji1192 @berzerkeer
 app/client/src/WidgetQueryGenerators/* @sbalaji1192 @berzerkeer
@@ -126,3 +127,87 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitCloudSer
 app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitDeployKeyGenerator.java @AnaghHegde @nayan-rafiq
 app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitFileUtils.java @AnaghHegde @nayan-rafiq
 app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitUtils.java @AnaghHegde @nayan-rafiq
+
+
+
+# Data Platform
+
+app/client/src/actions/datasourceActions.ts @ayushpahwa @ChandanBalajiBP
+app/client/src/api/ActionAPI.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/ce/components/DSDataFilter/index.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/ce/constants/ReduxActionConstants.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/ce/sagas/ApplicationSagas.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/ce/selectors/environmentSelectors.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/ce/utils/Environments/index.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/components/BottomBar/index.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/components/editorComponents/form/fields/EmbeddedDatasourcePathField.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/components/formControls/utils.test.ts @ayushpahwa @ChandanBalajiBP
+app/client/src/components/formControls/utils.ts @ayushpahwa @ChandanBalajiBP
+app/client/src/entities/Datasource/index.ts @ayushpahwa @ChandanBalajiBP
+app/client/src/entities/FeatureFlags.ts @ayushpahwa @ChandanBalajiBP
+app/client/src/navigation/FocusEntity.ts @ayushpahwa @ChandanBalajiBP
+app/client/src/pages/Editor/APIEditor/* @ayushpahwa @ChandanBalajiBP
+app/client/src/pages/Editor/DataSourceEditor/* @ayushpahwa @ChandanBalajiBP
+app/client/src/pages/Editor/IntegrationEditor/DatasourceCard.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/pages/Editor/IntegrationEditor/IntegrationsHomeScreen.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/pages/Editor/IntegrationEditor/NewApi.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/pages/Editor/QueryEditor/EditorJSONtoForm.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/pages/Editor/SaaSEditor/DatasourceCard.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/pages/Editor/SaaSEditor/DatasourceForm.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/pages/Editor/gitSync/ReconnectDatasourceModal.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/pages/common/datasourceAuth/index.tsx @ayushpahwa @ChandanBalajiBP
+app/client/src/reducers/entityReducers/datasourceReducer.ts @ayushpahwa @ChandanBalajiBP
+app/client/src/sagas/ActionExecution/PluginActionSaga.ts @ayushpahwa @ChandanBalajiBP
+app/client/src/sagas/DatasourcesSagas.ts @ayushpahwa @ChandanBalajiBP
+app/client/src/sagas/QueryPaneSagas.ts @ayushpahwa @ChandanBalajiBP
+app/client/src/transformers/RestAPIDatasourceFormTransformer.ts @ayushpahwa @ChandanBalajiBP
+
+
+# Followed Globstar paths in combination with wildcard paths. Reference https://docs.gitlab.com/ee/user/project/codeowners/reference.html#globstar-paths
+# Data Platform server - Interfaces
+app/server/appsmith-interfaces/src/main/java/com/appsmith/external/**/Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-interfaces/src/main/java/com/appsmith/external/**/Datasource* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-interfaces/src/main/java/com/appsmith/external/**/OAuth2* @nidhi-nair @sondermanish @tkappsmith
+
+# Data Platform server - Controllers
+app/server/appsmith-server/src/main/java/com/appsmith/server/controllers/**/Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/controllers/**/Datasource* @nidhi-nair @sondermanish @tkappsmith
+
+# Data Platform server - Domains
+app/server/appsmith-server/src/main/java/com/appsmith/server/domains/**/Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/domains/**/Datasource* @nidhi-nair @sondermanish @tkappsmith
+
+# Data Platform server - DTOs
+app/server/appsmith-server/src/main/java/com/appsmith/server/dtos/**/Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/dtos/**/Datasource* @nidhi-nair @sondermanish @tkappsmith
+
+# Data Platform server - Repositories
+app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/**/*Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/**/*Datasource* @nidhi-nair @sondermanish @tkappsmith
+
+# Data Platform server - Services
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/**/*Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/**/*Datasource* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/**/*Authentication* @nidhi-nair @sondermanish @tkappsmith
+
+# Data Platform server - Solutions
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Datasource* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Authentication* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Environment* @nidhi-nair @sondermanish @tkappsmith
+
+# Data Platform server - Misc
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/**/Datasource* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/exceptions/AppsmithError* @nidhi-nair @sondermanish @tkappsmith
+
+# Team Managers pod
+app/client/src/ce/* @ankitakinger
+app/client/src/ee/* @ankitakinger
+app/client/src/pages/Settings/* @ankitakinger
+app/client/cypress/e2e/Regression/Enterprise/* @ankitakinger
+app/client/cypress/e2e/Regression/EE/Enterprise/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/AdminSettings/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/Google/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/Github/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/FormLogin/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/Auditlogs/* @ankitakinger
