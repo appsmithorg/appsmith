@@ -7,8 +7,8 @@ function getStories() {
   }
 
   return [
-    "../stories/**/*.stories.mdx",
-    "../stories/**/*.stories.@(js|jsx|ts|tsx)",
+    "../../design-system/**/docs/**/*.stories.mdx",
+    "./../design-system/**/docs/**/*.stories.@(js|jsx|ts|tsx)",
   ];
 }
 

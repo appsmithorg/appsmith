@@ -6,9 +6,9 @@ import type { StyleProps } from "@react-types/shared";
 import { useRadioGroupState } from "@react-stately/radio";
 import type { SpectrumRadioGroupProps } from "@react-types/radio";
 
-import { Field } from "../Field";
+import { Field } from "../../Field";
 import { RadioContext } from "./context";
-import type { LabelProps } from "../Field";
+import type { LabelProps } from "../../Field";
 
 export type RadioGroupRef = DOMRef<HTMLDivElement>;
 export interface RadioGroupProps

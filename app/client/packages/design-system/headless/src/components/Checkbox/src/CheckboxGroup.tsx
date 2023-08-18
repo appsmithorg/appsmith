@@ -6,8 +6,8 @@ import { useCheckboxGroup } from "@react-aria/checkbox";
 import { useCheckboxGroupState } from "@react-stately/checkbox";
 import type { SpectrumCheckboxGroupProps } from "@react-types/checkbox";
 
-import { Field } from "../Field";
-import type { LabelProps } from "../Field";
+import { Field } from "../../Field";
+import type { LabelProps } from "../../Field";
 import { CheckboxGroupContext } from "./context";
 
 export type CheckboxGroupRef = DOMRef<HTMLDivElement>;
