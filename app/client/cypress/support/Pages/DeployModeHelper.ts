@@ -156,7 +156,7 @@ export class DeployMode {
   public NavigateBacktoEditor() {
     this.assertHelper.AssertDocumentReady();
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
-    this.agHelper.Sleep(3000); //giving time for page to load for CI failures
+    this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("There was an unexpected error"),
