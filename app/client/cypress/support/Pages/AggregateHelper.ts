@@ -975,7 +975,8 @@ export class AggregateHelper extends ReusableHelper {
     });
     this.assertHelper.AssertDocumentReady();
     this.Sleep(2000);
-    this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
+    networkCallAlias &&
+      this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
 
   public ActionContextMenuWithInPane({
@@ -1393,28 +1394,6 @@ export class AggregateHelper extends ReusableHelper {
       .scrollIntoView()
       .should(visibility == true ? "be.visible" : "not.be.visible");
     //return this.ScrollIntoView(selector, index, timeout).should("be.visible");//to find out why this is failing.
-  }
-
-  public AssertElementNotVisible(
-    selector: ElementType,
-    index = 0,
-    timeout = 20000,
-  ) {
-    return this.GetElement(selector, timeout)
-      .eq(index)
-      .scrollIntoView()
-      .should("not.be.visible");
-  }
-
-  public AssertElementNotVisible(
-    selector: ElementType,
-    index = 0,
-    timeout = 20000,
-  ) {
-    return this.GetElement(selector, timeout)
-      .eq(index)
-      .scrollIntoView()
-      .should("not.be.visible");
   }
 
   public CheckForErrorToast(error: string) {
