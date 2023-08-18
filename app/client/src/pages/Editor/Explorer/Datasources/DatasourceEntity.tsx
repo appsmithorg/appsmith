@@ -44,12 +44,15 @@ type ExplorerDatasourceEntityProps = {
   canManageDatasource?: boolean;
 };
 
-const DataStructureListWrapper = styled.div`
+const MAX_HEIGHT_LIST_WRAPPER = 300;
+
+const DataStructureListWrapper = styled.div<{ height: number }>`
   overflow-y: scroll;
   height: 100%;
   display: flex;
   flex-direction: column;
-  min-height: 200px;
+  max-height: ${MAX_HEIGHT_LIST_WRAPPER}px;
+  ${(props) => `min-height: ${props.height}px;`}
 `;
 
 const ExplorerDatasourceEntity = React.memo(
@@ -174,7 +177,12 @@ const ExplorerDatasourceEntity = React.memo(
         step={props.step}
         updateEntityName={updateDatasourceNameCall}
       >
-        <DataStructureListWrapper>
+        <DataStructureListWrapper
+          height={Math.min(
+            (datasourceStructure?.tables?.length || 0) * 100,
+            MAX_HEIGHT_LIST_WRAPPER,
+          )}
+        >
           <DatasourceStructureContainer
             context={DatasourceStructureContext.EXPLORER}
             datasourceId={props.datasource.id}
