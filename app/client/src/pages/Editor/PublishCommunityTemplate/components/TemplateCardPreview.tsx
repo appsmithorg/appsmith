@@ -53,7 +53,7 @@ const UserProfile = () => {
         userName={currentUser?.name || currentUser?.username}
       />
       <Text className="strong" kind="body-s" renderAs="p">
-        {currentUser?.name || currentUser?.username || currentUser?.email}
+        {currentUser?.name || currentUser?.email}
       </Text>
     </TemplatePreviewProfileContainer>
   );

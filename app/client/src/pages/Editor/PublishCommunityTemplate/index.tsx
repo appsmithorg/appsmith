@@ -3,7 +3,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { Button, Text } from "design-system";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import BackButton from "../DataSourceEditor/BackButton";
 import {
   PublishPageAppSettingContainer,
@@ -33,6 +33,27 @@ const PublishCommunityTemplate = () => {
 
   const [isPublicSetting, setIsPublicSetting] = useState(true);
   const [isForkableSetting, setIsForkableSetting] = useState(true);
+
+  const isFormValid = useMemo(() => {
+    const requiredFields = [templateName, authorName, authorEmail];
+    const areRequiredFieldsPresent = requiredFields.every(
+      (field) => field.length > 0,
+    );
+    const areSettingsTurnedON = isPublicSetting && isForkableSetting;
+    return areRequiredFieldsPresent && areSettingsTurnedON;
+  }, [
+    templateName,
+    authorName,
+    authorEmail,
+    isPublicSetting,
+    isForkableSetting,
+  ]);
+
+  const publishToCommunity = () => {
+    if (!isFormValid) {
+      return;
+    }
+  };
   return (
     <>
       <PublishPageHeaderContainer>
@@ -78,7 +99,11 @@ const PublishCommunityTemplate = () => {
         </PublishPageTemplateDetailsInputContainer>
       </PublishPageBodyContainer>
       <PublishPageFooterContainer>
-        <Button size="md">
+        <Button
+          isDisabled={!isFormValid}
+          onClick={publishToCommunity}
+          size="md"
+        >
           {createMessage(
             COMMUNITY_TEMPLATES.publishFormPage.footerPublishButton,
           )}
