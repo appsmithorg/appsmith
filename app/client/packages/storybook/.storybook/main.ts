@@ -3,12 +3,12 @@ import svgr from "vite-plugin-svgr";
 
 function getStories() {
   if (process.env.CHROMATIC) {
-    return ["../chromatic/**/*.chromatic.stories.@(js|jsx|ts|tsx)"];
+    return ["../../design-system/**/*.chromatic.stories.@(js|jsx|ts|tsx)"];
   }
 
   return [
-    "../../design-system/**/docs/**/*.stories.mdx",
-    "./../design-system/**/docs/**/*.stories.@(js|jsx|ts|tsx)",
+    "../../design-system/**/*.stories.mdx",
+    "../../design-system/**/*.stories.@(js|jsx|ts|tsx)",
   ];
 }
 
