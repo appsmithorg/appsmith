@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class
-DatasourceStructureServiceImpl extends DatasourceStructureServiceCEImpl implements DatasourceStructureService {
+public class DatasourceStructureServiceImpl extends DatasourceStructureServiceCEImpl
+        implements DatasourceStructureService {
     public DatasourceStructureServiceImpl(DatasourceStructureRepository repository) {
         super(repository);
     }

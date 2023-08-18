@@ -1,12 +1,11 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Dropdown Widget Functionality", function () {
   before(() => {
-    cy.fixture("widgetPopupDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("widgetPopupDsl");
   });
 
   it("1. Verify dropdown width of Select widgets and menu button", function () {
@@ -30,7 +29,7 @@ describe("Dropdown Widget Functionality", function () {
       .find(widgetLocators.menuButton)
       .then(($menuButton) => {
         const outerWidth = Cypress.$($menuButton).outerWidth();
-        expect(parseInt(outerWidth)).to.equal(188);
+        expect(parseInt(outerWidth)).to.equal(147);
       });
     cy.get(formWidgetsPage.menuButtonWidget)
       .find(widgetLocators.menuButton)
@@ -42,7 +41,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.get(".menu-button-popover")
       .invoke("outerWidth")
       .then((width) => {
-        expect(parseInt(width)).to.equal(188);
+        expect(parseInt(width)).to.equal(147);
       });
 
     // MultiSelect

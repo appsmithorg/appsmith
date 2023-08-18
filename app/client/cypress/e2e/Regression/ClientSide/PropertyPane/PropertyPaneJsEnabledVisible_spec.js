@@ -2,9 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Property pane js enabled field", function () {
   before(() => {
-    cy.fixture("jsonFormDslWithSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithSchema");
   });
 
   it("1. Ensure text is visible for js enabled field when a section is collapsed by default", function () {

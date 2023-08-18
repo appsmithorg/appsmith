@@ -13,23 +13,34 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implements LayoutActionService {
 
-    public LayoutActionServiceImpl(ObjectMapper objectMapper,
-                                   AnalyticsService analyticsService,
-                                   NewPageService newPageService,
-                                   NewActionService newActionService,
-                                   PageLoadActionsUtil pageLoadActionsUtil,
-                                   SessionUserService sessionUserService,
-                                   ActionCollectionService actionCollectionService,
-                                   CollectionService collectionService,
-                                   ApplicationService applicationService,
-                                   ResponseUtils responseUtils,
-                                   DatasourceService datasourceService,
-                                   PagePermission pagePermission,
-                                   ActionPermission actionPermission) {
+    public LayoutActionServiceImpl(
+            ObjectMapper objectMapper,
+            AnalyticsService analyticsService,
+            NewPageService newPageService,
+            NewActionService newActionService,
+            PageLoadActionsUtil pageLoadActionsUtil,
+            SessionUserService sessionUserService,
+            ActionCollectionService actionCollectionService,
+            CollectionService collectionService,
+            ApplicationService applicationService,
+            ResponseUtils responseUtils,
+            DatasourceService datasourceService,
+            PagePermission pagePermission,
+            ActionPermission actionPermission) {
 
-        super(objectMapper, analyticsService, newPageService, newActionService, pageLoadActionsUtil, sessionUserService,
-                actionCollectionService, collectionService, applicationService, responseUtils, datasourceService,
-                pagePermission, actionPermission);
-
+        super(
+                objectMapper,
+                analyticsService,
+                newPageService,
+                newActionService,
+                pageLoadActionsUtil,
+                sessionUserService,
+                actionCollectionService,
+                collectionService,
+                applicationService,
+                responseUtils,
+                datasourceService,
+                pagePermission,
+                actionPermission);
     }
 }

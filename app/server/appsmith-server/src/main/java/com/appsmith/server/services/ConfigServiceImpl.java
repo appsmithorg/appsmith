@@ -11,9 +11,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConfigServiceImpl extends ConfigServiceCEImpl implements ConfigService {
 
-    public ConfigServiceImpl(ConfigRepository repository,
-                             ApplicationRepository applicationRepository,
-                             DatasourceRepository datasourceRepository) {
+    public ConfigServiceImpl(
+            ConfigRepository repository,
+            ApplicationRepository applicationRepository,
+            DatasourceRepository datasourceRepository) {
 
         super(repository, applicationRepository, datasourceRepository);
     }

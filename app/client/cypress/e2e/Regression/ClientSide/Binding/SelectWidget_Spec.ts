@@ -6,9 +6,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Validate basic binding of Input widget to Input widget", () => {
   before(() => {
-    cy.fixture("Select_table_dsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Select_table_dsl");
   });
 
   it("1. Validation of default displayed in Select widget based on row selected", function () {

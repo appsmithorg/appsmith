@@ -20,5 +20,4 @@ public class ProjectProperties {
 
     @Value("${version:UNKNOWN}")
     private String version;
-
 }

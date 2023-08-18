@@ -1,6 +1,5 @@
 package com.appsmith.server.domains;
 
-
 import com.appsmith.external.models.BaseDomain;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -8,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 
 @Document
 @Getter

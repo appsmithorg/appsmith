@@ -10,6 +10,7 @@ import jakarta.validation.ValidatorFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,6 +67,10 @@ public class CommonConfig {
     private String rtsPort;
 
     private List<String> allowedDomains;
+
+    private String mongoDBVersion;
+
+    private static final String MIN_SUPPORTED_MONGODB_VERSION = "5.0.0";
 
     @Bean
     public Scheduler scheduler() {
@@ -129,5 +135,19 @@ public class CommonConfig {
 
     public String getRtsBaseUrl() {
         return "http://127.0.0.1:" + rtsPort;
+    }
+
+    public boolean isMongoUptoDate() {
+        ComparableVersion minSupportedVersion = new ComparableVersion(MIN_SUPPORTED_MONGODB_VERSION);
+        ComparableVersion connectedMongoVersion = new ComparableVersion(mongoDBVersion);
+        return minSupportedVersion.compareTo(connectedMongoVersion) <= 0;
+    }
+
+    public boolean isConnectedMongoVersionAvailable() {
+        return mongoDBVersion != null;
+    }
+
+    public Long getCurrentTimeInstantEpochMilli() {
+        return Instant.now().toEpochMilli();
     }
 }

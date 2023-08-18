@@ -5,9 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Checkbox Widget Functionality", function () {
   before(() => {
-    cy.fixture("formWidgetdsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("formWidgetdsl");
   });
 
   it("1. Checkbox Functionality To Check required toggle for form", function () {

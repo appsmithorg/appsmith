@@ -24,9 +24,7 @@ describe("Text-Table Binding Functionality", function () {
   }
 ]`;
   before(() => {
-    cy.fixture("tableAndChart").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableAndChart");
   });
 
   it("1. Update table data and assert", function () {
@@ -44,7 +42,7 @@ describe("Text-Table Binding Functionality", function () {
       cy.get(viewWidgetsPage.chartWidget)
         .find("svg")
         .find("text")
-        .should("contain.text", "Product2");
+        .should("contain.text", "Product1");
 
       cy.get(viewWidgetsPage.chartWidget)
         .find("svg")

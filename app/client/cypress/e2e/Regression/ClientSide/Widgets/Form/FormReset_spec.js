@@ -3,9 +3,7 @@ import widgets from "../../../../../locators/Widgets.json";
 
 describe("Form reset functionality", function () {
   before(() => {
-    cy.fixture("formResetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("formResetDsl");
   });
 
   it("Resets the form", () => {

@@ -6,6 +6,4 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class AuthenticationFailureHandler extends AuthenticationFailureHandlerCE {
-
-}
+public class AuthenticationFailureHandler extends AuthenticationFailureHandlerCE {}

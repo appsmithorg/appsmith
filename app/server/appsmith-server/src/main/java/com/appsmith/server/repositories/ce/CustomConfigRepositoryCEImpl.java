@@ -16,9 +16,13 @@ import java.util.List;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Config> implements CustomConfigRepositoryCE {
+public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Config>
+        implements CustomConfigRepositoryCE {
 
-    public CustomConfigRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomConfigRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
@@ -31,16 +35,16 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
     @Override
     public Mono<Config> findByNameAsUser(String name, User user, AclPermission permission) {
 
-        return getAllPermissionGroupsForUser(user)
-                .flatMap(permissionGroups -> {
-                    Criteria nameCriteria = where(fieldName(QConfig.config1.name)).is(name);
-                    Query query = new Query(nameCriteria);
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
+        return getAllPermissionGroupsForUser(user).flatMap(permissionGroups -> {
+            Criteria nameCriteria = where(fieldName(QConfig.config1.name)).is(name);
+            Query query = new Query(nameCriteria);
+            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
 
-                    return mongoOperations.query(this.genericDomain)
-                            .matching(query)
-                            .one()
-                            .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
-                });
+            return mongoOperations
+                    .query(this.genericDomain)
+                    .matching(query)
+                    .one()
+                    .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
+        });
     }
 }

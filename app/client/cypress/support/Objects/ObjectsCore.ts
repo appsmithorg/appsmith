@@ -1,4 +1,4 @@
-import { WIDGET } from "../../locators/WidgetLocators";
+import { WIDGET, WIDGETSKIT } from "../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "../Pages/AssertHelper";
 
@@ -29,5 +29,8 @@ export const onboarding = ObjectsRegistry.Onboarding;
 export const autoLayout = ObjectsRegistry.AutoLayout;
 export const draggableWidgets = WIDGET;
 export const fakerHelper = ObjectsRegistry.FakerHelper;
-export const hostPort = ObjectsRegistry.DefaultHostPort;
+export const dataManager = ObjectsRegistry.DataManager;
 export const entityItems = EntityItems;
+export const tabs = ObjectsRegistry.Tabs;
+export const gsheetHelper = ObjectsRegistry.GSheetHelper;
+export const widgetLocators = WIDGETSKIT;

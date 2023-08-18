@@ -4,9 +4,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("RichTextEditor Widget Functionality in Form", function () {
   before(() => {
-    cy.fixture("formWithRTEDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("formWithRTEDsl");
   });
 
   beforeEach(() => {

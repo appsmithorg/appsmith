@@ -5,37 +5,20 @@ import {
   entityExplorer,
   propPane,
   apiPage,
+  dataManager,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Statbox Widget", function () {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+  before(() => {
+    agHelper.AddDsl("StatboxDsl");
   });
 
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-    cy.fixture("StatboxDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
-  });
-
-  it("1. Open Existing Statbox from created Widgets list", () => {
-    cy.get(".widgets").first().click();
-    cy.get(".t--entity .widget")
-      .get(".entity-context-menu")
-      .last()
-      .click({ force: true });
-    // Open Existing Statbox, change background color and verify
-    cy.openPropertyPane("statboxwidget");
-    // changing the background color of statbox and verying it
+  it("1. Open Existing Statbox & change background color & verify", () => {
+    entityExplorer.SelectEntityByName("Statbox1");
     cy.get(".t--property-pane-section-general").then(() => {
-      cy.moveToStyleTab();
-      cy.get(`${widgetsPage.cellBackground} input`)
-        .first()
-        .clear()
-        .wait(400)
-        .type("#FFC13D")
-        .wait(500);
+      propPane.MoveToTab("Style");
+      propPane.EnterJSContext("Background color", "#FFC13D");
+      propPane.ToggleJSMode("Background color", false);
       cy.get(`${widgetsPage.cellBackground} input`).should(($input) => {
         const value = $input.val();
         expect(value.toLowerCase()).to.equal("#ffc13d"); // Case-insensitive comparison
@@ -44,9 +27,8 @@ describe("Statbox Widget", function () {
   });
 
   it("2. Verify Statbox icon button's onClick action and change the icon", () => {
-    cy.openPropertyPane("iconbuttonwidget");
+    entityExplorer.SelectEntityByName("IconButton1", "Statbox1");
     cy.get(".t--property-pane-section-general").then(() => {
-      //cy.moveToStyleTab();
       // changing the icon to arrow-up
       cy.get(".bp3-button-text").first().click();
       cy.get(".bp3-icon-arrow-up").click().wait(500);
@@ -60,18 +42,15 @@ describe("Statbox Widget", function () {
     cy.get(".t--modal-widget .t--draggable-iconbuttonwidget").click({
       force: true,
     });
-    cy.get("span:contains('Close')").closest("div").last().click();
+    cy.get("span:contains('Close')").closest("div").first().click(); //closing modal
   });
 
-  it("3. Bind datasource to multiple components in statbox", () => {
-    apiPage.CreateAndFillApi(
-      data.userApi + "/mock-api?records=20&page=4&size=3",
-      "MockApi",
-    );
+  it("3. Bind datasource to statbox", () => {
+    apiPage.CreateAndFillApi(dataManager.paginationUrl(), "MockApi");
     apiPage.RunAPI();
-    // going to HomePage where the button widget is located and opening it's property pane.
     // binding datasource to text widget in statbox
     entityExplorer.SelectEntityByName("Text1", "Statbox1");
-    propPane.UpdatePropertyFieldValue("Text", "{{MockApi.data.users[0].id}}");
+    propPane.UpdatePropertyFieldValue("Text", "{{MockApi.data[0].id}}");
+    agHelper.AssertText(propPane._widgetToVerifyText("Text1"), "text", "10"); //it will always be 10 due to pagination url setting
   });
 });

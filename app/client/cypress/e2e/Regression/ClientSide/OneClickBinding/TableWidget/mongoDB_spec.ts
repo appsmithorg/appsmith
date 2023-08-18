@@ -25,12 +25,9 @@ describe("one click binding mongodb datasource", function () {
     cy.get("@dsName").then((dsName) => {
       entityExplorer.SelectEntityByName("Table1", "Widgets");
 
-      oneClickBinding.ChooseAndAssertForm(
-        `${dsName}`,
-        dsName,
-        "netflix",
-        "creator",
-      );
+      oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "netflix", {
+        searchableColumn: "creator",
+      });
     });
 
     agHelper.GetNClick(oneClickBindingLocator.connectData);
@@ -76,8 +73,7 @@ describe("one click binding mongodb datasource", function () {
     table.ResetSearch();
 
     //lets create a new row and check to see the insert operation is working
-    agHelper.GetNClick(table._addNewRow);
-    agHelper.AssertElementExist(table._newRow);
+    table.AddNewRow();
 
     const someText = "new row " + Cypress._.random(0, 1e6);
     const searchColumnIndex = 3;
@@ -89,8 +85,7 @@ describe("one click binding mongodb datasource", function () {
     agHelper.Sleep(2000);
 
     //search the table for a row having the text used to create a new row
-    agHelper.ClearTextField(table._searchInput);
-    agHelper.TypeText(table._searchInput, someText);
+    agHelper.ClearNType(table._searchInput, someText);
     agHelper.Sleep();
 
     //check if that row is present

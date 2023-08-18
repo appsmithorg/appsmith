@@ -8,9 +8,7 @@ import {
 
 describe("Test Suite to validate copy/paste table Widget", function () {
   before(() => {
-    cy.fixture("tableNewDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableNewDsl");
   });
 
   it("Copy paste table widget and valdiate application status", function () {

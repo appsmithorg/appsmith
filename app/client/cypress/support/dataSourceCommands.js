@@ -102,7 +102,6 @@ Cypress.Commands.add(
     //cy.get(datasourceEditor["selConnectionType"]).click();
     //cy.contains(datasourceFormData["connection-type"]).click();
     //cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);//is optional hence removing
-    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor["databaseName"])
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
@@ -132,7 +131,6 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.host).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["postgres-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
-    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor.username).type(
       datasourceFormData["postgres-username"],
     );
@@ -176,7 +174,6 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.host).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["mysql-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
-    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor.username).type(
       datasourceFormData["mysql-username"],
     );
@@ -199,7 +196,6 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.host).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["mssql-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
-    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor.username).type(
       datasourceFormData["mssql-username"],
     );
@@ -223,7 +219,6 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.port).type(datasourceFormData["arango-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
 
-    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor.username).type(
       datasourceFormData["arango-username"],
     );
@@ -246,7 +241,6 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.host).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["redshift-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
-    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor.username).type(
       datasourceFormData["redshift-username"],
     );

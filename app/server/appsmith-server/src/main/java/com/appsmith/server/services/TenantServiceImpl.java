@@ -11,13 +11,14 @@ import reactor.core.scheduler.Scheduler;
 @Service
 public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {
 
-    public TenantServiceImpl(Scheduler scheduler,
-                             Validator validator,
-                             MongoConverter mongoConverter,
-                             ReactiveMongoTemplate reactiveMongoTemplate,
-                             TenantRepository repository,
-                             AnalyticsService analyticsService,
-                             ConfigService configService) {
+    public TenantServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            TenantRepository repository,
+            AnalyticsService analyticsService,
+            ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService);
     }
 }

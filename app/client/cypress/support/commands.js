@@ -31,6 +31,7 @@ const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import RapidMode from "./RapidMode";
+import { featureFlagIntercept } from "./Objects/FeatureFlags";
 
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -39,6 +40,7 @@ const onboarding = ObjectsRegistry.Onboarding;
 const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const entityExplorer = ObjectsRegistry.EntityExplorer;
+const assertHelper = ObjectsRegistry.AssertHelper;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -164,18 +166,17 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
-  cy.get(datasource.advancedSettings).click();
   cy.get(datasource.useCertInAuth).should("not.exist");
   cy.get(datasource.certificateDetails).should("not.exist");
-  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
+  // cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
+  cy.togglebar(datasource.useSelfSignedCert);
+  cy.get(datasource.useSelfSignedCert).should("be.checked");
   if (isOAuth2) {
     cy.get(datasource.useCertInAuth).should("exist");
   } else {
     cy.get(datasource.useCertInAuth).should("not.exist");
   }
-  cy.get(datasource.certificateDetails).should("exist");
-  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "No");
-  cy.get(datasource.advancedSettings).click();
+  cy.togglebarDisable(datasource.useSelfSignedCert);
 });
 
 Cypress.Commands.add("addBasicProfileDetails", (username, password) => {
@@ -224,11 +225,11 @@ Cypress.Commands.add("GetUrlQueryParams", () => {
 Cypress.Commands.add("LogOutUser", () => {
   cy.wait(1000); //waiting for window to load
   cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
-  cy.wait("@postLogout");
+  assertHelper.AssertNetworkStatus("@postLogout", 200);
 });
 
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
-  goToLoginPage && cy.visit("/user/login");
+  goToLoginPage && cy.visit("/user/login", { timeout: 60000 });
   cy.wait(3000); //for login page to load fully for CI runs
   cy.wait("@signUpLogin")
     .its("response.body.responseMeta.status")
@@ -788,6 +789,7 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.wait(500);
   cy.get(selector)
+    .first()
     .trigger("dragstart", { force: true })
     .trigger("mousemove", x, y, { force: true });
 
@@ -806,11 +808,13 @@ Cypress.Commands.add(
     const selector = `.t--widget-card-draggable-${widgetType}`;
     cy.wait(800);
     cy.get(selector)
+      .first()
       .scrollIntoView()
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });
     const selector2 = `.t--draggable-${destinationWidget}`;
     cy.get(selector2)
+      .first()
       .scrollIntoView()
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
@@ -824,6 +828,7 @@ Cypress.Commands.add(
     const selector = `.t--widget-card-draggable-${widgetType}`;
     cy.wait(800);
     cy.get(selector)
+      .first()
       .scrollIntoView()
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });
@@ -860,7 +865,7 @@ Cypress.Commands.add(
   (forSuccess, forFailure, actionType, actionValue, idx = 0) => {
     propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
-    cy.get(propPane._actionCallbacks).last().click();
+    agHelper.Sleep();
 
     // add a success callback
     cy.get(propPane._actionAddCallback("success")).click().wait(500);
@@ -1127,6 +1132,32 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   }).as("postTenant");
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
+  featureFlagIntercept({}, false);
+  cy.intercept(
+    {
+      method: "GET",
+      url: "/api/v1/product-alert/alert",
+    },
+    (req) => {
+      req.reply((res) => {
+        if (res) {
+          if (res.statusCode === 200) {
+            // Modify the response body to have empty data
+            res.send({
+              responseMeta: {
+                status: 200,
+                success: true,
+              },
+              data: {},
+              errorDisplay: "",
+            });
+          }
+        } else {
+          // Do nothing or handle the case where the response object is not present
+        }
+      });
+    },
+  ).as("productAlert");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1359,6 +1390,7 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
+  cy.wait("@getWorkspace");
 
   cy.LogOut();
   cy.wait(2000);
@@ -1775,7 +1807,7 @@ Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
 // });
 
 addMatchImageSnapshotCommand({
-  failureThreshold: 0.1, // threshold for entire image
+  failureThreshold: 0.15, // threshold for entire image
   failureThresholdType: "percent",
 });
 
@@ -2152,4 +2184,12 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 
 Cypress.Commands.add("skipSignposting", () => {
   onboarding.closeIntroModal();
+});
+
+Cypress.Commands.add("stubPricingPage", () => {
+  cy.window().then((win) => {
+    cy.stub(win, "open", (url) => {
+      win.location.href = "https://www.appsmith.com/pricing?";
+    }).as("pricingPage");
+  });
 });

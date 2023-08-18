@@ -6,9 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.fixture("tableV2NewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableV2NewDsl");
   });
 
   it("1. Table widget V2 with with modal popup", function () {

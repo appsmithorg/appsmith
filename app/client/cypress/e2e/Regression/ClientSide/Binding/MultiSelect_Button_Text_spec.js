@@ -38,9 +38,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       agHelper.SaveLocalStorageCache();
     });
     before(() => {
-      cy.fixture("defaultMetadataDsl").then((val) => {
-        agHelper.AddDsl(val);
-      });
+      agHelper.AddDsl("defaultMetadataDsl");
     });
 
     it(`1. DragDrop Widget ${testConfig.widgetName}`, function () {

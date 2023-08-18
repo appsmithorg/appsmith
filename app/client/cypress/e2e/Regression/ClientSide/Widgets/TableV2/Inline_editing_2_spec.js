@@ -16,9 +16,7 @@ describe("Table widget inline editing functionality", () => {
 
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
-    cy.fixture("Table/InlineEditingDSL").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Table/InlineEditingDSL");
   });
 
   let propPaneBack = "[data-testid='t--property-pane-back-btn']";
@@ -44,9 +42,7 @@ describe("Table widget inline editing functionality", () => {
   });
 
   it("2. should check that inline editing works with text wrapping disabled", () => {
-    cy.fixture("Table/InlineEditingDSL").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Table/InlineEditingDSL");
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editTableCell(0, 0);

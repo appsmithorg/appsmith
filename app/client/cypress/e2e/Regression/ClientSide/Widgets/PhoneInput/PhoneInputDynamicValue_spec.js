@@ -9,10 +9,9 @@ const widgetName = "phoneinputwidget";
 
 describe("Phone input widget - ", () => {
   before(() => {
-    cy.fixture("PhoneInputDynamic").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("PhoneInputDynamic");
   });
+
   it("1. Should show empty dropdown for a typo", () => {
     entityExplorer.SelectEntityByName("PhoneInput1");
     // Turn on changecountrycode

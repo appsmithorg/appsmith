@@ -137,7 +137,7 @@ const widgetsToTest: Record<
     },
   },
   */
-  [_.draggableWidgets.PHONEINPUT]: {
+  [_.draggableWidgets.PHONE_INPUT]: {
     widgetName: "PhoneInput",
     widgetPrefixName: "PhoneInput1",
     textBindingValue: testdata.phoneBindingValue,
@@ -421,9 +421,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
     });
 
     it(`1. DragDrop Widget ${testConfig.widgetName}`, () => {
-      cy.fixture("defaultMetaDsl").then((val: any) => {
-        _.agHelper.AddDsl(val);
-      });
+      _.agHelper.AddDsl("defaultMetaDsl");
       _.entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 100);
 
       if (testConfig.setupWidget) {

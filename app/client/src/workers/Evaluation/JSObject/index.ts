@@ -15,7 +15,6 @@ import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
 } from "workers/Evaluation/JSObject/utils";
-import { functionDeterminer } from "../functionDeterminer";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import JSObjectCollection from "./Collection";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
@@ -64,7 +63,7 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   return localUnEvalTree;
 };
 
-const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
+export const validJSBodyRegex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
 
 /**
  * Here we parse the JSObject and then determine
@@ -86,7 +85,7 @@ export function saveResolvedFunctionsAndJSUpdates(
   entityName: string,
 ) {
   jsPropertiesState.delete(entityName);
-  const correctFormat = regex.test(entity.body);
+  const correctFormat = validJSBodyRegex.test(entity.body);
   const isEmptyBody = entity.body.trim() === "";
 
   if (correctFormat || isEmptyBody) {
@@ -153,7 +152,6 @@ export function saveResolvedFunctionsAndJSUpdates(
                     body: functionString,
                     arguments: params,
                     parsedFunction: result,
-                    isAsync: false,
                   });
                 }
               } catch {
@@ -223,7 +221,7 @@ export function parseJSActions(
   const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
   const unEvalState = JSObjectCollection.getUnEvalState();
   let jsUpdates: Record<string, JSUpdate> = {};
-  jsPropertiesState.startUpdate();
+
   if (!!differences && !!oldUnEvalTree) {
     differences.forEach((diff) => {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -272,26 +270,17 @@ export function parseJSActions(
     });
   }
 
-  functionDeterminer.setupEval(unEvalDataTree);
-  jsPropertiesState.stopUpdate();
-
   Object.keys(jsUpdates).forEach((entityName) => {
     const parsedBody = jsUpdates[entityName].parsedBody;
     if (!parsedBody) return;
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {
         ...action,
-        isAsync: functionDeterminer.isFunctionAsync(
-          action.parsedFunction,
-          dataTreeEvalRef.logs,
-        ),
         // parsedFunction - used only to determine if function is async
         parsedFunction: undefined,
       } as ParsedJSSubAction;
     });
   });
-
-  functionDeterminer.close();
 
   return { jsUpdates };
 }

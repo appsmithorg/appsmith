@@ -6,6 +6,7 @@ import type { EntityNavigationData } from "selectors/navigationSelectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 
 import { editorSQLModes } from "./sql/config";
+import type { WidgetType } from "constants/WidgetConstants";
 
 export const EditorModes = {
   TEXT: "text/plain",
@@ -61,6 +62,7 @@ export type FieldEntityInformation = {
   example?: ExpectedValueExample;
   mode?: TEditorModes;
   token?: CodeMirror.Token;
+  widgetType?: WidgetType;
 };
 
 export type HintHelper = (

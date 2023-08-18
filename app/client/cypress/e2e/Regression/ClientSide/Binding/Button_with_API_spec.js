@@ -8,9 +8,7 @@ describe("Bind a button and Api usecase", function () {
   let apiData;
   let valueToTest;
   before(() => {
-    cy.fixture("buttonApiDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("buttonApiDsl");
   });
 
   it("1. Add an API by binding a button in its header", function () {

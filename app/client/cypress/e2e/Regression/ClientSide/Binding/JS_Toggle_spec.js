@@ -5,9 +5,7 @@ import {
 
 describe("JS Toggle tests", () => {
   before(() => {
-    cy.fixture("Js_toggle_dsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Js_toggle_dsl");
   });
 
   it("1. switches the toggle to Button widget", () => {

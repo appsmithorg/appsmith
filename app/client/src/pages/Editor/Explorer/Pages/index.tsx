@@ -43,6 +43,8 @@ import {
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith//selectors/tenantSelectors";
+import classNames from "classnames";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -94,6 +96,7 @@ function Pages() {
   const storedHeightKey = "pagesContainerHeight_" + applicationId;
   const storedHeight = localStorage.getItem(storedHeightKey);
   const location = useLocation();
+  const featureFlags = useSelector(selectFeatureFlags);
 
   const resizeAfterCallback = (data: CallbackResponseType) => {
     localStorage.setItem(storedHeightKey, data.height.toString());
@@ -223,7 +226,10 @@ function Pages() {
       <StyledEntity
         addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
         alwaysShowRightIcon
-        className="group pages"
+        className={classNames({
+          "group pages": true,
+          "p-3 pb-0": featureFlags.release_widgetdiscovery_enabled,
+        })}
         collapseRef={pageResizeRef}
         customAddButton={
           <AddPageContextMenu

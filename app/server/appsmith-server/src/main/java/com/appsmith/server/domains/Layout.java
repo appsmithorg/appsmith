@@ -51,7 +51,8 @@ public class Layout extends BaseDomain {
         return super.getId();
     }
 
-    // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
+    // this attribute will be used to display errors caused white calculating allOnLoadAction
+    // PageLoadActionsUtilCEImpl.java
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView({Views.Public.class, Views.Export.class})
     List<ErrorDTO> layoutOnLoadActionErrors;

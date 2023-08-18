@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Validate Table Widget Table data", function () {
   before(() => {
-    cy.fixture("basicNumberDataTableDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("basicNumberDataTableDsl");
   });
 
   it("Check number key in table data convert table binding and header properly", function () {

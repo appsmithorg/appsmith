@@ -552,6 +552,7 @@ export type GitStatusData = {
   modifiedDatasources: number;
   modifiedJSLibs: number;
   discardDocUrl?: string;
+  migrationMessage?: string;
 };
 
 type GitErrorPayloadType = {

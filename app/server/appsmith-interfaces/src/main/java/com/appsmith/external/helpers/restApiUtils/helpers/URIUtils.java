@@ -19,9 +19,12 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 @NoArgsConstructor
 public class URIUtils {
 
-    public URI createUriWithQueryParams(ActionConfiguration actionConfiguration,
-                                        DatasourceConfiguration datasourceConfiguration, String url,
-                                        boolean encodeParamsToggle) throws URISyntaxException {
+    public URI createUriWithQueryParams(
+            ActionConfiguration actionConfiguration,
+            DatasourceConfiguration datasourceConfiguration,
+            String url,
+            boolean encodeParamsToggle)
+            throws URISyntaxException {
         String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
 
         ArrayList<Property> allQueryParams = new ArrayList<>();
@@ -47,13 +50,9 @@ public class URIUtils {
                     if (encodeParamsToggle) {
                         uriBuilder.queryParam(
                                 URLEncoder.encode(key, StandardCharsets.UTF_8),
-                                URLEncoder.encode((String) queryParam.getValue(), StandardCharsets.UTF_8)
-                        );
+                                URLEncoder.encode((String) queryParam.getValue(), StandardCharsets.UTF_8));
                     } else {
-                        uriBuilder.queryParam(
-                                key,
-                                queryParam.getValue()
-                        );
+                        uriBuilder.queryParam(key, queryParam.getValue());
                     }
                 }
             }
@@ -68,5 +67,4 @@ public class URIUtils {
         }
         return "http://" + url;
     }
-
 }

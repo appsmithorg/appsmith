@@ -2,9 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane deafult feature validation", function () {
   before(() => {
-    cy.fixture("defaultTableDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("defaultTableDsl");
   });
 
   it("Verify default table row Data", function () {

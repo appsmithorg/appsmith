@@ -14,6 +14,7 @@ import {
   getOneClickBindingConfigForWidget,
 } from "selectors/oneClickBindingSelectors";
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
+import type { Alias } from "./types";
 
 type WidgetQueryGeneratorFormContextType = {
   widgetId: string;
@@ -28,6 +29,7 @@ type WidgetQueryGeneratorFormContextType = {
     tableHeaderIndex: number;
     datasourcePluginType: string;
     datasourcePluginName: string;
+    datasourceConnectionMode: string;
   };
   updateConfig: (
     property: string | Record<string, unknown>,
@@ -38,6 +40,8 @@ type WidgetQueryGeneratorFormContextType = {
   onSourceClose: () => void;
   errorMsg: string;
   expectedType: string;
+  sampleData: string;
+  aliases: Alias[];
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -49,6 +53,7 @@ const DEFAULT_CONFIG_VALUE = {
   tableHeaderIndex: 1,
   datasourcePluginType: "",
   datasourcePluginName: "",
+  datasourceConnectionMode: "",
 };
 
 const DEFAULT_CONTEXT_VALUE = {
@@ -62,6 +67,8 @@ const DEFAULT_CONTEXT_VALUE = {
   errorMsg: "",
   propertyName: "",
   expectedType: "",
+  sampleData: "",
+  aliases: [],
 };
 
 export const WidgetQueryGeneratorFormContext =
@@ -76,6 +83,9 @@ type Props = {
   widgetId: string;
   errorMsg: string;
   expectedType: string;
+  aliases: Alias[];
+  searchableColumn: boolean;
+  sampleData: string;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -84,11 +94,13 @@ function WidgetQueryGeneratorForm(props: Props) {
   const [pristine, setPristine] = useState(true);
 
   const {
+    aliases,
     errorMsg,
     expectedType,
     onUpdate,
     propertyPath,
     propertyValue,
+    sampleData,
     widgetId,
   } = props;
 
@@ -141,6 +153,7 @@ function WidgetQueryGeneratorForm(props: Props) {
           set(draftConfig, "alias", {});
           set(draftConfig, "datasourcePluginType", "");
           set(draftConfig, "datasourcePluginName", "");
+          set(draftConfig, "datasourceConnectionMode", "");
         }
 
         if (
@@ -194,6 +207,8 @@ function WidgetQueryGeneratorForm(props: Props) {
       errorMsg,
       propertyName: propertyPath,
       expectedType,
+      sampleData,
+      aliases,
     };
   }, [
     config,
@@ -205,6 +220,8 @@ function WidgetQueryGeneratorForm(props: Props) {
     onSourceClose,
     errorMsg,
     propertyPath,
+    sampleData,
+    aliases,
   ]);
 
   useEffect(() => {
@@ -218,7 +235,10 @@ function WidgetQueryGeneratorForm(props: Props) {
       <WidgetQueryGeneratorFormContext.Provider value={contextValue}>
         <CommonControls />
         <DatasourceSpecificControls />
-        <WidgetSpecificControls hasSearchableColumn />
+        <WidgetSpecificControls
+          aliases={props.aliases}
+          hasSearchableColumn={props.searchableColumn}
+        />
         <ConnectData />
       </WidgetQueryGeneratorFormContext.Provider>
     </Wrapper>

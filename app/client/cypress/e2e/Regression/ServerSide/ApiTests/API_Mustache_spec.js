@@ -7,9 +7,7 @@ import {
 
 describe("Moustache test Functionality", function () {
   beforeEach(() => {
-    cy.fixture("commondsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("commondsl");
   });
   it("1. Moustache test Functionality", function () {
     entityExplorer.ExpandCollapseEntity("Aditya");

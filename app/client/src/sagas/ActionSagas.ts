@@ -45,11 +45,12 @@ import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type {
   Action,
   ActionViewMode,
+  ApiAction,
   ApiActionConfig,
   SlashCommandPayload,
 } from "entities/Action";
@@ -89,7 +90,7 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
-import { get, merge } from "lodash";
+import { get, isEmpty, merge } from "lodash";
 import {
   fixActionPayloadForMongoQuery,
   getConfigInitialValues,
@@ -111,7 +112,11 @@ import {
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "RouteBuilder";
-import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import {
+  RequestPayloadAnalyticsPath,
+  checkAndLogErrorsIfCyclicDependency,
+  enhanceRequestPayloadWithEventData,
+} from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { toast } from "design-system";
 import { getFormValues } from "redux-form";
@@ -123,6 +128,9 @@ import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/Grap
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
+import { setAIPromptTriggered } from "utils/storage";
+import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
+import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -156,6 +164,17 @@ export function* createDefaultActionPayload(
       ? createNewQueryName(actions, pageId || "")
       : createNewApiName(actions, pageId || "");
 
+  const dsStructure: DatasourceStructure | undefined = yield select(
+    getDatasourceStructureById,
+    datasource?.id,
+  );
+
+  const defaultActionConfig: any = getDefaultTemplateActionConfig(
+    plugin,
+    dsStructure,
+    datasource?.isMock,
+  );
+
   return {
     name: newActionName,
     pageId,
@@ -172,7 +191,11 @@ export function* createDefaultActionPayload(
       isMock: !!datasource?.isMock,
     },
     actionConfiguration:
-      plugin?.type === PluginType.API ? defaultApiActionConfig : {},
+      plugin?.type === PluginType.API
+        ? defaultApiActionConfig
+        : !!defaultActionConfig
+        ? defaultActionConfig
+        : {},
   };
 }
 
@@ -382,19 +405,39 @@ export function* fetchActionsForPageSaga(
   }
 }
 
-export function* updateActionSaga(
-  actionPayload: ReduxAction<{ id: string; action?: Action }>,
-) {
+export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.UPDATE_ACTION_API,
       { actionid: actionPayload.payload.id },
     );
-    let action = actionPayload.payload.action;
-    if (!action) action = yield select(getAction, actionPayload.payload.id);
+
+    let action: Action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
 
     if (isAPIAction(action)) {
+      // get api action object from redux form
+      const reduxFormApiAction: ApiAction = yield select(
+        getFormValues(API_EDITOR_FORM_NAME),
+      );
+
+      // run transformation on redux form action's headers, bodyformData and queryParameters.
+      // the reason we do this is because the transformation should only be done on the raw action data from the redux form.
+      // However sometimes when we attempt to save an API as a datasource, we update the Apiaction with the datasource information and the redux form data will not be available i.e. reduxFormApiAction = undefined
+      // In this scenario we can just default to the action object - (skip the if block below).
+      if (!isEmpty(reduxFormApiAction)) {
+        action = {
+          ...action,
+          actionConfiguration: {
+            ...action.actionConfiguration,
+            headers: reduxFormApiAction.actionConfiguration.headers,
+            bodyFormData: reduxFormApiAction.actionConfiguration.bodyFormData,
+            queryParameters:
+              reduxFormApiAction.actionConfiguration.queryParameters,
+          },
+        };
+      }
+
       action = transformRestAction(action);
     }
 
@@ -404,10 +447,7 @@ export function* updateActionSaga(
       // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
-    const response: ApiResponse<Action> = yield ActionAPI.updateAction(
-      // @ts-expect-error: Types are not available
-      action,
-    );
+    const response: ApiResponse<Action> = yield ActionAPI.updateAction(action);
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -415,6 +455,11 @@ export function* updateActionSaga(
         getCurrentPageNameByActionId,
         response.data.id,
       );
+
+      yield sendAnalyticsEventSaga(actionPayload.type, {
+        action,
+        pageName,
+      });
 
       if (action?.pluginType === PluginType.DB) {
         AnalyticsUtil.logEvent("SAVE_QUERY", {
@@ -598,14 +643,21 @@ function* moveActionSaga(
 function* copyActionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  const actionObject: Action = yield select(getAction, action.payload.id);
+  let actionObject: Action = yield select(getAction, action.payload.id);
   try {
     if (!actionObject) throw new Error("Could not find action to copy");
+    // At this point the actionObject.id will be the id of the action to be copied
+    // We enhance the payload with eventData to track the action being copied
+    actionObject = enhanceRequestPayloadWithEventData(
+      actionObject,
+      action.type,
+    ) as Action;
 
     const copyAction = Object.assign({}, actionObject, {
       name: action.payload.name,
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
+
     delete copyAction.id;
     const response: ApiResponse<ActionCreateUpdateResponse> =
       yield ActionAPI.createAction(copyAction);
@@ -624,14 +676,24 @@ function* copyActionSaga(
           kind: "success",
         },
       );
-    }
 
-    AnalyticsUtil.logEvent("DUPLICATE_API", {
-      // @ts-expect-error: name not present on ActionCreateUpdateResponse
-      apiName: response.data.name,
-      pageName: pageName,
-      apiID: response.data.id,
-    });
+      // At this point the `actionObject.id` will not exist
+      // So we need to get the originalActionId from the payload
+      // if the eventData in the actionObject doesn't exist
+      const originalActionId = get(
+        actionObject,
+        `${RequestPayloadAnalyticsPath}.originalActionId`,
+        action.payload.id,
+      );
+      AnalyticsUtil.logEvent("DUPLICATE_ACTION", {
+        // @ts-expect-error: name not present on ActionCreateUpdateResponse
+        actionName: response.data.name,
+        pageName: pageName,
+        acitonId: response.data.id,
+        originalActionId,
+        actionType: actionObject.pluginType,
+      });
+    }
 
     // checking if there is existing datasource to be added to the action payload
     const existingDatasource = datasources.find(
@@ -922,6 +984,21 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.ASK_AI: {
       const context = get(actionPayload, "payload.args", {});
+
+      const noOfTimesAIPromptTriggered: number = yield select(
+        (state) => state.ai.noOfTimesAITriggered,
+      );
+
+      if (noOfTimesAIPromptTriggered < 5) {
+        const currentValue: number = yield setAIPromptTriggered();
+        yield put({
+          type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
+          payload: {
+            value: currentValue,
+          },
+        });
+      }
+
       yield put({
         type: ReduxActionTypes.TOGGLE_AI_WINDOW,
         payload: {

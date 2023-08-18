@@ -10,9 +10,7 @@ import {
 
 describe("Table Widget with Input Widget and Navigate to functionality validation", function () {
   before(() => {
-    cy.fixture("navigateTotabledsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("navigateTotabledsl");
   });
 
   it("1. Table Widget Functionality with multiple page", function () {
@@ -25,9 +23,7 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
     //Create MyPage and valdiate if its successfully created
     cy.Createpage(pageid);
-    cy.fixture("navigateToInputDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("navigateToInputDsl");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.CheckAndUnfoldEntityItem("Pages");

@@ -1,4 +1,4 @@
-name: Build and Deploy Storybook to Vercel
+name: 'Build Storybook - Docs with Chromatic'
 
 on:
   push:
@@ -6,37 +6,46 @@ on:
       - release
     paths:
       - 'app/client/packages/design-system/**'
+      - 'app/client/packages/storybook/**'
+  pull_request:
+    paths:
+      - 'app/client/packages/design-system/**'
+      - 'app/client/packages/storybook/**'
 
 jobs:
-  storybook-deploy-release:
+  chromatic-deployment:
     runs-on: ubuntu-latest
-    env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WDS_PROJECT_ID }}
+   
     steps:
-      - name: Checkout PR
+      - name: Checkout PR if pull_request event
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v3
         with:
+          fetch-depth: 0
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout PR if push event
+        if: github.event_name == 'push'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
           ref: release
 
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
-      - name: Pull Vercel Environment Information
+      - name: Install Dependencies
         working-directory: ./app/client/packages/storybook
-        run: vercel pull --yes --token=${{ secrets.VERCEL_WDS_TOKEN }}
-
-      - name: Build Project Artifacts
-        working-directory: ./app/client/packages/storybook
-        run: vercel build --prod --yes --token=${{ secrets.VERCEL_WDS_TOKEN }}
-
-
-      - name: Deploy Project Artifacts to Vercel
-        working-directory: ./app/client/packages/storybook
-        id: set-dpurl
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_WDS_TOKEN }} 
+        run: yarn install --immutable
+        
+      - name: Publish to Chromatic
+        id: chromatic-publish
+        uses: chromaui/action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.STORYBOOK_PROJECT_TOKEN }}
+          workingDir: ./app/client/packages/storybook
+          exitOnceUploaded: true
+          buildScriptName: "build"

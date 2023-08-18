@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomUserDataRepositoryImpl extends CustomUserDataRepositoryCEImpl implements CustomUserDataRepository {
 
-    public CustomUserDataRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomUserDataRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
-
 }

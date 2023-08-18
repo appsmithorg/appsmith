@@ -1,51 +1,41 @@
-import type { Ref } from "react";
+import { getTypographyClassName } from "@design-system/theming";
 import React, { forwardRef } from "react";
 import { StyledText } from "./index.styled";
-import { useThemeContext } from "@design-system/theming";
-import type { TypographyVariant, TypographyType } from "@design-system/theming";
+import classNames from "classnames";
 
-export interface TextProps {
-  variant?: TypographyVariant;
-  type?: TypographyType;
-  isBold?: boolean;
-  isItalic?: boolean;
-  textAlign?: "left" | "center" | "right";
-  lineClamp?: number;
-  className?: string;
-  children: React.ReactNode;
-}
+import type { Ref } from "react";
+import type { TextProps } from "./types";
 
-export const Text = forwardRef(
-  (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
-    const {
-      children,
-      className,
-      isBold = false,
-      isItalic = false,
-      lineClamp,
-      textAlign = "left",
-      type = "default",
-      variant = "body",
-      ...rest
-    } = props;
+const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
+  const {
+    children,
+    className,
+    color = "default",
+    fontWeight,
+    isBold = false,
+    isItalic = false,
+    lineClamp,
+    textAlign = "left",
+    variant = "body",
+    ...rest
+  } = props;
 
-    const theme = useThemeContext();
+  return (
+    <StyledText
+      $fontWeight={fontWeight}
+      $isBold={isBold}
+      $isItalic={isItalic}
+      $lineClamp={lineClamp}
+      $textAlign={textAlign}
+      $variant={variant}
+      className={classNames(className, getTypographyClassName(variant))}
+      color={color}
+      ref={ref}
+      {...rest}
+    >
+      <span>{children}</span>
+    </StyledText>
+  );
+};
 
-    return (
-      <StyledText
-        className={className}
-        isBold={isBold}
-        isItalic={isItalic}
-        lineClamp={lineClamp}
-        ref={ref}
-        textAlign={textAlign}
-        type={type}
-        typography={theme?.typography}
-        variant={variant}
-        {...rest}
-      >
-        <span>{children}</span>
-      </StyledText>
-    );
-  },
-);
+export const Text = forwardRef(_Text);

@@ -3,7 +3,9 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.ParamProperty;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Param;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
@@ -23,13 +25,14 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
-import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -66,6 +69,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
@@ -77,38 +81,54 @@ class ActionExecutionSolutionCEImplTest {
 
     @SpyBean
     NewActionService newActionService;
+
     @MockBean
     ActionPermission actionPermission;
+
     @MockBean
     ObservationRegistry observationRegistry;
+
     @SpyBean
     ObjectMapper objectMapper;
+
     @MockBean
     NewActionRepository repository;
+
     @SpyBean
     DatasourceService datasourceService;
+
     @MockBean
     PluginService pluginService;
+
     @MockBean
     DatasourceContextService datasourceContextService;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
     @MockBean
     NewPageService newPageService;
+
     @MockBean
     ApplicationService applicationService;
+
     @MockBean
     SessionUserService sessionUserService;
+
     @MockBean
     AuthenticationValidator authenticationValidator;
+
     @MockBean
     DatasourcePermission datasourcePermission;
+
     @MockBean
     AnalyticsService analyticsService;
+
     @MockBean
     DatasourceStorageService datasourceStorageService;
-    @MockBean
-    DatasourceStorageTransferSolution datasourceStorageTransferSolution;
+
+    @Autowired
+    EnvironmentPermission environmentPermission;
 
     private BodyExtractor.Context context;
 
@@ -133,9 +153,10 @@ class ActionExecutionSolutionCEImplTest {
                 datasourcePermission,
                 analyticsService,
                 datasourceStorageService,
-                datasourceStorageTransferSolution);
+                environmentPermission);
 
-        ObservationRegistry.ObservationConfig mockObservationConfig = Mockito.mock(ObservationRegistry.ObservationConfig.class);
+        ObservationRegistry.ObservationConfig mockObservationConfig =
+                Mockito.mock(ObservationRegistry.ObservationConfig.class);
         Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
     }
 
@@ -170,25 +191,23 @@ class ActionExecutionSolutionCEImplTest {
         this.hints = new HashMap<>();
     }
 
-
     @Test
     public void testExecuteAction_withoutExecuteActionDTOPart_failsValidation() {
-        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution
-                .executeAction(Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID);
+        final Mono<ActionExecutionResult> actionExecutionResultMono =
+                actionExecutionSolution.executeAction(Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID);
 
-        StepVerifier
-                .create(actionExecutionResultMono)
-                .expectErrorMatches(e -> e instanceof AppsmithException &&
-                        e.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ACTION_ID)))
+        StepVerifier.create(actionExecutionResultMono)
+                .expectErrorMatches(e -> e instanceof AppsmithException
+                        && e.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ACTION_ID)))
                 .verify();
     }
 
     @Test
     public void testExecuteAction_withMalformedExecuteActionDTO_failsValidation() {
-        MockServerHttpRequest mock = MockServerHttpRequest
-                .method(HttpMethod.POST, URI.create("https://example.com"))
+        MockServerHttpRequest mock = MockServerHttpRequest.method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
-                .body("""
+                .body(
+                        """
                         --boundary\r
                         Content-Disposition: form-data; name="executeActionDTO"\r
                         \r
@@ -196,25 +215,23 @@ class ActionExecutionSolutionCEImplTest {
                         --boundary--\r
                         """);
 
-        final Flux<Part> partsFlux = BodyExtractors.toParts()
-                .extract(mock, this.context);
+        final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution
-                .executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID);
+        final Mono<ActionExecutionResult> actionExecutionResultMono =
+                actionExecutionSolution.executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID);
 
-        StepVerifier
-                .create(actionExecutionResultMono)
-                .expectErrorMatches(e -> e instanceof AppsmithException &&
-                        e.getMessage().equals(AppsmithError.GENERIC_REQUEST_BODY_PARSE_ERROR.getMessage()))
+        StepVerifier.create(actionExecutionResultMono)
+                .expectErrorMatches(e -> e instanceof AppsmithException
+                        && e.getMessage().equals(AppsmithError.GENERIC_REQUEST_BODY_PARSE_ERROR.getMessage()))
                 .verify();
     }
 
     @Test
     public void testExecuteAction_withoutActionId_failsValidation() {
-        MockServerHttpRequest mock = MockServerHttpRequest
-                .method(HttpMethod.POST, URI.create("https://example.com"))
+        MockServerHttpRequest mock = MockServerHttpRequest.method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
-                .body("""
+                .body(
+                        """
                         --boundary\r
                         Content-Disposition: form-data; name="executeActionDTO"\r
                         \r
@@ -222,22 +239,21 @@ class ActionExecutionSolutionCEImplTest {
                         --boundary--\r
                         """);
 
-        final Flux<Part> partsFlux = BodyExtractors.toParts()
-                .extract(mock, this.context);
+        final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(partsFlux, null, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono =
+                actionExecutionSolution.executeAction(partsFlux, null, null);
 
-        StepVerifier
-                .create(actionExecutionResultMono)
-                .expectErrorMatches(e -> e instanceof AppsmithException &&
-                        e.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ACTION_ID)))
+        StepVerifier.create(actionExecutionResultMono)
+                .expectErrorMatches(e -> e instanceof AppsmithException
+                        && e.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ACTION_ID)))
                 .verify();
     }
 
-
     @Test
     public void testExecuteAPIWithUsualOrderingOfTheParts() {
-        String usualOrderOfParts = """
+        String usualOrderOfParts =
+                """
                 --boundary\r
                 Content-Disposition: form-data; name="executeActionDTO"\r
                 \r
@@ -253,17 +269,16 @@ class ActionExecutionSolutionCEImplTest {
                 xyz\r
                 --boundary--""";
 
-        MockServerHttpRequest mock = MockServerHttpRequest
-                .method(HttpMethod.POST, URI.create("https://example.com"))
+        MockServerHttpRequest mock = MockServerHttpRequest.method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
                 .body(usualOrderOfParts);
 
-        final Flux<Part> partsFlux = BodyExtractors.toParts()
-                .extract(mock, this.context);
+        final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = executionSolutionSpy.executeAction(partsFlux, null, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                executionSolutionSpy.executeAction(partsFlux, null, null);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -272,24 +287,31 @@ class ActionExecutionSolutionCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
-        doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID)).when(datasourceService).getTrueEnvironmentId(any(), any());
+        Datasource datasource = new Datasource();
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setDatasource(datasource);
+        newAction.setUnpublishedAction(actionDTO);
+        doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
+                .when(datasourceService)
+                .getTrueEnvironmentId(
+                        any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
-
-        StepVerifier
-                .create(actionExecutionResultMono)
+        StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {
                     assertNotNull(response);
                     assertTrue(response.getIsExecutionSuccess());
-                    assertEquals(mockResult.getBody().toString(), response.getBody().toString());
+                    assertEquals(
+                            mockResult.getBody().toString(), response.getBody().toString());
                 })
                 .verifyComplete();
     }
 
     @Test
     public void testExecuteAPIWithParameterMapAsLastPart() {
-        String parameterMapAtLast = """
+        String parameterMapAtLast =
+                """
                 --boundary\r
                 Content-Disposition: form-data; name="executeActionDTO"\r
                 \r
@@ -305,17 +327,16 @@ class ActionExecutionSolutionCEImplTest {
                 {"Input1.text":"k0"}\r
                 --boundary--""";
 
-        MockServerHttpRequest mock = MockServerHttpRequest
-                .method(HttpMethod.POST, URI.create("https://example.com"))
+        MockServerHttpRequest mock = MockServerHttpRequest.method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
                 .body(parameterMapAtLast);
 
-        final Flux<Part> partsFlux = BodyExtractors.toParts()
-                .extract(mock, this.context);
+        final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = executionSolutionSpy.executeAction(partsFlux, null, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                executionSolutionSpy.executeAction(partsFlux, null, null);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -324,24 +345,31 @@ class ActionExecutionSolutionCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
-        doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID)).when(datasourceService).getTrueEnvironmentId(any(), any());
+        Datasource datasource = new Datasource();
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setDatasource(datasource);
+        newAction.setUnpublishedAction(actionDTO);
+        doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
+                .when(datasourceService)
+                .getTrueEnvironmentId(
+                        any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
-
-        StepVerifier
-                .create(actionExecutionResultMono)
+        StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {
                     assertNotNull(response);
                     assertTrue(response.getIsExecutionSuccess());
-                    assertEquals(mockResult.getBody().toString(), response.getBody().toString());
+                    assertEquals(
+                            mockResult.getBody().toString(), response.getBody().toString());
                 })
                 .verifyComplete();
     }
 
     @Test
     public void testParsePartsAndGetParamsFlux_withBlobIdentifiers_replacesValueInParam() {
-        String partsWithBlobRefs = """
+        String partsWithBlobRefs =
+                """
                 --boundary\r
                 Content-Disposition: form-data; name="executeActionDTO"\r
                 \r
@@ -362,23 +390,26 @@ class ActionExecutionSolutionCEImplTest {
                 xy\\nz\r
                 --boundary--""";
 
-        MockServerHttpRequest mock = MockServerHttpRequest
-                .method(HttpMethod.POST, URI.create("https://example.com"))
+        MockServerHttpRequest mock = MockServerHttpRequest.method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
                 .body(partsWithBlobRefs);
 
-        final Flux<Part> partsFlux = BodyExtractors.toParts()
-                .extract(mock, this.context);
+        final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
         AtomicLong atomicLong = new AtomicLong();
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        Mono<List<Param>> paramsListMono = actionExecutionSolution.parsePartsAndGetParamsFlux(partsFlux, atomicLong, executeActionDTO).collectList().cache();
+        Mono<List<Param>> paramsListMono = actionExecutionSolution
+                .parsePartsAndGetParamsFlux(partsFlux, atomicLong, executeActionDTO)
+                .collectList()
+                .cache();
 
         StepVerifier.create(paramsListMono)
                 .assertNext(paramsList -> {
                     assertEquals(1, paramsList.size());
                     Param param = paramsList.get(0);
-                    assertEquals("{\"name\": \"randomName\", \"data\": \"blob:12345678-1234-1234-1234-123456781234\"}", param.getValue());
+                    assertEquals(
+                            "{\"name\": \"randomName\", \"data\": \"blob:12345678-1234-1234-1234-123456781234\"}",
+                            param.getValue());
                 })
                 .verifyComplete();
     }
@@ -397,7 +428,8 @@ class ActionExecutionSolutionCEImplTest {
         param1.setPseudoBindingName("k0");
         List<Param> params = List.of(param1);
 
-        Mono<ExecuteActionDTO> enrichedDto = actionExecutionSolution.enrichExecutionParam(atomicLong, executeActionDTO, params);
+        Mono<ExecuteActionDTO> enrichedDto =
+                actionExecutionSolution.enrichExecutionParam(atomicLong, executeActionDTO, params);
 
         StepVerifier.create(enrichedDto)
                 .assertNext(dto -> {

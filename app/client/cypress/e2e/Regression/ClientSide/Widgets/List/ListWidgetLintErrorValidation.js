@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Linting warning validation with list widget", function () {
   before(() => {
-    cy.fixture("listWidgetLintDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("listWidgetLintDsl");
   });
   it("Linting Error validation on mouseover and errorlog tab", function () {
     cy.openPropertyPane("listwidget");

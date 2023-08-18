@@ -59,7 +59,12 @@ class IndicatorHelper {
         this.indicatorWidthOffset +
         "px";
     } else if (position === "bottom") {
-      this.indicatorWrapper.style.top = coordinates.height + offset.top + "px";
+      this.indicatorWrapper.style.top =
+        coordinates.top +
+        coordinates.height -
+        this.indicatorHeightOffset +
+        offset.top +
+        "px";
       this.indicatorWrapper.style.left =
         coordinates.width / 2 +
         coordinates.left -
@@ -68,7 +73,7 @@ class IndicatorHelper {
         "px";
     } else if (position === "left") {
       this.indicatorWrapper.style.top =
-        coordinates.top + this.indicatorHeightOffset + offset.top + "px";
+        coordinates.top - this.indicatorHeightOffset + offset.top + "px";
       this.indicatorWrapper.style.left =
         coordinates.left - this.indicatorWidthOffset + offset.left + "px";
     } else {
@@ -90,6 +95,7 @@ class IndicatorHelper {
     offset: {
       top: number;
       left: number;
+      zIndex?: number;
     },
   ) {
     if (this.timerId || this.indicatorWrapper) this.destroy();
@@ -111,6 +117,9 @@ class IndicatorHelper {
       loop: true,
     });
 
+    if (offset.zIndex) {
+      this.indicatorWrapper.style.zIndex = `${offset.zIndex}`;
+    }
     // This is to invoke at the start and then recalculate every 3 seconds
     // 3 seconds is an arbitrary value here to avoid calling getBoundingClientRect to many times
     this.calculate(primaryReference, position, offset);
@@ -237,7 +246,7 @@ export function highlightSection(
 export function showIndicator(
   selector: string,
   position = "right",
-  offset = { top: 0, left: 0 },
+  offset: { top: number; left: number; zIndex?: number } = { top: 0, left: 0 },
 ) {
   let primaryReference: Element | null = null;
 

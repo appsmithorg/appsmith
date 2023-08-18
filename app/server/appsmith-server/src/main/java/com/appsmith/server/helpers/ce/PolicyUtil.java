@@ -10,7 +10,8 @@ import static java.lang.Boolean.TRUE;
 
 public class PolicyUtil {
 
-    public static boolean isPermissionPresentInPolicies(String permission, Set<Policy> policies, Set<String> userPermissionGroupIds) {
+    public static boolean isPermissionPresentInPolicies(
+            String permission, Set<Policy> policies, Set<String> userPermissionGroupIds) {
 
         Optional<Policy> interestingPolicyOptional = policies.stream()
                 .filter(policy -> policy.getPermission().equals(permission))

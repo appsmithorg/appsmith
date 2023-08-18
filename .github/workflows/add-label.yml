@@ -1,0 +1,52 @@
+name: Add Cypress-Only-Fixes Label on PR Merge
+# on:
+#   pull_request:
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+    # types:
+    #   - closed
+    # branches:
+    #   - release
+
+jobs:
+  add_label:
+    runs-on: ubuntu-latest
+
+    steps:
+      # get all the files changes in the cypress/e2e folder
+      - name: Get changed files in the cypress/e2e folder
+        id: files
+        uses: umani/changed-files@v4.0.0
+        with:
+          repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
+          pattern: "app/client/cypress/.*"
+
+      - name: Check if files changed count is greater than 0
+        id: check_files_changed
+        run: |
+          filesChangedCount=$(echo "${{ steps.files.outputs.files_changed }}" | wc -l)
+          if [[ -z "$filesChangedCount" ]]; then
+            echo "No files changed in the specified folder"
+            exit 1
+          else
+            echo "::set-output name=files_changed_count::$filesChangedCount"            
+          fi
+
+      - name: Check if PR is merged
+        id: check_pr_merged
+        run: echo "PR_MERGED=$(jq --raw-output .pull_request.merged $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
+
+      - name: Add label
+        if: ${{ env.PR_MERGED == 'true' && steps.check_files_changed.outputs.files_changed_count != '' }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.issue;
+            github.rest.issues.addLabels({
+            owner: issue.owner,
+            repo: issue.repo,
+            issue_number: issue.number,
+            labels: ["cypress-flaky-fix"]
+            });

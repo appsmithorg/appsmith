@@ -42,21 +42,21 @@ public class MDCFilter implements WebFilter {
             // Using beforeCommit here ensures that the function `addContextToHttpResponse` isn't run immediately
             // It is only run when the response object is being created
             exchange.getResponse().beforeCommit(() -> addContextToHttpResponse(exchange.getResponse()));
-            return ReactiveSecurityContextHolder
-                    .getContext()
+            return ReactiveSecurityContextHolder.getContext()
                     .map(ctx -> ctx.getAuthentication().getPrincipal())
                     .flatMap(principal -> {
                         final User user = principal instanceof User ? (User) principal : null;
-                        return chain.filter(exchange).contextWrite(ctx -> addRequestHeadersToContext(exchange.getRequest(), ctx, user));
+                        return chain.filter(exchange)
+                                .contextWrite(ctx -> addRequestHeadersToContext(exchange.getRequest(), ctx, user));
                     });
         } finally {
             MDC.clear();
         }
     }
 
-    private Context addRequestHeadersToContext(final ServerHttpRequest request, final Context context, final User user) {
-        final Map<String, String> contextMap = request.getHeaders().toSingleValueMap().entrySet()
-                .stream()
+    private Context addRequestHeadersToContext(
+            final ServerHttpRequest request, final Context context, final User user) {
+        final Map<String, String> contextMap = request.getHeaders().toSingleValueMap().entrySet().stream()
                 .filter(x -> x.getKey().startsWith(MDC_HEADER_PREFIX))
                 .collect(toMap(v -> v.getKey().substring((MDC_HEADER_PREFIX.length())), Map.Entry::getValue));
 
@@ -78,15 +78,15 @@ public class MDCFilter implements WebFilter {
     }
 
     private Mono<Void> addContextToHttpResponse(final ServerHttpResponse response) {
-        return Mono.deferContextual(Mono::just).doOnNext(ctx -> {
-            if (!ctx.hasKey(LogHelper.CONTEXT_MAP)) {
-                return;
-            }
+        return Mono.deferContextual(Mono::just)
+                .doOnNext(ctx -> {
+                    if (!ctx.hasKey(LogHelper.CONTEXT_MAP)) {
+                        return;
+                    }
 
-            final HttpHeaders httpHeaders = response.getHeaders();
-            // Add all the request MDC keys to the response object
-            ctx.<Map<String, String>>get(LogHelper.CONTEXT_MAP)
-                    .forEach((key, value) -> {
+                    final HttpHeaders httpHeaders = response.getHeaders();
+                    // Add all the request MDC keys to the response object
+                    ctx.<Map<String, String>>get(LogHelper.CONTEXT_MAP).forEach((key, value) -> {
                         if (!key.equalsIgnoreCase(USER_EMAIL)) {
                             if (!key.contains(REQUEST_ID_LOG)) {
                                 httpHeaders.add(MDC_HEADER_PREFIX + key, value);
@@ -95,13 +95,14 @@ public class MDCFilter implements WebFilter {
                             }
                         }
                     });
-
-        }).then();
+                })
+                .then();
     }
 
     private String getSessionId(final ServerHttpRequest request) {
 
-        if (request.getCookies().get(SESSION) != null && !request.getCookies().get(SESSION).isEmpty()) {
+        if (request.getCookies().get(SESSION) != null
+                && !request.getCookies().get(SESSION).isEmpty()) {
             return request.getCookies().get(SESSION).get(0).getValue();
         }
         return "";
@@ -109,11 +110,12 @@ public class MDCFilter implements WebFilter {
 
     private String getOrCreateRequestId(final ServerHttpRequest request) {
         if (!request.getHeaders().containsKey(REQUEST_ID_HEADER)) {
-            request.mutate().header(REQUEST_ID_HEADER, UUID.randomUUID().toString()).build();
+            request.mutate()
+                    .header(REQUEST_ID_HEADER, UUID.randomUUID().toString())
+                    .build();
         }
 
         String header = request.getHeaders().get(REQUEST_ID_HEADER).get(0);
         return header;
     }
 }
-

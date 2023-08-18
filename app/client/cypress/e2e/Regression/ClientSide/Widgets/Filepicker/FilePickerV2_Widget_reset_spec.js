@@ -5,9 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("File Picker Widget V2 Functionality", function () {
   before(() => {
-    cy.fixture("filePickerV2_reset_check_dsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("filePickerV2_reset_check_dsl");
   });
 
   it("Check if the uploaded data does not reset when tab switch in the TabsWidget", () => {

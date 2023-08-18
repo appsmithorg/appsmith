@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Image Widget Validation Image Urls", function () {
   before(() => {
-    cy.fixture("displayWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("displayWidgetDsl");
   });
 
   it("1. Check default image src", function () {

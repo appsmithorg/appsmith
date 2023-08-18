@@ -8,9 +8,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("GlobalSearch", function () {
   before(() => {
-    cy.fixture("MultipleWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("MultipleWidgetDsl");
   });
 
   beforeEach(() => {

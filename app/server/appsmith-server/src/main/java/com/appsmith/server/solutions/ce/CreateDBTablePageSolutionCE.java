@@ -15,13 +15,14 @@ public interface CreateDBTablePageSolutionCE {
      * @param environmentId
      * @return generated pageDTO from the template resource
      */
-    Mono<CRUDPageResponseDTO> createPageFromDBTable(String defaultPageId,
-                                                    CRUDPageResourceDTO pageResourceDTO,
-                                                    String environmentId, String branchName);
+    Mono<CRUDPageResponseDTO> createPageFromDBTable(
+            String defaultPageId, CRUDPageResourceDTO pageResourceDTO, String environmentId, String branchName);
 
     // TODO Remove this interface, once the client handles environmentId changes
-    Mono<CRUDPageResponseDTO> createPageFromDBTable(String defaultPageId,
-                                                    CRUDPageResourceDTO pageResourceDTO,
-                                                    String environmentId, String branchName, Boolean isTrueEnvironmentRequired);
-
+    Mono<CRUDPageResponseDTO> createPageFromDBTable(
+            String defaultPageId,
+            CRUDPageResourceDTO pageResourceDTO,
+            String environmentId,
+            String branchName,
+            Boolean isTrueEnvironmentRequired);
 }

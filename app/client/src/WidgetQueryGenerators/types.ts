@@ -13,15 +13,16 @@ export type WidgetQueryGenerationFormConfig = {
   searchableColumn: string;
   columns: string[];
   primaryColumn: string;
+  connectionMode: string;
 } & GsheetConfig;
 
 export type WidgetQueryGenerationConfig = {
   select?: {
-    limit: string;
-    offset: string;
-    where: string;
-    orderBy: string;
-    sortOrder: string;
+    limit?: string;
+    offset?: string;
+    where?: string;
+    orderBy?: string;
+    sortOrder?: string;
   };
   create?: {
     value: string;
@@ -30,7 +31,7 @@ export type WidgetQueryGenerationConfig = {
     value: string;
     where?: string;
   };
-  totalRecord: boolean;
+  totalRecord?: boolean;
 };
 
 export enum QUERY_TYPE {
@@ -60,7 +61,7 @@ export type ActionConfigurationMongoDB = {
   formData: MongoDBFormData;
 };
 
-export type ActionConfigurationPostgreSQL = {
+export type ActionConfigurationSQL = {
   pluginSpecifiedTemplates: Array<object>;
 };
 

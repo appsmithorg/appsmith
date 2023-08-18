@@ -15,7 +15,7 @@ import BaseWidget from "../../BaseWidget";
 import TabsComponent from "../component";
 import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
@@ -279,6 +279,17 @@ class TabsWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+      },
+    };
   }
 
   callDynamicHeightUpdates = () => {

@@ -5,9 +5,7 @@ describe("Validation flow", () => {
   before(() => {
     cy.startServerAndRoutes();
     _.agHelper.RestoreLocalStorageCache();
-    cy.fixture("Table/InlineEditingDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Table/InlineEditingDSL");
   });
 
   it("2.1. should test that validation is working for a new row cell", () => {

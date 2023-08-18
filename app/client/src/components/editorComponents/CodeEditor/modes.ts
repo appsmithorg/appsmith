@@ -87,8 +87,10 @@ Object.keys(MULTIPLEXING_MODE_CONFIGS).forEach((key) => {
       ...multiplexConfig.innerModes.map((innerMode) => ({
         open: innerMode.open,
         close: innerMode.close,
+        delimStyle: "binding-brackets",
         mode: CodeMirror.getMode(config, {
           name: "javascript",
+          json: true,
         }),
       })),
     );

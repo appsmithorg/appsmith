@@ -31,8 +31,8 @@ public class RedshiftDatasourceUtils {
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
     private static final String JDBC_PROTOCOL = "jdbc:redshift://";
 
-
-    public static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+    public static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration)
+            throws AppsmithPluginException {
         HikariConfig config = new HikariConfig();
 
         config.setDriverClassName(JDBC_DRIVER);
@@ -51,9 +51,7 @@ public class RedshiftDatasourceUtils {
         // Set up the connection URL
         StringBuilder urlBuilder = new StringBuilder(JDBC_PROTOCOL);
 
-        List<String> hosts = datasourceConfiguration
-                .getEndpoints()
-                .stream()
+        List<String> hosts = datasourceConfiguration.getEndpoints().stream()
                 .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5439L))
                 .collect(Collectors.toList());
 
@@ -93,29 +91,28 @@ public class RedshiftDatasourceUtils {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                     RedshiftErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
-                    e.getMessage()
-            );
+                    e.getMessage());
         }
 
         return datasource;
     }
 
-    public void checkHikariCPConnectionPoolValidity(HikariDataSource connectionPool, String pluginName) throws StaleConnectionException {
+    public void checkHikariCPConnectionPoolValidity(HikariDataSource connectionPool, String pluginName)
+            throws StaleConnectionException {
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
-            String printMessage = MessageFormat.format(Thread.currentThread().getName() +
-                    ": Encountered stale connection pool in {0} plugin. Reporting back.", pluginName);
+            String printMessage = MessageFormat.format(
+                    Thread.currentThread().getName()
+                            + ": Encountered stale connection pool in {0} plugin. Reporting back.",
+                    pluginName);
             System.out.println(printMessage);
 
             if (connectionPool == null) {
                 throw new StaleConnectionException(CONNECTION_POOL_NULL_ERROR_MSG);
-            }
-            else if (connectionPool.isClosed()) {
+            } else if (connectionPool.isClosed()) {
                 throw new StaleConnectionException(CONNECTION_POOL_CLOSED_ERROR_MSG);
-            }
-            else if (!connectionPool.isRunning()) {
+            } else if (!connectionPool.isRunning()) {
                 throw new StaleConnectionException(CONNECTION_POOL_NOT_RUNNING_ERROR_MSG);
-            }
-            else {
+            } else {
                 /**
                  * Ideally, code flow is never expected to reach here. However, this section has been added to catch
                  * those cases wherein a developer updates the parent if condition but does not update the nested
@@ -126,8 +123,8 @@ public class RedshiftDatasourceUtils {
         }
     }
 
-    public Connection getConnectionFromHikariConnectionPool(HikariDataSource connectionPool,
-                                                            String pluginName) throws SQLException {
+    public Connection getConnectionFromHikariConnectionPool(HikariDataSource connectionPool, String pluginName)
+            throws SQLException {
         checkHikariCPConnectionPoolValidity(connectionPool, pluginName);
         return connectionPool.getConnection();
     }

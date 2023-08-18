@@ -10,9 +10,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class LayoutServiceImpl extends LayoutServiceCEImpl implements LayoutService {
 
-    public LayoutServiceImpl(NewPageService newPageService, ResponseUtils responseUtils,
-                             PagePermission pagePermission) {
+    public LayoutServiceImpl(
+            NewPageService newPageService, ResponseUtils responseUtils, PagePermission pagePermission) {
         super(newPageService, responseUtils, pagePermission);
     }
 }
-

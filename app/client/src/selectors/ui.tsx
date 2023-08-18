@@ -37,6 +37,11 @@ export const getFocusedWidget = (state: AppState) =>
 export const isDatasourceInViewMode = (state: AppState) =>
   state.ui.datasourcePane.viewMode;
 
+export const getDsViewModeValues = (state: AppState) => ({
+  datasourceId: state.ui.datasourcePane.expandDatasourceId,
+  viewMode: state.ui.datasourcePane.viewMode,
+});
+
 export const getAllDatasourceCollapsibleState = (state: AppState) =>
   state.ui.datasourcePane.collapsibleState;
 

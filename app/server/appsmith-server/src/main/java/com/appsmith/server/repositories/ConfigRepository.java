@@ -4,6 +4,4 @@ import com.appsmith.server.repositories.ce.ConfigRepositoryCE;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ConfigRepository extends ConfigRepositoryCE, CustomConfigRepository {
-
-}
+public interface ConfigRepository extends ConfigRepositoryCE, CustomConfigRepository {}

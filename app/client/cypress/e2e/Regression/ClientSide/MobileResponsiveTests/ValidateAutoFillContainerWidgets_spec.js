@@ -2,9 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Validating Mobile Views", function () {
   it("1. Validate change with height width for widgets", function () {
-    cy.fixture("AutolayoutWidgetsDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("AutolayoutWidgetsDsl");
     //cy.openPropertyPane("containerwidget");
     cy.get(".t--entity-name:contains('Container1')").click({ force: true });
     cy.get(".t--widget-containerwidget")

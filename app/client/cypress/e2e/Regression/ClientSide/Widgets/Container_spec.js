@@ -11,9 +11,7 @@ const boxShadowOptions = {
 
 describe("Container Widget Functionality", function () {
   before(() => {
-    cy.fixture("containerdsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("containerdsl");
   });
 
   it("Container Widget Functionality", function () {

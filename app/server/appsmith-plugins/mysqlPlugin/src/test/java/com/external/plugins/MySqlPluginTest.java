@@ -78,7 +78,7 @@ public class MySqlPluginTest {
     // pseudo-optional.
     @Container
     public static MySQLContainer mySQLContainer = new MySQLContainer(
-            DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
+                    DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
             .withUsername("mysql")
             .withPassword("password")
             .withDatabaseName("test_db");
@@ -87,7 +87,7 @@ public class MySqlPluginTest {
     // pseudo-optional.
     @Container
     public static MySQLContainer mySQLContainerWithInvalidTimezone = (MySQLContainer) new MySQLContainer(
-            DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
+                    DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
             .withUsername("root")
             .withPassword("")
             .withDatabaseName("test_db")
@@ -101,7 +101,8 @@ public class MySqlPluginTest {
     private static String database;
     private static DatasourceConfiguration dsConfig;
 
-    private static Mono<org.mariadb.r2dbc.api.MariadbConnection> getConnectionMonoFromContainer(MySQLContainer mySQLContainer) {
+    private static Mono<org.mariadb.r2dbc.api.MariadbConnection> getConnectionMonoFromContainer(
+            MySQLContainer mySQLContainer) {
         ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
         ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
         MariadbConnectionConfiguration conf = MariadbConnectionConfiguration.fromOptions(ob.build())
@@ -122,49 +123,41 @@ public class MySqlPluginTest {
 
         Mono.from(getConnectionMonoFromContainer(mySQLContainer))
                 .map(connection -> {
-                    return connection.createBatch()
+                    return connection
+                            .createBatch()
                             .add("DROP TABLE IF EXISTS possessions")
                             .add("DROP TABLE IF EXISTS users")
-                            .add("create table users (\n" +
-                                    "    id int auto_increment primary key,\n" +
-                                    "    username varchar (250) unique not null,\n"
-                                    +
-                                    "    password varchar (250) not null,\n" +
-                                    "    email varchar (250) unique not null,\n" +
-                                    "    spouse_dob date,\n" +
-                                    "    dob date not null,\n" +
-                                    "    yob year not null,\n" +
-                                    "    time1 time not null,\n" +
-                                    "    created_on timestamp not null,\n" +
-                                    "    updated_on datetime not null,\n" +
-                                    "    constraint unique index (username, email)\n"
-                                    +
-                                    ")")
-                            .add("create table possessions (\n" +
-                                    "    id int primary key,\n" +
-                                    "    title varchar (250) not null,\n" +
-                                    "    user_id int not null,\n" +
-                                    "    username varchar (250) not null,\n" +
-                                    "    email varchar (250) not null\n" +
-                                    ")")
+                            .add("create table users (\n" + "    id int auto_increment primary key,\n"
+                                    + "    username varchar (250) unique not null,\n"
+                                    + "    password varchar (250) not null,\n"
+                                    + "    email varchar (250) unique not null,\n"
+                                    + "    spouse_dob date,\n"
+                                    + "    dob date not null,\n"
+                                    + "    yob year not null,\n"
+                                    + "    time1 time not null,\n"
+                                    + "    created_on timestamp not null,\n"
+                                    + "    updated_on datetime not null,\n"
+                                    + "    constraint unique index (username, email)\n"
+                                    + ")")
+                            .add("create table possessions (\n" + "    id int primary key,\n"
+                                    + "    title varchar (250) not null,\n"
+                                    + "    user_id int not null,\n"
+                                    + "    username varchar (250) not null,\n"
+                                    + "    email varchar (250) not null\n"
+                                    + ")")
                             .add("alter table possessions add foreign key (username, email) \n"
-                                    +
-                                    "references users (username, email)")
+                                    + "references users (username, email)")
                             .add("SET SESSION sql_mode = '';\n")
-                            .add("INSERT INTO users VALUES (" +
-                                    "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31', 2018,"
-                                    +
-                                    " '18:32:45'," +
-                                    " '2018-11-30 20:45:15', '0000-00-00 00:00:00'"
-                                    +
-                                    ")")
-                            .add("INSERT INTO users VALUES (" +
-                                    "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31', 2019,"
-                                    +
-                                    " '15:45:30'," +
-                                    " '2019-11-30 23:59:59', '2019-11-30 23:59:59'"
-                                    +
-                                    ")");
+                            .add("INSERT INTO users VALUES ("
+                                    + "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31', 2018,"
+                                    + " '18:32:45',"
+                                    + " '2018-11-30 20:45:15', '0000-00-00 00:00:00'"
+                                    + ")")
+                            .add("INSERT INTO users VALUES ("
+                                    + "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31', 2019,"
+                                    + " '15:45:30',"
+                                    + " '2019-11-30 23:59:59', '2019-11-30 23:59:59'"
+                                    + ")");
                 })
                 .flatMapMany(batch -> Flux.from(batch.execute()))
                 .blockLast(); // wait until completion of all the queries
@@ -215,8 +208,8 @@ public class MySqlPluginTest {
 
         Mono<ConnectionPool> connectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
-        Mono<DatasourceTestResult> datasourceTestResultMono = connectionMono
-                .flatMap(connectionPool -> pluginExecutor.testDatasource(connectionPool));
+        Mono<DatasourceTestResult> datasourceTestResultMono =
+                connectionMono.flatMap(connectionPool -> pluginExecutor.testDatasource(connectionPool));
 
         String gateway = mySQLContainer.getContainerInfo().getNetworkSettings().getGateway();
         String expectedErrorMessage = new StringBuilder("Access denied for user 'mysql'@'")
@@ -224,8 +217,7 @@ public class MySqlPluginTest {
                 .append("'")
                 .toString();
 
-        StepVerifier
-                .create(datasourceTestResultMono)
+        StepVerifier.create(datasourceTestResultMono)
                 .assertNext(result -> {
                     assertTrue(result.getInvalids().contains(expectedErrorMessage));
                 })
@@ -236,8 +228,7 @@ public class MySqlPluginTest {
     public void testConnectMySQLContainerWithInvalidTimezone() {
 
         final DatasourceConfiguration dsConfig = createDatasourceConfigForContainerWithInvalidTZ();
-        dsConfig.setProperties(List.of(
-                new Property("serverTimezone", "UTC")));
+        dsConfig.setProperties(List.of(new Property("serverTimezone", "UTC")));
 
         Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
@@ -299,15 +290,15 @@ public class MySqlPluginTest {
     @Test
     public void testDatasourceWithNullPassword() {
         // adding a user with empty password
-        String sqlCmd = "CREATE USER 'mysql'@'%' IDENTIFIED BY '';" +
-                "GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;" +
-                "FLUSH PRIVILEGES;";
+        String sqlCmd = "CREATE USER 'mysql'@'%' IDENTIFIED BY '';"
+                + "GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;"
+                + "FLUSH PRIVILEGES;";
         Mono.from(getConnectionMonoFromContainer(mySQLContainerWithInvalidTimezone))
-                .map(connection -> connection.createBatch()
+                .map(connection -> connection
+                        .createBatch()
                         .add("CREATE USER 'mysql'@'%' IDENTIFIED BY '';")
                         .add("GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;")
-                        .add("FLUSH PRIVILEGES;")
-                )
+                        .add("FLUSH PRIVILEGES;"))
                 .flatMapMany(batch -> Flux.from(batch.execute()))
                 .blockLast(); // wait until completion of all the queries
 
@@ -333,8 +324,8 @@ public class MySqlPluginTest {
 
         /* Expect no error */
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
-                .assertNext(datasourceTestResult -> assertEquals(0,
-                        datasourceTestResult.getInvalids().size()))
+                .assertNext(datasourceTestResult ->
+                        assertEquals(0, datasourceTestResult.getInvalids().size()))
                 .verifyComplete();
     }
 
@@ -359,10 +350,9 @@ public class MySqlPluginTest {
 
         /* Expect no error */
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
-                .assertNext(datasourceTestResult -> assertEquals(0,
-                        datasourceTestResult.getInvalids().size()))
+                .assertNext(datasourceTestResult ->
+                        assertEquals(0, datasourceTestResult.getInvalids().size()))
                 .verifyComplete();
-
     }
 
     @Test
@@ -372,8 +362,8 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show databases");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -392,8 +382,8 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show\n\tdatabases");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -414,8 +404,8 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("select\n\t*\nfrom\nusers where id=1");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -439,10 +429,9 @@ public class MySqlPluginTest {
                      * point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null, new HashMap<>()));
-                    assertEquals(result.getRequest().getRequestParams().toString(),
-                            expectedRequestParams.toString());
+                    expectedRequestParams.add(new RequestParamDTO(
+                            ACTION_CONFIGURATION_BODY, actionConfiguration.getBody(), null, null, new HashMap<>()));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -454,8 +443,8 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT SLEEP(20);");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -470,10 +459,11 @@ public class MySqlPluginTest {
     public void testStaleConnectionCheck() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show databases");
-        ConnectionPool connectionPool = pluginExecutor.datasourceCreate(dsConfig).block();
+        ConnectionPool connectionPool =
+                pluginExecutor.datasourceCreate(dsConfig).block();
         Flux<ActionExecutionResult> resultFlux = Mono.from(connectionPool.disposeLater())
-                .thenMany(pluginExecutor.executeParameterized(connectionPool, new ExecuteActionDTO(),
-                        dsConfig, actionConfiguration));
+                .thenMany(pluginExecutor.executeParameterized(
+                        connectionPool, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(resultFlux)
                 .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
@@ -496,27 +486,21 @@ public class MySqlPluginTest {
     public void testValidateDatasourceMissingDBName() {
         ((DBAuth) dsConfig.getAuthentication()).setDatabaseName("");
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output
-                .stream()
-                .anyMatch(error -> error.contains("Missing database name.")));
+        assertTrue(output.stream().anyMatch(error -> error.contains("Missing database name.")));
     }
 
     @Test
     public void testValidateDatasourceNullEndpoint() {
         dsConfig.setEndpoints(null);
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output
-                .stream()
-                .anyMatch(error -> error.contains("Missing endpoint and url")));
+        assertTrue(output.stream().anyMatch(error -> error.contains("Missing endpoint and url")));
     }
 
     @Test
     public void testValidateDatasource_NullHost() {
         dsConfig.setEndpoints(List.of(new Endpoint()));
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output
-                .stream()
-                .anyMatch(error -> error.contains("Host value cannot be empty")));
+        assertTrue(output.stream().anyMatch(error -> error.contains("Host value cannot be empty")));
 
         Endpoint endpoint = new Endpoint();
         endpoint.setHost(address);
@@ -529,8 +513,7 @@ public class MySqlPluginTest {
         String hostname = "r2dbc:mysql://localhost";
         dsConfig.getEndpoints().get(0).setHost(hostname);
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.contains(
-                "Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
+        assertTrue(output.contains("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
     }
 
     @Test
@@ -541,17 +524,14 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(),
-                        dsConfig, actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
-                            new String[]{
-                                    "user_id"
-                            },
+                            new String[] {"user_id"},
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
@@ -593,22 +573,21 @@ public class MySqlPluginTest {
 
         executeActionDTO.setParams(params);
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig,
-                        actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(
+                conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
 
-        StepVerifier.create(executeMono)
-                .verifyErrorSatisfies(error -> {
-                    assertTrue(error instanceof AppsmithPluginException);
-                    String expectedMessage = MySQLErrorMessages.IS_KEYWORD_NOT_SUPPORTED_IN_PS_ERROR_MSG;
-                    assertTrue(expectedMessage.equals(error.getMessage()));
-                });
+        StepVerifier.create(executeMono).verifyErrorSatisfies(error -> {
+            assertTrue(error instanceof AppsmithPluginException);
+            String expectedMessage = MySQLErrorMessages.IS_KEYWORD_NOT_SUPPORTED_IN_PS_ERROR_MSG;
+            assertTrue(expectedMessage.equals(error.getMessage()));
+        });
     }
 
     @Test
     public void testPreparedStatementWithRealTypes() {
         Mono.from(getConnectionMonoFromContainer(mySQLContainer))
-                .map(connection -> connection.createBatch()
+                .map(connection -> connection
+                        .createBatch()
                         .add("create table test_real_types(id int, c_float float, c_double double, c_real real)")
                         .add("insert into test_real_types values (1, 1.123, 3.123, 5.123)")
                         .add("insert into test_real_types values (2, 11.123, 13.123, 15.123)"))
@@ -627,9 +606,8 @@ public class MySqlPluginTest {
          * equality.
          * - Ref: https://dev.mysql.com/doc/refman/8.0/en/problems-with-float.html
          */
-        actionConfiguration.setBody(
-                "SELECT id FROM test_real_types WHERE ABS(c_float - {{binding1}}) < 0.1 AND ABS" +
-                        "(c_double - {{binding2}}) < 0.1 AND ABS(c_real - {{binding3}}) < 0.1;");
+        actionConfiguration.setBody("SELECT id FROM test_real_types WHERE ABS(c_float - {{binding1}}) < 0.1 AND ABS"
+                + "(c_double - {{binding2}}) < 0.1 AND ABS(c_real - {{binding3}}) < 0.1;");
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
@@ -657,9 +635,8 @@ public class MySqlPluginTest {
 
         executeActionDTO.setParams(params);
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig,
-                        actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(
+                conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -671,8 +648,7 @@ public class MySqlPluginTest {
                 .verifyComplete();
 
         Mono.from(getConnectionMonoFromContainer(mySQLContainer))
-                .map(connection -> connection.createBatch()
-                        .add("drop table test_real_types"))
+                .map(connection -> connection.createBatch().add("drop table test_real_types"))
                 .flatMapMany(batch -> Flux.from(batch.execute()))
                 .blockLast(); // wait until completion of all the queries
     }
@@ -685,7 +661,8 @@ public class MySqlPluginTest {
     public void testPreparedStatementWithBooleanType() {
         // Create a new table with boolean type
         Mono.from(getConnectionMonoFromContainer(mySQLContainer))
-                .map(connection -> connection.createBatch()
+                .map(connection -> connection
+                        .createBatch()
                         .add("create table test_boolean_type(id int, c_boolean boolean)")
                         .add("insert into test_boolean_type values (1, True)")
                         .add("insert into test_boolean_type values (2, True)")
@@ -712,9 +689,8 @@ public class MySqlPluginTest {
         params.add(param1);
         executeActionDTO.setParams(params);
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig,
-                        actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(
+                conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -727,8 +703,7 @@ public class MySqlPluginTest {
                 .verifyComplete();
 
         Mono.from(getConnectionMonoFromContainer(mySQLContainer))
-                .map(connection -> connection.createBatch()
-                        .add("drop table test_boolean_type"))
+                .map(connection -> connection.createBatch().add("drop table test_boolean_type"))
                 .flatMapMany(batch -> Flux.from(batch.execute()))
                 .blockLast(); // wait until completion of all the queries
     }
@@ -739,8 +714,7 @@ public class MySqlPluginTest {
         Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration
-                .setBody("SELECT id FROM users WHERE id = {{binding1}} limit 1 offset {{binding2}};");
+        actionConfiguration.setBody("SELECT id FROM users WHERE id = {{binding1}} limit 1 offset {{binding2}};");
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
@@ -760,17 +734,14 @@ public class MySqlPluginTest {
         params.add(param2);
         executeActionDTO.setParams(params);
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig,
-                        actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(
+                conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
-                            new String[]{
-                                    "id"
-                            },
+                            new String[] {"id"},
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
@@ -787,15 +758,16 @@ public class MySqlPluginTest {
                      */
 
                     // Check if '?' is replaced by $i.
-                    assertEquals("SELECT id FROM users WHERE id = $1 limit 1 offset $2;",
-                            ((RequestParamDTO) (((List) result.getRequest()
-                                    .getRequestParams())).get(0)).getValue());
+                    assertEquals(
+                            "SELECT id FROM users WHERE id = $1 limit 1 offset $2;",
+                            ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getValue());
 
                     // Check 1st prepared statement parameter
                     PsParameterDTO expectedPsParam1 = new PsParameterDTO("1", "INTEGER");
-                    PsParameterDTO returnedPsParam1 = (PsParameterDTO) ((RequestParamDTO) (((List) result
-                            .getRequest().getRequestParams())).get(0))
-                            .getSubstitutedParams().get("$1");
+                    PsParameterDTO returnedPsParam1 = (PsParameterDTO)
+                            ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0))
+                                    .getSubstitutedParams()
+                                    .get("$1");
                     // Check if prepared stmt param value is correctly sent back.
                     assertEquals(expectedPsParam1.getValue(), returnedPsParam1.getValue());
                     // Check if prepared stmt param type is correctly sent back.
@@ -803,9 +775,10 @@ public class MySqlPluginTest {
 
                     // Check 2nd prepared statement parameter
                     PsParameterDTO expectedPsParam2 = new PsParameterDTO("0", "INTEGER");
-                    PsParameterDTO returnedPsParam2 = (PsParameterDTO) ((RequestParamDTO) (((List) result
-                            .getRequest().getRequestParams())).get(0))
-                            .getSubstitutedParams().get("$2");
+                    PsParameterDTO returnedPsParam2 = (PsParameterDTO)
+                            ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0))
+                                    .getSubstitutedParams()
+                                    .get("$2");
                     // Check if prepared stmt param value is correctly sent back.
                     assertEquals(expectedPsParam2.getValue(), returnedPsParam2.getValue());
                     // Check if prepared stmt param type is correctly sent back.
@@ -824,9 +797,8 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(),
-                        dsConfig, actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -838,22 +810,21 @@ public class MySqlPluginTest {
                     assertEquals("2018-12-31", node.get("dob").asText());
                     assertEquals("2018", node.get("yob").asText());
                     assertTrue(node.get("time1").asText().matches("\\d{2}:\\d{2}:\\d{2}"));
-                    assertTrue(node.get("created_on").asText()
-                            .matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"));
+                    assertTrue(node.get("created_on").asText().matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"));
                     assertTrue(node.get("updated_on").isNull());
 
                     assertArrayEquals(
-                            new String[]{
-                                    "id",
-                                    "username",
-                                    "password",
-                                    "email",
-                                    "spouse_dob",
-                                    "dob",
-                                    "yob",
-                                    "time1",
-                                    "created_on",
-                                    "updated_on"
+                            new String[] {
+                                "id",
+                                "username",
+                                "password",
+                                "email",
+                                "spouse_dob",
+                                "dob",
+                                "yob",
+                                "time1",
+                                "created_on",
+                                "updated_on"
                             },
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
@@ -877,45 +848,32 @@ public class MySqlPluginTest {
     @Test
     public void testExecuteDataTypesExtensive() throws AppsmithPluginException {
         String query_create_table_numeric_types = "create table test_numeric_types (c_integer INTEGER, c_smallint "
-                +
-                "SMALLINT, c_tinyint TINYINT, c_mediumint MEDIUMINT, c_bigint BIGINT, c_decimal DECIMAL, c_float "
-                +
-                "FLOAT, c_double DOUBLE, c_bit BIT(10));";
+                + "SMALLINT, c_tinyint TINYINT, c_mediumint MEDIUMINT, c_bigint BIGINT, c_decimal DECIMAL, c_float "
+                + "FLOAT, c_double DOUBLE, c_bit BIT(10));";
         String query_insert_into_table_numeric_types = "insert into test_numeric_types values (-1, 1, 1, 10, 2000, 1"
-                +
-                ".02345, 0.1234, 1.0102344, b'0101010');";
+                + ".02345, 0.1234, 1.0102344, b'0101010');";
 
         String query_create_table_date_time_types = "create table test_date_time_types (c_date DATE, c_datetime "
-                +
-                "DATETIME DEFAULT CURRENT_TIMESTAMP, c_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, c_time TIME, "
-                +
-                "c_year YEAR);";
+                + "DATETIME DEFAULT CURRENT_TIMESTAMP, c_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, c_time TIME, "
+                + "c_year YEAR);";
         String query_insert_into_table_date_time_types = "insert into test_date_time_types values ('2020-12-01', "
-                +
-                "'2020-12-01 20:20:20', '2020-12-01 20:20:20', '20:20:20', 2020);";
+                + "'2020-12-01 20:20:20', '2020-12-01 20:20:20', '20:20:20', 2020);";
 
         String query_create_table_data_types = "create table test_data_types (c_char CHAR(50), c_varchar VARCHAR(50),"
-                +
-                " c_binary BINARY(20), c_varbinary VARBINARY(20), c_tinyblob TINYBLOB, c_blob BLOB, c_mediumblob "
-                +
-                "MEDIUMBLOB, c_longblob LONGBLOB, c_tinytext TINYTEXT, c_text TEXT, c_mediumtext MEDIUMTEXT, "
-                +
-                "c_longtext LONGTEXT, c_enum ENUM('ONE'), c_set SET('a'));";
+                + " c_binary BINARY(20), c_varbinary VARBINARY(20), c_tinyblob TINYBLOB, c_blob BLOB, c_mediumblob "
+                + "MEDIUMBLOB, c_longblob LONGBLOB, c_tinytext TINYTEXT, c_text TEXT, c_mediumtext MEDIUMTEXT, "
+                + "c_longtext LONGTEXT, c_enum ENUM('ONE'), c_set SET('a'));";
         String query_insert_data_types = "insert into test_data_types values ('test', 'test', 'a\\0\\t', 'a\\0\\t', "
-                +
-                "'test', 'test', 'test', 'test',  'test', 'test', 'test', 'test', 'ONE', 'a');";
+                + "'test', 'test', 'test', 'test',  'test', 'test', 'test', 'test', 'ONE', 'a');";
 
         String query_create_table_json_data_type = "create table test_json_type (c_json JSON);";
-        String query_insert_json_data_type = "insert into test_json_type values ('{\"key1\": \"value1\", \"key2\": "
-                +
-                "\"value2\"}');";
+        String query_insert_json_data_type =
+                "insert into test_json_type values ('{\"key1\": \"value1\", \"key2\": " + "\"value2\"}');";
 
-        String query_create_table_geometry_types = "create table test_geometry_types (c_geometry GEOMETRY, c_point "
-                +
-                "POINT);";
+        String query_create_table_geometry_types =
+                "create table test_geometry_types (c_geometry GEOMETRY, c_point " + "POINT);";
         String query_insert_geometry_types = "insert into test_geometry_types values (ST_GeomFromText('POINT(1 1)'), "
-                +
-                "ST_PointFromText('POINT(1 100)'));";
+                + "ST_PointFromText('POINT(1 100)'));";
 
         String query_select_from_test_numeric_types = "select * from test_numeric_types;";
         String query_select_from_test_date_time_types = "select * from test_date_time_types;";
@@ -924,34 +882,26 @@ public class MySqlPluginTest {
         String query_select_from_test_geometry_types = "select * from test_geometry_types;";
 
         String expected_numeric_types_result = "[{\"c_integer\":-1,\"c_smallint\":1,\"c_tinyint\":1,\""
-                +
-                "c_mediumint\":10,\"c_bigint\":2000,\"c_decimal\":1,\"c_float\":0.1234,\"c_double\":1.0102344,"
-                +
-                "\"c_bit\":{\"empty\":false}}]";
+                + "c_mediumint\":10,\"c_bigint\":2000,\"c_decimal\":1,\"c_float\":0.1234,\"c_double\":1.0102344,"
+                + "\"c_bit\":{\"empty\":false}}]";
 
         String expected_date_time_types_result = "[{\"c_date\":\"2020-12-01\",\"c_datetime\":\"2020-12-01T20:20:20Z\","
-                +
-                "\"c_timestamp\":\"2020-12-01T20:20:20Z\",\"c_time\":\"20:20:20\",\"c_year\":2020}]";
+                + "\"c_timestamp\":\"2020-12-01T20:20:20Z\",\"c_time\":\"20:20:20\",\"c_year\":2020}]";
 
         String expected_data_types_result = "[{\"c_char\":\"test\",\"c_varchar\":\"test\","
-                +
-                "\"c_binary\":\"YQAJAAAAAAAAAAAAAAAAAAAAAAA=\",\"c_varbinary\":\"YQAJ\",\"c_tinyblob\":\"dGVzdA==\","
-                +
-                "\"c_blob\":\"dGVzdA==\",\"c_mediumblob\":\"dGVzdA==\",\"c_longblob\":\"dGVzdA==\",\"c_tinytext\":\"test\","
-                +
-                "\"c_text\":\"test\",\"c_mediumtext\":\"test\",\"c_longtext\":\"test\",\"c_enum\":\"ONE\",\"c_set\":\"a\"}]";
+                + "\"c_binary\":\"YQAJAAAAAAAAAAAAAAAAAAAAAAA=\",\"c_varbinary\":\"YQAJ\",\"c_tinyblob\":\"dGVzdA==\","
+                + "\"c_blob\":\"dGVzdA==\",\"c_mediumblob\":\"dGVzdA==\",\"c_longblob\":\"dGVzdA==\",\"c_tinytext\":\"test\","
+                + "\"c_text\":\"test\",\"c_mediumtext\":\"test\",\"c_longtext\":\"test\",\"c_enum\":\"ONE\",\"c_set\":\"a\"}]";
 
         String expected_json_result = "[{\"c_json\":\"{\\\"key1\\\": \\\"value1\\\", \\\"key2\\\": \\\"value2\\\"}\"}]";
 
         String expected_geometry_types_result = "[{\"c_geometry\":\"AAAAAAEBAAAAAAAAAAAA8D8AAAAAAADwPw==\","
-                +
-                "\"c_point\":\"AAAAAAEBAAAAAAAAAAAA8D8AAAAAAABZQA==\"}]";
-
-
+                + "\"c_point\":\"AAAAAAEBAAAAAAAAAAAA8D8AAAAAAABZQA==\"}]";
 
         Mono.from(getConnectionMonoFromContainer(mySQLContainer))
                 .map(connection -> {
-                    return connection.createBatch()
+                    return connection
+                            .createBatch()
                             .add(query_create_table_numeric_types)
                             .add(query_insert_into_table_numeric_types)
                             .add(query_create_table_date_time_types)
@@ -984,8 +934,8 @@ public class MySqlPluginTest {
         Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(query);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -1002,7 +952,8 @@ public class MySqlPluginTest {
     @Test
     public void testStructure() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<DatasourceStructure> structureMono = pluginExecutor.datasourceCreate(dsConfig)
+        Mono<DatasourceStructure> structureMono = pluginExecutor
+                .datasourceCreate(dsConfig)
                 .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
 
         StepVerifier.create(structureMono)
@@ -1010,141 +961,105 @@ public class MySqlPluginTest {
                     assertNotNull(structure);
                     assertEquals(2, structure.getTables().size());
 
-                    Optional<DatasourceStructure.Table> possessionsTableOptional = structure
-                            .getTables()
-                            .stream()
-                            .filter(table -> table.getName()
-                                    .equalsIgnoreCase("possessions"))
+                    Optional<DatasourceStructure.Table> possessionsTableOptional = structure.getTables().stream()
+                            .filter(table -> table.getName().equalsIgnoreCase("possessions"))
                             .findFirst();
                     assertTrue(possessionsTableOptional.isPresent());
-                    final DatasourceStructure.Table possessionsTable = possessionsTableOptional
-                            .get();
+                    final DatasourceStructure.Table possessionsTable = possessionsTableOptional.get();
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
-                            new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int",
-                                            null, false),
-                                    new DatasourceStructure.Column("title",
-                                            "varchar", null, false),
-                                    new DatasourceStructure.Column("user_id", "int",
-                                            null, false),
-                                    new DatasourceStructure.Column("username",
-                                            "varchar", null, false),
-                                    new DatasourceStructure.Column("email",
-                                            "varchar", null, false),
+                            new DatasourceStructure.Column[] {
+                                new DatasourceStructure.Column("id", "int", null, false),
+                                new DatasourceStructure.Column("title", "varchar", null, false),
+                                new DatasourceStructure.Column("user_id", "int", null, false),
+                                new DatasourceStructure.Column("username", "varchar", null, false),
+                                new DatasourceStructure.Column("email", "varchar", null, false),
                             },
                             possessionsTable.getColumns().toArray());
 
-                    final DatasourceStructure.PrimaryKey possessionsPrimaryKey = new DatasourceStructure.PrimaryKey(
-                            "PRIMARY", List.of("id"));
+                    final DatasourceStructure.PrimaryKey possessionsPrimaryKey =
+                            new DatasourceStructure.PrimaryKey("PRIMARY", List.of("id"));
                     final DatasourceStructure.ForeignKey possessionsUserForeignKey = new DatasourceStructure.ForeignKey(
                             "possessions_ibfk_1",
                             List.of("username", "email"),
                             List.of("users.username", "users.email"));
                     assertArrayEquals(
-                            new DatasourceStructure.Key[]{possessionsPrimaryKey,
-                                    possessionsUserForeignKey},
+                            new DatasourceStructure.Key[] {possessionsPrimaryKey, possessionsUserForeignKey},
                             possessionsTable.getKeys().toArray());
 
                     assertArrayEquals(
-                            new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT",
-                                            "SELECT * FROM possessions LIMIT 10;"),
-                                    new DatasourceStructure.Template("INSERT",
-                                            "INSERT INTO possessions (id, title, user_id, username, email)\n"
-                                                    +
-                                                    "  VALUES (1, '', 1, '', '');"),
-                                    new DatasourceStructure.Template("UPDATE",
-                                            "UPDATE possessions SET\n" +
-                                                    "    id = 1,\n"
-                                                    +
-                                                    "    title = '',\n"
-                                                    +
-                                                    "    user_id = 1,\n"
-                                                    +
-                                                    "    username = '',\n"
-                                                    +
-                                                    "    email = ''\n"
-                                                    +
-                                                    "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                                    new DatasourceStructure.Template("DELETE",
-                                            "DELETE FROM possessions\n" +
-                                                    "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                            new DatasourceStructure.Template[] {
+                                new DatasourceStructure.Template("SELECT", "SELECT * FROM possessions LIMIT 10;"),
+                                new DatasourceStructure.Template(
+                                        "INSERT",
+                                        "INSERT INTO possessions (id, title, user_id, username, email)\n"
+                                                + "  VALUES (1, '', 1, '', '');"),
+                                new DatasourceStructure.Template(
+                                        "UPDATE",
+                                        "UPDATE possessions SET\n" + "    id = 1,\n"
+                                                + "    title = '',\n"
+                                                + "    user_id = 1,\n"
+                                                + "    username = '',\n"
+                                                + "    email = ''\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                new DatasourceStructure.Template(
+                                        "DELETE",
+                                        "DELETE FROM possessions\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
                             },
                             possessionsTable.getTemplates().toArray());
 
-                    Optional<DatasourceStructure.Table> usersTableOptional = structure.getTables()
-                            .stream()
+                    Optional<DatasourceStructure.Table> usersTableOptional = structure.getTables().stream()
                             .filter(table -> table.getName().equalsIgnoreCase("users"))
                             .findFirst();
                     assertTrue(usersTableOptional.isPresent());
                     final DatasourceStructure.Table usersTable = usersTableOptional.get();
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
-                            new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int",
-                                            null, true),
-                                    new DatasourceStructure.Column("username",
-                                            "varchar", null, false),
-                                    new DatasourceStructure.Column("password",
-                                            "varchar", null, false),
-                                    new DatasourceStructure.Column("email",
-                                            "varchar", null, false),
-                                    new DatasourceStructure.Column("spouse_dob",
-                                            "date", null, false),
-                                    new DatasourceStructure.Column("dob", "date",
-                                            null, false),
-                                    new DatasourceStructure.Column("yob", "year",
-                                            null, false),
-                                    new DatasourceStructure.Column("time1", "time",
-                                            null, false),
-                                    new DatasourceStructure.Column("created_on",
-                                            "timestamp", null, false),
-                                    new DatasourceStructure.Column("updated_on",
-                                            "datetime", null, false)
+                            new DatasourceStructure.Column[] {
+                                new DatasourceStructure.Column("id", "int", null, true),
+                                new DatasourceStructure.Column("username", "varchar", null, false),
+                                new DatasourceStructure.Column("password", "varchar", null, false),
+                                new DatasourceStructure.Column("email", "varchar", null, false),
+                                new DatasourceStructure.Column("spouse_dob", "date", null, false),
+                                new DatasourceStructure.Column("dob", "date", null, false),
+                                new DatasourceStructure.Column("yob", "year", null, false),
+                                new DatasourceStructure.Column("time1", "time", null, false),
+                                new DatasourceStructure.Column("created_on", "timestamp", null, false),
+                                new DatasourceStructure.Column("updated_on", "datetime", null, false)
                             },
                             usersTable.getColumns().toArray());
 
-                    final DatasourceStructure.PrimaryKey usersPrimaryKey = new DatasourceStructure.PrimaryKey(
-                            "PRIMARY", List.of("id"));
+                    final DatasourceStructure.PrimaryKey usersPrimaryKey =
+                            new DatasourceStructure.PrimaryKey("PRIMARY", List.of("id"));
                     assertArrayEquals(
-                            new DatasourceStructure.Key[]{usersPrimaryKey},
+                            new DatasourceStructure.Key[] {usersPrimaryKey},
                             usersTable.getKeys().toArray());
 
                     assertArrayEquals(
-                            new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT",
-                                            "SELECT * FROM users LIMIT 10;"),
-                                    new DatasourceStructure.Template("INSERT",
-                                            "INSERT INTO users (id, username, password, email, spouse_dob, dob, yob, time1, created_on, updated_on)\n"
-                                                    +
-                                                    "  VALUES (1, '', '', '', '2019-07-01', '2019-07-01', '', '', '2019-07-01 10:00:00', '2019-07-01 10:00:00');"),
-                                    new DatasourceStructure.Template("UPDATE",
-                                            "UPDATE users SET\n" +
-                                                    "    id = 1,\n"
-                                                    +
-                                                    "    username = '',\n"
-                                                    +
-                                                    "    password = '',\n"
-                                                    +
-                                                    "    email = '',\n"
-                                                    +
-                                                    "    spouse_dob = '2019-07-01',\n"
-                                                    +
-                                                    "    dob = '2019-07-01',\n"
-                                                    +
-                                                    "    yob = '',\n"
-                                                    +
-                                                    "    time1 = '',\n"
-                                                    +
-                                                    "    created_on = '2019-07-01 10:00:00',\n"
-                                                    +
-                                                    "    updated_on = '2019-07-01 10:00:00'\n"
-                                                    +
-                                                    "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                                    new DatasourceStructure.Template("DELETE",
-                                            "DELETE FROM users\n" +
-                                                    "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                            new DatasourceStructure.Template[] {
+                                new DatasourceStructure.Template("SELECT", "SELECT * FROM users LIMIT 10;"),
+                                new DatasourceStructure.Template(
+                                        "INSERT",
+                                        "INSERT INTO users (id, username, password, email, spouse_dob, dob, yob, time1, created_on, updated_on)\n"
+                                                + "  VALUES (1, '', '', '', '2019-07-01', '2019-07-01', '', '', '2019-07-01 10:00:00', '2019-07-01 10:00:00');"),
+                                new DatasourceStructure.Template(
+                                        "UPDATE",
+                                        "UPDATE users SET\n" + "    id = 1,\n"
+                                                + "    username = '',\n"
+                                                + "    password = '',\n"
+                                                + "    email = '',\n"
+                                                + "    spouse_dob = '2019-07-01',\n"
+                                                + "    dob = '2019-07-01',\n"
+                                                + "    yob = '',\n"
+                                                + "    time1 = '',\n"
+                                                + "    created_on = '2019-07-01 10:00:00',\n"
+                                                + "    updated_on = '2019-07-01 10:00:00'\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                new DatasourceStructure.Template(
+                                        "DELETE",
+                                        "DELETE FROM users\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
                             },
                             usersTable.getTemplates().toArray());
                 })
@@ -1156,17 +1071,14 @@ public class MySqlPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.getConnection().getSsl().setAuthType(null);
 
-        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor)
-                .map(executor -> executor.validateDatasource(datasourceConfiguration));
+        Mono<Set<String>> invalidsMono =
+                Mono.just(pluginExecutor).map(executor -> executor.validateDatasource(datasourceConfiguration));
 
         StepVerifier.create(invalidsMono)
                 .assertNext(invalids -> {
                     String expectedError = "Appsmith server has failed to fetch SSL configuration from datasource "
-                            +
-                            "configuration form. Please reach out to Appsmith customer support to resolve this.";
-                    assertTrue(invalids
-                            .stream()
-                            .anyMatch(error -> expectedError.equals(error)));
+                            + "configuration form. Please reach out to Appsmith customer support to resolve this.";
+                    assertTrue(invalids.stream().anyMatch(error -> expectedError.equals(error)));
                 })
                 .verifyComplete();
     }
@@ -1179,10 +1091,8 @@ public class MySqlPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLED);
         Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<Object> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(),
-                        dsConfig,
-                        actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -1190,8 +1100,7 @@ public class MySqlPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     Object body = result.getBody();
                     assertNotNull(body);
-                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"\"}]",
-                            body.toString());
+                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"\"}]", body.toString());
                 })
                 .verifyComplete();
     }
@@ -1204,10 +1113,8 @@ public class MySqlPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.REQUIRED);
         Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<Object> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(),
-                        dsConfig,
-                        actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -1215,7 +1122,8 @@ public class MySqlPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     Object body = result.getBody();
                     assertNotNull(body);
-                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"TLS_AES_128_GCM_SHA256\"}]",
+                    assertEquals(
+                            "[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"TLS_AES_128_GCM_SHA256\"}]",
                             body.toString());
                 })
                 .verifyComplete();
@@ -1229,10 +1137,8 @@ public class MySqlPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
         Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<Object> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(),
-                        dsConfig,
-                        actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -1240,8 +1146,7 @@ public class MySqlPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     Object body = result.getBody();
                     assertNotNull(body);
-                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"\"}]",
-                            body.toString());
+                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"\"}]", body.toString());
                 })
                 .verifyComplete();
     }
@@ -1252,38 +1157,31 @@ public class MySqlPluginTest {
         Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody(
-                "SELECT id, username as id, password, email as password FROM users WHERE id = 1");
+        actionConfiguration.setBody("SELECT id, username as id, password, email as password FROM users WHERE id = 1");
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(),
-                        dsConfig, actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
                     assertNotEquals(0, result.getMessages().size());
 
-                    String expectedMessage = "Your MySQL query result may not have all the columns because duplicate column names "
-                            +
-                            "were found for the column(s)";
-                    assertTrue(
-                            result.getMessages().stream()
-                                    .anyMatch(message -> message
-                                            .contains(expectedMessage)));
+                    String expectedMessage =
+                            "Your MySQL query result may not have all the columns because duplicate column names "
+                                    + "were found for the column(s)";
+                    assertTrue(result.getMessages().stream().anyMatch(message -> message.contains(expectedMessage)));
 
                     /*
                      * - Check if all of the duplicate column names are reported.
                      */
-                    Set<String> expectedColumnNames = Stream.of("id", "password")
-                            .collect(Collectors.toCollection(HashSet::new));
+                    Set<String> expectedColumnNames =
+                            Stream.of("id", "password").collect(Collectors.toCollection(HashSet::new));
                     Set<String> foundColumnNames = new HashSet<>();
                     result.getMessages().stream()
                             .filter(message -> message.contains(expectedMessage))
                             .forEach(message -> {
-                                Arrays.stream(message.split(":")[1].split("\\.")[0]
-                                                .split(","))
-                                        .forEach(columnName -> foundColumnNames
-                                                .add(columnName.trim()));
+                                Arrays.stream(message.split(":")[1].split("\\.")[0].split(","))
+                                        .forEach(columnName -> foundColumnNames.add(columnName.trim()));
                             });
                     assertTrue(expectedColumnNames.equals(foundColumnNames));
                 })
@@ -1298,15 +1196,16 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("describe users");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String expectedBody = "[{\"Field\":\"id\",\"Type\":\"int\",\"Null\":\"NO\",\"Key\":\"PRI\",\"Default\":null,\"Extra\":\"auto_increment\"},{\"Field\":\"username\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"password\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"email\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"spouse_dob\",\"Type\":\"date\",\"Null\":\"YES\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"dob\",\"Type\":\"date\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"yob\",\"Type\":\"year\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"time1\",\"Type\":\"time\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"created_on\",\"Type\":\"timestamp\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"updated_on\",\"Type\":\"datetime\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"}]";
+                    String expectedBody =
+                            "[{\"Field\":\"id\",\"Type\":\"int\",\"Null\":\"NO\",\"Key\":\"PRI\",\"Default\":null,\"Extra\":\"auto_increment\"},{\"Field\":\"username\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"password\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"email\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"spouse_dob\",\"Type\":\"date\",\"Null\":\"YES\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"dob\",\"Type\":\"date\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"yob\",\"Type\":\"year\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"time1\",\"Type\":\"time\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"created_on\",\"Type\":\"timestamp\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"updated_on\",\"Type\":\"datetime\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"}]";
                     assertEquals(expectedBody, result.getBody().toString());
                 })
                 .verifyComplete();
@@ -1320,15 +1219,16 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("desc users");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String expectedBody = "[{\"Field\":\"id\",\"Type\":\"int\",\"Null\":\"NO\",\"Key\":\"PRI\",\"Default\":null,\"Extra\":\"auto_increment\"},{\"Field\":\"username\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"password\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"email\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"spouse_dob\",\"Type\":\"date\",\"Null\":\"YES\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"dob\",\"Type\":\"date\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"yob\",\"Type\":\"year\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"time1\",\"Type\":\"time\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"created_on\",\"Type\":\"timestamp\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"updated_on\",\"Type\":\"datetime\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"}]";
+                    String expectedBody =
+                            "[{\"Field\":\"id\",\"Type\":\"int\",\"Null\":\"NO\",\"Key\":\"PRI\",\"Default\":null,\"Extra\":\"auto_increment\"},{\"Field\":\"username\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"password\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"email\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"spouse_dob\",\"Type\":\"date\",\"Null\":\"YES\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"dob\",\"Type\":\"date\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"yob\",\"Type\":\"year\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"time1\",\"Type\":\"time\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"created_on\",\"Type\":\"timestamp\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"updated_on\",\"Type\":\"datetime\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"}]";
                     assertEquals(expectedBody, result.getBody().toString());
                 })
                 .verifyComplete();
@@ -1342,14 +1242,13 @@ public class MySqlPluginTest {
         Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("SELECT * from (\n" +
-                "\tselect 'Appsmith' as company_name, true as open_source\n" +
-                "\tunion\n" +
-                "\tselect 'Retool' as company_name, false as open_source\n" +
-                "\tunion\n" +
-                "\tselect 'XYZ' as company_name, null as open_source\n" +
-                ") t\n" +
-                "where t.open_source IS {{binding1}}");
+        actionConfiguration.setBody("SELECT * from (\n" + "\tselect 'Appsmith' as company_name, true as open_source\n"
+                + "\tunion\n"
+                + "\tselect 'Retool' as company_name, false as open_source\n"
+                + "\tunion\n"
+                + "\tselect 'XYZ' as company_name, null as open_source\n"
+                + ") t\n"
+                + "where t.open_source IS {{binding1}}");
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
@@ -1364,19 +1263,15 @@ public class MySqlPluginTest {
         params.add(param1);
         executeActionDTO.setParams(params);
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig,
-                        actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(
+                conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
-                            new String[]{
-                                    "company_name",
-                                    "open_source"
-                            },
+                            new String[] {"company_name", "open_source"},
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
@@ -1384,7 +1279,6 @@ public class MySqlPluginTest {
 
                     // Verify value
                     assertEquals(JsonNodeType.NULL, node.get("open_source").getNodeType());
-
                 })
                 .verifyComplete();
     }
@@ -1395,14 +1289,13 @@ public class MySqlPluginTest {
         Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("SELECT * from (\n" +
-                "\tselect 'Appsmith' as company_name, true as open_source\n" +
-                "\tunion\n" +
-                "\tselect 'Retool' as company_name, false as open_source\n" +
-                "\tunion\n" +
-                "\tselect 'XYZ' as company_name, 'null' as open_source\n" +
-                ") t\n" +
-                "where t.open_source = {{binding1}};");
+        actionConfiguration.setBody("SELECT * from (\n" + "\tselect 'Appsmith' as company_name, true as open_source\n"
+                + "\tunion\n"
+                + "\tselect 'Retool' as company_name, false as open_source\n"
+                + "\tunion\n"
+                + "\tselect 'XYZ' as company_name, 'null' as open_source\n"
+                + ") t\n"
+                + "where t.open_source = {{binding1}};");
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
@@ -1418,19 +1311,15 @@ public class MySqlPluginTest {
 
         executeActionDTO.setParams(params);
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig,
-                        actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(
+                conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
-                            new String[]{
-                                    "company_name",
-                                    "open_source"
-                            },
+                            new String[] {"company_name", "open_source"},
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
@@ -1438,7 +1327,6 @@ public class MySqlPluginTest {
 
                     // Verify value
                     assertEquals(JsonNodeType.STRING, node.get("open_source").getNodeType());
-
                 })
                 .verifyComplete();
     }
@@ -1464,18 +1352,15 @@ public class MySqlPluginTest {
         params.add(param1);
         executeActionDTO.setParams(params);
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig,
-                        actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(
+                conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
-                            new String[]{
-                                    "numeric_string"
-                            },
+                            new String[] {"numeric_string"},
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
@@ -1484,7 +1369,6 @@ public class MySqlPluginTest {
                     // Verify value
                     assertEquals(JsonNodeType.STRING, node.get("numeric_string").getNodeType());
                     assertEquals(param1.getValue(), node.get("numeric_string").asText());
-
                 })
                 .verifyComplete();
     }
@@ -1510,18 +1394,15 @@ public class MySqlPluginTest {
         params.add(param1);
         executeActionDTO.setParams(params);
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig,
-                        actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(
+                conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
-                            new String[]{
-                                    "id"
-                            },
+                            new String[] {"id"},
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
@@ -1529,7 +1410,6 @@ public class MySqlPluginTest {
 
                     // Verify value
                     assertEquals(JsonNodeType.NUMBER, node.get("id").getNodeType());
-
                 })
                 .verifyComplete();
     }
@@ -1537,9 +1417,10 @@ public class MySqlPluginTest {
     @Test
     public void testDatasourceDestroy() {
         dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionPool> connPoolMonoCache = pluginExecutor.datasourceCreate(dsConfig).cache();
-        Mono<DatasourceTestResult> testConnResultMono = connPoolMonoCache
-                .flatMap(conn -> pluginExecutor.testDatasource(conn));
+        Mono<ConnectionPool> connPoolMonoCache =
+                pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<DatasourceTestResult> testConnResultMono =
+                connPoolMonoCache.flatMap(conn -> pluginExecutor.testDatasource(conn));
         Mono<Tuple2<ConnectionPool, DatasourceTestResult>> zipMono = zip(connPoolMonoCache, testConnResultMono);
         StepVerifier.create(zipMono)
                 .assertNext(tuple2 -> {
@@ -1565,28 +1446,22 @@ public class MySqlPluginTest {
     }
 
     @Test
-    public void testExecuteCommon_queryWithComments_callValidationCallsAfterRemovingComments(){
+    public void testExecuteCommon_queryWithComments_callValidationCallsAfterRemovingComments() {
         MySqlPlugin.MySqlPluginExecutor spyPlugin = spy(pluginExecutor);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        ConnectionPool dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig).block();
+        ConnectionPool dsConnectionMono =
+                pluginExecutor.datasourceCreate(dsConfig).block();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration
-                .setBody("SELECT id FROM users WHERE -- IS operator\nid = 1 limit 1;");
+        actionConfiguration.setBody("SELECT id FROM users WHERE -- IS operator\nid = 1 limit 1;");
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
         HashMap<String, Object> requestData = new HashMap<>();
 
-        Mono<ActionExecutionResult> resultMono = spyPlugin.executeCommon(
-                dsConnectionMono,
-                actionConfiguration,
-                TRUE,
-                null,
-                null,
-                requestData
-        );
+        Mono<ActionExecutionResult> resultMono =
+                spyPlugin.executeCommon(dsConnectionMono, actionConfiguration, TRUE, null, null, requestData);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -1595,18 +1470,23 @@ public class MySqlPluginTest {
                     verify(spyPlugin).isIsOperatorUsed("SELECT id FROM users WHERE \nid = 1 limit 1;");
 
                     verify(spyPlugin).getIsSelectOrShowOrDescQuery("SELECT id FROM users WHERE \nid = 1 limit 1;");
-
                 })
                 .verifyComplete();
     }
 
     @Test
     public void verifyUniquenessOfMySQLPluginErrorCode() {
-        assert (Arrays.stream(MySQLPluginError.values()).map(MySQLPluginError::getAppErrorCode).distinct().count() == MySQLPluginError.values().length);
+        assert (Arrays.stream(MySQLPluginError.values())
+                        .map(MySQLPluginError::getAppErrorCode)
+                        .distinct()
+                        .count()
+                == MySQLPluginError.values().length);
 
-        assert (Arrays.stream(MySQLPluginError.values()).map(MySQLPluginError::getAppErrorCode)
-                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-MYS"))
-                .collect(Collectors.toList()).size() == 0);
-
+        assert (Arrays.stream(MySQLPluginError.values())
+                        .map(MySQLPluginError::getAppErrorCode)
+                        .filter(appErrorCode -> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-MYS"))
+                        .collect(Collectors.toList())
+                        .size()
+                == 0);
     }
 }

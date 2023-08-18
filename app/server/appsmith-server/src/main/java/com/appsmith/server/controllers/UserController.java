@@ -17,13 +17,20 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class UserController extends UserControllerCE {
 
-    public UserController(UserService service,
-                          SessionUserService sessionUserService,
-                          UserWorkspaceService userWorkspaceService,
-                          UserSignup userSignup,
-                          UserDataService userDataService,
-                          UserAndAccessManagementService userAndAccessManagementService) {
+    public UserController(
+            UserService service,
+            SessionUserService sessionUserService,
+            UserWorkspaceService userWorkspaceService,
+            UserSignup userSignup,
+            UserDataService userDataService,
+            UserAndAccessManagementService userAndAccessManagementService) {
 
-        super(service, sessionUserService, userWorkspaceService, userSignup, userDataService, userAndAccessManagementService);
+        super(
+                service,
+                sessionUserService,
+                userWorkspaceService,
+                userSignup,
+                userDataService,
+                userAndAccessManagementService);
     }
 }

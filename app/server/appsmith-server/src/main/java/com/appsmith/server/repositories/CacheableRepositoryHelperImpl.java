@@ -5,7 +5,8 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelper{
+public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEImpl
+        implements CacheableRepositoryHelper {
 
     public CacheableRepositoryHelperImpl(ReactiveMongoOperations mongoOperations) {
         super(mongoOperations);

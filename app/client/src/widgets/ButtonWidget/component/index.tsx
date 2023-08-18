@@ -168,7 +168,11 @@ export type ButtonStyleProps = {
   borderRadius?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
+  shouldFitContent?: boolean;
   placement?: ButtonPlacement;
+  maxWidth?: number;
+  minWidth?: number;
+  minHeight?: number;
 };
 
 // To be used in any other part of the app
@@ -185,6 +189,9 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     iconAlign,
     iconName,
     loading,
+    maxWidth,
+    minHeight,
+    minWidth,
     onClick,
     placement,
     rightIcon,
@@ -199,7 +206,11 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       buttonVariant={buttonVariant}
       disabled={disabled}
       loading={loading}
+      maxWidth={maxWidth}
+      minHeight={minHeight}
+      minWidth={minWidth}
       onClick={onClick}
+      shouldFitContent={props.shouldFitContent}
       showInAllModes
     >
       <StyledButton
@@ -252,6 +263,7 @@ interface ButtonComponentProps extends ComponentProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   isDisabled?: boolean;
   isLoading: boolean;
+  shouldFitContent: boolean;
   rightIcon?: IconName | MaybeElement;
   type: ButtonType;
   buttonColor?: string;
@@ -263,6 +275,9 @@ interface ButtonComponentProps extends ComponentProps {
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
   className?: string;
+  minWidth?: number;
+  minHeight?: number;
+  maxWidth?: number;
 }
 
 type RecaptchaV2ComponentPropType = {
@@ -450,8 +465,12 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         iconAlign={props.iconAlign}
         iconName={props.iconName}
         loading={props.isLoading}
+        maxWidth={props.maxWidth}
+        minHeight={props.minHeight}
+        minWidth={props.minWidth}
         placement={props.placement}
         rightIcon={props.rightIcon}
+        shouldFitContent={props.shouldFitContent}
         text={props.text}
         type={props.type}
       />

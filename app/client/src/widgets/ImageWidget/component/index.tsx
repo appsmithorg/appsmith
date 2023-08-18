@@ -168,6 +168,7 @@ class ImageComponent extends React.Component<
 
   render() {
     const { imageUrl, maxZoomLevel } = this.props;
+
     const { imageError, imageRotation } = this.state;
     const zoomActive =
       maxZoomLevel !== undefined && maxZoomLevel > 1 && !this.isPanning;

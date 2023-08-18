@@ -18,7 +18,8 @@ public interface RefactoringSolutionCE {
 
     Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO, String branchName);
 
-    Mono<LayoutDTO> refactorActionCollectionName(String appId, String pageId, String layoutId, String oldName, String newName);
+    Mono<LayoutDTO> refactorActionCollectionName(
+            String appId, String pageId, String layoutId, String oldName, String newName);
 
     /**
      * This method is responsible for the core logic of refactoring a valid name inside an Appsmith page.

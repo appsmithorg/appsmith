@@ -7,6 +7,7 @@ import {
   apiPage,
   draggableWidgets,
   locators,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Linting of entity properties", () => {
@@ -18,7 +19,9 @@ describe("Linting of entity properties", () => {
   it("1. Shows correct lint error when wrong Api property is binded", () => {
     const invalidProperty = "unknownProperty";
     // create Api1
-    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+    );
     // Edit Button onclick property
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(

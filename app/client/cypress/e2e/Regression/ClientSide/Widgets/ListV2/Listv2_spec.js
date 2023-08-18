@@ -7,9 +7,7 @@ import {
 
 describe("List Widget V2 Functionality", function () {
   before(() => {
-    cy.fixture("Listv2/simpleLargeListv2").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Listv2/simpleLargeListv2");
   });
 
   const allowed = [

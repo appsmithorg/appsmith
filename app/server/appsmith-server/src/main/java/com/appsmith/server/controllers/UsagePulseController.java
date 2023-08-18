@@ -13,5 +13,4 @@ public class UsagePulseController extends UsagePulseControllerCE {
     public UsagePulseController(UsagePulseService service) {
         super(service);
     }
-
 }

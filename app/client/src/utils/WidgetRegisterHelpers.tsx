@@ -66,6 +66,7 @@ export const registerWidget = (
     config.properties.stylesheetConfig,
     config.properties.autocompleteDefinitions,
     config.autoLayout,
+    config.properties.setterConfig,
   );
 
   configureWidget(config);
@@ -90,6 +91,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
     ...config.defaults,
     ...features,
     searchTags: config.searchTags,
+    tags: config.tags,
     type: config.type,
     hideCard: !!config.hideCard || !config.iconSVG,
     isDeprecated: !!config.isDeprecated,

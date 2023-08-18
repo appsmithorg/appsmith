@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserUtils extends UserUtilsCE {
-    public UserUtils(ConfigRepository configRepository,
-                     PermissionGroupRepository permissionGroupRepository,
-                     CacheableRepositoryHelper cacheableRepositoryHelper,
-                     PermissionGroupPermission permissionGroupPermission) {
+    public UserUtils(
+            ConfigRepository configRepository,
+            PermissionGroupRepository permissionGroupRepository,
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            PermissionGroupPermission permissionGroupPermission) {
 
         super(configRepository, permissionGroupRepository, cacheableRepositoryHelper, permissionGroupPermission);
     }

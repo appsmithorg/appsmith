@@ -21,8 +21,6 @@ public class PEMCertificate implements AppsmithDomain {
 
     UploadedFile file;
 
-    @Encrypted
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Encrypted @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String password;
-
 }

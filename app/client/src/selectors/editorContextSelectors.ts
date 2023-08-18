@@ -9,7 +9,7 @@ import type {
 } from "reducers/uiReducers/editorContextReducer";
 import { isSubEntities } from "reducers/uiReducers/editorContextReducer";
 import { createSelector } from "reselect";
-import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 export const getFocusableInputField = (state: AppState) =>
   state.ui.editorContext.focusedInputField;

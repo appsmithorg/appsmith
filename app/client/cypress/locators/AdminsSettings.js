@@ -27,8 +27,11 @@ export default {
   formLoginDisabled: "[data-testid='APPSMITH_FORM_LOGIN_DISABLED']",
   embedSettings: ".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS",
   upgrade: "//button//span[text()='Upgrade']",
-  accessControl:
-    "[data-testid='t--enterprise-settings-category-item-access-control']",
-  auditLogs: "[data-testid='t--enterprise-settings-category-item-audit-logs']",
+  accessControl: ".t--settings-category-access-control",
+  auditLogs: ".t--settings-category-audit-logs",
+  provisioning: ".t--settings-category-provisioning",
   upgrageLeftPane: "[data-testid='t--enterprise-settings-category-item-be']",
+  brandingSubmitButton: ".t--settings-branding-submit-button",
+  businessTag: "[data-testid='t--business-tag']",
+  enterpriseTag: "[data-testid='t--enterprise-tag']",
 };

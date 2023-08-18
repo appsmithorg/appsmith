@@ -5,9 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 let dsname;
 describe("Chart Widget Skeleton Loading Functionality", function () {
   before(() => {
-    cy.fixture("ChartLoadingDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("ChartLoadingDsl");
   });
 
   it(
@@ -33,8 +31,8 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
 
       //Step1
       cy.wait(2000);
-      _.dataSources.CreateMockDB("Users").then((dbName) => {
-        _.dataSources.CreateQueryFromActiveTab(dbName, true);
+      _.dataSources.CreateMockDB("Users").then(() => {
+        _.dataSources.CreateQueryAfterDSSaved();
         _.dataSources.ToggleUsePreparedStatement(false);
       });
 

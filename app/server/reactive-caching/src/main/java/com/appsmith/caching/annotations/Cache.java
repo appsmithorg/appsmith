@@ -22,5 +22,4 @@ public @interface Cache {
      * All method arguments can be used in the expression
      */
     String key() default "";
-    
 }

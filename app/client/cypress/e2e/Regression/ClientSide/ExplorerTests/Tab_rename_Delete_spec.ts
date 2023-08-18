@@ -8,9 +8,7 @@ import {
 describe("Tab widget test", function () {
   const tabname = "UpdatedTab";
   before(() => {
-    cy.fixture("tabdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tabdsl");
   });
 
   it("1. Tab Widget Functionality To rename Tabs from entity explorer", function () {

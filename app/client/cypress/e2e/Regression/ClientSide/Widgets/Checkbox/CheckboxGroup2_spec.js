@@ -7,9 +7,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Checkbox Group Widget Functionality", function () {
   before(() => {
-    cy.fixture("checkboxgroupDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("checkboxgroupDsl");
   });
 
   it("1. Checkbox Group Widget Functionality", function () {

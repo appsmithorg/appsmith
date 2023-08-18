@@ -6,9 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Dropdown Widget Functionality", function () {
   before(() => {
-    cy.fixture("emptyDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("emptyDSL");
   });
 
   it("Add new dropdown widget", () => {
@@ -19,8 +17,9 @@ describe("Dropdown Widget Functionality", function () {
 
   it("should check that empty value is allowed in options", () => {
     cy.openPropertyPane("selectwidget");
+    _.propPane.ToggleJSMode("sourcedata");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "Blue",
@@ -36,7 +35,17 @@ describe("Dropdown Widget Functionality", function () {
         }
       ]`,
     );
-    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+
+    _.propPane.ToggleJSMode("label key");
+    cy.updateCodeInput(
+      ".t--property-control-wrapper.t--property-control-labelkey",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("value key");
+    cy.updateCodeInput(".t--property-control-valuekey", `value`);
+
+    cy.get(".t--property-control-valuekey .t--codemirror-has-error").should(
       "not.exist",
     );
   });
@@ -44,7 +53,7 @@ describe("Dropdown Widget Functionality", function () {
   it("should check that more than one empty value is not allowed in options", () => {
     cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "Blue",
@@ -60,7 +69,7 @@ describe("Dropdown Widget Functionality", function () {
         }
       ]`,
     );
-    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+    cy.get(".t--property-control-valuekey .t--codemirror-has-error").should(
       "exist",
     );
   });
@@ -68,7 +77,7 @@ describe("Dropdown Widget Functionality", function () {
   it("should check that Objects can be added to Select Widget default value", () => {
     cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[{
           "label": "Blue",
           "value": "BLUE"
@@ -83,9 +92,7 @@ describe("Dropdown Widget Functionality", function () {
         }]`,
     );
     cy.updateCodeInput(".t--property-control-defaultselectedvalue", "BLUE");
-    cy.get(".t--property-control-options .t--codemirror-has-error").should(
-      "not.exist",
-    );
+    cy.get(".t--property-key .t--codemirror-has-error").should("not.exist");
     cy.get(
       ".t--property-control-defaultselectedvalue .t--codemirror-has-error",
     ).should("not.exist");
@@ -95,7 +102,7 @@ describe("Dropdown Widget Functionality", function () {
   it("should check that special strings are parsed as string in default value", () => {
     cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[{
           "label": "Blue",
           "value": "null"

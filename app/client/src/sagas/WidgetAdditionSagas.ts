@@ -177,6 +177,16 @@ function* getChildWidgetProps(
     themeDefaultConfig,
     "childStylesheet",
   );
+
+  /**
+   * TODO: Balaji Soundararajan @sbalaji1192
+   * We are not getting all the paths with dynamic value here. Therefore we
+   * are not adding them to the dynamic binding path list. This creates an issue
+   * when adding a new widget that has a property with dynamic value resulting
+   * in an unevaluated value.
+   * Furthermore, even if use all the widget paths instead of the updates paths
+   * in the getPropertiesToUpdate function, we have to omit the blueprint paths.
+   */
   const { dynamicBindingPathList } = yield call(
     getPropertiesToUpdate,
     widget,

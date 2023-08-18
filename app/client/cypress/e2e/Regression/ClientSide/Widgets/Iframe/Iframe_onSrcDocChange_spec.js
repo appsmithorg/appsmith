@@ -5,20 +5,8 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 const page1 = "Page1";
 
 describe("Iframe Widget functionality", function () {
-  before(function () {
-    agHelper.ClearLocalStorageCache();
-  });
-
-  beforeEach(function () {
-    agHelper.RestoreLocalStorageCache();
-  });
-
-  afterEach(function () {
-    agHelper.SaveLocalStorageCache();
-  });
-
   it("1.Import application json", function () {
-    cy.visit("/applications");
+    cy.visit("/applications", { timeout: 60000 });
     homePage.ImportApp("IframeOnSrcDocChange.json");
     cy.wait("@importNewApplication").then((interception) => {
       agHelper.Sleep();
@@ -35,7 +23,7 @@ describe("Iframe Widget functionality", function () {
   });
 
   it("2.Check the OnSrcDocChange event call on first render", () => {
-    cy.reload();
+    agHelper.RefreshPage();
     cy.wait(2000);
     cy.get(`.t--entity .page`).first().should("have.class", "activePage");
     cy.openPropertyPane("iframewidget");

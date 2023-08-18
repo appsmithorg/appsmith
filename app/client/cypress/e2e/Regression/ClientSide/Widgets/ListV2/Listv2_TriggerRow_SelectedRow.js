@@ -39,9 +39,7 @@ const data = [
 
 describe("List widget v2; TriggeredRow, SelectedRow", () => {
   before(() => {
-    cy.fixture("Listv2/ListWithInputForSelectedAndTriggerRow").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/ListWithInputForSelectedAndTriggerRow");
   });
 
   it("1. Setup necessary data and widgets", () => {

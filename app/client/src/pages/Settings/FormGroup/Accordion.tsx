@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { createMessage } from "@appsmith//constants/messages";
 import Group from "./group";
 import { Icon, Text } from "design-system";
 
@@ -41,7 +40,7 @@ const Line = styled.hr`
 `;
 
 type AccordionProps = {
-  label?: string;
+  label?: React.ReactNode;
   settings?: Setting[];
   isHidden?: boolean;
   category?: string;
@@ -66,7 +65,7 @@ export default function Accordion({
           onClick={() => setIsOpen(!isOpen)}
           renderAs="label"
         >
-          <span>{createMessage(() => label)}</span>
+          <span>{label}</span>
           <Line />
           <Icon name={isOpen ? "expand-less" : "expand-more"} size="md" />
         </AccordionHeader>

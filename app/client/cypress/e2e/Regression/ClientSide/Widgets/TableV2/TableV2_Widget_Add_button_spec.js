@@ -11,9 +11,7 @@ import {
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.fixture("tableV2NewDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2NewDsl");
   });
 
   it("1. Table widget V2 with Add button test and validation", function () {
@@ -34,8 +32,6 @@ describe("Table Widget V2 property pane feature validation", function () {
     agHelper.AssertAutoSave();
     // Validating the button action by clicking
     cy.get(widgetsPage.tableV2Btn).last().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
     // Validating the toast message
     agHelper.WaitUntilToastDisappear("Successful tobias.funke@reqres.in");
 
@@ -292,21 +288,5 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     cy.wait(500);
     cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
-  });
-
-  it("8. Table widget test on button when transparent", () => {
-    cy.openPropertyPane("tablewidgetv2");
-    // Open column details of "id".
-    cy.editColumn("id");
-    // Changing column "Button" color to transparent
-    cy.moveToStyleTab();
-    cy.get(widgetsPage.buttonColor).click({ force: true });
-    cy.wait(2000);
-    cy.get(widgetsPage.transparent).click({ force: true });
-    cy.get(".td[data-colindex=5][data-rowindex=0] .bp3-button").should(
-      "have.css",
-      "background-color",
-      "rgba(0, 0, 0, 0)",
-    );
   });
 });

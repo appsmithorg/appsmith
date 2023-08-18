@@ -96,24 +96,19 @@ public class Delete extends MongoCommand {
         setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
         setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "SINGLE");
 
-        String rawQuery = "{\n" +
-                "  \"delete\": \"" + collectionName + "\",\n" +
-                "  \"deletes\": [\n" +
-                "    {\n" +
-                "      \"q\": {\n" +
-                "        \"_id\": \"id_of_document_to_delete\"\n" +
-                "      },\n" +
-                "      \"limit\": 1\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}\n";
+        String rawQuery = "{\n" + "  \"delete\": \""
+                + collectionName + "\",\n" + "  \"deletes\": [\n"
+                + "    {\n"
+                + "      \"q\": {\n"
+                + "        \"_id\": \"id_of_document_to_delete\"\n"
+                + "      },\n"
+                + "      \"limit\": 1\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return Collections.singletonList(new DatasourceStructure.Template(
-                "Delete",
-                null,
-                configMap
-        ));
+        return Collections.singletonList(new DatasourceStructure.Template("Delete", null, configMap));
     }
 
     /**

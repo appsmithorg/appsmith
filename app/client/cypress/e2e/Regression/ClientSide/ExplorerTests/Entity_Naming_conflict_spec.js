@@ -6,9 +6,7 @@ describe("Tab widget test", function () {
   const apiName = "Table1";
   const tableName = "Table1";
   before(() => {
-    cy.fixture("basicTabledsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("basicTabledsl");
   });
 
   it("1. Rename API with table widget name validation test", function () {

@@ -942,7 +942,13 @@ class MetaWidgetGenerator {
     metaWidgetName: string,
     templateWidgetName: string,
   ) => {
-    if (metaWidgetName === templateWidgetName) return binding;
+    /*
+     * There are certain edge cases where binding would be `undefined`
+     * so assering type before performing replace operation
+     */
+    if (metaWidgetName === templateWidgetName || typeof binding !== "string") {
+      return binding;
+    }
 
     const pattern = new RegExp(`${templateWidgetName}\\.`, "g");
 
@@ -967,7 +973,7 @@ class MetaWidgetGenerator {
     dynamicPaths.forEach(({ isTriggerPath, key: path }) => {
       if (excludedPaths.includes(path)) return;
 
-      let propertyValue: string = get(metaWidget, path);
+      let propertyValue = get(metaWidget, path);
 
       propertyValue = this.updateWidgetNameInDynamicBinding(
         propertyValue,
@@ -1006,7 +1012,7 @@ class MetaWidgetGenerator {
         if (levelPaths) {
           this.addLevelProperty(metaWidget, levelPaths);
 
-          levelPaths.forEach((levelPath) => {
+          levelPaths.forEach((levelPath: string) => {
             const [level] = levelPath.split(".");
 
             pathTypes.add(level);

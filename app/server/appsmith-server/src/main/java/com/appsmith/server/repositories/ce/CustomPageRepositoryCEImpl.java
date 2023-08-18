@@ -16,13 +16,14 @@ import java.util.List;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class CustomPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Page>
-        implements CustomPageRepositoryCE {
+public class CustomPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Page> implements CustomPageRepositoryCE {
 
-    public CustomPageRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomPageRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
-
 
     @Override
     public Mono<Page> findByIdAndLayoutsId(String id, String layoutId, AclPermission aclPermission) {
@@ -43,14 +44,16 @@ public class CustomPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Page>
 
     @Override
     public Flux<Page> findByApplicationId(String applicationId, AclPermission aclPermission) {
-        Criteria applicationIdCriteria = where(fieldName(QPage.page.applicationId)).is(applicationId);
+        Criteria applicationIdCriteria =
+                where(fieldName(QPage.page.applicationId)).is(applicationId);
         return queryAll(List.of(applicationIdCriteria), aclPermission);
     }
 
     @Override
     public Mono<Page> findByNameAndApplicationId(String name, String applicationId, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QPage.page.name)).is(name);
-        Criteria applicationIdCriteria = where(fieldName(QPage.page.applicationId)).is(applicationId);
+        Criteria applicationIdCriteria =
+                where(fieldName(QPage.page.applicationId)).is(applicationId);
         return queryOne(List.of(nameCriteria, applicationIdCriteria), aclPermission);
     }
 }

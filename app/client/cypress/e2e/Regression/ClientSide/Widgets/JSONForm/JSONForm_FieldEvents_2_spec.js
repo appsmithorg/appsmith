@@ -22,9 +22,7 @@ describe("Radio Group Field", () => {
     const schema = {
       agree: true,
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("agree");
@@ -56,9 +54,8 @@ describe("Radio Group Field", () => {
     const schema = {
       agree: true,
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();
@@ -85,9 +82,8 @@ describe("Radio Group Field", () => {
     const schema = {
       dob: "20/12/1992",
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();

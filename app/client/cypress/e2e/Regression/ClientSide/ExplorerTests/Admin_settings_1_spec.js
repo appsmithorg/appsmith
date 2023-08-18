@@ -45,18 +45,18 @@ describe("Admin settings page", function () {
 
   it("2. should test that page header is visible", () => {
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
-    cy.visit(routes.GOOGLE_MAPS);
+    cy.visit(routes.GOOGLE_MAPS, { timeout: 60000 });
     cy.url().should("contain", "/google-maps");
     cy.wait(2000); //page to load properly
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
-    cy.visit(routes.GOOGLEAUTH);
+    cy.visit(routes.GOOGLEAUTH, { timeout: 60000 });
     cy.url().should("contain", "/google-auth");
     cy.wait(2000); //page to load properly
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
   });
 
   it("3. should test that clicking on logo should redirect to applications page", () => {
-    cy.visit(routes.GENERAL);
+    cy.visit(routes.GENERAL, { timeout: 60000 });
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
     cy.get(adminsSettings.appsmithLogo).should("be.visible");
     cy.get(adminsSettings.appsmithLogo).click();
@@ -65,7 +65,7 @@ describe("Admin settings page", function () {
 
   it("4. should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit(routes.SETTINGS);
+    cy.visit(routes.SETTINGS, { timeout: 60000 });
     cy.url().should("contain", routes.GENERAL);
   });
 
@@ -73,7 +73,7 @@ describe("Admin settings page", function () {
     "excludeForAirgap",
     "5. should test that settings page tab redirects not airgap",
     () => {
-      cy.visit(routes.APPLICATIONS);
+      cy.visit(routes.APPLICATIONS, { timeout: 60000 });
       cy.wait(3000);
       cy.get(".admin-settings-menu-option").click();
       cy.get(adminsSettings.generalTab).click();
@@ -95,7 +95,7 @@ describe("Admin settings page", function () {
     "airgap",
     "5. should test that settings page tab redirects and google maps doesn't exist - airgap",
     () => {
-      cy.visit(routes.APPLICATIONS);
+      cy.visit(routes.APPLICATIONS, { timeout: 60000 });
       cy.wait(3000);
       cy.get(".admin-settings-menu-option").click();
       cy.get(adminsSettings.generalTab).click();
@@ -113,7 +113,7 @@ describe("Admin settings page", function () {
   );
 
   it("6. should test save and clear buttons disabled state", () => {
-    cy.visit(routes.GENERAL);
+    cy.visit(routes.GENERAL, { timeout: 60000 });
     const assertVisibilityAndDisabledState = () => {
       cy.get(adminsSettings.saveButton).should("be.visible");
       cy.get(adminsSettings.saveButton).should("be.disabled");
@@ -132,7 +132,7 @@ describe("Admin settings page", function () {
   });
 
   it("7. should test saving a setting value", () => {
-    cy.visit(routes.GENERAL);
+    cy.visit(routes.GENERAL, { timeout: 60000 });
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.get(adminsSettings.instanceName).should("be.visible");
     let instanceName;
@@ -151,7 +151,7 @@ describe("Admin settings page", function () {
   });
 
   it("8. should test saving settings value from different tabs", () => {
-    cy.visit(routes.GENERAL);
+    cy.visit(routes.GENERAL, { timeout: 60000 });
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.get(adminsSettings.instanceName).should("be.visible");
     let instanceName;
@@ -182,14 +182,15 @@ describe("Admin settings page", function () {
         `${fromAddress}@appsmith.com`,
       );
     });
-    cy.get(adminsSettings.restartNotice).should("be.visible");
-    cy.wait(3000);
+    cy.waitUntil(() =>
+      cy.contains("General", { timeout: 180000 }).should("be.visible"),
+    );
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.wait(3000);
   });
 
   it("9. should test that instance name and admin emails exist on general tab", () => {
-    cy.visit(routes.GENERAL);
+    cy.visit(routes.GENERAL, { timeout: 60000 });
     cy.get(adminsSettings.instanceName).should("be.visible");
     cy.get(adminsSettings.adminEmails).should("be.visible");
   });

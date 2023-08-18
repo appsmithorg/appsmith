@@ -2,9 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("16108 - Verify Table URL column bugs", function () {
   before(() => {
-    cy.fixture("tableV2WithUrlColumnDsl").then((val: any) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableV2WithUrlColumnDsl");
   });
 
   it("Verify click on URL column with display text takes to the correct link", function () {

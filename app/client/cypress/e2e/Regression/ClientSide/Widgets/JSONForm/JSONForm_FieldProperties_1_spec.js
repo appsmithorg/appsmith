@@ -16,9 +16,8 @@ describe("Text Field Property Control", () => {
     const schema = {
       name: "John",
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
@@ -110,9 +109,8 @@ describe("Text Field Property Control", () => {
     const schema = {
       check: false,
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("check");

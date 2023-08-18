@@ -42,7 +42,12 @@ describe("excludeForAirgap", "Guided Tour", function () {
     entityExplorer.SelectEntityByName("CustomersTable");
 
     // Step 3: Add binding to the tableData property
-    propPane.UpdatePropertyFieldValue("Table data", "{{getCustomers.data}}");
+    propPane.UpdatePropertyFieldValue(
+      "Table data",
+      "{{getCustomers.data}}",
+      true,
+      false,
+    );
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Renaming widgets // Commending below wait due to flakiness
@@ -56,6 +61,8 @@ describe("excludeForAirgap", "Guided Tour", function () {
         propPane.UpdatePropertyFieldValue(
           "Default value",
           "{{CustomersTable.selectedRow.name}}",
+          true,
+          false,
         );
       } else {
         cy.wait(1000);
@@ -66,6 +73,8 @@ describe("excludeForAirgap", "Guided Tour", function () {
         propPane.UpdatePropertyFieldValue(
           "Default value",
           "{{CustomersTable.selectedRow.name}}",
+          true,
+          false,
         );
       }
     });
@@ -78,6 +87,8 @@ describe("excludeForAirgap", "Guided Tour", function () {
     propPane.UpdatePropertyFieldValue(
       "Default value",
       "{{CustomersTable.selectedRow.email}}",
+      true,
+      false,
     );
     cy.get(".t--entity-name").contains("CountryInput").click({ force: true });
     cy.wait(1000);
@@ -88,6 +99,8 @@ describe("excludeForAirgap", "Guided Tour", function () {
     propPane.UpdatePropertyFieldValue(
       "Default value",
       "{{CustomersTable.selectedRow.country}}",
+      true,
+      false,
     );
     cy.get(".t--entity-name").contains("DisplayImage").click({ force: true });
     cy.get(guidedTourLocators.successButton).click();
@@ -105,8 +118,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
       "Execute a query",
       "updateCustomerInfo.run",
     ),
-      cy.get(propPane._actionCallbacks).first().click();
-    cy.get(propPane._actionAddCallback("success")).click().wait(500);
+      agHelper.GetNClick(propPane._actionAddCallback("success"));
     cy.get(locators._dropDownValue("Execute a query"))
       .click()
       .wait(500)

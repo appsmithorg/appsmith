@@ -21,18 +21,18 @@ public class OraclePluginDatasourceValidityErrorsTest {
     @Test
     public void testErrorOnMissingUsername() {
         DatasourceConfiguration dsConfigWithMissingUsername = getDefaultDatasourceConfig(null);
-        ((DBAuth)dsConfigWithMissingUsername.getAuthentication()).setUsername("");
+        ((DBAuth) dsConfigWithMissingUsername.getAuthentication()).setUsername("");
 
         Set<String> dsValidateResult = oraclePluginExecutor.validateDatasource(dsConfigWithMissingUsername);
         boolean isExpectedErrorReceived = dsValidateResult.stream()
-                            .anyMatch(errorString -> DS_MISSING_USERNAME_ERROR_MSG.equals(errorString.trim()));
+                .anyMatch(errorString -> DS_MISSING_USERNAME_ERROR_MSG.equals(errorString.trim()));
         assertTrue(isExpectedErrorReceived);
     }
 
     @Test
     public void testErrorOnMissingPassword() {
         DatasourceConfiguration dsConfigWithMissingPassword = getDefaultDatasourceConfig(null);
-        ((DBAuth)dsConfigWithMissingPassword.getAuthentication()).setPassword("");
+        ((DBAuth) dsConfigWithMissingPassword.getAuthentication()).setPassword("");
 
         Set<String> dsValidateResult = oraclePluginExecutor.validateDatasource(dsConfigWithMissingPassword);
         boolean isExpectedErrorReceived = dsValidateResult.stream()

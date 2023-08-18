@@ -15,9 +15,7 @@ describe("Text-Table Binding Functionality", function () {
   });
 
   before(() => {
-    cy.fixture("TextTabledsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("TextTabledsl");
   });
   it("1. Text-Table Binding Functionality For Id", function () {
     entityExplorer.SelectEntityByName("Table1", "Container3");

@@ -9,7 +9,7 @@ import { zIndexLayers } from "constants/CanvasEditorConstants";
 import { objectCollapseAnalytics, textSelectAnalytics } from "./Analytics";
 import { Divider } from "design-system";
 import { useSelector } from "react-redux";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { filterInternalProperties } from "utils/FilterInternalProperties";
 import { getJSCollections } from "selectors/entitiesSelector";
 
@@ -54,6 +54,7 @@ export function PeekOverlayPopUpContent(
   const CONTAINER_MAX_HEIGHT_PX = 252;
   const dataWrapperRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const dataTree = useSelector(getDataTree);
+  const configTree = useSelector(getConfigTree);
   const jsActions = useSelector(getJSCollections);
 
   const filteredData = filterInternalProperties(
@@ -61,6 +62,7 @@ export function PeekOverlayPopUpContent(
     dataTree[props.objectName],
     jsActions,
     dataTree,
+    configTree,
   );
 
   // Because getPropertyData can return a function

@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.PluginConstants.DEFAULT_REST_DATASOURCE;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -78,12 +80,13 @@ public class DatasourceStorage extends BaseDomain {
     @Transient
     Boolean isMock;
 
-    public DatasourceStorage(String datasourceId,
-                             String environmentId,
-                             DatasourceConfiguration datasourceConfiguration,
-                             Boolean isConfigured,
-                             Set<String> invalids,
-                             Set<String> messages) {
+    public DatasourceStorage(
+            String datasourceId,
+            String environmentId,
+            DatasourceConfiguration datasourceConfiguration,
+            Boolean isConfigured,
+            Set<String> invalids,
+            Set<String> messages) {
 
         this.datasourceId = datasourceId;
         this.environmentId = environmentId;
@@ -95,35 +98,6 @@ public class DatasourceStorage extends BaseDomain {
         }
         if (messages != null) {
             this.messages = messages;
-        }
-    }
-
-    // TODO: Get rid of this after migration
-    public DatasourceStorage(Datasource datasource, String environmentId) {
-        this.datasourceId = datasource.getId();
-        this.environmentId = environmentId;
-        this.datasourceConfiguration = datasource.getDatasourceConfiguration();
-        this.isConfigured = datasource.getIsConfigured();
-        this.gitSyncId = datasource.getGitSyncId();
-        this.invalids = new HashSet<>();
-        if (datasource.getMessages() != null) {
-            this.messages.addAll(datasource.getMessages());
-        }
-
-        this.prepareTransientFields(datasource);
-    }
-
-    public DatasourceStorage(DatasourceStorageDTO datasourceStorageDTO) {
-        this.setId(datasourceStorageDTO.getId());
-        this.datasourceId = datasourceStorageDTO.getDatasourceId();
-        this.environmentId = datasourceStorageDTO.getEnvironmentId();
-        this.datasourceConfiguration = datasourceStorageDTO.getDatasourceConfiguration();
-        this.isConfigured = datasourceStorageDTO.getIsConfigured();
-        if (datasourceStorageDTO.invalids != null) {
-            this.invalids.addAll(datasourceStorageDTO.getInvalids());
-        }
-        if (datasourceStorageDTO.getMessages() != null) {
-            this.messages.addAll(datasourceStorageDTO.getMessages());
         }
     }
 
@@ -166,6 +140,11 @@ public class DatasourceStorage extends BaseDomain {
     }
 
     public boolean isEmbedded() {
-        return this.getDatasourceId() == null;
+        /**
+         * We cannot just rely on datasourceId == null check because it will always be true for all cases when the
+         * user clicks on `test datasource` button.
+         * DEFAULT_REST_DATASOURCE is the embedded datasource name for both REST API plugin and GraphQL plugin.
+         */
+        return DEFAULT_REST_DATASOURCE.equals(this.name) && this.getDatasourceId() == null;
     }
 }

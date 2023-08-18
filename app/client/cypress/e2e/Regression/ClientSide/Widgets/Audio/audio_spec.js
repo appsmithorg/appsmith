@@ -4,9 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Audio Widget Functionality", function () {
   before(() => {
-    cy.fixture("audioWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("audioWidgetDsl");
   });
 
   it("1. Audio Widget play functionality validation", function () {

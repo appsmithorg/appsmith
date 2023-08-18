@@ -12,17 +12,16 @@ import {
 
 describe("Dropdown Widget", function () {
   before(() => {
-    cy.fixture("newFormDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("newFormDsl");
   });
 
   it("1. Dropdown-Modal Validation", function () {
     entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
     entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
-
-    cy.EnableAllCodeEditors();
-    cy.testJsontext("options", JSON.stringify(this.dataSet.input));
+    propPane.UpdatePropertyFieldValue(
+      "Source Data",
+      JSON.stringify(this.dataSet.input),
+    );
     //creating the Modal and verify Modal name //to fix below
     // cy.createModal("Modal1", false);
     // deployMode.DeployApp();
@@ -127,7 +126,7 @@ describe("Dropdown Widget", function () {
     cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Option 2")
       .click({ force: true });
-    cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
+    cy.get(formWidgetsPage.apiCallToast).should("contain.text", "Success");
     deployMode.NavigateBacktoEditor();
   });
 
@@ -153,7 +152,7 @@ describe("Dropdown Widget", function () {
     cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Option 2")
       .click({ force: true });
-    cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
+    cy.get(formWidgetsPage.apiCallToast).should("contain.text", "Success");
     deployMode.NavigateBacktoEditor();
   });
 
@@ -177,7 +176,7 @@ describe("Dropdown Widget", function () {
     cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Option 1")
       .click({ force: true });
-    cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
+    cy.get(formWidgetsPage.apiCallToast).should("contain.text", "Success");
     deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("selectwidget");
   });

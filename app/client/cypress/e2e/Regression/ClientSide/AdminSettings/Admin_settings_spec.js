@@ -31,9 +31,9 @@ describe("Admin settings page", function () {
 
   it("2. Should test that settings page is not accessible to normal users", () => {
     cy.wait(2000);
-    cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+    cy.LoginFromAPI(Cypress.env("TESTUSERNAME3"), Cypress.env("TESTPASSWORD3"));
     cy.get(".admin-settings-menu-option").should("not.exist");
-    cy.visit("/settings/general");
+    cy.visit("/settings/general", { timeout: 60000 });
     // non super users are redirected to home page
     cy.url().should("contain", "/applications");
     cy.LogOut();
@@ -42,7 +42,7 @@ describe("Admin settings page", function () {
   it("3. Should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     //cy.wait(3000);
-    cy.visit("/settings");
+    cy.visit("/settings", { timeout: 60000 });
     cy.url().should("contain", "/settings/general");
     cy.wait("@getEnvVariables");
   });
@@ -73,7 +73,7 @@ describe("Admin settings page", function () {
     "airgap",
     "4. Should test that settings page tab redirects and google maps doesn't exist - airgap",
     () => {
-      cy.visit("/applications");
+      cy.visit("/applications", { timeout: 60000 });
       if (!Cypress.env("AIRGAPPED")) {
         cy.wait(3000);
         cy.wait("@getReleaseItems");
@@ -205,8 +205,10 @@ describe("Admin settings page", function () {
     cy.wait("@postTenantConfig").then((interception) => {
       expect(interception.request.body.instanceName).to.equal(instanceName);
     });
-    cy.get(adminsSettings.restartNotice).should("not.exist");
-    cy.wait(3000);
+    // adding wait for server to restart
+    cy.waitUntil(() =>
+      cy.contains("General", { timeout: 180000 }).should("be.visible"),
+    );
   });
 
   it("10.Should test saving settings value from different tabs", () => {

@@ -72,7 +72,7 @@ import DiscardFailedWarning from "../components/DiscardChangesError";
 
 const Section = styled.div`
   margin-top: 0;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const Row = styled.div`
@@ -337,7 +337,7 @@ function Deploy() {
             {isFetchingGitStatus && (
               <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
             )}
-            <Space size={11} />
+            {/* <Space size={11} /> */}
             {pullRequired && !isConflicting && (
               <>
                 <Callout

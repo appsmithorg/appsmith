@@ -6,9 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Checkbox Widget Functionality", function () {
   before(() => {
-    cy.fixture("newFormDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("newFormDsl");
   });
   it("Checkbox Widget Functionality", function () {
     cy.openPropertyPane("checkboxwidget");

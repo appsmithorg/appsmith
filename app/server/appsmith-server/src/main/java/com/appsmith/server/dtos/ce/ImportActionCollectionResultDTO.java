@@ -25,9 +25,8 @@ public class ImportActionCollectionResultDTO {
      * @return
      */
     public String getGist() {
-        return String.format("existing action collections: %d, imported action collections: %d",
-                existingActionCollections.size(),
-                savedActionCollectionIds.size()
-        );
+        return String.format(
+                "existing action collections: %d, imported action collections: %d",
+                existingActionCollections.size(), savedActionCollectionIds.size());
     }
 }

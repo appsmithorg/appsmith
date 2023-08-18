@@ -9,9 +9,7 @@ import {
 
 describe("Loadash basic test with input Widget", () => {
   before(() => {
-    cy.fixture("inputBindingdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("inputBindingdsl");
   });
 
   it("1. Input widget test with default value for atob method", () => {

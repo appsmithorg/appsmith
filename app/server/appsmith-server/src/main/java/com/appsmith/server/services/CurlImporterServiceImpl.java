@@ -17,8 +17,7 @@ public class CurlImporterServiceImpl extends CurlImporterServiceCEImpl implement
             NewPageService newPageService,
             ResponseUtils responseUtils,
             ObjectMapper objectMapper,
-            PagePermission pagePermission
-    ) {
+            PagePermission pagePermission) {
         super(pluginService, layoutActionService, newPageService, responseUtils, objectMapper, pagePermission);
     }
 }

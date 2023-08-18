@@ -5,9 +5,7 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe("Modal, Radio, Checkbox widget", function () {
   before(() => {
-    cy.fixture("Listv2/ListWithModalStatCheckboxAndRadio").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/ListWithModalStatCheckboxAndRadio");
   });
   it("1. CurrentView Works in modal", function () {
     cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)

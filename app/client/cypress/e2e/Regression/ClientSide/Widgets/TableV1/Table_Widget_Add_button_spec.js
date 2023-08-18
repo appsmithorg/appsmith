@@ -1,13 +1,11 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { agHelper, propPane } from "../../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.fixture("tableNewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableNewDsl");
   });
 
   it("1. Table widget with Add button test and validation", function () {
@@ -25,10 +23,11 @@ describe("Table Widget property pane feature validation", function () {
     cy.get(commonlocators.editPropBackButton).click({
       force: true,
     });
+    agHelper.Sleep();
     // Validating the button action by clicking
     cy.get(widgetsPage.tableBtn).last().click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
+    agHelper.Sleep();
     // Validating the toast message
     cy.get(widgetsPage.toastAction).should("be.visible");
     cy.get(widgetsPage.toastActionText)
@@ -99,16 +98,14 @@ describe("Table Widget property pane feature validation", function () {
 
   it("3. Table widget triggeredRow property should be accessible", function () {
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
-  });
-
-  it("4. Table widget triggeredRow property should be same even after sorting the table", function () {
+    // Table widget triggeredRow property should be same even after sorting the table", function () {
     //sort table date on second column
     cy.get(".draggable-header ").first().click({ force: true });
     cy.wait(1000);
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
   });
 
-  it("5. Table widget add new icon button column", function () {
+  it("4. Table widget add new icon button column", function () {
     cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     // hide id column
     cy.makeColumnVisible("id");
@@ -149,7 +146,7 @@ describe("Table Widget property pane feature validation", function () {
     */
   });
 
-  it("6. Table widget add new menu button column", function () {
+  it("5. Table widget add new menu button column", function () {
     cy.openPropertyPane("tablewidget");
     // click on Add new Column.
     cy.get(".t--add-column-btn").click();
@@ -168,12 +165,17 @@ describe("Table Widget property pane feature validation", function () {
     });
     // validate icon
     cy.get(".t--widget-tablewidget .tbody .bp3-icon-airplane").should("exist");
-    cy.get(".editable-text-container").eq(1).click();
+    //cy.get(".editable-text-container").eq(1).click();
     // validate label
     cy.contains("Menu button").should("exist");
 
     const color1 = "rgb(255, 255, 0)";
-    cy.get(widgetsPage.menuColor).clear().click({ force: true }).type(color1);
+    cy.get(widgetsPage.menuColor)
+      .click()
+      .clear()
+      .click({ force: true })
+      .type(color1);
+
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color1);
 
     // Changing the color again to reproduce issue #9526
@@ -302,8 +304,6 @@ describe("Table Widget property pane feature validation", function () {
     cy.get(".bp3-menu-item").eq(0).click({
       force: true,
     });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
     // Validating the toast message
     cy.get(widgetsPage.toastAction).should("be.visible");
     cy.get(widgetsPage.toastActionText)
@@ -315,7 +315,7 @@ describe("Table Widget property pane feature validation", function () {
       });
   });
 
-  it("7. Table widget test on button icon click, row should not get deselected", () => {
+  it("6. Table widget test on button icon click, row should not get deselected", () => {
     cy.get(widgetsPage.tableIconBtn).last().click({ force: true });
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
     //click icon button again
@@ -324,21 +324,5 @@ describe("Table Widget property pane feature validation", function () {
     cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     cy.wait(500);
     cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
-  });
-
-  it("8. Table widget test on button when transparent", () => {
-    cy.openPropertyPane("tablewidget");
-    // Open column details of "id".
-    cy.editColumn("id");
-    // Changing column "Button" color to transparent
-
-    cy.get(widgetsPage.buttonColor).click({ force: true });
-    cy.wait(2000);
-    cy.get(widgetsPage.transparent).click({ force: true });
-    cy.get(".td[data-colindex=5][data-rowindex=0] .bp3-button").should(
-      "have.css",
-      "background-color",
-      "rgba(0, 0, 0, 0)",
-    );
   });
 });

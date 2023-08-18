@@ -3,7 +3,7 @@ import {
   entityExplorer,
   entityItems,
   dataSources,
-  hostPort,
+  dataManager,
   assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 
@@ -27,16 +27,22 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       "List records",
     );
 
-    agHelper.EnterValue(hostPort.AirtableBase, {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Base ID ",
-    });
-    agHelper.EnterValue(hostPort.AirtableTable, {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Table name",
-    });
+    agHelper.EnterValue(
+      dataManager.dsValues[dataManager.defaultEnviorment].AirtableBase,
+      {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Base ID ",
+      },
+    );
+    agHelper.EnterValue(
+      dataManager.dsValues[dataManager.defaultEnviorment].AirtableTable,
+      {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Table name",
+      },
+    );
 
     dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
@@ -235,6 +241,8 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       inputFieldName: "View",
     });
 
+    dataSources.RunQuery({ toValidateResponse: false }); //For CI failure!
+    agHelper.Sleep(3000);
     dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {

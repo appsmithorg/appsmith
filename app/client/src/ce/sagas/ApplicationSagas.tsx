@@ -121,7 +121,11 @@ import {
   defaultNavigationSetting,
   keysOfNavigationSetting,
 } from "constants/AppConstants";
-import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
+import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { generateReactKey } from "utils/generators";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -603,6 +607,28 @@ export function* createApplicationSaga(
         // ensures user receives the updates in the app just created
         yield put(reconnectAppLevelWebsocket());
         yield put(reconnectPageLevelWebsocket());
+
+        const tableWidgetExperimentEnabled: boolean = yield select(
+          selectFeatureFlagCheck,
+          FEATURE_FLAG.ab_table_widget_activation_enabled,
+        );
+        if (tableWidgetExperimentEnabled) {
+          yield take(ReduxActionTypes.FETCH_WORKSPACE_SUCCESS);
+          yield put({
+            type: ReduxActionTypes.WIDGET_ADD_CHILD,
+            payload: {
+              widgetId: "0",
+              type: "TABLE_WIDGET_V2",
+              leftColumn: 15,
+              topRow: 6,
+              columns: 34,
+              rows: 28,
+              parentRowSpace: 10,
+              parentColumnSpace: 13.390625,
+              newWidgetId: generateReactKey(),
+            },
+          });
+        }
       }
     }
   } catch (error) {
@@ -851,9 +877,19 @@ export function* fetchUnconfiguredDatasourceList(
 }
 
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
+  let currentEnvironment = getCurrentEnvironment();
+  if (!datasource.datasourceStorages.hasOwnProperty(currentEnvironment)) {
+    // if the currentEnvironemnt is not present for use here, take the first key from datasourceStorages
+    currentEnvironment = Object.keys(datasource.datasourceStorages)[0];
+  }
   // Added isEmpty instead of ! condition as ! does not account for
   // datasourceConfiguration being empty
-  if (isEmpty(datasource.datasourceConfiguration)) {
+  if (
+    isEmpty(
+      datasource.datasourceStorages[currentEnvironment]
+        ?.datasourceConfiguration,
+    )
+  ) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
     const formConfig: Record<string, unknown>[] = yield select(
       getPluginForm,
@@ -863,11 +899,13 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
       getConfigInitialValues,
       formConfig,
     );
-    const payload = merge(initialValues, datasource);
+    const payload = merge(
+      initialValues,
+      datasource.datasourceStorages[currentEnvironment],
+    );
     payload.isConfigured = false; // imported datasource as not configured yet
-    const response: ApiResponse = yield DatasourcesApi.updateDatasource(
+    const response: ApiResponse = yield DatasourcesApi.updateDatasourceStorage(
       payload,
-      datasource.id,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {

@@ -10,9 +10,7 @@ import {
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.fixture("tableV2NewDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2NewDsl");
   });
 
   let propPaneBack = "[data-testid='t--property-pane-back-btn']";

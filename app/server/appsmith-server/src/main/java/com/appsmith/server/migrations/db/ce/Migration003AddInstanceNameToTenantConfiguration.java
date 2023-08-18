@@ -20,7 +20,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
-@ChangeUnit(order = "003", id="add-instance-name-env-variable-tenant-configuration")
+@ChangeUnit(order = "003", id = "add-instance-name-env-variable-tenant-configuration")
 public class Migration003AddInstanceNameToTenantConfiguration {
     private final MongoTemplate mongoTemplate;
 
@@ -29,8 +29,7 @@ public class Migration003AddInstanceNameToTenantConfiguration {
     }
 
     @RollbackExecution
-    public void executionRollback() {
-    }
+    public void executionRollback() {}
 
     @Execution
     public void addInstanceNameEnvVarToTenantConfiguration() {
@@ -39,7 +38,8 @@ public class Migration003AddInstanceNameToTenantConfiguration {
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         // Using default name as Appsmith here.
-        String instanceName = StringUtils.defaultIfEmpty(System.getenv(String.valueOf(APPSMITH_INSTANCE_NAME)), DEFAULT_INSTANCE_NAME);
+        String instanceName = StringUtils.defaultIfEmpty(
+                System.getenv(String.valueOf(APPSMITH_INSTANCE_NAME)), DEFAULT_INSTANCE_NAME);
 
         TenantConfiguration defaultTenantConfiguration = new TenantConfiguration();
         if (Objects.nonNull(defaultTenant.getTenantConfiguration())) {

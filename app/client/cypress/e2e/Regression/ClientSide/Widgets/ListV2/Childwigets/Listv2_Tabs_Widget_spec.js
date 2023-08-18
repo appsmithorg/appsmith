@@ -3,9 +3,7 @@ const commonlocators = require("../../../../../../locators/commonlocators.json")
 
 describe("List v2- Tabs Widget", () => {
   before(() => {
-    cy.fixture("Listv2/simpleListWithTabsWidget").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/simpleListWithTabsWidget");
   });
 
   it("1. change in the properties of the tabs widget should retain the default selected tab", () => {

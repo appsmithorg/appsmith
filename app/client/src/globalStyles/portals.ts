@@ -41,7 +41,7 @@ export const PortalStyles = createGlobalStyle`
     border-radius: var(--ads-v2-border-radius);
     filter: drop-shadow(0px 1px 3px rgba(16, 24, 40, 0.1)) drop-shadow(0px 1px 2px rgba(16, 24, 40, 0.06));
     transition: all 1s;
-    z-index: 3;
+    z-index: ${Layers.guidedTour};
     pointer-events: none;
   }
 
@@ -51,7 +51,7 @@ export const PortalStyles = createGlobalStyle`
 
   .${GuidedTourClasses.GUIDED_TOUR_INDICATOR} {
     position: fixed;
-    z-index: 3;
+    z-index: ${Layers.guidedTour};
     pointer-events: none;
     height: 50px;
     width: 90px;

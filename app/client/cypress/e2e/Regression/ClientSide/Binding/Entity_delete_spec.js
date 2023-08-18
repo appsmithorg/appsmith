@@ -3,9 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple widgets and validating default data", function () {
   before(() => {
-    cy.fixture("SimpleBinding").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("SimpleBinding");
   });
 
   it("1. Checks if delete will remove bindings", function () {

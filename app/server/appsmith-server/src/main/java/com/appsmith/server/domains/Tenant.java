@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.checkerframework.common.aliasing.qual.Unique;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -15,11 +16,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Tenant extends BaseDomain {
 
-    @Unique
-    String slug;
+    @Unique String slug;
 
     String displayName;
 
+    @Transient
     String instanceId;
 
     PricingPlan pricingPlan;

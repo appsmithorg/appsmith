@@ -25,13 +25,13 @@ public class ExecuteActionDTO {
     Boolean viewMode = false;
 
     /* Sample value of paramProperties
-        "paramProperties": {
-          "k0": {
-            "datatype": "string",
-            "blobIdentifiers": ["blobUrl1", "blobUrl2"]
-          }
-        }
-     */
+       "paramProperties": {
+         "k0": {
+           "datatype": "string",
+           "blobIdentifiers": ["blobUrl1", "blobUrl2"]
+         }
+       }
+    */
     Map<String, ParamProperty> paramProperties;
 
     Map<String, String> parameterMap; // e.g. {"Text1.text": "k1","Table1.data": "k2", "Api1.data": "k3"}
@@ -48,11 +48,7 @@ public class ExecuteActionDTO {
 
     public void setParameterMap(Map<String, String> parameterMap) {
         this.parameterMap = parameterMap;
-        invertParameterMap = parameterMap.entrySet()
-                .stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getValue,
-                        Map.Entry::getKey
-                ));
+        invertParameterMap =
+                parameterMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
     }
 }

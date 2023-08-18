@@ -25,24 +25,28 @@ public interface SmartSubstitutionInterface {
      * @return
      * @throws AppsmithPluginException
      */
-    default Object smartSubstitutionOfBindings(Object input,
-                                               List<MustacheBindingToken> mustacheValuesInOrder,
-                                               List<Param> evaluatedParams,
-                                               List<Map.Entry<String, String>> insertedParams,
-                                               Object... args) throws AppsmithPluginException {
+    default Object smartSubstitutionOfBindings(
+            Object input,
+            List<MustacheBindingToken> mustacheValuesInOrder,
+            List<Param> evaluatedParams,
+            List<Map.Entry<String, String>> insertedParams,
+            Object... args)
+            throws AppsmithPluginException {
 
         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
 
             for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
                 String key = mustacheValuesInOrder.get(i).getValue();
-                Optional<Param> matchingParam = evaluatedParams.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
+                Optional<Param> matchingParam = evaluatedParams.stream()
+                        .filter(param -> param.getKey().trim().equals(key))
+                        .findFirst();
 
                 // If the evaluated value of the mustache binding is present, set it in the prepared statement
                 if (matchingParam.isPresent()) {
                     String value = matchingParam.get().getValue();
 
-                    input = substituteValueInInput(i + 1, key,
-                            value, input, insertedParams, append(args, matchingParam.get()));
+                    input = substituteValueInInput(
+                            i + 1, key, value, input, insertedParams, append(args, matchingParam.get()));
                 } else {
                     throw new AppsmithPluginException(AppsmithPluginError.SMART_SUBSTITUTION_VALUE_MISSING, key);
                 }
@@ -53,11 +57,16 @@ public interface SmartSubstitutionInterface {
 
     // Default implementation does not do any substitution. The plugin doing intelligent substitution is responsible
     // for overriding this function.
-    default Object substituteValueInInput(int index, String binding, String value, Object input,
-                                          List<Map.Entry<String, String>> insertedParams, Object... args) throws AppsmithPluginException {
+    default Object substituteValueInInput(
+            int index,
+            String binding,
+            String value,
+            Object input,
+            List<Map.Entry<String, String>> insertedParams,
+            Object... args)
+            throws AppsmithPluginException {
         return input;
     }
-
 
     /**
      * This method is part of the pre-processing of the replacement value before the final substitution that

@@ -26,8 +26,8 @@ import {
   InputTypes,
   NumberInputStepButtonPosition,
 } from "widgets/BaseInputWidget/constants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { getParsedText, isInputTypeEmailOrPassword } from "./Utilities";
-import type { Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -59,14 +59,20 @@ export function defaultValueValidation(
   }
 
   const { inputType } = props;
+
+  if (_.isBoolean(value) || _.isNil(value) || _.isUndefined(value)) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: [STRING_ERROR_MESSAGE],
+    };
+  }
+
   let parsed;
   switch (inputType) {
     case "NUMBER":
-      if (_.isNil(value)) {
-        parsed = null;
-      } else {
-        parsed = Number(value);
-      }
+      parsed = Number(value);
+
       let isValid, messages;
 
       if (_.isString(value) && value.trim() === "") {
@@ -262,7 +268,7 @@ function InputTypeUpdateHook(
 
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return {
+    const definitions: AutocompletionDefinitions = {
       "!doc":
         "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
       "!url": "https://docs.appsmith.com/widget-reference/input",
@@ -275,6 +281,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       isDisabled: "bool",
     };
+
+    return definitions;
   }
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
@@ -589,6 +597,30 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
   };
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultText",
+          type: "string",
+          accessor: "text",
+        },
+      },
+    };
+  }
 
   resetWidgetText = () => {
     this.props.updateWidgetMetaProperty("inputText", "");

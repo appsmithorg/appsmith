@@ -8,4 +8,5 @@ public interface UserIdentifierServiceCE {
 
     String hash(String value);
 
+    String getEmailDomain(String email);
 }

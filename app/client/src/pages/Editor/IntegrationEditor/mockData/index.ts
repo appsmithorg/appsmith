@@ -1,3 +1,4 @@
+import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { PluginPackageName } from "entities/Action";
@@ -38,6 +39,7 @@ export const mockPlugins = [
   },
 ];
 
+const defaultEnvId = getDefaultEnvId();
 export const mockDatasources = [
   {
     id: "623ab2519b867130d3ed1c27",
@@ -50,15 +52,19 @@ export const mockDatasources = [
     name: "Mock Database",
     pluginId: "623a809913b3311bd5e77228",
     workspaceId: "623a80d613b3311bd5e77308",
-    datasourceConfiguration: {
-      connection: { mode: "READ_WRITE", ssl: { authType: "DEFAULT" } },
-      endpoints: [
-        {
-          host: "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
-          port: 5432,
+    datasourceStorages: {
+      [defaultEnvId]: {
+        datasourceConfiguration: {
+          connection: { mode: "READ_WRITE", ssl: { authType: "DEFAULT" } },
+          endpoints: [
+            {
+              host: "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
+              port: 5432,
+            },
+          ],
+          sshProxyEnabled: false,
         },
-      ],
-      sshProxyEnabled: false,
+      },
     },
     invalids: [],
     messages: [],
@@ -77,16 +83,20 @@ export const mockDatasources = [
     name: "Test",
     pluginId: "623a809913b3311bd5e77229",
     workspaceId: "623a80d613b3311bd5e77308",
-    datasourceConfiguration: {
-      connection: { ssl: { authType: "DEFAULT" } },
-      sshProxyEnabled: false,
-      properties: [
-        { key: "isSendSessionEnabled", value: "N" },
-        { key: "sessionSignatureKey", value: "" },
-      ],
-      url: "Test",
-      headers: [],
-      queryParameters: [],
+    datasourceStorages: {
+      [defaultEnvId]: {
+        datasourceConfiguration: {
+          connection: { ssl: { authType: "DEFAULT" } },
+          sshProxyEnabled: false,
+          properties: [
+            { key: "isSendSessionEnabled", value: "N" },
+            { key: "sessionSignatureKey", value: "" },
+          ],
+          url: "Test",
+          headers: [],
+          queryParameters: [],
+        },
+      },
     },
     invalids: [],
     messages: [],

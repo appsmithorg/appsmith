@@ -15,9 +15,7 @@ let dsName: any, query: string;
 
 describe("Bug #14299 - The data from the query does not show up on the widget", function () {
   before("Create Postgress DS & set theme", () => {
-    cy.fixture("/Bugs/14299dsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Bugs/14299dsl");
     appSettings.OpenPaneAndChangeThemeColors(13, 22);
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

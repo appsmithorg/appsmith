@@ -28,7 +28,7 @@ describe("Debugger logs", function () {
     );
     _.agHelper.RefreshPage();
     // Wait for the debugger icon to be visible
-    _.agHelper.AssertElementVisible(".t--debugger-count");
+    _.agHelper.AssertElementVisibility(".t--debugger-count");
     _.debuggerHelper.ClickDebuggerIcon();
     _.agHelper.GetNClick(_.jsEditor._logsTab);
     _.debuggerHelper.DoesConsoleLogExist(logString);
@@ -287,8 +287,35 @@ describe("Debugger logs", function () {
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.agHelper.GetNClick(_.locators._errorTab);
 
-    _.debuggerHelper.ClicklogEntityLink(0);
+    _.debuggerHelper.ClicklogEntityLink();
 
     cy.get(".t--js-action-name-edit-field").should("exist");
+  });
+
+  it("10. Bug #24039 - Logs errors from setInterval callback into debugger", () => {
+    _.entityExplorer.NavigateToSwitcher("Widgets");
+    _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 400, 600);
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    _.propPane.SelectPlatformFunction("onClick", "Set interval");
+    _.agHelper.EnterActionValue(
+      "Callback function",
+      `{{() => {
+        try {
+          Test.run();
+        } catch (e) {
+          clearInterval('myInterval');
+          throw e;
+        }
+      }
+      }}`,
+    );
+    _.agHelper.EnterActionValue("Id", "myInterval");
+    _.agHelper.Sleep();
+    _.agHelper.GetNClick(_.jsEditor._logsTab);
+    _.debuggerHelper.ClearLogs();
+    _.agHelper.ClickButton("Submit");
+    _.debuggerHelper.DoesConsoleLogExist(
+      "Uncaught ReferenceError: Test is not defined",
+    );
   });
 });

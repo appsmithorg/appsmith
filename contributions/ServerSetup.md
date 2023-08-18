@@ -14,40 +14,23 @@ There are two ways to run Appsmith server.
 
 ## Setup with Docker
 
-* You can run the server codebase in a docker container.
+Running the Appsmith Docker image as a container will grant you a running Appsmith server, along with its dependencies, like MongoDB and Redis. This is the easiest way to get started with Appsmith server.
 
-* This method is recommended if you just want to run the backend server for testing/contributing to frontend code. If you would like to make edits to the source code of server, use [local server method](#local-setup)
+1. Clone the Appsmith repository and change into it
+    ```
+    git clone https://github.com/appsmithorg/appsmith.git
+    cd appsmith
+    ```
 
-- ## What's in the docker container
-    * Appsmith server
-    * MongoDB database
-    * Redis instance
+2. Change your directory to `deploy/docker`
+    ```console
+    cd deploy/docker
+    ```
 
-* ## Pre-requisites
-
-    * [Docker](https://docs.docker.com/get-docker/)
-
-* ## Setup
-
-    1. Clone the Appsmith repository and `cd` into it
-
-        ```
-        git clone https://github.com/appsmithorg/appsmith.git
-        cd appsmith
-        ```
-    2. Change your directory to `app/server`
-        ```console
-        cd app/server
-        ```
-    3. Create a copy of the `envs/docker.env.example`
-        ```console
-        cp envs/docker.env.example envs/docker.env
-        ```
-    4. Start up the containers
-        ```console
-        docker-compose up -d
-        ``` 
-    5. Have fun!
+3. Start
+    ```console
+    docker-compose up -d
+    ```
 
 # Local Setup
 
@@ -88,7 +71,7 @@ This document doesn't provide instructions to install Java and Maven because the
             ```
             mongosh
             ```
-        2. Once you are inside the mongo shell run the below command. 
+        2. Once you are inside the mongo shell run the below command.
             ```
             rs.initiate({"_id": "rs0", "members" : [{"_id":0 , "host": "localhost:27017" }]})
             ```
@@ -96,11 +79,11 @@ This document doesn't provide instructions to install Java and Maven because the
         - Upgrade the MongoDB version to 5.0 or higher
         - Close the mongoDB instance running in your local
         - Start the mongoDB in replica set mode and initiate the replica set
-            
+
             ```
             mongod --port 27017 --dbpath <path/to/db> --replSet <replica-set-name> && mongo --eval “rs.initiate()”
             ```
-        - One can use following commands to check replica set status: 
+        - One can use following commands to check replica set status:
             ```
             mongo appsmith
             rs.status()
@@ -128,7 +111,7 @@ With the prerequisites met, let's build the code.
 
     ```console
     mvn clean compile
-    ```  
+    ```
 
     This generates a bunch of classes required by IntelliJ for compiling the rest of the source code. Without this step, your IDE may complain about missing classes and will be unable to compile the code.
 
@@ -156,9 +139,9 @@ With the prerequisites met, let's build the code.
     - This command will create a `dist` folder which contains the final packaged jar along with multiple jars for plugins as well.
     - If you want to run the tests, you can remove `-DskipTests` flag from the build cmd.
     ### Debugging
-    
+
     - If the volume containing docker's data root path (macOS: ```~/Library/Containers/com.docker.docker/Data/vms/0/```, Ubuntu: `/var/lib/docker/`) has less than 2 GB of free space, then the script may fail with the following error.
-        
+
         ```console
         Check failed: Docker environment should have more than 2GB free disk space.
         ```
@@ -171,7 +154,7 @@ With the prerequisites met, let's build the code.
             ```console
             sudo APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
             ```
-    
+
 
 
 8. Start the Java server by running
@@ -254,7 +237,7 @@ Note that you have to execute further steps into WSL terminal not in CMD.
 To point to a custom Git Root where the git repositories will be persisted, update the env variable called APPSMITH_GIT_ROOT to point to your custom file path.
 
 ```console
-APPSMITH_GIT_ROOT=./path/to/repo/directory 
+APPSMITH_GIT_ROOT=./path/to/repo/directory
 ```
 
 ## Building and running the code
@@ -265,7 +248,7 @@ APPSMITH_GIT_ROOT=./path/to/repo/directory
 
 ```console
 mvn clean compile
-```  
+```
 
 This generates a bunch of classes required by IntelliJ for compiling the rest of the source code. Without this step, your IDE may complain about missing classes and will be unable to compile the code.
 

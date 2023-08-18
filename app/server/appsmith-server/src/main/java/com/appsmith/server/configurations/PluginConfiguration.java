@@ -21,5 +21,4 @@ public class PluginConfiguration {
                     : new PropertiesPluginDescriptorFinder();
         }
     }
-
 }

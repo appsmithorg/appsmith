@@ -24,6 +24,7 @@ import { convertSchemaItemToFormData } from "../helper";
 import type {
   ButtonStyles,
   ChildStylesheet,
+  SetterConfig,
   Stylesheet,
 } from "entities/AppTheming";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -223,16 +224,35 @@ class JSONFormWidget extends BaseWidget<
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: JSONFormWidgetProps) => ({
-      "!doc":
-        "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
-      // TODO: Update the url
-      "!url": "https://docs.appsmith.com/widget-reference",
-      formData: generateTypeDef(widget.formData),
-      sourceData: generateTypeDef(widget.sourceData),
-      fieldState: generateTypeDef(widget.fieldState),
-      isValid: "bool",
-    });
+    return (widget: JSONFormWidgetProps) => {
+      const definitions: AutocompletionDefinitions = {
+        "!doc":
+          "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
+        // TODO: Update the url
+        "!url": "https://docs.appsmith.com/widget-reference",
+        formData: generateTypeDef(widget.formData),
+        sourceData: generateTypeDef(widget.sourceData),
+        fieldState: generateTypeDef(widget.fieldState),
+        isValid: "bool",
+      };
+
+      return definitions;
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setSourceData: {
+          path: "sourceData",
+          type: "object",
+        },
+      },
+    };
   }
 
   static defaultProps = {};

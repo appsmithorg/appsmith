@@ -16,9 +16,19 @@ export class Onboarding {
       .GetElement(OnboardingLocator.checklistConnectionBtn)
       .realHover()
       .should("have.css", "cursor", "not-allowed");
-    cy.get(OnboardingLocator.checklistDatasourceBtn).click();
-    cy.get(OnboardingLocator.datasourcePage).should("be.visible");
-    this._aggregateHelper.AssertElementAbsence(OnboardingLocator.introModal);
+    this._aggregateHelper.GetHoverNClick(
+      OnboardingLocator.checklistDatasourceBtn,
+      0,
+      true,
+    );
+    this._aggregateHelper.AssertElementVisibility(
+      OnboardingLocator.datasourcePage,
+    );
+    this.closeIntroModal();
+    this._aggregateHelper.AssertElementAbsence(
+      OnboardingLocator.introModal,
+      10000,
+    );
     if (Cypress.env("AIRGAPPED")) {
       this._datasources.CreateDataSource("Mongo");
       cy.get("@dsName").then(($dsName) => {

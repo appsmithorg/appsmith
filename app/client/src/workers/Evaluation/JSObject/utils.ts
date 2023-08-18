@@ -1,7 +1,6 @@
 import type {
   ConfigTree,
   DataTree,
-  AppsmithEntity,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -22,7 +21,6 @@ import {
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import JSObjectCollection from "./Collection";
-import type { APP_MODE } from "entities/App";
 import type {
   JSActionEntityConfig,
   JSActionEntity,
@@ -71,7 +69,6 @@ export const updateJSCollectionInUnEvalTree = (
           );
 
           set(modifiedUnEvalTree, `${entityName}.${action.name}.data`, data);
-          set(oldConfig.meta?.[action.name], `isAsync`, action.isAsync);
         }
       } else {
         const reactivePaths = oldConfig.reactivePaths;
@@ -90,7 +87,6 @@ export const updateJSCollectionInUnEvalTree = (
         const meta = oldConfig.meta;
         meta[action.name] = {
           arguments: action.arguments,
-          isAsync: action.isAsync,
           confirmBeforeExecute: false,
         };
 
@@ -270,11 +266,6 @@ export function isJSObjectVariable(
   return (
     isJSAction(entity as unknown as DataTreeEntity) && variables.includes(key)
   );
-}
-
-export function getAppMode(dataTree: DataTree) {
-  const appsmithObj = dataTree.appsmith as AppsmithEntity;
-  return appsmithObj.mode as APP_MODE;
 }
 
 export function isPromise(value: any): value is Promise<unknown> {

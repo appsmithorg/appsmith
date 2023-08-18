@@ -55,12 +55,16 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return getPermissionGroupsOfAnonymousUser();
         }
 
-        if (user.getEmail() == null || user.getEmail().isEmpty() || user.getId() == null || user.getId().isEmpty()) {
+        if (user.getEmail() == null
+                || user.getEmail().isEmpty()
+                || user.getId() == null
+                || user.getId().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
         }
 
-
-        Criteria assignedToUserIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).is(user.getId());
+        Criteria assignedToUserIdsCriteria = Criteria.where(
+                        fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
+                .is(user.getId());
         Criteria notDeletedCriteria = notDeleted();
 
         Criteria andCriteria = new Criteria();
@@ -69,7 +73,8 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         Query query = new Query();
         query.addCriteria(andCriteria);
 
-        return mongoOperations.find(query, PermissionGroup.class)
+        return mongoOperations
+                .find(query, PermissionGroup.class)
                 .map(permissionGroup -> permissionGroup.getId())
                 .collect(Collectors.toSet());
     }
@@ -81,11 +86,17 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.just(anonymousUserPermissionGroupIds);
         }
 
-        log.debug("In memory cache miss for anonymous user permission groups. Fetching from DB and adding it to in memory storage.");
+        log.debug(
+                "In memory cache miss for anonymous user permission groups. Fetching from DB and adding it to in memory storage.");
 
         // All public access is via a single permission group. Fetch the same and set the cache with it.
-        return mongoOperations.findOne(Query.query(Criteria.where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP)), Config.class)
-                .map(publicPermissionGroupConfig -> Set.of(publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID)))
+        return mongoOperations
+                .findOne(
+                        Query.query(
+                                Criteria.where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP)),
+                        Config.class)
+                .map(publicPermissionGroupConfig ->
+                        Set.of(publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID)))
                 .doOnSuccess(permissionGroupIds -> anonymousUserPermissionGroupIds = permissionGroupIds);
     }
 
@@ -114,18 +125,19 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.just(tenantAnonymousUserMap.get(tenantId));
         }
 
-        Criteria anonymousUserCriteria = Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER);
-        Criteria tenantIdCriteria = Criteria.where(fieldName(QUser.user.tenantId)).is(tenantId);
+        Criteria anonymousUserCriteria =
+                Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER);
+        Criteria tenantIdCriteria =
+                Criteria.where(fieldName(QUser.user.tenantId)).is(tenantId);
 
         Query query = new Query();
         query.addCriteria(anonymousUserCriteria);
         query.addCriteria(tenantIdCriteria);
 
-        return mongoOperations.findOne(query, User.class)
-                .map(anonymousUser -> {
-                    tenantAnonymousUserMap.put(tenantId, anonymousUser);
-                    return anonymousUser;
-                });
+        return mongoOperations.findOne(query, User.class).map(anonymousUser -> {
+            tenantAnonymousUserMap.put(tenantId, anonymousUser);
+            return anonymousUser;
+        });
     }
 
     @Override
@@ -134,15 +146,15 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return getAnonymousUser(defaultTenantId);
         }
 
-        Criteria defaultTenantCriteria = Criteria.where(fieldName(QTenant.tenant.slug)).is(FieldName.DEFAULT);
+        Criteria defaultTenantCriteria =
+                Criteria.where(fieldName(QTenant.tenant.slug)).is(FieldName.DEFAULT);
         Query query = new Query();
         query.addCriteria(defaultTenantCriteria);
 
-        return mongoOperations.findOne(query, Tenant.class)
-                .flatMap(defaultTenant -> {
-                    defaultTenantId = defaultTenant.getId();
-                    return getAnonymousUser(defaultTenant.getId());
-                });
+        return mongoOperations.findOne(query, Tenant.class).flatMap(defaultTenant -> {
+            defaultTenantId = defaultTenant.getId();
+            return getAnonymousUser(defaultTenant.getId());
+        });
     }
 
     @Override
@@ -151,14 +163,14 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.just(defaultTenantId);
         }
 
-        Criteria defaultTenantCriteria = Criteria.where(fieldName(QTenant.tenant.slug)).is(FieldName.DEFAULT);
+        Criteria defaultTenantCriteria =
+                Criteria.where(fieldName(QTenant.tenant.slug)).is(FieldName.DEFAULT);
         Query query = new Query();
         query.addCriteria(defaultTenantCriteria);
 
-        return mongoOperations.findOne(query, Tenant.class)
-                .map(defaultTenant -> {
-                    defaultTenantId = defaultTenant.getId();
-                    return defaultTenantId;
-                });
+        return mongoOperations.findOne(query, Tenant.class).map(defaultTenant -> {
+            defaultTenantId = defaultTenant.getId();
+            return defaultTenantId;
+        });
     }
 }

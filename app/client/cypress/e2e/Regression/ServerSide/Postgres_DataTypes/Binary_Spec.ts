@@ -14,9 +14,7 @@ describe.skip("Binary Datatype tests", function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Create DS, Importing App & setting theme", () => {
-    cy.fixture("Datatypes/BinaryDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/BinaryDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(24, -37);
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
@@ -34,7 +32,7 @@ describe.skip("Binary Datatype tests", function () {
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
     });
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       entityExplorer._entityNameInExplorer("public.binarytype"),
     );
 
@@ -84,14 +82,14 @@ describe.skip("Binary Datatype tests", function () {
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.ClickButton("Select New Image");
     agHelper.UploadFile(imageNameToUpload);
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 10000); //for the update row to appear at last
     table.WaitUntilTableLoad();
     agHelper.Sleep(3000); //some more time for all rows with images to be populated
@@ -112,14 +110,14 @@ describe.skip("Binary Datatype tests", function () {
     imageNameToUpload = "Datatypes/Georgia.jpeg";
 
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.ClickButton("Select New Image");
     agHelper.UploadFile(imageNameToUpload);
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
     agHelper.Sleep(2000); //some more time for all rows with images to be populated
@@ -140,14 +138,14 @@ describe.skip("Binary Datatype tests", function () {
     imageNameToUpload = "Datatypes/Maine.jpeg";
 
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.ClickButton("Select New Image");
     agHelper.UploadFile(imageNameToUpload);
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
     agHelper.Sleep(2000); //some more time for all rows with images to be populated
@@ -169,14 +167,14 @@ describe.skip("Binary Datatype tests", function () {
 
     table.SelectTableRow(1);
     agHelper.ClickButton("Run UpdateQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.ClickButton("Select update image");
     agHelper.UploadFile(imageNameToUpload);
 
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Update did not fail
-    agHelper.AssertElementVisible(locators._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run UpdateQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
     agHelper.Sleep(10000); //some more time for rows to rearrange!
@@ -212,7 +210,7 @@ describe.skip("Binary Datatype tests", function () {
 
     //Deleting all records from .table
     agHelper.GetNClick(locators._deleteIcon);
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
@@ -221,7 +219,7 @@ describe.skip("Binary Datatype tests", function () {
     imageNameToUpload = "Datatypes/Massachusetts.jpeg";
 
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     //agHelper.EnterInputText("Imagename", "Massachusetts");
     agHelper.ClickButton("Select New Image");
@@ -229,7 +227,7 @@ describe.skip("Binary Datatype tests", function () {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
     agHelper.Sleep(2000); //for all rows with images to be populated
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {

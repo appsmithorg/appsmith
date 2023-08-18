@@ -6,9 +6,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 describe("Binding prompt", function () {
   before(() => {
-    cy.fixture("inputdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("inputdsl");
   });
 
   it("1. Show binding prompt when there are no bindings in the editor", () => {

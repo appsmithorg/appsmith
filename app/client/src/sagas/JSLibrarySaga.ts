@@ -24,7 +24,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { validateResponse } from "./ErrorSagas";
-import { evaluateTreeSaga, EvalWorker } from "./EvaluationsSaga";
+import { EvalWorker } from "./EvaluationsSaga";
 import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
@@ -184,9 +184,6 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     },
   });
 
-  //TODO: Check if we could avoid this.
-  yield call(evaluateTreeSaga, [], false, true, true);
-
   yield put({
     type: ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
     payload: {
@@ -270,8 +267,6 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
     } catch (e) {
       log.debug(`Failed to remove definitions for ${name}`, e);
     }
-
-    yield call(evaluateTreeSaga, [], false, true, true);
 
     yield put({
       type: ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS,

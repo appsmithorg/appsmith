@@ -4,6 +4,8 @@ import {
   agHelper,
   entityExplorer,
   assertHelper,
+  deployMode,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Omnibar functionality test cases", () => {
@@ -11,16 +13,16 @@ describe("Omnibar functionality test cases", () => {
   const jsObjectName = "Omnibar2";
 
   before(() => {
-    cy.fixture("omnibarDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("omnibarDsl");
   });
 
   it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
-    cy.dragAndDropToCanvas("audiowidget", { x: 300, y: 500 });
-    agHelper.AssertNewTabOpened(() => {
-      cy.xpath('//span[text()="Learn more"]').click();
-    });
+    cy.dragAndDropToCanvas(draggableWidgets.AUDIO, { x: 300, y: 500 });
+    deployMode.StubWindowNAssert(
+      '//span[text()="Learn more"]',
+      "connect-datasource",
+      "getWorkspace",
+    );
   });
 
   it("2.Verify omnibar is present across all pages and validate its fields", function () {
@@ -60,9 +62,15 @@ describe("Omnibar functionality test cases", () => {
     cy.wait(1000);
     cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
 
-    agHelper.GetNClick(omnibar.globalSearch, 0, true);
-    agHelper.GetNClickByContains(omnibar.categoryTitle, "Create new");
-    agHelper.AssertElementVisible(omnibar.blankAPI);
+    agHelper.GetNClick(omnibar.globalSearch, 0, true, 2000);
+    agHelper.GetNClickByContains(
+      omnibar.categoryTitle,
+      "Create new",
+      0,
+      false,
+      2000,
+    ); //for next screen to open
+    agHelper.AssertElementVisibility(omnibar.blankAPI);
     agHelper.GetNClickByContains(omnibar.createNew, "New blank API");
     assertHelper.AssertNetworkStatus("@createNewApi", 201);
     entityExplorer.SelectEntityByName("Api1");
@@ -89,20 +97,26 @@ describe("Omnibar functionality test cases", () => {
       cy.get(omnibar.globalSearchInput).should("have.value", "vnjkv");
       // discord link should be visible
       cy.get(omnibar.discordLink).should("be.visible");
-      cy.window().then((win) => {
-        cy.stub(win, "open", (url) => {
-          win.location.href = "https://discord.com/invite/rBTTVJp";
-        }).as("discordLink");
-      });
-      cy.url().then(($urlBeforeDiscord) => {
-        // clicking on discord link should open discord
-        cy.get(omnibar.discordLink).click();
-        cy.get("@discordLink").should("be.called");
-        cy.wait(2000);
-        //cy.go(-1);
-        cy.visit($urlBeforeDiscord);
-        cy.wait(4000); //for page to load
-      });
+      // cy.window().then((win) => {
+      //   cy.stub(win, "open", (url) => {
+      //     win.location.href = "https://discord.com/invite/rBTTVJp";
+      //   }).as("discordLink");
+      // });
+      // cy.url().then(($urlBeforeDiscord) => {
+      //   // clicking on discord link should open discord
+      //   agHelper.GetNClick(omnibar.discordLink, 0, false, 4000);
+      //   cy.get("@discordLink").should("be.called");
+      //   cy.wait(2000);
+      //   //cy.go(-1);
+      //   cy.visit($urlBeforeDiscord);
+      //   cy.wait(4000); //for page to load
+      // });
+
+      deployMode.StubWindowNAssert(
+        omnibar.discordLink,
+        "https://discord.com/invite/rBTTVJp",
+        "getWorkspace",
+      );
     },
   );
 

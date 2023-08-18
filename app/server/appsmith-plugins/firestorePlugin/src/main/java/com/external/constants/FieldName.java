@@ -20,4 +20,3 @@ public class FieldName {
 
     public static final String WHERE_CHILDREN = WHERE + "." + CHILDREN;
 }
-

@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Image Widget Functionality with base64", function () {
   before(() => {
-    cy.fixture("base64imagedsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("base64imagedsl");
   });
 
   it("Image Widget Functionality Base64 validation", function () {

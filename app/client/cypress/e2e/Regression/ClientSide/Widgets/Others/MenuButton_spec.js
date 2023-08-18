@@ -5,9 +5,7 @@ const { modifierKey } = require("../../../../../support/Constants");
 
 describe("Menu button Widget Functionality", () => {
   before(() => {
-    cy.fixture("menuButtonDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("menuButtonDsl");
   });
 
   it("1. Icon alignment should not change when changing the icon", () => {

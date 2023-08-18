@@ -19,20 +19,22 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implements RefactoringSolution {
 
-    public RefactoringSolutionImpl(ObjectMapper objectMapper,
-                                   NewPageService newPageService,
-                                   NewActionService newActionService,
-                                   ActionCollectionService actionCollectionService,
-                                   ResponseUtils responseUtils,
-                                   LayoutActionService layoutActionService,
-                                   ApplicationService applicationService,
-                                   AstService astService,
-                                   InstanceConfig instanceConfig,
-                                   AnalyticsService analyticsService,
-                                   SessionUserService sessionUserService,
-                                   PagePermission pagePermission,
-                                   ActionPermission actionPermission) {
-        super(objectMapper,
+    public RefactoringSolutionImpl(
+            ObjectMapper objectMapper,
+            NewPageService newPageService,
+            NewActionService newActionService,
+            ActionCollectionService actionCollectionService,
+            ResponseUtils responseUtils,
+            LayoutActionService layoutActionService,
+            ApplicationService applicationService,
+            AstService astService,
+            InstanceConfig instanceConfig,
+            AnalyticsService analyticsService,
+            SessionUserService sessionUserService,
+            PagePermission pagePermission,
+            ActionPermission actionPermission) {
+        super(
+                objectMapper,
                 newPageService,
                 newActionService,
                 actionCollectionService,

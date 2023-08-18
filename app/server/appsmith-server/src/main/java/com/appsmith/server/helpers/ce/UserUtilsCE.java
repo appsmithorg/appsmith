@@ -42,10 +42,11 @@ public class UserUtilsCE {
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final PermissionGroupPermission permissionGroupPermission;
 
-    public UserUtilsCE(ConfigRepository configRepository,
-                       PermissionGroupRepository permissionGroupRepository,
-                       CacheableRepositoryHelper cacheableRepositoryHelper,
-                       PermissionGroupPermission permissionGroupPermission) {
+    public UserUtilsCE(
+            ConfigRepository configRepository,
+            PermissionGroupRepository permissionGroupRepository,
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            PermissionGroupPermission permissionGroupPermission) {
         this.configRepository = configRepository;
         this.permissionGroupRepository = permissionGroupRepository;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
@@ -53,13 +54,15 @@ public class UserUtilsCE {
     }
 
     public Mono<Boolean> isSuperUser(User user) {
-        return configRepository.findByNameAsUser(INSTANCE_CONFIG, user, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
+        return configRepository
+                .findByNameAsUser(INSTANCE_CONFIG, user, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
                 .map(config -> Boolean.TRUE)
                 .switchIfEmpty(Mono.just(Boolean.FALSE));
     }
 
     public Mono<Boolean> isCurrentUserSuperUser() {
-        return configRepository.findByName(INSTANCE_CONFIG, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
+        return configRepository
+                .findByName(INSTANCE_CONFIG, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
                 .map(config -> Boolean.TRUE)
                 .switchIfEmpty(Mono.just(Boolean.FALSE));
     }
@@ -67,7 +70,6 @@ public class UserUtilsCE {
     public Mono<Boolean> makeSuperUser(List<User> users) {
         return getSuperAdminPermissionGroup()
                 .flatMap(permissionGroup -> {
-
                     Set<String> assignedToUserIds = new HashSet<>();
 
                     if (permissionGroup.getAssignedToUserIds() != null) {
@@ -83,7 +85,8 @@ public class UserUtilsCE {
                 })
                 .then(Mono.just(users))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(user.getEmail(), user.getTenantId()))
+                .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(
+                        user.getEmail(), user.getTenantId()))
                 .then(Mono.just(Boolean.TRUE));
     }
 
@@ -93,22 +96,26 @@ public class UserUtilsCE {
                     if (permissionGroup.getAssignedToUserIds() == null) {
                         permissionGroup.setAssignedToUserIds(new HashSet<>());
                     }
-                    permissionGroup.getAssignedToUserIds().removeAll(users.stream().map(User::getId).collect(Collectors.toList()));
-                    return permissionGroupRepository.updateById(permissionGroup.getId(), permissionGroup, permissionGroupPermission.getAssignPermission());
+                    permissionGroup
+                            .getAssignedToUserIds()
+                            .removeAll(users.stream().map(User::getId).collect(Collectors.toList()));
+                    return permissionGroupRepository.updateById(
+                            permissionGroup.getId(), permissionGroup, permissionGroupPermission.getAssignPermission());
                 })
                 .then(Mono.just(users))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(user.getEmail(), user.getTenantId()))
+                .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(
+                        user.getEmail(), user.getTenantId()))
                 .then(Mono.just(Boolean.TRUE));
     }
 
     protected Mono<Config> createInstanceConfigForSuperUser() {
 
-        Mono<Tuple2<PermissionGroup, Config>> savedConfigAndPermissionGroupMono = createConfigAndPermissionGroupForSuperAdmin();
+        Mono<Tuple2<PermissionGroup, Config>> savedConfigAndPermissionGroupMono =
+                createConfigAndPermissionGroupForSuperAdmin();
 
         // return the saved instance config
-        return savedConfigAndPermissionGroupMono
-                .map(Tuple2::getT2);
+        return savedConfigAndPermissionGroupMono.map(Tuple2::getT2);
     }
 
     protected Mono<Tuple2<PermissionGroup, Config>> createConfigAndPermissionGroupForSuperAdmin() {
@@ -119,24 +126,25 @@ public class UserUtilsCE {
 
                     // Update the instance config with the permission group id
                     savedInstanceConfig.setConfig(
-                            new JSONObject(Map.of(DEFAULT_PERMISSION_GROUP, savedPermissionGroup.getId()))
-                    );
+                            new JSONObject(Map.of(DEFAULT_PERMISSION_GROUP, savedPermissionGroup.getId())));
 
-                    Policy editConfigPolicy = Policy.builder().permission(MANAGE_INSTANCE_CONFIGURATION.getValue())
+                    Policy editConfigPolicy = Policy.builder()
+                            .permission(MANAGE_INSTANCE_CONFIGURATION.getValue())
                             .permissionGroups(Set.of(savedPermissionGroup.getId()))
                             .build();
-                    Policy readConfigPolicy = Policy.builder().permission(READ_INSTANCE_CONFIGURATION.getValue())
+                    Policy readConfigPolicy = Policy.builder()
+                            .permission(READ_INSTANCE_CONFIGURATION.getValue())
                             .permissionGroups(Set.of(savedPermissionGroup.getId()))
                             .build();
 
                     savedInstanceConfig.setPolicies(Set.of(editConfigPolicy, readConfigPolicy));
 
                     // Add config permissions to permission group
-                    Set<Permission> configPermissions = Set.of(
-                            new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)
-                    );
+                    Set<Permission> configPermissions =
+                            Set.of(new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION));
 
-                    return Mono.zip(addPermissionsToPermissionGroup(savedPermissionGroup, configPermissions),
+                    return Mono.zip(
+                            addPermissionsToPermissionGroup(savedPermissionGroup, configPermissions),
                             configRepository.save(savedInstanceConfig));
                 });
     }
@@ -152,34 +160,37 @@ public class UserUtilsCE {
         PermissionGroup instanceAdminPermissionGroup = new PermissionGroup();
         instanceAdminPermissionGroup.setName(FieldName.INSTANCE_ADMIN_ROLE);
 
-        return permissionGroupRepository.save(instanceAdminPermissionGroup)
-                .flatMap(savedPermissionGroup -> {
-                    Set<Permission> permissions = Set.of(
-                            new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUP_MEMBERS),
-                            new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS),
-                            new Permission(savedPermissionGroup.getId(), UNASSIGN_PERMISSION_GROUPS)
-                    );
-                    savedPermissionGroup.setPermissions(permissions);
+        return permissionGroupRepository.save(instanceAdminPermissionGroup).flatMap(savedPermissionGroup -> {
+            Set<Permission> permissions = Set.of(
+                    new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUP_MEMBERS),
+                    new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS),
+                    new Permission(savedPermissionGroup.getId(), UNASSIGN_PERMISSION_GROUPS));
+            savedPermissionGroup.setPermissions(permissions);
 
-                    Policy readPermissionGroupPolicy = Policy.builder().permission(READ_PERMISSION_GROUP_MEMBERS.getValue())
-                            .permissionGroups(Set.of(savedPermissionGroup.getId()))
-                            .build();
+            Policy readPermissionGroupPolicy = Policy.builder()
+                    .permission(READ_PERMISSION_GROUP_MEMBERS.getValue())
+                    .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                    .build();
 
-                    Policy assignPermissionGroupPolicy = Policy.builder().permission(ASSIGN_PERMISSION_GROUPS.getValue())
-                            .permissionGroups(Set.of(savedPermissionGroup.getId()))
-                            .build();
+            Policy assignPermissionGroupPolicy = Policy.builder()
+                    .permission(ASSIGN_PERMISSION_GROUPS.getValue())
+                    .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                    .build();
 
-                    Policy unassignPermissionGroupPolicy = Policy.builder().permission(UNASSIGN_PERMISSION_GROUPS.getValue())
-                            .permissionGroups(Set.of(savedPermissionGroup.getId()))
-                            .build();
+            Policy unassignPermissionGroupPolicy = Policy.builder()
+                    .permission(UNASSIGN_PERMISSION_GROUPS.getValue())
+                    .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                    .build();
 
-                    savedPermissionGroup.setPolicies(Set.of(readPermissionGroupPolicy, assignPermissionGroupPolicy, unassignPermissionGroupPolicy));
+            savedPermissionGroup.setPolicies(
+                    Set.of(readPermissionGroupPolicy, assignPermissionGroupPolicy, unassignPermissionGroupPolicy));
 
-                    return permissionGroupRepository.save(savedPermissionGroup);
-                });
+            return permissionGroupRepository.save(savedPermissionGroup);
+        });
     }
 
-    protected Mono<PermissionGroup> addPermissionsToPermissionGroup(PermissionGroup permissionGroup, Set<Permission> permissions) {
+    protected Mono<PermissionGroup> addPermissionsToPermissionGroup(
+            PermissionGroup permissionGroup, Set<Permission> permissions) {
         Set<Permission> existingPermissions = new HashSet<>(permissionGroup.getPermissions());
         existingPermissions.addAll(permissions);
         permissionGroup.setPermissions(existingPermissions);
@@ -187,7 +198,8 @@ public class UserUtilsCE {
     }
 
     public Mono<PermissionGroup> getSuperAdminPermissionGroup() {
-        return configRepository.findByName(INSTANCE_CONFIG)
+        return configRepository
+                .findByName(INSTANCE_CONFIG)
                 .switchIfEmpty(Mono.defer(() -> createInstanceConfigForSuperUser()))
                 .flatMap(instanceConfig -> {
                     JSONObject config = instanceConfig.getConfig();

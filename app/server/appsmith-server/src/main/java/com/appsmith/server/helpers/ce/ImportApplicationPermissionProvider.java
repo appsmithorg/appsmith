@@ -42,12 +42,16 @@ import java.util.Set;
 public class ImportApplicationPermissionProvider {
     @Getter(AccessLevel.NONE)
     private final ApplicationPermission applicationPermission;
+
     @Getter(AccessLevel.NONE)
     private final PagePermission pagePermission;
+
     @Getter(AccessLevel.NONE)
     private final ActionPermission actionPermission;
+
     @Getter(AccessLevel.NONE)
     private final DatasourcePermission datasourcePermission;
+
     @Getter(AccessLevel.NONE)
     private final WorkspacePermission workspacePermission;
 
@@ -63,7 +67,7 @@ public class ImportApplicationPermissionProvider {
     // flag to indicate whether permission check is required on the create datasource operation
     private boolean permissionRequiredToCreateDatasource;
 
-    //flag to indicate whether permission check is required on the create page operation
+    // flag to indicate whether permission check is required on the create page operation
     private boolean permissionRequiredToCreatePage;
     // flag to indicate whether permission check is required on the edit page operation
     private boolean permissionRequiredToEditPage;
@@ -91,7 +95,8 @@ public class ImportApplicationPermissionProvider {
         if (permission == null) {
             return true;
         }
-        return PolicyUtil.isPermissionPresentInPolicies(permission.getValue(), baseDomain.getPolicies(), currentUserPermissionGroups);
+        return PolicyUtil.isPermissionPresentInPolicies(
+                permission.getValue(), baseDomain.getPolicies(), currentUserPermissionGroups);
     }
 
     public boolean hasEditPermission(NewPage page) {
@@ -136,12 +141,14 @@ public class ImportApplicationPermissionProvider {
         return hasPermission(workspacePermission.getDatasourceCreatePermission(), workspace);
     }
 
-    public static Builder builder(ApplicationPermission applicationPermission,
-                                  PagePermission pagePermission,
-                                  ActionPermission actionPermission,
-                                  DatasourcePermission datasourcePermission,
-                                  WorkspacePermission workspacePermission) {
-        return new Builder(applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
+    public static Builder builder(
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
+            ActionPermission actionPermission,
+            DatasourcePermission datasourcePermission,
+            WorkspacePermission workspacePermission) {
+        return new Builder(
+                applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
     }
 
     @Setter
@@ -165,7 +172,12 @@ public class ImportApplicationPermissionProvider {
         private boolean permissionRequiredToEditAction;
         private boolean permissionRequiredToEditDatasource;
 
-        private Builder(ApplicationPermission applicationPermission, PagePermission pagePermission, ActionPermission actionPermission, DatasourcePermission datasourcePermission, WorkspacePermission workspacePermission) {
+        private Builder(
+                ApplicationPermission applicationPermission,
+                PagePermission pagePermission,
+                ActionPermission actionPermission,
+                DatasourcePermission datasourcePermission,
+                WorkspacePermission workspacePermission) {
             this.applicationPermission = applicationPermission;
             this.pagePermission = pagePermission;
             this.actionPermission = actionPermission;
@@ -200,8 +212,7 @@ public class ImportApplicationPermissionProvider {
                     permissionRequiredToCreateAction,
                     permissionRequiredToEditAction,
                     permissionRequiredToEditDatasource,
-                    currentUserPermissionGroups
-            );
+                    currentUserPermissionGroups);
         }
     }
 }

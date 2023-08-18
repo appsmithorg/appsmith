@@ -9,9 +9,7 @@ describe("Table widget inline editing validation functionality", () => {
 
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.fixture("Table/InlineEditingDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Table/InlineEditingDSL");
   });
 
   it("1. should check that validation only appears when editable enabled", () => {

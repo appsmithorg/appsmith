@@ -8,6 +8,4 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class InviteUsersDTO extends InviteUsersCE_DTO {
-
-}
+public class InviteUsersDTO extends InviteUsersCE_DTO {}

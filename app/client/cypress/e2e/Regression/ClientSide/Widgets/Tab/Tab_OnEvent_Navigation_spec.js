@@ -2,9 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Tabs widget on change of selection navigation usecases", function () {
   before(() => {
-    cy.fixture("tabsWidgetReset").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tabsWidgetReset");
   });
 
   it("1.On change of tab selection Navigate to a URL", function () {

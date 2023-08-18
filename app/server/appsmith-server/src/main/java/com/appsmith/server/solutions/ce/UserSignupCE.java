@@ -30,5 +30,4 @@ public interface UserSignupCE {
     Mono<User> signupAndLoginSuper(UserSignupRequestDTO userFromRequest, ServerWebExchange exchange);
 
     Mono<Void> signupAndLoginSuperFromFormData(ServerWebExchange exchange);
-
 }

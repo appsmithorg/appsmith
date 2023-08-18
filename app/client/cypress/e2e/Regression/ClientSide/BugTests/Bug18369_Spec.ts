@@ -6,9 +6,7 @@ const ee = ObjectsRegistry.EntityExplorer,
 
 describe("JS Function Execution", function () {
   before(() => {
-    cy.fixture("formWithtabdsl.json").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("formWithtabdsl");
     ee.NavigateToSwitcher("Explorer");
   });
 

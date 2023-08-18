@@ -5,9 +5,9 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.AnalyticsInfo;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PaginationType;
@@ -50,6 +50,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -158,8 +159,12 @@ public class ActionServiceCE_Test {
 
     @SpyBean
     AstService astService;
+
     @Autowired
     DatasourceRepository datasourceRepository;
+
+    @Autowired
+    EnvironmentPermission environmentPermission;
 
     Application testApp = null;
 
@@ -187,17 +192,22 @@ public class ActionServiceCE_Test {
         toCreate.setName("ActionServiceCE_Test");
 
         if (workspaceId == null) {
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
 
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId = workspaceService
+                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .block();
         }
 
         if (testApp == null && testPage == null) {
-            //Create application and page which will be used by the tests to create actions for.
+            // Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            testApp = applicationPageService.createApplication(application, workspaceId).block();
+            testApp = applicationPageService
+                    .createApplication(application, workspaceId)
+                    .block();
 
             final String pageId = testApp.getPages().get(0).getId();
 
@@ -231,17 +241,23 @@ public class ActionServiceCE_Test {
             GitApplicationMetadata gitData = new GitApplicationMetadata();
             gitData.setBranchName("actionServiceTest");
             newApp.setGitApplicationMetadata(gitData);
-            gitConnectedApp = applicationPageService.createApplication(newApp, workspaceId)
+            gitConnectedApp = applicationPageService
+                    .createApplication(newApp, workspaceId)
                     .flatMap(application -> {
                         application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
-                        return applicationService.save(application)
-                                .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
+                        return applicationService
+                                .save(application)
+                                .zipWhen(application1 -> importExportApplicationService.exportApplicationById(
+                                        application1.getId(), gitData.getBranchName()));
                     })
                     // Assign the branchName to all the resources connected to the application
-                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                            workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
-            gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
+            gitConnectedPage = newPageService
+                    .findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false)
+                    .block();
 
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
@@ -249,7 +265,8 @@ public class ActionServiceCE_Test {
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setWorkspaceId(workspaceId);
-        Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
     }
@@ -260,14 +277,14 @@ public class ActionServiceCE_Test {
         applicationPageService.deleteApplication(testApp.getId()).block();
         testApp = null;
         testPage = null;
-
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void findByIdAndBranchName_forGitConnectedAction_getBranchedAction() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
         ActionDTO action = new ActionDTO();
         action.setName("findActionByBranchNameTest");
         action.setPageId(gitConnectedPage.getId());
@@ -277,15 +294,17 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<NewAction> actionMono = layoutActionService.createSingleActionWithBranch(action, branchName)
-                .flatMap(createdAction -> newActionService.findByBranchNameAndDefaultActionId(branchName, createdAction.getId(), READ_ACTIONS));
+        Mono<NewAction> actionMono = layoutActionService
+                .createSingleActionWithBranch(action, branchName)
+                .flatMap(createdAction -> newActionService.findByBranchNameAndDefaultActionId(
+                        branchName, createdAction.getId(), READ_ACTIONS));
 
-        StepVerifier
-                .create(actionMono)
+        StepVerifier.create(actionMono)
                 .assertNext(newAction -> {
                     assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(gitConnectedPage.getId());
                     assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
-                    assertThat(newAction.getDefaultResources().getApplicationId()).isEqualTo(gitConnectedApp.getId());
+                    assertThat(newAction.getDefaultResources().getApplicationId())
+                            .isEqualTo(gitConnectedApp.getId());
                 })
                 .verifyComplete();
     }
@@ -293,7 +312,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void createValidActionAndCheckPermissions() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
@@ -315,8 +335,7 @@ public class ActionServiceCE_Test {
 
         Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action, Boolean.FALSE);
 
-        StepVerifier
-                .create(Mono.zip(actionMono, defaultPermissionGroupsMono))
+        StepVerifier.create(Mono.zip(actionMono, defaultPermissionGroupsMono))
                 .assertNext(tuple -> {
                     ActionDTO createdAction = tuple.getT1();
                     assertThat(createdAction.getId()).isNotEmpty();
@@ -327,27 +346,37 @@ public class ActionServiceCE_Test {
                     List<PermissionGroup> permissionGroups = tuple.getT2();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup developerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup viewerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
-                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                    Policy manageActionPolicy = Policy.builder()
+                            .permission(MANAGE_ACTIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                    Policy readActionPolicy = Policy.builder()
+                            .permission(READ_ACTIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                    Policy executeActionPolicy = Policy.builder()
+                            .permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
                             .build();
 
-                    assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
+                    assertThat(createdAction.getPolicies())
+                            .containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
                 })
                 .verifyComplete();
     }
@@ -355,7 +384,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void createValidAction_forGitConnectedApp_getValidPermissionAndDefaultIds() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
@@ -377,41 +407,52 @@ public class ActionServiceCE_Test {
 
         Mono<ActionDTO> actionMono = layoutActionService.createSingleActionWithBranch(action, branchName);
 
-        StepVerifier
-                .create(Mono.zip(actionMono, defaultPermissionGroupsMono))
+        StepVerifier.create(Mono.zip(actionMono, defaultPermissionGroupsMono))
                 .assertNext(tuple -> {
                     ActionDTO createdAction = tuple.getT1();
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
                     assertThat(createdAction.getDefaultResources()).isNotNull();
                     assertThat(createdAction.getUserPermissions()).isNotEmpty();
-                    assertThat(createdAction.getDefaultResources().getActionId()).isEqualTo(createdAction.getId());
+                    assertThat(createdAction.getDefaultResources().getActionId())
+                            .isEqualTo(createdAction.getId());
                     assertThat(createdAction.getDefaultResources().getPageId()).isEqualTo(gitConnectedPage.getId());
-                    assertThat(createdAction.getDefaultResources().getApplicationId()).isEqualTo(gitConnectedPage.getApplicationId());
+                    assertThat(createdAction.getDefaultResources().getApplicationId())
+                            .isEqualTo(gitConnectedPage.getApplicationId());
 
                     List<PermissionGroup> permissionGroups = tuple.getT2();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup developerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup viewerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
-                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                    Policy manageActionPolicy = Policy.builder()
+                            .permission(MANAGE_ACTIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                    Policy readActionPolicy = Policy.builder()
+                            .permission(READ_ACTIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                    Policy executeActionPolicy = Policy.builder()
+                            .permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
                             .build();
 
-                    assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
+                    assertThat(createdAction.getPolicies())
+                            .containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
                 })
                 .verifyComplete();
     }
@@ -419,7 +460,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void validMoveAction() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         PageDTO newPage = new PageDTO();
         newPage.setName("Destination Page");
@@ -434,19 +476,18 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> createActionMono = layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
+        Mono<ActionDTO> createActionMono =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
 
-        Mono<ActionDTO> movedActionMono = createActionMono
-                .flatMap(savedAction -> {
-                    ActionMoveDTO actionMoveDTO = new ActionMoveDTO();
-                    actionMoveDTO.setAction(savedAction);
-                    actionMoveDTO.setDestinationPageId(destinationPage.getId());
-                    assertThat(savedAction.getUserPermissions()).isNotEmpty();
-                    return layoutActionService.moveAction(actionMoveDTO);
-                });
+        Mono<ActionDTO> movedActionMono = createActionMono.flatMap(savedAction -> {
+            ActionMoveDTO actionMoveDTO = new ActionMoveDTO();
+            actionMoveDTO.setAction(savedAction);
+            actionMoveDTO.setDestinationPageId(destinationPage.getId());
+            assertThat(savedAction.getUserPermissions()).isNotEmpty();
+            return layoutActionService.moveAction(actionMoveDTO);
+        });
 
-        StepVerifier
-                .create(Mono.zip(createActionMono, movedActionMono))
+        StepVerifier.create(Mono.zip(createActionMono, movedActionMono))
                 .assertNext(tuple -> {
                     ActionDTO originalAction = tuple.getT1();
                     ActionDTO movedAction = tuple.getT2();
@@ -457,18 +498,20 @@ public class ActionServiceCE_Test {
                     assertThat(movedAction.getPageId()).isEqualTo(destinationPage.getId());
                 })
                 .verifyComplete();
-
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void moveAction_forGitConnectedApp_defaultResourceIdsUpdateSuccess() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         PageDTO newPage = new PageDTO();
         newPage.setName("Destination Page");
         newPage.setApplicationId(gitConnectedApp.getId());
-        PageDTO destinationPage = applicationPageService.createPageWithBranchName(newPage, branchName).block();
+        PageDTO destinationPage = applicationPageService
+                .createPageWithBranchName(newPage, branchName)
+                .block();
 
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
@@ -478,20 +521,20 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> createActionMono = layoutActionService.createSingleActionWithBranch(action, branchName).cache();
+        Mono<ActionDTO> createActionMono = layoutActionService
+                .createSingleActionWithBranch(action, branchName)
+                .cache();
         DefaultResources sourceActionDefaultRes = new DefaultResources();
 
-        Mono<ActionDTO> movedActionMono = createActionMono
-                .flatMap(savedAction -> {
-                    ActionMoveDTO actionMoveDTO = new ActionMoveDTO();
-                    actionMoveDTO.setAction(savedAction);
-                    actionMoveDTO.setDestinationPageId(destinationPage.getId());
-                    AppsmithBeanUtils.copyNestedNonNullProperties(savedAction.getDefaultResources(), sourceActionDefaultRes);
-                    return layoutActionService.moveAction(actionMoveDTO, branchName);
-                });
+        Mono<ActionDTO> movedActionMono = createActionMono.flatMap(savedAction -> {
+            ActionMoveDTO actionMoveDTO = new ActionMoveDTO();
+            actionMoveDTO.setAction(savedAction);
+            actionMoveDTO.setDestinationPageId(destinationPage.getId());
+            AppsmithBeanUtils.copyNestedNonNullProperties(savedAction.getDefaultResources(), sourceActionDefaultRes);
+            return layoutActionService.moveAction(actionMoveDTO, branchName);
+        });
 
-        StepVerifier
-                .create(Mono.zip(createActionMono, movedActionMono))
+        StepVerifier.create(Mono.zip(createActionMono, movedActionMono))
                 .assertNext(tuple -> {
                     ActionDTO originalAction = tuple.getT1();
                     ActionDTO movedAction = tuple.getT2();
@@ -503,17 +546,19 @@ public class ActionServiceCE_Test {
 
                     // Check if the defaultIds are updated as per destination page default Id
                     assertThat(movedAction.getDefaultResources()).isNotNull();
-                    assertThat(movedAction.getDefaultResources().getPageId()).isEqualTo(destinationPage.getDefaultResources().getPageId());
-                    assertThat(sourceActionDefaultRes.getPageId()).isEqualTo(gitConnectedPage.getDefaultResources().getPageId());
+                    assertThat(movedAction.getDefaultResources().getPageId())
+                            .isEqualTo(destinationPage.getDefaultResources().getPageId());
+                    assertThat(sourceActionDefaultRes.getPageId())
+                            .isEqualTo(gitConnectedPage.getDefaultResources().getPageId());
                 })
                 .verifyComplete();
-
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void createValidActionWithJustName() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
         action.setName("randomActionName");
@@ -522,10 +567,9 @@ public class ActionServiceCE_Test {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
-        Mono<ActionDTO> actionMono = Mono.just(action)
-                .flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
-        StepVerifier
-                .create(actionMono)
+        Mono<ActionDTO> actionMono =
+                Mono.just(action).flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
+        StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
                     assertThat(createdAction.getId()).isNotEmpty();
                     assertThat(createdAction.getName()).isEqualTo(action.getName());
@@ -537,21 +581,22 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void createValidActionNullActionConfiguration() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
         action.setName("randomActionName2");
         action.setPageId(testPage.getId());
         action.setDatasource(datasource);
-        Mono<ActionDTO> actionMono = Mono.just(action)
-                .flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
-        StepVerifier
-                .create(actionMono)
+        Mono<ActionDTO> actionMono =
+                Mono.just(action).flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
+        StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
                     assertThat(createdAction.getId()).isNotEmpty();
                     assertThat(createdAction.getName()).isEqualTo(action.getName());
                     assertThat(createdAction.getIsValid()).isFalse();
-                    assertThat(createdAction.getInvalids()).contains(AppsmithError.NO_CONFIGURATION_FOUND_IN_ACTION.getMessage());
+                    assertThat(createdAction.getInvalids())
+                            .contains(AppsmithError.NO_CONFIGURATION_FOUND_IN_ACTION.getMessage());
                 })
                 .verifyComplete();
     }
@@ -565,12 +610,11 @@ public class ActionServiceCE_Test {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
-        Mono<ActionDTO> actionMono = Mono.just(action)
-                .flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
-        StepVerifier
-                .create(actionMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
+        Mono<ActionDTO> actionMono =
+                Mono.just(action).flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
+        StepVerifier.create(actionMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
                 .verify();
     }
 
@@ -583,10 +627,9 @@ public class ActionServiceCE_Test {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action, Boolean.FALSE);
-        StepVerifier
-                .create(actionMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID)))
+        StepVerifier.create(actionMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID)))
                 .verify();
     }
 
@@ -600,10 +643,9 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         Mono<ActionDTO> actionMono = layoutActionService.createSingleActionWithBranch(action, branchName);
 
-        StepVerifier
-                .create(actionMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID)))
+        StepVerifier.create(actionMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID)))
                 .verify();
     }
 
@@ -616,13 +658,13 @@ public class ActionServiceCE_Test {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
-        Mono<ActionDTO> actionMono = Mono.just(action)
-                .flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
-        StepVerifier
-                .create(actionMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(
-                                AppsmithError.NO_RESOURCE_FOUND.getMessage("page", "invalid page id here")))
+        Mono<ActionDTO> actionMono =
+                Mono.just(action).flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
+        StepVerifier.create(actionMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage("page", "invalid page id here")))
                 .verify();
     }
 
@@ -636,18 +678,20 @@ public class ActionServiceCE_Test {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         Mono<ActionDTO> actionMono = layoutActionService.createSingleActionWithBranch(action, "randomTestBranch");
-        StepVerifier
-                .create(actionMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGE, action.getPageId() + ", randomTestBranch")))
+        StepVerifier.create(actionMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                                        FieldName.PAGE, action.getPageId() + ", randomTestBranch")))
                 .verify();
     }
-
 
     @Test
     @WithUserDetails(value = "api_user")
     public void checkActionInViewMode() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         String key = "bodyMustacheKey";
         ActionDTO action = new ActionDTO();
@@ -673,31 +717,40 @@ public class ActionServiceCE_Test {
         action2.setPageId(testPage.getId());
         action2.setDatasource(datasource);
 
-        Mono<List<ActionViewDTO>> actionsListMono = layoutActionService.createSingleAction(action, Boolean.FALSE)
+        Mono<List<ActionViewDTO>> actionsListMono = layoutActionService
+                .createSingleAction(action, Boolean.FALSE)
                 .then(layoutActionService.createSingleAction(action1, Boolean.FALSE))
                 .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                 .then(applicationPageService.publish(testPage.getApplicationId(), true))
                 .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
-        StepVerifier
-                .create(actionsListMono)
+        StepVerifier.create(actionsListMono)
                 .assertNext(actionsList -> {
                     assertThat(actionsList.size()).isGreaterThan(0);
-                    ActionViewDTO actionViewDTO = actionsList.stream().filter(dto -> dto.getName().equals(action.getName())).findFirst().get();
+                    ActionViewDTO actionViewDTO = actionsList.stream()
+                            .filter(dto -> dto.getName().equals(action.getName()))
+                            .findFirst()
+                            .get();
 
                     assertThat(actionViewDTO).isNotNull();
                     assertThat(actionViewDTO.getJsonPathKeys()).containsAll(Set.of(key));
                     assertThat(actionViewDTO.getPageId()).isEqualTo(testPage.getId());
                     assertThat(actionViewDTO.getTimeoutInMillisecond()).isEqualTo(DEFAULT_ACTION_EXECUTION_TIMEOUT_MS);
 
-                    ActionViewDTO actionViewDTO1 = actionsList.stream().filter(dto -> dto.getName().equals(action1.getName())).findFirst().get();
+                    ActionViewDTO actionViewDTO1 = actionsList.stream()
+                            .filter(dto -> dto.getName().equals(action1.getName()))
+                            .findFirst()
+                            .get();
 
                     assertThat(actionViewDTO1).isNotNull();
                     assertThat(actionViewDTO1.getJsonPathKeys()).isNullOrEmpty();
                     assertThat(actionViewDTO1.getPageId()).isEqualTo(testPage.getId());
                     assertThat(actionViewDTO1.getTimeoutInMillisecond()).isEqualTo(20000);
 
-                    ActionViewDTO actionViewDTO2 = actionsList.stream().filter(dto -> dto.getName().equals(action2.getName())).findFirst().get();
+                    ActionViewDTO actionViewDTO2 = actionsList.stream()
+                            .filter(dto -> dto.getName().equals(action2.getName()))
+                            .findFirst()
+                            .get();
 
                     assertThat(actionViewDTO2).isNotNull();
                     assertThat(actionViewDTO2.getPageId()).isEqualTo(testPage.getId());
@@ -709,7 +762,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void getActionInViewMode() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
         action.setName("view-mode-action-test");
@@ -739,23 +793,24 @@ public class ActionServiceCE_Test {
                 .verifyComplete();
     }
 
-
     @Test
     @WithUserDetails(value = "api_user")
     public void updateShouldNotResetUserSetOnLoad() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Datasource externalDatasource = new Datasource();
         externalDatasource.setName("updateShouldNotResetUserSetOnLoad Database");
         externalDatasource.setWorkspaceId(workspaceId);
-        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("installed-plugin").block();
         externalDatasource.setPluginId(installed_plugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("some url here");
-        externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         externalDatasource.setDatasourceStorages(storages);
         Datasource savedDs = datasourceService.create(externalDatasource).block();
 
@@ -767,23 +822,23 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(savedDs);
 
-        Mono<ActionDTO> newActionMono = layoutActionService
-                .createSingleAction(action, Boolean.FALSE)
-                .cache();
+        Mono<ActionDTO> newActionMono =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
 
-        Mono<ActionDTO> setExecuteOnLoadMono = newActionMono
-                .flatMap(savedAction -> layoutActionService.setExecuteOnLoad(savedAction.getId(), true));
+        Mono<ActionDTO> setExecuteOnLoadMono =
+                newActionMono.flatMap(savedAction -> layoutActionService.setExecuteOnLoad(savedAction.getId(), true));
 
-        Mono<ActionDTO> updateActionMono = newActionMono
-                .flatMap(preUpdateAction -> {
-                    ActionDTO actionUpdate = action;
-                    actionUpdate.getActionConfiguration().setBody("New Body");
-                    return layoutActionService.updateSingleAction(preUpdateAction.getId(), actionUpdate)
-                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
-                });
+        Mono<ActionDTO> updateActionMono = newActionMono.flatMap(preUpdateAction -> {
+            ActionDTO actionUpdate = action;
+            actionUpdate.getActionConfiguration().setBody("New Body");
+            return layoutActionService
+                    .updateSingleAction(preUpdateAction.getId(), actionUpdate)
+                    .flatMap(updatedAction -> layoutActionService
+                            .updatePageLayoutsByPageId(updatedAction.getPageId())
+                            .thenReturn(updatedAction));
+        });
 
-        StepVerifier
-                .create(setExecuteOnLoadMono.then(updateActionMono))
+        StepVerifier.create(setExecuteOnLoadMono.then(updateActionMono))
                 .assertNext(updatedAction -> {
                     assertThat(updatedAction).isNotNull();
                     assertThat(updatedAction.getActionConfiguration().getBody()).isEqualTo("New Body");
@@ -795,7 +850,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkNewActionAndNewDatasourceAnonymousPermissionInPublicApp() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         Application testApplication = new Application();
         testApplication.setName("checkNewActionAndNewDatasourceAnonymousPermissionInPublicApp TestApp");
@@ -809,7 +865,9 @@ public class ActionServiceCE_Test {
                 })
                 .collectList();
 
-        Application createdApplication = applicationPageService.createApplication(testApplication, workspaceId).block();
+        Application createdApplication = applicationPageService
+                .createApplication(testApplication, workspaceId)
+                .block();
 
         String pageId = createdApplication.getPages().get(0).getId();
 
@@ -823,15 +881,15 @@ public class ActionServiceCE_Test {
                 .cache();
 
         Datasource datasource = new Datasource();
+        datasource.setWorkspaceId(workspaceId);
         datasource.setName("After Public Datasource");
         datasource.setPluginId(plugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
@@ -844,20 +902,19 @@ public class ActionServiceCE_Test {
         actionConfiguration1.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration1);
 
-        ActionDTO savedAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO savedAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
-        Mono<Datasource> datasourceMono = publicAppMono
-                .then(datasourceService.findById(savedDatasource.getId()));
+        Mono<Datasource> datasourceMono = publicAppMono.then(datasourceService.findById(savedDatasource.getId()));
 
-        Mono<NewAction> actionMono = publicAppMono
-                .then(newActionService.findById(savedAction.getId()));
+        Mono<NewAction> actionMono = publicAppMono.then(newActionService.findById(savedAction.getId()));
 
         Mono<PermissionGroup> publicAppPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
 
         User anonymousUser = userService.findByEmail("anonymousUser").block();
 
-        StepVerifier
-                .create(Mono.zip(datasourceMono, actionMono, defaultPermissionGroupsMono, publicAppPermissionGroupMono))
+        StepVerifier.create(
+                        Mono.zip(datasourceMono, actionMono, defaultPermissionGroupsMono, publicAppPermissionGroupMono))
                 .assertNext(tuple -> {
                     Datasource datasourceFromDb = tuple.getT1();
                     NewAction actionFromDb = tuple.getT2();
@@ -866,43 +923,60 @@ public class ActionServiceCE_Test {
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup developerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup viewerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
-                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                    Policy manageDatasourcePolicy = Policy.builder()
+                            .permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                    Policy readDatasourcePolicy = Policy.builder()
+                            .permission(READ_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
-                                    viewerPermissionGroup.getId(), publicAppPermissionGroup.getId()))
+                    Policy executeDatasourcePolicy = Policy.builder()
+                            .permission(EXECUTE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(),
+                                    publicAppPermissionGroup.getId()))
                             .build();
 
-                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                    Policy manageActionPolicy = Policy.builder()
+                            .permission(MANAGE_ACTIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                    Policy readActionPolicy = Policy.builder()
+                            .permission(READ_ACTIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
-                                    viewerPermissionGroup.getId(), publicAppPermissionGroup.getId()))
+                    Policy executeActionPolicy = Policy.builder()
+                            .permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(),
+                                    publicAppPermissionGroup.getId()))
                             .build();
 
                     // Check that the datasource used in the app contains public execute permission
-                    assertThat(datasourceFromDb.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
+                    assertThat(datasourceFromDb.getPolicies())
+                            .containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
 
                     // Check that the action used in the app contains public execute permission
-                    assertThat(actionFromDb.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
+                    assertThat(actionFromDb.getPolicies())
+                            .containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
 
                     // Assert that viewerPermissionGroup has been assigned to anonymous user.
                     assertThat(publicAppPermissionGroup.getAssignedToUserIds()).contains(anonymousUser.getId());
@@ -913,7 +987,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void testExecuteOnLoadParamOnActionCreateWithDefaultContext() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
         action.setName("testAction");
@@ -925,8 +1000,7 @@ public class ActionServiceCE_Test {
         action.setDatasource(datasource);
 
         Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action, Boolean.FALSE);
-        StepVerifier
-                .create(actionMono)
+        StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
                     // executeOnLoad is expected to be set to false in case of default context
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
@@ -937,7 +1011,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void testExecuteOnLoadParamOnActionCreateWithClonePageContext() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
         action.setName("testAction");
@@ -950,8 +1025,7 @@ public class ActionServiceCE_Test {
 
         AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
         Mono<ActionDTO> actionMono = layoutActionService.createAction(action, eventContext, Boolean.FALSE);
-        StepVerifier
-                .create(actionMono)
+        StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
                     // executeOnLoad is expected to be set to false in case of default context
                     assertThat(createdAction.getExecuteOnLoad()).isTrue();
@@ -962,7 +1036,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void testUpdateActionWithOutOfRangeTimeout() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
         action.setName("testAction");
@@ -972,27 +1047,25 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> newActionMono = layoutActionService
-                .createSingleAction(action, Boolean.FALSE);
+        Mono<ActionDTO> newActionMono = layoutActionService.createSingleAction(action, Boolean.FALSE);
 
-        Mono<ActionDTO> updateActionMono = newActionMono
-                .flatMap(preUpdateAction -> {
-                    ActionDTO actionUpdate = action;
-                    actionUpdate.getActionConfiguration().setBody("New Body");
-                    return layoutActionService.updateSingleAction(preUpdateAction.getId(), actionUpdate)
-                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
-                });
+        Mono<ActionDTO> updateActionMono = newActionMono.flatMap(preUpdateAction -> {
+            ActionDTO actionUpdate = action;
+            actionUpdate.getActionConfiguration().setBody("New Body");
+            return layoutActionService
+                    .updateSingleAction(preUpdateAction.getId(), actionUpdate)
+                    .flatMap(updatedAction -> layoutActionService
+                            .updatePageLayoutsByPageId(updatedAction.getPageId())
+                            .thenReturn(updatedAction));
+        });
 
-        StepVerifier
-                .create(updateActionMono)
+        StepVerifier.create(updateActionMono)
                 .assertNext(updatedAction -> {
                     assertThat(updatedAction).isNotNull();
-                    assertThat(updatedAction
-                            .getInvalids()
-                            .stream()
-                            .anyMatch(errorMsg -> errorMsg.contains("'Query timeout' field must be an integer between" +
-                                    " 0 and 60000"))
-                    ).isTrue();
+                    assertThat(updatedAction.getInvalids().stream()
+                                    .anyMatch(errorMsg -> errorMsg.contains(
+                                            "'Query timeout' field must be an integer between" + " 0 and 60000")))
+                            .isTrue();
                 })
                 .verifyComplete();
     }
@@ -1000,7 +1073,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void testUpdateActionWithValidRangeTimeout() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
         action.setName("testAction");
@@ -1010,25 +1084,24 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> newActionMono = layoutActionService
-                .createSingleAction(action, Boolean.FALSE);
+        Mono<ActionDTO> newActionMono = layoutActionService.createSingleAction(action, Boolean.FALSE);
 
-        Mono<ActionDTO> updateActionMono = newActionMono
-                .flatMap(preUpdateAction -> {
-                    action.getActionConfiguration().setBody("New Body");
-                    return layoutActionService.updateSingleAction(preUpdateAction.getId(), action)
-                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
-                });
+        Mono<ActionDTO> updateActionMono = newActionMono.flatMap(preUpdateAction -> {
+            action.getActionConfiguration().setBody("New Body");
+            return layoutActionService
+                    .updateSingleAction(preUpdateAction.getId(), action)
+                    .flatMap(updatedAction -> layoutActionService
+                            .updatePageLayoutsByPageId(updatedAction.getPageId())
+                            .thenReturn(updatedAction));
+        });
 
-        StepVerifier
-                .create(updateActionMono)
+        StepVerifier.create(updateActionMono)
                 .assertNext(updatedAction -> {
                     assertThat(updatedAction).isNotNull();
-                    assertThat(updatedAction
-                            .getInvalids()
-                            .stream()
-                            .anyMatch(errorMsg -> errorMsg.contains("'Query timeout' field must be an integer between"))
-                    ).isFalse();
+                    assertThat(updatedAction.getInvalids().stream()
+                                    .anyMatch(errorMsg ->
+                                            errorMsg.contains("'Query timeout' field must be an integer between")))
+                            .isFalse();
                 })
                 .verifyComplete();
     }
@@ -1036,7 +1109,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void testCreateActionWithOutOfRangeTimeout() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
@@ -1048,20 +1122,18 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action, Boolean.FALSE)
+        Mono<ActionDTO> actionMono = layoutActionService
+                .createSingleAction(action, Boolean.FALSE)
                 .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
-        StepVerifier
-                .create(actionMono)
+        StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
                     assertThat(createdAction).isNotNull();
-                    assertThat(createdAction
-                            .getInvalids()
-                            .stream()
-                            .anyMatch(errorMsg -> errorMsg.contains("'Query timeout' field must be an integer between" +
-                                    " 0 and 60000"))
-                    ).isTrue();
+                    assertThat(createdAction.getInvalids().stream()
+                                    .anyMatch(errorMsg -> errorMsg.contains(
+                                            "'Query timeout' field must be an integer between" + " 0 and 60000")))
+                            .isTrue();
                 })
                 .verifyComplete();
     }
@@ -1069,7 +1141,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void testCreateActionWithValidRangeTimeout() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
@@ -1081,28 +1154,27 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action, Boolean.FALSE)
+        Mono<ActionDTO> actionMono = layoutActionService
+                .createSingleAction(action, Boolean.FALSE)
                 .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
-        StepVerifier
-                .create(actionMono)
+        StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
                     assertThat(createdAction).isNotNull();
-                    assertThat(createdAction
-                            .getInvalids()
-                            .stream()
-                            .anyMatch(errorMsg -> errorMsg.contains("'Query timeout' field must be an integer between"))
-                    ).isFalse();
+                    assertThat(createdAction.getInvalids().stream()
+                                    .anyMatch(errorMsg ->
+                                            errorMsg.contains("'Query timeout' field must be an integer between")))
+                            .isFalse();
                 })
                 .verifyComplete();
     }
 
-
     private Mono<PageDTO> createPage(Application app, PageDTO page) {
         return newPageService
                 .findByNameAndViewMode(page.getName(), AclPermission.READ_PAGES, false)
-                .switchIfEmpty(applicationPageService.createApplication(app, workspaceId)
+                .switchIfEmpty(applicationPageService
+                        .createApplication(app, workspaceId)
                         .map(application -> {
                             page.setApplicationId(application.getId());
                             return page;
@@ -1113,7 +1185,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails(value = "api_user")
     public void getActionsExecuteOnLoadPaginatedApi() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         PageDTO testPage = new PageDTO();
         testPage.setName("ActionsExecuteOnLoad Paginated Api Test Page");
@@ -1123,8 +1196,7 @@ public class ActionServiceCE_Test {
 
         Mono<PageDTO> pageMono = createPage(app, testPage).cache();
 
-        Mono<LayoutDTO> testMono = pageMono
-                .flatMap(page1 -> {
+        Mono<LayoutDTO> testMono = pageMono.flatMap(page1 -> {
                     List<Mono<ActionDTO>> monos = new ArrayList<>();
 
                     ActionDTO action = new ActionDTO();
@@ -1144,9 +1216,7 @@ public class ActionServiceCE_Test {
                 .zipWhen(page1 -> {
                     Layout layout = new Layout();
 
-                    JSONObject obj = new JSONObject(Map.of(
-                            "key", "value"
-                    ));
+                    JSONObject obj = new JSONObject(Map.of("key", "value"));
                     layout.setDsl(obj);
 
                     return layoutService.createLayout(page1.getId(), layout);
@@ -1160,40 +1230,41 @@ public class ActionServiceCE_Test {
                     JSONObject obj = new JSONObject(Map.of(
                             "widgetName", "testWidget",
                             "key", "value-updated",
-                            "bindingPath", "{{paginatedApi.data}}"
-                    ));
+                            "bindingPath", "{{paginatedApi.data}}"));
                     JSONArray dynamicBindingsPathList = new JSONArray();
-                    dynamicBindingsPathList.add(
-                            new JSONObject(Map.of("key", "bindingPath"))
-                    );
+                    dynamicBindingsPathList.add(new JSONObject(Map.of("key", "bindingPath")));
 
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
 
-                    return layoutActionService.updateLayout(page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
-
+                    return layoutActionService.updateLayout(
+                            page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
                 });
 
-        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of("paginatedApi.data"), EVALUATION_VERSION))
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(
+                        List.of("paginatedApi.data"), EVALUATION_VERSION))
                 .thenReturn(Flux.just(Tuples.of("paginatedApi.data", new HashSet<>(Set.of("paginatedApi.data")))));
-        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of("paginatedApi.data.prev"), EVALUATION_VERSION))
-                .thenReturn(Flux.just(Tuples.of("paginatedApi.data.prev", new HashSet<>(Set.of("paginatedApi.data.prev")))));
-        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of("paginatedApi.data.next"), EVALUATION_VERSION))
-                .thenReturn(Flux.just(Tuples.of("paginatedApi.data.next", new HashSet<>(Set.of("paginatedApi.data.next")))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(
+                        List.of("paginatedApi.data.prev"), EVALUATION_VERSION))
+                .thenReturn(Flux.just(
+                        Tuples.of("paginatedApi.data.prev", new HashSet<>(Set.of("paginatedApi.data.prev")))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(
+                        List.of("paginatedApi.data.next"), EVALUATION_VERSION))
+                .thenReturn(Flux.just(
+                        Tuples.of("paginatedApi.data.next", new HashSet<>(Set.of("paginatedApi.data.next")))));
 
-        StepVerifier
-                .create(testMono)
+        StepVerifier.create(testMono)
                 .assertNext(layout -> {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
                     assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(1);
 
-                    Set<String> firstSetPageLoadActions = Set.of(
-                            "paginatedApi"
-                    );
+                    Set<String> firstSetPageLoadActions = Set.of("paginatedApi");
 
-                    assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
+                    assertThat(layout.getLayoutOnLoadActions().get(0).stream()
+                                    .map(DslActionDTO::getName)
+                                    .collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);
                 })
                 .verifyComplete();
@@ -1203,7 +1274,8 @@ public class ActionServiceCE_Test {
     @WithUserDetails(value = "api_user")
     public void updateAction_withoutWorkspaceId_withOrganizationId() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
         action.setName("validAction_nestedDatasource");
@@ -1214,8 +1286,8 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> createActionMono = layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
-
+        Mono<ActionDTO> createActionMono =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
 
         ActionDTO updateAction = new ActionDTO();
         Datasource nestedDatasource = new Datasource();
@@ -1225,11 +1297,10 @@ public class ActionServiceCE_Test {
         nestedDatasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
         updateAction.setDatasource(nestedDatasource);
-        Mono<ActionDTO> actionMono = createActionMono
-                .flatMap(savedAction -> layoutActionService.updateAction(savedAction.getId(), updateAction));
+        Mono<ActionDTO> actionMono = createActionMono.flatMap(
+                savedAction -> layoutActionService.updateAction(savedAction.getId(), updateAction));
 
-        StepVerifier
-                .create(actionMono)
+        StepVerifier.create(actionMono)
                 .assertNext(updatedAction -> {
                     Datasource datasource1 = updatedAction.getDatasource();
                     assertThat(datasource1.getWorkspaceId()).isNotNull();
@@ -1241,7 +1312,8 @@ public class ActionServiceCE_Test {
     @Test
     @WithUserDetails("api_user")
     public void validateAndSaveActionToRepository_noDatasourceEditPermission() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
         Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
@@ -1254,17 +1326,58 @@ public class ActionServiceCE_Test {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         NewAction newAction = newActionService.findById(createdAction.getId()).block();
 
         Set<Policy> datasourceExistingPolicies = datasource.getPolicies();
         datasource.setPolicies(Set.of());
         Datasource updatedDatasource = datasourceRepository.save(datasource).block();
-        ActionDTO savedAction = newActionService.validateAndSaveActionToRepository(newAction).block();
+        ActionDTO savedAction =
+                newActionService.validateAndSaveActionToRepository(newAction).block();
         assertThat(savedAction.getIsValid()).isTrue();
         datasource.setPolicies(datasourceExistingPolicies);
         datasource = datasourceRepository.save(datasource).block();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createCopyActionWithAnalyticsData_validateAnalyticsDataPersistsInResponse() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("CopyOfQuery1");
+        action.setPageId(testPage.getId());
+        action.setDatasource(datasource);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null, true)));
+
+        AnalyticsInfo analyticsInfo = new AnalyticsInfo();
+        Map<String, Object> analyticsData = new HashMap<>();
+        String keyOriginalActionId = "originalActionId";
+        String valueOriginalActionId = "xyz";
+        analyticsData.put(keyOriginalActionId, valueOriginalActionId);
+        analyticsInfo.setAnalyticsData(analyticsData);
+        action.setEventData(analyticsInfo);
+
+        action.setActionConfiguration(actionConfiguration);
+
+        Mono<ActionDTO> actionMono =
+                Mono.just(action).flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
+        StepVerifier.create(actionMono)
+                .assertNext(createdAction -> {
+                    assertThat(createdAction.getId()).isNotEmpty();
+                    assertThat(createdAction.getName()).isEqualTo(action.getName());
+                    assertThat(createdAction.getIsValid()).isTrue();
+                    assertThat(createdAction
+                            .getEventData()
+                            .getAnalyticsData()
+                            .get(keyOriginalActionId)
+                            .toString()
+                            .equalsIgnoreCase(valueOriginalActionId));
+                })
+                .verifyComplete();
+    }
 }

@@ -5,7 +5,6 @@ import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
@@ -28,19 +27,19 @@ import static com.appsmith.external.constants.Authentication.BASIC;
 import static com.appsmith.external.constants.Authentication.BEARER_TOKEN;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
-import static com.appsmith.external.models.ApiKeyAuth.Type.HEADER;
-import static com.appsmith.external.models.ApiKeyAuth.Type.QUERY_PARAMS;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
+import static com.appsmith.external.models.ApiKeyAuth.Type.HEADER;
+import static com.appsmith.external.models.ApiKeyAuth.Type.QUERY_PARAMS;
 
 @NoArgsConstructor
 public class HintMessageUtils {
 
     public enum DUPLICATE_ATTRIBUTE_LOCATION {
-        ACTION_CONFIG_ONLY,             // Duplicates found in action configuration only
-        DATASOURCE_CONFIG_ONLY,         // Duplicates found in datasource configuration only
-        DATASOURCE_AND_ACTION_CONFIG    // Duplicates with instance in both datasource and action config
+        ACTION_CONFIG_ONLY, // Duplicates found in action configuration only
+        DATASOURCE_CONFIG_ONLY, // Duplicates found in datasource configuration only
+        DATASOURCE_AND_ACTION_CONFIG // Duplicates with instance in both datasource and action config
     }
 
     protected enum ATTRIBUTE {
@@ -48,24 +47,24 @@ public class HintMessageUtils {
         PARAM
     }
 
-    protected static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_DATASOURCE_CONFIG = "API queries linked to this " +
-            "datasource may not run as expected because this datasource has duplicate definition(s) for {0}(s): {1}." +
-            " Please remove the duplicate definition(s) to resolve this warning. Please note that some of the " +
-            "authentication mechanisms also implicitly define a {0}.";
+    protected static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_DATASOURCE_CONFIG = "API queries linked to this "
+            + "datasource may not run as expected because this datasource has duplicate definition(s) for {0}(s): {1}."
+            + " Please remove the duplicate definition(s) to resolve this warning. Please note that some of the "
+            + "authentication mechanisms also implicitly define a {0}.";
 
-    protected static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_DEFINED_IN_DATASOURCE_CONFIG = "Your API " +
-            "query may not run as expected because its datasource has duplicate definition(s) for {0}(s): {1}. Please" +
-            " remove the duplicate definition(s) from the datasource to resolve this warning.";
+    protected static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_DEFINED_IN_DATASOURCE_CONFIG = "Your API "
+            + "query may not run as expected because its datasource has duplicate definition(s) for {0}(s): {1}. Please"
+            + " remove the duplicate definition(s) from the datasource to resolve this warning.";
 
-    protected static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_CONFIG = "Your API query may not run as " +
-            "expected because it has duplicate definition(s) for {0}(s): {1}. Please remove the duplicate definition" +
-            "(s) from the ''{2}'' tab to resolve this warning.";
+    protected static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_CONFIG = "Your API query may not run as "
+            + "expected because it has duplicate definition(s) for {0}(s): {1}. Please remove the duplicate definition"
+            + "(s) from the ''{2}'' tab to resolve this warning.";
 
     protected static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_WITH_INSTANCE_ACROSS_ACTION_AND_DATASOURCE_CONFIG =
-            "Your API query may not run as expected because it has duplicate definition(s) for {0}(s): {1}. Please " +
-                    "remove the duplicate definition(s) from the ''{2}'' section of either the API query or the " +
-                    "datasource. Please note that some of the authentication mechanisms also implicitly define a " +
-                    "{0}.";
+            "Your API query may not run as expected because it has duplicate definition(s) for {0}(s): {1}. Please "
+                    + "remove the duplicate definition(s) from the ''{2}'' section of either the API query or the "
+                    + "datasource. Please note that some of the authentication mechanisms also implicitly define a "
+                    + "{0}.";
 
     public Set<String> getDatasourceHintMessages(DatasourceConfiguration datasourceConfiguration) {
         Set<String> datasourceHintMessages = new HashSet<>();
@@ -77,27 +76,33 @@ public class HintMessageUtils {
          * Get datasource specific hint message for duplicate headers. ActionConfiguration parameter is passed as
          * `null` so that the hint message that gets generated is only relevant for the datasource.
          */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateHeadersInDatasource = getAllDuplicateHeaders(null, datasourceConfiguration);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateHeadersInDatasource =
+                getAllDuplicateHeaders(null, datasourceConfiguration);
         if (!duplicateHeadersInDatasource.get(DATASOURCE_CONFIG_ONLY).isEmpty()) {
-            datasourceHintMessages.add(MessageFormat.format(HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_DATASOURCE_CONFIG,
-                    ATTRIBUTE.HEADER.name().toLowerCase(), duplicateHeadersInDatasource.get(DATASOURCE_CONFIG_ONLY)));
+            datasourceHintMessages.add(MessageFormat.format(
+                    HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_DATASOURCE_CONFIG,
+                    ATTRIBUTE.HEADER.name().toLowerCase(),
+                    duplicateHeadersInDatasource.get(DATASOURCE_CONFIG_ONLY)));
         }
 
         /**
          * Get datasource specific hint message for duplicate query params. ActionConfiguration parameter is passed
          * as `null` so that the hint message that gets generated is only relevant for the datasource.
          */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateParamsInDatasource = getAllDuplicateParams(null, datasourceConfiguration);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateParamsInDatasource =
+                getAllDuplicateParams(null, datasourceConfiguration);
         if (!duplicateParamsInDatasource.get(DATASOURCE_CONFIG_ONLY).isEmpty()) {
-            datasourceHintMessages.add(MessageFormat.format(HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_DATASOURCE_CONFIG,
-                    ATTRIBUTE.PARAM.name().toLowerCase(), duplicateParamsInDatasource.get(DATASOURCE_CONFIG_ONLY)));
+            datasourceHintMessages.add(MessageFormat.format(
+                    HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_DATASOURCE_CONFIG,
+                    ATTRIBUTE.PARAM.name().toLowerCase(),
+                    duplicateParamsInDatasource.get(DATASOURCE_CONFIG_ONLY)));
         }
 
         return datasourceHintMessages;
     }
 
-    public Set<String> getActionHintMessages(ActionConfiguration actionConfiguration,
-                                                    DatasourceConfiguration datasourceConfiguration) {
+    public Set<String> getActionHintMessages(
+            ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         Set<String> actionHintMessages = new HashSet<>();
 
         /**
@@ -113,37 +118,29 @@ public class HintMessageUtils {
          * configuration apart from the action configuration since an API inherits all the headers defined in its
          * datasource.
          */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateHeadersMap = getAllDuplicateHeaders(actionConfiguration, datasourceConfiguration);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateHeadersMap =
+                getAllDuplicateHeaders(actionConfiguration, datasourceConfiguration);
         if (!duplicateHeadersMap.get(DATASOURCE_CONFIG_ONLY).isEmpty()) {
-            actionHintMessages.add(
-                    MessageFormat.format(
-                            HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_DEFINED_IN_DATASOURCE_CONFIG,
-                            ATTRIBUTE.HEADER.name().toLowerCase(),
-                            duplicateHeadersMap.get(DATASOURCE_CONFIG_ONLY)
-                    )
-            );
+            actionHintMessages.add(MessageFormat.format(
+                    HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_DEFINED_IN_DATASOURCE_CONFIG,
+                    ATTRIBUTE.HEADER.name().toLowerCase(),
+                    duplicateHeadersMap.get(DATASOURCE_CONFIG_ONLY)));
         }
 
         if (!duplicateHeadersMap.get(ACTION_CONFIG_ONLY).isEmpty()) {
-            actionHintMessages.add(
-                    MessageFormat.format(
-                            HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_CONFIG,
-                            ATTRIBUTE.HEADER.name().toLowerCase(),
-                            duplicateHeadersMap.get(ACTION_CONFIG_ONLY),
-                            "Headers"
-                    )
-            );
+            actionHintMessages.add(MessageFormat.format(
+                    HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_CONFIG,
+                    ATTRIBUTE.HEADER.name().toLowerCase(),
+                    duplicateHeadersMap.get(ACTION_CONFIG_ONLY),
+                    "Headers"));
         }
 
         if (!duplicateHeadersMap.get(DATASOURCE_AND_ACTION_CONFIG).isEmpty()) {
-            actionHintMessages.add(
-                    MessageFormat.format(
-                            HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_WITH_INSTANCE_ACROSS_ACTION_AND_DATASOURCE_CONFIG,
-                            ATTRIBUTE.HEADER.name().toLowerCase(),
-                            duplicateHeadersMap.get(DATASOURCE_AND_ACTION_CONFIG),
-                            "Headers"
-                    )
-            );
+            actionHintMessages.add(MessageFormat.format(
+                    HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_WITH_INSTANCE_ACROSS_ACTION_AND_DATASOURCE_CONFIG,
+                    ATTRIBUTE.HEADER.name().toLowerCase(),
+                    duplicateHeadersMap.get(DATASOURCE_AND_ACTION_CONFIG),
+                    "Headers"));
         }
 
         /**
@@ -151,44 +148,36 @@ public class HintMessageUtils {
          * configuration apart from the action configuration since an API inherits all the params defined in its
          * datasource.
          */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateParamsMap = getAllDuplicateParams(actionConfiguration, datasourceConfiguration);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateParamsMap =
+                getAllDuplicateParams(actionConfiguration, datasourceConfiguration);
         if (!duplicateParamsMap.get(DATASOURCE_CONFIG_ONLY).isEmpty()) {
-            actionHintMessages.add(
-                    MessageFormat.format(
-                            HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_DEFINED_IN_DATASOURCE_CONFIG,
-                            ATTRIBUTE.PARAM.name().toLowerCase(),
-                            duplicateParamsMap.get(DATASOURCE_CONFIG_ONLY)
-                    )
-            );
+            actionHintMessages.add(MessageFormat.format(
+                    HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_DEFINED_IN_DATASOURCE_CONFIG,
+                    ATTRIBUTE.PARAM.name().toLowerCase(),
+                    duplicateParamsMap.get(DATASOURCE_CONFIG_ONLY)));
         }
 
         if (!duplicateParamsMap.get(ACTION_CONFIG_ONLY).isEmpty()) {
-            actionHintMessages.add(
-                    MessageFormat.format(
-                            HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_CONFIG,
-                            ATTRIBUTE.PARAM.name().toLowerCase(),
-                            duplicateParamsMap.get(ACTION_CONFIG_ONLY),
-                            "Params"
-                    )
-            );
+            actionHintMessages.add(MessageFormat.format(
+                    HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_CONFIG,
+                    ATTRIBUTE.PARAM.name().toLowerCase(),
+                    duplicateParamsMap.get(ACTION_CONFIG_ONLY),
+                    "Params"));
         }
 
         if (!duplicateParamsMap.get(DATASOURCE_AND_ACTION_CONFIG).isEmpty()) {
-            actionHintMessages.add(
-                    MessageFormat.format(
-                            HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_WITH_INSTANCE_ACROSS_ACTION_AND_DATASOURCE_CONFIG,
-                            ATTRIBUTE.PARAM.name().toLowerCase(),
-                            duplicateParamsMap.get(DATASOURCE_AND_ACTION_CONFIG),
-                            "Params"
-                    )
-            );
+            actionHintMessages.add(MessageFormat.format(
+                    HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_WITH_INSTANCE_ACROSS_ACTION_AND_DATASOURCE_CONFIG,
+                    ATTRIBUTE.PARAM.name().toLowerCase(),
+                    duplicateParamsMap.get(DATASOURCE_AND_ACTION_CONFIG),
+                    "Params"));
         }
 
         return actionHintMessages;
     }
 
-    public Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> getAllDuplicateHeaders(ActionConfiguration actionConfiguration,
-                                                                                DatasourceConfiguration datasourceConfiguration) {
+    public Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> getAllDuplicateHeaders(
+            ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateMap = new HashMap<>();
 
         Set duplicatesInActionConfigOnly = findDuplicates(getActionHeaders(actionConfiguration));
@@ -197,12 +186,12 @@ public class HintMessageUtils {
         Set duplicatesInDsConfigOnly = findDuplicates(getDatasourceHeaders(datasourceConfiguration));
         duplicateMap.put(DATASOURCE_CONFIG_ONLY, duplicatesInDsConfigOnly);
 
-        Set duplicatesAcrossActionAndDsConfig = findDuplicates(getAllHeaders(actionConfiguration,
-                datasourceConfiguration));
+        Set duplicatesAcrossActionAndDsConfig =
+                findDuplicates(getAllHeaders(actionConfiguration, datasourceConfiguration));
         duplicatesAcrossActionAndDsConfig.removeAll(duplicatesInActionConfigOnly);
         duplicatesAcrossActionAndDsConfig.removeAll(duplicatesInDsConfigOnly);
         duplicateMap.put(DATASOURCE_AND_ACTION_CONFIG, duplicatesAcrossActionAndDsConfig);
-        
+
         return duplicateMap;
     }
 
@@ -211,20 +200,19 @@ public class HintMessageUtils {
         Set duplicateItems = new HashSet<String>();
         Set uniqueItems = new HashSet<String>();
 
-        allItems.stream()
-                .forEach(item -> {
-                    if (uniqueItems.contains(item)) {
-                        duplicateItems.add(item);
-                    }
+        allItems.stream().forEach(item -> {
+            if (uniqueItems.contains(item)) {
+                duplicateItems.add(item);
+            }
 
-                    uniqueItems.add(item);
-                });
+            uniqueItems.add(item);
+        });
 
         return duplicateItems;
     }
 
-    protected List getAllHeaders(ActionConfiguration actionConfiguration,
-                                      DatasourceConfiguration datasourceConfiguration) {
+    protected List getAllHeaders(
+            ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         List allHeaders = new ArrayList<String>();
 
         // Get all headers defined in API query editor page.
@@ -252,7 +240,7 @@ public class HintMessageUtils {
         if (datasourceConfiguration != null && !CollectionUtils.isEmpty(datasourceConfiguration.getHeaders())) {
             headers.addAll(getKeyList(datasourceConfiguration.getHeaders()));
         }
-        
+
         // Get authentication related headers.
         headers.addAll(getAuthenticationHeaders(datasourceConfiguration));
 
@@ -269,28 +257,29 @@ public class HintMessageUtils {
         Set<String> headers = new HashSet<>();
 
         // Basic auth or bearer token auth adds a header `Authorization`
-        if (BASIC.equals(datasourceConfiguration.getAuthentication().getAuthenticationType()) ||
-                BEARER_TOKEN.equals(datasourceConfiguration.getAuthentication().getAuthenticationType())) {
+        if (BASIC.equals(datasourceConfiguration.getAuthentication().getAuthenticationType())
+                || BEARER_TOKEN.equals(
+                        datasourceConfiguration.getAuthentication().getAuthenticationType())) {
             headers.add(AUTHORIZATION_HEADER);
         }
 
         // Api key based auth where key is supplied via header
-        if (API_KEY.equals(datasourceConfiguration.getAuthentication().getAuthenticationType()) &&
-                HEADER.equals(((ApiKeyAuth) datasourceConfiguration.getAuthentication()).getAddTo())) {
+        if (API_KEY.equals(datasourceConfiguration.getAuthentication().getAuthenticationType())
+                && HEADER.equals(((ApiKeyAuth) datasourceConfiguration.getAuthentication()).getAddTo())) {
             headers.add(((ApiKeyAuth) datasourceConfiguration.getAuthentication()).getLabel());
         }
 
         // OAuth2 authentication with token sent via header.
-        if (OAUTH2.equals(datasourceConfiguration.getAuthentication().getAuthenticationType()) &&
-                ((OAuth2) datasourceConfiguration.getAuthentication()).getIsTokenHeader()) {
+        if (OAUTH2.equals(datasourceConfiguration.getAuthentication().getAuthenticationType())
+                && ((OAuth2) datasourceConfiguration.getAuthentication()).getIsTokenHeader()) {
             headers.add(AUTHORIZATION_HEADER);
         }
 
         return headers;
     }
 
-    public Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> getAllDuplicateParams(ActionConfiguration actionConfiguration,
-                                                                               DatasourceConfiguration datasourceConfiguration) {
+    public Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> getAllDuplicateParams(
+            ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateMap = new HashMap<>();
 
         Set duplicatesInActionConfigOnly = findDuplicates(getActionParams(actionConfiguration));
@@ -299,8 +288,8 @@ public class HintMessageUtils {
         Set duplicatesInDsConfigOnly = findDuplicates(getDatasourceQueryParams(datasourceConfiguration));
         duplicateMap.put(DATASOURCE_CONFIG_ONLY, duplicatesInDsConfigOnly);
 
-        Set duplicatesAcrossActionAndDsConfig = findDuplicates(getAllParams(actionConfiguration,
-                datasourceConfiguration));
+        Set duplicatesAcrossActionAndDsConfig =
+                findDuplicates(getAllParams(actionConfiguration, datasourceConfiguration));
         duplicatesAcrossActionAndDsConfig.removeAll(duplicatesInActionConfigOnly);
         duplicatesAcrossActionAndDsConfig.removeAll(duplicatesInDsConfigOnly);
         duplicateMap.put(DATASOURCE_AND_ACTION_CONFIG, duplicatesAcrossActionAndDsConfig);
@@ -315,8 +304,8 @@ public class HintMessageUtils {
                 .collect(Collectors.toList());
     }
 
-    protected List getAllParams(ActionConfiguration actionConfiguration,
-                                     DatasourceConfiguration datasourceConfiguration) {
+    protected List getAllParams(
+            ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         List allParams = new ArrayList<String>();
 
         // Get all params defined in API query editor page.
@@ -341,8 +330,7 @@ public class HintMessageUtils {
     protected List getDatasourceQueryParams(DatasourceConfiguration datasourceConfiguration) {
         List<String> params = new ArrayList<>();
 
-        if (datasourceConfiguration != null &&
-                !CollectionUtils.isEmpty(datasourceConfiguration.getQueryParameters())) {
+        if (datasourceConfiguration != null && !CollectionUtils.isEmpty(datasourceConfiguration.getQueryParameters())) {
             params.addAll(getKeyList(datasourceConfiguration.getQueryParameters()));
         }
 
@@ -361,23 +349,24 @@ public class HintMessageUtils {
         Set<String> params = new HashSet<>();
 
         // Api key based auth where key is supplied via query param
-        if (API_KEY.equals(datasourceConfiguration.getAuthentication().getAuthenticationType()) &&
-                QUERY_PARAMS.equals(((ApiKeyAuth) datasourceConfiguration.getAuthentication()).getAddTo())) {
+        if (API_KEY.equals(datasourceConfiguration.getAuthentication().getAuthenticationType())
+                && QUERY_PARAMS.equals(((ApiKeyAuth) datasourceConfiguration.getAuthentication()).getAddTo())) {
             params.add(((ApiKeyAuth) datasourceConfiguration.getAuthentication()).getLabel());
         }
 
         // OAuth2 authentication with token sent via query params.
-        if (OAUTH2.equals(datasourceConfiguration.getAuthentication().getAuthenticationType()) &&
-                !((OAuth2) datasourceConfiguration.getAuthentication()).getIsTokenHeader()) {
+        if (OAUTH2.equals(datasourceConfiguration.getAuthentication().getAuthenticationType())
+                && !((OAuth2) datasourceConfiguration.getAuthentication()).getIsTokenHeader()) {
             params.add(ACCESS_TOKEN);
         }
 
         return params;
     }
 
-    public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
-                                                                  DatasourceConfiguration datasourceConfiguration) {
-        return Mono.zip(Mono.just(getDatasourceHintMessages(datasourceConfiguration)),
+    public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(
+            ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
+        return Mono.zip(
+                Mono.just(getDatasourceHintMessages(datasourceConfiguration)),
                 Mono.just(getActionHintMessages(actionConfiguration, datasourceConfiguration)));
     }
 }

@@ -11,9 +11,7 @@ let datasourceName;
 
 describe("Addwidget from Query and bind with other widgets", function () {
   before(() => {
-    cy.fixture("inputdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("inputdsl");
   });
 
   beforeEach(() => {

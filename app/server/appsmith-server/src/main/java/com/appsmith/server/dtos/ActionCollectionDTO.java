@@ -54,7 +54,7 @@ public class ActionCollectionDTO {
     @JsonView(Views.Public.class)
     String pluginId;
 
-    //this attribute carries error messages while processing the actionCollection
+    // this attribute carries error messages while processing the actionCollection
     @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
@@ -69,7 +69,7 @@ public class ActionCollectionDTO {
 
     // TODO can be used as template for new actions in collection,
     //  or as default configuration for all actions in the collection
-//    ActionDTO defaultAction;
+    //    ActionDTO defaultAction;
 
     // This property is not shared with the client since the reference is only useful to server
     // Map<defaultActionId, branchedActionId>
@@ -81,7 +81,8 @@ public class ActionCollectionDTO {
     Set<String> actionIds = Set.of();
 
     // This property is not shared with the client since the reference is only useful to server
-    // Archived actions represent actions that have been removed from a js object but may be subject to re-use by the user
+    // Archived actions represent actions that have been removed from a js object but may be subject to re-use by the
+    // user
     // Map<defaultActionId, branchedActionId>
     @JsonView(Views.Internal.class)
     Map<String, String> defaultToBranchedArchivedActionIdsMap = Map.of();
@@ -109,7 +110,8 @@ public class ActionCollectionDTO {
     @JsonView(Views.Public.class)
     List<JSValue> variables;
 
-    // This will be used to store the defaultPageId but other fields like branchName, applicationId will act as transient
+    // This will be used to store the defaultPageId but other fields like branchName, applicationId will act as
+    // transient
     @JsonView(Views.Internal.class)
     DefaultResources defaultResources;
 

@@ -22,7 +22,6 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
-
 /**
  * TODO :
  * Move BaseDomain back to appsmith-server.domain. This is done temporarily to create templates and providers in the same database as the server

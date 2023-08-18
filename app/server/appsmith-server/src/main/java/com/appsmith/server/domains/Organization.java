@@ -14,7 +14,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 import java.util.Set;
 
-
 @Getter
 @Setter
 @ToString
@@ -55,5 +54,4 @@ public class Organization extends BaseDomain {
     public String getLogoUrl() {
         return Url.ASSET_URL + "/" + logoAssetId;
     }
-
 }

@@ -101,6 +101,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.get(`.t--widget-textwidget span:contains(${fixturePath})`)
       .should("have.length", 1)
       .scrollIntoView();
+    _.agHelper.Sleep(2000);
 
     //Verifying DeleteFile icon from UI
 
@@ -220,12 +221,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       cy.get(queryLocators.suggestedTableWidget).click().wait(1000);
       cy.get(commonlocators.TableV2Row).validateWidgetExists();
       _.entityExplorer.SelectEntityByName("Table1", "Widgets");
-      _.agHelper.GetNClick(_.propPane._deleteWidget);
-
-      _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");
-      cy.xpath(queryLocators.suggestedWidgetText).click().wait(1000);
-      cy.get(commonlocators.textWidget).validateWidgetExists();
-      _.entityExplorer.SelectEntityByName("Text1", "Widgets");
       _.agHelper.GetNClick(_.propPane._deleteWidget);
 
       _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");

@@ -22,6 +22,4 @@ public class FilterDataService extends FilterDataServiceCE implements IFilterDat
 
         return instance;
     }
-
 }
-

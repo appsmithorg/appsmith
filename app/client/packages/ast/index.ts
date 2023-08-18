@@ -3,6 +3,7 @@ import type {
   PropertyNode,
   MemberExpressionData,
   IdentifierInfo,
+  AssignmentExpressionData,
 } from "./src";
 import {
   isIdentifierNode,
@@ -15,7 +16,7 @@ import {
   getAST,
   extractIdentifierInfoFromCode,
   entityRefactorFromCode,
-  extractInvalidTopLevelMemberExpressionsFromCode,
+  extractExpressionsFromCode,
   getFunctionalParamsFromNode,
   isTypeOfFunction,
   isFunctionPresent,
@@ -25,7 +26,12 @@ import {
 import { ECMA_VERSION, SourceType, NodeTypes } from "./src/constants";
 
 // JSObjects
-import type { TParsedJSProperty, JSPropertyPosition } from "./src/jsObject";
+import type {
+  TParsedJSProperty,
+  JSPropertyPosition,
+  JSVarProperty,
+  JSFunctionProperty,
+} from "./src/jsObject";
 import { parseJSObject, isJSFunctionProperty } from "./src/jsObject";
 
 // action creator
@@ -73,6 +79,9 @@ export type {
   TParsedJSProperty,
   JSPropertyPosition,
   PeekOverlayExpressionIdentifierOptions,
+  AssignmentExpressionData,
+  JSVarProperty,
+  JSFunctionProperty,
 };
 
 export {
@@ -86,7 +95,7 @@ export {
   getAST,
   extractIdentifierInfoFromCode,
   entityRefactorFromCode,
-  extractInvalidTopLevelMemberExpressionsFromCode,
+  extractExpressionsFromCode,
   getFunctionalParamsFromNode,
   isTypeOfFunction,
   parseJSObject,

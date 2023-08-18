@@ -32,15 +32,13 @@ describe("Undo/Redo functionality", function () {
       cy.get(datasourceEditor.username).type(
         datasourceFormData["postgres-username"],
       );
+      cy.wait(500);
       cy.get(datasourceEditor.password).type(
         datasourceFormData["postgres-password"],
       );
       //cy.get(datasourceEditor.sectionAuthentication).trigger("click").wait(1000);
 
       cy.get("body").type(`{${modifierKey}}z`);
-      cy.get(`${datasourceEditor.sectionAuthentication} .ads-v2-icon`).should(
-        "exist",
-      );
       cy.get(".t--application-name").click({ force: true }).wait(500);
       cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
       cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
@@ -97,8 +95,6 @@ describe("Undo/Redo functionality", function () {
 
   it("3. Checks undo/redo in query editor", () => {
     dataSources.NavigateFromActiveDS(postgresDatasourceName, true);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     cy.get(".CodeMirror textarea").first().focus().type("{{FirstAPI}}", {
       force: true,
       parseSpecialCharSequences: false,

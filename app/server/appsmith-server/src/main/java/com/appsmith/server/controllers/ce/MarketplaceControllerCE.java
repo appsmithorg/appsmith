@@ -21,42 +21,44 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-
 @RequestMapping(Url.MARKETPLACE_URL)
 @Slf4j
 public class MarketplaceControllerCE {
     private final MarketplaceService marketplaceService;
 
-    public MarketplaceControllerCE(ObjectMapper objectMapper,
-                                   MarketplaceService marketplaceService) {
+    public MarketplaceControllerCE(ObjectMapper objectMapper, MarketplaceService marketplaceService) {
         this.marketplaceService = marketplaceService;
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/search")
-    Mono<ResponseDTO<SearchResponseDTO>> searchAPIOrProviders(@RequestParam String searchKey, @RequestParam(required = false) Integer limit) {
+    Mono<ResponseDTO<SearchResponseDTO>> searchAPIOrProviders(
+            @RequestParam String searchKey, @RequestParam(required = false) Integer limit) {
 
-        return marketplaceService.searchProviderByName(searchKey)
-                .map(result -> {
-                    SearchResponseDTO searchResponseDTO = new SearchResponseDTO();
-                    searchResponseDTO.setProviders(result);
-                    return new ResponseDTO<>(HttpStatus.OK.value(), searchResponseDTO, null);
-                });
+        return marketplaceService.searchProviderByName(searchKey).map(result -> {
+            SearchResponseDTO searchResponseDTO = new SearchResponseDTO();
+            searchResponseDTO.setProviders(result);
+            return new ResponseDTO<>(HttpStatus.OK.value(), searchResponseDTO, null);
+        });
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/templates")
-    public Mono<ResponseDTO<List<ApiTemplate>>> getAllTemplatesFromMarketplace(@RequestParam MultiValueMap<String, String> params) {
+    public Mono<ResponseDTO<List<ApiTemplate>>> getAllTemplatesFromMarketplace(
+            @RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all templates from Marketplace");
-        return marketplaceService.getTemplates(params)
+        return marketplaceService
+                .getTemplates(params)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/providers")
-    public Mono<ResponseDTO<ProviderPaginatedDTO>> getAllProvidersFromMarketplace(@RequestParam MultiValueMap<String, String> params) {
+    public Mono<ResponseDTO<ProviderPaginatedDTO>> getAllProvidersFromMarketplace(
+            @RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all providers from Marketplace");
-        return marketplaceService.getProviders(params)
+        return marketplaceService
+                .getProviders(params)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
@@ -64,7 +66,8 @@ public class MarketplaceControllerCE {
     @GetMapping("/providers/{id}")
     public Mono<ResponseDTO<Provider>> getProviderByIdFromMarketplace(@PathVariable String id) {
         log.debug("Going to get provider from Marketplace with id {}", id);
-        return marketplaceService.getProviderById(id)
+        return marketplaceService
+                .getProviderById(id)
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
 
@@ -72,8 +75,8 @@ public class MarketplaceControllerCE {
     @GetMapping("/categories")
     public Mono<ResponseDTO<List<String>>> getAllCategoriesFromMarketplace() {
         log.debug("Going to get all categories from Marketplace");
-        return marketplaceService.getCategories()
+        return marketplaceService
+                .getCategories()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
-
 }

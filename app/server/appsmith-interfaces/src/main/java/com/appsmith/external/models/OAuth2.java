@@ -51,8 +51,7 @@ public class OAuth2 extends AuthenticationDTO {
 
     String clientId;
 
-    @Encrypted
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Encrypted @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String clientSecret;
 
     String authorizationUrl;

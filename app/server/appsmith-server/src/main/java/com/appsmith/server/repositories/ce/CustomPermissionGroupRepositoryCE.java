@@ -14,7 +14,8 @@ import java.util.Set;
 
 public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<PermissionGroup> {
 
-    Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(String userId, String workspaceId, AclPermission permission);
+    Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
+            String userId, String workspaceId, AclPermission permission);
 
     Mono<UpdateResult> updateById(String id, Update updateObj);
 
@@ -26,9 +27,8 @@ public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<Pe
 
     Mono<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId);
 
-    Flux<PermissionGroup> findAllByAssignedToUserIn(Set<String> userIds,
-                                                    Optional<List<String>> includeFields, 
-                                                    Optional<AclPermission> permission);
+    Flux<PermissionGroup> findAllByAssignedToUserIn(
+            Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);
 
     Mono<Set<String>> getCurrentUserPermissionGroups();
 }

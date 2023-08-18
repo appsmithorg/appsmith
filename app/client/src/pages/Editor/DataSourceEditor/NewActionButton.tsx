@@ -12,8 +12,9 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { noop } from "utils/AppsmithUtils";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 type NewActionButtonProps = {
   datasource?: Datasource;
@@ -23,14 +24,16 @@ type NewActionButtonProps = {
   eventFrom?: string; // this is to track from where the new action is being generated
   pluginType?: string;
   style?: any;
+  isNewQuerySecondaryButton?: boolean;
 };
 function NewActionButton(props: NewActionButtonProps) {
-  const { datasource, disabled, pluginType } = props;
+  const { datasource, disabled, isNewQuerySecondaryButton, pluginType } = props;
   const [isSelected, setIsSelected] = useState(false);
 
   const dispatch = useDispatch();
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
+  const currentEnvironment = getCurrentEnvironment();
 
   const createQueryAction = useCallback(
     (e) => {
@@ -38,8 +41,10 @@ function NewActionButton(props: NewActionButtonProps) {
       if (
         pluginType === PluginType.API &&
         (!datasource ||
-          !datasource.datasourceConfiguration ||
-          !datasource.datasourceConfiguration.url)
+          !datasource.datasourceStorages[currentEnvironment]
+            .datasourceConfiguration ||
+          !datasource.datasourceStorages[currentEnvironment]
+            .datasourceConfiguration.url)
       ) {
         toast.show(ERROR_ADD_API_INVALID_URL(), {
           kind: "error",
@@ -68,6 +73,7 @@ function NewActionButton(props: NewActionButtonProps) {
       className="t--create-query"
       isDisabled={!!disabled}
       isLoading={isSelected || props.isLoading}
+      kind={isNewQuerySecondaryButton ? "secondary" : "primary"}
       onClick={disabled ? noop : createQueryAction}
       size="md"
       startIcon="plus"

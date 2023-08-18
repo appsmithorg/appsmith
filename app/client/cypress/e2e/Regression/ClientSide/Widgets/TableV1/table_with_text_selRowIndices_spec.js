@@ -4,10 +4,9 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget edge case scenario testing", function () {
   before(() => {
-    cy.fixture("tableWithTextWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableWithTextWidgetDsl");
   });
+
   it("Check if the selectedRowIndices does not contain -1", function () {
     cy.openPropertyPane("tablewidget");
 

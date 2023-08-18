@@ -12,15 +12,14 @@ let datasourceName: any, jsName: any;
 
 describe("JSObjects OnLoad Actions tests", function () {
   before(() => {
-    homePage.NavigateToHome();
-    homePage.CreateNewWorkspace("JSOnLoadTest");
+    homePage.CreateNewWorkspace("JSOnLoadTest", true);
   });
 
   it("1. Tc #58 Verify JSOnPageload with ConfirmBefore calling - while imported", () => {
     homePage.ImportApp("ImportApps/JSOnLoadImport.json", "JSOnLoadTest");
     cy.wait("@importNewApplication").then(() => {
       agHelper.Sleep();
-      dataSources.ReconnectDataSource("MySQL-Ds", "MySQL");
+      dataSources.ReconnectSingleDSNAssert("MySQL-Ds", "MySQL");
     });
     AssertJSOnPageLoad("runSpaceCraftImages", true);
   });
@@ -227,7 +226,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     shouldCheckImport = false,
     faliureMsg = "",
   ) {
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       jsEditor._dialogBody("JSObject1." + jsMethod),
     );
     jsEditor.ConfirmationClick("No");
@@ -236,7 +235,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     shouldCheckImport && homePage.AssertNCloseImport();
 
     deployMode.DeployApp();
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       jsEditor._dialogBody("JSObject1." + jsMethod),
     );
     jsEditor.ConfirmationClick("Yes");

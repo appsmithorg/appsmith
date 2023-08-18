@@ -62,7 +62,6 @@ import {
   IconContainer,
   PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/styledComponents";
-import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelpers/bindingMarker";
 import {
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
@@ -71,7 +70,7 @@ import {
   bindingHint,
   sqlHint,
 } from "components/editorComponents/CodeEditor/hintHelpers";
-import BindingPrompt from "./BindingPrompt";
+
 import { showBindingPrompt } from "./BindingPromptHelper";
 import { Button } from "design-system";
 import "codemirror/addon/fold/brace-fold";
@@ -103,6 +102,7 @@ import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdate } from "actions/editorActions";
 import type { SlashCommandPayload } from "entities/Action";
+import { SlashCommand } from "entities/Action";
 import type { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
@@ -142,7 +142,7 @@ import {
   saveAndAutoIndentCode,
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import classNames from "classnames";
 import {
@@ -158,6 +158,8 @@ import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
 import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
 import { getDeleteLineShortcut } from "./utils/deleteLine";
+import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
+import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -271,7 +273,7 @@ const getEditorIdentifier = (props: EditorProps): string => {
 
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
-    marking: [bindingMarker, entityMarker],
+    marking: [entityMarker],
     hinting: [bindingHint, commandsHelper, sqlHint.hinter],
     lineCommentString: "//",
   };
@@ -489,6 +491,10 @@ class CodeEditor extends Component<Props, State> {
   handleSlashCommandSelection = (...args: any) => {
     const [command] = args;
     if (command === APPSMITH_AI) {
+      this.props.executeCommand({
+        actionType: SlashCommand.ASK_AI,
+        args: {},
+      });
       this.setState({ showAIWindow: true });
     }
     this.handleAutocompleteVisibility(this.editor);
@@ -535,10 +541,24 @@ class CodeEditor extends Component<Props, State> {
       //Refresh editor when the container height is increased.
       this.debounceEditorRefresh();
     }
+
+    const entityInformation = this.getEntityInformation();
+    const isWidgetType = entityInformation.entityType === ENTITY_TYPE.WIDGET;
+
+    const hasFocusedValueChanged =
+      getEditorIdentifier(this.props) !== this.props.focusedProperty;
+
+    if (hasFocusedValueChanged && isWidgetType) {
+      if (this.state.showAIWindow) {
+        this.setState({ showAIWindow: false });
+      }
+    }
+
     if (identifierHasChanged) {
       if (this.state.showAIWindow) {
         this.setState({ showAIWindow: false });
       }
+
       if (shouldFocusOnPropertyControl()) {
         setTimeout(() => {
           if (this.props.editorIsFocused) {
@@ -546,7 +566,25 @@ class CodeEditor extends Component<Props, State> {
           }
         }, 200);
       }
+    } else if (this.props.editorLastCursorPosition) {
+      // This is for when we want to change cursor positions
+      // for e.g navigating to a line from the debugger
+      if (
+        !isEqual(
+          this.props.editorLastCursorPosition,
+          prevProps.editorLastCursorPosition,
+        ) &&
+        this.props.editorLastCursorPosition.origin ===
+          CursorPositionOrigin.Navigation
+      ) {
+        setTimeout(() => {
+          if (this.props.editorIsFocused) {
+            this.editor.focus();
+          }
+        }, 200);
+      }
     }
+
     this.editor.operation(() => {
       if (prevProps.lintErrors !== this.props.lintErrors) {
         this.lintCode(this.editor);
@@ -566,7 +604,7 @@ class CodeEditor extends Component<Props, State> {
          * and we check if they are different because the input value has changed
          * and not because the editor value has changed
          * */
-        if (inputValue !== editorValue && inputValue !== previousInputValue) {
+        if (inputValue !== editorValue) {
           // If it is focused update it only if the identifier has changed
           // if not focused, can be updated
           if (this.state.isFocused) {
@@ -1244,6 +1282,8 @@ class CodeEditor extends Component<Props, State> {
           entityInformation.entityId = entity.widgetId;
           if (isTriggerPath)
             entityInformation.expectedType = AutocompleteDataType.FUNCTION;
+
+          entityInformation.widgetType = entity.type;
         }
       }
       entityInformation.propertyPath = propertyPath;
@@ -1552,12 +1592,14 @@ class CodeEditor extends Component<Props, State> {
             currentValue={this.props.input.value}
             dataTreePath={dataTreePath}
             enableAIAssistance={this.AIEnabled}
+            entity={entityInformation}
             isOpen={this.state.showAIWindow}
             mode={this.props.mode}
             triggerContext={this.props.expected}
             update={this.updateValueWithAIResponse}
           >
             <EditorWrapper
+              AIEnabled
               border={border}
               borderLess={borderLess}
               className={`${className} ${replayHighlightClass} ${
@@ -1575,6 +1617,7 @@ class CodeEditor extends Component<Props, State> {
               isNotHover={this.state.isFocused || this.state.isOpened}
               isRawView={this.props.isRawView}
               isReadOnly={this.props.isReadOnly}
+              mode={this.props.mode}
               onMouseMove={this.handleLintTooltip}
               onMouseOver={this.handleMouseMove}
               ref={this.editorWrapperRef}
@@ -1604,10 +1647,12 @@ class CodeEditor extends Component<Props, State> {
                 ref={this.codeEditorTarget}
                 tabIndex={0}
               >
-                <BindingPrompt
+                <CodeEditorSignPosting
                   editorTheme={this.props.theme}
+                  forComp="editor"
                   isAIEnabled={this.AIEnabled}
                   isOpen={this.isBindingPromptOpen()}
+                  mode={this.props.mode}
                   promptMessage={this.props.promptMessage}
                   showLightningMenu={this.props.showLightningMenu}
                 />
@@ -1651,6 +1696,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   featureFlags: selectFeatureFlags(state),
   datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
   installedLibraries: selectInstalledLibraries(state),
+  focusedProperty: getFocusablePropertyPaneField(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

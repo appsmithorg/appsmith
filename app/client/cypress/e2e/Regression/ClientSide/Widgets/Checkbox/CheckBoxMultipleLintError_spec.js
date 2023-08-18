@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Linting warning validation with Checkbox widget", function () {
   before(() => {
-    cy.fixture("snippetErrordsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("snippetErrordsl");
   });
   it("Linting warning validation", function () {
     cy.openPropertyPane("checkboxwidget");

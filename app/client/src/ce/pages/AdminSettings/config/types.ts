@@ -56,7 +56,7 @@ export type Setting = ControlType & {
   format?: (value: string) => any;
   parse?: (value: any) => any;
   helpText?: string;
-  label?: string;
+  label?: React.ReactNode;
   name?: string;
   placeholder?: string;
   validate?: (value: string, setting?: Setting) => string | void;
@@ -91,8 +91,13 @@ export interface Category {
   slug: string;
   subText?: string;
   isConnected?: boolean;
+  needsRefresh?: boolean;
   children?: Category[];
   icon?: string;
+  categoryType: string;
+  needsUpgrade?: boolean;
+  isEnterprise?: boolean;
+  isFeatureEnabled?: boolean;
 }
 
 export const SettingCategories = {
@@ -107,14 +112,17 @@ export const SettingCategories = {
   GITHUB_AUTH: "github-auth",
   AUDIT_LOGS: "audit-logs",
   ACCESS_CONTROL: "access-control",
+  PROVISIONING: "provisioning",
   BRANDING: "branding",
+  SAML_AUTH: "saml-auth",
+  OIDC_AUTH: "oidc-auth",
 };
 
-export const SettingSubCategories = {
-  GOOGLE: "google signup",
-  GITHUB: "github signup",
-  FORMLOGIN: "form login",
-};
+export enum CategoryType {
+  GENERAL = "general",
+  ACL = "acl",
+  OTHER = "other",
+}
 
 export type AdminConfigType = {
   type: string;
@@ -126,6 +134,10 @@ export type AdminConfigType = {
   children?: AdminConfigType[];
   canSave: boolean;
   isConnected?: boolean;
+  needsRefresh?: boolean;
   icon?: string;
   needsUpgrade?: boolean;
+  categoryType: CategoryType;
+  isEnterprise?: boolean;
+  isFeatureEnabled?: boolean;
 };

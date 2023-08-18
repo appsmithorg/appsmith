@@ -13,5 +13,4 @@ public class GitServiceConfig {
 
     @Value("gitInitializeRepo/GitConnect-Initialize-Repo-Template")
     private String readmeTemplatePath;
-
 }

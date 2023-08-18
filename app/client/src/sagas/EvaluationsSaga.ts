@@ -1,4 +1,4 @@
-import type { ActionPattern } from "redux-saga/effects";
+import type { ActionPattern, CallEffect, ForkEffect } from "redux-saga/effects";
 import {
   actionChannel,
   all,
@@ -37,13 +37,15 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import type { Action } from "redux";
 import {
-  EVALUATE_REDUX_ACTIONS,
+  EVAL_AND_LINT_REDUX_ACTIONS,
   FIRST_EVAL_REDUX_ACTIONS,
   setDependencyMap,
   setEvaluatedTree,
-  shouldLint,
+  shouldForceEval,
   shouldLog,
-  shouldProcessBatchedAction,
+  shouldProcessAction,
+  shouldTriggerEvaluation,
+  shouldTriggerLinting,
 } from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
@@ -66,7 +68,6 @@ import {
   TriggerKind,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { validate } from "workers/Evaluation/validations";
-import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 
@@ -87,7 +88,7 @@ import type {
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 
-import { lintWorker } from "./LintingSagas";
+import { initiateLinting, lintWorker } from "./LintingSagas";
 import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
@@ -97,14 +98,17 @@ import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
+import { waitForWidgetConfigBuild } from "./InitSagas";
+import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
-
 export const evalWorker = new GracefulWorkerService(
   new Worker(
     new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
     {
       type: "module",
+      // Note: the `Worker` part of the name is slightly important – LinkRelPreload_spec.js
+      // relies on it to find workers in the list of all requests.
       name: "evalWorker",
     },
   ),
@@ -126,20 +130,21 @@ export function* updateDataTreeHandler(
 
   const {
     configTree,
-    dataTree,
     dependencies,
     errors,
     evalMetaUpdates = [],
     evaluationOrder,
+    reValidatedPaths,
     isCreateFirstTree = false,
     isNewWidgetAdded,
     jsUpdates,
     logs,
-    pathsToClearErrorsFor,
+    removedPaths,
     staleMetaIds,
     undefinedEvalValuesMap,
     unEvalUpdates,
     jsVarsCreatedEvent,
+    updates,
   } = evalTreeResponse;
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -150,14 +155,13 @@ export function* updateDataTreeHandler(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  const oldDataTree: ReturnType<typeof getDataTree> = yield select(getDataTree);
-
-  const updates = diff(oldDataTree, dataTree) || [];
 
   if (!isEmpty(staleMetaIds)) {
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
+
   yield put(setEvaluatedTree(updates));
+
   ConfigTreeActions.setConfigTree(configTree);
 
   PerformanceTracker.stopAsyncTracking(
@@ -175,14 +179,15 @@ export function* updateDataTreeHandler(
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
-  // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
+
   yield call(
-    evalErrorHandler as any,
+    evalErrorHandler,
     errors,
     updatedDataTree,
     evaluationOrder,
+    reValidatedPaths,
     configTree,
-    pathsToClearErrorsFor,
+    removedPaths,
   );
 
   if (appMode !== APP_MODE.PUBLISHED) {
@@ -211,6 +216,7 @@ export function* updateDataTreeHandler(
       jsData,
     );
   }
+
   yield put(setDependencyMap(dependencies));
   if (postEvalActionsToDispatch && postEvalActionsToDispatch.length) {
     yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
@@ -230,17 +236,15 @@ export function* updateDataTreeHandler(
  * yield call(evaluateTreeSaga, postEvalActions, shouldReplay, requiresLinting, forceEvaluation)
  */
 export function* evaluateTreeSaga(
+  unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree>,
   postEvalActions?: Array<AnyReduxAction>,
   shouldReplay = true,
-  requiresLinting = false,
   forceEvaluation = false,
   requiresLogging = false,
 ) {
   const allActionValidationConfig: ReturnType<
     typeof getAllActionValidationConfig
   > = yield select(getAllActionValidationConfig);
-  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
-    yield select(getUnevaluatedDataTree);
   const unevalTree = unEvalAndConfigTree.unEvalTree;
   const widgets: ReturnType<typeof getWidgets> = yield select(getWidgets);
   const metaWidgets: ReturnType<typeof getMetaWidgets> = yield select(
@@ -249,14 +253,12 @@ export function* evaluateTreeSaga(
   const theme: ReturnType<typeof getSelectedAppTheme> = yield select(
     getSelectedAppTheme,
   );
-  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
-
-  const isEditMode = appMode === APP_MODE.EDIT;
   const toPrintConfigTree = unEvalAndConfigTree.configTree;
   log.debug({ unevalTree, configTree: toPrintConfigTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree: unEvalAndConfigTree,
@@ -265,7 +267,6 @@ export function* evaluateTreeSaga(
     theme,
     shouldReplay,
     allActionValidationConfig,
-    requiresLinting: isEditMode && requiresLinting,
     forceEvaluation,
     metaWidgets,
     appMode,
@@ -313,7 +314,6 @@ export function* evaluateAndExecuteDynamicTrigger(
   const unEvalTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
     getUnevaluatedDataTree,
   );
-  // const unEvalTree = unEvalAndConfigTree.unEvalTree;
   log.debug({ execute: dynamicTrigger });
   const response: { errors: EvaluationError[]; result: unknown } = yield call(
     evalWorker.request,
@@ -329,6 +329,11 @@ export function* evaluateAndExecuteDynamicTrigger(
   );
   const { errors = [] } = response as any;
   yield call(dynamicTriggerErrorHandler, errors);
+  yield fork(logDynamicTriggerExecution, {
+    dynamicTrigger,
+    errors,
+    triggerMeta,
+  });
   return response;
 }
 
@@ -464,7 +469,7 @@ function evalQueueBuffer() {
       const resp = collectedPostEvalActions;
       collectedPostEvalActions = [];
       canTake = false;
-      return { postEvalActions: resp, type: "BUFFERED_ACTION" };
+      return { postEvalActions: resp, type: ReduxActionTypes.BUFFERED_ACTION };
     }
   };
   const flush = () => {
@@ -476,7 +481,7 @@ function evalQueueBuffer() {
   };
 
   const put = (action: EvaluationReduxAction<unknown | unknown[]>) => {
-    if (!shouldProcessBatchedAction(action)) {
+    if (!shouldProcessAction(action)) {
       return;
     }
     canTake = true;
@@ -522,6 +527,58 @@ function getPostEvalActions(
   return postEvalActions;
 }
 
+function* evalAndLintingHandler(
+  isBlockingCall = true,
+  action: ReduxAction<unknown>,
+  options: Partial<{
+    shouldReplay: boolean;
+    forceEvaluation: boolean;
+    requiresLogging: boolean;
+  }>,
+) {
+  const { forceEvaluation, requiresLogging, shouldReplay } = options;
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
+
+  const requiresLinting =
+    appMode === APP_MODE.EDIT && shouldTriggerLinting(action);
+
+  const requiresEval = shouldTriggerEvaluation(action);
+  log.debug({
+    action,
+    triggeredLinting: requiresLinting,
+    triggeredEvaluation: requiresEval,
+  });
+
+  if (!requiresEval && !requiresLinting) return;
+
+  // Generate all the data needed for both eval and linting
+  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
+    yield select(getUnevaluatedDataTree);
+  const postEvalActions = getPostEvalActions(action);
+  const fn: (...args: unknown[]) => CallEffect<unknown> | ForkEffect<unknown> =
+    isBlockingCall ? call : fork;
+
+  const effects = [];
+
+  if (requiresEval) {
+    effects.push(
+      fn(
+        evaluateTreeSaga,
+        unEvalAndConfigTree,
+        postEvalActions,
+        shouldReplay,
+        forceEvaluation,
+        requiresLogging,
+      ),
+    );
+  }
+  if (requiresLinting) {
+    effects.push(fn(initiateLinting, unEvalAndConfigTree, forceEvaluation));
+  }
+
+  yield all(effects);
+}
+
 function* evaluationChangeListenerSaga(): any {
   // Explicitly shutdown old worker if present
   yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
@@ -535,14 +592,17 @@ function* evaluationChangeListenerSaga(): any {
   });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
+  const initAction: EvaluationReduxAction<unknown> = yield take(
+    FIRST_EVAL_REDUX_ACTIONS,
+  );
+  yield call(waitForWidgetConfigBuild);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
-  const initAction: {
-    type: ReduxActionType;
-    postEvalActions: Array<ReduxAction<unknown>>;
-  } = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(evaluateTreeSaga, initAction.postEvalActions, false, true, false);
+  yield fork(evalAndLintingHandler, false, initAction, {
+    shouldReplay: false,
+    forceEvaluation: false,
+  });
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
-    EVALUATE_REDUX_ACTIONS,
+    EVAL_AND_LINT_REDUX_ACTIONS,
     evalQueueBuffer(),
   );
   while (true) {
@@ -550,18 +610,11 @@ function* evaluationChangeListenerSaga(): any {
       evtActionChannel,
     );
 
-    if (shouldProcessBatchedAction(action)) {
-      const postEvalActions = getPostEvalActions(action);
-
-      yield call(
-        evaluateTreeSaga,
-        postEvalActions,
-        get(action, "payload.shouldReplay"),
-        shouldLint(action),
-        false,
-        shouldLog(action),
-      );
-    }
+    yield call(evalAndLintingHandler, true, action, {
+      shouldReplay: get(action, "payload.shouldReplay"),
+      forceEvaluation: shouldForceEval(action),
+      requiresLogging: shouldLog(action),
+    });
   }
 }
 

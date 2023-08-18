@@ -2,9 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Iframe Widget functionality", function () {
   before(() => {
-    cy.fixture("IframeDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("IframeDsl");
   });
 
   const getIframeBody = () => {

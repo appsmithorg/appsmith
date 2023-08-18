@@ -15,7 +15,8 @@ type templateActions =
   | "Distinct"
   | "Aggregate"
   | "Select"
-  | "Create";
+  | "Create"
+  | "List files";
 
 interface EntityActionParams {
   entityNameinLeftSidebar: string;
@@ -28,7 +29,8 @@ interface EntityActionParams {
     | "Copy to page"
     | "Move to page"
     | "Hide"
-    | "Refresh";
+    | "Refresh"
+    | "Set as home page";
   subAction?: string;
   entityType?: EntityItems;
   toAssertAction?: boolean;
@@ -41,7 +43,7 @@ export class EntityExplorer {
   private modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   private assertHelper = ObjectsRegistry.AssertHelper;
 
-  private _contextMenu = (entityNameinLeftSidebar: string) =>
+  public _contextMenu = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
@@ -86,6 +88,12 @@ export class EntityExplorer {
     "//span[text()='" +
     dbName +
     "']/following-sibling::div[contains(@class, 't--entity') and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
+  _widgetTagsList =
+    "[data-testid='widget-sidebar-scrollable-wrapper'] .widget-tag-collapisble";
+  _widgetCards = ".t--widget-card-draggable";
+  _widgetSearchInput = "#entity-explorer-search";
+  _widgetCardTitle = ".t--widget-card-draggable span.ads-v2-text";
+  _widgetTagSuggestedWidgets = ".widget-tag-collapisble-suggested";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -164,8 +172,9 @@ export class EntityExplorer {
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._expandCollapseArrow(entityName),
+      true,
       index,
       30000,
     );
@@ -264,9 +273,7 @@ export class EntityExplorer {
   }
 
   public ValidateDuplicateMessageToolTip(tooltipText: string) {
-    cy.get(".rc-tooltip-inner").should(($x) => {
-      expect($x).contain(tooltipText.concat(" is already being used."));
-    });
+    this.agHelper.AssertTooltip(tooltipText.concat(" is already being used."));
   }
 
   public DeleteAllQueriesForDB(dsName: string) {
@@ -302,10 +309,11 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(
+  public DragNDropWidget(
     widgetType: string,
     x = 300,
     y = 100,
+    parentWidgetType = "",
     dropTargetId = "",
   ) {
     this.NavigateToSwitcher("Widgets");
@@ -315,15 +323,18 @@ export class EntityExplorer {
       this.locator._entityExplorersearch,
       widgetType.split("widget")[0].trim(),
     );
+    this.agHelper.Sleep(500);
     cy.get(this.locator._widgetPageIcon(widgetType))
       .first()
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });
     cy.get(
       dropTargetId
-        ? this.locator._widgetInCanvas(dropTargetId) +
-            " " +
-            this.locator._dropHere
+        ? dropTargetId + this.locator._dropHere
+        : parentWidgetType
+        ? this.locator._widgetInCanvas(parentWidgetType) +
+          " " +
+          this.locator._dropHere
         : this.locator._dropHere,
     )
       .first()
@@ -331,22 +342,32 @@ export class EntityExplorer {
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
     this.agHelper.Sleep(200);
     cy.get(
-      dropTargetId
-        ? this.locator._widgetInCanvas(dropTargetId) +
+      parentWidgetType
+        ? this.locator._widgetInCanvas(parentWidgetType) +
             " " +
             this.locator._dropHere
         : this.locator._dropHere,
     )
       .first()
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  }
+
+  public DragDropWidgetNVerify(
+    widgetType: string,
+    x = 300,
+    y = 100,
+    parentWidgetType = "",
+    dropTargetId = "",
+  ) {
+    this.DragNDropWidget(widgetType, x, y, parentWidgetType, dropTargetId);
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
     if (widgetType === "modalwidget") {
       cy.get(".t--modal-widget").should("exist");
     } else {
-      if (dropTargetId) {
+      if (parentWidgetType) {
         this.agHelper.AssertElementExist(
           `${this.locator._widgetInCanvas(
-            dropTargetId,
+            parentWidgetType,
           )} ${this.locator._widgetInCanvas(widgetType)}`,
         );
       } else {
@@ -388,16 +409,20 @@ export class EntityExplorer {
   }
 
   public PinUnpinEntityExplorer(pin = true) {
-    this.agHelper
-      .GetElement(this._entityExplorer)
-      .invoke("attr", "class")
-      .then(($classes) => {
-        if (pin && !$classes?.includes("fixed"))
-          this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
-        else if (!pin && $classes?.includes("fixed"))
-          this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
-        else this.agHelper.Sleep(200); //do nothing
-      });
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this._pinEntityExplorer).length) {
+        this.agHelper
+          .GetElement(this._entityExplorer)
+          .invoke("attr", "class")
+          .then(($classes) => {
+            if (pin && !$classes?.includes("fixed"))
+              this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
+            else if (!pin && $classes?.includes("fixed"))
+              this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
+            else this.agHelper.Sleep(200); //do nothing
+          });
+      }
+    });
   }
 
   public RenameEntityFromExplorer(

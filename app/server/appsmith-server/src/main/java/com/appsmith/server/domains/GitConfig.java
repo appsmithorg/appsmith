@@ -19,5 +19,4 @@ public class GitConfig implements AppsmithDomain {
     String authorName;
 
     String authorEmail;
-
 }

@@ -4,5 +4,5 @@ import com.appsmith.server.solutions.ce.PermissionGroupPermissionCEImpl;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PermissionGroupPermissionImpl extends PermissionGroupPermissionCEImpl implements PermissionGroupPermission {
-}
+public class PermissionGroupPermissionImpl extends PermissionGroupPermissionCEImpl
+        implements PermissionGroupPermission {}

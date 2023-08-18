@@ -68,5 +68,4 @@ public class WidgetSpecificUtils {
         }
         return dsl;
     }
-
 }

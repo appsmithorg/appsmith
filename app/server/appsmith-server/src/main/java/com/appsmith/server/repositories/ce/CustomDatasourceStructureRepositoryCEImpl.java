@@ -17,28 +17,30 @@ import reactor.core.publisher.Mono;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
-public class CustomDatasourceStructureRepositoryCEImpl
-        extends BaseAppsmithRepositoryImpl<DatasourceStorageStructure>
+public class CustomDatasourceStructureRepositoryCEImpl extends BaseAppsmithRepositoryImpl<DatasourceStorageStructure>
         implements CustomDatasourceStructureRepositoryCE {
-    public CustomDatasourceStructureRepositoryCEImpl(ReactiveMongoOperations mongoOperations,
-                                                     MongoConverter mongoConverter,
-                                                     CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomDatasourceStructureRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
     public static Criteria getDatasourceIdAndEnvironmentIdCriteria(String datasourceId, String environmentId) {
-        return new Criteria().andOperator(
-                where(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.datasourceId)).is(datasourceId),
-                where(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.environmentId)).is(environmentId)
-        );
+        return new Criteria()
+                .andOperator(
+                        where(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.datasourceId))
+                                .is(datasourceId),
+                        where(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.environmentId))
+                                .is(environmentId));
     }
 
     @Override
-    public Mono<UpdateResult> updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
+    public Mono<UpdateResult> updateStructure(
+            String datasourceId, String environmentId, DatasourceStructure structure) {
         return mongoOperations.upsert(
                 new Query().addCriteria(getDatasourceIdAndEnvironmentIdCriteria(datasourceId, environmentId)),
                 Update.update(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.structure), structure),
-                DatasourceStorageStructure.class
-        );
+                DatasourceStorageStructure.class);
     }
 }

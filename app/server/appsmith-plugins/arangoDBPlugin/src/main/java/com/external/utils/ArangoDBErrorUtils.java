@@ -67,5 +67,4 @@ public class ArangoDBErrorUtils extends AppsmithPluginErrorUtils {
          */
         return CollectionUtils.lastElement(Arrays.asList(error.getMessage().split(":")));
     }
-
 }

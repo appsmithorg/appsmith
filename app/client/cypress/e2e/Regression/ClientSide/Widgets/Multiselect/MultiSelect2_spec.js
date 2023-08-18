@@ -13,14 +13,26 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
-    cy.fixture("multiSelectDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("multiSelectDsl");
   });
 
   it("1. Selects value with invalid default value", () => {
     cy.openPropertyPane("multiselectwidgetv2");
-    _.propPane.UpdatePropertyFieldValue("Options", JSON.stringify(data.input));
+    _.propPane.ToggleJSMode("sourcedata");
+    _.propPane.UpdatePropertyFieldValue(
+      "Source Data",
+      JSON.stringify(data.input),
+    );
+
+    _.propPane.ToggleJSMode("labelkey");
+    cy.updateCodeInput(
+      ".t--property-control-wrapper.t--property-control-labelkey",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("valuekey");
+    cy.updateCodeInput(".t--property-control-valuekey", `value`);
+
     _.propPane.UpdatePropertyFieldValue(
       "Default selected values",
       "{{ undefined }}",
@@ -233,19 +245,24 @@ describe("MultiSelect Widget Functionality", function () {
     },
   ];
 
-  it("8. Verify MultiSelect resets to default value", function () {
+  it("6. Verify MultiSelect resets to default value", function () {
     resetTestCases.forEach((testCase) => {
       const { defaultValue, options, optionsToDeselect, optionsToSelect } =
         testCase;
 
       cy.openPropertyPane("multiselectwidgetv2");
       // set options
-      _.propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
+      _.propPane.UpdatePropertyFieldValue(
+        "Source Data",
+        JSON.stringify(options),
+      );
       _.agHelper.PressEscape();
       // set default value
       _.propPane.UpdatePropertyFieldValue(
         "Default selected values",
         JSON.stringify(defaultValue, null, 2),
+        true,
+        false,
       );
       // select other options
       _.agHelper.SelectFromMultiSelect(optionsToSelect);
@@ -266,11 +283,11 @@ describe("MultiSelect Widget Functionality", function () {
     });
   });
 
-  it("9. Verify MultiSelect deselection behavior", function () {
+  it("7. Verify MultiSelect deselection behavior", function () {
     cy.openPropertyPane("multiselectwidgetv2");
     // set options
     _.propPane.UpdatePropertyFieldValue(
-      "Options",
+      "Source Data",
       JSON.stringify([{ label: "RED", value: "RED" }]),
     );
     _.agHelper.PressEscape();
@@ -280,16 +297,14 @@ describe("MultiSelect Widget Functionality", function () {
     cy.get(getWidgetSelector("textwidget")).eq(1).should("have.text", "");
   });
 
-  it("10. Dropdown Functionality To Unchecked Visible Widget", function () {
+  it("8. Dropdown Functionality To Unchecked Visible Widget", function () {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     _.deployMode.DeployApp();
     cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
       "not.exist",
     );
     _.deployMode.NavigateBacktoEditor();
-  });
-
-  it("11. Dropdown Functionality To Check Visible Widget", function () {
+    // Dropdown Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.togglebar(commonlocators.visibleCheckbox);
     _.deployMode.DeployApp();

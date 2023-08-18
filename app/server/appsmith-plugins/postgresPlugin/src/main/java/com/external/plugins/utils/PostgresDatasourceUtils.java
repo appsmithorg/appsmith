@@ -13,22 +13,22 @@ import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorM
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.UNKNOWN_CONNECTION_ERROR_MSG;
 
 public class PostgresDatasourceUtils {
-    public void checkHikariCPConnectionPoolValidity(HikariDataSource connectionPool, String pluginName) throws StaleConnectionException {
+    public void checkHikariCPConnectionPoolValidity(HikariDataSource connectionPool, String pluginName)
+            throws StaleConnectionException {
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
-            String printMessage = MessageFormat.format(Thread.currentThread().getName() +
-                    ": Encountered stale connection pool in {0} plugin. Reporting back.", pluginName);
+            String printMessage = MessageFormat.format(
+                    Thread.currentThread().getName()
+                            + ": Encountered stale connection pool in {0} plugin. Reporting back.",
+                    pluginName);
             System.out.println(printMessage);
 
             if (connectionPool == null) {
                 throw new StaleConnectionException(CONNECTION_POOL_NULL_ERROR_MSG);
-            }
-            else if (connectionPool.isClosed()) {
+            } else if (connectionPool.isClosed()) {
                 throw new StaleConnectionException(CONNECTION_POOL_CLOSED_ERROR_MSG);
-            }
-            else if (!connectionPool.isRunning()) {
+            } else if (!connectionPool.isRunning()) {
                 throw new StaleConnectionException(CONNECTION_POOL_NOT_RUNNING_ERROR_MSG);
-            }
-            else {
+            } else {
                 /**
                  * Ideally, code flow is never expected to reach here. However, this section has been added to catch
                  * those cases wherein a developer updates the parent if condition but does not update the nested
@@ -39,8 +39,8 @@ public class PostgresDatasourceUtils {
         }
     }
 
-    public Connection getConnectionFromHikariConnectionPool(HikariDataSource connectionPool,
-                                                            String pluginName) throws SQLException {
+    public Connection getConnectionFromHikariConnectionPool(HikariDataSource connectionPool, String pluginName)
+            throws SQLException {
         checkHikariCPConnectionPoolValidity(connectionPool, pluginName);
         return connectionPool.getConnection();
     }

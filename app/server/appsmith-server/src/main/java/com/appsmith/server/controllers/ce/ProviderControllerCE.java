@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-
 @RequestMapping(Url.PROVIDER_URL)
 @Slf4j
 public class ProviderControllerCE extends BaseController<ProviderService, Provider, String> {
@@ -25,7 +24,6 @@ public class ProviderControllerCE extends BaseController<ProviderService, Provid
     @JsonView(Views.Public.class)
     @GetMapping("/categories")
     public Mono<ResponseDTO<List<String>>> getAllCategories() {
-        return service.getAllCategories()
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+        return service.getAllCategories().map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 }

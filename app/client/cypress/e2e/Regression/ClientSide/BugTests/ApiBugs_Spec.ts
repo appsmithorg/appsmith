@@ -5,23 +5,48 @@ import {
   apiPage,
   dataSources,
   debuggerHelper,
+  dataManager,
+  propPane,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
-import datasourceFormData from "../../../../fixtures/datasources.json";
 
 import {
   ERROR_ACTION_EXECUTE_FAIL,
   createMessage,
 } from "../../../../support/Objects/CommonErrorMessages";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("API Bugs", function () {
-  it("1. Bug 14037: User gets an error even when table widget is added from the API page successfully", function () {
-    apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl, "Api1");
+  before(() => {
+    featureFlagIntercept(
+      {
+        ab_ds_binding_enabled: false,
+      },
+      false,
+    );
+    agHelper.RefreshPage();
+  });
+
+  it("1. Bug 14037, 25432: User gets an error even when table widget is added from the API page successfully", function () {
+    // Case where api returns array response
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+    );
     apiPage.RunAPI();
-
-    dataSources.AddSuggesstedWidget(Widgets.Table);
-
+    dataSources.AddSuggestedWidget(Widgets.Table);
     debuggerHelper.AssertErrorCount(0);
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Api1");
+
+    // Create another API so that it returns object response
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiObjectUrl,
+    );
+    apiPage.RunAPI();
+    dataSources.AddSuggestedWidget(Widgets.Table);
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.ValidatePropertyFieldValue("Table data", "{{Api2.data.users}}");
   });
 
   it("2. Bug 16377, When Api url has dynamic binding expressions, ensure the url and path derived is not corrupting Api execution", function () {
@@ -44,7 +69,7 @@ describe("API Bugs", function () {
 
   it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {
     apiPage.CreateAndFillApi(
-      "https://www.jsonplaceholder.com",
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
       "FirstAPI",
       10000,
       "POST",
@@ -60,11 +85,11 @@ describe("API Bugs", function () {
   });
 
   it("4. Bug 16683, When Api url has dynamic binding expressions, ensures the query params is not truncated", function () {
-    const apiUrl = `https://echo.hoppscotch.io/v6/deployments?limit=4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}`;
+    const apiUrl = `http://host.docker.internal:5001/v1/mock-api?records=4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}`;
 
     apiPage.CreateAndFillApi(apiUrl, "BindingExpressions");
     apiPage.ValidateQueryParams({
-      key: "limit",
+      key: "records",
       value: "4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}",
     });
   });

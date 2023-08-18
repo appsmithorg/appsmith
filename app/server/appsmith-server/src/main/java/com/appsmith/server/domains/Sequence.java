@@ -10,5 +10,4 @@ public class Sequence {
     private String name;
 
     private Long nextNumber;
-
 }

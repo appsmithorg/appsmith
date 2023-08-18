@@ -24,21 +24,26 @@ public interface PolicySolutionCE {
 
     Map<String, Policy> generatePolicyFromPermissionGroupForObject(PermissionGroup permissionGroup, String objectId);
 
-    Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(AclPermission permission, String permissionGroupId);
+    Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(
+            AclPermission permission, String permissionGroupId);
 
-    Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(Set<String> ids,
-                                                                                        Map<String, Policy> datasourcePolicyMap,
-                                                                                        boolean addPolicyToObject);
+    Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(
+            Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject);
 
-    Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject);
+    Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(
+            String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject);
 
-    Flux<Theme> updateThemePolicies(Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject);
+    Flux<Theme> updateThemePolicies(
+            Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject);
 
-    Flux<NewAction> updateWithPagePermissionsToAllItsActions(String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject);
+    Flux<NewAction> updateWithPagePermissionsToAllItsActions(
+            String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject);
 
-    Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject);
+    Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(
+            String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject);
 
-    Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(Map<String, Policy> sourcePolicyMap,
-                                                                    Class<? extends BaseDomain> sourceEntity,
-                                                                    Class<? extends BaseDomain> destinationEntity);
+    Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(
+            Map<String, Policy> sourcePolicyMap,
+            Class<? extends BaseDomain> sourceEntity,
+            Class<? extends BaseDomain> destinationEntity);
 }

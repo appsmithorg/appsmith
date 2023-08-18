@@ -231,10 +231,6 @@ function GeneratePageForm() {
     useState<string>("");
   const datasourcesStructure = useSelector(getDatasourcesStructure);
 
-  const isFetchingDatasourceStructure = useSelector(
-    getIsFetchingDatasourceStructure,
-  );
-
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
   );
@@ -247,6 +243,10 @@ function GeneratePageForm() {
 
   const [selectedDatasource, selectDataSource] = useState<DropdownOption>(
     DEFAULT_DROPDOWN_OPTION,
+  );
+
+  const isFetchingDatasourceStructure = useSelector((state: AppState) =>
+    getIsFetchingDatasourceStructure(state, selectedDatasource.id || ""),
   );
 
   const [isSelectedTableEmpty, setIsSelectedTableEmpty] =

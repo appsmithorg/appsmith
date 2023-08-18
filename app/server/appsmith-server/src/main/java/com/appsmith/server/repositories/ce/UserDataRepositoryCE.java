@@ -8,5 +8,4 @@ import reactor.core.publisher.Mono;
 public interface UserDataRepositoryCE extends BaseRepository<UserData, String>, CustomUserDataRepository {
 
     Mono<UserData> findByUserId(String userId);
-
 }

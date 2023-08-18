@@ -4,9 +4,7 @@ import { seconds, testTimeout } from "../../../../../support/timeout";
 
 describe("Table widget edge case scenario testing", function () {
   before(() => {
-    cy.fixture("tableWithTextWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableWithTextWidgetDsl");
   });
 
   it("Check if the selectedRowIndices does not contain 2d array", function () {

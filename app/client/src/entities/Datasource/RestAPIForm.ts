@@ -36,6 +36,7 @@ export interface Connection {
 
 export interface SSL {
   authType: SSLType;
+  authTypeControl: boolean;
   certificateFile: Certificate;
 }
 

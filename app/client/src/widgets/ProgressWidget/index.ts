@@ -3,11 +3,13 @@ import IconSVG from "./icon.svg";
 import { ProgressType } from "./constants";
 import { Colors } from "constants/Colors";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Progress", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.CONTENT],
   needsMeta: false, // Defines if this widget adds any meta properties
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   searchTags: ["percent"],
@@ -35,6 +37,7 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
   autoLayout: {
     disabledPropsDefaults: {

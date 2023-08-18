@@ -38,5 +38,4 @@ public class ApplicationPage {
     public boolean isDefault() {
         return Boolean.TRUE.equals(isDefault);
     }
-
 }

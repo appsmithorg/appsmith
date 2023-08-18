@@ -45,8 +45,8 @@ export function useTableOrSpreadsheet() {
 
   const isFetchingSpreadsheets = useSelector(getIsFetchingGsheetSpreadsheets);
 
-  const isFetchingDatasourceStructure = useSelector(
-    getIsFetchingDatasourceStructure,
+  const isFetchingDatasourceStructure = useSelector((state: AppState) =>
+    getIsFetchingDatasourceStructure(state, config.datasource),
   );
 
   const selectedDatasourcePluginPackageName = useSelector((state: AppState) =>
@@ -123,6 +123,7 @@ export function useTableOrSpreadsheet() {
         dataTableName: TableObj.value,
         pluginType: config.datasourcePluginType,
         pluginName: config.datasourcePluginName,
+        connectionMode: config.datasourceConnectionMode,
       });
     },
     [

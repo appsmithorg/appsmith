@@ -1,5 +1,6 @@
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
+  CategoryType,
   SettingCategories,
   SettingSubtype,
   SettingTypes,
@@ -8,6 +9,7 @@ import {
 export const config: AdminConfigType = {
   icon: "settings-line",
   type: SettingCategories.ADVANCED,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "Advanced",
   canSave: true,

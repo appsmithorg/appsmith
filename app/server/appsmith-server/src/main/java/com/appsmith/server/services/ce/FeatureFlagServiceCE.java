@@ -1,11 +1,10 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.User;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
-import com.appsmith.server.featureflags.FeatureFlagTrait;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
 
 public interface FeatureFlagServiceCE {
@@ -34,11 +33,25 @@ public interface FeatureFlagServiceCE {
     /**
      * Fetch all the flags and their values for the current logged in user
      *
-     * @return Mono<Map<String, Boolean>>
+     * @return Mono<Map < String, Boolean>>
      */
     Mono<Map<String, Boolean>> getAllFeatureFlagsForUser();
 
-    Mono<Void> refreshFeatureFlagsForAllUsers();
+    /**
+     * To get all features of the tenant from Cloud Services and store them locally
+     * @return Mono of Void
+     */
+    Mono<Void> getAllRemoteFeaturesForTenant();
 
-    Mono<Void> remoteSetUserTraits(List<FeatureFlagTrait> featureFlagTraits);
+    /**
+     * To get all features of the current tenant.
+     * @return Mono of Map
+     */
+    Mono<Map<String, Boolean>> getCurrentTenantFeatures();
+
+    /**
+     * To force update all features of the current tenant.
+     * @return Mono of Map
+     */
+    Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId);
 }

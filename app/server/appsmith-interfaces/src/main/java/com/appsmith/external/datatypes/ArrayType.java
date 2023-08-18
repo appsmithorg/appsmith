@@ -9,7 +9,6 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.parser.JSONParser;
 import reactor.core.Exceptions;
 
-
 public class ArrayType implements AppsmithType {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -29,12 +28,7 @@ public class ArrayType implements AppsmithType {
             return objectMapper.writeValueAsString(jsonArray);
         } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
             throw Exceptions.propagate(
-                    new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                            s,
-                            e.getMessage()
-                    )
-            );
+                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, s, e.getMessage()));
         }
     }
 

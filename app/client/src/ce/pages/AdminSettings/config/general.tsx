@@ -7,6 +7,7 @@ import type {
   Setting,
 } from "@appsmith/pages/AdminSettings/config/types";
 import {
+  CategoryType,
   SettingCategories,
   SettingSubtype,
   SettingTypes,
@@ -169,6 +170,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
 export const config: AdminConfigType = {
   icon: "settings-2-line",
   type: SettingCategories.GENERAL,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "General",
   canSave: true,

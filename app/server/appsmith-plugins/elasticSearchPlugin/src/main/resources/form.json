@@ -27,7 +27,7 @@
     },
     {
       "sectionName": "Authentication",
-       "children": [
+      "children": [
         {
           "label": "Username for Basic Auth",
           "configProperty": "datasourceConfiguration.authentication.username",

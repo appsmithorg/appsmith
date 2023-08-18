@@ -10,9 +10,7 @@ describe("JSONForm Footer spec", () => {
   });
 
   it("1. sticks to the bottom when fixed footer is true and content is less", () => {
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
     // add small source data
     const sourceData = {
       name: "John",
@@ -50,10 +48,8 @@ describe("JSONForm Footer spec", () => {
   });
 
   it("3. floats to the bottom when fixed footer is true and content overflows", () => {
-    cy.fixture("jsonFormDslWithSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-      _.agHelper.AddDsl(val); //Should not be needed, to check
-    });
+    _.agHelper.AddDsl("jsonFormDslWithSchema");
+    _.agHelper.AddDsl("jsonFormDslWithSchema"); //Should not be needed, to check
 
     cy.openPropertyPane("jsonformwidget");
     // check if fixed footer enabled

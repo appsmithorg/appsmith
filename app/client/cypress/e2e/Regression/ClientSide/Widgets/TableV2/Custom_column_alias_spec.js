@@ -14,9 +14,7 @@ const data = [
 
 describe("Custom column alias functionality", () => {
   before(() => {
-    cy.fixture("tableV2NewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableV2NewDsl");
   });
 
   it("1. should test that custom column has alias property", () => {

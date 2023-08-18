@@ -2,10 +2,19 @@ import {
   PROPERTY_SELECTOR,
   getWidgetSelector,
 } from "../../../../locators/WidgetLocators";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  propPane,
+  apiPage,
+  draggableWidgets,
+  fakerHelper,
+  dataManager,
+} from "../../../../support/Objects/ObjectsCore";
 
 const widgetsToTest = {
-  [_.draggableWidgets.INPUT_V2]: {
+  [draggableWidgets.INPUT_V2]: {
     testCases: [
       { input: "test", charToClear: 0 },
       { input: "12", charToClear: 0 },
@@ -20,14 +29,14 @@ const widgetsToTest = {
         charToClear: 2,
       },
       {
-        input: _.fakerHelper.GetRandomText(),
+        input: fakerHelper.GetRandomText(),
         charToClear: -1,
       },
     ],
     widgetName: "Input widget",
     widgetPrefixName: "Input",
   },
-  [_.draggableWidgets.PHONE_INPUT]: {
+  [draggableWidgets.PHONE_INPUT]: {
     testCases: [
       {
         input: "9999999999",
@@ -42,14 +51,14 @@ const widgetsToTest = {
         charToClear: 2,
       },
       {
-        input: _.fakerHelper.GetUSPhoneNumber(),
+        input: fakerHelper.GetUSPhoneNumber(),
         charToClear: -1,
       },
     ],
     widgetName: "Phone Input widget",
     widgetPrefixName: "PhoneInput",
   },
-  [_.draggableWidgets.CURRENCY_INPUT]: {
+  [draggableWidgets.CURRENCY_INPUT]: {
     testCases: [
       { input: "1233", charToClear: 0 },
       {
@@ -61,7 +70,7 @@ const widgetsToTest = {
         charToClear: 2,
       },
       {
-        input: _.fakerHelper.GetRandomNumber(),
+        input: fakerHelper.GetRandomNumber(),
         charToClear: -1,
       },
     ],
@@ -71,10 +80,11 @@ const widgetsToTest = {
 };
 
 function configureApi() {
-  cy.fixture("datasources").then((datasourceFormData) => {
-    _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "FirstAPI");
-  });
-  _.apiPage.EnterHeader("value", "{{this.params.value}}");
+  apiPage.CreateAndFillApi(
+    dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+    "FirstAPI",
+  );
+  apiPage.EnterHeader("value", "{{this.params.value}}");
 }
 
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
@@ -83,33 +93,29 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       if (index === 0) {
         configureApi();
       }
-      _.entityExplorer.PinUnpinEntityExplorer(false);
-      _.entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 200);
-      _.entityExplorer.DragDropWidgetNVerify(
-        _.draggableWidgets.BUTTON,
-        800,
-        400,
-      );
-      //_.entityExplorer.SelectEntityByName(_.draggableWidgets.BUTTONNAME("1"));
+      entityExplorer.PinUnpinEntityExplorer(false);
+      entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 200);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 400, 400);
+      //entityExplorer.SelectEntityByName(draggableWidgets.BUTTONNAME("1"));
       // Set onClick action, storing value
-      _.propPane.EnterJSContext(
+      propPane.EnterJSContext(
         PROPERTY_SELECTOR.onClickFieldName,
         `{{storeValue('textPayloadOnSubmit',${testConfig.widgetPrefixName}1.text); FirstAPI.run({ value: ${testConfig.widgetPrefixName}1.text })}}`,
       );
 
-      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 500, 300);
-      //_.entityExplorer.SelectEntityByName(_.draggableWidgets.TEXTNAME("1"));
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 300);
+      //entityExplorer.SelectEntityByName(draggableWidgets.TEXTNAME("1"));
       // Display the bound store value
-      _.propPane.UpdatePropertyFieldValue(
+      propPane.UpdatePropertyFieldValue(
         PROPERTY_SELECTOR.TextFieldName,
         `{{appsmith.store.textPayloadOnSubmit}}`,
       );
-      _.entityExplorer.PinUnpinEntityExplorer(true);
+      entityExplorer.PinUnpinEntityExplorer(true);
     });
 
     it("2. StoreValue should have complete input value", () => {
       // if default input widget type is changed from text to any other type then uncomment below code.
-      // if (widgetSelector === _.draggableWidgets.INPUT_V2) {
+      // if (widgetSelector === draggableWidgets.INPUT_V2) {
       //   cy.openPropertyPane(widgetSelector);
       //   cy.selectDropdownValue(".t--property-control-datatype", "Text");
       //   cy.get(".t--property-control-required label")
@@ -119,7 +125,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       // }
 
       const inputs = testConfig.testCases;
-      _.agHelper.ClearInputText("Label");
+      agHelper.ClearInputText("Label");
 
       inputs.forEach(({ charToClear, input }) => {
         // Input text and hit enter key
@@ -131,19 +137,19 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         //   cy.get(getWidgetInputSelector(widgetSelector)).type(`${input}`);
         // }
 
-        _.agHelper.RemoveCharsNType(
-          _.locators._widgetInputSelector(widgetSelector),
+        agHelper.RemoveCharsNType(
+          locators._widgetInputSelector(widgetSelector),
           charToClear,
           input,
         );
-        _.agHelper.GetNClick(getWidgetSelector(_.draggableWidgets.BUTTON));
+        agHelper.GetNClick(getWidgetSelector(draggableWidgets.BUTTON));
 
-        _.agHelper
-          .GetText(_.locators._widgetInputSelector(widgetSelector), "val")
+        agHelper
+          .GetText(locators._widgetInputSelector(widgetSelector), "val")
           .then(($expected: any) => {
             // Assert if the Currency widget has random number with trailing zero, then
-            // if (widgetSelector === _.draggableWidgets.CURRENCY_INPUT) {
-            //   cy.get(getWidgetSelector(_.draggableWidgets.TEXT)).should(
+            // if (widgetSelector === draggableWidgets.CURRENCY_INPUT) {
+            //   cy.get(getWidgetSelector(draggableWidgets.TEXT)).should(
             //     "have.text",
             //     expected == null
             //       ? input
@@ -152,9 +158,9 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
             //           .replace(/(^,)|(,$)/g, "")//to remove start & end comma's if any
             //       : expected,
             //   );
-
-            _.agHelper
-              .GetText(getWidgetSelector(_.draggableWidgets.TEXT))
+            agHelper.Sleep(500); //Adding time for CI flakyness in reading Label value
+            agHelper
+              .GetText(getWidgetSelector(draggableWidgets.TEXT))
               .then(($label) => {
                 expect($label).to.eq($expected);
               });
@@ -170,15 +176,15 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
     });
 
     it("3. Delete all the widgets on canvas", () => {
-      _.agHelper.GetNClick(_.locators._widgetInputSelector(widgetSelector));
-      _.agHelper.PressDelete();
+      agHelper.GetNClick(locators._widgetInputSelector(widgetSelector));
+      agHelper.PressDelete();
 
-      _.agHelper.GetNClick(getWidgetSelector(_.draggableWidgets.BUTTON));
-      _.agHelper.AssertContains("is not defined"); //Since widget is removed & Button is still holding its reference
-      _.agHelper.PressDelete();
+      agHelper.GetNClick(getWidgetSelector(draggableWidgets.BUTTON));
+      agHelper.AssertContains("is not defined"); //Since widget is removed & Button is still holding its reference
+      agHelper.PressDelete();
 
-      _.agHelper.GetNClick(getWidgetSelector(_.draggableWidgets.TEXT)).click();
-      _.agHelper.GetNClick(_.propPane._deleteWidget);
+      agHelper.GetNClick(getWidgetSelector(draggableWidgets.TEXT)).click();
+      agHelper.GetNClick(propPane._deleteWidget);
     });
   });
 });

@@ -22,7 +22,10 @@ import {
 } from "actions/JSLibraryActions";
 import EntityAddButton from "../Entity/AddButton";
 import type { TJSLibrary } from "workers/common/JSLibrary";
-import { getPagePermissions } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import recommendedLibraries from "./recommendedLibraries";
 import { useTransition, animated } from "react-spring";
@@ -266,6 +269,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
 }
 
 function JSDependencies() {
+  const pageId = useSelector(getCurrentPageId) || "";
   const libraries = useSelector(selectLibrariesForExplorer);
   const transitions = useTransition(libraries, {
     keys: (lib) => lib.name,
@@ -311,7 +315,7 @@ function JSDependencies() {
           </AddButtonWrapper>
         </Tooltip>
       }
-      entityId="library_section"
+      entityId={pageId + "_library_section"}
       icon={null}
       isDefaultExpanded={isOpen}
       isSticky

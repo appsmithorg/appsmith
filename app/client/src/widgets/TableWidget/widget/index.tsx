@@ -65,7 +65,7 @@ import {
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { AutocompletionDefinitions } from "widgets/constants";
 
 const ReactTableComponent = lazy(() =>
@@ -174,6 +174,31 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: "defaultSearchText",
       selectedRowIndex: "defaultSelectedRow",
       selectedRowIndices: "defaultSelectedRow",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "string",
+        },
+        setSelectedRowIndex: {
+          path: "defaultSelectedRowIndex",
+          type: "number",
+          disabled: "return options.entity.multiRowSelection",
+        },
+        setSelectedRowIndices: {
+          path: "defaultSelectedRowIndices",
+          type: "array",
+          disabled: "return !options.entity.multiRowSelection",
+        },
+        setData: {
+          path: "tableData",
+          type: "object",
+        },
+      },
     };
   }
 

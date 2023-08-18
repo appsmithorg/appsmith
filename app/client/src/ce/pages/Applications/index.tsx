@@ -304,11 +304,7 @@ export function Item(props: {
 
 const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
   position: relative;
-  height: calc(
-    100vh -
-      ${(props) =>
-        props.theme.homePage.header + 24 + (props.isBannerVisible ? 48 : 0)}px
-  );
+  height: calc(100vh - ${(props) => 48 + (props.isBannerVisible ? 48 : 0)}px);
   display: flex;
   flex-direction: column;
 `;
@@ -424,6 +420,7 @@ export function LeftPane(props: LeftPaneProps) {
     <LeftPaneWrapper isBannerVisible={isBannerVisible}>
       <LeftPaneSection
         heading={createMessage(WORKSPACES_HEADING)}
+        isBannerVisible={isBannerVisible}
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-testid="t--left-panel">
@@ -1018,6 +1015,7 @@ export class Applications<
 
   componentWillUnmount() {
     this.props.setHeaderMetaData(false, false);
+    this.props.searchApplications("");
   }
 
   public render() {

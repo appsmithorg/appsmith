@@ -16,6 +16,8 @@ import WidgetSidebar from "../WidgetSidebar";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -39,6 +41,7 @@ function ExplorerContent() {
   const pageId = useSelector(getCurrentPageId);
   const location = useLocation();
   const activeSwitchIndex = useSelector(getExplorerSwitchIndex);
+  const featureFlags = useSelector(selectFeatureFlags);
 
   const setActiveSwitchIndex = (index: number) => {
     dispatch(setExplorerSwitchIndex(index));
@@ -79,14 +82,23 @@ function ExplorerContent() {
     <div
       className={`flex-1 flex flex-col overflow-hidden ${tailwindLayers.entityExplorer}`}
     >
-      <div className={`flex-shrink-0 px-2 mt-1 py-2 border-t`}>
+      <div
+        className="flex-shrink-0 p-3 pb-2 mt-1 border-t"
+        data-testid="explorer-tab-options"
+      >
         <SegmentedControl
           onChange={onChange}
           options={options}
           value={activeOption}
         />
       </div>
-      <WidgetSidebar isActive={activeOption === "widgets"} />
+
+      {featureFlags.release_widgetdiscovery_enabled ? (
+        <WidgetSidebarWithTags isActive={activeOption === "widgets"} />
+      ) : (
+        <WidgetSidebar isActive={activeOption === "widgets"} />
+      )}
+
       <EntityExplorer isActive={activeOption === "explorer"} />
     </div>
   );

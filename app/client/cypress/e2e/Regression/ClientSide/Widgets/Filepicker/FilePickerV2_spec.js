@@ -34,32 +34,33 @@ describe("File picker widget v2", () => {
   });
 
   it("3. Check if the uploaded data does not reset when back from query page", () => {
-    cy.fixture("datasources").then((datasourceFormData) => {
-      cy.openPropertyPane("textwidget");
-      cy.updateCodeInput(
-        ".t--property-control-text",
-        `{{FilePicker1.files[0].name}}`,
-      );
-      cy.createAndFillApi(datasourceFormData["mockApiUrl"], "");
-      cy.updateCodeInput(
-        "[class*='t--actionConfiguration']",
-        "{{FilePicker1.files}}",
-      );
-      cy.wait(1000);
-      cy.validateEvaluatedValue("testFile.mov");
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      `{{FilePicker1.files[0].name}}`,
+    );
+    cy.createAndFillApi(
+      _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
+      "",
+    );
+    cy.updateCodeInput(
+      "[class*='t--actionConfiguration']",
+      "{{FilePicker1.files}}",
+    );
+    cy.wait(1000);
+    cy.validateEvaluatedValue("testFile.mov");
 
-      cy.get("[data-testid='more-action-trigger']")
-        .first()
-        .click({ force: true });
+    cy.get("[data-testid='more-action-trigger']")
+      .first()
+      .click({ force: true });
 
-      // Go back to widgets page
-      _.entityExplorer.NavigateToSwitcher("Widgets", 0, true);
-      cy.get(widgetsPage.filepickerwidgetv2).should(
-        "contain",
-        "1 files selected",
-      );
-      cy.get(".t--widget-textwidget").should("contain", "testFile.mov");
-    });
+    // Go back to widgets page
+    _.entityExplorer.NavigateToSwitcher("Widgets", 0, true);
+    cy.get(widgetsPage.filepickerwidgetv2).should(
+      "contain",
+      "1 files selected",
+    );
+    cy.get(".t--widget-textwidget").should("contain", "testFile.mov");
   });
 
   it("4. Check if the uploaded file is removed on click of cancel button", () => {

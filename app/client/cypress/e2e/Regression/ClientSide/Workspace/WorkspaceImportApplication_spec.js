@@ -7,9 +7,7 @@ describe("Workspace Import Application", function () {
   let appname;
 
   before(() => {
-    cy.fixture("displayWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("displayWidgetDsl");
   });
 
   it("1. Can Import Application from json", function () {

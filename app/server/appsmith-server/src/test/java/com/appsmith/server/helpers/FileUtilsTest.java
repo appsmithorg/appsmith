@@ -32,9 +32,7 @@ class FileUtilsTest {
         InputStream file2 = new ClassPathResource("FileUtilsTest/sample-file2.txt").getInputStream();
 
         byte[] zipBytes = fileUtils.createZip(
-                new FileUtils.ZipSourceFile(file1, "file_one.txt"),
-                new FileUtils.ZipSourceFile(file2, "file_two.txt")
-        );
+                new FileUtils.ZipSourceFile(file1, "file_one.txt"), new FileUtils.ZipSourceFile(file2, "file_two.txt"));
 
         // unzip and read the contents into a map. Key of the map is file name and value is file contents
         Map<String, String> fileNameAndContentMap = readZipFile(zipBytes);

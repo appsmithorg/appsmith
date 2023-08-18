@@ -4,9 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("RichTextEditor Widget Validation", function () {
   before(() => {
-    cy.fixture("formdsl1").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("formdsl1");
   });
 
   beforeEach(() => {

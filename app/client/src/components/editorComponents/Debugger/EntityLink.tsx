@@ -1,42 +1,33 @@
 import { PluginType } from "entities/Action";
-import type { SourceEntity } from "entities/AppsmithConsole";
+import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import React, { useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import {
-  getAction,
-  getAllWidgetsMap,
-  getDatasource,
-} from "selectors/entitiesSelector";
-import { getLastSelectedWidget } from "selectors/ui";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getAction, getDatasource } from "selectors/entitiesSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import history, { NavigationMethod } from "utils/history";
+import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
-import { datasourcesEditorIdURL, jsCollectionIdURL } from "RouteBuilder";
+import { datasourcesEditorIdURL } from "RouteBuilder";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { Link } from "design-system";
 import type { Plugin } from "api/PluginApi";
+import { navigateToEntity } from "actions/editorActions";
 
 function ActionLink(props: EntityLinkProps) {
-  const applicationId = useSelector(getCurrentApplicationId);
   const action = useSelector((state: AppState) => getAction(state, props.id));
+  const dispatch = useDispatch();
 
   const onClick = useCallback(() => {
     if (action) {
-      const { id, pageId, pluginType } = action;
-      const actionConfig = getActionConfig(pluginType);
-      const url =
-        applicationId &&
-        actionConfig?.getURL(pageId, id, pluginType, props.plugin);
-      if (!url) return;
-      history.push(url);
+      dispatch(
+        navigateToEntity({
+          id: action.id,
+          entityType: ENTITY_TYPE.ACTION,
+          propertyPath: props.propertyPath,
+        }),
+      );
       const actionType = action.pluginType === PluginType.API ? "API" : "QUERY";
 
       AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
@@ -46,7 +37,13 @@ function ActionLink(props: EntityLinkProps) {
         entityType: actionType,
       });
     }
-  }, [action]);
+  }, [
+    action,
+    props.propertyPath,
+    props.errorType,
+    props.errorSubType,
+    props.appsmithErrorCode,
+  ]);
 
   return (
     <DebuggerEntityLink
@@ -59,25 +56,41 @@ function ActionLink(props: EntityLinkProps) {
 }
 
 function JSCollectionLink(props: EntityLinkProps) {
-  const pageId = useSelector(getCurrentPageId);
+  const dispatch = useDispatch();
+  let position: { ch: number; line: number } | undefined;
+  if (props.message) {
+    if (props.message.character && props.message.lineNumber) {
+      position = {
+        ch: props.message.character,
+        line: props.message.lineNumber,
+      };
+    }
+  }
   const onClick = useCallback(() => {
     if (props.id) {
-      const url = jsCollectionIdURL({
-        pageId,
-        collectionId: props.id,
-      });
+      dispatch(
+        navigateToEntity({
+          id: props.id,
+          entityType: ENTITY_TYPE.JSACTION,
+          propertyPath: props.propertyPath,
+          position,
+        }),
+      );
 
-      if (url) {
-        history.push(url);
-        AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
-          errorType: props.errorType,
-          errorSubType: props.errorSubType,
-          appsmithErrorCode: props.appsmithErrorCode,
-          entityType: "JSACTION",
-        });
-      }
+      AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
+        errorType: props.errorType,
+        errorSubType: props.errorSubType,
+        appsmithErrorCode: props.appsmithErrorCode,
+        entityType: "JSACTION",
+      });
     }
-  }, []);
+  }, [
+    props.id,
+    props.propertyPath,
+    props.errorType,
+    props.errorSubType,
+    props.appsmithErrorCode,
+  ]);
   return (
     <DebuggerEntityLink
       entityType={props.type}
@@ -89,28 +102,30 @@ function JSCollectionLink(props: EntityLinkProps) {
 }
 
 function WidgetLink(props: EntityLinkProps) {
-  const widgetMap = useSelector(getAllWidgetsMap);
-  const selectedWidgetId = useSelector(getLastSelectedWidget);
-  const { navigateToWidget } = useNavigateToWidget();
+  const dispatch = useDispatch();
 
   const onClick = useCallback(() => {
-    const widget = widgetMap[props.id];
-    if (!widget) return;
-
-    navigateToWidget(
-      props.id,
-      widget.type,
-      widget.pageId,
-      NavigationMethod.EntityExplorer,
-      props.id === selectedWidgetId,
+    dispatch(
+      navigateToEntity({
+        id: props.id,
+        entityType: ENTITY_TYPE.WIDGET,
+        propertyPath: props.propertyPath,
+      }),
     );
+
     AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
       errorType: props.errorType,
       errorSubType: props.errorSubType,
       appsmithErrorCode: props.appsmithErrorCode,
       entityType: "WIDGET",
     });
-  }, [navigateToWidget]);
+  }, [
+    props.id,
+    props.propertyPath,
+    props.errorType,
+    props.errorSubType,
+    props.appsmithErrorCode,
+  ]);
 
   return (
     <DebuggerEntityLink
@@ -211,6 +226,7 @@ type EntityLinkProps = {
   errorType?: LOG_TYPE;
   errorSubType?: string;
   appsmithErrorCode?: string;
+  message?: Message;
 } & SourceEntity;
 
 export enum DebuggerLinkUI {

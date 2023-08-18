@@ -5,9 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget Functionality", function () {
   before(() => {
-    cy.fixture("tableWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableWidgetDsl");
   });
 
   it("Table Widget Functionality", function () {

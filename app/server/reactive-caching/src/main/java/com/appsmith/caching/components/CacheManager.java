@@ -7,7 +7,7 @@ public interface CacheManager {
      * This will log the cache stats with INFO severity.
      */
     void logStats();
-    
+
     /**
      * This will get item from the cache, Mono.empty() if not found.
      * @param cacheName The name of the cache.

@@ -7,9 +7,7 @@ import {
 
 describe("JS to non-JS mode in Action Selector", () => {
   before(() => {
-    cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val, locators._spanButton("Submit"));
-    });
+    agHelper.AddDsl("promisesBtnDsl", locators._spanButton("Submit"));
   });
 
   it("1. shows fields for navigate to from js to non-js mode", () => {
@@ -27,7 +25,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     agHelper.GetNClick(propPane._actionCard, 0);
 
-    agHelper.AssertElementVisible(propPane._navigateToType("Page name"));
+    agHelper.AssertElementVisibility(propPane._navigateToType("Page name"));
 
     agHelper.GetNAssertElementText(
       propPane._actionOpenDropdownSelectPage,
@@ -66,7 +64,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     agHelper.GetNClick(propPane._actionCard, 0);
 
-    agHelper.AssertElementVisible(propPane._navigateToType("Page name"));
+    agHelper.AssertElementVisibility(propPane._navigateToType("Page name"));
 
     agHelper.GetNAssertElementText(
       propPane._actionOpenDropdownSelectPage,
@@ -105,7 +103,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     agHelper.GetNClick(propPane._actionCard, 0);
 
-    agHelper.AssertElementVisible(propPane._navigateToType("URL"));
+    agHelper.AssertElementVisibility(propPane._navigateToType("URL"));
 
     agHelper.GetNAssertElementText(
       propPane._actionPopupTextLabel,
@@ -505,8 +503,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Text to be copied to clipboard"),
       "line1{enter}line2{enter}line3",
-      0,
-      true,
+      { parseSpecialCharSeq: true },
     );
     propPane.ToggleJSMode("onClick");
     propPane.ValidatePropertyFieldValue(

@@ -52,7 +52,12 @@ describe("Datasource Autosave Improvements Tests", function () {
       agHelper.AssertElementEnabledDisabled(dataSources._saveDs, 0);
 
       // Make new changes and check state of datasource
-      dataSources.FillPostgresDSForm(false, "username", "password");
+      dataSources.FillPostgresDSForm(
+        "Production",
+        false,
+        "username",
+        "password",
+      );
       agHelper.AssertElementEnabledDisabled(dataSources._saveDs, 0, false);
       dataSources.UpdateDatasource();
 

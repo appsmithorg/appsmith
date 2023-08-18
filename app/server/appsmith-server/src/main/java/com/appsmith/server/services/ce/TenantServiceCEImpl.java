@@ -26,13 +26,14 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final ConfigService configService;
 
-    public TenantServiceCEImpl(Scheduler scheduler,
-                               Validator validator,
-                               MongoConverter mongoConverter,
-                               ReactiveMongoTemplate reactiveMongoTemplate,
-                               TenantRepository repository,
-                               AnalyticsService analyticsService,
-                               ConfigService configService) {
+    public TenantServiceCEImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            TenantRepository repository,
+            AnalyticsService analyticsService,
+            ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.configService = configService;
     }
@@ -45,18 +46,19 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             return Mono.just(tenantId);
         }
 
-        return repository.findBySlug(FieldName.DEFAULT)
-                .map(Tenant::getId)
-                .map(tenantId -> {
-                    // Set the cache value before returning.
-                    this.tenantId = tenantId;
-                    return tenantId;
-                });
+        return repository.findBySlug(FieldName.DEFAULT).map(Tenant::getId).map(tenantId -> {
+            // Set the cache value before returning.
+            this.tenantId = tenantId;
+            return tenantId;
+        });
     }
 
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
-        return repository.findById(tenantId, MANAGE_TENANT)
+        return repository
+                .findById(tenantId, MANAGE_TENANT)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.TENANT, tenantId)))
                 .flatMap(tenant -> {
                     TenantConfiguration oldtenantConfiguration = tenant.getTenantConfiguration();
                     if (oldtenantConfiguration == null) {
@@ -70,8 +72,10 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> findById(String tenantId, AclPermission permission) {
-        return repository.findById(tenantId, permission)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
+        return repository
+                .findById(tenantId, permission)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
     }
 
     /*
@@ -81,50 +85,53 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     @Override
     public Mono<Tenant> getTenantConfiguration() {
         Mono<Tenant> dbTenantMono = getDefaultTenant();
-        Mono<Tenant> clientTenantMono = configService.getInstanceId()
-                .map(instanceId -> {
-                    final Tenant tenant = new Tenant();
-                    tenant.setInstanceId(instanceId);
+        Mono<Tenant> clientTenantMono = configService.getInstanceId().map(instanceId -> {
+            final Tenant tenant = new Tenant();
+            tenant.setInstanceId(instanceId);
 
-                    final TenantConfiguration config = new TenantConfiguration();
-                    tenant.setTenantConfiguration(config);
+            final TenantConfiguration config = new TenantConfiguration();
+            tenant.setTenantConfiguration(config);
 
-                    config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
+            config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
 
-                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
-                        config.addThirdPartyAuth("google");
-                    }
+            if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
+                config.addThirdPartyAuth("google");
+            }
 
-                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
-                        config.addThirdPartyAuth("github");
-                    }
+            if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
+                config.addThirdPartyAuth("github");
+            }
 
-                    config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
+            config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
 
-                    return tenant;
-                });
+            return tenant;
+        });
 
-        return Mono.zip(dbTenantMono, clientTenantMono)
-                .map(tuple -> {
-                    Tenant dbTenant = tuple.getT1();
-                    Tenant clientTenant = tuple.getT2();
-                    return getClientPertinentTenant(dbTenant, clientTenant);
-                });
+        return Mono.zip(dbTenantMono, clientTenantMono).map(tuple -> {
+            Tenant dbTenant = tuple.getT1();
+            Tenant clientTenant = tuple.getT2();
+            return getClientPertinentTenant(dbTenant, clientTenant);
+        });
     }
 
     @Override
     public Mono<Tenant> getDefaultTenant() {
         // Get the default tenant object from the DB and then populate the relevant user permissions in that
         // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
-        return repository.findBySlug(FieldName.DEFAULT)
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant)
-                        .switchIfEmpty(Mono.just(tenant)));
+        return repository
+                .findBySlug(FieldName.DEFAULT)
+                .map(tenant -> {
+                    if (tenant.getTenantConfiguration() == null) {
+                        tenant.setTenantConfiguration(new TenantConfiguration());
+                    }
+                    return tenant;
+                })
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
     }
 
     @Override
     public Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration) {
-        return getDefaultTenantId()
-                .flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration));
+        return getDefaultTenantId().flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration));
     }
 
     /**
@@ -134,20 +141,17 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
      * @return Tenant
      */
     protected Tenant getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
-        TenantConfiguration tenantConfiguration;
         if (clientTenant == null) {
             clientTenant = new Tenant();
-            tenantConfiguration = new TenantConfiguration();
-        } else {
-            tenantConfiguration = clientTenant.getTenantConfiguration();
+            clientTenant.setTenantConfiguration(new TenantConfiguration());
         }
+
+        final TenantConfiguration tenantConfiguration = clientTenant.getTenantConfiguration();
 
         // Only copy the values that are pertinent to the client
         tenantConfiguration.copyNonSensitiveValues(dbTenant.getTenantConfiguration());
-        clientTenant.setTenantConfiguration(tenantConfiguration);
         clientTenant.setUserPermissions(dbTenant.getUserPermissions());
 
         return clientTenant;
     }
-
 }

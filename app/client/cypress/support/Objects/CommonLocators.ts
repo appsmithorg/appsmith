@@ -1,17 +1,21 @@
 export class CommonLocators {
   _body = "body";
+  _inputField = "input";
   _canvasViewport = "#canvas-viewport";
   _emptyPageTxt = ".bp3-heading";
-  _chevronUp = ".bp3-icon-chevron-up";
+  _chevronUp = "span[contains(@class, 'bp3-icon-chevron-up')]";
+  _chevronDown = "span[contains(@class, 'bp3-icon-chevron-down')]";
   _loading = "#loading";
   _animationSpnner = ".bp3-spinner-animation";
   _btnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
+  _editIcon = ".t--action-name-edit-icon";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
+  _tableRecordsContainer = ".show-page-items";
   _widgetName = (widgetName: string) =>
     ".editable-text-container:contains('" +
     widgetName +
@@ -28,7 +32,22 @@ export class CommonLocators {
   _codeEditorTarget = "div.CodeEditorTarget";
   _entityExplorersearch = "#entity-explorer-search";
   _propertyControl = ".t--property-control-";
+  _propertyControlTextArea = (uiName: string) =>
+    this._propertyControl +
+    uiName.replace(/ +/g, "").toLowerCase() +
+    " " +
+    this._codeMirrorTextArea;
+  _propertyControlInput = (uiName: string) =>
+    this._propertyControl +
+    uiName.replace(/ +/g, "").toLowerCase() +
+    " " +
+    this._inputField;
+  _propertyInputField = (uiName: string) =>
+    `${this._propertyControlTextArea(uiName)}, ${this._propertyControlInput(
+      uiName,
+    )}`;
   _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
+  _tableWidget = ".t--widget-tablewidgetv2";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
@@ -74,6 +93,8 @@ export class CommonLocators {
   _responseTab = "[data-testid=t--tab-response]";
   _modal = ".t--modal-widget";
   _closeModal = "button:contains('Close')";
+  _buttonText = (btnText: string) =>
+    "//*[contains(@class, 'bp3-button-text') and text()='" + btnText + "']";
   _entityProperties = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
@@ -106,7 +127,7 @@ export class CommonLocators {
     `.t--widget-card-draggable-${widgetType}`;
   _propertyToggleValue = (controlToToggle: string) =>
     "//div[contains(@class, 't--property-control-" +
-    controlToToggle +
+    controlToToggle.replace(/ +/g, "").toLowerCase() +
     "')]//input[@type='checkbox']/parent::label";
   _openNavigationTab = (tabToOpen: string) =>
     `//span[text()='${tabToOpen}']/ancestor::div`;
@@ -138,6 +159,8 @@ export class CommonLocators {
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _evalPopup = ".evaluated-value-popup";
+  _checkboxGroupOptions = (option: string) =>
+    "//div[contains(text(),'" + option + "')]/parent::label/input";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
@@ -206,6 +229,7 @@ export class CommonLocators {
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
 
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
+  _learnMore = this._visibleTextSpan("Learn more") + "/parent::a";
   _resizeHandles = {
     left: "t--resizable-handle-LEFT",
     right: "t--resizable-handle-RIGHT",
@@ -219,7 +243,7 @@ export class CommonLocators {
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
   _fixedLayout = "#t--layout-conversion-cta:contains('fixed')";
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
-  _errorToolTip = ".bp3-popover-content";
+  _popoverToolTip = ".bp3-popover-content";
   _selectedWidget = "div[data-testid='t--selected']";
   _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
@@ -228,10 +252,27 @@ export class CommonLocators {
   _appEditMenu = "[data-testid='t--application-edit-menu']";
   _appEditMenuBtn = "[data-testid='t--application-edit-menu-cta']";
   _appEditMenuSettings = "[data-testid='t--application-edit-menu-settings']";
+  _appEditExportSettings =
+    "[data-testid='t--application-edit-menu-export-application']";
   _appThemeSettings = "#t--theme-settings-header";
   _appChangeThemeBtn = ".t--change-theme-btn";
   _appThemeCard = ".t--theme-card";
-  _gitStatusChanges = "[data-testid='t--git-change-statuses']";
   _appNavigationSettings = "#t--navigation-settings-header";
   _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
+  _fontSelect = "fontsize .rc-select";
+  _fontInput = "fontsize input";
+  _pagination = ".rc-pagination";
+  _controlOption = ".t--property-control-options";
+  _canvasBody = "[data-testid='div-selection-0']";
+  _itemContainerWidget = ".t--widget-containerwidget div.style-container";
+  _adsV2Content = ".ads-v2__content";
+  _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
+  _adsV2Text = ".ads-v2-text";
+  _svg = "svg";
+  _imgWidgetInsideList = `//div[@data-testid='styledImage']//img`;
+  _containerWidget = "[type='CONTAINER_WIDGET']";
+  _evaluatedValue = ".t-property-evaluated-value";
+  public ds_editor_env_filter = (envName: string) =>
+    `[data-testid="t--ds-data-filter-${envName}"]`;
+  _textWidgetContaioner = ".t--text-widget-container span";
 }

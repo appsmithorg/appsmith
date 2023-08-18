@@ -62,7 +62,8 @@ public class OAuth2ClientCredentialsTest {
         authenticationResponse.setToken("SomeToken");
         authenticationResponse.setExpiresAt(Instant.now().plusSeconds(1200));
         oAuth2.setAuthenticationResponse(authenticationResponse);
-        OAuth2ClientCredentials connection = OAuth2ClientCredentials.create(datasourceConfiguration).block(Duration.ofMillis(100));
+        OAuth2ClientCredentials connection =
+                OAuth2ClientCredentials.create(datasourceConfiguration).block(Duration.ofMillis(100));
         assertThat(connection).isNotNull();
         assertThat(connection.getExpiresAt()).isEqualTo(authenticationResponse.getExpiresAt());
         assertThat(connection.getToken()).isEqualTo("SomeToken");
@@ -78,13 +79,14 @@ public class OAuth2ClientCredentialsTest {
         authenticationResponse.setToken("SomeToken");
         authenticationResponse.setExpiresAt(Instant.now().plusSeconds(1200));
         oAuth2.setAuthenticationResponse(authenticationResponse);
-        OAuth2ClientCredentials connection = OAuth2ClientCredentials.create(datasourceConfiguration).block(Duration.ofMillis(100));
+        OAuth2ClientCredentials connection =
+                OAuth2ClientCredentials.create(datasourceConfiguration).block(Duration.ofMillis(100));
         connection.setExpiresAt(Instant.now());
 
-        Mono<ClientResponse> response = connection.filter(Mockito.mock(ClientRequest.class), Mockito.mock(ExchangeFunction.class));
+        Mono<ClientResponse> response =
+                connection.filter(Mockito.mock(ClientRequest.class), Mockito.mock(ExchangeFunction.class));
 
-        StepVerifier.create(response)
-                .expectError(StaleConnectionException.class);
+        StepVerifier.create(response).expectError(StaleConnectionException.class);
     }
 
     @Test
@@ -100,12 +102,10 @@ public class OAuth2ClientCredentialsTest {
         oAuth2.setClientId("testId");
         oAuth2.setClientSecret("testSecret");
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
-        final OAuth2ClientCredentials response = OAuth2ClientCredentials.create(datasourceConfiguration).block();
+        final OAuth2ClientCredentials response =
+                OAuth2ClientCredentials.create(datasourceConfiguration).block();
         final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
 
         final String authorizationHeader = recordedRequest.getHeader("Authorization");
@@ -114,7 +114,8 @@ public class OAuth2ClientCredentialsTest {
     }
 
     @Test
-    public void testCreate_withIsAuthorizationHeaderFalse_sendsCredentialsInBody() throws InterruptedException, EOFException {
+    public void testCreate_withIsAuthorizationHeaderFalse_sendsCredentialsInBody()
+            throws InterruptedException, EOFException {
         String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
 
         final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
@@ -125,12 +126,10 @@ public class OAuth2ClientCredentialsTest {
         oAuth2.setClientId("testId");
         oAuth2.setClientSecret("testSecret");
 
-        mockEndpoint
-                .enqueue(new MockResponse()
-                        .setBody("{}")
-                        .addHeader("Content-Type", "application/json"));
+        mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
-        final OAuth2ClientCredentials response = OAuth2ClientCredentials.create(datasourceConfiguration).block();
+        final OAuth2ClientCredentials response =
+                OAuth2ClientCredentials.create(datasourceConfiguration).block();
         final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
 
         final String authorizationHeader = recordedRequest.getHeader("Authorization");

@@ -9,9 +9,7 @@
 
 // describe("Dropdown Widget Functionality", function() {
 //   before(() => {
-//     cy.fixture("newFormDsl").then((val) => {
-//      _.agHelper.AddDsl(val);
-//    });
+//      _.agHelper.AddDsl("newFormDsl");
 //   });
 
 //   it("Verify Search box for selecting drop-down options", function() {

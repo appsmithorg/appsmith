@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Form Widget with Input Functionality", function () {
   before(() => {
-    cy.fixture("formWidgetWithInputValCheckDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("formWidgetWithInputValCheckDsl");
   });
 
   it("Check if the default value of text input is 0", function () {

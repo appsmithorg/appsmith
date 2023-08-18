@@ -1,4 +1,4 @@
-import { apiPage, hostPort } from "../../../../support/Objects/ObjectsCore";
+import { apiPage, dataManager } from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate API URL Evaluated value", () => {
   it("1. Check if url object does not crash App", () => {
@@ -10,8 +10,9 @@ describe("Validate API URL Evaluated value", () => {
   it("2. Check if path field strings have not been JSON.stringified - #24696", () => {
     apiPage.CreateApi("SecondAPI");
     apiPage.EnterURL(
-      hostPort.mockApiUrl + `/{{SecondAPI.isLoading}}`,
-      hostPort.mockApiUrl + `/false`,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl +
+        `/{{SecondAPI.isLoading}}`,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl + `/false`,
     );
   });
 });

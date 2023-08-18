@@ -4,10 +4,9 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget row multi select validation", function () {
   before(() => {
-    cy.fixture("tableNewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableNewDsl");
   });
+
   it("1. Test multi select column shows when enable Multirowselection is true", function () {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.toggleEnableMultirowselection_tablev1)

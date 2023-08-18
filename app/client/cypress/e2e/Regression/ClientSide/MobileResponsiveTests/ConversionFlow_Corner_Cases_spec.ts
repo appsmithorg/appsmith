@@ -43,9 +43,7 @@ describe("Handle Cases while conversion", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
 
-    cy.fixture("templatePageWithNullbindings").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("templatePageWithNullbindings");
 
     autoLayout.ConvertToAutoLayoutAndVerify();
   });
@@ -54,9 +52,7 @@ describe("Handle Cases while conversion", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
 
-    cy.fixture("conversionDslWithDynamicBindings").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("conversionDslWithDynamicBindings");
 
     autoLayout.ConvertToAutoLayoutAndVerify();
     autoLayout.UseSnapshotFromBanner();
@@ -67,8 +63,8 @@ describe("Handle Cases while conversion", () => {
     "5. #23367 when app imports pages from a template, it should convert without any errors before refreshing the page after load",
     () => {
       entityExplorer.AddNewPage("Add page from template");
-      agHelper.AssertElementVisible(template.templateDialogBox);
-      agHelper.GetNClick("//h1[text()='Marketing Dashboard']");
+      agHelper.AssertElementVisibility(template.templateDialogBox);
+      agHelper.GetNClick(template.marketingDashboard);
       cy.wait(10000); // for templates page to load fully
       agHelper.GetNClick(template.selectCheckbox);
       cy.wait(1000);

@@ -1,7 +1,7 @@
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
-import { isEmpty, union } from "lodash";
+import { isEmpty } from "lodash";
 import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate } from "utils/JSPaneUtils";
@@ -21,13 +21,10 @@ import type {
 import { clearAllIntervals } from "../fns/overrides/interval";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import { setEvalContext } from "../evaluate";
-import type { TJSPropertiesState } from "../JSObject/jsPropertiesState";
-import { jsPropertiesState } from "../JSObject/jsPropertiesState";
-import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToDataField";
-import type { LintTreeSagaRequestData } from "workers/Linting/types";
-import { WorkerMessenger } from "../fns/utils/Messenger";
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
+import { errorModifier } from "../errorModifier";
+import { generateOptimisedUpdatesAndSetPrevState } from "../helpers";
+
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -35,7 +32,7 @@ export const CANVAS = "canvas";
 export default function (request: EvalWorkerSyncRequest) {
   const { data } = request;
   let evalOrder: string[] = [];
-  let lintOrder: string[] = [];
+  let reValidatedPaths: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
   let nonDynamicFieldValidationOrder: string[] = [];
@@ -47,7 +44,7 @@ export default function (request: EvalWorkerSyncRequest) {
   let evalMetaUpdates: EvalMetaUpdates = [];
   let configTree: ConfigTree = {};
   let staleMetaIds: string[] = [];
-  let pathsToClearErrorsFor: any[] = [];
+  let removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let isNewWidgetAdded = false;
 
   const {
@@ -55,7 +52,6 @@ export default function (request: EvalWorkerSyncRequest) {
     appMode,
     forceEvaluation,
     metaWidgets,
-    requiresLinting,
     shouldReplay,
     theme,
     unevalTree: __unevalTree__,
@@ -65,12 +61,13 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const unevalTree = __unevalTree__.unEvalTree;
   configTree = __unevalTree__.configTree as ConfigTree;
+
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
-      asyncJsFunctionInDataFields.initialize(appMode);
       replayMap = replayMap || {};
       replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
+      errorModifier.init(appMode);
       dataTreeEvaluator = new DataTreeEvaluator(
         widgetTypeConfigMap,
         allActionValidationConfig,
@@ -81,34 +78,18 @@ export default function (request: EvalWorkerSyncRequest) {
         configTree,
       );
       evalOrder = setupFirstTreeResponse.evalOrder;
-      lintOrder = union(
-        setupFirstTreeResponse.lintOrder,
-        jsPropertiesState.getUpdatedJSProperties(),
-      );
       jsUpdates = setupFirstTreeResponse.jsUpdates;
-
-      initiateLinting({
-        lintOrder,
-        unevalTree: makeEntityConfigsAsObjProperties(
-          dataTreeEvaluator.oldUnEvalTree,
-          {
-            sanitizeDataTree: false,
-          },
-        ),
-        requiresLinting,
-        jsPropertiesState: jsPropertiesState.getMap(),
-        asyncJSFunctionsInDataFields: asyncJsFunctionInDataFields.getMap(),
-        configTree: dataTreeEvaluator.oldConfigTree,
-      });
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
+        identicalEvalPathsPatches:
+          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
-        //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
+        //allActionValidationConfigs may not be set in dataTreeEvaluator. Therefore, set it explicitly via setter method
         dataTreeEvaluator.setAllActionValidationConfig(
           allActionValidationConfig,
         );
@@ -131,36 +112,21 @@ export default function (request: EvalWorkerSyncRequest) {
       );
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;
-      lintOrder = union(
-        setupFirstTreeResponse.lintOrder,
-        jsPropertiesState.getUpdatedJSProperties(),
-      );
       jsUpdates = setupFirstTreeResponse.jsUpdates;
-
-      initiateLinting({
-        lintOrder,
-        unevalTree: makeEntityConfigsAsObjProperties(
-          dataTreeEvaluator.oldUnEvalTree,
-          {
-            sanitizeDataTree: false,
-          },
-        ),
-        requiresLinting,
-        jsPropertiesState: jsPropertiesState.getMap(),
-        asyncJSFunctionsInDataFields: asyncJsFunctionInDataFields.getMap(),
-        configTree: dataTreeEvaluator.oldConfigTree,
-      });
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
 
       setEvalContext({
         dataTree: dataTreeEvaluator.evalTree,
+        configTree,
         isDataField: false,
         isTriggerBased: true,
       });
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
+        identicalEvalPathsPatches:
+          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else {
@@ -179,28 +145,11 @@ export default function (request: EvalWorkerSyncRequest) {
       );
 
       evalOrder = setupUpdateTreeResponse.evalOrder;
-      lintOrder = union(
-        setupUpdateTreeResponse.lintOrder,
-        jsPropertiesState.getUpdatedJSProperties(),
-      );
       jsUpdates = setupUpdateTreeResponse.jsUpdates;
       unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
-      pathsToClearErrorsFor = setupUpdateTreeResponse.pathsToClearErrorsFor;
+      removedPaths = setupUpdateTreeResponse.removedPaths;
       isNewWidgetAdded = setupUpdateTreeResponse.isNewWidgetAdded;
 
-      initiateLinting({
-        lintOrder,
-        unevalTree: makeEntityConfigsAsObjProperties(
-          dataTreeEvaluator.oldUnEvalTree,
-          {
-            sanitizeDataTree: false,
-          },
-        ),
-        requiresLinting,
-        jsPropertiesState: jsPropertiesState.getMap(),
-        asyncJSFunctionsInDataFields: asyncJsFunctionInDataFields.getMap(),
-        configTree: dataTreeEvaluator.oldConfigTree,
-      });
       nonDynamicFieldValidationOrder =
         setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
 
@@ -212,14 +161,19 @@ export default function (request: EvalWorkerSyncRequest) {
         Object.keys(metaWidgets),
       );
 
+      reValidatedPaths = updateResponse.reValidatedPaths;
+
       setEvalContext({
         dataTree: dataTreeEvaluator.evalTree,
+        configTree,
         isDataField: false,
         isTriggerBased: true,
       });
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
+        identicalEvalPathsPatches:
+          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
 
       evalMetaUpdates = JSON.parse(
@@ -227,8 +181,7 @@ export default function (request: EvalWorkerSyncRequest) {
       );
       staleMetaIds = updateResponse.staleMetaIds;
     }
-    dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
-    dependencies = dataTreeEvaluator.inverseDependencyMap;
+    dependencies = dataTreeEvaluator.inverseDependencies;
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();
     logs = dataTreeEvaluator.logs;
@@ -255,6 +208,8 @@ export default function (request: EvalWorkerSyncRequest) {
       makeEntityConfigsAsObjProperties(unevalTree, {
         sanitizeDataTree: false,
         evalProps: dataTreeEvaluator?.evalProps,
+        identicalEvalPathsPatches:
+          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       }),
       widgetTypeConfigMap,
       configTree,
@@ -264,19 +219,25 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const jsVarsCreatedEvent = getJSVariableCreatedEvents(jsUpdates);
 
-  const evalTreeResponse: EvalTreeResponseData = {
+  const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
+    dataTreeEvaluator,
+  );
+
+  const evalTreeResponse: EvalTreeResponseData = {
+    updates,
     dependencies,
     errors,
     evalMetaUpdates,
     evaluationOrder: evalOrder,
+    reValidatedPaths,
     jsUpdates,
     logs,
     unEvalUpdates,
     isCreateFirstTree,
     configTree,
     staleMetaIds,
-    pathsToClearErrorsFor,
+    removedPaths,
     isNewWidgetAdded,
     undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
     jsVarsCreatedEvent,
@@ -290,35 +251,4 @@ export function clearCache() {
   clearAllIntervals();
   JSObjectCollection.clear();
   return true;
-}
-
-interface initiateLintingProps {
-  asyncJSFunctionsInDataFields: DependencyMap;
-  lintOrder: string[];
-  unevalTree: DataTree;
-  requiresLinting: boolean;
-  jsPropertiesState: TJSPropertiesState;
-  configTree: ConfigTree;
-}
-
-export function initiateLinting({
-  asyncJSFunctionsInDataFields,
-  configTree,
-  jsPropertiesState,
-  lintOrder,
-  requiresLinting,
-  unevalTree,
-}: initiateLintingProps) {
-  const data = {
-    pathsToLint: lintOrder,
-    unevalTree,
-    jsPropertiesState,
-    asyncJSFunctionsInDataFields,
-    configTree,
-  } as LintTreeSagaRequestData;
-  if (!requiresLinting) return;
-  WorkerMessenger.ping({
-    data,
-    method: MAIN_THREAD_ACTION.LINT_TREE,
-  });
 }

@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { LazyEditorWrapper } from "./styles";
 import { REQUEST_IDLE_CALLBACK_TIMEOUT } from "constants/AppConstants";
-import type { EditorProps } from "components/editorComponents/CodeEditor";
+import type {
+  EditorProps,
+  EditorStyleProps,
+} from "components/editorComponents/CodeEditor";
 import type CodeEditor from "components/editorComponents/CodeEditor";
 import CodeEditorFallback from "./CodeEditorFallback";
 import { CODE_EDITOR_LOADING_ERROR } from "@appsmith/constants/messages";
@@ -161,7 +164,11 @@ class LazyCodeEditorStateMachine {
  *     3. If there isn't enough idle time to render the CodeEditor component,
  *        then render it immediately upon focus event.
  */
-function LazyCodeEditor({ input, placeholder, ...otherProps }: EditorProps) {
+function LazyCodeEditor({
+  input,
+  placeholder,
+  ...otherProps
+}: EditorProps & EditorStyleProps) {
   const [renderTarget, setRenderTarget] = useState<
     "editor" | "editor-focused" | "fallback"
   >("fallback");
@@ -225,6 +232,7 @@ function LazyCodeEditor({ input, placeholder, ...otherProps }: EditorProps) {
     return (
       <LazyEditorWrapper className="t--lazyCodeEditor-fallback">
         <CodeEditorFallback
+          height={otherProps?.height}
           input={input}
           isReadOnly={otherProps.isReadOnly}
           onInteracted={() => {

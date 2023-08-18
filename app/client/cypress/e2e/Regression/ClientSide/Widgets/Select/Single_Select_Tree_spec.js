@@ -8,9 +8,7 @@ const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("Single Select Widget Functionality", function () {
   before(() => {
-    cy.fixture("TreeSelectDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("TreeSelectDsl");
   });
 
   it("1. Check isDirty meta property", function () {

@@ -19,18 +19,15 @@ import java.time.Instant;
 @AllArgsConstructor
 public class AuthenticationResponse implements AppsmithDomain {
 
-    @Encrypted
-    String token;
+    @Encrypted String token;
 
-    @Encrypted
-    String refreshToken;
+    @Encrypted String refreshToken;
 
     Instant issuedAt;
 
     Instant expiresAt;
 
-    @Encrypted
-    Object tokenResponse;
+    @Encrypted Object tokenResponse;
 
     // This field is not returned as response by authorisation server, but is provided by cloud-services server
     @Transient

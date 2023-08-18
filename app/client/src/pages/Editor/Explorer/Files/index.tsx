@@ -118,13 +118,13 @@ function Files() {
           openMenu={isMenuOpen}
         />
       }
-      entityId={pageId + "_widgets"}
+      entityId={pageId + "_actions"}
       icon={null}
       isDefaultExpanded={
-        isFilesOpen === null || isFilesOpen === undefined ? false : isFilesOpen
+        isFilesOpen === null || isFilesOpen === undefined ? true : isFilesOpen
       }
       isSticky
-      key={pageId + "_widgets"}
+      key={pageId + "_actions"}
       name="Queries/JS"
       onCreate={onCreate}
       onToggle={onFilesToggle}

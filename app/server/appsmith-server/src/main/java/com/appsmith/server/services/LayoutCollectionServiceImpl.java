@@ -13,18 +13,28 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl implements LayoutCollectionService {
 
-    public LayoutCollectionServiceImpl(NewPageService newPageService,
-                                       LayoutActionService layoutActionService,
-                                       RefactoringSolution refactoringSolution,
-                                       ActionCollectionService actionCollectionService,
-                                       NewActionService newActionService,
-                                       AnalyticsService analyticsService,
-                                       ResponseUtils responseUtils,
-                                       ActionCollectionRepository actionCollectionRepository,
-                                       PagePermission pagePermission,
-                                       ActionPermission actionPermission) {
+    public LayoutCollectionServiceImpl(
+            NewPageService newPageService,
+            LayoutActionService layoutActionService,
+            RefactoringSolution refactoringSolution,
+            ActionCollectionService actionCollectionService,
+            NewActionService newActionService,
+            AnalyticsService analyticsService,
+            ResponseUtils responseUtils,
+            ActionCollectionRepository actionCollectionRepository,
+            PagePermission pagePermission,
+            ActionPermission actionPermission) {
 
-        super(newPageService, layoutActionService, refactoringSolution, actionCollectionService, newActionService, analyticsService,
-                responseUtils, actionCollectionRepository, pagePermission, actionPermission);
+        super(
+                newPageService,
+                layoutActionService,
+                refactoringSolution,
+                actionCollectionService,
+                newActionService,
+                analyticsService,
+                responseUtils,
+                actionCollectionRepository,
+                pagePermission,
+                actionPermission);
     }
 }

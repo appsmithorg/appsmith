@@ -5,9 +5,7 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe("Select Widgets", function () {
   before(() => {
-    cy.fixture("Listv2/Listv2WithTablewidget").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/Listv2WithTablewidget");
   });
   it("a. Validate the Values in Table widget", function () {
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)

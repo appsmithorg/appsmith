@@ -17,18 +17,28 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class UserSignupImpl extends UserSignupCEImpl implements UserSignup {
 
-    public UserSignupImpl(UserService userService,
-                          UserDataService userDataService,
-                          CaptchaService captchaService,
-                          AuthenticationSuccessHandler authenticationSuccessHandler,
-                          ConfigService configService,
-                          AnalyticsService analyticsService,
-                          EnvManager envManager,
-                          CommonConfig commonConfig,
-                          UserUtils userUtils,
-                          NetworkUtils networkUtils) {
+    public UserSignupImpl(
+            UserService userService,
+            UserDataService userDataService,
+            CaptchaService captchaService,
+            AuthenticationSuccessHandler authenticationSuccessHandler,
+            ConfigService configService,
+            AnalyticsService analyticsService,
+            EnvManager envManager,
+            CommonConfig commonConfig,
+            UserUtils userUtils,
+            NetworkUtils networkUtils) {
 
-        super(userService, userDataService, captchaService, authenticationSuccessHandler, configService,
-                analyticsService, envManager, commonConfig, userUtils, networkUtils);
+        super(
+                userService,
+                userDataService,
+                captchaService,
+                authenticationSuccessHandler,
+                configService,
+                analyticsService,
+                envManager,
+                commonConfig,
+                userUtils,
+                networkUtils);
     }
 }

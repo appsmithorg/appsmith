@@ -4,9 +4,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Preview mode functionality", function () {
   before(() => {
-    cy.fixture("previewMode").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("previewMode");
   });
 
   it("1. Checks entity explorer and property pane visiblity", function () {

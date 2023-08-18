@@ -1,6 +1,5 @@
 package com.external.utils;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
 import com.appsmith.external.models.ActionConfiguration;
@@ -9,8 +8,8 @@ import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
 import com.external.plugins.exceptions.GraphQLPluginError;
 import lombok.NoArgsConstructor;
-import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -39,7 +38,8 @@ public class GraphQLHintMessageUtils extends HintMessageUtils {
      * This method checks if the user has defined a query variable in both the places - pagination tab and the query
      * variables editor section. If so, then a warning message is returned informing user of the same.
      */
-    public static Set<String> getHintMessagesForDuplicatesInQueryVariables(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+    public static Set<String> getHintMessagesForDuplicatesInQueryVariables(ActionConfiguration actionConfiguration)
+            throws AppsmithPluginException {
         if (actionConfiguration == null) {
             return new HashSet<>();
         }
@@ -52,10 +52,10 @@ public class GraphQLHintMessageUtils extends HintMessageUtils {
             queryVariablesJson = parseStringIntoJSONObject(variables);
         } catch (JSONException | ClassCastException e) {
             /* Not returning an exception here since the user is still editing the query variables and hence it is
--            expected that the query variables would not be parseable till the final edit. */
+            -            expected that the query variables would not be parseable till the final edit. */
         }
 
-        Map<String, Object> paginationDataMap =  getPaginationData(actionConfiguration);
+        Map<String, Object> paginationDataMap = getPaginationData(actionConfiguration);
         if (!PaginationType.NONE.equals(actionConfiguration.getPaginationType()) && !isEmpty(paginationDataMap)) {
             List<String> duplicateVariables = new ArrayList<String>();
             if (PaginationType.PAGE_NO.equals(actionConfiguration.getPaginationType())) {
@@ -69,8 +69,7 @@ public class GraphQLHintMessageUtils extends HintMessageUtils {
                 if (queryVariablesJson.has(offsetVarName)) {
                     duplicateVariables.add(offsetVarName);
                 }
-            }
-            else if (PaginationType.CURSOR.equals(actionConfiguration.getPaginationType())) {
+            } else if (PaginationType.CURSOR.equals(actionConfiguration.getPaginationType())) {
                 String prevLimitVarName = (String) paginationDataMap.get(PREV_LIMIT_VARIABLE_NAME);
                 String prevCursorVarName = (String) paginationDataMap.get(PREV_CURSOR_VARIABLE_NAME);
                 String nextLimitVarName = (String) paginationDataMap.get(NEXT_LIMIT_VARIABLE_NAME);
@@ -91,18 +90,17 @@ public class GraphQLHintMessageUtils extends HintMessageUtils {
                 if (queryVariablesJson.has(nextCursorVarName)) {
                     duplicateVariables.add(nextCursorVarName);
                 }
-            }
-            else {
+            } else {
                 throw new AppsmithPluginException(
                         GraphQLPluginError.QUERY_EXECUTION_FAILED,
-                        "Appsmith server encountered an unexpected error: unrecognized pagination type: " + actionConfiguration.getPaginationType() +
-                                ". Please reach out to our customer support to resolve this."
-                );
+                        "Appsmith server encountered an unexpected error: unrecognized pagination type: "
+                                + actionConfiguration.getPaginationType()
+                                + ". Please reach out to our customer support to resolve this.");
             }
 
             if (!isEmpty(duplicateVariables)) {
-                String message = MessageFormat.format(HINT_MESSAGE_FOR_DUPLICATE_VARIABLE_DEFINITION,
-                        duplicateVariables.toString());
+                String message = MessageFormat.format(
+                        HINT_MESSAGE_FOR_DUPLICATE_VARIABLE_DEFINITION, duplicateVariables.toString());
                 hintMessages.add(message);
             }
         }
@@ -111,8 +109,8 @@ public class GraphQLHintMessageUtils extends HintMessageUtils {
     }
 
     @Override
-    public Set<String> getActionHintMessages(ActionConfiguration actionConfiguration,
-                                             DatasourceConfiguration datasourceConfiguration) {
+    public Set<String> getActionHintMessages(
+            ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
 
         Set<String> actionHintMessages = super.getActionHintMessages(actionConfiguration, datasourceConfiguration);
 

@@ -7,6 +7,9 @@ const Label = styled.label`
   color: var(--ads-v2-color-fg);
   font-size: var(--ads-v2-font-size-4);
   font-weight: var(--ads-v2-font-weight-normal);
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 `;
 
 type Props = {

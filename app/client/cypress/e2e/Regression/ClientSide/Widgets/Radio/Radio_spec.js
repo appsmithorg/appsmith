@@ -6,9 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Radio Widget Functionality", function () {
   before(() => {
-    cy.fixture("newFormDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("newFormDsl");
   });
   it("Radio Widget Functionality", function () {
     cy.openPropertyPane("radiogroupwidget");

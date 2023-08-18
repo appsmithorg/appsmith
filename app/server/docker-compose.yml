@@ -1,3 +1,5 @@
+# This is deprecated, and is not recommended anymore. Please refer to ServerSetup.md for the latest instructions.
+
 version: "3.7"
 
 services:

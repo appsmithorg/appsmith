@@ -51,7 +51,9 @@ public class GoogleSheetsMethodStrategy {
             case MethodIdentifiers.ROWS_DELETE_ONE:
                 return new RowsDeleteMethod(objectMapper);
             default:
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(ErrorMessages.UNKNOWN_EXECUTION_METHOD_ERROR_MSG, type)));
+                throw Exceptions.propagate(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        String.format(ErrorMessages.UNKNOWN_EXECUTION_METHOD_ERROR_MSG, type)));
         }
     }
 
@@ -63,10 +65,14 @@ public class GoogleSheetsMethodStrategy {
                 return new FileInfoMethod(objectMapper);
             case MethodIdentifiers.TRIGGER_COLUMNS_SELECTOR:
                 return new GetStructureMethod(objectMapper);
+            case MethodIdentifiers.TRIGGER_SHEET_DATA:
+                return new RowsGetMethod(objectMapper);
             default:
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(ErrorMessages.UNKNOWN_TRIGGER_METHOD_ERROR_MSG, triggerRequestDTO.getRequestType())));
+                throw Exceptions.propagate(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        String.format(
+                                ErrorMessages.UNKNOWN_TRIGGER_METHOD_ERROR_MSG, triggerRequestDTO.getRequestType())));
         }
-
     }
 
     public static TemplateMethod getTemplateMethod(Map<String, Object> formData) {
@@ -84,7 +90,9 @@ public class GoogleSheetsMethodStrategy {
             case MethodIdentifiers.ROWS_DELETE_ONE:
                 return new RowsDeleteMethod();
             default:
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(ErrorMessages.UNKNOWN_EXECUTION_METHOD_ERROR_MSG, type)));
+                throw Exceptions.propagate(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        String.format(ErrorMessages.UNKNOWN_EXECUTION_METHOD_ERROR_MSG, type)));
         }
     }
 }

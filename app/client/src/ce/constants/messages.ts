@@ -169,7 +169,6 @@ export const INVITE_USER_RAMP_TEXT = () =>
   "Users will have access to all applications in the workspace. For application-level access, try out our ";
 export const CUSTOM_ROLES_RAMP_TEXT = () =>
   "To build and assign custom roles, try out our ";
-export const BUSINESS_TEXT = () => "Business";
 export const CUSTOM_ROLE_TEXT = () => "Custom role";
 export const CUSTOM_ROLE_DISABLED_OPTION_TEXT = () =>
   "Can access specific applications or only certain pages and queries within an application";
@@ -324,6 +323,7 @@ export const OAUTH_2_0 = () => "OAuth 2.0";
 export const ENABLE = () => "Enable";
 export const UPGRADE = () => "Upgrade";
 export const EDIT = () => "Edit";
+export const CONFIGURE = () => "Configure";
 export const UNEXPECTED_ERROR = () => "An unexpected error occurred";
 export const EXPECTED_ERROR = () => "An error occurred";
 export const NO_DATASOURCE_FOR_QUERY = () =>
@@ -572,9 +572,8 @@ export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
   "Function Timeout (in milliseconds)";
-export const ASYNC_FUNCTION_SETTINGS_HEADING = () => "Async function settings";
-export const NO_ASYNC_FUNCTIONS = () =>
-  "There is no asynchronous function in this JSObject";
+export const FUNCTION_SETTINGS_HEADING = () => "Function settings";
+export const NO_JS_FUNCTIONS = () => "There is no function in this JSObject";
 export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
@@ -647,6 +646,9 @@ export const BULK_WIDGET_REMOVED = (widgetName: string) =>
 export const BULK_WIDGET_ADDED = (widgetName: string) =>
   `${widgetName} widgets are added back`;
 
+export const ACTION_CONFIGURATION_CHANGED = (name: string) =>
+  `${name}'s configuration has changed`;
+
 // Generate page from DB Messages
 
 export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
@@ -691,10 +693,37 @@ export const ADD_NEW_WIDGET = () => "Add new widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
 export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
+export const BINDING_SECTION_LABEL = () => "Bindings";
+export const ADD_NEW_WIDGET_SUB_HEADING = () =>
+  "Select how you want to display data.";
+export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a Widget";
+export const CONNECT_EXISTING_WIDGET_SUB_HEADING = () =>
+  "Replace the data of an existing widget";
+export const NO_EXISTING_WIDGETS = () => "Display data in a new widget";
+export const BINDING_WALKTHROUGH_TITLE = () => "Display your data";
+export const BINDING_WALKTHROUGH_DESC = () =>
+  "You can replace data of an existing widget of your page or you can select a new widget.";
+export const BINDINGS_DISABLED_TOOLTIP = () =>
+  "You can display data when you have a successful response to your query";
 
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
+
+// Datasource structure
+
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
+export const TABLE_OR_COLUMN_NOT_FOUND = () => "Table or column not found.";
+export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
+  "Search for table or attribute";
+export const SCHEMA_LABEL = () => "Schema";
+export const STRUCTURE_NOT_FETCHED = () =>
+  "We could not fetch the schema of the database.";
+export const TEST_DATASOURCE_AND_FIX_ERRORS = () =>
+  "Test the datasource and fix the errors.";
+export const LOADING_SCHEMA = () => "Loading schema...";
+export const SCHEMA_WALKTHROUGH_TITLE = () => "Query data fast";
+export const SCHEMA_WALKTHROUGH_DESC = () =>
+  "Select a template from a database table to quickly create your first query. ";
 
 // Git sync
 export const CONNECTED_TO_GIT = () => "Connected to Git";
@@ -844,6 +873,8 @@ export const CONFIRM_SSH_KEY = () =>
   "Please make sure your SSH key has write access.";
 export const READ_DOCUMENTATION = () => "Read documentation";
 export const LEARN_MORE = () => "Learn more";
+
+export const I_UNDERSTAND = () => "I understand";
 export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
 
 export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";
@@ -869,6 +900,8 @@ export const DISCARD_CHANGES = () => "Discard & pull";
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const CHANGES_APP_SETTINGS = () => "Application settings modified";
+export const CHANGES_THEME = () => "Theme modified";
 export const CHANGES_SINCE_LAST_DEPLOYMENT = () =>
   "Changes since last deployment";
 export const CHANGES_ONLY_USER = () => "Changes since last commit";
@@ -966,7 +999,7 @@ export const ONBOARDING_CHECKLIST_BODY = () =>
 export const ONBOARDING_CHECKLIST_COMPLETE_TEXT = () => "complete";
 
 export const SIGNPOSTING_POPUP_SUBTITLE = () =>
-  "These are all the things you need to do to build your first application.";
+  "Here’s what you need to do to build your first app:";
 export const SIGNPOSTING_SUCCESS_POPUP = {
   title: () => "🎉 Awesome! You’ve explored the basics of Appsmith",
   subtitle: () =>
@@ -974,32 +1007,31 @@ export const SIGNPOSTING_SUCCESS_POPUP = {
 };
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {
-  bold: () => "Connect your datasource",
-  normal: () => "to start building your app",
+  bold: () => "Connect to a datasource",
+  normal: () => "So your UI can talk to your data.",
 };
 
 export const ONBOARDING_CHECKLIST_CREATE_A_QUERY = {
-  bold: () => "Write a query",
-  normalPrefix: () => "to import your",
-  normal: () => "data into appsmith",
+  bold: () => "Write your first query",
+  normal: () => "To get the data to present in widgets",
 };
 
 export const ONBOARDING_CHECKLIST_ADD_WIDGETS = {
-  bold: () => "Drag & drop a widget,",
-  normal: () => "so you can build a beautiful UI",
+  bold: () => "Drop a widget on the canvas",
+  normal: () => "To start building your UI",
 };
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET = {
-  bold: () => "Connect your data to the widgets",
-  normal: () => "using JavaScript bindings",
+  bold: () => "Connect queries and widgets",
+  normal: () => "using query names in bindings {{}}",
 };
 
 export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
-  bold: () => "Deploy your application,",
-  normal: () => "and see your creation live.",
+  bold: () => "Deploy your application",
+  normal: () => "To see your live app and share it with end-users.",
 };
 
-export const SIGNPOSTING_LAST_STEP_TOOLTIP = () => "You are almost there!";
+export const SIGNPOSTING_LAST_STEP_TOOLTIP = () => "Almost there!";
 export const SIGNPOSTING_TOOLTIP = {
   DEFAULT: {
     content: () =>
@@ -1009,19 +1041,18 @@ export const SIGNPOSTING_TOOLTIP = {
     content: () => "Let's add a datasource",
   },
   CREATE_QUERY: {
-    content: () =>
-      "You successfully connected a datasource. Now try to create a query.",
+    content: () => "Datasource connected. Let's write your first query now.",
   },
   ADD_WIDGET: {
-    content: () =>
-      "You successfully created a query. Now its time to drag & drop a widget to bind data.",
+    content: () => "The query seems fine, right? Let's build our UI next.",
   },
   CONNECT_DATA_TO_WIDGET: {
     content: () =>
-      "You have a widget on the canvas now, its time to bind the data with it.",
+      "That was easy. Connect the query you wrote in Step 2 to present data in this widget.",
   },
   DEPLOY_APPLICATION: {
-    content: () => "Deploy you application to see what you’ve built.",
+    content: () =>
+      "Deploy your app to see it live and share it with your users.",
   },
   DOCUMENTATION: {
     content: () => "Open documentation",
@@ -1212,8 +1243,17 @@ export const OIDC_AUTH_DESC = () =>
   "Enable your workspace to sign in with your preferred OIDC compliant provider.";
 export const SAVE_BUTTON = () => "Save";
 export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
+export const SAVE_AND_REFRESH_BUTTON = () => "Save & Refresh";
 export const RESET_BUTTON = () => "Reset";
 export const BUSINESS_TAG = () => "Business";
+export const ENTERPRISE_TAG = () => "Enterprise";
+
+// Upgrade pages begin
+export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
+export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
+  `The ${featureName} feature is exclusive to workspaces on the Business Edition`;
+export const AVAILABLE_ON_ENTERPRISE = () => "Available on Appsmith Enterprise";
+// Upgrade pages end
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit logs";
@@ -1235,9 +1275,6 @@ export const DEBUGGING_DETAIL1 = () =>
 export const INCIDENT_MANAGEMENT = () => "Incident management";
 export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
   "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
-export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
-export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
-  `The ${featureName} feature is exclusive to workspaces on the Business Edition`;
 // Audit logs Upgrade page end
 // Audit logs end
 
@@ -1262,6 +1299,22 @@ export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
   "Unlock granular access controls along with audit logs and SSO for enhanced security and reliability with an upgrade to our Business edition.";
 // Access control upgrade page end
 
+// Provisioning upgrade page begin
+export const USER_PROVISIONING_FOR_ENTERPRISES = () =>
+  "Manage Appsmith users via your identity provider";
+export const PROVISIONING_UPGRADE_PAGE_SUB_HEADING = () =>
+  `Add and remove Appsmith users centrally. Sync existing groups to Appsmith.`;
+export const PROVISION_DEPROVISION_USERS = () =>
+  "Provision and deprovision users from your IdP";
+export const PROVISION_DEPROVISION_USERS_DETAIL1 = () =>
+  `Control user authorization and access to Appsmith workspaces and apps via your IdP using the SCIM protocol.<div>&nbsp;</div><div><span style="font-style: italic;font-weight: normal;">More protocols coming soon</span></div>`;
+export const AUTO_GROUP_SYNC = () => "Automatic group sync";
+export const AUTO_GROUP_SYNC_DETAIL1 = () =>
+  `Easily manage access for groups when you sync them to Appsmith from your IdP.`;
+export const PROVISIONING_UPGRADE_PAGE_FOOTER = () =>
+  "Secure your Appsmith apps with Granular Access Controls, Audit Logs, Custom SSO, and more on Appsmith Enterprise.";
+// Provisioning upgrade page end
+
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us about your primary skillset";
@@ -1284,6 +1337,9 @@ export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
 export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
   "Search for controls, labels etc";
 export const EXPLORER_BETA_ENTITY = () => "BETA";
+export const BINDING_WIDGET_WALKTHROUGH_TITLE = () => "Widget properties";
+export const BINDING_WIDGET_WALKTHROUGH_DESC = () =>
+  `We’ve set the table data property for you. You can change it at anytime. The properties pane is a central hub for configuring widgets, allowing you to easily modify settings.`;
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1330,9 +1386,9 @@ export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
 export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 
 // Branding
-export const ADMIN_BRANDING_SETTINGS_TITLE = () =>
+export const ADMIN_BRANDING_SETTINGS_TITLE_UPGRADE = () =>
   "Custom Branding for your workspaces";
-export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
+export const ADMIN_BRANDING_SETTINGS_SUBTITLE_UPGRADE = () =>
   "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business Edition.";
 export const ADMIN_BRANDING_COLOR_TOOLTIP = () =>
   `When you choose a primary color, we auto-magically fill in the secondary and accent colors. You can change them to get the look you want.`;
@@ -1698,6 +1754,12 @@ export const DATASOURCE_INTERCOM_TEXT = () =>
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
+export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate new page";
+export const GSHEETS_ERR_FETCHING_PREVIEW_DATA = () =>
+  "Some problem occured while fetching data";
+export const GSHEETS_FETCHING_PREVIEW_DATA = () => "Loading data";
+export const GSHEETS_SCHEMA_NO_DATA = () =>
+  "No data records to show or the table header begins with an index other than 1";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
@@ -1812,3 +1874,33 @@ export const customJSLibraryMessages = {
 // Business Edition upgrade page
 export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
   `Move to Business edition${trailingChar ? trailingChar : ""}`;
+
+//Datasource environment
+export const START_SWITCH_ENVIRONMENT = (environment: string) =>
+  `Switching your environment to ${environment}, and running all associated pageload actions`;
+export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
+  `Environment switched to ${environment} successfully`;
+export const SWITCH_ENV_DISABLED_TOOLTIP_TEXT = () =>
+  "To access environments for datasources, try out our ";
+
+export const TEST_DATASOURCE_SUCCESS = (
+  datasourceName: string,
+  environmentName: string,
+) => {
+  return environmentName
+    ? `Test was successful, ${datasourceName} ${environmentName} environment is correctly configured.`
+    : `Test was successful, ${datasourceName} is correctly configured.`;
+};
+
+export const TEST_DATASOURCE_ERROR = () =>
+  "Test failed, couldn't establish a connection";
+
+// Camera widget
+export const DEFAULT_CAMERA_LABEL = () => "Default mobile camera";
+export const DEFAULT_CAMERA_LABEL_DESCRIPTION = () =>
+  "Default choice for mobile users. Not applicable for other devices";
+export const FRONT_CAMERA_LABEL = () => "Front (Selfie)";
+export const BACK_CAMERA_LABEL = () => "Back (Rear)";
+
+// Color picker
+export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";

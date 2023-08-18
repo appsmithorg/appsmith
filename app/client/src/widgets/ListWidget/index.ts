@@ -6,7 +6,11 @@ import {
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type {
+  FlattenedWidgetProps,
+  SnipingModeProperty,
+  PropertyUpdates,
+} from "widgets/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -418,7 +422,21 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    setterConfig: Widget.getSetterConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "listData",
+          propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
   },
   autoLayout: {
     widgetSize: [

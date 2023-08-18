@@ -3,7 +3,6 @@ import type { AppState } from "@appsmith/reducers";
 import { Icon } from "design-system";
 import { PluginPackageName } from "entities/Action";
 import { get, isArray } from "lodash";
-import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
 import { useCallback, useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -20,8 +19,9 @@ import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdow
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
+import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
 
-export function useColumns(alias: string) {
+export function useColumns(alias: string, isSearcheable: boolean) {
   const { config, propertyName, updateConfig, widgetId } = useContext(
     WidgetQueryGeneratorFormContext,
   );
@@ -73,8 +73,9 @@ export function useColumns(alias: string) {
       return columns
         .filter((column: any) => {
           return (
-            column.type &&
-            ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase())
+            !isSearcheable ||
+            (column.type &&
+              ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase()))
           );
         })
         .map((column: any) => {
@@ -133,6 +134,7 @@ export function useColumns(alias: string) {
           propertyName: propertyName,
           pluginType: config.datasourcePluginType,
           pluginName: config.datasourcePluginName,
+          connectionMode: config.datasourceConnectionMode,
         });
       }
     },

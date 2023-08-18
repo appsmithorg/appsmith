@@ -1,16 +1,17 @@
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
-
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Chart",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.DISPLAY],
   needsMeta: true,
   searchTags: ["graph", "visuals", "visualisations"],
   defaults: {
@@ -24,9 +25,10 @@ export const CONFIG = {
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
+    showDataPointLabel: false,
     chartData: {
       [generateReactKey()]: {
-        seriesName: "Sales",
+        seriesName: "2023",
         data: [
           {
             x: "Product1",

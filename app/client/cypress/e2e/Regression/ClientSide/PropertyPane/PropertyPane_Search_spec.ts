@@ -6,9 +6,7 @@ import {
 
 describe("Property Pane Search", function () {
   before(() => {
-    cy.fixture("swtchTableV2Dsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("swtchTableV2Dsl");
   });
 
   it("1. Verify if the search Input is getting focused when a widget is selected", function () {

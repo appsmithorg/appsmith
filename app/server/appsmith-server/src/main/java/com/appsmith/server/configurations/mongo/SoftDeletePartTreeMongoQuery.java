@@ -20,12 +20,17 @@ public class SoftDeletePartTreeMongoQuery extends ReactivePartTreeMongoQuery {
     private ReactivePartTreeMongoQuery reactivePartTreeQuery;
     private Method method;
 
-    SoftDeletePartTreeMongoQuery(Method method, ReactivePartTreeMongoQuery reactivePartTreeMongoQuery,
-                                 ReactiveMongoOperations mongoOperations,
-                                 SpelExpressionParser expressionParser,
-                                 ReactiveQueryMethodEvaluationContextProvider evaluationContextProvider) {
-        super((ReactiveMongoQueryMethod) reactivePartTreeMongoQuery.getQueryMethod(),
-                mongoOperations, expressionParser, evaluationContextProvider);
+    SoftDeletePartTreeMongoQuery(
+            Method method,
+            ReactivePartTreeMongoQuery reactivePartTreeMongoQuery,
+            ReactiveMongoOperations mongoOperations,
+            SpelExpressionParser expressionParser,
+            ReactiveQueryMethodEvaluationContextProvider evaluationContextProvider) {
+        super(
+                (ReactiveMongoQueryMethod) reactivePartTreeMongoQuery.getQueryMethod(),
+                mongoOperations,
+                expressionParser,
+                evaluationContextProvider);
         this.reactivePartTreeQuery = reactivePartTreeMongoQuery;
         this.method = method;
     }
@@ -50,9 +55,7 @@ public class SoftDeletePartTreeMongoQuery extends ReactivePartTreeMongoQuery {
     }
 
     private Criteria notDeleted() {
-        return new Criteria().orOperator(
-                where("deleted").exists(false),
-                where("deleted").is(false)
-        );
+        return new Criteria()
+                .orOperator(where("deleted").exists(false), where("deleted").is(false));
     }
 }

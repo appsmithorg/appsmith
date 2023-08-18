@@ -9,9 +9,7 @@ describe("SMTP datasource test cases using ted", function () {
     cy.startRoutesForDatasource();
   });
   before(() => {
-    cy.fixture("SMTPTestdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("SMTPTestdsl");
   });
 
   it("1. Create and configure smtp datasource and query, binding widgets to query fields", function () {

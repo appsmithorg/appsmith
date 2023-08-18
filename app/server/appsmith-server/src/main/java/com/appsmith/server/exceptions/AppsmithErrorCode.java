@@ -62,6 +62,7 @@ public enum AppsmithErrorCode {
     PLUGIN_EXECUTION_TIMEOUT("AE-APP-5040", "Plugin execution timeout"),
     MARKETPLACE_TIMEOUT("AE-APP-5041", "Marketplace timeout"),
     GOOGLE_RECAPTCHA_TIMEOUT("AE-APP-5042", "Google recaptcha timeout"),
+    INVALID_PROPERTIES_CONFIGURATION("AE-APP-5044", "Property configuration is wrong or malformed"),
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR("AE-AST-4009", "Name clash not allowed in refactor"),
     GENERIC_BAD_REQUEST("AE-BAD-4000", "Generic bad request"),
     MALFORMED_REQUEST("AE-BAD-4001", "Malformed request body"),
@@ -112,6 +113,7 @@ public enum AppsmithErrorCode {
     USER_NOT_FOUND("AE-USR-4004", "User not found"),
     CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
     UNSUPPORTED_IMPORT_OPERATION("AE-APP-4040", "Unsupported operation for import application via file"),
+    DUPLICATE_DATASOURCE_CONFIGURATION("AE-APP-4093", "Duplicate datasource configuration"),
     ;
     private final String code;
     private final String description;

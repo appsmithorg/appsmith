@@ -16,9 +16,8 @@ describe("Text Field Property Control", () => {
     const schema = {
       name: "John",
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
@@ -27,9 +26,8 @@ describe("Text Field Property Control", () => {
     const schema = {
       switch: true,
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("switch");
@@ -70,9 +68,8 @@ describe("Text Field Property Control", () => {
     const schema = {
       state: "Karnataka",
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("state");
@@ -120,9 +117,8 @@ describe("Text Field Property Control", () => {
     const schema = {
       hobbies: [],
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("hobbies");
@@ -188,9 +184,8 @@ describe("Text Field Property Control", () => {
     const sourceData = {
       radio: "Y",
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
     cy.openFieldConfiguration("radio");

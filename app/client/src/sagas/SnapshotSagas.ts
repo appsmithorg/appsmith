@@ -195,8 +195,7 @@ export default function* snapshotSagas() {
     ),
     takeLatest(
       [
-        ReduxActionTypes.INIT_CANVAS_LAYOUT,
-        ReduxActionTypes.FETCH_SNAPSHOT,
+        ReduxActionTypes.FETCH_LAYOUT_SNAPSHOT_DETAILS,
         ReduxActionTypes.START_CONVERSION_FLOW,
       ],
       updateSnapshotDetailsSaga,

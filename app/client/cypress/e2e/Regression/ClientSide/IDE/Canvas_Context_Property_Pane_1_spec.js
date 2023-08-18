@@ -10,9 +10,8 @@ const api1 = "API1";
 
 describe("Canvas context Property Pane", function () {
   before(() => {
-    cy.fixture("editorContextdsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("editorContextdsl");
+
     _.entityExplorer.AddNewPage("New blank page");
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     _.entityExplorer.SelectEntityByName(page1, "Pages");

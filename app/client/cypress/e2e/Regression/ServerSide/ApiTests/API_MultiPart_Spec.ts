@@ -22,12 +22,12 @@ describe("Validate API request body panel", () => {
     apiPage.CreateApi("FirstAPI", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("FORM_URLENCODED");
-    agHelper.AssertElementVisible(apiPage._bodyKey(0));
-    agHelper.AssertElementVisible(apiPage._bodyValue(0));
+    agHelper.AssertElementVisibility(apiPage._bodyKey(0));
+    agHelper.AssertElementVisibility(apiPage._bodyValue(0));
     apiPage.SelectSubTab("MULTIPART_FORM_DATA");
-    agHelper.AssertElementVisible(apiPage._bodyKey(0));
-    agHelper.AssertElementVisible(apiPage._bodyTypeDropdown);
-    agHelper.AssertElementVisible(apiPage._bodyValue(0));
+    agHelper.AssertElementVisibility(apiPage._bodyKey(0));
+    agHelper.AssertElementVisibility(apiPage._bodyTypeDropdown);
+    agHelper.AssertElementVisibility(apiPage._bodyValue(0));
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Api,
@@ -111,9 +111,7 @@ describe("Validate API request body panel", () => {
 
   it("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {
     const imageNameToUpload = "ConcreteHouse.jpg";
-    cy.fixture("multiPartFormDataDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("multiPartFormDataDsl");
 
     apiPage.CreateAndFillApi(
       "https://api.cloudinary.com/v1_1/appsmithautomationcloud/image/upload?upload_preset=fbbhg4xu",
@@ -170,7 +168,7 @@ describe("Validate API request body panel", () => {
       .then(($src) => {
         expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
       });
-    agHelper.AssertElementVisible(locators._spanButton("Select Files")); //verifying if reset!
+    agHelper.AssertElementVisibility(locators._spanButton("Select Files")); //verifying if reset!
     deployMode.NavigateBacktoEditor();
   });
 
@@ -194,6 +192,6 @@ describe("Validate API request body panel", () => {
     agHelper.UploadFile(imageNameToUpload);
     agHelper.AssertNetworkExecutionSuccess("@postExecute", false);
     agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute");
-    agHelper.AssertElementVisible(locators._spanButton("Select Files")); //verifying if reset in case of failure!
+    agHelper.AssertElementVisibility(locators._spanButton("Select Files")); //verifying if reset in case of failure!
   });
 });

@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 column order maintained on column change validation", function () {
   before(() => {
-    cy.fixture("tableV2ColumnOrderDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableV2ColumnOrderDsl");
   });
 
   it("Table widget V2 column order should be maintained after reorder and new column should be at the end", function () {

@@ -4,9 +4,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 describe("Basic flow ", () => {
   before(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.fixture("Table/InlineEditingDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Table/InlineEditingDSL");
   });
 
   it("1.1. should test that allow Add new row property is present", () => {

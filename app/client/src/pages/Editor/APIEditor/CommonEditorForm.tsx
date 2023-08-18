@@ -602,7 +602,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               {/* @ts-ignore*/}
               <RequestDropdownField
                 className={`t--apiFormHttpMethod ${replayHighlightClass}`}
-                data-replay-id={btoa("actionConfiguration.httpMethod")}
+                data-location-id={btoa("actionConfiguration.httpMethod")}
                 disabled={!isChangePermitted}
                 name="actionConfiguration.httpMethod"
                 options={
@@ -735,9 +735,11 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             applicationId={props.applicationId}
             currentActionDatasourceId={currentActionDatasourceId}
             currentPageId={props.currentPageId}
+            datasourceId={props.currentActionDatasourceId}
             datasources={props.datasources}
             hasResponse={props.hasResponse}
             onClick={updateDatasource}
+            pluginId={props.pluginId}
             suggestedWidgets={props.suggestedWidgets}
           />
         </Wrapper>

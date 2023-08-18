@@ -5,9 +5,7 @@ describe("Actions flow (save, discard)", () => {
   before(() => {
     cy.startServerAndRoutes();
     _.agHelper.RestoreLocalStorageCache();
-    cy.fixture("Table/InlineEditingDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Table/InlineEditingDSL");
   });
 
   it("3.1. should test that discard button is undoing the add new feature", () => {

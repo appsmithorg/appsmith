@@ -17,7 +17,7 @@ import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
-import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
 
@@ -112,7 +112,7 @@ function useUpdateEmbedSnippet() {
       pageId: defaultPageId,
     });
     const allowHidingShareSettingsInEmbedView =
-      featureFlags.APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY;
+      featureFlags.release_embed_hide_share_settings_enabled;
     const fullUrl = new URL(window.location.origin.toString() + url);
     if (embedSetting?.showNavigationBar) {
       if (allowHidingShareSettingsInEmbedView) {

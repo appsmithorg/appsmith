@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import type { RouteComponentProps } from "react-router";
@@ -15,7 +15,6 @@ import {
 } from "selectors/appViewSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
-import { editorInitializer } from "utils/editor/EditorUtils";
 import * as Sentry from "@sentry/react";
 import {
   getCurrentPageDescription,
@@ -38,19 +37,37 @@ import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
+import BottomBar from "components/BottomBar";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { editorInitializer } from "../../utils/editor/EditorUtils";
+import { widgetInitialisationSuccess } from "../../actions/widgetActions";
+import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
+import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  ThemeProvider as WDSThemeProvider,
+  useTheme,
+} from "@design-system/theming";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import { showProductRamps } from "selectors/rampSelectors";
+import { isCEMode } from "@appsmith/utils";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
   headerHeight: number;
   showGuidedTourMessage: boolean;
+  showBottomBar: boolean;
 }>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
+  height: calc(
+    100vh -
+      ${(props) => (props.showBottomBar ? props.theme.bottomBarHeight : "0px")} -
+      ${({ headerHeight }) => headerHeight}px
+  );
   --view-mode-header-height: ${({ headerHeight }) => headerHeight}px;
 `;
 
@@ -74,7 +91,6 @@ function AppViewer(props: Props) {
   const dispatch = useDispatch();
   const { pathname, search } = props.location;
   const { applicationId, pageId } = props.match.params;
-  const [registered, setRegistered] = useState(false);
   const isInitialized = useSelector(getIsInitialized);
   const pages = useSelector(getViewModePageList);
   const selectedTheme = useSelector(getSelectedAppTheme);
@@ -90,30 +106,32 @@ function AppViewer(props: Props) {
   const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
     getCurrentApplication,
   );
-
+  const { theme } = useTheme({
+    borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
+    seedColor: selectedTheme.properties.colors.primaryColor,
+  });
   const focusRef = useWidgetFocus();
+
+  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
+  const canShowRamp = useSelector(showRampSelector);
+
+  const workspaceId = currentApplicationDetails?.workspaceId || "";
+  const showBottomBar = useSelector((state: AppState) => {
+    return (
+      areEnvironmentsFetched(state, workspaceId) &&
+      datasourceEnvEnabled(state) &&
+      (isCEMode() ? canShowRamp : true)
+    );
+  });
 
   /**
    * initializes the widgets factory and registers all widgets
    */
   useEffect(() => {
     editorInitializer().then(() => {
-      setRegistered(true);
+      dispatch(widgetInitialisationSuccess());
     });
-
-    // onMount initPage
-    if (applicationId || pageId) {
-      dispatch(
-        initAppViewer({
-          applicationId,
-          branch,
-          pageId,
-          mode: APP_MODE.PUBLISHED,
-        }),
-      );
-    }
-  }, []);
-
+  });
   /**
    * initialize the app if branch, pageId or application is changed
    */
@@ -174,42 +192,53 @@ function AppViewer(props: Props) {
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
+  const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
+  const backgroundForBody = isWDSV2Enabled
+    ? "var(--color-bg)"
+    : selectedTheme.properties.colors.backgroundColor;
+
   return (
-    <ThemeProvider theme={lightTheme}>
-      <EditorContextProvider renderMode="PAGE">
-        <WidgetGlobaStyles
-          fontFamily={selectedTheme.properties.fontFamily.appFont}
-          primaryColor={selectedTheme.properties.colors.primaryColor}
-        />
-        <HtmlTitle
-          description={pageDescription}
-          name={currentApplicationDetails?.name}
-        />
-        <AppViewerBodyContainer
-          backgroundColor={selectedTheme.properties.colors.backgroundColor}
-        >
-          <AppViewerBody
-            className={CANVAS_SELECTOR}
-            hasPages={pages.length > 1}
-            headerHeight={headerHeight}
-            ref={focusRef}
-            showGuidedTourMessage={showGuidedTourMessage}
-          >
-            {isInitialized && registered && <AppViewerPageContainer />}
-          </AppViewerBody>
-          {!hideWatermark && (
-            <a
-              className="fixed hidden right-8 bottom-4 z-3 hover:no-underline md:flex"
-              href="https://appsmith.com"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <BrandingBadge />
-            </a>
+    <WDSThemeProvider theme={theme}>
+      <ThemeProvider theme={lightTheme}>
+        <EditorContextProvider renderMode="PAGE">
+          {!isWDSV2Enabled && (
+            <WidgetGlobaStyles
+              fontFamily={selectedTheme.properties.fontFamily.appFont}
+              primaryColor={selectedTheme.properties.colors.primaryColor}
+            />
           )}
-        </AppViewerBodyContainer>
-      </EditorContextProvider>
-    </ThemeProvider>
+          <HtmlTitle
+            description={pageDescription}
+            name={currentApplicationDetails?.name}
+          />
+          <AppViewerBodyContainer backgroundColor={backgroundForBody}>
+            <AppViewerBody
+              className={CANVAS_SELECTOR}
+              hasPages={pages.length > 1}
+              headerHeight={headerHeight}
+              ref={focusRef}
+              showBottomBar={showBottomBar}
+              showGuidedTourMessage={showGuidedTourMessage}
+            >
+              {isInitialized && <AppViewerPageContainer />}
+            </AppViewerBody>
+            {showBottomBar && <BottomBar viewMode />}
+            {!hideWatermark && (
+              <a
+                className={`fixed hidden right-8 ${
+                  showBottomBar ? "bottom-12" : "bottom-4"
+                } z-3 hover:no-underline md:flex`}
+                href="https://appsmith.com"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <BrandingBadge />
+              </a>
+            )}
+          </AppViewerBodyContainer>
+        </EditorContextProvider>
+      </ThemeProvider>
+    </WDSThemeProvider>
   );
 }
 

@@ -4,9 +4,7 @@ const widgetName = "currencyinputwidget";
 
 describe("Currency input widget - ", () => {
   before(() => {
-    cy.fixture("CurrencyInputDynamic").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("CurrencyInputDynamic");
   });
 
   it("1. Should show empty dropdown for a typo", () => {

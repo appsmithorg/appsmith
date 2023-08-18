@@ -39,6 +39,7 @@ describe("Arango datasource test cases", function () {
   it("4. Arango Default name change", () => {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("ArangoDB");
+    dataSources.FillArangoDSForm();
     agHelper
       .GetText(dataSources._databaseName, "val")
       .then(($dbName) => expect($dbName).to.eq("_system"));

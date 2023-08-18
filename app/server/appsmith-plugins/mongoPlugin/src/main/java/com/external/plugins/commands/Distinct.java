@@ -118,21 +118,17 @@ public class Distinct extends MongoCommand {
 
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
-        setDataValueSafelyInFormData(configMap, DISTINCT_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }");
+        setDataValueSafelyInFormData(
+                configMap, DISTINCT_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }");
         setDataValueSafelyInFormData(configMap, DISTINCT_KEY, "_id");
         setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
-        String rawQuery = "{\n" +
-                "  \"distinct\": \"" + collectionName + "\",\n" +
-                "  \"query\": { \"_id\": ObjectId(\"id_of_document_to_distinct\") }," +
-                "  \"key\": \"_id\"," +
-                "}\n";
+        String rawQuery = "{\n" + "  \"distinct\": \""
+                + collectionName + "\",\n" + "  \"query\": { \"_id\": ObjectId(\"id_of_document_to_distinct\") },"
+                + "  \"key\": \"_id\","
+                + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return Collections.singletonList(new DatasourceStructure.Template(
-                "Distinct",
-                null,
-                configMap
-        ));
+        return Collections.singletonList(new DatasourceStructure.Template("Distinct", null, configMap));
     }
 }

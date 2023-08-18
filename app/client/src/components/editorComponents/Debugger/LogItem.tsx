@@ -336,6 +336,7 @@ function LogItem(props: LogItemProps) {
           <EntityLink
             id={props.source.id}
             name={props.source.name}
+            propertyPath={props.source.propertyPath}
             type={props.source.type}
             uiComponent={DebuggerLinkUI.ENTITY_NAME}
           />

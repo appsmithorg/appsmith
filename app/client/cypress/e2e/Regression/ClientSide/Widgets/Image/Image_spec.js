@@ -9,9 +9,7 @@ import {
 
 describe("Image Widget Functionality", function () {
   before(() => {
-    cy.fixture("displayWidgetDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("displayWidgetDsl");
   });
 
   it("1. Image Widget Functionality", function () {

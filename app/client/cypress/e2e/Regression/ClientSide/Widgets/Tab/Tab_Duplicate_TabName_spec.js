@@ -2,9 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Tab widget test duplicate tab name validation", function () {
   before(() => {
-    cy.fixture("tabsWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tabsWidgetDsl");
   });
   it("Tab Widget Functionality Test with Modal on change of selected tab", function () {
     cy.openPropertyPane("tabswidget");

@@ -16,8 +16,8 @@ export default defineConfig({
     json: false,
   },
   chromeWebSecurity: false,
-  viewportHeight: 1280,
-  viewportWidth: 1600,
+  viewportHeight: 1200,
+  viewportWidth: 1400,
   scrollBehavior: "center",
   retries: {
     runMode: 1,
@@ -30,6 +30,10 @@ export default defineConfig({
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
     testIsolation: false,
-    excludeSpecPattern: "cypress/e2e/**/spec_utility.ts",
+    excludeSpecPattern: [
+      "cypress/e2e/**/spec_utility.ts",
+      "cypress/e2e/GSheet/**/**/*",
+      "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
+    ],
   },
 });

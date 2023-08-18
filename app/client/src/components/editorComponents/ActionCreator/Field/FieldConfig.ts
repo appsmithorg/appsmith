@@ -29,6 +29,7 @@ import {
   paramSetter,
   getCodeFromMoustache,
   getEvaluationVersion,
+  genericSetter,
 } from "../utils";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
@@ -524,7 +525,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textGetter(value, 0);
     },
     setter: (value, currentValue) => {
-      return textSetter(value, currentValue, 0);
+      return genericSetter(value as string, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
   },

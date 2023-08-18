@@ -11,13 +11,12 @@ import java.time.Duration;
 public class NetworkUtilsCE {
 
     private static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
-    
+
     protected static String cachedAddress = null;
 
     protected static final String FALLBACK_IP = "unknown";
 
-    protected NetworkUtilsCE() {
-    }
+    protected NetworkUtilsCE() {}
 
     /**
      * This method hits an API endpoint that returns the external IP address of this server instance.
@@ -29,8 +28,7 @@ public class NetworkUtilsCE {
             return Mono.just(cachedAddress);
         }
 
-        return WebClientUtils
-                .create()
+        return WebClientUtils.create()
                 .get()
                 .uri(GET_IP_URI)
                 .retrieve()
@@ -45,5 +43,4 @@ public class NetworkUtilsCE {
                     return Mono.just(FALLBACK_IP);
                 });
     }
-
 }

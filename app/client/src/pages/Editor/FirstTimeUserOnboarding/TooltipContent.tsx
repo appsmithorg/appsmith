@@ -89,7 +89,7 @@ function TooltipContent(props: { showSignpostingTooltip: boolean }) {
   }
 
   if (completedTasks > 0) {
-    title = `🎉${completedTasks}/5 Steps completed`;
+    title = `✅ ${completedTasks}/5 done.`;
   }
 
   if (!datasources.length && !actions.length) {

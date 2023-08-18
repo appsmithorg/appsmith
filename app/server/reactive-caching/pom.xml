@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.appsmith</groupId>
         <artifactId>integrated</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>reactiveCaching</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -19,7 +18,7 @@
         <org.projectlombok.version>1.18.22</org.projectlombok.version>
         <org.testcontainers.junit-jupiter.version>1.17.2</org.testcontainers.junit-jupiter.version>
         <uk.co.jemos.podam.podam.version>7.2.11.RELEASE</uk.co.jemos.podam.podam.version>
-<!--        <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>-->
+        <!--        <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>-->
     </properties>
 
     <dependencies>
@@ -55,9 +54,9 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
             <exclusions>
-            <exclusion>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -94,8 +93,8 @@
             <scope>test</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>junit</artifactId>
                     <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

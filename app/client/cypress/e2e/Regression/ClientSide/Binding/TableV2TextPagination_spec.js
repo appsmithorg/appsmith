@@ -7,13 +7,14 @@ import {
   deployMode,
   propPane,
   agHelper,
+  locators,
+  draggableWidgets,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.fixture("tableV2TextPaginationDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2TextPaginationDsl");
   });
 
   it("1. Test_Add Paginate with Table Page No and Execute the Api", function () {
@@ -22,7 +23,9 @@ describe("Test Create Api and Bind to Table widget", function () {
     apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
-
+    agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
+    );
     apiPage.RunAPI();
     // Table-Text, Validate Server Side Pagination of Paginate with Table v2 Page No
     entityExplorer.SelectEntityByName("Table1");
@@ -105,6 +108,9 @@ describe("Test Create Api and Bind to Table widget", function () {
     apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
+    agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
+    );
     apiPage.RunAPI();
     cy.NavigateToPaginationTab();
     cy.get(apiPageLocators.apiPaginationNextText).type(
@@ -129,15 +135,23 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.executeDbQuery("Api2", "onPageChange");
   });
 
-  it("5. Table-Text, Validate Server Side Pagination of Paginate with Response URL", function () {
+  it.skip("5. Table-Text, Validate Server Side Pagination of Paginate with Response URL", function () {
     /**Validate Response data with Table data in Text Widget */
+    cy.get("body").then(($ele) => {
+      if ($ele.find(locators._backToEditor).length) {
+        deployMode.NavigateBacktoEditor();
+      }
+    });
     entityExplorer.SelectEntityByName("Table1", "Widgets");
 
     cy.ValidatePaginateResponseUrlDataV2(
       apiPageLocators.apiPaginationPrevTest,
       false,
     );
-    deployMode.DeployApp();
+    cy.get("@postExecute.all");
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
+    agHelper.Sleep(3000);
     cy.wait("@postExecute").then((interception) => {
       let valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,

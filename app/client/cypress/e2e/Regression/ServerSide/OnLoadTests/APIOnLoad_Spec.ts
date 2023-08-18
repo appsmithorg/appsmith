@@ -9,9 +9,7 @@ import {
 
 describe("JSObjects OnLoad Actions tests", function () {
   before(() => {
-    cy.fixture("tableWidgetDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableWidgetDsl");
   });
 
   it("1. Api mapping on page load", function () {

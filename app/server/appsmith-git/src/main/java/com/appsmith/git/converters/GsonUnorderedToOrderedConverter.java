@@ -21,8 +21,7 @@ public class GsonUnorderedToOrderedConverter<T> implements JsonSerializer<T> {
         Gson gson = new Gson();
         if (src instanceof Set) {
             return gson.toJsonTree(getOrderedResource((Set<?>) src));
-        }
-        else if (src instanceof Map) {
+        } else if (src instanceof Map) {
             return gson.toJsonTree(new TreeMap<>((Map<?, ?>) src));
         }
         return (JsonElement) src;

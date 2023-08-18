@@ -19,7 +19,7 @@ class FilePickerComponent extends React.Component<
 
   openModal = () => {
     if (!this.props.isDisabled) {
-      this.props.uppy.getPlugin("Dashboard").openModal();
+      this.props.openModal();
     }
   };
 
@@ -40,7 +40,7 @@ class FilePickerComponent extends React.Component<
   }
 
   public closeModal() {
-    this.props.uppy.getPlugin("Dashboard").closeModal();
+    this.props.closeModal();
   }
 }
 
@@ -50,7 +50,8 @@ export interface FilePickerComponentState {
 
 export interface FilePickerComponentProps extends ComponentProps {
   label: string;
-  uppy: any;
+  openModal: () => void;
+  closeModal: () => void;
   isLoading: boolean;
   files?: any[];
 }

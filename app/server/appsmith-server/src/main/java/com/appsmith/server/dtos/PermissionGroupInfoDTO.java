@@ -14,7 +14,8 @@ public class PermissionGroupInfoDTO extends PermissionGroupInfoCE_DTO {
         super(id, name, description);
     }
 
-    public PermissionGroupInfoDTO(String id, String name, String description, String entityId, String entityType, String entityName) {
+    public PermissionGroupInfoDTO(
+            String id, String name, String description, String entityId, String entityType, String entityName) {
         super(id, name, description, entityId, entityType, entityName);
     }
 }

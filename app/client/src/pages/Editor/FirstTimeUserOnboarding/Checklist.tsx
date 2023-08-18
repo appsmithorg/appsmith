@@ -105,46 +105,43 @@ const ListItem = styled.div<{ disabled: boolean; completed: boolean }>`
   .signposting-strikethrough-static {
     text-decoration: line-through;
   }
-  .signposting-strikethrough:after {
-    content: " ";
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: black;
+  .signposting-strikethrough {
+    background-image: linear-gradient(black, black);
+    background-repeat: no-repeat;
+    background-size: 0% 1px;
+    background-position: 0% 50%;
     animation-duration: 2s;
     animation-fill-mode: forwards;
   }
-  .signposting-strikethrough::after {
+  .signposting-strikethrough {
     -webkit-animation-name: bounceInLeft;
     animation-name: bounceInLeft;
   }
-  .signposting-strikethrough-bold::after {
+  .signposting-strikethrough-bold {
     -webkit-animation-name: signposting-strikethrough-bold;
     animation-name: signposting-strikethrough-bold;
   }
-  .signposting-strikethrough-normal::after {
+  .signposting-strikethrough-normal {
     -webkit-animation-name: signposting-strikethrough-normal;
     animation-name: signposting-strikethrough-normal;
   }
   @keyframes signposting-strikethrough-bold {
     0% {
-      width: 0;
+      background-size: 0% 1px;
     }
     50% {
-      width: 100%;
+      background-size: 100% 1px;
     }
     100% {
-      width: 100%;
+      background-size: 100% 1px;
     }
   }
   @keyframes signposting-strikethrough-normal {
     30% {
-      width: 0;
+      background-size: 0% 1px;
     }
     100% {
-      width: 100%;
+      background-size: 100% 1px;
     }
   }
 `;
@@ -275,7 +272,7 @@ function CheckListItem(props: {
           ) : (
             <PrefixCircle disabled={props.disabled} />
           )}
-          <div>
+          <div className="pr-3">
             <Text
               className={classNames({
                 "signposting-strikethrough-bold":
@@ -477,7 +474,7 @@ export default function OnboardingChecklist() {
           >
             {completedTasks} of 5{" "}
           </Text>
-          <Text>complete</Text>
+          <Text>steps complete</Text>
         </div>
         <StyledDivider className="mt-1" />
       </div>
@@ -518,9 +515,6 @@ export default function OnboardingChecklist() {
           completed={!!actions.length}
           disabled={!datasources.length && !actions.length}
           docLink="https://docs.appsmith.com/core-concepts/data-access-and-binding/querying-a-database"
-          normalPrefixText={createMessage(
-            ONBOARDING_CHECKLIST_CREATE_A_QUERY.normalPrefix,
-          )}
           normalText={createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.normal)}
           onClick={() => {
             AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CREATE_QUERY_CLICK", {

@@ -6,9 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Widget Functionality", function () {
   before(() => {
-    cy.fixture("newFormDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("newFormDsl");
   });
   it("1. Switch Widget Functionality", function () {
     cy.openPropertyPane("switchwidget");

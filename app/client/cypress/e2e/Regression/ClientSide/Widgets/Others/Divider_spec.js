@@ -2,9 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Divider Widget Functionality", function () {
   before(() => {
-    cy.fixture("DividerDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("DividerDsl");
   });
 
   it("1. Add new Divider", () => {

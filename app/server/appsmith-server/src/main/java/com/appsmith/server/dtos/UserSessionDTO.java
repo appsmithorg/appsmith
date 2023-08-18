@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Set;
 
@@ -27,6 +28,8 @@ public class UserSessionDTO {
     private String hashedEmail;
 
     private String name;
+
+    private Long createdAt;
 
     private LoginSource source;
 
@@ -53,8 +56,7 @@ public class UserSessionDTO {
     /**
      * We don't expect this class to be instantiated outside this class. Remove this constructor when needed.
      */
-    private UserSessionDTO() {
-    }
+    private UserSessionDTO() {}
 
     /**
      * Given an authentication token, typically from a Spring Security context, create a UserSession object. This
@@ -71,6 +73,10 @@ public class UserSessionDTO {
         session.email = user.getEmail();
         session.hashedEmail = user.getHashedEmail();
         session.name = user.getName();
+        // user.getCreatedAt() is null for anonymous user
+        if (user.getCreatedAt() != null) {
+            session.createdAt = user.getCreatedAt().getEpochSecond();
+        }
         session.source = user.getSource();
         session.state = user.getState();
         session.isEnabled = user.isEnabled();
@@ -82,11 +88,13 @@ public class UserSessionDTO {
         session.authorities = authentication.getAuthorities();
 
         if (authentication instanceof OAuth2AuthenticationToken) {
-            session.authorizedClientRegistrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+            session.authorizedClientRegistrationId =
+                    ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
         } else if (authentication instanceof UsernamePasswordAuthenticationToken) {
             session.authorizedClientRegistrationId = PASSWORD_PROVIDER;
         } else {
-            throw new IllegalArgumentException("Unsupported authentication type: " + authentication.getClass().getName());
+            throw new IllegalArgumentException("Unsupported authentication type: "
+                    + authentication.getClass().getName());
         }
 
         return session;
@@ -105,6 +113,10 @@ public class UserSessionDTO {
         user.setEmail(email);
         user.setHashedEmail(hashedEmail);
         user.setName(name);
+        // createdAt is null for anonymous user
+        if (createdAt != null) {
+            user.setCreatedAt(Instant.ofEpochSecond(createdAt));
+        }
         user.setSource(source);
         user.setState(state);
         user.setIsEnabled(isEnabled);
@@ -117,10 +129,8 @@ public class UserSessionDTO {
 
         } else if (ALLOWED_OAUTH_PROVIDERS.contains(authorizedClientRegistrationId)) {
             return new OAuth2AuthenticationToken(user, authorities, authorizedClientRegistrationId);
-
         }
 
         throw new IllegalArgumentException("Invalid registration ID " + authorizedClientRegistrationId);
     }
-
 }

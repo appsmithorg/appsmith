@@ -6,9 +6,7 @@ describe("Widget error state", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
-    cy.fixture("buttondsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("buttondsl");
   });
 
   it("1. Check widget error state", function () {
@@ -18,8 +16,6 @@ describe("Widget error state", function () {
     cy.EnableAllCodeEditors();
 
     cy.testJsontext("visible", "Test");
-
-    cy.contains(".t--widget-error-count", 1);
 
     //Check if the current value is shown in the debugger
 

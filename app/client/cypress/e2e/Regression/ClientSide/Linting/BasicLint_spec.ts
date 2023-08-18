@@ -9,6 +9,7 @@ import {
   locators,
   propPane,
   entityItems,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
 const successMessage = "Successful Trigger";
@@ -36,7 +37,7 @@ const clickButtonAndAssertLintError = (
 
   //Reload and Check for presence/ absence of lint error
   agHelper.RefreshPage();
-  // agHelper.AssertElementVisible(locators._visibleTextDiv("Explorer"));
+  // agHelper.AssertElementVisibility(locators._visibleTextDiv("Explorer"));
   // agHelper.Sleep(2500);
   entityExplorer.SelectEntityByName("Button1", "Widgets");
   shouldExist
@@ -79,7 +80,9 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(true);
 
     // create Api1
-    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+    );
 
     clickButtonAndAssertLintError(false);
 
@@ -93,7 +96,9 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(true);
 
     // Re-create Api1
-    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+    );
 
     clickButtonAndAssertLintError(false);
   });
@@ -294,7 +299,9 @@ describe("Linting", () => {
         shouldCreateNewJSObj: true,
       },
     );
-    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+    );
 
     createMySQLDatasourceQuery();
     agHelper.RefreshPage(); //Since this seems failing a bit
@@ -365,4 +372,62 @@ describe("Linting", () => {
       agHelper.AssertElementExist(locators._lintErrorElement);
     },
   );
+  it("10. Should not clear unrelated lint errors", () => {
+    const JS_OBJECT_WITH_MULTPLE_ERRORS = `export default {
+      myFun1: () => {
+        return error1;
+      },
+      myFun2: ()=>{
+       return error2
+      }
+    }`;
+    const JS_OBJECT_WITH_MYFUN2_EDITED = `export default {
+      myFun1: () => {
+        return error1;
+      },
+      myFun2: ()=>{
+       return "error cleared"
+      }
+    }`;
+
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_MULTPLE_ERRORS, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+    agHelper.AssertElementExist(locators._lintErrorElement);
+
+    jsEditor.EditJSObj(JS_OBJECT_WITH_MYFUN2_EDITED, false);
+
+    agHelper.AssertElementExist(locators._lintErrorElement);
+  });
+  it("11. Shows correct lint error when js object has duplicate keys", () => {
+    const JS_OBJECT_WITH_DUPLICATE_KEYS = `export default {
+        myVar1: [],
+        myVar2: {},
+        myFun1 () {
+            //	write code here
+            //	this.myVar1 = [1,2,3]
+
+        },
+        async myFun1 () {
+            //	use async-await or promises
+            //	await storeValue('varName', 'hello world')
+        }
+    }`;
+
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_DUPLICATE_KEYS, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+
+    agHelper
+      .AssertElementExist(locators._lintErrorElement)
+      .should("have.length", 1);
+  });
 });

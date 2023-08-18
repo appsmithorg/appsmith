@@ -79,7 +79,10 @@ public class Insert extends MongoCommand {
                     commandDocument.put("documents", arrayListFromInput);
                 }
             } catch (JsonParseException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, MongoPluginErrorMessages.DOCUMENTS_NOT_PARSABLE_INTO_JSON_ARRAY_ERROR_MSG, e.getMessage());
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        MongoPluginErrorMessages.DOCUMENTS_NOT_PARSABLE_INTO_JSON_ARRAY_ERROR_MSG,
+                        e.getMessage());
             }
         } else {
             // The command expects the documents to be sent in an array. Parse and create a single element array
@@ -110,21 +113,16 @@ public class Insert extends MongoCommand {
         setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{" + sampleInsertDocuments + "}]");
         setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
-        String rawQuery = "{\n" +
-                "  \"insert\": \"" + collectionName + "\",\n" +
-                "  \"documents\": [\n" +
-                "    {\n" +
-                sampleInsertDocuments +
-                "    }\n" +
-                "  ]\n" +
-                "}\n";
+        String rawQuery = "{\n" + "  \"insert\": \""
+                + collectionName + "\",\n" + "  \"documents\": [\n"
+                + "    {\n"
+                + sampleInsertDocuments
+                + "    }\n"
+                + "  ]\n"
+                + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return Collections.singletonList(new DatasourceStructure.Template(
-                "Insert",
-                null,
-                configMap
-        ));
+        return Collections.singletonList(new DatasourceStructure.Template("Insert", null, configMap));
     }
 
     /**

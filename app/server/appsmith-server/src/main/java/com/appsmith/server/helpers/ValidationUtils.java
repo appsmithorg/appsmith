@@ -11,9 +11,8 @@ public final class ValidationUtils {
     public static final int LOGIN_PASSWORD_MAX_LENGTH = 48;
     private static final String EMAIL_PATTERN = "[\\w+\\-.%]+@[\\w\\-.]+\\.[A-Za-z]+";
 
-    private static final Pattern EMAIL_CSV_PATTERN = Pattern.compile(
-            "^\\s*(" + EMAIL_PATTERN + "\\s*,\\s*)*(" + EMAIL_PATTERN + ")\\s*$"
-    );
+    private static final Pattern EMAIL_CSV_PATTERN =
+            Pattern.compile("^\\s*(" + EMAIL_PATTERN + "\\s*,\\s*)*(" + EMAIL_PATTERN + ")\\s*$");
 
     public static boolean validateEmail(String emailStr) {
         return EmailValidator.getInstance().isValid(emailStr);

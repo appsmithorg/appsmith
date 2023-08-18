@@ -71,9 +71,7 @@ function testJsontextClear(endp) {
 
 describe("List widget v2 - meta hydration tests", () => {
   before(() => {
-    cy.fixture("Listv2/MetaHydrationDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/MetaHydrationDSL");
   });
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();

@@ -26,6 +26,7 @@ describe("Verify various Table_Filter combinations", function () {
     table.WaitUntilTableLoad(0, 0, "v2");
 
     table.OpenNFilterTable("email", "empty");
+    agHelper.Sleep(2000); //table to filter & records to disappear
     table.WaitForTableEmpty("v2");
     table.RemoveFilterNVerify("2381224", true, true, 0, "v2");
   });

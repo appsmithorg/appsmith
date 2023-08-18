@@ -11,7 +11,7 @@ export class Templates {
     _templatesSearchInput: "[data-testid='t--application-search-input']",
     _resultsHeader: "[data-testid='t--application-templates-results-header']",
     _templateViewGoBack: "[data-testid='t--template-view-goback']",
-    templateDialogBox: "[data-testid=t--templates-dialog-component]",
+    _templateDialogBox: "[data-testid=t--templates-dialog-component]",
     _closeTemplateDialogBoxBtn: ".ads-v2-modal__content-header-close-button",
     _requestForTemplateBtn: "span:contains('Request for a template')",
   };
@@ -44,10 +44,11 @@ export class Templates {
         this.homePage.NavigateToHome();
       }
       this.agHelper.GetNClick(this.locators._templatesTab);
-      this.agHelper.AssertElementVisible(
+      this.agHelper.AssertElementVisibility(
         this.locators._requestForTemplateBtn,
+        true,
         0,
-        30000,
+        60000,
       ); //giving more time here for templates page to fully load, since there is no intercept validation for same
     });
   }
@@ -71,7 +72,7 @@ export class Templates {
       });
     }
     cy.intercept("GET", "/api/v1/app-templates/filters").as("fetchFilters");
-    this.agHelper.RefreshPage(false, "fetchFilters");
-    this.agHelper.AssertElementVisible(this.locators._templateCard);
+    this.agHelper.RefreshPage("fetchFilters");
+    this.agHelper.AssertElementVisibility(this.locators._templateCard);
   }
 }

@@ -42,7 +42,6 @@ import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDat
 import static com.appsmith.external.models.Condition.addValueDataType;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-
 @Slf4j
 public class FilterDataServiceCE implements IFilterDataServiceCE {
 
@@ -64,8 +63,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             DataType.BOOLEAN, "BOOLEAN",
             DataType.STRING, "VARCHAR",
             DataType.DATE, "DATE",
-            DataType.TIMESTAMP, "TIMESTAMP"
-    );
+            DataType.TIMESTAMP, "TIMESTAMP");
 
     private static final Map<ConditionalOperator, String> SQL_OPERATOR_MAP = Map.of(
             ConditionalOperator.LT, "<",
@@ -76,8 +74,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             ConditionalOperator.GTE, ">=",
             ConditionalOperator.CONTAINS, "LIKE",
             ConditionalOperator.IN, "IN",
-            ConditionalOperator.NOT_IN, "NOT IN"
-    );
+            ConditionalOperator.NOT_IN, "NOT IN");
 
     private static final Map<DataType, Set<DataType>> datatypeCompatibilityMap = Map.of(
             DataType.INTEGER, Set.of(),
@@ -85,10 +82,18 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             DataType.FLOAT, Set.of(DataType.INTEGER, DataType.LONG),
             DataType.DOUBLE, Set.of(DataType.INTEGER, DataType.LONG, DataType.FLOAT),
             DataType.BOOLEAN, Set.of(),
-            DataType.STRING, Set.of(DataType.INTEGER, DataType.LONG, DataType.FLOAT, DataType.DOUBLE, DataType.BOOLEAN, DataType.DATE, DataType.TIME, DataType.TIMESTAMP),
+            DataType.STRING,
+                    Set.of(
+                            DataType.INTEGER,
+                            DataType.LONG,
+                            DataType.FLOAT,
+                            DataType.DOUBLE,
+                            DataType.BOOLEAN,
+                            DataType.DATE,
+                            DataType.TIME,
+                            DataType.TIMESTAMP),
             DataType.DATE, Set.of(),
-            DataType.TIMESTAMP, Set.of()
-    );
+            DataType.TIMESTAMP, Set.of());
 
     public FilterDataServiceCE() {
 
@@ -98,7 +103,9 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             connection = DriverManager.getConnection(URL);
         } catch (SQLException e) {
             log.error(e.getMessage());
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Failed to connect to the in memory database. Unable to perform filtering : " + e.getMessage());
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+                    "Failed to connect to the in memory database. Unable to perform filtering : " + e.getMessage());
         }
     }
 
@@ -113,7 +120,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return this.filterDataNew(items, uqiDataFilterParams, null);
     }
 
-    public ArrayNode filterDataNew(ArrayNode items, UQIDataFilterParams uqiDataFilterParams, Map<DataType, DataType> dataTypeConversionMap) {
+    public ArrayNode filterDataNew(
+            ArrayNode items, UQIDataFilterParams uqiDataFilterParams, Map<DataType, DataType> dataTypeConversionMap) {
         if (items == null || items.size() == 0) {
             return items;
         }
@@ -131,7 +139,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         insertAllData(tableName, items, schema, dataTypeConversionMap);
 
         // Filter the data
-        List<Map<String, Object>> finalResults = executeFilterQueryNew(tableName, schema, uqiDataFilterParams, dataTypeConversionMap);
+        List<Map<String, Object>> finalResults =
+                executeFilterQueryNew(tableName, schema, uqiDataFilterParams, dataTypeConversionMap);
 
         // Now that the data has been filtered. Clean Up. Drop the table
         dropTable(tableName);
@@ -141,9 +150,11 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return finalResultsNode;
     }
 
-    private List<Map<String, Object>> executeFilterQueryNew(String tableName, Map<String, DataType> schema,
-                                                            UQIDataFilterParams uqiDataFilterParams,
-                                                            Map<DataType, DataType> dataTypeConversionMap) {
+    private List<Map<String, Object>> executeFilterQueryNew(
+            String tableName,
+            Map<String, DataType> schema,
+            UQIDataFilterParams uqiDataFilterParams,
+            Map<DataType, DataType> dataTypeConversionMap) {
 
         Condition condition = uqiDataFilterParams.getCondition();
         List<String> projectionColumns = uqiDataFilterParams.getProjectionColumns();
@@ -224,9 +235,12 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             // Getting an SQL Exception here means that our generated query is incorrect. Raise an alarm!
             log.error(e.getMessage());
             if (e instanceof JdbcSQLSyntaxErrorException) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Filtering failure seen : " + ((JdbcSQLSyntaxErrorException) e).getOriginalMessage());
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+                        "Filtering failure seen : " + ((JdbcSQLSyntaxErrorException) e).getOriginalMessage());
             }
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Filtering failure seen : " + e);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Filtering failure seen : " + e);
         }
 
         return rowsList;
@@ -239,8 +253,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      * @param paginateBy - values for limit and offset
      * @param values     - list to hold values to be substituted in prepared statement
      */
-    private void addPaginationCondition(StringBuilder sb, Map<String, String> paginateBy,
-                                        List<PreparedStatementValueDTO> values) {
+    private void addPaginationCondition(
+            StringBuilder sb, Map<String, String> paginateBy, List<PreparedStatementValueDTO> values) {
         if (CollectionUtils.isEmpty(paginateBy)) {
             return;
         }
@@ -274,8 +288,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     private void addProjectionCondition(StringBuilder sb, List<String> projectionColumns, String tableName) {
         if (!CollectionUtils.isEmpty(projectionColumns)) {
             sb.append("SELECT");
-            projectionColumns.stream()
-                    .forEach(columnName -> sb.append(" `" + columnName + "`,"));
+            projectionColumns.stream().forEach(columnName -> sb.append(" `" + columnName + "`,"));
 
             sb.setLength(sb.length() - 1);
             sb.append(" FROM " + tableName);
@@ -314,11 +327,14 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                     String columnName = sortCondition.get(SORT_BY_COLUMN_NAME_KEY);
                     SortType sortType;
                     try {
-                        sortType = SortType.valueOf(sortCondition.get(SORT_BY_TYPE_KEY).toUpperCase());
+                        sortType = SortType.valueOf(
+                                sortCondition.get(SORT_BY_TYPE_KEY).toUpperCase());
                     } catch (IllegalArgumentException e) {
-                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Appsmith server failed " +
-                                "to parse the type of sort condition. Please reach out to Appsmith customer support " +
-                                "to resolve this.");
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Appsmith server failed "
+                                        + "to parse the type of sort condition. Please reach out to Appsmith customer support "
+                                        + "to resolve this.");
                     }
                     sb.append(" `" + columnName + "` " + sortType + ",");
                 });
@@ -336,8 +352,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             return true;
         }
 
-        return sortBy.stream()
-                .allMatch(sortCondition -> isBlank(sortCondition.get(SORT_BY_COLUMN_NAME_KEY)));
+        return sortBy.stream().allMatch(sortCondition -> isBlank(sortCondition.get(SORT_BY_COLUMN_NAME_KEY)));
     }
 
     /**
@@ -348,11 +363,16 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      * @param schema                - The Schema
      * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
      */
-    public void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema, Map<DataType, DataType> dataTypeConversionMap) {
+    public void insertAllData(
+            String tableName,
+            ArrayNode items,
+            Map<String, DataType> schema,
+            Map<DataType, DataType> dataTypeConversionMap) {
 
         List<String> columnNames = schema.keySet().stream().collect(Collectors.toList());
 
-        List<String> quotedColumnNames = columnNames.stream().map(name -> "\"" + name + "\"").collect(Collectors.toList());
+        List<String> quotedColumnNames =
+                columnNames.stream().map(name -> "\"" + name + "\"").collect(Collectors.toList());
 
         StringBuilder insertQueryBuilder = new StringBuilder("INSERT INTO ");
         insertQueryBuilder.append(tableName);
@@ -381,7 +401,12 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             // rows, execute the insert for rows so far and start afresh for the rest of the rows
             if (counter == 1000) {
 
-                insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes, dataTypeConversionMap);
+                insertReadyData(
+                        insertQueryBuilder.toString(),
+                        valuesMasterBuilder,
+                        inOrderValues,
+                        columnTypes,
+                        dataTypeConversionMap);
                 // Reset the values builder and counter for new insert queries.
                 valuesMasterBuilder = new StringBuilder();
                 counter = 0;
@@ -424,7 +449,12 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
 
         if (valuesMasterBuilder.length() > 0) {
-            insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes, dataTypeConversionMap);
+            insertReadyData(
+                    insertQueryBuilder.toString(),
+                    valuesMasterBuilder,
+                    inOrderValues,
+                    columnTypes,
+                    dataTypeConversionMap);
         }
     }
 
@@ -442,7 +472,12 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
     }
 
-    private void insertReadyData(String partialInsertQuery, StringBuilder valuesBuilder, List<String> inOrderValues, List<DataType> columnTypes, Map<DataType, DataType> dataTypeConversionMap) {
+    private void insertReadyData(
+            String partialInsertQuery,
+            StringBuilder valuesBuilder,
+            List<String> inOrderValues,
+            List<DataType> columnTypes,
+            Map<DataType, DataType> dataTypeConversionMap) {
 
         Connection conn = checkAndGetConnection();
 
@@ -456,8 +491,15 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             int valueCounter = 0;
             while (valueCounter < inOrderValues.size()) {
 
-                for (int columnTypeCounter = 0; columnTypeCounter < columnTypes.size(); columnTypeCounter++, valueCounter++) {
-                    setValueInStatement(preparedStatement, valueCounter + 1, inOrderValues.get(valueCounter), columnTypes.get(columnTypeCounter), dataTypeConversionMap);
+                for (int columnTypeCounter = 0;
+                        columnTypeCounter < columnTypes.size();
+                        columnTypeCounter++, valueCounter++) {
+                    setValueInStatement(
+                            preparedStatement,
+                            valueCounter + 1,
+                            inOrderValues.get(valueCounter),
+                            columnTypes.get(columnTypeCounter),
+                            dataTypeConversionMap);
                 }
             }
 
@@ -465,7 +507,9 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Error in ingesting the data : " + e.getMessage());
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+                    "Error in ingesting the data : " + e.getMessage());
         }
     }
 
@@ -475,7 +519,9 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 connection = DriverManager.getConnection(URL);
             }
         } catch (SQLException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Failed to connect to the filtering database");
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+                    "Failed to connect to the filtering database");
         }
 
         return connection;
@@ -517,7 +563,6 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             sb.append("\"" + fieldName + "\"");
             sb.append(" ");
             sb.append(sqlDataType);
-
         }
 
         sb.append(");");
@@ -527,7 +572,6 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         executeDbQuery(createTableQuery);
 
         return tableName;
-
     }
 
     public void dropTable(String tableName) {
@@ -571,36 +615,36 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 .map(n -> fieldNamesIterator.next())
                 .map(name -> {
                     if (name.contains("\"") || name.contains("\'")) {
-                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "\' or \" are unsupported symbols in column names for filtering. Caused by column name : " + name);
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                "\' or \" are unsupported symbols in column names for filtering. Caused by column name : "
+                                        + name);
                     }
                     return name;
                 })
                 .collect(Collectors.toMap(
-                                Function.identity(),
-                                name -> {
-                                    String value = item.get(name).asText();
-                                    if (StringUtils.isEmpty(value)) {
-                                        missingColumnDataTypes.add(name);
-                                        // Default to string
-                                        return DataType.STRING;
-                                    } else {
-                                        DataType foundDataType = stringToKnownDataTypeConverter(value);
-                                        DataType convertedDataType = foundDataType;
-                                        if (!"rowIndex".equals(name) && dataTypeConversionMap != null) {
-                                            convertedDataType = dataTypeConversionMap.getOrDefault(foundDataType, foundDataType);
-                                        }
-                                        return convertedDataType;
-                                    }
-                                },
-                                (u, v) -> {
-                                    // This is not possible.
-                                    throw new IllegalStateException(String.format("Duplicate key %s", u));
-                                },
-                                LinkedHashMap::new
-                        )
-                );
-
+                        Function.identity(),
+                        name -> {
+                            String value = item.get(name).asText();
+                            if (StringUtils.isEmpty(value)) {
+                                missingColumnDataTypes.add(name);
+                                // Default to string
+                                return DataType.STRING;
+                            } else {
+                                DataType foundDataType = stringToKnownDataTypeConverter(value);
+                                DataType convertedDataType = foundDataType;
+                                if (!"rowIndex".equals(name) && dataTypeConversionMap != null) {
+                                    convertedDataType =
+                                            dataTypeConversionMap.getOrDefault(foundDataType, foundDataType);
+                                }
+                                return convertedDataType;
+                            }
+                        },
+                        (u, v) -> {
+                            // This is not possible.
+                            throw new IllegalStateException(String.format("Duplicate key %s", u));
+                        },
+                        LinkedHashMap::new));
 
         // Try to find the missing data type which has been initialized to String
         Set<String> columns = new HashSet();
@@ -644,11 +688,16 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
      * @return
      */
-    private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, DataType topRowDataType, Map<DataType, DataType> dataTypeConversionMap) {
+    private PreparedStatement setValueInStatement(
+            PreparedStatement preparedStatement,
+            int index,
+            String value,
+            DataType topRowDataType,
+            Map<DataType, DataType> dataTypeConversionMap) {
 
         DataType dataType = topRowDataType;
         if (dataTypeConversionMap != null) {
-            //The input datatype will be converted to custom DatType as per implementing dataTypeConversionMap
+            // The input datatype will be converted to custom DatType as per implementing dataTypeConversionMap
             dataType = dataTypeConversionMap.getOrDefault(topRowDataType, topRowDataType);
         }
 
@@ -662,14 +711,18 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             DataType currentRowDataType = stringToKnownDataTypeConverter(value);
             DataType inputDataType = currentRowDataType;
             if (dataTypeConversionMap != null) {
-                //Datatype of each row be processed, expected to be consistent to column datatype (first row datatype).
+                // Datatype of each row be processed, expected to be consistent to column datatype (first row datatype).
                 inputDataType = dataTypeConversionMap.getOrDefault(currentRowDataType, currentRowDataType);
             }
             if (DataType.NULL.equals(inputDataType)) {
                 dataType = DataType.NULL;
             }
-            //We are setting incompatible datatypes of each row to Null, rather allowing it and exit with error.
-            if (dataTypeConversionMap != null && inputDataType != dataType && !datatypeCompatibilityMap.getOrDefault(dataType, Set.of()).contains(inputDataType)) {
+            // We are setting incompatible datatypes of each row to Null, rather allowing it and exit with error.
+            if (dataTypeConversionMap != null
+                    && inputDataType != dataType
+                    && !datatypeCompatibilityMap
+                            .getOrDefault(dataType, Set.of())
+                            .contains(inputDataType)) {
                 dataType = DataType.NULL;
             }
         }
@@ -706,35 +759,38 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         } catch (SQLException e) {
             // Alarm! This should never fail since appsmith is the creator of the query and supporter of it. Raise
             // an alarm and fix quickly!
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
                     "Error while interacting with value " + value + " : " + e.getMessage());
         } catch (IllegalArgumentException e) {
             // The data type recognized does not match the data type of the value being set via Prepared Statement
             // Add proper handling here.
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
-                    "Error while interacting with value " + value + " : " + e.getMessage() +
-                            ". The data type value was being parsed to was : " + dataType);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+                    "Error while interacting with value " + value + " : " + e.getMessage()
+                            + ". The data type value was being parsed to was : " + dataType);
         }
 
         return preparedStatement;
     }
 
-
     public boolean validConditionList(List<Condition> conditionList, Map<String, DataType> schema) {
 
-        conditionList
-                .stream()
+        conditionList.stream()
                 .map(condition -> {
                     if (!Condition.isValid(condition)) {
-                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Condition \" " + condition.getPath() + " " + condition.getOperator().toString() + " "
-                                        + condition.getValue() + " \" is incorrect and could not be parsed.");
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                "Condition \" " + condition.getPath() + " "
+                                        + condition.getOperator().toString() + " " + condition.getValue()
+                                        + " \" is incorrect and could not be parsed.");
                     }
 
                     String path = condition.getPath();
 
                     if (!schema.containsKey(path)) {
-                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 path + " not found in the known column names :" + schema.keySet());
                     }
 
@@ -747,8 +803,11 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return true;
     }
 
-    public String generateLogicalExpression(List<Condition> conditions, List<PreparedStatementValueDTO> values,
-                                            Map<String, DataType> schema, ConditionalOperator logicOp) {
+    public String generateLogicalExpression(
+            List<Condition> conditions,
+            List<PreparedStatementValueDTO> values,
+            Map<String, DataType> schema,
+            ConditionalOperator logicOp) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -780,25 +839,26 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                         sb.append("\"" + path + "\"");
                         sb.append(" ");
                         if (Set.of(
-                                ConditionalOperator.EQ,
-                                ConditionalOperator.IN,
-                                ConditionalOperator.CONTAINS,
-                                ConditionalOperator.LTE,
-                                ConditionalOperator.LT
-                        ).contains(operator)) {
+                                        ConditionalOperator.EQ,
+                                        ConditionalOperator.IN,
+                                        ConditionalOperator.CONTAINS,
+                                        ConditionalOperator.LTE,
+                                        ConditionalOperator.LT)
+                                .contains(operator)) {
                             sb.append("IS NULL ) ");
                         } else if (Set.of(
-                                ConditionalOperator.NOT_IN,
-                                ConditionalOperator.NOT_EQ,
-                                ConditionalOperator.GTE,
-                                ConditionalOperator.GT
-                        ).contains(operator)) {
+                                        ConditionalOperator.NOT_IN,
+                                        ConditionalOperator.NOT_EQ,
+                                        ConditionalOperator.GTE,
+                                        ConditionalOperator.GT)
+                                .contains(operator)) {
                             sb.append("IS NOT NULL ) ");
                         }
                     } else {
                         String sqlOp = SQL_OPERATOR_MAP.get(operator);
                         if (sqlOp == null) {
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     operator + " is not supported currently for filtering.");
                         }
                         sb.append(" ( ");
@@ -814,17 +874,18 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
                             try {
                                 List<Object> arrayValues = objectMapper.readValue(value, List.class);
-                                List<String> updatedStringValues = arrayValues
-                                        .stream()
+                                List<String> updatedStringValues = arrayValues.stream()
                                         .map(fieldValue -> {
-                                            values.add(new PreparedStatementValueDTO(String.valueOf(fieldValue), schema.get(path)));
+                                            values.add(new PreparedStatementValueDTO(
+                                                    String.valueOf(fieldValue), schema.get(path)));
                                             return "?";
                                         })
                                         .collect(Collectors.toList());
                                 String finalValues = String.join(",", updatedStringValues);
                                 valueBuilder.append(finalValues);
                             } catch (IOException e) {
-                                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                throw new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                         value + " could not be parsed into an array");
                             }
 
@@ -833,8 +894,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                             sb.append(value);
 
                         } else if (operator == ConditionalOperator.CONTAINS) {
-                            final String escapedLikeValue = value
-                                    .replace("!", "!!")
+                            final String escapedLikeValue = value.replace("!", "!!")
                                     .replace("%", "!%")
                                     .replace("_", "!_")
                                     .replace("[", "![");
@@ -850,10 +910,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                     }
                 }
             }
-
         }
         return sb.toString();
     }
-
 }
-

@@ -15,5 +15,4 @@ public class NotificationController extends NotificationControllerCE {
     public NotificationController(NotificationService service) {
         super(service);
     }
-
 }

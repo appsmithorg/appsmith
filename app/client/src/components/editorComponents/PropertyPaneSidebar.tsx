@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
-import React, { memo, useEffect, useMemo, useRef } from "react";
+import React, { memo, useContext, useEffect, useMemo, useRef } from "react";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -15,12 +15,14 @@ import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
-import equal from "fast-deep-equal";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import styled from "styled-components";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+
+export const PROPERTY_PANE_ID = "t--property-pane-sidebar";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>
@@ -54,6 +56,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
+  const { isOpened: isWalkthroughOpened, popFeature } =
+    useContext(WalkthroughContext) || {};
 
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget id,
@@ -67,7 +71,9 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const keepThemeWhileDragging =
     prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
 
-  const selectedWidgets = useSelector(selectedWidgetsPresentInCanvas, equal);
+  const selectedWidgetsLength = useSelector(
+    (state) => selectedWidgetsPresentInCanvas(state).length,
+  );
 
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
 
@@ -91,34 +97,50 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     switch (true) {
       case isAppSettingsPaneOpen:
         return <AppSettingsPane />;
-      case selectedWidgets.length > 1:
+      case selectedWidgetsLength > 1:
         return <MultiSelectPropertyPane />;
-      case selectedWidgets.length === 1:
+      case selectedWidgetsLength === 1:
         if (shouldNotRenderPane) return <CanvasPropertyPane />;
         else return <WidgetPropertyPane />;
-      case selectedWidgets.length === 0:
+      case selectedWidgetsLength === 0:
         return <CanvasPropertyPane />;
       default:
         return <CanvasPropertyPane />;
     }
   }, [
     isAppSettingsPaneOpen,
-    selectedWidgets.length,
+    selectedWidgetsLength,
     isDraggingForSelection,
     shouldNotRenderPane,
     keepThemeWhileDragging,
   ]);
+
+  const closeWalkthrough = () => {
+    if (popFeature) {
+      popFeature("PROPERTY_PANE");
+      sidebarRef.current?.removeEventListener("click", closeWalkthrough);
+    }
+  };
+
+  useEffect(() => {
+    if (isWalkthroughOpened)
+      sidebarRef.current?.addEventListener("click", closeWalkthrough);
+    return () => {
+      sidebarRef.current?.removeEventListener("click", closeWalkthrough);
+    };
+  }, [isWalkthroughOpened]);
 
   return (
     <div className="relative">
       {/* PROPERTY PANE */}
       <div
         className={classNames({
-          [`js-property-pane-sidebar t--property-pane-sidebar flex h-full border-l bg-white transform transition duration-300 ${tailwindLayers.propertyPane}`]:
+          [`js-property-pane-sidebar t--property-pane-sidebar flex h-full border-l bg-white transition-transform transform duration-400 ${tailwindLayers.propertyPane}`]:
             true,
           "relative ": !isPreviewMode,
           "fixed translate-x-full right-0": isPreviewMode,
         })}
+        id={PROPERTY_PANE_ID}
         ref={sidebarRef}
       >
         {/* RESIZER */}

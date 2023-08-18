@@ -4,7 +4,7 @@ import homePageLocators from "../../../../../locators/HomePage";
 import {
   agHelper,
   entityExplorer,
-  hostPort,
+  dataManager,
   gitSync,
   homePage,
   jsEditor,
@@ -79,9 +79,7 @@ describe("Git sync Bug #10773", function () {
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
-      cy.fixture("JsObjecWithGitdsl").then((val) => {
-        agHelper.AddDsl(val);
-      });
+      agHelper.AddDsl("JsObjecWithGitdsl");
     });
     // connect app to git
     gitSync.CreateNConnectToGit(repoName);
@@ -170,9 +168,7 @@ describe("Git sync Bug #10773", function () {
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
-      cy.fixture("JsObjecWithGitdsl").then((val) => {
-        agHelper.AddDsl(val);
-      });
+      agHelper.AddDsl("JsObjecWithGitdsl");
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS Object and validate its data on Page1
@@ -290,7 +286,7 @@ describe("Git sync Bug #10773", function () {
           `generateKey-${repoName}`,
         );
         cy.get(gitSyncLocators.gitRepoInput).type(
-          `{selectAll}${hostPort.GITEA_API_URL_TED}/${repoName}.git`,
+          `{selectAll}${dataManager.GITEA_API_URL_TED}/${repoName}.git`,
         );
         // abort git flow after generating key
         cy.get(gitSyncLocators.closeGitSyncModal).click();

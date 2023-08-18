@@ -2,9 +2,7 @@ import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 describe("List v2- Tabs Widget", () => {
   before(() => {
-    cy.fixture("/Listv2/simpleListWithInputAndButton").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/simpleListWithInputAndButton");
   });
 
   it("1. should not throw error when on click event is changed No Action", () => {

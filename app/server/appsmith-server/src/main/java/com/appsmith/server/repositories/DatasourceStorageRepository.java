@@ -4,6 +4,4 @@ import com.appsmith.server.repositories.ce.DatasourceStorageRepositoryCE;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DatasourceStorageRepository
-        extends DatasourceStorageRepositoryCE, CustomDatasourceStorageRepository {
-}
+public interface DatasourceStorageRepository extends DatasourceStorageRepositoryCE, CustomDatasourceStorageRepository {}

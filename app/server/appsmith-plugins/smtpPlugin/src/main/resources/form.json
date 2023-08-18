@@ -20,7 +20,7 @@
               "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
               "controlType": "KEYVALUE_ARRAY",
-              "placeholderText": "587"
+              "placeholderText": "25"
             }
           ]
         }

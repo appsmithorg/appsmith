@@ -23,7 +23,7 @@ const routes = {
 
 describe("Admin settings page", function () {
   it("1. should test that configure link redirects to google maps setup doc", () => {
-    cy.visit(routes.GOOGLE_MAPS);
+    cy.visit(routes.GOOGLE_MAPS, { timeout: 60000 });
     cy.get(adminsSettings.readMoreLink).within(() => {
       cy.get("a")
         .should("have.attr", "target", "_blank")
@@ -38,7 +38,7 @@ describe("Admin settings page", function () {
     "excludeForAirgap",
     "2. should test that authentication page redirects",
     () => {
-      cy.visit(routes.GENERAL);
+      cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
       cy.url().should("contain", routes.AUTHENTICATION);
       cy.get(adminsSettings.googleButton).click();
@@ -58,7 +58,7 @@ describe("Admin settings page", function () {
     "airgap",
     "2. should test that authentication page redirects and google and github auth doesn't exist - airgap",
     () => {
-      cy.visit(routes.GENERAL);
+      cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
       cy.url().should("contain", routes.AUTHENTICATION);
       cy.get(adminsSettings.googleButton).should("not.exist");
@@ -72,7 +72,7 @@ describe("Admin settings page", function () {
     "excludeForAirgap",
     "3. should test that configure link redirects to google signup setup doc",
     () => {
-      cy.visit(routes.GENERAL);
+      cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
       cy.url().should("contain", routes.AUTHENTICATION);
       cy.get(adminsSettings.googleButton).click();
@@ -92,7 +92,7 @@ describe("Admin settings page", function () {
     "excludeForAirgap",
     "4. should test that configure link redirects to github signup setup doc",
     () => {
-      cy.visit(routes.GENERAL);
+      cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
       cy.url().should("contain", routes.AUTHENTICATION);
       cy.get(adminsSettings.githubButton).click();
@@ -112,7 +112,7 @@ describe("Admin settings page", function () {
     "excludeForAirgap",
     "5. should test that read more on version opens up release notes",
     () => {
-      cy.visit(routes.GENERAL);
+      cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.versionTab).click();
       cy.url().should("contain", routes.VERSION);
       cy.get(adminsSettings.readMoreLink).within(() => {
@@ -136,7 +136,7 @@ describe("Admin settings page", function () {
     "airgap",
     "5. should test that read more on version is hidden for airgap",
     () => {
-      cy.visit(routes.GENERAL);
+      cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.versionTab).click();
       cy.url().should("contain", routes.VERSION);
       cy.get(adminsSettings.readMoreLink).should("not.exist");
@@ -146,9 +146,9 @@ describe("Admin settings page", function () {
   it("6. should test that settings page is not accessible to normal users", () => {
     cy.LogOut();
     cy.wait(2000);
-    cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+    cy.LoginFromAPI(Cypress.env("TESTUSERNAME3"), Cypress.env("TESTPASSWORD3"));
     cy.get(".admin-settings-menu-option").should("not.exist");
-    cy.visit(routes.GENERAL);
+    cy.visit(routes.GENERAL, { timeout: 60000 });
     // non super users are redirected to home page
     cy.url().should("contain", routes.APPLICATIONS);
     cy.LogOut();

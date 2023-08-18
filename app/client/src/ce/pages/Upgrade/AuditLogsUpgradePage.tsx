@@ -52,13 +52,17 @@ export function AuditLogsUpgradePage() {
     ],
     targets: [
       <img
-        alt="Security & Compliance"
+        alt={createMessage(SECURITY_AND_COMPLIANCE)}
         key="security-and-compliance"
         src={SecurityAndComplianceImage}
       />,
-      <img alt="Debugging" key="debugging" src={DebuggingImage} />,
       <img
-        alt="Incident management"
+        alt={createMessage(DEBUGGING)}
+        key="debugging"
+        src={DebuggingImage}
+      />,
+      <img
+        alt={createMessage(INCIDENT_MANAGEMENT)}
         key="incident-management"
         src={IncidentManagementImage}
       />,

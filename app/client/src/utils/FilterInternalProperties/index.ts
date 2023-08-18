@@ -1,5 +1,6 @@
 import { getActionChildrenPeekData } from "./Action";
 import type {
+  ConfigTree,
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
@@ -21,6 +22,7 @@ export const filterInternalProperties = (
   dataTreeEntity: DataTreeEntity,
   jsActions: JSCollectionDataState,
   dataTree: DataTree,
+  configTree: ConfigTree,
 ) => {
   if (!dataTreeEntity) return;
   if (isActionEntity(dataTreeEntity)) {
@@ -35,8 +37,12 @@ export const filterInternalProperties = (
       ? getJsActionPeekData(jsAction, dataTree)?.peekData
       : dataTreeEntity;
   } else if (isWidgetEntity(dataTreeEntity)) {
-    return getWidgetChildrenPeekData(objectName, dataTreeEntity.type, dataTree)
-      ?.peekData;
+    return getWidgetChildrenPeekData(
+      objectName,
+      dataTreeEntity.type,
+      dataTree,
+      configTree,
+    )?.peekData;
   }
   return dataTreeEntity;
 };

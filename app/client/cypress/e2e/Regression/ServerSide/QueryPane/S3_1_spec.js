@@ -9,6 +9,8 @@ import {
   entityExplorer,
   dataSources,
   entityItems,
+  draggableWidgets,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -39,20 +41,15 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   // });
 
   before("Creates a new Amazon S3 datasource", function () {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.AmazonS3).click({ force: true }).wait(1000);
-
-    cy.generateUUID().then((uid) => {
-      datasourceName = `S3 CRUD ds ${uid}`;
-      cy.renameDatasource(datasourceName);
-      cy.wrap(datasourceName).as("dSName");
-      cy.fillAmazonS3DatasourceForm();
-      cy.testSaveDatasource();
-      entityExplorer.ExpandCollapseEntity(datasourceName, false);
+    dataSources.CreateDataSource("S3");
+    cy.get("@dsName").then((dsName) => {
+      datasourceName = dsName;
     });
   });
 
-  it("1. Validate List Files in bucket (all existing files) command, run and then delete the query", () => {
+  it("1. Validate List Files in bucket (all existing files) command, run + Widget Binding", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
+    propPane.UpdatePropertyFieldValue("Default value", "AutoTest");
     cy.NavigateToActiveDSQueryPane(datasourceName);
     dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
     dataSources.RunQuery({ toValidateResponse: false });
@@ -62,8 +59,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "Mandatory parameter 'Bucket name' is missing.",
       );
     });
+    agHelper.UpdateCodeInput(formControls.s3BucketName, "{{Input1.text}}"); //Widget Binding
 
-    cy.typeValueNValidate("AutoTest", formControls.s3BucketName);
     dataSources.RunQuery({ toValidateResponse: false });
     cy.wait(3000); //for new postExecute to come thru
     cy.wait("@postExecute").then(({ response }) => {
@@ -73,11 +70,21 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       );
     });
     cy.wait(2000);
-    cy.typeValueNValidate(
-      "assets-test.appsmith.com",
-      formControls.s3BucketName,
+    // agHelper.ActionContextMenuWithInPane({
+    //   action: "Delete",
+    //   entityType: entityItems.Query,
+    // });//do not want to delete it for the sake of keeping the DS in Entity Explorer
+    entityExplorer.ExpandCollapseEntity(datasourceName);
+
+    entityExplorer.ActionTemplateMenuByEntityName(
+      "assets-test--appsmith",
+      "List files",
     );
-    cy.runAndDeleteQuery();
+    dataSources.RunQuery();
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 
   it("2. Validate Create file in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
@@ -457,7 +464,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       cy.ClickGotIt();
 
       //Verifying Searching File from UI
-      cy.xpath(queryLocators.searchFilefield).type("S3Crud_").wait(10000); //for search to finish
+      agHelper.TypeText(
+        queryLocators.searchFilefield,
+        fileName.substring(0, 14),
+      );
+      agHelper.Sleep(10000); //for search to finish
 
       cy.get(".t--widget-textwidget span:contains('" + fileName + "')")
         .should("have.length", 1)

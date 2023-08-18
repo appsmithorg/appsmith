@@ -16,9 +16,7 @@ describe("JSON Form Widget Array Field", () => {
   });
 
   it("1. can remove default items when default value changes from undefined to an array", () => {
-    cy.fixture("jsonFormDslWithSchemaAndWithoutSourceData").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithSchemaAndWithoutSourceData");
 
     const sourceData = {
       name: "John",

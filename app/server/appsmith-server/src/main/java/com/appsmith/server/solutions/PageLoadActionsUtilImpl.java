@@ -11,10 +11,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class PageLoadActionsUtilImpl extends PageLoadActionsUtilCEImpl implements PageLoadActionsUtil {
 
-    public PageLoadActionsUtilImpl(NewActionService newActionService,
-                                   AstService astService,
-                                   ActionPermission actionPermission,
-                                   ObjectMapper objectMapper) {
+    public PageLoadActionsUtilImpl(
+            NewActionService newActionService,
+            AstService astService,
+            ActionPermission actionPermission,
+            ObjectMapper objectMapper) {
         super(newActionService, astService, actionPermission, objectMapper);
     }
 }

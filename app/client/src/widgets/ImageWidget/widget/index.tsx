@@ -7,7 +7,7 @@ import ImageComponent from "../component";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
@@ -25,6 +25,21 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
       "!url": "https://docs.appsmith.com/widget-reference/image",
       image: "string",
       isVisible: DefaultAutocompleteDefinitions.isVisible,
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setImage: {
+          path: "image",
+          type: "string",
+        },
+      },
     };
   }
 

@@ -13,6 +13,7 @@ import {
   BULK_WIDGET_ADDED,
   WIDGET_REMOVED,
   BULK_WIDGET_REMOVED,
+  ACTION_CONFIGURATION_CHANGED,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
 import { setApiPaneConfigSelectedTabIndex } from "../actions/apiPaneActions";
@@ -47,25 +48,51 @@ export const processUndoRedoToasts = (
   showUndoRedoToast(widgetName, isMultipleToasts, isCreated, !isUndo);
 };
 
+// context can be extended.
+export enum UndoRedoToastContext {
+  WIDGET = "widget",
+  QUERY_TEMPLATES = "query-templates",
+}
+
 /**
  * shows a toast for undo/redo
  *
- * @param widgetName
+ * @param actionName
  * @param isMultiple
  * @param isCreated
  * @param shouldUndo
+ * @param toastContext
  * @returns
  */
 export const showUndoRedoToast = (
-  widgetName: string | undefined,
+  actionName: string | undefined,
   isMultiple: boolean,
   isCreated: boolean,
   shouldUndo: boolean,
+  toastContext = UndoRedoToastContext.WIDGET,
 ) => {
-  if (shouldDisallowToast(shouldUndo)) return;
+  if (
+    shouldDisallowToast(shouldUndo) &&
+    toastContext === UndoRedoToastContext.WIDGET
+  )
+    return;
 
-  const actionDescription = getActionDescription(isCreated, isMultiple);
-  const widgetText = createMessage(actionDescription, widgetName);
+  let actionDescription;
+  let actionText = "";
+
+  switch (toastContext) {
+    case UndoRedoToastContext.WIDGET:
+      actionDescription = getWidgetDescription(isCreated, isMultiple);
+      actionText = createMessage(actionDescription, actionName);
+      break;
+    case UndoRedoToastContext.QUERY_TEMPLATES:
+      actionDescription = ACTION_CONFIGURATION_CHANGED;
+      actionText = createMessage(actionDescription, actionName);
+      break;
+    default:
+      actionText = "";
+  }
+
   const action = shouldUndo ? "undo" : "redo";
   const actionKey = shouldUndo
     ? `${modText()} Z`
@@ -73,10 +100,10 @@ export const showUndoRedoToast = (
     ? `${modText()} ${shiftText()} Z`
     : `${modText()} Y`;
 
-  toast.show(`${widgetText}. Press ${actionKey} to ${action}`);
+  toast.show(`${actionText}. Press ${actionKey} to ${action}`);
 };
 
-function getActionDescription(isCreated: boolean, isMultiple: boolean) {
+function getWidgetDescription(isCreated: boolean, isMultiple: boolean) {
   if (isCreated) return isMultiple ? BULK_WIDGET_ADDED : WIDGET_ADDED;
   else return isMultiple ? BULK_WIDGET_REMOVED : WIDGET_REMOVED;
 }
@@ -121,7 +148,7 @@ export function highlightReplayElement(configProperties: Array<string> = []) {
     .map((configProperty: string) => {
       const replayId = btoa(configProperty);
       return document.querySelector(
-        `[data-replay-id="${replayId}"]`,
+        `[data-location-id="${replayId}"]`,
       ) as HTMLElement;
     })
     .filter((el) => Boolean(el));
@@ -147,7 +174,7 @@ export function switchTab(replayId: string): boolean {
 export function expandAccordion(replayId: string): boolean {
   if (!replayId) return false;
   const element = document.querySelector(
-    `[data-replay-id="section-${replayId}"]`,
+    `[data-location-id="section-${replayId}"]`,
   );
   if (!element) return false;
   const accordion = element.querySelector(

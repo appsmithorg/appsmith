@@ -5,7 +5,6 @@ import com.appsmith.external.exceptions.pluginExceptions.BasePluginError;
 import com.appsmith.external.models.ErrorType;
 import lombok.Getter;
 
-
 @Getter
 public enum GSheetsPluginError implements BasePluginError {
     QUERY_EXECUTION_FAILED(
@@ -16,8 +15,7 @@ public enum GSheetsPluginError implements BasePluginError {
             "Query execution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     RESPONSE_PROCESSING_ERROR(
             500,
             "PE-GSH-5001",
@@ -26,9 +24,7 @@ public enum GSheetsPluginError implements BasePluginError {
             "Response processing error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    )
-    ;
+            "{2}");
 
     private final Integer httpErrorCode;
     private final String appErrorCode;
@@ -41,8 +37,15 @@ public enum GSheetsPluginError implements BasePluginError {
 
     private final String downstreamErrorCode;
 
-    GSheetsPluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
-                       String title, ErrorType errorType, String downstreamErrorMessage, String downstreamErrorCode) {
+    GSheetsPluginError(
+            Integer httpErrorCode,
+            String appErrorCode,
+            String message,
+            AppsmithErrorAction errorAction,
+            String title,
+            ErrorType errorType,
+            String downstreamErrorMessage,
+            String downstreamErrorCode) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         this.errorType = errorType;
@@ -69,5 +72,7 @@ public enum GSheetsPluginError implements BasePluginError {
     }
 
     @Override
-    public String getErrorType() { return this.errorType.toString(); }
+    public String getErrorType() {
+        return this.errorType.toString();
+    }
 }

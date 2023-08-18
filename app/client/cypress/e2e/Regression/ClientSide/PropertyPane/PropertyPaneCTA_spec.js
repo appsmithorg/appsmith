@@ -2,9 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Property pane CTA to add an action", function () {
   before(() => {
-    cy.fixture("TextTabledsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("TextTabledsl");
   });
 
   it("1. Check if CTA is shown when there is no action", function () {

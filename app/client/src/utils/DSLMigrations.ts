@@ -73,7 +73,12 @@ import {
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
-import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
+import {
+  MigrateSelectTypeWidgetDefaultValue,
+  migrateSelectWidgetAddSourceDataPropertyPathList,
+  migrateSelectWidgetOptionToSourceData,
+  migrateSelectWidgetSourceDataBindingPathList,
+} from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
 
 import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
@@ -84,6 +89,11 @@ import {
   migrateListWidgetChildrenForAutoHeight,
   migratePropertiesForDynamicHeight,
 } from "./migrations/autoHeightMigrations";
+
+import {
+  migrateChartWidgetLabelOrientationStaggerOption,
+  migrateAddShowHideDataPointLabels,
+} from "./migrations/ChartWidget";
 import { flattenDSL } from "@shared/dsl";
 
 /**
@@ -754,6 +764,7 @@ export const migrateInitialValues = (currentDSL: DSLWidget) => {
 
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
+// This needs the widget config to be already built to migrate correctly
 export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   if (currentDSL.version === undefined) {
     // Since this top level widget is a CANVAS_WIDGET,
@@ -1185,6 +1196,31 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version == 79) {
     currentDSL = migrateTableWidgetTableDataJsMode(currentDSL);
+    currentDSL.version = 80;
+  }
+
+  if (currentDSL.version === 80) {
+    currentDSL = migrateSelectWidgetOptionToSourceData(currentDSL);
+    currentDSL.version = 81;
+  }
+
+  if (currentDSL.version === 81) {
+    currentDSL = migrateSelectWidgetSourceDataBindingPathList(currentDSL);
+    currentDSL.version = 82;
+  }
+
+  if (currentDSL.version == 82) {
+    currentDSL = migrateChartWidgetLabelOrientationStaggerOption(currentDSL);
+    currentDSL.version = 83;
+  }
+
+  if (currentDSL.version == 83) {
+    currentDSL = migrateAddShowHideDataPointLabels(currentDSL);
+    currentDSL.version = 84;
+  }
+
+  if (currentDSL.version === 84) {
+    currentDSL = migrateSelectWidgetAddSourceDataPropertyPathList(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

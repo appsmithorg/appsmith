@@ -23,7 +23,7 @@ public class NewAction extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     String applicationId;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
     @JsonView(Views.Public.class)
     String organizationId;
@@ -38,10 +38,10 @@ public class NewAction extends BranchAwareDomain {
     String pluginId;
 
     @JsonView(Views.Public.class)
-    String templateId; //If action is created via a template, store the id here.
+    String templateId; // If action is created via a template, store the id here.
 
     @JsonView(Views.Public.class)
-    String providerId; //If action is created via a template, store the template's provider id here.
+    String providerId; // If action is created via a template, store the template's provider id here.
 
     @JsonView(Views.Public.class)
     Documentation documentation; // Documentation for the template using which this action was created

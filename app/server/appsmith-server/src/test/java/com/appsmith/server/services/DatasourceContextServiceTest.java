@@ -10,7 +10,6 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
@@ -22,8 +21,10 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -33,12 +34,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.HashMap;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -65,6 +68,7 @@ public class DatasourceContextServiceTest {
 
     @Autowired
     DatasourceService datasourceService;
+
     @SpyBean
     DatasourceStorageService datasourceStorageService;
 
@@ -89,6 +93,30 @@ public class DatasourceContextServiceTest {
     @SpyBean
     DatasourceContextServiceImpl datasourceContextService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
+    String defaultEnvironmentId;
+
+    String workspaceId;
+
+    @BeforeEach
+    @WithUserDetails(value = "api_user")
+    public void setup() {
+        User apiUser = userService.findByEmail("api_user").block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("DatasourceServiceTest");
+
+        if (!StringUtils.hasLength(workspaceId)) {
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            workspaceId = workspace.getId();
+            defaultEnvironmentId = workspaceService
+                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .block();
+        }
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void testDatasourceCache_afterDatasourceDeleted_doesNotReturnOldConnection() {
@@ -98,32 +126,42 @@ public class DatasourceContextServiceTest {
         MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
         MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
         /* Return two different connection objects if `datasourceCreate` method is called twice */
-        doReturn(Mono.just("connection_1")).doReturn(Mono.just("connection_2")).when(spyMockPluginExecutor).datasourceCreate(any());
+        doReturn(Mono.just("connection_1"))
+                .doReturn(Mono.just("connection_2"))
+                .when(spyMockPluginExecutor)
+                .datasourceCreate(any());
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(spyMockPluginExecutor));
 
         DatasourceStorage datasourceStorage = new DatasourceStorage();
-        datasourceStorage.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
         datasourceStorage.setDatasourceId("id1");
         datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
-        datasourceStorage.setWorkspaceId("workspaceId");
+        datasourceStorage.setWorkspaceId(workspaceId);
 
-        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), null);
+        DatasourceContextIdentifier datasourceContextIdentifier =
+                new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), null);
 
         Object monitor = new Object();
         // Create one instance of datasource connection
-        Mono<DatasourceContext<?>> dsContextMono1 = datasourceContextService.getCachedDatasourceContextMono(datasourceStorage,
-                spyMockPluginExecutor, monitor, datasourceContextIdentifier);
+        Mono<DatasourceContext<?>> dsContextMono1 = datasourceContextService.getCachedDatasourceContextMono(
+                datasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
 
         Datasource datasource = new Datasource();
         datasource.setId("id1");
         datasource.setWorkspaceId("workspaceId1");
         datasource.setPluginId("mockPluginId");
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId,
+                datasourceStorageService.createDatasourceStorageDTOFromDatasourceStorage(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
-        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getDeletePermission());
-        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getExecutePermission());
+        doReturn(Mono.just(datasource))
+                .when(datasourceRepository)
+                .findById("id1", datasourcePermission.getDeletePermission());
+        doReturn(Mono.just(datasource))
+                .when(datasourceRepository)
+                .findById("id1", datasourcePermission.getExecutePermission());
         doReturn(Mono.just(new Plugin())).when(pluginService).findById("mockPlugin");
         doReturn(Mono.just(0L)).when(newActionRepository).countByDatasourceId("id1");
         doReturn(Mono.just(datasource)).when(datasourceRepository).archiveById("id1");
@@ -131,9 +169,10 @@ public class DatasourceContextServiceTest {
         doReturn(Mono.just(datasourceStorage)).when(datasourceStorageService).archive(datasourceStorage);
 
         // Now delete the datasource and check if the cache retains the same instance of connection
-        Mono<DatasourceContext<?>> dsContextMono2 = datasourceService.archiveById("id1")
-                .flatMap(deleted -> datasourceContextService.getCachedDatasourceContextMono(datasourceStorage,
-                        spyMockPluginExecutor, monitor, datasourceContextIdentifier));
+        Mono<DatasourceContext<?>> dsContextMono2 = datasourceService
+                .archiveById("id1")
+                .flatMap(deleted -> datasourceContextService.getCachedDatasourceContextMono(
+                        datasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier));
 
         StepVerifier.create(dsContextMono1)
                 .assertNext(dsContext1 -> {
@@ -151,15 +190,19 @@ public class DatasourceContextServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkDecryptionOfAuthenticationDTOTest() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("checkDecryptionOfAuthenticationDTOTest");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
-        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
@@ -172,11 +215,15 @@ public class DatasourceContextServiceTest {
         authenticationDTO.setUsername(username);
         authenticationDTO.setPassword(password);
         datasourceConfiguration.setAuthentication(authenticationDTO);
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
+        DatasourceStorageDTO datasourceStorageDTO = new DatasourceStorageDTO();
+        datasourceStorageDTO.setDatasourceConfiguration(datasourceConfiguration);
+        datasourceStorageDTO.setEnvironmentId(defaultEnvironmentId);
+        datasourceStorageDTO.setIsConfigured(Boolean.TRUE);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, datasourceStorageDTO);
         datasource.setDatasourceStorages(storages);
 
         final Datasource createdDatasource = pluginMono
@@ -188,37 +235,43 @@ public class DatasourceContextServiceTest {
                 .block();
 
         assert createdDatasource != null;
-        Mono<DatasourceStorage> datasourceStorageMono = datasourceService.findById(createdDatasource.getId())
-                .flatMap(datasource1 -> datasourceStorageService
-                        .findByDatasourceAndEnvironmentId(datasource1, defaultEnvironmentId));
+        Mono<DatasourceStorage> datasourceStorageMono = datasourceService
+                .findById(createdDatasource.getId())
+                .flatMap(datasource1 ->
+                        datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, defaultEnvironmentId));
 
-        StepVerifier
-                .create(datasourceStorageMono)
+        StepVerifier.create(datasourceStorageMono)
                 .assertNext(savedDatasource -> {
-                    DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth authentication = (DBAuth)
+                            savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertEquals(password, authentication.getPassword());
 
-                    DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages()
-                            .get(defaultEnvironmentId);
-                    DBAuth encryptedAuthentication = (DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
+                    DatasourceStorageDTO savedDatasourceStorageDTO =
+                            createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+                    DBAuth encryptedAuthentication = (DBAuth) savedDatasourceStorageDTO
+                            .getDatasourceConfiguration()
+                            .getAuthentication();
                     assertEquals(password, encryptionService.decryptString(encryptedAuthentication.getPassword()));
                 })
                 .verifyComplete();
     }
 
-
     @Test
     @WithUserDetails(value = "api_user")
     public void checkDecryptionOfAuthenticationDTONullPassword() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("checkDecryptionOfAuthenticationDTONullPassword");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
-        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
@@ -227,11 +280,11 @@ public class DatasourceContextServiceTest {
         datasourceConfiguration.setUrl("http://test.com");
         DBAuth authenticationDTO = new DBAuth();
         datasourceConfiguration.setAuthentication(authenticationDTO);
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         final Datasource createdDatasource = pluginMono
@@ -243,19 +296,21 @@ public class DatasourceContextServiceTest {
                 .block();
 
         assert createdDatasource != null;
-        Mono<DatasourceStorage> datasourceStorageMono = datasourceService.findById(createdDatasource.getId())
-                .flatMap(datasource1 -> datasourceStorageService
-                        .findByDatasourceAndEnvironmentId(datasource1, defaultEnvironmentId));
+        Mono<DatasourceStorage> datasourceStorageMono = datasourceService
+                .findById(createdDatasource.getId())
+                .flatMap(datasource1 ->
+                        datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, defaultEnvironmentId));
 
-        StepVerifier
-                .create(datasourceStorageMono)
+        StepVerifier.create(datasourceStorageMono)
                 .assertNext(savedDatasource -> {
-                    DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth authentication = (DBAuth)
+                            savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertNull(authentication.getPassword());
 
-                    DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages()
-                            .get(defaultEnvironmentId);
-                    DBAuth encryptedAuthentication = (DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+                    DBAuth encryptedAuthentication = (DBAuth)
+                            datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     assertNull(encryptedAuthentication.getPassword());
                 })
                 .verifyComplete();
@@ -273,21 +328,27 @@ public class DatasourceContextServiceTest {
         MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
         MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
         /* Return two different connection objects if `datasourceCreate` method is called twice */
-        doReturn(Mono.just("connection_1")).doReturn(Mono.just("connection_2")).when(spyMockPluginExecutor).datasourceCreate(any());
+        doReturn(Mono.just("connection_1"))
+                .doReturn(Mono.just("connection_2"))
+                .when(spyMockPluginExecutor)
+                .datasourceCreate(any());
 
         DatasourceStorage datasourceStorage = new DatasourceStorage();
-        datasourceStorage.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
         datasourceStorage.setDatasourceId("id2");
         datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
 
-        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), "envId");
+        DatasourceContextIdentifier datasourceContextIdentifier =
+                new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), defaultEnvironmentId);
 
         Object monitor = new Object();
         DatasourceContext<?> dsContext1 = (DatasourceContext<?>) datasourceContextService
-                .getCachedDatasourceContextMono(datasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier)
+                .getCachedDatasourceContextMono(
+                        datasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier)
                 .block();
         DatasourceContext<?> dsContext2 = (DatasourceContext<?>) datasourceContextService
-                .getCachedDatasourceContextMono(datasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier)
+                .getCachedDatasourceContextMono(
+                        datasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier)
                 .block();
 
         /* They can only be equal if the `datasourceCreate` method was called only once */
@@ -309,19 +370,25 @@ public class DatasourceContextServiceTest {
         /* Return two different connection objects if `datasourceCreate` method is called twice */
         doReturn(Mono.just((UpdatableConnection) auth -> new DBAuth()))
                 .doReturn(Mono.just((UpdatableConnection) auth -> new BasicAuth()))
-                .when(spyMockPluginExecutor).datasourceCreate(any());
+                .when(spyMockPluginExecutor)
+                .datasourceCreate(any());
 
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("testDatasourceCreate_withUpdatableConnection_recreatesConnectionAlways");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
-        String defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
         datasource.setName("test datasource name for updatable connection test");
+        datasource.setWorkspaceId(workspaceId);
+
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         DBAuth authenticationDTO = new DBAuth();
@@ -330,11 +397,10 @@ public class DatasourceContextServiceTest {
         authenticationDTO.setUsername(username);
         authenticationDTO.setPassword(password);
         datasourceConfiguration.setAuthentication(authenticationDTO);
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         final Datasource createdDatasource = pluginMono
@@ -347,10 +413,12 @@ public class DatasourceContextServiceTest {
 
         assert createdDatasource != null;
 
-        DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+        DatasourceStorageDTO datasourceStorageDTO =
+                createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
         assert datasourceStorageDTO != null;
 
-        DatasourceStorage createdDatasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+        DatasourceStorage createdDatasourceStorage =
+                datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
 
         DatasourceContextIdentifier datasourceContextIdentifier =
                 new DatasourceContextIdentifier(createdDatasource.getId(), defaultEnvironmentId);
@@ -358,28 +426,22 @@ public class DatasourceContextServiceTest {
         Object monitor = new Object();
         final DatasourceContext<?> dsc1 = (DatasourceContext) datasourceContextService
                 .getCachedDatasourceContextMono(
-                        createdDatasourceStorage,
-                        spyMockPluginExecutor,
-                        monitor,
-                        datasourceContextIdentifier)
+                        createdDatasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier)
                 .block();
         assertNotNull(dsc1);
         assertTrue(dsc1.getConnection() instanceof UpdatableConnection);
-        assertTrue(((UpdatableConnection) dsc1.getConnection())
-                .getAuthenticationDTO(new ApiKeyAuth()) instanceof DBAuth);
-
+        assertTrue(
+                ((UpdatableConnection) dsc1.getConnection()).getAuthenticationDTO(new ApiKeyAuth()) instanceof DBAuth);
 
         final DatasourceContext<?> dsc2 = (DatasourceContext) datasourceContextService
                 .getCachedDatasourceContextMono(
-                        createdDatasourceStorage,
-                        spyMockPluginExecutor,
-                        monitor,
-                        datasourceContextIdentifier)
+                        createdDatasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier)
                 .block();
         assertNotNull(dsc2);
         assertTrue(dsc2.getConnection() instanceof UpdatableConnection);
-        assertTrue(((UpdatableConnection) dsc2.getConnection())
-                .getAuthenticationDTO(new ApiKeyAuth()) instanceof BasicAuth);
+        assertTrue(
+                ((UpdatableConnection) dsc2.getConnection()).getAuthenticationDTO(new ApiKeyAuth())
+                        instanceof BasicAuth);
     }
 
     /**
@@ -395,25 +457,30 @@ public class DatasourceContextServiceTest {
         MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
 
         // Introduce an error to fail the datasource context mono
-        doReturn(Mono.error(new RuntimeException("error"))).when(spyMockPluginExecutor).datasourceCreate(any());
+        doReturn(Mono.error(new RuntimeException("error")))
+                .when(spyMockPluginExecutor)
+                .datasourceCreate(any());
 
         DatasourceStorage datasourceStorage = new DatasourceStorage();
-        datasourceStorage.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
         datasourceStorage.setDatasourceId("error_datasource_1");
         datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
 
-        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), FieldName.UNUSED_ENVIRONMENT_ID);
+        DatasourceContextIdentifier datasourceContextIdentifier =
+                new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), defaultEnvironmentId);
 
         Object monitor = new Object();
 
         Mono<DatasourceContext<?>> failedDatasourceContextMono =
-                datasourceContextService.getCachedDatasourceContextMono(datasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
+                datasourceContextService.getCachedDatasourceContextMono(
+                        datasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
 
         StepVerifier.create(failedDatasourceContextMono)
                 .expectError(RuntimeException.class)
                 .verify();
 
-        assertFalse(datasourceContextService.isValidDatasourceContextAvailable(datasourceStorage, datasourceContextIdentifier));
+        assertFalse(datasourceContextService.isValidDatasourceContextAvailable(
+                datasourceStorage, datasourceContextIdentifier));
     }
 
     /**
@@ -433,56 +500,49 @@ public class DatasourceContextServiceTest {
         // Introduce an error to fail the datasource context mono
         doReturn(Mono.error(new RuntimeException("error_connection")))
                 .doReturn(Mono.just("valid_connection"))
-                .when(spyMockPluginExecutor).datasourceCreate(any());
+                .when(spyMockPluginExecutor)
+                .datasourceCreate(any());
 
         DatasourceStorage datasourceStorage = new DatasourceStorage();
-        datasourceStorage.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
         datasourceStorage.setDatasourceId("error_datasource_2");
         datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
 
-        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), "envId");
+        DatasourceContextIdentifier datasourceContextIdentifier =
+                new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), defaultEnvironmentId);
 
         Object monitor = new Object();
 
         Mono<DatasourceContext<?>> failedDatasourceContextMono =
-                datasourceContextService.getCachedDatasourceContextMono(datasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
+                datasourceContextService.getCachedDatasourceContextMono(
+                        datasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
         StepVerifier.create(failedDatasourceContextMono)
                 .expectError(RuntimeException.class)
                 .verify();
 
-        Mono<DatasourceContext<?>> validDatasourceContextMono =
-                datasourceContextService.getCachedDatasourceContextMono(datasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
+        Mono<DatasourceContext<?>> validDatasourceContextMono = datasourceContextService.getCachedDatasourceContextMono(
+                datasourceStorage, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
 
         StepVerifier.create(validDatasourceContextMono)
-                .assertNext(validDatasourceContext -> assertEquals(validDatasourceContext.getConnection(), "valid_connection"))
+                .assertNext(validDatasourceContext ->
+                        assertEquals(validDatasourceContext.getConnection(), "valid_connection"))
                 .verifyComplete();
 
         assertNotEquals(failedDatasourceContextMono, validDatasourceContextMono);
     }
 
-
     @Test
-    public void verifyDsMapKeyEquality() {
-        String dsId = new ObjectId().toHexString();
-        DatasourceContextIdentifier keyObj = new DatasourceContextIdentifier(dsId, null);
-        DatasourceContextIdentifier keyObj1 = new DatasourceContextIdentifier(dsId, null);
-        assertEquals(keyObj, keyObj1);
-    }
+    @WithUserDetails(value = "api_user")
+    public void verifyInitialiseDatasourceContextReturningRightIdentifier() {
+        String sampleDatasourceId = new ObjectId().toHexString();
+        DatasourceStorage datasourceStorage = new DatasourceStorage();
+        datasourceStorage.setDatasourceId(sampleDatasourceId);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
 
-    @Test
-    public void verifyDsMapKeyNotEqual() {
-        String dsId = new ObjectId().toHexString();
-        String dsId1 = new ObjectId().toHexString();
-        DatasourceContextIdentifier keyObj = new DatasourceContextIdentifier(dsId, null);
-        DatasourceContextIdentifier keyObj1 = new DatasourceContextIdentifier(dsId1, null);
-        assertNotEquals(keyObj, keyObj1);
-    }
+        DatasourceContextIdentifier datasourceContextIdentifier =
+                datasourceContextService.initializeDatasourceContextIdentifier(datasourceStorage);
 
-    @Test
-    public void verifyDsMapKeyNotEqualWhenBothDatasourceIdNull() {
-        String envId = new ObjectId().toHexString();
-        DatasourceContextIdentifier keyObj = new DatasourceContextIdentifier(null, envId);
-        DatasourceContextIdentifier keyObj1 = new DatasourceContextIdentifier(null, envId);
-        assertNotEquals(keyObj, keyObj1);
+        assertThat(datasourceContextIdentifier.getDatasourceId()).isEqualTo(sampleDatasourceId);
+        assertThat(datasourceContextIdentifier.getEnvironmentId()).isEqualTo(defaultEnvironmentId);
     }
 }

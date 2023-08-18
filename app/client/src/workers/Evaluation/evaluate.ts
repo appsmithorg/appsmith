@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
@@ -13,6 +13,7 @@ import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 
 export type EvalResult = {
   result: any;
@@ -123,6 +124,7 @@ const beginsWithLineBreakRegex = /^\s+|\s+$/;
 export type EvalContext = Record<string, any>;
 export interface createEvaluationContextArgs {
   dataTree: DataTree;
+  configTree?: ConfigTree;
   context?: EvaluateContext;
   isTriggerBased: boolean;
   evalArguments?: Array<unknown>;
@@ -140,6 +142,7 @@ export interface createEvaluationContextArgs {
  */
 export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   const {
+    configTree = {},
     context,
     dataTree,
     evalArguments,
@@ -160,6 +163,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   addDataTreeToContext({
     EVAL_CONTEXT,
     dataTree,
+    configTree,
     removeEntityFunctions: !!removeEntityFunctions,
     isTriggerBased,
   });
@@ -206,6 +210,7 @@ export const getUserScriptToEvaluate = (
 };
 
 export function setEvalContext({
+  configTree,
   context,
   dataTree,
   evalArguments,
@@ -214,6 +219,7 @@ export function setEvalContext({
 }: {
   context?: EvaluateContext;
   dataTree: DataTree;
+  configTree?: ConfigTree;
   evalArguments?: Array<any>;
   isDataField: boolean;
   isTriggerBased: boolean;
@@ -222,6 +228,7 @@ export function setEvalContext({
 
   const evalContext = createEvaluationContext({
     dataTree,
+    configTree,
     context,
     evalArguments,
     isTriggerBased,
@@ -236,6 +243,7 @@ export default function evaluateSync(
   isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
+  configTree?: ConfigTree,
 ): EvalResult {
   return (function () {
     resetWorkerGlobalScope();
@@ -259,6 +267,7 @@ export default function evaluateSync(
 
     setEvalContext({
       dataTree,
+      configTree,
       isDataField: true,
       isTriggerBased: isJSCollection,
       context,
@@ -297,6 +306,7 @@ export default function evaluateSync(
 export async function evaluateAsync(
   userScript: string,
   dataTree: DataTree,
+  configTree: ConfigTree,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) {
@@ -309,6 +319,7 @@ export async function evaluateAsync(
 
     setEvalContext({
       dataTree,
+      configTree,
       isDataField: false,
       isTriggerBased: true,
       context,
@@ -362,4 +373,14 @@ export function convertAllDataTypesToString(e: any) {
       Sentry.captureException(error);
     }
   }
+}
+
+export function shouldAddSetter(setter: any, entity: DataTreeEntity) {
+  const isDisabledExpression = setter.disabled;
+
+  if (!isDisabledExpression) return true;
+
+  const isDisabledFn = new Function("options", isDisabledExpression);
+
+  return !isDisabledFn({ entity });
 }

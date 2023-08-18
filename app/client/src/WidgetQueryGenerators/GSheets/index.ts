@@ -8,6 +8,7 @@ import type {
   ActionConfigurationGSheets,
 } from "WidgetQueryGenerators/types";
 import { removeSpecialChars } from "utils/helpers";
+import { DatasourceConnectionMode } from "entities/Datasource";
 
 enum COMMAND_TYPES {
   "FIND" = "FETCH_MANY",
@@ -53,35 +54,10 @@ export default abstract class GSheets extends BaseQueryGenerator {
     const { select } = widgetConfig;
 
     if (select && formConfig.sheetName) {
-      return {
+      const queryPayload: any = {
         type: QUERY_TYPE.SELECT,
         name: `Find_${removeSpecialChars(formConfig.sheetName)}`,
         formData: {
-          where: {
-            data: {
-              children: [
-                {
-                  condition: "CONTAINS",
-                  key: `{{${select["where"]} ? "${formConfig.searchableColumn}" : ""}}`,
-                  value: `{{${select["where"]}}}`,
-                },
-              ],
-            },
-          },
-          sortBy: {
-            data: [
-              {
-                column: `{{${select["orderBy"]}}}`,
-                order: select["sortOrder"],
-              },
-            ],
-          },
-          pagination: {
-            data: {
-              limit: `{{${select["limit"]}}}`,
-              offset: `{{${select["offset"]}}}`,
-            },
-          },
           ...this.buildBasicConfig(
             COMMAND_TYPES.FIND,
             formConfig.tableName,
@@ -89,18 +65,56 @@ export default abstract class GSheets extends BaseQueryGenerator {
             formConfig.tableHeaderIndex,
           ),
         },
-        dynamicBindingPathList: [
-          {
-            key: "formData.where.data",
-          },
-          {
-            key: "formData.sortBy.data",
-          },
-          {
-            key: "formData.pagination.data",
-          },
-        ],
+        dynamicBindingPathList: [],
       };
+
+      if (select["where"]) {
+        queryPayload.formData.where = {
+          data: {
+            children: [
+              {
+                condition: "CONTAINS",
+                key: `{{${select["where"]} ? "${formConfig.searchableColumn}" : ""}}`,
+                value: `{{${select["where"]}}}`,
+              },
+            ],
+          },
+        };
+
+        queryPayload.dynamicBindingPathList.push({
+          key: "formData.where.data",
+        });
+      }
+
+      if (select["sortOrder"] && select["orderBy"]) {
+        queryPayload.formData.sortBy = {
+          data: [
+            {
+              column: `{{${select["orderBy"]}}}`,
+              order: select["sortOrder"],
+            },
+          ],
+        };
+
+        queryPayload.dynamicBindingPathList.push({
+          key: "formData.sortBy.data",
+        });
+      }
+
+      if (select["limit"] && select["offset"]) {
+        queryPayload.formData.pagination = {
+          data: {
+            limit: `{{${select["limit"]}}}`,
+            offset: `{{${select["offset"]}}}`,
+          },
+        };
+
+        queryPayload.dynamicBindingPathList.push({
+          key: "formData.pagination.data",
+        });
+      }
+
+      return queryPayload;
     }
   }
 
@@ -254,7 +268,10 @@ export default abstract class GSheets extends BaseQueryGenerator {
         ),
       );
     }
-    if (widgetConfig.update) {
+    if (
+      widgetConfig.update &&
+      formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
+    ) {
       configs.push(
         this.createPayload(
           initialValues,
@@ -263,7 +280,10 @@ export default abstract class GSheets extends BaseQueryGenerator {
         ),
       );
     }
-    if (widgetConfig.create) {
+    if (
+      widgetConfig.create &&
+      formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
+    ) {
       configs.push(
         this.createPayload(
           initialValues,

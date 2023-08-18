@@ -6,9 +6,7 @@ import {
 
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for widgets", function () {
-    cy.fixture("dynamicHeightContainerScrolldsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("dynamicHeightContainerScrolldsl");
     entityExplorer.SelectEntityByName("Container1");
     cy.get(".t--widget-textwidget").trigger("mouseover", { force: true }); // Scroll 'sidebar' to its bottom
     entityExplorer.SelectEntityByName("Text1", "Container1");

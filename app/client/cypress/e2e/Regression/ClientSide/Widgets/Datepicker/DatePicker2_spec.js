@@ -7,9 +7,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("DatePicker Widget Functionality", function () {
   before(() => {
-    cy.fixture("newFormDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("newFormDsl");
   });
 
   beforeEach(() => {

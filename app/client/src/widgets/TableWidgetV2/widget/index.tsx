@@ -99,7 +99,7 @@ import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
 import { generateNewColumnOrderFromStickyValue } from "./utilities";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DateCell } from "../component/cellComponents/DateCell";
 import type { MenuItem } from "widgets/MenuButtonWidget/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
@@ -118,6 +118,7 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -170,10 +171,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     widget: TableWidgetProps,
     formConfig: WidgetQueryGenerationFormConfig,
   ) {
-    let updates = {};
+    let modify = {};
+    const dynamicPropertyPathList: DynamicPath[] = [];
 
     if (queryConfig.select) {
-      updates = merge(updates, {
+      modify = merge(modify, {
         tableData: queryConfig.select.data,
         onPageChange: queryConfig.select.run,
         serverSidePaginationEnabled: true,
@@ -188,7 +190,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (queryConfig.create) {
-      updates = merge(updates, {
+      modify = merge(modify, {
         onAddNewRowSave: queryConfig.create.run,
         allowAddNewRow: true,
         ...Object.keys(widget.primaryColumns).reduce(
@@ -218,9 +220,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         editAction = Object.values(createEditActionColumn(widget)).reduce(
           (
             prev: Record<string, unknown>,
-            curr: { propertyPath: string; propertyValue: unknown },
+            curr: {
+              propertyPath: string;
+              propertyValue: unknown;
+              isDynamicPropertyPath?: boolean;
+            },
           ) => {
             prev[curr.propertyPath] = curr.propertyValue;
+
+            if (curr.isDynamicPropertyPath) {
+              dynamicPropertyPathList.push({ key: curr.propertyPath });
+            }
 
             return prev;
           },
@@ -228,19 +238,24 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         );
       }
 
-      updates = merge(updates, {
+      modify = merge(modify, {
         ...editAction,
         [`primaryColumns.EditActions1.onSave`]: queryConfig.update.run,
       });
     }
 
     if (queryConfig.total_record) {
-      updates = merge(updates, {
+      modify = merge(modify, {
         totalRecordsCount: queryConfig.total_record.data,
       });
     }
 
-    return updates;
+    return {
+      modify,
+      dynamicUpdates: {
+        dynamicPropertyPathList,
+      },
+    };
   }
 
   static getPropertyPaneContentConfig() {
@@ -318,6 +333,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
       };
+
       return config;
     };
   }
@@ -380,6 +396,31 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           discardButtonColor: "{{appsmith.theme.colors.primaryColor}}",
           discardBorderRadius:
             "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        },
+      },
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "string",
+        },
+        setSelectedRowIndex: {
+          path: "defaultSelectedRowIndex",
+          type: "number",
+          disabled: "return options.entity.multiRowSelection",
+        },
+        setSelectedRowIndices: {
+          path: "defaultSelectedRowIndices",
+          type: "array",
+          disabled: "return !options.entity.multiRowSelection",
+        },
+        setData: {
+          path: "tableData",
+          type: "object",
         },
       },
     };

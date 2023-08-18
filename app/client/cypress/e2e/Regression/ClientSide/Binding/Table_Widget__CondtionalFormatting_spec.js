@@ -6,9 +6,7 @@ import {
 
 describe("Table Widget condtional formatting to remain consistent", function () {
   before(() => {
-    cy.fixture("tableWidgetCondnFormatDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableWidgetCondnFormatDsl");
   });
 
   it("check the cell styles before and after sorting", function () {

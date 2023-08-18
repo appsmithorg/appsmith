@@ -1,8 +1,11 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Set;
 
@@ -20,23 +23,27 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
     Set<String> invalids;
     Set<String> messages;
 
-    public DatasourceStorageDTO(DatasourceStorage datasourceStorage) {
-        this.id = datasourceStorage.getId();
-        this.datasourceId = datasourceStorage.getDatasourceId();
-        this.environmentId = datasourceStorage.getEnvironmentId();
-        this.datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
-        this.isConfigured = datasourceStorage.getIsConfigured();
-        this.invalids = datasourceStorage.getInvalids();
-        this.messages = datasourceStorage.getMessages();
+    String pluginId;
+    String workspaceId;
+
+    /**
+     * This constructor is used when we have datasource config readily available for creation of datasource.
+     * or, for updating the datasource storages.
+     * @param datasourceId
+     * @param environmentId
+     * @param datasourceConfiguration
+     */
+    public DatasourceStorageDTO(
+            String datasourceId, String environmentId, DatasourceConfiguration datasourceConfiguration) {
+        this.datasourceId = datasourceId;
+        this.environmentId = environmentId;
+        this.datasourceConfiguration = datasourceConfiguration;
+        this.isConfigured = Boolean.TRUE;
     }
 
-    public DatasourceStorageDTO(DatasourceDTO datasource, String environmentId) {
-        this.datasourceId = datasource.getId();
-        this.environmentId = environmentId;
-        this.datasourceConfiguration = datasource.getDatasourceConfiguration();
-        this.isConfigured = datasource.getIsConfigured();
-        this.invalids = datasource.getInvalids();
-        this.messages = datasource.getMessages();
+    @JsonView(Views.Public.class)
+    public boolean getIsValid() {
+        return CollectionUtils.isEmpty(invalids);
     }
 
     /**
@@ -73,24 +80,27 @@ public class DatasourceStorageDTO implements Forkable<DatasourceStorageDTO> {
         }
 
         /*
-         updating the datasource "isConfigured" field, which will be used to return if the forking is a partialImport or not
-         post forking any application, datasource reconnection modal will appear based on isConfigured property
-         Ref: getApplicationImportDTO()
-         */
+        updating the datasource "isConfigured" field, which will be used to return if the forking is a partialImport or not
+        post forking any application, datasource reconnection modal will appear based on isConfigured property
+        Ref: getApplicationImportDTO()
+        */
 
-        boolean isConfigured = forkWithConfiguration &&
-                (newDatasourceStorageDTO.getDatasourceConfiguration() != null
+        boolean isConfigured = forkWithConfiguration
+                && (newDatasourceStorageDTO.getDatasourceConfiguration() != null
                         && newDatasourceStorageDTO.getDatasourceConfiguration().getAuthentication() != null);
 
         if (initialAuth instanceof OAuth2) {
             /*
-             This is the case for OAuth2 datasources, for example Google sheets, we don't want to copy the token to the
-             new workspace as it is user's personal token. Hence, in case of forking to a new workspace the datasource
-             needs to be re-authorised.
-             */
+            This is the case for OAuth2 datasources, for example Google sheets, we don't want to copy the token to the
+            new workspace as it is user's personal token. Hence, in case of forking to a new workspace the datasource
+            needs to be re-authorised.
+            */
             newDatasourceStorageDTO.setIsConfigured(false);
             if (isConfigured) {
-                newDatasourceStorageDTO.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
+                newDatasourceStorageDTO
+                        .getDatasourceConfiguration()
+                        .getAuthentication()
+                        .setAuthenticationResponse(null);
             }
         } else {
             newDatasourceStorageDTO.setIsConfigured(isConfigured);

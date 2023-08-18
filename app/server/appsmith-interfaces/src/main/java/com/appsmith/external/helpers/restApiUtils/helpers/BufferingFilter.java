@@ -19,15 +19,10 @@ import reactor.core.publisher.Mono;
 public class BufferingFilter implements ExchangeFilterFunction {
 
     @Override
-    @NonNull
-    public Mono<ClientResponse> filter(@NonNull ClientRequest request, ExchangeFunction next) {
-        return next.exchange(
-                ClientRequest
-                        .from(request)
-                        .body((message, context) -> request
-                                .body()
-                                .insert(new BufferingRequestDecorator(message), context))
-                        .build());
+    @NonNull public Mono<ClientResponse> filter(@NonNull ClientRequest request, ExchangeFunction next) {
+        return next.exchange(ClientRequest.from(request)
+                .body((message, context) -> request.body().insert(new BufferingRequestDecorator(message), context))
+                .build());
     }
 
     private static class BufferingRequestDecorator extends ClientHttpRequestDecorator {
@@ -37,15 +32,12 @@ public class BufferingFilter implements ExchangeFilterFunction {
         }
 
         @Override
-        @NonNull
-        public Mono<Void> writeWith(@NonNull Publisher<? extends DataBuffer> body) {
-            return DataBufferUtils
-                    .join(body)
-                    .flatMap(dataBuffer -> {
-                        int length = dataBuffer.readableByteCount();
-                        this.getDelegate().getHeaders().setContentLength(length);
-                        return super.writeWith(body);
-                    });
+        @NonNull public Mono<Void> writeWith(@NonNull Publisher<? extends DataBuffer> body) {
+            return DataBufferUtils.join(body).flatMap(dataBuffer -> {
+                int length = dataBuffer.readableByteCount();
+                this.getDelegate().getHeaders().setContentLength(length);
+                return super.writeWith(body);
+            });
         }
     }
 }

@@ -1,14 +1,11 @@
 import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 import { Link } from "react-router-dom";
-import type { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -19,17 +16,20 @@ import {
   getAllUsers,
   getCurrentWorkspaceId,
 } from "@appsmith/selectors/workspaceSelectors";
-import { connect, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { updateApplication } from "@appsmith/actions/applicationActions";
+import {
+  publishApplication,
+  updateApplication,
+} from "@appsmith/actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
   getIsErroredSavingAppName,
+  getCurrentApplication,
 } from "@appsmith/selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import { getCurrentUser } from "selectors/usersSelectors";
-import type { User } from "constants/userConstants";
 import {
   EditInteractionKind,
   SavingState,
@@ -56,10 +56,9 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-
+import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
-import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import {
@@ -92,6 +91,9 @@ import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
+import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
+import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -195,23 +197,6 @@ const SidebarNavButton = styled(Button)`
   }
 `;
 
-type EditorHeaderProps = {
-  pageSaveError?: boolean;
-  pageName?: string;
-  pageId: string;
-  isPublishing: boolean;
-  publishedTime?: string;
-  workspaceId: string;
-  applicationId?: string;
-  currentApplication?: ApplicationPayload;
-  isSaving: boolean;
-  publishApplication: (appId: string) => void;
-  lastUpdatedTime?: number;
-  inOnboarding: boolean;
-  sharedUserList: WorkspaceUser[];
-  currentUser?: User;
-};
-
 const GlobalSearch = lazy(() => {
   return retryPromise(
     () =>
@@ -223,15 +208,7 @@ const GlobalSearch = lazy(() => {
 
 const theme = getTheme(ThemeMode.LIGHT);
 
-export function EditorHeader(props: EditorHeaderProps) {
-  const {
-    applicationId,
-    currentApplication,
-    isPublishing,
-    pageId,
-    publishApplication,
-    workspaceId,
-  } = props;
+export function EditorHeader() {
   const [activeTab, setActiveTab] = useState("invite");
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -241,6 +218,15 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const isPreviewMode = useSelector(previewModeSelector);
+  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const workspaceId = useSelector(getCurrentWorkspaceId);
+  const applicationId = useSelector(getCurrentApplicationId);
+  const currentApplication = useSelector(getCurrentApplication);
+  const isPublishing = useSelector(getIsPublishingApplication);
+  const pageId = useSelector(getCurrentPageId) as string;
+  const sharedUserList = useSelector(getAllUsers);
+  const currentUser = useSelector(getCurrentUser);
+
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
@@ -250,10 +236,11 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
+  const dsEnvEnabled = useSelector(datasourceEnvEnabled);
 
   const handlePublish = () => {
     if (applicationId) {
-      publishApplication(applicationId);
+      dispatch(publishApplication(applicationId));
 
       const appName = currentApplication ? currentApplication.name : "";
       const pageCount = currentApplication?.pages?.length;
@@ -304,7 +291,11 @@ export function EditorHeader(props: EditorHeaderProps) {
             : "Application name menu (top left)",
         });
       } else {
-        handlePublish();
+        if (!dsEnvEnabled || getUserPreferenceFromStorage() === "true") {
+          handlePublish();
+        } else {
+          dispatch(showEnvironmentDeployInfoModal());
+        }
       }
     },
     [dispatch, handlePublish],
@@ -330,8 +321,8 @@ export function EditorHeader(props: EditorHeaderProps) {
       dispatch(fetchUsersForWorkspace(workspaceId));
     }
   }, [workspaceId]);
-  const filteredSharedUserList = props.sharedUserList.filter(
-    (user) => user.username !== props.currentUser?.username,
+  const filteredSharedUserList = sharedUserList.filter(
+    (user) => user.username !== currentUser?.username,
   );
 
   return (
@@ -341,59 +332,68 @@ export function EditorHeader(props: EditorHeaderProps) {
         data-testid="t--appsmith-editor-header"
       >
         <HeaderSection className="space-x-2">
-          <Tooltip
-            content={
-              <div className="flex items-center justify-between">
-                <span>
-                  {!pinned
-                    ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
-                    : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
-                </span>
-                <span className="ml-4">{modText()} /</span>
-              </div>
-            }
-            placement="bottomLeft"
-          >
-            <SidebarNavButton
-              className={classNames({
-                "transition-all transform duration-400": true,
-                "-translate-x-full opacity-0": isPreviewingApp,
-                "translate-x-0 opacity-100": !isPreviewingApp,
-              })}
-              kind="tertiary"
-              onClick={onPin}
-              size="md"
+          {!signpostingEnabled && (
+            <Tooltip
+              content={
+                <div className="flex items-center justify-between">
+                  <span>
+                    {!pinned
+                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
+                      : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
+                  </span>
+                  <span className="ml-4">{modText()} /</span>
+                </div>
+              }
+              placement="bottomLeft"
             >
-              <div
-                className="t--pin-entity-explorer group relative"
-                onMouseEnter={onMenuHover}
+              <SidebarNavButton
+                className={classNames({
+                  "transition-all transform duration-400": true,
+                  "-translate-x-full opacity-0": isPreviewingApp,
+                  "translate-x-0 opacity-100": !isPreviewingApp,
+                })}
+                data-testid="sidebar-nav-button"
+                kind="tertiary"
+                onClick={onPin}
+                size="md"
               >
-                <Icon
-                  className="absolute transition-opacity group-hover:opacity-0"
-                  name="hamburger"
-                  size="md"
-                />
-                {pinned && (
+                <div
+                  className="t--pin-entity-explorer group relative"
+                  onMouseEnter={onMenuHover}
+                >
                   <Icon
-                    className="absolute transition-opacity opacity-0 group-hover:opacity-100"
-                    name="menu-fold"
-                    onClick={onPin}
+                    className="absolute transition-opacity group-hover:opacity-0"
+                    name="hamburger"
                     size="md"
                   />
-                )}
-                {!pinned && (
-                  <Icon
-                    className="absolute transition-opacity opacity-0 group-hover:opacity-100"
-                    name="menu-unfold"
-                    onClick={onPin}
-                    size="md"
-                  />
-                )}
-              </div>
-            </SidebarNavButton>
-          </Tooltip>
+                  {pinned && (
+                    <Icon
+                      className="absolute transition-opacity opacity-0 group-hover:opacity-100"
+                      name="menu-fold"
+                      onClick={onPin}
+                      size="md"
+                    />
+                  )}
+                  {!pinned && (
+                    <Icon
+                      className="absolute transition-opacity opacity-0 group-hover:opacity-100"
+                      name="menu-unfold"
+                      onClick={onPin}
+                      size="md"
+                    />
+                  )}
+                </div>
+              </SidebarNavButton>
+            </Tooltip>
+          )}
+
           <Tooltip content={createMessage(LOGO_TOOLTIP)} placement="bottomLeft">
-            <AppsmithLink to={APPLICATIONS_URL}>
+            <AppsmithLink
+              className={classNames({
+                "ml-2": signpostingEnabled,
+              })}
+              to={APPLICATIONS_URL}
+            >
               <img
                 alt="Appsmith logo"
                 className="t--appsmith-logo"
@@ -549,30 +549,4 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 }
 
-const mapStateToProps = (state: AppState) => ({
-  pageName: state.ui.editor.currentPageName,
-  workspaceId: getCurrentWorkspaceId(state),
-  applicationId: getCurrentApplicationId(state),
-  currentApplication: state.ui.applications.currentApplication,
-  isPublishing: getIsPublishingApplication(state),
-  pageId: getCurrentPageId(state) as string,
-  sharedUserList: getAllUsers(state),
-  currentUser: getCurrentUser(state),
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  publishApplication: (applicationId: string) => {
-    dispatch({
-      type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
-      payload: {
-        applicationId,
-      },
-    });
-  },
-});
-
-EditorHeader.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditorHeader);
+export default EditorHeader;

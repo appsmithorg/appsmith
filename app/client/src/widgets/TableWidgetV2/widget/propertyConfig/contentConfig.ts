@@ -30,6 +30,9 @@ export default [
         propertyName: "tableData",
         label: "Table data",
         controlType: "ONE_CLICK_BINDING_CONTROL",
+        controlConfig: {
+          searchableColumn: true,
+        },
         placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",
         isBindProperty: true,
@@ -47,6 +50,11 @@ export default [
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        shouldSwitchToNormalMode: (
+          isDynamic: boolean,
+          isToggleDisabled: boolean,
+          triggerFlag?: boolean,
+        ) => triggerFlag && isDynamic && !isToggleDisabled,
       },
       {
         helpText: "Columns",

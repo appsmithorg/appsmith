@@ -6,6 +6,7 @@ import ServerTimeout from "pages/common/ErrorPages/ServerTimeout";
 import ServerUnavailable from "pages/common/ErrorPages/ServerUnavailable";
 import ClientError from "pages/common/ErrorPages/ClientError";
 import GenericError from "./ErrorPages/GenericError";
+import StackTrace from "./ErrorPages/StackTrace";
 
 interface ErrorPageProps {
   code: ERROR_CODES;
@@ -23,6 +24,8 @@ function ErrorPage(props: ErrorPageProps) {
       return <ServerTimeout />;
     case ERROR_CODES.FAILED_TO_CORRECT_BINDING:
       return <ClientError />;
+    case ERROR_CODES.CYPRESS_DEBUG:
+      return <StackTrace />;
     default:
       return <GenericError errorCode={code} />;
   }

@@ -4,14 +4,11 @@ import com.amazonaws.AmazonServiceException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.AppsmithPluginErrorUtils;
 
-
-
 public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils {
 
     private static AmazonS3ErrorUtils amazonS3ErrorUtils;
 
-
-    private AmazonS3ErrorUtils () throws InstantiationException {
+    private AmazonS3ErrorUtils() throws InstantiationException {
         /**
          * Prevention of creating any other new object by using constructor
          */
@@ -31,7 +28,7 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils {
     public static AmazonS3ErrorUtils getInstance() throws InstantiationException {
         if (amazonS3ErrorUtils == null) {
             synchronized (AmazonS3ErrorUtils.class) {
-                if (amazonS3ErrorUtils == null){
+                if (amazonS3ErrorUtils == null) {
                     amazonS3ErrorUtils = new AmazonS3ErrorUtils();
                 }
             }
@@ -53,8 +50,7 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils {
                 return error.getMessage();
             }
             externalError = ((AppsmithPluginException) error).getExternalError();
-        }
-        else {
+        } else {
             externalError = error;
         }
 
@@ -69,7 +65,6 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils {
              * InvalidAccessPoint
              * Return string: InvalidAccessPoint: The specified access point name or account is not valid.
              */
-
             return amazonServiceException.getErrorCode() + ": " + amazonServiceException.getErrorMessage();
         }
 
@@ -80,8 +75,6 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils {
          * Return String
          * An unescaped quote was found while parsing the CSV file. To allow quoted record delimiters, set AllowQuotedRecordDelimiter to 'TRUE'.
          **/
-
         return error.getMessage();
     }
 }
-

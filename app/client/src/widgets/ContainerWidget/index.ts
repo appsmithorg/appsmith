@@ -1,7 +1,11 @@
 import { ButtonBoxShadowTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  WIDGET_TAGS,
+  WidgetHeightLimits,
+} from "constants/WidgetConstants";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
@@ -15,6 +19,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Container",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.LAYOUT],
   isCanvas: true,
   features: {
     dynamicHeight: {
@@ -89,6 +94,7 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    setterConfig: Widget.getSetterConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
 };

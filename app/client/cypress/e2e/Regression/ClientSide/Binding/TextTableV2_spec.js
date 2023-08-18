@@ -15,9 +15,7 @@ describe("Text-Table v2 Binding Functionality", function () {
   });
 
   before(() => {
-    cy.fixture("TextTableV2dsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("TextTableV2dsl");
   });
   afterEach(() => {
     deployMode.NavigateBacktoEditor();

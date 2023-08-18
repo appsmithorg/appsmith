@@ -2,9 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("lazy widget component render", () => {
   before(() => {
-    cy.fixture("lazyRender").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("lazyRender");
   });
 
   it("1. Should check below the fold widgets are getting rendered", () => {

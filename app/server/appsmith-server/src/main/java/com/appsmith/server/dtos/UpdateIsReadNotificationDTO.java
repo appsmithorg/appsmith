@@ -9,6 +9,5 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 public class UpdateIsReadNotificationDTO {
-    @NotNull
-    private Boolean isRead;
+    @NotNull private Boolean isRead;
 }

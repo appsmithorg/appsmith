@@ -17,21 +17,30 @@ import reactor.core.scheduler.Scheduler;
 @Service
 public class PluginServiceImpl extends PluginServiceCEImpl implements PluginService {
 
-    public PluginServiceImpl(Scheduler scheduler,
-                             Validator validator,
-                             MongoConverter mongoConverter,
-                             ReactiveMongoTemplate reactiveMongoTemplate,
-                             PluginRepository repository,
-                             AnalyticsService analyticsService,
-                             WorkspaceService workspaceService,
-                             PluginManager pluginManager,
-                             ReactiveRedisTemplate<String,
-                                     String> reactiveTemplate,
-                             ChannelTopic topic,
-                             ObjectMapper objectMapper) {
+    public PluginServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            PluginRepository repository,
+            AnalyticsService analyticsService,
+            WorkspaceService workspaceService,
+            PluginManager pluginManager,
+            ReactiveRedisTemplate<String, String> reactiveTemplate,
+            ChannelTopic topic,
+            ObjectMapper objectMapper) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                workspaceService, pluginManager, reactiveTemplate, topic, objectMapper);
-
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                workspaceService,
+                pluginManager,
+                reactiveTemplate,
+                topic,
+                objectMapper);
     }
 }

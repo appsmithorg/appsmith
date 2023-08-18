@@ -9,10 +9,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class MockDataServiceImpl extends MockDataServiceCEImpl implements MockDataService {
 
-    public MockDataServiceImpl(CloudServicesConfig cloudServicesConfig,
-                               DatasourceService datasourceService,
-                               AnalyticsService analyticsService,
-                               SessionUserService sessionUserService) {
+    public MockDataServiceImpl(
+            CloudServicesConfig cloudServicesConfig,
+            DatasourceService datasourceService,
+            AnalyticsService analyticsService,
+            SessionUserService sessionUserService) {
 
         super(cloudServicesConfig, datasourceService, analyticsService, sessionUserService);
     }

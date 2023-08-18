@@ -62,9 +62,9 @@ const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
   dataTree: DataTree,
-  evaluationOrder: Array<string>,
+  evalAndValidationOrder: Array<string>,
   configTree: ConfigTree,
-  pathsToClearErrorsFor?: any[],
+  removedPaths?: Array<{ entityId: string; fullpath: string }>,
 ) {
   const errorsToAdd = [];
   const errorsToDelete = [];
@@ -72,7 +72,7 @@ function logLatestEvalPropertyErrors(
     ...currentDebuggerErrors,
   };
 
-  for (const evaluatedPath of evaluationOrder) {
+  for (const evaluatedPath of evalAndValidationOrder) {
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(evaluatedPath);
     const entity = dataTree[entityName];
@@ -200,15 +200,11 @@ function logLatestEvalPropertyErrors(
   for those paths.
   */
 
-  if (pathsToClearErrorsFor) {
-    for (const error of pathsToClearErrorsFor) {
-      const widgetId = error.widgetId;
-
-      error.paths.forEach((path: string) => {
-        const { propertyPath } = getEntityNameAndPropertyPath(path);
-
-        errorsToDelete.push({ id: `${widgetId}-${propertyPath}` });
-      });
+  if (removedPaths?.length) {
+    for (const removedPath of removedPaths) {
+      const { entityId, fullpath } = removedPath;
+      const { propertyPath } = getEntityNameAndPropertyPath(fullpath);
+      errorsToDelete.push({ id: `${entityId}-${propertyPath}` });
     }
   }
 
@@ -221,20 +217,26 @@ export function* evalErrorHandler(
   errors: EvalError[],
   dataTree?: DataTree,
   evaluationOrder?: Array<string>,
+  reValidatedPaths?: Array<string>,
   configTree?: ConfigTree,
-  pathsToClearErrorsFor?: any[],
-): any {
-  if (dataTree && evaluationOrder && configTree) {
+  removedPaths?: Array<{ entityId: string; fullpath: string }>,
+) {
+  if (dataTree && evaluationOrder && configTree && reValidatedPaths) {
     const currentDebuggerErrors: Record<string, Log> = yield select(
       getDebuggerErrors,
     );
+
+    const evalAndValidationOrder = new Set([
+      ...reValidatedPaths,
+      ...evaluationOrder,
+    ]);
     // Update latest errors to the debugger
     logLatestEvalPropertyErrors(
       currentDebuggerErrors,
       dataTree,
-      evaluationOrder,
+      [...evalAndValidationOrder],
       configTree,
-      pathsToClearErrorsFor,
+      removedPaths,
     );
   }
 
@@ -548,7 +550,7 @@ export function* handleJSFunctionExecutionErrorLog(
               id: action.collectionId ? action.collectionId : action.id,
               name: `${collectionName}.${action.name}`,
               type: ENTITY_TYPE.JSACTION,
-              propertyPath: `${collectionName}.${action.name}`,
+              propertyPath: `${action.name}`,
             },
           },
         },

@@ -255,7 +255,7 @@ export type EntityProps = {
 export const Entity = forwardRef(
   (props: EntityProps, ref: React.Ref<HTMLDivElement>) => {
     const isEntityOpen = useSelector((state: AppState) =>
-      getEntityCollapsibleState(state, props.name),
+      getEntityCollapsibleState(state, props.entityId),
     );
     const isDefaultExpanded = useMemo(() => !!props.isDefaultExpanded, []);
     const { canEditEntityName = false, showAddButton = false } = props;
@@ -270,7 +270,7 @@ export const Entity = forwardRef(
 
     const open = (shouldOpen: boolean | undefined) => {
       if (!!props.children && props.name && isOpen !== shouldOpen) {
-        dispatch(setEntityCollapsibleState(props.name, !!shouldOpen));
+        dispatch(setEntityCollapsibleState(props.entityId, !!shouldOpen));
       }
     };
 

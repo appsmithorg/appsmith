@@ -44,13 +44,15 @@ public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserServ
 
         String username = oAuth2User.getName();
 
-        return repository.findByEmail(username)
+        return repository
+                .findByEmail(username)
                 .switchIfEmpty(repository.findByCaseInsensitiveEmail(username))
                 .switchIfEmpty(Mono.defer(() -> {
                     User newUser = new User();
                     newUser.setName(oAuth2User.getName());
                     newUser.setEmail(username);
-                    LoginSource loginSource = LoginSource.fromString(userRequest.getClientRegistration().getRegistrationId());
+                    LoginSource loginSource = LoginSource.fromString(
+                            userRequest.getClientRegistration().getRegistrationId());
                     newUser.setSource(loginSource);
                     newUser.setState(UserState.ACTIVATED);
                     newUser.setIsEnabled(true);

@@ -1,17 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.appsmith</groupId>
         <artifactId>integrated</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>appsmith-plugins</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+    <modules>
+        <module>oraclePlugin</module>
+        <module>postgresPlugin</module>
+        <module>restApiPlugin</module>
+        <module>mongoPlugin</module>
+        <module>mysqlPlugin</module>
+        <module>elasticSearchPlugin</module>
+        <module>dynamoPlugin</module>
+        <module>redisPlugin</module>
+        <module>mssqlPlugin</module>
+        <module>firestorePlugin</module>
+        <module>redshiftPlugin</module>
+        <module>amazons3Plugin</module>
+        <module>googleSheetsPlugin</module>
+        <module>graphqlPlugin</module>
+        <module>snowflakePlugin</module>
+        <module>arangoDBPlugin</module>
+        <module>jsPlugin</module>
+        <module>saasPlugin</module>
+        <module>smtpPlugin</module>
+    </modules>
 
     <properties>
         <jjwt.version>0.11.5</jjwt.version>
@@ -22,13 +42,13 @@
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j-spring</artifactId>
             <version>0.8.0</version>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-reload4j</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.appsmith</groupId>
@@ -108,32 +128,11 @@
             <scope>test</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>junit</artifactId>
                     <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
 
     </dependencies>
-    <modules>
-        <module>oraclePlugin</module>
-        <module>postgresPlugin</module>
-        <module>restApiPlugin</module>
-        <module>mongoPlugin</module>
-        <module>mysqlPlugin</module>
-        <module>elasticSearchPlugin</module>
-        <module>dynamoPlugin</module>
-        <module>redisPlugin</module>
-        <module>mssqlPlugin</module>
-        <module>firestorePlugin</module>
-        <module>redshiftPlugin</module>
-        <module>amazons3Plugin</module>
-        <module>googleSheetsPlugin</module>
-        <module>graphqlPlugin</module>
-        <module>snowflakePlugin</module>
-        <module>arangoDBPlugin</module>
-        <module>jsPlugin</module>
-        <module>saasPlugin</module>
-        <module>smtpPlugin</module>
-    </modules>
 </project>

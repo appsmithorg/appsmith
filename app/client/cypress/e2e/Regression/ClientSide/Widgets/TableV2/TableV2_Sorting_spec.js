@@ -3,9 +3,7 @@ const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Table Widget V2 Sorting", function () {
   before(() => {
-    cy.fixture("tableV2NewDslWithPagination").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableV2NewDslWithPagination");
   });
 
   it("verifies that table sorting works for a custom column with computed value even when it is renamed", function () {

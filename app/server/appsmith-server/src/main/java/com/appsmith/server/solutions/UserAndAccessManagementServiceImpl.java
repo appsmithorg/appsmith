@@ -13,18 +13,27 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCEImpl implements UserAndAccessManagementService {
+public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCEImpl
+        implements UserAndAccessManagementService {
 
-    public UserAndAccessManagementServiceImpl(SessionUserService sessionUserService,
-                                              PermissionGroupService permissionGroupService,
-                                              WorkspaceService workspaceService,
-                                              UserRepository userRepository,
-                                              AnalyticsService analyticsService,
-                                              UserService userService,
-                                              EmailSender emailSender,
-                                              PermissionGroupPermission permissionGroupPermission) {
+    public UserAndAccessManagementServiceImpl(
+            SessionUserService sessionUserService,
+            PermissionGroupService permissionGroupService,
+            WorkspaceService workspaceService,
+            UserRepository userRepository,
+            AnalyticsService analyticsService,
+            UserService userService,
+            EmailSender emailSender,
+            PermissionGroupPermission permissionGroupPermission) {
 
-        super(sessionUserService, permissionGroupService, workspaceService, userRepository, analyticsService, userService, emailSender,
+        super(
+                sessionUserService,
+                permissionGroupService,
+                workspaceService,
+                userRepository,
+                analyticsService,
+                userService,
+                emailSender,
                 permissionGroupPermission);
     }
 }

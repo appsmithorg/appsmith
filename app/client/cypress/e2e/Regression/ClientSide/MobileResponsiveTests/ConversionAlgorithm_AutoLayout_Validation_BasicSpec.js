@@ -5,9 +5,7 @@ let testHeight;
 
 describe("Auto conversion algorithm usecases for auto-layout", function () {
   it("1. Validate basic conversion algorithm usecases", function () {
-    cy.fixture("conversionFrAutoLayoutDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("conversionFrAutoLayoutDsl");
     //cy.openPropertyPane("containerwidget");
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
@@ -226,7 +224,7 @@ describe("Auto conversion algorithm usecases for auto-layout", function () {
 
       //Logic to add widgets without overlapping each other on the canvas
       if (index % 2 === 0) {
-        x += 400;
+        x += 300;
       } else {
         x = 300;
         y += 400;

@@ -14,6 +14,7 @@ import { Center } from "pages/setup/common";
 import { Spinner } from "design-system";
 import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
 import { redirectUserAfterSignup } from "@appsmith/utils/signupHelpers";
+import { setUserSignedUpFlag } from "utils/storage";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -23,8 +24,11 @@ export function SignupSuccess() {
     "enableFirstTimeUserExperience",
   );
   const validLicense = useSelector(isValidLicense);
+  const user = useSelector(getCurrentUser);
+
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
+    user?.email && setUserSignedUpFlag(user?.email);
   }, []);
 
   const redirectUsingQueryParam = useCallback(
@@ -49,7 +53,6 @@ export function SignupSuccess() {
     redirectUsingQueryParam();
   }, []);
 
-  const user = useSelector(getCurrentUser);
   const { cloudHosting } = getAppsmithConfigs();
   const isCypressEnv = !!(window as any).Cypress;
 

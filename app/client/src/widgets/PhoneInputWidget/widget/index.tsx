@@ -26,7 +26,7 @@ import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -364,6 +364,21 @@ class PhoneInputWidget extends BaseInputWidget<
     super.resetWidgetText();
     this.props.updateWidgetMetaProperty("value", undefined);
   };
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
+  }
 
   getPageView() {
     const value = this.props.text ?? "";

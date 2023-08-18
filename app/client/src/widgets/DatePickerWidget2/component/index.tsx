@@ -5,7 +5,7 @@ import type { IRef, Alignment } from "@blueprintjs/core";
 import { ControlGroup, Classes } from "@blueprintjs/core";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
-import moment from "moment-timezone";
+import moment from "moment";
 import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import type { DatePickerType } from "../constants";
 import { TimePrecision } from "../constants";

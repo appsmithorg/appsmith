@@ -6,9 +6,7 @@ import {
 
 describe("Statbox Widget Functionality", function () {
   before(() => {
-    cy.fixture("dynamicHeightStatboxdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("dynamicHeightStatboxdsl");
   });
 
   it("1. Verify Statbox can be placed inside another widget", () => {

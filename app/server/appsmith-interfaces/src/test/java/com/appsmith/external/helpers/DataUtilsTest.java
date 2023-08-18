@@ -47,7 +47,6 @@ public class DataUtilsTest {
 
     private Map<String, Object> hints;
 
-
     @BeforeEach
     public void createContext() {
         final List<HttpMessageWriter<?>> messageWriters = new ArrayList<>();
@@ -122,18 +121,16 @@ public class DataUtilsTest {
                     dataBuffer.read(resultBytes);
                     DataBufferUtils.release(dataBuffer);
                     String content = new String(resultBytes, StandardCharsets.UTF_8);
-                    assertTrue(content.contains(
-                            "Content-Disposition: form-data; name=\"nullType\"\r\n" +
-                                    "Content-Type: text/plain;charset=UTF-8\r\n" +
-                                    "Content-Length: 8\r\n" +
-                                    "\r\n" +
-                                    "textData"));
+                    assertTrue(content.contains("Content-Disposition: form-data; name=\"nullType\"\r\n"
+                            + "Content-Type: text/plain;charset=UTF-8\r\n"
+                            + "Content-Length: 8\r\n"
+                            + "\r\n"
+                            + "textData"));
                     assertTrue(content.contains("Content-Type: text/plain"));
                     assertTrue(content.contains(
-                            "Content-Disposition: form-data; name=\"textType\"\r\n" +
-                                    "Content-Length: 8\r\n" +
-                                    "\r\n" +
-                                    "textData"));
+                            "Content-Disposition: form-data; name=\"textType\"\r\n" + "Content-Length: 8\r\n"
+                                    + "\r\n"
+                                    + "textData"));
                 })
                 .expectComplete()
                 .verify();
@@ -142,7 +139,8 @@ public class DataUtilsTest {
     @Test
     public void testParseMultipartFileData_withValidFileList_returnsExpectedBody() {
         List<Property> properties = new ArrayList<>();
-        final Property p1 = new Property("fileType", "{\"name\": \"test.json\", \"type\": \"application/json\", \"data\" : {}}");
+        final Property p1 =
+                new Property("fileType", "{\"name\": \"test.json\", \"type\": \"application/json\", \"data\" : {}}");
         p1.setType("file");
         properties.add(p1);
 
@@ -159,10 +157,10 @@ public class DataUtilsTest {
                     DataBufferUtils.release(dataBuffer);
                     String content = new String(resultBytes, StandardCharsets.UTF_8);
                     assertTrue(content.contains(
-                            "Content-Disposition: form-data; name=\"fileType\"; filename=\"test.json\"\r\n" +
-                                    "Content-Type: application/json\r\n" +
-                                    "\r\n" +
-                                    "{}"));
+                            "Content-Disposition: form-data; name=\"fileType\"; filename=\"test.json\"\r\n"
+                                    + "Content-Type: application/json\r\n"
+                                    + "\r\n"
+                                    + "{}"));
                 })
                 .expectComplete()
                 .verify();
@@ -171,7 +169,9 @@ public class DataUtilsTest {
     @Test
     public void testParseMultipartFileData_withValidMultipleFileList_returnsExpectedBody() {
         List<Property> properties = new ArrayList<>();
-        final Property p1 = new Property("fileType", "[{\"name\": \"test1.json\", \"type\": \"application/json\", \"data\" : {}}, {\"name\": \"test2.json\", \"type\": \"application/json\", \"data\" : {}}]");
+        final Property p1 = new Property(
+                "fileType",
+                "[{\"name\": \"test1.json\", \"type\": \"application/json\", \"data\" : {}}, {\"name\": \"test2.json\", \"type\": \"application/json\", \"data\" : {}}]");
         p1.setType("file");
         properties.add(p1);
 
@@ -188,25 +188,25 @@ public class DataUtilsTest {
                     DataBufferUtils.release(dataBuffer);
                     String content = new String(resultBytes, StandardCharsets.UTF_8);
                     assertTrue(content.contains(
-                            "Content-Disposition: form-data; name=\"fileType\"; filename=\"test1.json\"\r\n" +
-                                    "Content-Type: application/json\r\n" +
-                                    "\r\n" +
-                                    "{}"));
+                            "Content-Disposition: form-data; name=\"fileType\"; filename=\"test1.json\"\r\n"
+                                    + "Content-Type: application/json\r\n"
+                                    + "\r\n"
+                                    + "{}"));
 
                     assertTrue(content.contains(
-                            "Content-Disposition: form-data; name=\"fileType\"; filename=\"test2.json\"\r\n" +
-                                    "Content-Type: application/json\r\n" +
-                                    "\r\n" +
-                                    "{}"));
+                            "Content-Disposition: form-data; name=\"fileType\"; filename=\"test2.json\"\r\n"
+                                    + "Content-Type: application/json\r\n"
+                                    + "\r\n"
+                                    + "{}"));
                 })
                 .expectComplete()
                 .verify();
     }
 
     @Test
-    public void testParseFormData_withEncodingParamsToggleTrue_returnsEncodedString() throws UnsupportedEncodingException {
-        final String encoded_value = dataUtils.parseFormData(List.of(new Property("key", "valüe")),
-                true);
+    public void testParseFormData_withEncodingParamsToggleTrue_returnsEncodedString()
+            throws UnsupportedEncodingException {
+        final String encoded_value = dataUtils.parseFormData(List.of(new Property("key", "valüe")), true);
         String expected_value = null;
         try {
             expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
@@ -217,9 +217,9 @@ public class DataUtilsTest {
     }
 
     @Test
-    public void testParseFormData_withoutEncodingParamsToggleTrue_returnsEncodedString() throws UnsupportedEncodingException {
-        final String encoded_value = dataUtils.parseFormData(List.of(new Property("key", "valüe")),
-                false);
+    public void testParseFormData_withoutEncodingParamsToggleTrue_returnsEncodedString()
+            throws UnsupportedEncodingException {
+        final String encoded_value = dataUtils.parseFormData(List.of(new Property("key", "valüe")), false);
         String expected_value;
         try {
             expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
@@ -231,8 +231,8 @@ public class DataUtilsTest {
 
     @Test
     public void testParseFormData_withNullKeys_skipsNullProperty() {
-        final String encoded_value = dataUtils.parseFormData(List.of(new Property(null, "v1"), new Property("k2", "v2")),
-                false);
+        final String encoded_value =
+                dataUtils.parseFormData(List.of(new Property(null, "v1"), new Property("k2", "v2")), false);
         assertEquals("k2=v2", encoded_value);
     }
 
@@ -289,25 +289,24 @@ public class DataUtilsTest {
                     dataBuffer.read(resultBytes);
                     DataBufferUtils.release(dataBuffer);
                     String content = new String(resultBytes, StandardCharsets.UTF_8);
-                    Assertions.assertThat(content).containsSubsequence(
-                            "Content-Disposition: form-data; name=\"arrayOne\"",
-                            "1",
-                            "Content-Disposition: form-data; name=\"arrayOne\"",
-                            "2",
-                            "Content-Disposition: form-data; name=\"arrayOne\"",
-                            "3",
-                            "Content-Disposition: form-data; name=\"listOne\"",
-                            "four",
-                            "Content-Disposition: form-data; name=\"listOne\"",
-                            "five",
-                            "Content-Disposition: form-data; name=\"listTwo\"",
-                            "6",
-                            "Content-Disposition: form-data; name=\"listTwo\"",
-                            "7"
-                    );
+                    Assertions.assertThat(content)
+                            .containsSubsequence(
+                                    "Content-Disposition: form-data; name=\"arrayOne\"",
+                                    "1",
+                                    "Content-Disposition: form-data; name=\"arrayOne\"",
+                                    "2",
+                                    "Content-Disposition: form-data; name=\"arrayOne\"",
+                                    "3",
+                                    "Content-Disposition: form-data; name=\"listOne\"",
+                                    "four",
+                                    "Content-Disposition: form-data; name=\"listOne\"",
+                                    "five",
+                                    "Content-Disposition: form-data; name=\"listTwo\"",
+                                    "6",
+                                    "Content-Disposition: form-data; name=\"listTwo\"",
+                                    "7");
                 })
                 .expectComplete()
                 .verify();
     }
-
 }

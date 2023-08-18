@@ -23,9 +23,11 @@ describe("Modal focus", function () {
 
     cy.wait(500);
     //drag input field into modal
-    cy.get(".t--widget-card-draggable-inputwidgetv2").trigger("dragstart", {
-      force: true,
-    });
+    cy.get(".t--widget-card-draggable-inputwidgetv2")
+      .first()
+      .trigger("dragstart", {
+        force: true,
+      });
 
     cy.get(widgets.modalWidget)
       .scrollIntoView()
@@ -40,9 +42,7 @@ describe("Modal focus", function () {
 
   before(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.fixture("ModalDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("ModalDsl");
   });
 
   it("1. Should focus on the input field when autofocus for the input field is enabled", () => {

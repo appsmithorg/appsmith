@@ -3,9 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Widget Grouping", function () {
   before(() => {
-    cy.fixture("widgetSelection").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("widgetSelection");
   });
 
   it("Select widgets using cmd + click and group using cmd + G", function () {

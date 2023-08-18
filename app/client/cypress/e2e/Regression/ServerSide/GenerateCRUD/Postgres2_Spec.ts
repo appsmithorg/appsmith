@@ -12,14 +12,14 @@ import {
 let dsName: any, newCallsign: any;
 
 describe("Validate Postgres Generate CRUD with JSON Form", () => {
-  it("1. Create DS for generate CRUD template test", () => {
+  before("Create DS for generate CRUD template test", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
   });
 
-  it("2. Create new CRUD Table 'Vessels' and populate & refresh Entity Explorer to find the new table", () => {
+  it("1. Create new CRUD Table 'Vessels' and populate & refresh Entity Explorer to find the new table", () => {
     const tableCreateQuery = `CREATE TABLE Vessels(
       SHIP_ID                  INTEGER  NOT NULL PRIMARY KEY
      ,CALLSIGN                 VARCHAR(7)
@@ -68,27 +68,23 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
     });
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       entityExplorer._entityNameInExplorer("public.vessels"),
     );
   });
 
-  it("3. Validate Select record from Postgress datasource & verify query response", () => {
+  it("2. Validate Select record from Postgress datasource & verify query response", () => {
     entityExplorer.ActionTemplateMenuByEntityName("public.vessels", "SELECT");
     dataSources.RunQueryNVerifyResponseViews(10);
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("371681");
-    });
-    dataSources.ReadQueryTableResponse(6).then(($cellData) => {
-      expect($cellData).to.eq("Passenger");
-    });
+    dataSources.AssertQueryTableResponse(0, "371681");
+    dataSources.AssertQueryTableResponse(6, "Passenger");
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
     });
   });
 
-  it("4. Verify Generate CRUD for the new table & Verify Deploy mode for table - Vessels", () => {
+  it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Vessels", () => {
     dataSources.NavigateFromActiveDS(dsName, false);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "vessels");
@@ -99,7 +95,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
@@ -153,7 +149,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     // assertHelper.AssertNetworkStatus("@deletePage" , 200);
   });
 
-  it("5. Update the UpdateQuery to update all columns from UI", () => {
+  it("4. Update the UpdateQuery to update all columns from UI", () => {
     const updateQuery = `UPDATE public."vessels" SET
 		"callsign" = UPPER('{{update_form.fieldState.callsign.isVisible ? update_form.formData.callsign : update_form.sourceData.callsign}}'),
 		"shipname" = '{{update_form.fieldState.shipname.isVisible ? update_form.formData.shipname : update_form.sourceData.shipname}}',
@@ -180,14 +176,14 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     UpdatingVesselsJSONPropertyFileds();
   });
 
-  it("6. Verify Update data from Deploy page - on Vessels - existing record", () => {
+  it("5. Verify Update data from Deploy page - on Vessels - existing record", () => {
     deployMode.DeployApp();
     agHelper.Sleep(2000);
     table.SelectTableRow(0, 0, false); //to make JSON form hidden
     agHelper.Sleep(2000); //Sleep time for tab to disappear!
     agHelper.AssertElementAbsence(locators._jsonFormWidget);
     table.SelectTableRow(5);
-    agHelper.AssertElementVisible(locators._jsonFormWidget);
+    agHelper.AssertElementVisibility(locators._jsonFormWidget);
     dataSources.AssertJSONFormHeader(5, 0, "ship_id");
     generateCallsignInfo(5);
     cy.get("@Callsign").then(($callSign) => {
@@ -198,7 +194,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     //Checking Required field validations
     deployMode.ClearJSONFieldValue("Shipname");
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._visibleTextDiv("This field is required"),
     );
     cy.xpath(locators._spanButton("Update") + "/parent::div").should(
@@ -219,7 +215,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     deployMode.ClearJSONFieldValue("Timezone");
     deployMode.EnterJSONInputValue("Timezone", "-15");
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._visibleTextDiv("Not a valid timezone!"),
     );
     deployMode.ClearJSONFieldValue("Timezone");
@@ -250,7 +246,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.EnterJSONInputValue("Current Port", "BAYONNE");
   });
 
-  it("7. Verify Update data from Deploy page - on Vessels - existing record", () => {
+  it("6. Verify Update data from Deploy page - on Vessels - existing record", () => {
     UpdateNVerify(5, 2, "DISNEY DREAM");
     table.ReadTableRowColumnData(5, 3, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("France");
@@ -290,7 +286,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
   });
 
-  it("8. Verify Delete field data from Deploy page - on Vessels - existing record", () => {
+  it("7. Verify Delete field data from Deploy page - on Vessels - existing record", () => {
     table.SelectTableRow(8);
     dataSources.AssertJSONFormHeader(8, 0, "ship_id");
 
@@ -336,12 +332,12 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     UpdateNVerify(8, 3, "");
   });
 
-  it("9. Verify Delete row from Deploy page - on Vessels - existing record", () => {
+  it("8. Verify Delete row from Deploy page - on Vessels - existing record", () => {
     table.SelectTableRow(1);
     dataSources.AssertJSONFormHeader(1, 0, "ship_id");
     agHelper.ClickButton("Delete", 1);
-    agHelper.AssertElementVisible(locators._modal);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.AssertElementVisibility(
       dataSources._visibleTextSpan(
         "Are you sure you want to delete this item?",
       ),
@@ -349,8 +345,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Cancel");
     dataSources.AssertJSONFormHeader(1, 0, "ship_id");
     agHelper.ClickButton("Delete", 1);
-    agHelper.AssertElementVisible(locators._modal);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.AssertElementVisibility(
       dataSources._visibleTextSpan(
         "Are you sure you want to delete this item?",
       ),
@@ -363,7 +359,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.AssertJSONFormHeader(0, 0, "ship_id");
   });
 
-  it("10. Verify Refresh table from Deploy page - on Vessels & verify all updates persists", () => {
+  it("9. Verify Refresh table from Deploy page - on Vessels & verify all updates persists", () => {
     agHelper.GetNClick(dataSources._refreshIcon);
 
     //Store Address deletion remains
@@ -390,7 +386,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     table.WaitUntilTableLoad();
   });
 
-  it("11. Update the InsertQuery to insert all columns from UI", () => {
+  it("10. Update the InsertQuery to insert all columns from UI", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     const insertQuery = `INSERT INTO public."vessels" (
@@ -435,7 +431,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
 
-  it("12. Update JSON fields with placeholds for Addition - on Vessels", () => {
+  it("11. Update JSON fields with placeholds for Addition - on Vessels", () => {
     entityExplorer.ExpandCollapseEntity("Widgets");
     entityExplorer.ExpandCollapseEntity("Insert_Modal");
     entityExplorer.SelectEntityByName("insert_form");
@@ -448,14 +444,14 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     UpdatingVesselsJSONPropertyFileds();
   });
 
-  it("13. Verify Add/Insert from Deploy page - on Vessels - new record - few validations", () => {
+  it("12. Verify Add/Insert from Deploy page - on Vessels - new record - few validations", () => {
     deployMode.DeployApp();
     table.AssertSelectedRow(0);
 
     agHelper.GetNClick(dataSources._addIcon);
     agHelper.Sleep();
-    //agHelper.AssertElementVisible(locators._jsonFormWidget, 1); //Insert Modal
-    agHelper.AssertElementVisible(locators._visibleTextDiv("Insert Row"));
+    //agHelper.AssertElementVisibility(locators._jsonFormWidget, 1); //Insert Modal
+    agHelper.AssertElementVisibility(locators._visibleTextDiv("Insert Row"));
 
     //Checking Required field validations
     deployMode.ClearJSONFieldValue("Shipname", 0);
@@ -478,7 +474,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.EnterJSONInputValue("Ship Id", "159196");
   });
 
-  it("14. Verify Add/Insert from Deploy page - on Vessels - new record", () => {
+  it("13. Verify Add/Insert from Deploy page - on Vessels - new record", () => {
     deployMode.ClearJSONFieldValue("Callsign", 0);
     deployMode.EnterJSONInputValue("Callsign", "9HUQ9", 0);
 
@@ -495,7 +491,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     deployMode.ClearJSONFieldValue("Timezone", 0);
     deployMode.EnterJSONInputValue("Timezone", "-12", 0);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._visibleTextDiv("Not a valid timezone!"),
     );
     deployMode.ClearJSONFieldValue("Timezone", 0);
@@ -532,7 +528,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       .should("eq", "password");
 
     deployMode.ClearJSONFieldValue("Shipname", 0);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._visibleTextDiv("This field is required"),
     );
     cy.xpath(locators._spanButton("Submit") + "/parent::div").should(
@@ -564,7 +560,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     //   .then(($len) => expect($len).to.eq(1));
   });
 
-  it("15. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
+  it("14. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
     table.SelectTableRow(0);
     agHelper.Sleep(2000); //since table taking time to display JSON form
 
@@ -589,8 +585,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     dataSources.AssertJSONFormHeader(0, 0, "ship_id", "159180");
     agHelper.ClickButton("Delete", 0);
-    agHelper.AssertElementVisible(locators._modal);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.AssertElementVisibility(
       dataSources._visibleTextSpan(
         "Are you sure you want to delete this item?",
       ),
@@ -605,7 +601,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
   });
 
-  it("16. Validate Deletion of the Newly Created Page - Vessels", () => {
+  it("15. Validate Deletion of the Newly Created Page - Vessels", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
@@ -616,7 +612,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
   });
 
-  it("17. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
+  it("16. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
     const deleteTblQuery = "DROP TABLE Vessels;";
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("DropVessels");
@@ -635,7 +631,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     );
   });
 
-  it("18. Verify application does not break when user runs the query with wrong table name", function () {
+  it("17. Verify application does not break when user runs the query with wrong table name", function () {
     entityExplorer.SelectEntityByName("DropVessels", "Queries/JS");
     dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
@@ -650,50 +646,11 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
   });
 
-  it("19. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
+  it("18. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
-
-  function GenerateCRUDNValidateDeployPage(
-    col1Text: string,
-    col2Text: string,
-    col3Text: string,
-    jsonFromHeader: string,
-  ) {
-    agHelper.GetNClick(dataSources._generatePageBtn);
-    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.AssertContains("Successfully generated a page");
-    //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
-    assertHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    deployMode.DeployApp();
-
-    //Validating loaded table
-    agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
-      expect($cellData).to.eq(col1Text);
-    });
-    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
-      expect($cellData).to.eq(col2Text);
-    });
-    table.ReadTableRowColumnData(0, 4, "v1", 200).then(($cellData) => {
-      expect($cellData).to.eq(col3Text);
-    });
-
-    //Validating loaded JSON form
-    cy.xpath(locators._spanButton("Update")).then((selector) => {
-      cy.wrap(selector)
-        .invoke("attr", "class")
-        .then((classes) => {
-          //cy.log("classes are:" + classes);
-          expect(classes).not.contain("bp3-disabled");
-        });
-    });
-    dataSources.AssertJSONFormHeader(0, 0, jsonFromHeader);
-  }
 
   function generateCallsignInfo(rowIndex: number) {
     //let callSign: string = "";

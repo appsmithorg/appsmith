@@ -34,7 +34,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     entityExplorer.NavigateToSwitcher("Explorer", 0, true);
 
     dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
-      dataSources.CreateQueryFromActiveTab($createdMockUsers, true);
+      dataSources.CreateQueryAfterDSSaved();
     });
 
     cy.wait(500);
@@ -99,23 +99,17 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     propPane.ToggleJSMode("Table data", false);
 
-    oneClickBinding.ChooseAndAssertForm(
-      "Users",
-      "Users",
-      "public.users",
-      "gender",
-    );
+    oneClickBinding.ChooseAndAssertForm("Users", "Users", "public.users", {
+      searchableColumn: "gender",
+    });
 
     propPane.MoveToTab("Style");
 
     propPane.MoveToTab("Content");
 
-    oneClickBinding.ChooseAndAssertForm(
-      "sample Movies",
-      "movies",
-      "movies",
-      "status",
-    );
+    oneClickBinding.ChooseAndAssertForm("sample Movies", "movies", "movies", {
+      searchableColumn: "status",
+    });
 
     entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.NavigateToDSCreateNew();

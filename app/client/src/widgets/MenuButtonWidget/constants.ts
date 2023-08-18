@@ -59,6 +59,7 @@ export interface MenuButtonWidgetProps extends WidgetProps {
 export interface MenuButtonComponentProps {
   label?: string;
   isDisabled?: boolean;
+  shouldFitContent: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
   menuItems: MenuItems;
@@ -79,6 +80,9 @@ export interface MenuButtonComponentProps {
   menuItemsSource: MenuItemsSource;
   configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
+  maxWidth?: number;
+  minWidth?: number;
+  minHeight?: number;
 }
 
 export interface PopoverContentProps {

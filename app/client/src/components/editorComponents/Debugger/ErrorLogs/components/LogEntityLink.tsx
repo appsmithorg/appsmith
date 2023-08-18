@@ -94,9 +94,11 @@ export default function LogEntityLink(props: LogItemProps) {
             errorSubType={props.messages && props.messages[0].message.name}
             errorType={props.logType}
             id={props.source.id}
+            message={props.messages && props.messages[0]}
             name={props.source.name}
             plugin={plugin}
             pluginType={props.source.pluginType}
+            propertyPath={props.source.propertyPath}
             type={props.source.type}
             uiComponent={DebuggerLinkUI.ENTITY_NAME}
           />

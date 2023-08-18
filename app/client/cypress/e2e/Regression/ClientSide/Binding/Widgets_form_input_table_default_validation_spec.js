@@ -4,9 +4,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple input Widget", function () {
   before(() => {
-    cy.fixture("formInputTableDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("formInputTableDsl");
   });
 
   it("1. Input widget test with default value from table widget", function () {

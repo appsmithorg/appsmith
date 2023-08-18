@@ -11,5 +11,4 @@ public interface NewActionRepositoryCE extends BaseRepository<NewAction, String>
     Flux<NewAction> findByApplicationId(String applicationId);
 
     Mono<Long> countByDeletedAtNull();
-
 }

@@ -7,6 +7,8 @@ import type { executeDatasourceQuerySuccessPayload } from "actions/datasourceAct
 import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { DropdownOption } from "design-system-old";
 import { useDispatch } from "react-redux";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { PluginPackageName } from "entities/Action";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
@@ -31,6 +33,7 @@ export const useDatasourceOptions = ({
   const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(
     [],
   );
+  const currentEnvironment = getCurrentEnvironment();
 
   useEffect(() => {
     // On mount of component and on change of datasources, Update the list.
@@ -42,7 +45,16 @@ export const useDatasourceOptions = ({
         FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
       );
     }
-    datasources.forEach(({ id, isValid, name, pluginId }) => {
+    datasources.forEach(({ datasourceStorages, id, name, pluginId }) => {
+      // Doing this since g sheets plugin is not supported for environments
+      // and we need to show the option in the dropdown
+      const isGoogleSheetPlugin =
+        generateCRUDSupportedPlugin.hasOwnProperty(pluginId) &&
+        generateCRUDSupportedPlugin[pluginId] ===
+          PluginPackageName.GOOGLE_SHEETS;
+      const datasourceStorage = isGoogleSheetPlugin
+        ? Object.values(datasourceStorages)[0]
+        : datasourceStorages[currentEnvironment];
       const datasourceObject = {
         id,
         label: name,
@@ -50,7 +62,7 @@ export const useDatasourceOptions = ({
         data: {
           pluginId,
           isSupportedForTemplate: !!generateCRUDSupportedPlugin[pluginId],
-          isValid,
+          isValid: datasourceStorage?.isValid,
         },
       };
       if (generateCRUDSupportedPlugin[pluginId])
@@ -221,6 +233,14 @@ export type FetchSheetsList = {
   requestObject?: Record<any, string>;
 };
 
+export type FetchSheetData = {
+  selectedDatasourceId: string;
+  selectedSpreadsheetUrl: string;
+  selectedSheetName: string;
+  pluginId: string;
+  requestObject?: Record<any, string>;
+};
+
 export type UseSheetListReturn = {
   sheetsList: DropdownOption[];
   isFetchingSheetsList: boolean;
@@ -230,6 +250,18 @@ export type UseSheetListReturn = {
     selectedDatasourceId,
     selectedSpreadsheetUrl,
   }: FetchSheetsList) => void;
+};
+
+export type UseSheetDataReturn = {
+  sheetData: Array<any>;
+  isFetchingSheetData: boolean;
+  failedFetchingSheetData: boolean;
+  fetchSheetData: ({
+    requestObject,
+    selectedDatasourceId,
+    selectedSheetName,
+    selectedSpreadsheetUrl,
+  }: FetchSheetData) => void;
 };
 
 export const useSheetsList = (): UseSheetListReturn => {
@@ -310,6 +342,90 @@ export const useSheetsList = (): UseSheetListReturn => {
     isFetchingSheetsList,
     failedFetchingSheetsList,
     fetchSheetsList,
+  };
+};
+
+export const useSheetData = (): UseSheetDataReturn => {
+  const dispatch = useDispatch();
+
+  const [sheetData, setSheetData] = useState<any>([]);
+
+  const [isFetchingSheetData, setIsFetchingSheetData] =
+    useState<boolean>(false);
+  const [failedFetchingSheetData, setFailedFetchingSheetData] =
+    useState<boolean>(false);
+
+  const onFetchAllSheetFailure = useCallback(() => {
+    setIsFetchingSheetData(false);
+    setFailedFetchingSheetData(true);
+  }, [setIsFetchingSheetData]);
+
+  const onFetchAllSheetSuccess = useCallback(
+    (
+      payload: executeDatasourceQuerySuccessPayload<
+        Array<{ label: string; value: string }>
+      >,
+    ) => {
+      setIsFetchingSheetData(false);
+      if (payload.data && payload.data.trigger) {
+        const responseBody = payload.data.trigger;
+        if (Array.isArray(responseBody)) {
+          setSheetData(responseBody);
+        } else {
+          // to handle error like "401 Unauthorized"
+        }
+      }
+    },
+    [setSheetData, setIsFetchingSheetData],
+  );
+
+  const fetchSheetData = useCallback(
+    ({
+      pluginId,
+      selectedDatasourceId,
+      selectedSheetName,
+      selectedSpreadsheetUrl,
+    }: FetchSheetData) => {
+      setSheetData([]);
+      setIsFetchingSheetData(true);
+      setFailedFetchingSheetData(false);
+      const formattedRequestData = {
+        datasourceId: selectedDatasourceId,
+        displayType: "DROP_DOWN",
+        parameters: {
+          sheetUrl: selectedSpreadsheetUrl,
+          sheetName: selectedSheetName,
+          queryFormat: "ROWS",
+          tableHeaderIndex: 1,
+        },
+        pluginId: pluginId,
+        requestType: "SHEET_DATA",
+      };
+      dispatch(
+        executeDatasourceQuery({
+          payload: {
+            datasourceId: selectedDatasourceId,
+            data: formattedRequestData,
+          },
+          onSuccessCallback: onFetchAllSheetSuccess,
+          onErrorCallback: onFetchAllSheetFailure,
+        }),
+      );
+    },
+    [
+      setSheetData,
+      onFetchAllSheetSuccess,
+      onFetchAllSheetFailure,
+      setIsFetchingSheetData,
+      setFailedFetchingSheetData,
+    ],
+  );
+
+  return {
+    sheetData,
+    isFetchingSheetData,
+    failedFetchingSheetData,
+    fetchSheetData,
   };
 };
 

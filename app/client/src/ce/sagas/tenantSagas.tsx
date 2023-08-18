@@ -13,7 +13,6 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import { toast } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "@appsmith/configs";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
 export function* fetchCurrentTenantConfigSaga() {
@@ -47,7 +46,6 @@ export function* updateTenantConfigSaga(
   action: ReduxAction<UpdateTenantConfigRequest>,
 ) {
   try {
-    const { appVersion } = getAppsmithConfigs();
     const settings = action.payload.tenantConfiguration;
     const hasSingleSessionUserSetting = settings.hasOwnProperty(
       "singleSessionPerUserEnabled",
@@ -65,7 +63,6 @@ export function* updateTenantConfigSaga(
 
       if (hasSingleSessionUserSetting || hasShowRolesAndGroupsSetting) {
         AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
-          version: appVersion.id,
           ...(hasSingleSessionUserSetting
             ? { session_limit_enabled: settings["singleSessionPerUserEnabled"] }
             : {}),
@@ -94,6 +91,10 @@ export function* updateTenantConfigSaga(
         toast.show("Successfully saved", {
           kind: "success",
         });
+      }
+
+      if (action.payload.needsRefresh) {
+        location.reload();
       }
     }
   } catch (error) {

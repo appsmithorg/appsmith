@@ -10,6 +10,7 @@ function dragAndDropToWidget(widgetType, destinationWidget, { x, y }) {
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.wait(800);
   cy.get(selector)
+    .first()
     .scrollIntoView()
     .trigger("dragstart", { force: true })
     .trigger("mousemove", x, y, { force: true });
@@ -47,9 +48,7 @@ function checkSelectedRadioValue(selector, value) {
 
 describe("List widget v2 - Basic Child Widget Interaction", () => {
   before(() => {
-    cy.fixture("Listv2/emptyList").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/emptyList");
     cy.get(publishLocators.containerWidget).should("have.length", 3);
   });
 

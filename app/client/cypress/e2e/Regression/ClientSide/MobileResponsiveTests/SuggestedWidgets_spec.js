@@ -2,12 +2,21 @@ import {
   autoLayout,
   dataSources,
   table,
+  agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Check Suggested Widgets Feature in auto-layout", function () {
   before(() => {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
+    featureFlagIntercept(
+      {
+        ab_ds_binding_enabled: false,
+      },
+      false,
+    );
+    agHelper.RefreshPage();
   });
 
   it("1. Suggested widget", () => {
@@ -17,7 +26,7 @@ describe("Check Suggested Widgets Feature in auto-layout", function () {
       fixture: "addWidgetTable-mock",
     });
     dataSources.RunQuery({ toValidateResponse: false });
-    dataSources.AddSuggesstedWidget(Widgets.Table);
+    dataSources.AddSuggestedWidget(Widgets.Table);
     table.ReadTableRowColumnData(1, 0, "v2").then((cellData) => {
       expect(cellData).to.eq("5");
     });

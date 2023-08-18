@@ -9,7 +9,7 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 
 let gitSync = ObjectsRegistry.GitSync,
   agHelper = ObjectsRegistry.AggregateHelper,
-  hostPort = ObjectsRegistry.DefaultHostPort;
+  dataManager = ObjectsRegistry.DataManager;
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
@@ -128,7 +128,6 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("latestDeployPreview", () => {
-  //cy.server();
   cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -146,7 +145,7 @@ Cypress.Commands.add("latestDeployPreview", () => {
   cy.wait(2000); // wait for modal to load
   cy.xpath("//span[text()='Latest deployed preview']").click();
   cy.log("pagename: " + localStorage.getItem("PageName"));
-  cy.wait(2000); //wait time for page to load!
+  cy.wait(5000); //wait time for page to load!
 });
 
 Cypress.Commands.add("createGitBranch", (branch) => {
@@ -342,7 +341,7 @@ Cypress.Commands.add(
     );
     cy.get(gitSyncLocators.gitRepoInput).type(
       //`git@github.com:${owner}/${repo}.git`,
-      `${hostPort.GITEA_API_URL_TED}/${repo}.git`,
+      `${dataManager.GITEA_API_URL_TED}/${repo}.git`,
     );
     cy.get(gitSyncLocators.generateDeployKeyBtn).click();
     cy.wait(`@generateKey-${repo}`).then((result) => {
@@ -365,7 +364,7 @@ Cypress.Commands.add(
 
       cy.request({
         method: "POST",
-        url: `${hostPort.GITEA_API_BASE_TED}:${hostPort.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
+        url: `${dataManager.GITEA_API_BASE_TED}:${dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
         headers: {
           Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
         },
@@ -475,7 +474,7 @@ Cypress.Commands.add(
 
           cy.request({
             method: "POST",
-            url: `${hostPort.GITEA_API_BASE_TED}:${hostPort.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
+            url: `${dataManager.GITEA_API_BASE_TED}:${dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
             headers: {
               Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
             },

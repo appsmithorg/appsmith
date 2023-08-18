@@ -8,10 +8,7 @@ import { Button, Tooltip } from "design-system";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
-import {
-  getIsAutoLayout,
-  isAutoLayoutEnabled,
-} from "selectors/editorSelectors";
+import { getIsAutoLayout } from "selectors/editorSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -28,7 +25,6 @@ export function CanvasPropertyPane() {
     AnalyticsUtil.logEvent("APP_SETTINGS_BUTTON_CLICK");
     dispatch(openAppSettingsPaneAction());
   };
-  const isAutoLayoutFeatureEnabled = useSelector(isAutoLayoutEnabled);
   const isAutoLayout = useSelector(getIsAutoLayout);
   return (
     <div className="relative ">
@@ -44,7 +40,7 @@ export function CanvasPropertyPane() {
               <MainContainerLayoutControl />
             </>
           )}
-          {isAutoLayoutFeatureEnabled && <ConversionButton />}
+          <ConversionButton />
           <Tooltip
             content={
               <>

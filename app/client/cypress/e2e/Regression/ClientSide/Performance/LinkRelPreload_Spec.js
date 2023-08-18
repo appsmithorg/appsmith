@@ -27,30 +27,30 @@ import emptyDSL from "../../../../fixtures/emptyDSL.json";
 // started failing for you, it’s likely you import()ed some new chunks that the edit or the view mode uses.
 // To fix the test, see preloading instructions in public/index.html.
 
-describe("html should include <link rel='preload'>s for all code-split javascript", function () {
+describe("html should include preload metadata for all code-split javascript", function () {
   before(() => {
     cy.addDsl(emptyDSL);
   });
 
-  it("1. In edit & View mode", function () {
-    testLinkRelPreloads("edit-mode");
+  it("1. In edit mode", function () {
+    testPreloadMetadata("edit-mode");
   });
 
   // Note: this must be a separate test from the previous one,
   // as we’re relying on Cypress resetting intercepts between tests.
   it("2. In view mode", function () {
-    cy.reload();
+    reloadAndTogglePreloading(true);
 
     // Ensure the app editor is fully loaded
     cy.get("#sidebar").should("be.visible");
 
     _.deployMode.DeployApp();
 
-    testLinkRelPreloads("view-mode");
+    testPreloadMetadata("view-mode");
   });
 });
 
-function testLinkRelPreloads(viewOrEditMode) {
+function testPreloadMetadata(viewOrEditMode) {
   // Disable network caching in Chromium, per https://docs.cypress.io/api/commands/intercept#cyintercept-and-request-caching
   // and https://github.com/cypress-io/cypress/issues/14459#issuecomment-768616195
   Cypress.automation("remote:debugger:protocol", {
@@ -66,7 +66,7 @@ function testLinkRelPreloads(viewOrEditMode) {
 
   // Intercept all JS network requests and collect them
   cy.intercept(/\/static\/js\/.+\.js/, (req) => {
-    // Ignore
+    // Don’t collect:
     // - requests to worker files
     // - requests to icons
     // - request to the main bundle
@@ -83,11 +83,11 @@ function testLinkRelPreloads(viewOrEditMode) {
 
   // Make all web workers empty. This prevents web workers from loading additional chunks,
   // as we need to collect only chunks from the main thread
-  cy.intercept(/\/static\/js\/.+Worker\..+\.js/, { body: "" }).as(
-    "workerRequests",
-  );
+  cy.intercept(/\/static\/js\/.+Worker\..+\.js/, { body: "" }).as("worker");
 
-  cy.reload();
+  // Reload without preloading, as we want to collect only chunks
+  // actually requested by the current route
+  reloadAndTogglePreloading(false);
 
   cy.waitForNetworkIdle("/static/js/*.js", 5000, { timeout: 60 * 1000 });
 
@@ -127,20 +127,32 @@ function testLinkRelPreloads(viewOrEditMode) {
       ),
     );
 
-    const requestsString = `[${
+    const actuallyLoadedFiles = `[${
       requestsToCompare.length
     } items] ${requestsToCompare.sort().join(", ")}`;
-    const linksString = `[${linksToCompare.length} items] ${linksToCompare
+    const preloadedFiles = `[${linksToCompare.length} items] ${linksToCompare
       .sort()
       .join(", ")}`;
 
     // Comparing strings instead of deep-equalling arrays because this is the only way
     // to see which chunks are actually missing: https://github.com/cypress-io/cypress/issues/4084
-    cy.wrap(requestsString).should("equal", linksString);
+    cy.wrap(actuallyLoadedFiles).should("equal", preloadedFiles);
   });
 }
 
 /** Removes all duplicated items from the array */
 function unique(arr) {
   return Array.from(new Set(arr));
+}
+
+function reloadAndTogglePreloading(chunkPreloadingEnabled) {
+  cy.url().then((currentURL) => {
+    let url = new URL(currentURL);
+    if (chunkPreloadingEnabled) {
+      url.searchParams.set("disableChunkPreload", "true");
+    } else {
+      url.searchParams.delete("disableChunkPreload");
+    }
+    cy.visit(url.toString());
+  });
 }

@@ -23,9 +23,11 @@ import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
 import { Templates } from "../Pages/Templates";
 import { Onboarding } from "../Pages/Onboarding";
 import { AutoLayout } from "../Pages/AutoLayout";
-import { DefaultHostPort } from "./Hostport";
+import { DataManager } from "./DataManager";
 import { AssertHelper } from "../Pages/AssertHelper";
 import { ReusableHelper } from "./ReusableHelper";
+import { Tabs } from "../Pages/Tabs";
+import { GsheetHelper } from "../Pages/GSheetHelper";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -114,6 +116,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.table__ = new Table();
     }
     return ObjectsRegistry.table__;
+  }
+
+  private static tabs__: Tabs;
+  static get Tabs(): Tabs {
+    if (ObjectsRegistry.tabs__ === undefined) {
+      ObjectsRegistry.tabs__ = new Tabs();
+    }
+    return ObjectsRegistry.tabs__;
   }
 
   private static propertyPane__: PropertyPane;
@@ -244,12 +254,20 @@ export class ObjectsRegistry {
     return ObjectsRegistry.autoLayout__;
   }
 
-  private static defaultHostPort__: DefaultHostPort;
-  static get DefaultHostPort(): DefaultHostPort {
-    if (ObjectsRegistry.defaultHostPort__ === undefined) {
-      ObjectsRegistry.defaultHostPort__ = new DefaultHostPort();
+  private static dataManager__: DataManager;
+  static get DataManager(): DataManager {
+    if (ObjectsRegistry.dataManager__ === undefined) {
+      ObjectsRegistry.dataManager__ = new DataManager();
     }
-    return ObjectsRegistry.defaultHostPort__;
+    return ObjectsRegistry.dataManager__;
+  }
+
+  private static gsheetHelper__: GsheetHelper;
+  static get GSheetHelper(): GsheetHelper {
+    if (ObjectsRegistry.gsheetHelper__ === undefined) {
+      ObjectsRegistry.gsheetHelper__ = new GsheetHelper();
+    }
+    return ObjectsRegistry.gsheetHelper__;
   }
 }
 

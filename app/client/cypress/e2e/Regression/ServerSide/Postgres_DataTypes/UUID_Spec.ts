@@ -19,9 +19,8 @@ describe("UUID Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    cy.fixture("Datatypes/UUIDDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/UUIDDTdsl");
+
     entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeTheme("Earth");
   });
@@ -46,7 +45,7 @@ describe("UUID Datatype tests", function () {
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
     });
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       entityExplorer._entityNameInExplorer("public.uuidtype"),
     );
   });
@@ -95,14 +94,14 @@ describe("UUID Datatype tests", function () {
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.ClickButton("Generate UUID's");
     agHelper.AssertContains("All UUIDs generated & available");
     cy.pause();
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._specificToast("failed to execute")); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
     table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
@@ -121,14 +120,14 @@ describe("UUID Datatype tests", function () {
   it("6. Inserting another record - uuidtype", () => {
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.ClickButton("Generate UUID's");
     agHelper.AssertContains("All UUIDs generated & available");
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._specificToast("failed to execute")); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
@@ -147,14 +146,14 @@ describe("UUID Datatype tests", function () {
   it("7. Inserting another record - uuidtype", () => {
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.ClickButton("Generate UUID's");
     agHelper.AssertContains("All UUIDs generated & available");
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._specificToast("failed to execute")); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
     table.ReadTableRowColumnData(2, 0).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
@@ -177,7 +176,7 @@ describe("UUID Datatype tests", function () {
     table.ReadTableRowColumnData(2, 1, "v1", 200).then(($oldV1) => {
       table.ReadTableRowColumnData(2, 2, "v1", 200).then(($oldV4) => {
         agHelper.ClickButton("Run UpdateQuery");
-        agHelper.AssertElementVisible(locators._modal);
+        agHelper.AssertElementVisibility(locators._modal);
 
         agHelper.ClickButton("Generate new v1");
         agHelper.AssertContains("New V1 UUID available!");
@@ -186,7 +185,9 @@ describe("UUID Datatype tests", function () {
         agHelper.AssertElementAbsence(
           locators._specificToast("failed to execute"),
         ); //Assert that Insert did not fail
-        agHelper.AssertElementVisible(locators._spanButton("Run UpdateQuery"));
+        agHelper.AssertElementVisibility(
+          locators._spanButton("Run UpdateQuery"),
+        );
         table.WaitUntilTableLoad();
         table.ReadTableRowColumnData(2, 0).then(($cellData) => {
           expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
@@ -207,7 +208,7 @@ describe("UUID Datatype tests", function () {
       table.ReadTableRowColumnData(2, 2, "v1", 200).then(($oldV4) => {
         //table.ReadTableRowColumnData(2, 3, "v1", 200).then(($oldguid) => {
         agHelper.ClickButton("Run UpdateQuery");
-        agHelper.AssertElementVisible(locators._modal);
+        agHelper.AssertElementVisibility(locators._modal);
 
         agHelper.ClickButton("Generate new v4");
         agHelper.AssertContains("New V4 UUID available!");
@@ -216,7 +217,9 @@ describe("UUID Datatype tests", function () {
         agHelper.AssertElementAbsence(
           locators._specificToast("failed to execute"),
         ); //Assert that Insert did not fail
-        agHelper.AssertElementVisible(locators._spanButton("Run UpdateQuery"));
+        agHelper.AssertElementVisibility(
+          locators._spanButton("Run UpdateQuery"),
+        );
         table.WaitUntilTableLoad();
         table.ReadTableRowColumnData(2, 0).then(($cellData) => {
           expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
@@ -331,21 +334,21 @@ describe("UUID Datatype tests", function () {
 
   it("12. Deleting all records from table - uuidtype", () => {
     agHelper.GetNClick(locators._deleteIcon);
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
   it("13. Inserting another record (to check serial column & new default column added) - uuidtype", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.ClickButton("Generate UUID's");
     agHelper.AssertContains("All UUIDs generated & available");
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._specificToast("failed to execute")); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
     table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence

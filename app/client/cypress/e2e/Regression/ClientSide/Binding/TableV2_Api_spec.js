@@ -9,9 +9,7 @@ import {
 describe("Test Create Api and Bind to Table widget V2", function () {
   let apiData;
   before(() => {
-    cy.fixture("tableV2WidgetDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2WidgetDsl");
   });
   it("1. Test_Add users api and execute api", function () {
     cy.createAndFillApi(this.dataSet.userApi, "/mock-api?records=100");

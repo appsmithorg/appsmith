@@ -113,6 +113,18 @@ const jsActionsReducer = createReducer(initialState, {
         };
       return a;
     }),
+  [ReduxActionTypes.UPDATE_JS_ACTION_BODY_INIT]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{ id: string; body: string }>,
+  ): JSCollectionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id)
+        return {
+          ...a,
+          config: { ...a.config, body: action.payload.body },
+        };
+      return a;
+    }),
   [ReduxActionErrorTypes.UPDATE_JS_ACTION_ERROR]: (
     state: JSCollectionDataState,
     action: ReduxAction<{ data: JSCollection }>,

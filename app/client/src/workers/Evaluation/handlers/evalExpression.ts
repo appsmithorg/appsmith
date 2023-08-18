@@ -6,6 +6,7 @@ export default function (request: EvalWorkerASyncRequest) {
   const { data } = request;
   const { expression } = data;
   const evalTree = dataTreeEvaluator?.evalTree;
-  if (!evalTree) return {};
-  return evaluateAsync(expression, evalTree, {});
+  const configTree = dataTreeEvaluator?.configTree;
+  if (!evalTree || !configTree) return {};
+  return evaluateAsync(expression, evalTree, configTree, {}, undefined);
 }

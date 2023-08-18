@@ -13,10 +13,21 @@ import reactor.core.scheduler.Scheduler;
 @Slf4j
 public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements CustomJSLibService {
 
-    public CustomJSLibServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter,
-                                  ReactiveMongoTemplate reactiveMongoTemplate, CustomJSLibRepository repository,
-                                  ApplicationService applicationService, AnalyticsService analyticsService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, applicationService,
+    public CustomJSLibServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            CustomJSLibRepository repository,
+            ApplicationService applicationService,
+            AnalyticsService analyticsService) {
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                applicationService,
                 analyticsService);
     }
 }

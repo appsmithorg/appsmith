@@ -40,26 +40,22 @@ public class FileFormatMigrationTests {
 
     @BeforeEach
     public void setUp() {
-        Mockito
-                .when(gitExecutor.checkoutToBranch(Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(), Mockito.any())).thenReturn(Mono.just(true));
 
-        Mockito
-                .when(gitConfig.getGitRootPath())
-                .thenReturn("");
+        Mockito.when(gitConfig.getGitRootPath()).thenReturn("");
     }
 
     @Test
     public void extractFiles_whenFilesInRepoWithFormatVersion1_success() {
         String version1DirPath = "src/test/resources/test_assets/GitExecutorTests/FileFormatVersions/v1";
         Gson gson = new Gson();
-        Mono<ApplicationGitReference> applicationRefMono = fileInterface
-                .reconstructApplicationReferenceFromGitRepo(version1DirPath, "", "", "");
-        StepVerifier
-                .create(applicationRefMono)
+        Mono<ApplicationGitReference> applicationRefMono =
+                fileInterface.reconstructApplicationReferenceFromGitRepo(version1DirPath, "", "", "");
+        StepVerifier.create(applicationRefMono)
                 .assertNext(applicationGitReference -> {
                     assertThat(applicationGitReference.getApplication()).isNotNull();
-                    JsonObject jsonObject = gson.fromJson(gson.toJson(applicationGitReference.getApplication()), JsonObject.class);
+                    JsonObject jsonObject =
+                            gson.fromJson(gson.toJson(applicationGitReference.getApplication()), JsonObject.class);
                     assertThat(jsonObject.get("applicationKey").getAsString()).isEqualTo("applicationValue");
 
                     jsonObject = gson.fromJson(gson.toJson(applicationGitReference.getMetadata()), JsonObject.class);
@@ -68,19 +64,40 @@ public class FileFormatMigrationTests {
 
                     JsonObject pages = gson.fromJson(gson.toJson(applicationGitReference.getPages()), JsonObject.class);
                     assertThat(pages.size()).isEqualTo(1);
-                    assertThat(pages.get("Page1.json").getAsJsonObject().get("pageKey").getAsString()).isEqualTo("pageValue");
+                    assertThat(pages.get("Page1.json")
+                                    .getAsJsonObject()
+                                    .get("pageKey")
+                                    .getAsString())
+                            .isEqualTo("pageValue");
 
-                    JsonObject actions = gson.fromJson(gson.toJson(applicationGitReference.getActions()), JsonObject.class);
+                    JsonObject actions =
+                            gson.fromJson(gson.toJson(applicationGitReference.getActions()), JsonObject.class);
                     assertThat(actions.size()).isEqualTo(1);
-                    assertThat(actions.get("Query1_Page1.json").getAsJsonObject().get("queryKey").getAsString()).isEqualTo("queryValue");
+                    assertThat(actions.get("Query1_Page1.json")
+                                    .getAsJsonObject()
+                                    .get("queryKey")
+                                    .getAsString())
+                            .isEqualTo("queryValue");
 
-                    JsonObject actionCollections = gson.fromJson(gson.toJson(applicationGitReference.getActionCollections()), JsonObject.class);
+                    JsonObject actionCollections = gson.fromJson(
+                            gson.toJson(applicationGitReference.getActionCollections()), JsonObject.class);
                     assertThat(actionCollections.size()).isEqualTo(1);
-                    assertThat(actionCollections.get("JSObject1_Page1.json").getAsJsonObject().get("jsobjectKey").getAsString()).isEqualTo("jsobjectValue");
+                    assertThat(actionCollections
+                                    .get("JSObject1_Page1.json")
+                                    .getAsJsonObject()
+                                    .get("jsobjectKey")
+                                    .getAsString())
+                            .isEqualTo("jsobjectValue");
 
-                    JsonObject datasources = gson.fromJson(gson.toJson(applicationGitReference.getDatasources()), JsonObject.class);
+                    JsonObject datasources =
+                            gson.fromJson(gson.toJson(applicationGitReference.getDatasources()), JsonObject.class);
                     assertThat(datasources.size()).isEqualTo(1);
-                    assertThat(datasources.get("Datasource1.json").getAsJsonObject().get("datasourceKey").getAsString()).isEqualTo("datasourceValue");
+                    assertThat(datasources
+                                    .get("Datasource1.json")
+                                    .getAsJsonObject()
+                                    .get("datasourceKey")
+                                    .getAsString())
+                            .isEqualTo("datasourceValue");
                 })
                 .verifyComplete();
     }
@@ -89,13 +106,13 @@ public class FileFormatMigrationTests {
     public void extractFiles_whenFilesInRepoWithFormatVersion2_success() {
         String version1DirPath = "src/test/resources/test_assets/GitExecutorTests/FileFormatVersions/v2";
         Gson gson = new Gson();
-        Mono<ApplicationGitReference> applicationRefMono = fileInterface
-                .reconstructApplicationReferenceFromGitRepo(version1DirPath, "", "", "");
-        StepVerifier
-                .create(applicationRefMono)
+        Mono<ApplicationGitReference> applicationRefMono =
+                fileInterface.reconstructApplicationReferenceFromGitRepo(version1DirPath, "", "", "");
+        StepVerifier.create(applicationRefMono)
                 .assertNext(applicationGitReference -> {
                     assertThat(applicationGitReference.getApplication()).isNotNull();
-                    JsonObject jsonObject = gson.fromJson(gson.toJson(applicationGitReference.getApplication()), JsonObject.class);
+                    JsonObject jsonObject =
+                            gson.fromJson(gson.toJson(applicationGitReference.getApplication()), JsonObject.class);
                     assertThat(jsonObject.get("applicationKey").getAsString()).isEqualTo("applicationValue");
 
                     jsonObject = gson.fromJson(gson.toJson(applicationGitReference.getMetadata()), JsonObject.class);
@@ -104,19 +121,40 @@ public class FileFormatMigrationTests {
 
                     JsonObject pages = gson.fromJson(gson.toJson(applicationGitReference.getPages()), JsonObject.class);
                     assertThat(pages.size()).isEqualTo(1);
-                    assertThat(pages.get("Page1").getAsJsonObject().get("pageKey").getAsString()).isEqualTo("pageValue");
+                    assertThat(pages.get("Page1")
+                                    .getAsJsonObject()
+                                    .get("pageKey")
+                                    .getAsString())
+                            .isEqualTo("pageValue");
 
-                    JsonObject actions = gson.fromJson(gson.toJson(applicationGitReference.getActions()), JsonObject.class);
+                    JsonObject actions =
+                            gson.fromJson(gson.toJson(applicationGitReference.getActions()), JsonObject.class);
                     assertThat(actions.size()).isEqualTo(1);
-                    assertThat(actions.get("Query1.jsonPage1").getAsJsonObject().get("queryKey").getAsString()).isEqualTo("queryValue");
+                    assertThat(actions.get("Query1.jsonPage1")
+                                    .getAsJsonObject()
+                                    .get("queryKey")
+                                    .getAsString())
+                            .isEqualTo("queryValue");
 
-                    JsonObject actionCollections = gson.fromJson(gson.toJson(applicationGitReference.getActionCollections()), JsonObject.class);
+                    JsonObject actionCollections = gson.fromJson(
+                            gson.toJson(applicationGitReference.getActionCollections()), JsonObject.class);
                     assertThat(actionCollections.size()).isEqualTo(1);
-                    assertThat(actionCollections.get("JSObject1.jsonPage1").getAsJsonObject().get("jsobjectKey").getAsString()).isEqualTo("jsobjectValue");
+                    assertThat(actionCollections
+                                    .get("JSObject1.jsonPage1")
+                                    .getAsJsonObject()
+                                    .get("jsobjectKey")
+                                    .getAsString())
+                            .isEqualTo("jsobjectValue");
 
-                    JsonObject datasources = gson.fromJson(gson.toJson(applicationGitReference.getDatasources()), JsonObject.class);
+                    JsonObject datasources =
+                            gson.fromJson(gson.toJson(applicationGitReference.getDatasources()), JsonObject.class);
                     assertThat(datasources.size()).isEqualTo(1);
-                    assertThat(datasources.get("Datasource1.json").getAsJsonObject().get("datasourceKey").getAsString()).isEqualTo("datasourceValue");
+                    assertThat(datasources
+                                    .get("Datasource1.json")
+                                    .getAsJsonObject()
+                                    .get("datasourceKey")
+                                    .getAsString())
+                            .isEqualTo("datasourceValue");
                 })
                 .verifyComplete();
     }

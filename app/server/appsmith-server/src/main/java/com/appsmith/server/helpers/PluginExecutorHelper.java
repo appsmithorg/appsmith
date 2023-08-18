@@ -23,13 +23,14 @@ public class PluginExecutorHelper {
 
     public Mono<PluginExecutor> getPluginExecutor(Mono<Plugin> pluginMono) {
         return pluginMono.flatMap(plugin -> {
-                    List<PluginExecutor> executorList = pluginManager.getExtensions(PluginExecutor.class, plugin.getPackageName());
-                    if (executorList.isEmpty()) {
-                        return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin", plugin.getPackageName()));
-                    }
-                    return Mono.just(executorList.get(0));
-                }
-        );
+            List<PluginExecutor> executorList =
+                    pluginManager.getExtensions(PluginExecutor.class, plugin.getPackageName());
+            if (executorList.isEmpty()) {
+                return Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin", plugin.getPackageName()));
+            }
+            return Mono.just(executorList.get(0));
+        });
     }
 
     public Mono<PluginExecutor> getPluginExecutorFromPackageName(String packageName) {
@@ -39,6 +40,5 @@ public class PluginExecutorHelper {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin", packageName));
         }
         return Mono.just(executorList.get(0));
-
     }
 }
