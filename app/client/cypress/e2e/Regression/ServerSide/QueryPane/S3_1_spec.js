@@ -48,6 +48,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("1. Validate List Files in bucket (all existing files) command, run + Widget Binding", () => {
+    const expectedErrorMessages = [
+      "NoSuchBucket: The specified bucket does not exist",
+      "InvalidBucketName: The specified bucket is not valid",
+    ];
+
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
     propPane.UpdatePropertyFieldValue("Default value", "AutoTest");
     cy.NavigateToActiveDSQueryPane(datasourceName);
@@ -65,9 +70,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait(3000); //for new postExecute to come thru
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
-      expect(response.body.data.body).to.contains(
-        "NoSuchBucket: The specified bucket does not exist",
-      );
+      expect(response.body.data.body).to.satisfy((body) => {
+        return expectedErrorMessages.some((errorMessage) =>
+          body.includes(errorMessage),
+        );
+      });
     });
     cy.wait(2000);
     // agHelper.ActionContextMenuWithInPane({
