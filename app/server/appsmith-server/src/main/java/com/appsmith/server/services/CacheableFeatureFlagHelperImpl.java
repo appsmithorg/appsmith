@@ -5,6 +5,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.dtos.ce.FeaturesRequestDTO;
 import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
+import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.CacheableFeatureFlagHelperCEImpl;
 import com.appsmith.server.solutions.LicenseAPIManager;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -18,12 +19,12 @@ import java.util.HashMap;
 @Slf4j
 public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCEImpl
         implements CacheableFeatureFlagHelper {
-    TenantService tenantService;
+    TenantRepository tenantRepository;
     AirgapInstanceConfig airgapInstanceConfig;
     LicenseAPIManager licenseAPIManager;
 
     public CacheableFeatureFlagHelperImpl(
-            TenantService tenantService,
+            TenantRepository tenantRepository,
             ConfigService configService,
             CloudServicesConfig cloudServicesConfig,
             CommonConfig commonConfig,
@@ -32,13 +33,13 @@ public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCE
             AirgapInstanceConfig airgapInstanceConfig,
             LicenseAPIManager licenseAPIManager) {
         super(
-                tenantService,
+                tenantRepository,
                 configService,
                 cloudServicesConfig,
                 commonConfig,
                 userIdentifierService,
                 releaseNotesService);
-        this.tenantService = tenantService;
+        this.tenantRepository = tenantRepository;
         this.airgapInstanceConfig = airgapInstanceConfig;
         this.licenseAPIManager = licenseAPIManager;
     }
@@ -53,8 +54,8 @@ public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCE
         if (airgapInstanceConfig.isAirgapEnabled()) {
             FeaturesResponseDTO featuresResponseDTO = new FeaturesResponseDTO();
             featuresResponseDTO.setFeatures(new HashMap<>());
-            return tenantService
-                    .getDefaultTenant()
+            return tenantRepository
+                    .findBySlug("default")
                     .flatMap(tenant -> licenseAPIManager.licenseCheck(tenant))
                     .map(license -> {
                         if (license.getTenantFeatures() != null) {
