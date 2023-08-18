@@ -49,7 +49,7 @@ describe("SCIM Provisioning", function () {
     "excludeForAirgap",
     "1. Go to admin settings and check provisioning should show upgrade page for business edition",
     function () {
-      provisioning.UpdateLicenseKey();
+      provisioning.UpdateLicenseKey("business");
       agHelper.Sleep(4000);
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       // click provisioning tab
@@ -96,91 +96,13 @@ describe("SCIM Provisioning", function () {
         "getEnvVariables",
       );
       cy.wait(2000);
+      provisioning.UpdateLicenseKey();
+      agHelper.Sleep(4000);
     },
   );
 
   // Configuring SCIM to test Remove resources flow
-  it(
-    "excludeForAirgap",
-    "2. Go to admin settings and configure SCIM",
-    function () {
-      // provisioning.UpdateLicenseKey("enterprise");
-      provisioning.UpdateLicenseKey();
-      agHelper.Sleep(4000);
-      agHelper.VisitNAssert("/settings/general", "getEnvVariables");
-      // click provisioning tab
-      agHelper.GetNClick(provisioning.locators.provisioningCategory);
-      agHelper.AssertURL("/settings/provisioning");
-      agHelper.WaitUntilEleAppear(provisioning.locators.pageHeader);
-      agHelper.GetNAssertElementText(
-        provisioning.locators.pageHeader,
-        "User provisioning & Group sync",
-      );
-      agHelper.AssertElementLength(provisioning.locators.methodCard, 1);
-      agHelper.GetNAssertElementText(
-        provisioning.locators.cardTitle,
-        "System for Cross-domain Identity Management",
-      );
-      agHelper.GetNAssertElementText(
-        provisioning.locators.configureButton,
-        "Configure",
-      );
-      agHelper.GetNClick(provisioning.locators.configureButton);
-      agHelper.AssertURL("/settings/provisioning/scim");
-
-      cy.get(provisioning.locators.inputScimApiEndpoint)
-        .invoke("val")
-        .then((value: any) => {
-          scimEndpointUrl = value;
-        });
-
-      // agHelper.GetNClick(provisioning.locators.inputScimApiEndpoint);
-      // agHelper.WaitUntilToastDisappear("SCIM API endpoint copied to clipboard");
-
-      // cy.window()
-      //   .its("navigator.clipboard")
-      //   .invoke("readText")
-      //   .then((text) => {
-      //     cy.wrap(text).as("scimEndpointUrl");
-      //   });
-
-      // cy.get("@scimEndpointUrl").then((url) => {
-      // scimEndpointUrl = url.toString();
-      // agHelper.ValidateFieldInputValue(
-      //   provisioning.locators.inputScimApiEndpoint,
-      //   scimEndpointUrl,
-      // );
-      // });
-
-      agHelper.GetElementsNAssertTextPresence(
-        provisioning.locators.generateApiKeyButton,
-        "Generate API key",
-      );
-      agHelper.GetNClick(provisioning.locators.generateApiKeyButton);
-      cy.get(provisioning.locators.inputScimApiKey)
-        .invoke("val")
-        .then((value: any) => {
-          apiKey = value;
-        });
-      // agHelper.GetNClick(provisioning.locators.inputScimApiKey);
-      // agHelper.WaitUntilToastDisappear(
-      //   "API key to setup SCIM copied to clipboard",
-      // );
-      // cy.window()
-      //   .its("navigator.clipboard")
-      //   .invoke("readText")
-      //   .then((text) => {
-      //     cy.wrap(text).as("apiKey");
-      //   });
-
-      // cy.get("@apiKey").then((key) => {
-      //   apiKey = key;
-      // });
-    },
-  );
-
-  it("airgap", "2. Go to admin settings and configure SCIM", function () {
-    agHelper.Sleep(4000);
+  it("2. Go to admin settings and configure SCIM", function () {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);
@@ -208,24 +130,6 @@ describe("SCIM Provisioning", function () {
         scimEndpointUrl = value;
       });
 
-    // agHelper.GetNClick(provisioning.locators.inputScimApiEndpoint);
-    // agHelper.WaitUntilToastDisappear("SCIM API endpoint copied to clipboard");
-
-    // cy.window()
-    //   .its("navigator.clipboard")
-    //   .invoke("readText")
-    //   .then((text) => {
-    //     cy.wrap(text).as("scimEndpointUrl");
-    //   });
-
-    // cy.get("@scimEndpointUrl").then((url) => {
-    // scimEndpointUrl = url.toString();
-    // agHelper.ValidateFieldInputValue(
-    //   provisioning.locators.inputScimApiEndpoint,
-    //   scimEndpointUrl,
-    // );
-    // });
-
     agHelper.GetElementsNAssertTextPresence(
       provisioning.locators.generateApiKeyButton,
       "Generate API key",
@@ -236,20 +140,6 @@ describe("SCIM Provisioning", function () {
       .then((value: any) => {
         apiKey = value;
       });
-    // agHelper.GetNClick(provisioning.locators.inputScimApiKey);
-    // agHelper.WaitUntilToastDisappear(
-    //   "API key to setup SCIM copied to clipboard",
-    // );
-    // cy.window()
-    //   .its("navigator.clipboard")
-    //   .invoke("readText")
-    //   .then((text) => {
-    //     cy.wrap(text).as("apiKey");
-    //   });
-
-    // cy.get("@apiKey").then((key) => {
-    //   apiKey = key;
-    // });
   });
 
   it("3. SCIM provisioning should be configured but inactive", function () {
@@ -293,20 +183,6 @@ describe("SCIM Provisioning", function () {
       .then((value: any) => {
         apiKey = value;
       });
-    // agHelper.GetNClick(provisioning.locators.inputScimApiKey);
-    // agHelper.WaitUntilToastDisappear(
-    //   "API key to setup SCIM copied to clipboard",
-    // );
-    // cy.window()
-    //   .its("navigator.clipboard")
-    //   .invoke("readText")
-    //   .then((text) => {
-    //     cy.wrap(text).as("apiKey");
-    //   });
-
-    // cy.get("@apiKey").then((key) => {
-    //   apiKey = key;
-    // });
 
     agHelper.GetElementsNAssertTextPresence(
       provisioning.locators.connectionStatus,
@@ -612,24 +488,25 @@ describe("SCIM Provisioning", function () {
     });
   });
 
-  it("10. Update a group's data via SCIM (Replicating Azure)", function () {
+  it("10. Update a group's data via SCIM (Replicating Okta)", function () {
     const groupObj: any = {
-      Operations: [
-        {
-          op: "Replace",
-          path: "displayName",
-          value: "Test Group 2",
-        },
+      displayName: "Test Group 2",
+      description: "Test Group Description Renamed",
+      members: [
+        { operation: "delete", value: userId, type: "User" },
+        { value: userId2, type: "User" },
       ],
     };
 
-    provisioning.PatchGroup(apiKey, groupObj, groupId).then((response) => {
+    provisioning.UpdateGroup(apiKey, groupObj, groupId).then((response) => {
       const body = response.body;
       expect(response.status).equal(200);
 
       expect(body).to.have.property(GroupAttributes.id);
       expect(body).to.have.property(GroupAttributes.displayName);
-      expect(body.displayName).equal("Test Group 2");
+      expect(body).to.have.property(GroupAttributes.description);
+      expect(body.displayName).equal(groupObj.displayName);
+      expect(body.description).equal(groupObj.description);
 
       groupId = body.id;
       provisioning.GetGroups(apiKey).then((response) => {
@@ -641,15 +518,15 @@ describe("SCIM Provisioning", function () {
         expect(body.Resources.length).equal(2);
         expect(
           body.Resources.findIndex(
-            (x: any) => x.displayName === "Test Group 2",
+            (x: any) => x.displayName === groupObj.displayName,
           ),
         ).not.equal(-1);
       });
 
       agHelper.VisitNAssert("/settings/groups", "getEnvVariables");
       agHelper.WaitUntilEleAppear(RBAC.searchBar);
-      agHelper.TypeText(RBAC.searchBar, "Test Group 2");
-      agHelper.GetNAssertContains(RBAC.searchHighlight, "Test Group 2");
+      agHelper.TypeText(RBAC.searchBar, groupObj.displayName);
+      agHelper.GetNAssertContains(RBAC.searchHighlight, groupObj.displayName);
       cy.get(RBAC.searchHighlight)
         .siblings(RBAC.provisionedIcon)
         .should("exist");
@@ -657,19 +534,118 @@ describe("SCIM Provisioning", function () {
       agHelper.VisitNAssert(`/settings/groups/${groupId}`, "getEnvVariables");
       agHelper.WaitUntilEleAppear(RBAC.searchBar);
       agHelper.AssertElementLength(RBAC.groupMembers, 1);
+      agHelper.GetNAssertContains(RBAC.groupMembers, email2);
+      agHelper.GetNAssertContains(RBAC.groupMembers, email, "not.exist");
+      agHelper.AssertElementEnabledDisabled(RBAC.addButton, 0, true);
+    });
+  });
+
+  it("11. Update a group's data via SCIM (Replicating Azure)", function () {
+    const groupObj: any = {
+      Operations: [
+        {
+          op: "Replace",
+          path: "displayName",
+          value: `${groupName} Renamed`,
+        },
+      ],
+    };
+
+    provisioning.PatchGroup(apiKey, groupObj, groupId).then((response) => {
+      const body = response.body;
+      expect(response.status).equal(200);
+
+      expect(body).to.have.property(GroupAttributes.id);
+      expect(body).to.have.property(GroupAttributes.displayName);
+      expect(body.displayName).equal(groupObj.Operations[0].value);
+
+      groupId = body.id;
+      provisioning.GetGroups(apiKey).then((response) => {
+        const body = response.body;
+        expect(response.status).equal(200);
+
+        expect(body.totalResults).equal(2);
+        expect(body.itemsPerPage).equal(2);
+        expect(body.Resources.length).equal(2);
+        expect(
+          body.Resources.findIndex(
+            (x: any) => x.displayName === groupObj.Operations[0].value,
+          ),
+        ).not.equal(-1);
+      });
+
+      agHelper.VisitNAssert("/settings/groups", "getEnvVariables");
+      agHelper.WaitUntilEleAppear(RBAC.searchBar);
+      agHelper.TypeText(RBAC.searchBar, groupObj.Operations[0].value);
+      agHelper.GetNAssertContains(
+        RBAC.searchHighlight,
+        groupObj.Operations[0].value,
+      );
+      cy.get(RBAC.searchHighlight)
+        .siblings(RBAC.provisionedIcon)
+        .should("exist");
+
+      agHelper.VisitNAssert(`/settings/groups/${groupId}`, "getEnvVariables");
+      agHelper.WaitUntilEleAppear(RBAC.searchBar);
+      agHelper.AssertElementLength(RBAC.groupMembers, 1);
+      agHelper.GetNAssertContains(RBAC.groupMembers, email2);
+      agHelper.AssertElementEnabledDisabled(RBAC.addButton, 0, true);
+    });
+  });
+
+  it("12. Update a group's members using PATCH update by adding a user via SCIM", function () {
+    const groupObj: any = {
+      members: [{ operation: "add", value: userId, type: "User" }],
+    };
+
+    provisioning.PatchGroup(apiKey, groupObj, groupId).then((response) => {
+      const body = response.body;
+      expect(response.status).equal(200);
+
+      expect(body).to.have.property(GroupAttributes.id);
+      expect(body).to.have.property(GroupAttributes.displayName);
+      expect(body).to.have.property(GroupAttributes.description);
+      expect(body.displayName).equal(`${groupName} Renamed`);
+      expect(body.description).equal("Test Group Description Renamed");
+
+      groupId = body.id;
+      provisioning.GetGroups(apiKey).then((response) => {
+        const body = response.body;
+        expect(response.status).equal(200);
+
+        expect(body.totalResults).equal(2);
+        expect(body.itemsPerPage).equal(2);
+        expect(body.Resources.length).equal(2);
+        expect(
+          body.Resources.findIndex(
+            (x: any) => x.displayName === `${groupName} Renamed`,
+          ),
+        ).not.equal(-1);
+      });
+
+      agHelper.VisitNAssert("/settings/groups", "getEnvVariables");
+      agHelper.WaitUntilEleAppear(RBAC.searchBar);
+      agHelper.TypeText(RBAC.searchBar, `${groupName} Renamed`);
+      agHelper.GetNAssertContains(RBAC.searchHighlight, `${groupName} Renamed`);
+      cy.get(RBAC.searchHighlight)
+        .siblings(RBAC.provisionedIcon)
+        .should("exist");
+
+      agHelper.VisitNAssert(`/settings/groups/${groupId}`, "getEnvVariables");
+      agHelper.WaitUntilEleAppear(RBAC.searchBar);
+      agHelper.AssertElementLength(RBAC.groupMembers, 2);
+      agHelper.GetNAssertContains(RBAC.groupMembers, email2);
       agHelper.GetNAssertContains(RBAC.groupMembers, email);
       agHelper.AssertElementEnabledDisabled(RBAC.addButton, 0, true);
     });
   });
 
-  it("11. Update a group's data via SCIM (Replicating Okta)", function () {
+  it("13. Update a group's members using PATCH update by removing the user via SCIM", function () {
     const groupObj: any = {
-      displayName: `${groupName} Renamed`,
-      description: "Test Group Description Renamed",
-      members: [{ value: userId, type: "User" }],
+      members: [{ operation: "delete", value: userId2, type: "User" }],
     };
 
-    provisioning.UpdateGroup(apiKey, groupObj, groupId).then((response) => {
+    provisioning.PatchGroup(apiKey, groupObj, groupId).then((response) => {
       const body = response.body;
       expect(response.status).equal(200);
 
@@ -706,166 +682,12 @@ describe("SCIM Provisioning", function () {
       agHelper.WaitUntilEleAppear(RBAC.searchBar);
       agHelper.AssertElementLength(RBAC.groupMembers, 1);
       agHelper.GetNAssertContains(RBAC.groupMembers, email);
-      agHelper.AssertElementEnabledDisabled(RBAC.addButton, 0, true);
-    });
-  });
-
-  it("12. Update a group's members using PUT update via SCIM", function () {
-    const groupObj: any = {
-      displayName: `${groupName} Renamed twice`,
-      description: "Test Group Description Renamed twice",
-      members: [
-        { operation: "delete", value: userId, type: "User" },
-        { operation: "add", value: userId2, type: "User" },
-      ],
-    };
-
-    provisioning.UpdateGroup(apiKey, groupObj, groupId).then((response) => {
-      const body = response.body;
-      expect(response.status).equal(200);
-
-      expect(body).to.have.property(GroupAttributes.id);
-      expect(body).to.have.property(GroupAttributes.displayName);
-      expect(body).to.have.property(GroupAttributes.description);
-      expect(body.displayName).equal(`${groupName} Renamed twice`);
-      expect(body.description).equal("Test Group Description Renamed twice");
-
-      groupId = body.id;
-      provisioning.GetGroups(apiKey).then((response) => {
-        const body = response.body;
-        expect(response.status).equal(200);
-
-        expect(body.totalResults).equal(2);
-        expect(body.itemsPerPage).equal(2);
-        expect(body.Resources.length).equal(2);
-        expect(
-          body.Resources.findIndex(
-            (x: any) => x.displayName === `${groupName} Renamed twice`,
-          ),
-        ).not.equal(-1);
-      });
-
-      agHelper.VisitNAssert("/settings/groups", "getEnvVariables");
-      agHelper.WaitUntilEleAppear(RBAC.searchBar);
-      agHelper.TypeText(RBAC.searchBar, `${groupName} Renamed twice`);
-      agHelper.GetNAssertContains(
-        RBAC.searchHighlight,
-        `${groupName} Renamed twice`,
-      );
-      cy.get(RBAC.searchHighlight)
-        .siblings(RBAC.provisionedIcon)
-        .should("exist");
-
-      agHelper.VisitNAssert(`/settings/groups/${groupId}`, "getEnvVariables");
-      agHelper.WaitUntilEleAppear(RBAC.searchBar);
-      agHelper.AssertElementLength(RBAC.groupMembers, 1);
-      agHelper.GetNAssertContains(RBAC.groupMembers, email2);
-      agHelper.GetNAssertContains(RBAC.groupMembers, email, "not.exist");
-      agHelper.AssertElementEnabledDisabled(RBAC.addButton, 0, true);
-    });
-  });
-
-  it("13. Update a group's members using PATCH update by adding a user via SCIM", function () {
-    const groupObj: any = {
-      members: [{ operation: "add", value: userId, type: "User" }],
-    };
-
-    provisioning.PatchGroup(apiKey, groupObj, groupId).then((response) => {
-      const body = response.body;
-      expect(response.status).equal(200);
-
-      expect(body).to.have.property(GroupAttributes.id);
-      expect(body).to.have.property(GroupAttributes.displayName);
-      expect(body).to.have.property(GroupAttributes.description);
-      expect(body.displayName).equal(`${groupName} Renamed twice`);
-      expect(body.description).equal("Test Group Description Renamed twice");
-
-      groupId = body.id;
-      provisioning.GetGroups(apiKey).then((response) => {
-        const body = response.body;
-        expect(response.status).equal(200);
-
-        expect(body.totalResults).equal(2);
-        expect(body.itemsPerPage).equal(2);
-        expect(body.Resources.length).equal(2);
-        expect(
-          body.Resources.findIndex(
-            (x: any) => x.displayName === `${groupName} Renamed twice`,
-          ),
-        ).not.equal(-1);
-      });
-
-      agHelper.VisitNAssert("/settings/groups", "getEnvVariables");
-      agHelper.WaitUntilEleAppear(RBAC.searchBar);
-      agHelper.TypeText(RBAC.searchBar, `${groupName} Renamed twice`);
-      agHelper.GetNAssertContains(
-        RBAC.searchHighlight,
-        `${groupName} Renamed twice`,
-      );
-      cy.get(RBAC.searchHighlight)
-        .siblings(RBAC.provisionedIcon)
-        .should("exist");
-
-      agHelper.VisitNAssert(`/settings/groups/${groupId}`, "getEnvVariables");
-      agHelper.WaitUntilEleAppear(RBAC.searchBar);
-      agHelper.AssertElementLength(RBAC.groupMembers, 2);
-      agHelper.GetNAssertContains(RBAC.groupMembers, email2);
-      agHelper.GetNAssertContains(RBAC.groupMembers, email);
-      agHelper.AssertElementEnabledDisabled(RBAC.addButton, 0, true);
-    });
-  });
-
-  it("14. Update a group's members using PATCH update by removing the user via SCIM", function () {
-    const groupObj: any = {
-      members: [{ operation: "delete", value: userId2, type: "User" }],
-    };
-
-    provisioning.PatchGroup(apiKey, groupObj, groupId).then((response) => {
-      const body = response.body;
-      expect(response.status).equal(200);
-
-      expect(body).to.have.property(GroupAttributes.id);
-      expect(body).to.have.property(GroupAttributes.displayName);
-      expect(body).to.have.property(GroupAttributes.description);
-      expect(body.displayName).equal(`${groupName} Renamed twice`);
-      expect(body.description).equal("Test Group Description Renamed twice");
-
-      groupId = body.id;
-      provisioning.GetGroups(apiKey).then((response) => {
-        const body = response.body;
-        expect(response.status).equal(200);
-
-        expect(body.totalResults).equal(2);
-        expect(body.itemsPerPage).equal(2);
-        expect(body.Resources.length).equal(2);
-        expect(
-          body.Resources.findIndex(
-            (x: any) => x.displayName === `${groupName} Renamed twice`,
-          ),
-        ).not.equal(-1);
-      });
-
-      agHelper.VisitNAssert("/settings/groups", "getEnvVariables");
-      agHelper.WaitUntilEleAppear(RBAC.searchBar);
-      agHelper.TypeText(RBAC.searchBar, `${groupName} Renamed twice`);
-      agHelper.GetNAssertContains(
-        RBAC.searchHighlight,
-        `${groupName} Renamed twice`,
-      );
-      cy.get(RBAC.searchHighlight)
-        .siblings(RBAC.provisionedIcon)
-        .should("exist");
-
-      agHelper.VisitNAssert(`/settings/groups/${groupId}`, "getEnvVariables");
-      agHelper.WaitUntilEleAppear(RBAC.searchBar);
-      agHelper.AssertElementLength(RBAC.groupMembers, 1);
-      agHelper.GetNAssertContains(RBAC.groupMembers, email);
       agHelper.GetNAssertContains(RBAC.groupMembers, email2, "not.exist");
       agHelper.AssertElementEnabledDisabled(RBAC.addButton, 0, true);
     });
   });
 
-  it("15. Delete a user via SCIM", function () {
+  it("14. Delete a user via SCIM", function () {
     provisioning.DeleteUser(apiKey, userId).then((response) => {
       expect(response.status).equal(204);
 
@@ -888,7 +710,7 @@ describe("SCIM Provisioning", function () {
     });
   });
 
-  it("16. Delete a group via SCIM", function () {
+  it("15. Delete a group via SCIM", function () {
     provisioning.DeleteGroup(apiKey, groupId).then((response) => {
       expect(response.status).equal(204);
 
@@ -913,7 +735,7 @@ describe("SCIM Provisioning", function () {
     });
   });
 
-  it("17. Disable SCIM provisioning", function () {
+  it("16. Disable SCIM provisioning", function () {
     adminSettings.NavigateToAdminSettings();
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);
@@ -964,7 +786,7 @@ describe("SCIM Provisioning", function () {
   });
 
   // Re-configuring SCIM to no resources synced flow
-  it("18. Go to admin settings and configure SCIM", function () {
+  it("17. Go to admin settings and configure SCIM", function () {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);
@@ -992,24 +814,6 @@ describe("SCIM Provisioning", function () {
         scimEndpointUrl = value;
       });
 
-    // agHelper.GetNClick(provisioning.locators.inputScimApiEndpoint);
-    // agHelper.WaitUntilToastDisappear("SCIM API endpoint copied to clipboard");
-
-    // cy.window()
-    //   .its("navigator.clipboard")
-    //   .invoke("readText")
-    //   .then((text) => {
-    //     cy.wrap(text).as("scimEndpointUrl");
-    //   });
-
-    // cy.get("@scimEndpointUrl").then((url) => {
-    //   scimEndpointUrl = url.toString();
-    // agHelper.ValidateFieldInputValue(
-    //   provisioning.locators.inputScimApiEndpoint,
-    //   scimEndpointUrl,
-    // );
-    // });
-
     agHelper.GetElementsNAssertTextPresence(
       provisioning.locators.generateApiKeyButton,
       "Generate API key",
@@ -1020,23 +824,9 @@ describe("SCIM Provisioning", function () {
       .then((value: any) => {
         apiKey = value;
       });
-    // agHelper.GetNClick(provisioning.locators.inputScimApiKey);
-    // agHelper.WaitUntilToastDisappear(
-    //   "API key to setup SCIM copied to clipboard",
-    // );
-    // cy.window()
-    //   .its("navigator.clipboard")
-    //   .invoke("readText")
-    //   .then((text) => {
-    //     cy.wrap(text).as("apiKey");
-    //   });
-
-    // cy.get("@apiKey").then((key) => {
-    //   apiKey = key;
-    // });
   });
 
-  it("19. Disable SCIM provisioning", function () {
+  it("18. Disable SCIM provisioning", function () {
     adminSettings.NavigateToAdminSettings();
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);
@@ -1069,7 +859,7 @@ describe("SCIM Provisioning", function () {
   });
 
   // Re-configuring SCIM to test Keep resources flow
-  it("20. Go to admin settings and configure SCIM", function () {
+  it("19. Go to admin settings and configure SCIM", function () {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);
@@ -1097,24 +887,6 @@ describe("SCIM Provisioning", function () {
         scimEndpointUrl = value;
       });
 
-    // agHelper.GetNClick(provisioning.locators.inputScimApiEndpoint);
-    // agHelper.WaitUntilToastDisappear("SCIM API endpoint copied to clipboard");
-
-    // cy.window()
-    //   .its("navigator.clipboard")
-    //   .invoke("readText")
-    //   .then((text) => {
-    //     cy.wrap(text).as("scimEndpointUrl");
-    //   });
-
-    // cy.get("@scimEndpointUrl").then((url) => {
-    //   scimEndpointUrl = url.toString();
-    // agHelper.ValidateFieldInputValue(
-    //   provisioning.locators.inputScimApiEndpoint,
-    //   scimEndpointUrl,
-    // );
-    // });
-
     agHelper.GetElementsNAssertTextPresence(
       provisioning.locators.generateApiKeyButton,
       "Generate API key",
@@ -1125,23 +897,9 @@ describe("SCIM Provisioning", function () {
       .then((value: any) => {
         apiKey = value;
       });
-    // agHelper.GetNClick(provisioning.locators.inputScimApiKey);
-    // agHelper.WaitUntilToastDisappear(
-    //   "API key to setup SCIM copied to clipboard",
-    // );
-    // cy.window()
-    //   .its("navigator.clipboard")
-    //   .invoke("readText")
-    //   .then((text) => {
-    //     cy.wrap(text).as("apiKey");
-    //   });
-
-    // cy.get("@apiKey").then((key) => {
-    //   apiKey = key;
-    // });
   });
 
-  it("21. Create a user via SCIM", function () {
+  it("20. Create a user via SCIM", function () {
     const userObj: any = {
       userName: email,
       displayName: "Test User",
@@ -1194,7 +952,7 @@ describe("SCIM Provisioning", function () {
     });
   });
 
-  it("22. Create a group via SCIM", function () {
+  it("21. Create a group via SCIM", function () {
     const groupObj: any = {
       displayName: groupName,
       description: "Test Group Description",
@@ -1242,7 +1000,7 @@ describe("SCIM Provisioning", function () {
     });
   });
 
-  it("23. Disable SCIM provisioning", function () {
+  it("22. Disable SCIM provisioning", function () {
     adminSettings.NavigateToAdminSettings();
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);

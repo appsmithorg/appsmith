@@ -24,14 +24,14 @@ export class Provisioning {
     upgradeButton: "[data-testid='t--button-upgrade']",
   };
 
-  public UpdateLicenseKey(type?: string) {
+  public UpdateLicenseKey(type?: "business" | "enterprise") {
     cy.request({
       method: "PUT",
       url: "/api/v1/tenants/license",
       body: {
         key:
-          type === "enterprise"
-            ? "ENTERPRISE-LICENSE-KEY"
+          type === "business"
+            ? "BUSINESS-PAID-LICENSE-KEY"
             : "VALID-LICENSE-KEY",
       },
       failOnStatusCode: false,
