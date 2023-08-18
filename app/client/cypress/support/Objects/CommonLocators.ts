@@ -252,6 +252,8 @@ export class CommonLocators {
   _appEditMenu = "[data-testid='t--application-edit-menu']";
   _appEditMenuBtn = "[data-testid='t--application-edit-menu-cta']";
   _appEditMenuSettings = "[data-testid='t--application-edit-menu-settings']";
+  _appEditExportSettings =
+    "[data-testid='t--application-edit-menu-export-application']";
   _appThemeSettings = "#t--theme-settings-header";
   _appChangeThemeBtn = ".t--change-theme-btn";
   _appThemeCard = ".t--theme-card";

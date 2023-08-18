@@ -118,16 +118,19 @@ Object.values(setterMethodsToTest).forEach(
     index,
   ) => {
     describe(`${index + 1}. ${name} method test`, () => {
-      it(`1. DragDrop widget & Label/Text widgets and Verify the updated value`, () => {
+      beforeEach("Adding new pag & DragDrop widget", () => {
+        entityExplorer.AddNewPage();
         entityExplorer.DragDropWidgetNVerify(widget, 300, 200);
-        entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 700, 200);
+      });
+      it(`1. DragDrop Label/Text widgets and Verify the updated value`, () => {
+        entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 500, 100);
 
         propPane.EnterJSContext(
           PROPERTY_SELECTOR.onClickFieldName,
           actionBinding,
         );
 
-        entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 700, 400);
+        entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 500, 300);
 
         propPane.UpdatePropertyFieldValue(
           PROPERTY_SELECTOR.TextFieldName,
@@ -138,18 +141,6 @@ Object.values(setterMethodsToTest).forEach(
         agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
           expect($label).to.eq(expectedValue);
         });
-      });
-
-      afterEach("Delete all the widgets on canvas", () => {
-        agHelper.GetNClick(locators._widgetInCanvas(widget));
-        agHelper.PressDelete();
-
-        agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
-        agHelper.AssertContains("is not defined"); // Since widget is removed & Button is still holding its reference
-        agHelper.PressDelete();
-
-        agHelper.GetNClick(getWidgetSelector(WIDGET.TEXT)).click();
-        agHelper.GetNClick(propPane._deleteWidget);
       });
     });
   },

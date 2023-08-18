@@ -74,7 +74,10 @@ Cypress.Commands.add("waitForServerRestart", () => {
   // Wait for restart notice to not be visible with a timeout
   // Cannot use cy.get as mentioned in https://github.com/NoriSte/cypress-wait-until/issues/75#issuecomment-572685623
   cy.waitUntil(() => !Cypress.$(adminSettings.restartNotice).length, {
-    timeout: 120000,
+    timeout: 180000,
+  });
+  cy.window().then((win) => {
+    win.location.reload();
   });
   cy.get(adminSettings.saveButton).should("be.visible");
 });

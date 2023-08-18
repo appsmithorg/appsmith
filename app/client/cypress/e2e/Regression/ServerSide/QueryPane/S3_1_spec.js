@@ -73,11 +73,21 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       );
     });
     cy.wait(2000);
-    cy.typeValueNValidate(
-      "assets-test.appsmith.com",
-      formControls.s3BucketName,
+    // agHelper.ActionContextMenuWithInPane({
+    //   action: "Delete",
+    //   entityType: entityItems.Query,
+    // });//do not want to delete it for the sake of keeping the DS in Entity Explorer
+    entityExplorer.ExpandCollapseEntity(datasourceName);
+
+    entityExplorer.ActionTemplateMenuByEntityName(
+      "assets-test--appsmith",
+      "List files",
     );
-    cy.runAndDeleteQuery();
+    dataSources.RunQuery();
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 
   it("2. Validate Create file in bucket command for new file, Verify possible error msgs, run & delete the query", () => {

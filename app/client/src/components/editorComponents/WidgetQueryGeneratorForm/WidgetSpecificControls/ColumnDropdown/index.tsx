@@ -10,9 +10,12 @@ type Props = {
   alias: string;
   label: string;
   onSelect: () => void;
+  isSearcheable: boolean;
 };
 
 function ColumnDropdown(props: Props) {
+  const { alias, isSearcheable } = props;
+
   const {
     disabled,
     error,
@@ -22,7 +25,7 @@ function ColumnDropdown(props: Props) {
     options,
     selected,
     show,
-  } = useColumns(props.alias);
+  } = useColumns(alias, isSearcheable);
 
   if (show) {
     return (
