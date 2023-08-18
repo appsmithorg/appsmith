@@ -27,6 +27,7 @@ const PublishCommunityTemplate = () => {
   const [templateName, setTemplateName] = useState("");
   const [templateExcerpt, setTemplateExcerpt] = useState("");
   const [templateDescription, setTemplateDescription] = useState("");
+  const [templateUseCases, settemplateUseCases] = useState<string[]>([]);
 
   const [authorName, setAuthorName] = useState(currentUser?.name || "");
   const [authorEmail, setAuthorEmail] = useState(currentUser?.email || "");
@@ -75,9 +76,11 @@ const PublishCommunityTemplate = () => {
             setTemplateDescription={setTemplateDescription}
             setTemplateExcerpt={setTemplateExcerpt}
             setTemplateName={setTemplateName}
+            setTemplateUseCases={settemplateUseCases}
             templateDescription={templateDescription}
             templateExcerpt={templateExcerpt}
             templateName={templateName}
+            templateUseCases={templateUseCases}
           />
           <AuthorDetailsInput
             authorEmail={authorEmail}

@@ -9,26 +9,30 @@ import {
   COMMUNITY_TEMPLATES,
   createMessage,
 } from "@appsmith/constants/messages";
+import { useSelector } from "react-redux";
+import { allTemplatesFiltersSelector } from "selectors/templatesSelectors";
 
 type Props = {
   setTemplateDescription: (templateDescription: string) => void;
   setTemplateExcerpt: (excerpt: string) => void;
   setTemplateName: (templateName: string) => void;
+  setTemplateUseCases: (useCases: string[]) => void;
   templateDescription: string;
   templateExcerpt: string;
   templateName: string;
-  // useCases: string[];
+  templateUseCases: string[];
 };
 
 const TemplateInfoForm = ({
   setTemplateDescription,
   setTemplateExcerpt,
   setTemplateName,
+  setTemplateUseCases,
   templateDescription,
   templateExcerpt,
   templateName,
+  templateUseCases,
 }: Props) => {
-  const useCases: string[] = ["Operations", "DevOps", "HR", "Finance"];
   return (
     <TemplateInfoFormWrapper>
       <TemplateInfoFormFieldWrapper>
@@ -90,16 +94,39 @@ const TemplateInfoForm = ({
             COMMUNITY_TEMPLATES.publishFormPage.templateForm.useCasesInputLabel,
           )}
         </TemplateInfoFormLabelWrapper>
-        <Select isMultiSelect>
-          {useCases.map((useCase, index) => (
-            <Option key={`${useCase}-${index}`} label={useCase} value={useCase}>
-              {useCase}
-            </Option>
-          ))}
-        </Select>
+        <UseCasesSelect
+          setTemplateUseCases={setTemplateUseCases}
+          templateUseCases={templateUseCases}
+        />
       </TemplateInfoFormFieldWrapper>
     </TemplateInfoFormWrapper>
   );
 };
 
 export default TemplateInfoForm;
+
+type UseCaseProps = {
+  setTemplateUseCases: (useCases: string[]) => void;
+  templateUseCases: string[];
+};
+const UseCasesSelect = ({
+  setTemplateUseCases,
+  templateUseCases,
+}: UseCaseProps) => {
+  const filters = useSelector(allTemplatesFiltersSelector);
+  const useCases = filters.useCases;
+  return (
+    <Select
+      isMultiSelect
+      onChange={setTemplateUseCases}
+      value={templateUseCases}
+    >
+      {useCases &&
+        useCases.map((useCase, index) => (
+          <Option key={`${useCase}-${index}`} label={useCase} value={useCase}>
+            {useCase}
+          </Option>
+        ))}
+    </Select>
+  );
+};
