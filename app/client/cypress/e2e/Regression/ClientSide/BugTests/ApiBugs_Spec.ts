@@ -5,7 +5,7 @@ import {
   apiPage,
   dataSources,
   debuggerHelper,
-  tedTestConfig,
+  dataManager,
   propPane,
   table,
 } from "../../../../support/Objects/ObjectsCore";
@@ -31,7 +31,7 @@ describe("API Bugs", function () {
   it("1. Bug 14037, 25432: User gets an error even when table widget is added from the API page successfully", function () {
     // Case where api returns array response
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     apiPage.RunAPI();
     dataSources.AddSuggestedWidget(Widgets.Table);
@@ -41,7 +41,7 @@ describe("API Bugs", function () {
 
     // Create another API so that it returns object response
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiObjectUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiObjectUrl,
     );
     apiPage.RunAPI();
     dataSources.AddSuggestedWidget(Widgets.Table);
@@ -69,7 +69,7 @@ describe("API Bugs", function () {
 
   it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
       "FirstAPI",
       10000,
       "POST",

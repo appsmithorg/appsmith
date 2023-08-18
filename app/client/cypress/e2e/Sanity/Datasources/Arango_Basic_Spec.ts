@@ -5,7 +5,7 @@ import {
   dataSources,
   draggableWidgets,
   propPane,
-  tedTestConfig,
+  dataManager,
   locators,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
@@ -27,9 +27,9 @@ describe("Validate Arango & CURL Import Datasources", () => {
     let curlCollectionCreate =
       `curl --request POST \
     --url http://` +
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].arango_host +
+      dataManager.dsValues[dataManager.defaultEnviorment].arango_host +
       `:` +
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].arango_port +
+      dataManager.dsValues[dataManager.defaultEnviorment].arango_port +
       `/_api/collection \
     --header 'authorization: Basic cm9vdDpBcmFuZ28=' \
     --header 'content-type: application/json' \
@@ -60,9 +60,9 @@ describe("Validate Arango & CURL Import Datasources", () => {
     //Add data into this newly created collection
     let curlDataAdd =
       `curl --request POST --url http://` +
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].arango_host +
+      dataManager.dsValues[dataManager.defaultEnviorment].arango_host +
       `:` +
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].arango_port +
+      dataManager.dsValues[dataManager.defaultEnviorment].arango_port +
       `/_api/document/${collectionName} \
       --header 'authorization: Basic cm9vdDpBcmFuZ28=' \
       --header 'content-type: application/json' \
@@ -327,9 +327,9 @@ describe("Validate Arango & CURL Import Datasources", () => {
     //entityExplorer.CreateNewDsQuery("New cURL import", false); Script failing here, but manually working, to check
     let curlDeleteCol =
       `curl --request DELETE --url http://` +
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].arango_host +
+      dataManager.dsValues[dataManager.defaultEnviorment].arango_host +
       `:` +
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].arango_port +
+      dataManager.dsValues[dataManager.defaultEnviorment].arango_port +
       `/_db/_system/_api/collection/${collectionName} --header 'authorization: Basic cm9vdDpBcmFuZ28='`;
     //dataSources.ImportCurlNRun(curlDeleteCol);
     dataSources.FillCurlNImport(curlDeleteCol);
