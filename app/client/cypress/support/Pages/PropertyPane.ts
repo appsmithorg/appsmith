@@ -241,7 +241,7 @@ export class PropertyPane {
     propertyName: string,
     toggle: "On" | "Off" = "On",
     networkCall = "updateLayout",
-    toValidateNetworkCall = true
+    toValidateNetworkCall = true,
   ) {
     if (toggle == "On") {
       this.agHelper
@@ -255,9 +255,8 @@ export class PropertyPane {
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
-    if(toValidateNetworkCall)
-    {
-    networkCall && this.assertHelper.AssertNetworkStatus(networkCall);
+    if (toValidateNetworkCall) {
+      networkCall && this.assertHelper.AssertNetworkStatus(networkCall);
     }
   }
 
