@@ -9,7 +9,7 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 
 let gitSync = ObjectsRegistry.GitSync,
   agHelper = ObjectsRegistry.AggregateHelper,
-  dataManager = ObjectsRegistry.TEDTestConfigs;
+  dataManager = ObjectsRegistry.DataManager;
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
