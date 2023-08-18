@@ -40,6 +40,7 @@ describe("Button widget testcases", () => {
       prettify: true,
     });
     entityExplorer.SelectEntityByName("Button1");
+    // on submitting the button run the query and assert the toast message
     propPane.EnterJSContext("onClick", "{{JSObject1.run()}}");
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
@@ -53,28 +54,37 @@ describe("Button widget testcases", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
     propPane.SelectPropertiesDropDown("Data type", "Email");
     agHelper.TypeText(clocators.inputField, fakerHelper.GetRandomNumber());
+    // assert submit button us disabled
     agHelper.AssertElementClassContainsDisabled(
       locators._buttonWidgetInForm,
       0,
     );
     deployMode.DeployApp();
+    // assert submit button us enabled
     agHelper.AssertElementEnabledDisabled(
       locators._buttonWidgetInForm,
       1,
       false,
     );
+    // set invalid text
     agHelper.TypeText(clocators.inputField, fakerHelper.GetRandomNumber());
+    // assert submit button us disabled
     agHelper.AssertElementEnabledDisabled(locators._buttonWidgetInForm);
     deployMode.NavigateBacktoEditor();
     entityExplorer.ExpandCollapseEntity("Form1");
     entityExplorer.SelectEntityByName("Button1");
+    // disable form validation
     propPane.TogglePropertyState("Disabled invalid forms", "Off");
+    // set invalid text
     agHelper.TypeText(clocators.inputField, fakerHelper.GetRandomNumber());
+    // assert submit button us enabled since disabled invalid form is off
     agHelper.AssertElementEnabledDisabled(
       locators._buttonWidgetInForm,
       1,
       false,
     );
+    // ssert submit button us enabled since disabled invalid form is off in deploy mode
+
     deployMode.DeployApp();
     agHelper.TypeText(clocators.inputField, fakerHelper.GetRandomNumber());
     agHelper.AssertElementEnabledDisabled(
@@ -90,15 +100,14 @@ describe("Button widget testcases", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
     propPane.SelectPropertiesDropDown("Data type", "Email");
-
     propPane.UpdatePropertyFieldValue(
       "Default value",
       "{{Api1.data[0].email}}",
     );
     entityExplorer.SelectEntityByName("Api1", "Queries/JS");
     apiPage.RunAPI();
-
     entityExplorer.SelectEntityByName("Form1");
+    // assert submit button us enabled
     agHelper.AssertElementEnabledDisabled(
       locators._buttonWidgetInForm,
       0,
@@ -112,7 +121,9 @@ describe("Button widget testcases", () => {
     );
     entityExplorer.SelectEntityByName("Form1");
     agHelper.ClickButton("Submit");
+    // assert form value before deploy
     agHelper.ValidateToastMessage("@example");
+    // assert after deploy
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("@example");
@@ -124,7 +135,6 @@ describe("Button widget testcases", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
     propPane.SelectPropertiesDropDown("Data type", "Email");
-
     propPane.UpdatePropertyFieldValue(
       "Default value",
       "{{Api1.data[0].email}}",
@@ -140,20 +150,27 @@ describe("Button widget testcases", () => {
     );
     propPane.TogglePropertyState("Reset form on success", "On");
     deployMode.DeployApp();
+    // set the email
     agHelper.TypeText(clocators.inputField, Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");
+    // assert the email set
     agHelper.ValidateToastMessage(Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");
+    // on submit form should be reset and default value should ahve populated
     agHelper.ValidateToastMessage("@example");
     deployMode.NavigateBacktoEditor();
     entityExplorer.ExpandCollapseEntity("Form1");
     entityExplorer.SelectEntityByName("Button1");
     propPane.TogglePropertyState("Reset form on success", "Off");
     deployMode.DeployApp();
+    // set the email
     agHelper.TypeText(clocators.inputField, Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");
+    // assert the email on submit
     agHelper.ValidateToastMessage(Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");
+    // default is set to a different value, so after submit it should not reset to default value,
+    // hene assert the same email which was set
     agHelper.ValidateToastMessage(Cypress.env("USERNAME"));
     deployMode.NavigateBacktoEditor();
   });
