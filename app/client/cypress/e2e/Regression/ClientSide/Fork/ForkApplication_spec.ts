@@ -112,7 +112,7 @@ describe("Fork application across workspaces", function () {
     });
   });
 
-  it("Mark application as forkable", () => {
+  it("3. Mark application as forkable", () => {
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToEmbedSettings();
     _.embedSettings.ToggleMarkForkable();
@@ -128,7 +128,7 @@ describe("Fork application across workspaces", function () {
       cy.url().then((url) => {
         cy.LogOut();
         cy.Signup(`${uid}@appsmith.com`, uid);
-        cy.visit(url);
+        _.agHelper.VisitNAssert(url);
         _.agHelper.AssertElementVisibility(applicationLocators.forkButton);
       });
     });
