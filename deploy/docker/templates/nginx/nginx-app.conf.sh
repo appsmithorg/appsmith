@@ -140,6 +140,8 @@ fi
   }
 
   location /login {
+    limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
+    limit_req zone=login;
     proxy_pass http://localhost:8080;
   }
 
