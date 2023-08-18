@@ -5,7 +5,7 @@ import {
   draggableWidgets,
   deployMode,
   apiPage,
-  tedTestConfig,
+  dataManager,
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
@@ -42,7 +42,7 @@ const verifyDefaultItem = () => {
 
 function setUpDataSource() {
   apiPage.CreateAndFillApi(
-    tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl + "0",
+    dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl + "0",
   );
   apiPage.RunAPI(false);
   entityExplorer.SelectEntityByName("List1");

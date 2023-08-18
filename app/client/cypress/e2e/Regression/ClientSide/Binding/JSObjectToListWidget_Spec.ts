@@ -8,7 +8,7 @@ describe("Validate JSObj binding to Table widget", () => {
 
   it("1. Add users api and bind to JSObject", () => {
     _.apiPage.CreateAndFillApi(
-      _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment].mockApiUrl,
+      _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
     );
     _.apiPage.RunAPI();
     _.agHelper.GetNClick(_.dataSources._queryResponse("JSON"));
