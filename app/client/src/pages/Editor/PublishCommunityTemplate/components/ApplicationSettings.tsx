@@ -9,9 +9,16 @@ import styled from "styled-components";
 type Props = {
   isForkable: boolean;
   isPublic: boolean;
+  setIsForkable: (isForkable: boolean) => void;
+  setIsPublic: (isForkable: boolean) => void;
 };
 
-const ApplicationSettings = ({ isForkable, isPublic }: Props) => {
+const ApplicationSettings = ({
+  isForkable,
+  isPublic,
+  setIsForkable,
+  setIsPublic,
+}: Props) => {
   return (
     <Container>
       <Text kind="heading-s" renderAs="h2">
@@ -19,12 +26,12 @@ const ApplicationSettings = ({ isForkable, isPublic }: Props) => {
           COMMUNITY_TEMPLATES.publishFormPage.applicationSettings.title,
         )}
       </Text>
-      <Switch isSelected={isPublic}>
+      <Switch isSelected={isPublic} onChange={setIsPublic}>
         {createMessage(
           COMMUNITY_TEMPLATES.publishFormPage.applicationSettings.publicSetting,
         )}
       </Switch>
-      <Switch isSelected={isForkable}>
+      <Switch isSelected={isForkable} onChange={setIsForkable}>
         {createMessage(
           COMMUNITY_TEMPLATES.publishFormPage.applicationSettings
             .forkableSetting,

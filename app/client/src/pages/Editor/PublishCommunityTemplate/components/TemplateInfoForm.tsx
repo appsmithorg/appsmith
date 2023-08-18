@@ -10,7 +10,24 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 
-const TemplateInfoForm = () => {
+type Props = {
+  setTemplateDescription: (templateDescription: string) => void;
+  setTemplateExcerpt: (excerpt: string) => void;
+  setTemplateName: (templateName: string) => void;
+  templateDescription: string;
+  templateExcerpt: string;
+  templateName: string;
+  // useCases: string[];
+};
+
+const TemplateInfoForm = ({
+  setTemplateDescription,
+  setTemplateExcerpt,
+  setTemplateName,
+  templateDescription,
+  templateExcerpt,
+  templateName,
+}: Props) => {
   const useCases: string[] = ["Operations", "DevOps", "HR", "Finance"];
   return (
     <TemplateInfoFormWrapper>
@@ -21,6 +38,7 @@ const TemplateInfoForm = () => {
             COMMUNITY_TEMPLATES.publishFormPage.templateForm.titleInputLabel,
           )}
           labelPosition="top"
+          onChange={setTemplateName}
           placeholder={createMessage(
             COMMUNITY_TEMPLATES.publishFormPage.templateForm
               .titleInputPlaceholder,
@@ -28,6 +46,7 @@ const TemplateInfoForm = () => {
           renderAs="input"
           size="md"
           type="text"
+          value={templateName}
         />
       </TemplateInfoFormFieldWrapper>
       <TemplateInfoFormFieldWrapper>
@@ -36,6 +55,7 @@ const TemplateInfoForm = () => {
             COMMUNITY_TEMPLATES.publishFormPage.templateForm.excerptInputLabel,
           )}
           labelPosition="top"
+          onChange={setTemplateExcerpt}
           placeholder={createMessage(
             COMMUNITY_TEMPLATES.publishFormPage.templateForm
               .excerptInputPlaceholder,
@@ -43,6 +63,7 @@ const TemplateInfoForm = () => {
           renderAs="input"
           size="md"
           type="text"
+          value={templateExcerpt}
         />
       </TemplateInfoFormFieldWrapper>
       <TemplateInfoFormFieldWrapper>
@@ -52,6 +73,7 @@ const TemplateInfoForm = () => {
               .descriptionInputLabel,
           )}
           labelPosition="top"
+          onChange={setTemplateDescription}
           placeholder={createMessage(
             COMMUNITY_TEMPLATES.publishFormPage.templateForm
               .descriptionInputPlaceholder,
@@ -59,6 +81,7 @@ const TemplateInfoForm = () => {
           renderAs="textarea"
           size="md"
           type="text"
+          value={templateDescription}
         />
       </TemplateInfoFormFieldWrapper>
       <TemplateInfoFormFieldWrapper>

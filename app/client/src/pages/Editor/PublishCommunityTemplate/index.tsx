@@ -24,8 +24,15 @@ import ApplicationSettings from "./components/ApplicationSettings";
 const PublishCommunityTemplate = () => {
   const currentUser = useSelector(getCurrentUser);
 
+  const [templateName, setTemplateName] = useState("");
+  const [templateExcerpt, setTemplateExcerpt] = useState("");
+  const [templateDescription, setTemplateDescription] = useState("");
+
   const [authorName, setAuthorName] = useState(currentUser?.name || "");
   const [authorEmail, setAuthorEmail] = useState(currentUser?.email || "");
+
+  const [isPublicSetting, setIsPublicSetting] = useState(true);
+  const [isForkableSetting, setIsForkableSetting] = useState(true);
   return (
     <>
       <PublishPageHeaderContainer>
@@ -38,12 +45,19 @@ const PublishCommunityTemplate = () => {
       </PublishPageHeaderContainer>
       <PublishPageBodyContainer>
         <TemplateCardPreview
-          excerpt="A cost tracker for OpenAI API"
-          templateName="Open AI usage Dashboard"
+          excerpt={templateExcerpt}
+          templateName={templateName}
           useCases={["Operations", "DevOps"]}
         />
         <PublishPageTemplateDetailsInputContainer>
-          <TemplateInfoForm />
+          <TemplateInfoForm
+            setTemplateDescription={setTemplateDescription}
+            setTemplateExcerpt={setTemplateExcerpt}
+            setTemplateName={setTemplateName}
+            templateDescription={templateDescription}
+            templateExcerpt={templateExcerpt}
+            templateName={templateName}
+          />
           <AuthorDetailsInput
             authorEmail={authorEmail}
             authorName={authorName}
@@ -53,7 +67,12 @@ const PublishCommunityTemplate = () => {
             setAuthorName={setAuthorName}
           />
           <PublishPageAppSettingContainer>
-            <ApplicationSettings isForkable isPublic />
+            <ApplicationSettings
+              isForkable={isForkableSetting}
+              isPublic={isPublicSetting}
+              setIsForkable={setIsForkableSetting}
+              setIsPublic={setIsPublicSetting}
+            />
           </PublishPageAppSettingContainer>
           <PublishedInfo />
         </PublishPageTemplateDetailsInputContainer>
