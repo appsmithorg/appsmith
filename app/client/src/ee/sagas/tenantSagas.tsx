@@ -49,6 +49,7 @@ import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { fetchFeatureFlagsInit } from "actions/userActions";
 
 export function* fetchCurrentTenantConfigSaga(): any {
   try {
@@ -217,6 +218,7 @@ export function* validateLicenseSaga(
           kind: "success",
         });
         yield put(showLicenseModal(false));
+        yield put(fetchFeatureFlagsInit());
       }
     } else {
       yield put({
