@@ -82,7 +82,6 @@
     "assert-never": "^1.2.1",
     "astring": "^1.7.5",
     "axios": "^0.27.2",
-    "circular-dependency-plugin": "^5.2.2",
     "classnames": "^2.3.1",
     "clsx": "^1.2.1",
     "codemirror": "^5.65.13",

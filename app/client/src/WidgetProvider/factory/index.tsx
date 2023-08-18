@@ -1,13 +1,12 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import React from "react";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { RenderMode } from "constants/WidgetConstants";
 import * as log from "loglevel";
-import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import type {
   AutocompletionDefinitions,
   AutoLayoutConfig,
   CanvasWidgetStructure,
+  WidgetConfigProps,
   WidgetMethods,
 } from "WidgetProvider/constants";
 import {
@@ -20,14 +19,8 @@ import {
 } from "./helpers";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import type BaseWidget from "widgets/BaseWidget";
-import { flow, identity } from "lodash";
-import withMeta from "widgets/MetaHOC";
-import withWidgetProps from "widgets/withWidgetProps";
-import { withLazyRender } from "widgets/withLazyRender";
-import * as Sentry from "@sentry/react";
+import { flow } from "lodash";
 import { generateReactKey } from "utils/generators";
-import store from "store";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   WidgetFeaturePropertyEnhancements,
   WidgetFeatureProps,
@@ -66,13 +59,17 @@ class WidgetFactory {
 
   static widgetsMap: Map<WidgetType, typeof BaseWidget> = new Map();
 
-  static initialize(widgets: (typeof BaseWidget)[]) {
+  static widgetBuilderMap: Map<WidgetType, any> = new Map();
+
+  static initialize(widgets: (typeof BaseWidget | any)[]) {
     const start = performance.now();
 
-    for (const widget of widgets) {
+    for (const [widget, builder] of widgets) {
       WidgetFactory.widgetsMap.set(widget.type, widget);
 
       WidgetFactory.widgetTypes[widget.type] = widget.type;
+
+      WidgetFactory.widgetBuilderMap.set(widget.type, builder);
 
       WidgetFactory.configureWidget(widget);
     }
@@ -116,11 +113,6 @@ class WidgetFactory {
     };
 
     this.widgetConfigMap.set(widget.type, Object.freeze(_config));
-
-    store.dispatch({
-      type: ReduxActionTypes.ADD_WIDGET_CONFIG,
-      payload: _config,
-    });
   }
 
   static get(type: WidgetType) {
@@ -135,17 +127,31 @@ class WidgetFactory {
     }
   }
 
+  static getConfig(type: WidgetType) {
+    const config = this.widgetConfigMap.get(type);
+
+    if (config) {
+      return config;
+    } else {
+      log.error(`Widget config is not registered for type: ${type}`);
+
+      return;
+    }
+  }
+
+  static getConfigs() {
+    return Object.fromEntries(this.widgetConfigMap);
+  }
+
   static createWidget(
     widgetData: CanvasWidgetStructure,
     renderMode: RenderMode,
   ): React.ReactNode {
     const { type } = widgetData;
 
-    const widget = this.widgetsMap.get(type);
+    const builder = this.widgetBuilderMap.get(type);
 
-    if (widget) {
-      const { eagerRender, needsMeta } = widget.getConfig();
-
+    if (builder) {
       const widgetProps = {
         key: widgetData.widgetId,
         isVisible: true,
@@ -153,19 +159,7 @@ class WidgetFactory {
         renderMode,
       };
 
-      const ProfiledWidget = GenericCache.has(`${type}.component`)
-        ? GenericCache.get(`${type}.component`)
-        : GenericCache.set(
-            `${type}.component`,
-            flow([
-              needsMeta ? withMeta : identity,
-              withWidgetProps,
-              eagerRender ? identity : withLazyRender,
-              Sentry.withProfiler,
-            ])(widget),
-          );
-
-      return <ProfiledWidget {...widgetProps} key={widgetProps.widgetId} />;
+      return builder(widgetProps);
     } else {
       const ex: WidgetCreationException = {
         message:

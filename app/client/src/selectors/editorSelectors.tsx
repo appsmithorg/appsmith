@@ -334,11 +334,12 @@ export const getCurrentPageName = createSelector(
 );
 
 export const getWidgetCards = createSelector(
-  getWidgetConfigs,
   getIsAutoLayout,
   (_state) => selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
-  (widgetConfigs, isAutoLayout, isWDSEnabled) => {
-    const cards = Object.values(widgetConfigs.config).filter((config) => {
+  (isAutoLayout, isWDSEnabled) => {
+    const widgetConfigs = WidgetFactory.getConfigs();
+
+    const cards = Object.values(widgetConfigs).filter((config) => {
       // if wds_vs is not enabled, hide all wds_v2 widgets
       if (
         Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
