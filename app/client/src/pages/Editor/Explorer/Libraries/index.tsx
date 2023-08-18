@@ -28,6 +28,7 @@ import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
 import useClipboard from "utils/hooks/useClipboard";
 import {
+  clearInstalls,
   toggleInstaller,
   uninstallLibraryInit,
 } from "actions/JSLibraryActions";
@@ -311,7 +312,13 @@ function JSDependencies() {
     <Entity
       className={"group libraries"}
       customAddButton={
-        <Popover open={isOpen}>
+        <Popover
+          onOpenChange={() => {
+            dispatch(clearInstalls());
+            dispatch(toggleInstaller(false));
+          }}
+          open={isOpen}
+        >
           <Tooltip
             content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
             isDisabled={isOpen}
