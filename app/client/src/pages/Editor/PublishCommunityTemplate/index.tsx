@@ -10,8 +10,10 @@ import {
   PublishPageHeader,
   PublishPageHeaderContainer,
 } from "./styledComponents";
+import CommunityTempaltePublishSuccess from "./CommunityTempaltePublishSuccess";
 
 const PublishCommunityTemplate = () => {
+  const isAppPublished = true;
   return (
     <>
       <PublishPageHeaderContainer>
@@ -22,7 +24,11 @@ const PublishCommunityTemplate = () => {
           {createMessage(COMMUNITY_TEMPLATES.publishFormPage.title)}
         </Text>
       </PublishPageHeaderContainer>
-      <CommunityTemplateForm />
+      {isAppPublished ? (
+        <CommunityTempaltePublishSuccess />
+      ) : (
+        <CommunityTemplateForm />
+      )}
     </>
   );
 };

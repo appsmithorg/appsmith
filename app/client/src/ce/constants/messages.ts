@@ -1908,6 +1908,11 @@ export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";
 export const COMMUNITY_TEMPLATES = {
   publish: () => "Publish",
   cancel: () => "Cancel",
+  publishSuccessPage: {
+    title: () => "Your template is now live!",
+    description: () => "Thank you for your contribution to Appsmith community.",
+    viewTemplateButton: () => "View Template",
+  },
   publishFormPage: {
     title: () => "Publish to community",
     footerPublishButton: () => "Publish to community",
