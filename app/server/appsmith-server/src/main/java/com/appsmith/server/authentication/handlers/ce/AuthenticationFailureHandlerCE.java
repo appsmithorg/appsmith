@@ -9,7 +9,10 @@ import com.appsmith.server.services.SessionUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
@@ -136,6 +139,19 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
     }
 
     private Mono<String> getUserEmailFromSecurityContext() {
-        return sessionUserService.getCurrentUser().map(User::getEmail);
+        return ReactiveSecurityContextHolder.getContext()
+                .doOnNext(context -> log.debug("Got security context: {}", context))
+                .map(SecurityContext::getAuthentication)
+                .doOnNext(authentication -> log.debug("Got authentication: {}", authentication))
+                .map(Authentication::getPrincipal) // Get Principal without typecasting
+                .doOnNext(principal -> log.debug("Got principal: {}", principal))
+                .map(principal -> {
+                    if (principal instanceof User) {
+                        return ((User) principal).getEmail();
+                    } else {
+                        return "Unknown";
+                    }
+                })
+                .doOnNext(email -> log.debug("Got email: {}", email));
     }
 }

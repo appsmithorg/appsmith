@@ -22,7 +22,10 @@ public class RateLimitService {
     }
 
     public Mono<Boolean> tryIncreaseCounter(String apiIdentifier, String userIdentifier) {
-        log.info("RateLimitService.tryIncreaseCounter() called with apiIdentifier = {}, userIdentifier = {}", apiIdentifier, userIdentifier);
+        log.info(
+                "RateLimitService.tryIncreaseCounter() called with apiIdentifier = {}, userIdentifier = {}",
+                apiIdentifier,
+                userIdentifier);
         // handle the case where API itself is not rate limited
         if (!apiBuckets.containsKey(apiIdentifier)) return Mono.just(false);
 
