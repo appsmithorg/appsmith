@@ -256,8 +256,7 @@ describe("Autocomplete tests", () => {
     });
   });
 
-  //To fix soon
-  it.skip("7. Autocompletion for bindings inside array and objects", () => {
+  it("7. Autocompletion for bindings inside array and objects", () => {
     dataSources.CreateDataSource("Mongo", true, false);
     dataSources.CreateQueryAfterDSSaved();
 
