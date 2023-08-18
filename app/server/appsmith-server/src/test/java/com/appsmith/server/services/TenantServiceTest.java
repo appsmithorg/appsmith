@@ -17,8 +17,10 @@ import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
+import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -34,6 +36,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -49,7 +52,9 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -57,7 +62,10 @@ import java.util.UUID;
 import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -94,6 +102,9 @@ public class TenantServiceTest {
 
     @Autowired
     UserGroupRepository userGroupRepository;
+
+    @SpyBean
+    CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
 
     private Tenant tenant;
 
@@ -749,6 +760,8 @@ public class TenantServiceTest {
         }
     }
 
+    @Test
+    @WithUserDetails("api_user")
     public void updateTenantLicenseKey_validLicenseKeyWithDryRun_dbStateIsUnchanged() {
         String licenseKey = "sample-license-key";
         License license = new License();
@@ -784,6 +797,52 @@ public class TenantServiceTest {
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                     assertThat(tenantConfiguration.getLicense()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void forceUpdateFeatures_licenseUpdate_cacheUpdateSuccess() {
+        // Insert dummy value for tenant flags
+        Map<String, Boolean> flags = new HashMap<>();
+        String feature1 = UUID.randomUUID().toString();
+        String feature2 = UUID.randomUUID().toString();
+
+        flags.put(feature1, true);
+        flags.put(feature2, false);
+        FeaturesResponseDTO featuresResponseDTO = new FeaturesResponseDTO();
+        featuresResponseDTO.setFeatures(flags);
+
+        doReturn(Mono.just(featuresResponseDTO))
+                .when(cacheableFeatureFlagHelper)
+                .getRemoteFeaturesForTenant(any());
+
+        String defaultTenantId = tenantService.getDefaultTenantId().block();
+
+        String licenseKey = "sample-license-key";
+        License license = new License();
+        license.setActive(true);
+        license.setType(LicenseType.PAID);
+        license.setKey(licenseKey);
+        license.setStatus(LicenseStatus.valueOf("ACTIVE"));
+        license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
+        license.setOrigin(LicenseOrigin.SELF_SERVE);
+        license.setPlan(LicensePlan.SELF_SERVE);
+
+        // Mock CS response to get valid license
+        Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
+
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false);
+        // Check after force update if we get updated values for existing features
+        tenantService.updateTenantLicenseKey(updateLicenseKeyDTO).block();
+        Mono<CachedFeatures> updatedCacheMono =
+                cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(defaultTenantId);
+        // Assert if the cache entry is updated
+        StepVerifier.create(updatedCacheMono)
+                .assertNext(cachedFeatures -> {
+                    assertTrue(cachedFeatures.getFeatures().get(feature1));
+                    assertFalse(cachedFeatures.getFeatures().get(feature2));
                 })
                 .verifyComplete();
     }

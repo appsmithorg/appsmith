@@ -15,6 +15,7 @@ import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.TenantRepository;
@@ -61,6 +62,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     private final WorkspaceRepository workspaceRepository;
     private final ApplicationRepository applicationRepository;
     private final RedirectHelper redirectHelper;
+    private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
     private final AssetService assetService;
     private final ObjectMapper objectMapper;
 
@@ -83,7 +85,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             LicenseAPIManager licenseAPIManager,
             RedirectHelper redirectHelper,
             AssetService assetService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            CacheableFeatureFlagHelper cacheableFeatureFlagHelper) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService);
         this.licenseAPIManager = licenseAPIManager;
@@ -93,6 +96,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         this.applicationRepository = applicationRepository;
         this.assetService = assetService;
         this.objectMapper = objectMapper;
+        this.cacheableFeatureFlagHelper = cacheableFeatureFlagHelper;
     }
 
     @Override
@@ -180,10 +184,9 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             return licenseAPIManager.downgradeTenantToFreePlan(tenant).flatMap(isSuccessful -> {
                 if (Boolean.TRUE.equals(isSuccessful)) {
                     tenant.getTenantConfiguration().setLicense(null);
-                    return this.update(tenant.getId(), tenant).map(updatedTenant -> {
-                        // TODO Update the flags in separate thread to keep the license plan and feature flags in sync
-                        return updatedTenant;
-                    });
+                    return this.update(tenant.getId(), tenant)
+                            .flatMap(updatedTenant -> this.forceUpdateTenantFeatures(updatedTenant.getId())
+                                    .thenReturn(updatedTenant));
                 }
                 return Mono.error(new AppsmithException(AppsmithError.TENANT_DOWNGRADE_EXCEPTION));
             });
@@ -284,8 +287,14 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                                 Mono.error(new AppsmithException(AppsmithError.INVALID_LICENSE_KEY_ENTERED)));
                     }
 
-                    // TODO Update the flags in separate thread to keep the license plan and feature flags in sync
-                    Mono<Tenant> tenantMono = Boolean.TRUE.equals(isDryRun) ? Mono.just(tenant) : this.save(tenant);
+                    Mono<Tenant> tenantMono;
+                    if (Boolean.TRUE.equals(isDryRun)) {
+                        tenantMono = Mono.just(tenant);
+                    } else {
+                        tenantMono = this.save(tenant)
+                                .flatMap(savedTenant -> this.forceUpdateTenantFeatures(savedTenant.getId())
+                                        .thenReturn(savedTenant));
+                    }
                     return tenantMono.flatMap(analyticsEventMono::thenReturn).zipWith(Mono.just(isActivateInstance));
                 });
     }
@@ -458,5 +467,11 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         return assetService
                 .upload(List.of(partFile), maxFileSizeKB, false)
                 .map(brandLogoAsset -> ASSET_PREFIX + brandLogoAsset.getId());
+    }
+
+    private Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId) {
+        return cacheableFeatureFlagHelper
+                .evictCachedTenantNewFeatures(tenantId)
+                .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantId));
     }
 }

@@ -15,13 +15,15 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
+
 @Component
 @Slf4j
 public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCEImpl
         implements CacheableFeatureFlagHelper {
-    TenantRepository tenantRepository;
-    AirgapInstanceConfig airgapInstanceConfig;
-    LicenseAPIManager licenseAPIManager;
+    private final TenantRepository tenantRepository;
+    private final AirgapInstanceConfig airgapInstanceConfig;
+    private final LicenseAPIManager licenseAPIManager;
 
     public CacheableFeatureFlagHelperImpl(
             TenantRepository tenantRepository,
@@ -55,13 +57,12 @@ public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCE
             FeaturesResponseDTO featuresResponseDTO = new FeaturesResponseDTO();
             featuresResponseDTO.setFeatures(new HashMap<>());
             return tenantRepository
-                    .findBySlug("default")
-                    .flatMap(tenant -> licenseAPIManager.licenseCheck(tenant))
+                    .findBySlug(DEFAULT)
+                    .flatMap(licenseAPIManager::licenseCheck)
                     .map(license -> {
                         if (license.getTenantFeatures() != null) {
                             featuresResponseDTO.setFeatures(license.getTenantFeatures());
                         }
-
                         return featuresResponseDTO;
                     });
         }
