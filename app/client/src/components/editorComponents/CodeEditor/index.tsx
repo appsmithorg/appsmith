@@ -566,6 +566,23 @@ class CodeEditor extends Component<Props, State> {
           }
         }, 200);
       }
+    } else if (this.props.editorLastCursorPosition) {
+      // This is for when we want to change cursor positions
+      // for e.g navigating to a line from the debugger
+      if (
+        !isEqual(
+          this.props.editorLastCursorPosition,
+          prevProps.editorLastCursorPosition,
+        ) &&
+        this.props.editorLastCursorPosition.origin ===
+          CursorPositionOrigin.Navigation
+      ) {
+        setTimeout(() => {
+          if (this.props.editorIsFocused) {
+            this.editor.focus();
+          }
+        }, 200);
+      }
     }
 
     this.editor.operation(() => {

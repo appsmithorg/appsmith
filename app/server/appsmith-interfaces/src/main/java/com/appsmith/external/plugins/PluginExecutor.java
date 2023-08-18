@@ -21,6 +21,7 @@ import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -312,5 +313,16 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
 
     default Mono<DatasourceConfiguration> getDatasourceMetadata(DatasourceConfiguration datasourceConfiguration) {
         return Mono.just(datasourceConfiguration);
+    }
+
+    /**
+     * This method is supposed to provide help with any update required to template queries that are used to create
+     * the actual select, updated, insert etc. queries as part of the generate CRUD page feature. Any plugin that
+     * needs special handling should override this method. e.g. in case of the S3 plugin some special handling is
+     * required because (a) it uses UQI config form (b) it has concept of bucket instead of table.
+     */
+    default Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(
+            List<ActionConfiguration> actionConfigurationList, Object... args) {
+        return Mono.empty();
     }
 }

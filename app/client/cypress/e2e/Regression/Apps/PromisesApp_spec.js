@@ -3,7 +3,7 @@ import {
   entityExplorer,
   jsEditor,
   apiPage,
-  tedTestConfig,
+  dataManager,
 } from "../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../locators/commonlocators.json");
 
@@ -14,7 +14,7 @@ describe("JSEditor tests", function () {
 
   it("1. Testing promises with resetWidget, storeValue action and API call", () => {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
       "TC1api",
     );
     apiPage.RunAPI();

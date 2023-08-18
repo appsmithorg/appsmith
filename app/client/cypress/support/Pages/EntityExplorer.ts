@@ -15,7 +15,8 @@ type templateActions =
   | "Distinct"
   | "Aggregate"
   | "Select"
-  | "Create";
+  | "Create"
+  | "List files";
 
 interface EntityActionParams {
   entityNameinLeftSidebar: string;
