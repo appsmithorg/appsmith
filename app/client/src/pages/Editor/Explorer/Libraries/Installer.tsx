@@ -1,17 +1,23 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import {
   Button,
   Icon,
   toast,
   Text,
+  Input,
   Link,
   Spinner,
+  Divider,
   Avatar,
   Callout,
   Tooltip,
-  Input,
-  Divider,
 } from "design-system";
 import {
   createMessage,
@@ -32,12 +38,94 @@ import { installLibraryInit } from "actions/JSLibraryActions";
 import classNames from "classnames";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
 const openDoc = (e: React.MouseEvent, url: string) => {
   e.preventDefault();
   e.stopPropagation();
   window.open(url, "_blank");
 };
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+  max-height: calc(var(--popover-max-height) - 57px);
+
+  .search-body {
+    display: flex;
+    padding-right: 4px;
+    padding-left: 2px;
+    flex-direction: column;
+    .search-area {
+      margin-bottom: 16px;
+      .left-icon {
+        margin-left: 14px;
+        .cs-icon {
+          margin-right: 0;
+        }
+      }
+      .bp3-form-group {
+        margin: 0;
+        .remixicon-icon {
+          cursor: initial;
+        }
+      }
+      display: flex;
+      flex-direction: column;
+      .search-bar {
+        margin-bottom: 8px;
+      }
+    }
+    .search-CTA {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      a {
+        display: inline-block;
+        > span {
+          font-size: inherit;
+        }
+      }
+    }
+    .search-results {
+      .library-card {
+        gap: 8px;
+        padding: 8px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        border-bottom: 1px solid var(--ads-v2-color-border);
+        .description {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          font-size: 12px;
+          line-clamp: 2;
+          font-weight: 400;
+          -webkit-box-orient: vertical;
+        }
+        img {
+          cursor: initial;
+        }
+      }
+      .library-card.no-border {
+        border-bottom: none;
+      }
+    }
+    .divider {
+      margin: 0 0 16px 0;
+    }
+    .library-name {
+      /* font-family: var(--font-family); */
+      color: var(--ads-v2-color-fg-emphasis-plus);
+      font-size: var(--ads-v2-font-size-6);
+      font-weight: var(--ads-v2-h4-font-weight);
+      letter-spacing: var(--ads-v2-h4-letter-spacing);
+    }
+  }
+`;
 
 const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
   border-top: ${(props) =>
@@ -117,7 +205,7 @@ function StatusIcon(props: {
   return (
     <Tooltip content="Install" trigger="hover">
       <Button
-        className="t--download download"
+        className="t--download"
         isIconButton
         kind="tertiary"
         {...actionProps}
@@ -178,7 +266,7 @@ function ProgressTracker({
   );
 }
 
-export function InstallationProgress() {
+function InstallationProgress() {
   const installStatusMap = useSelector(selectInstallationStatus);
   const urls = Object.keys(installStatusMap).filter(
     (url) => !recommendedLibraries.find((lib) => lib.url === url),
@@ -199,7 +287,7 @@ export function InstallationProgress() {
   );
 }
 
-export const EXT_LINK = {
+const EXT_LINK = {
   learnMore:
     "https://docs.appsmith.com/core-concepts/writing-code/ext-libraries",
   reportIssue: "https://github.com/appsmithorg/appsmith/issues/19037",
@@ -213,10 +301,10 @@ export function Installer() {
   const dispatch = useDispatch();
   const installedLibraries = useSelector(selectInstalledLibraries);
   const queuedLibraries = useSelector(selectQueuedLibraries);
+  const installerRef = useRef<HTMLDivElement>(null);
 
   const updateURL = useCallback((value: string) => {
     setURL(value);
-
     setErrorMessage(validate(value).message);
   }, []);
 
@@ -265,74 +353,85 @@ export function Installer() {
   );
 
   return (
-    <div className="overflow-auto">
-      <div className="flex flex-row gap-2 justify-between items-end">
-        <Input
-          data-testid="library-url"
-          errorMessage={errorMessage}
-          isValid={isValid}
-          label={"Library URL"}
-          labelPosition="top"
-          onChange={updateURL}
-          placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
-          size="md"
-          startIcon="link-2"
-          type="text"
-        />
-        <Button
-          className="mb-[22px]"
-          data-testid="install-library-btn"
-          isDisabled={!(URL && isValid)}
-          isLoading={queuedLibraries.length > 0}
-          onClick={() => installLibrary()}
-          size="md"
-          startIcon="download"
-        >
-          Install
-        </Button>
+    <Wrapper
+      className={`${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+      ref={installerRef}
+    >
+      <div className="search-body overflow-y-scroll">
+        <div className="search-area t--library-container">
+          <div className="flex flex-row gap-2 justify-between items-end">
+            <div className="w-full h-[83px]">
+              <Input
+                data-testid="library-url"
+                errorMessage={errorMessage}
+                isValid={isValid}
+                label={"Library URL"}
+                labelPosition="top"
+                onChange={updateURL}
+                placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
+                size="md"
+                startIcon="link-2"
+                type="text"
+              />
+            </div>
+            <Button
+              className="mb-[22px]"
+              data-testid="install-library-btn"
+              isDisabled={!(URL && isValid)}
+              isLoading={queuedLibraries.length > 0}
+              onClick={() => installLibrary()}
+              size="md"
+              startIcon="download"
+            >
+              Install
+            </Button>
+          </div>
+        </div>
+        <div className="search-CTA mb-3 text-xs">
+          <span>
+            Explore libraries on{" "}
+            <Link
+              kind="primary"
+              onClick={(e) => openDoc(e, EXT_LINK.jsDelivr)}
+              to="#"
+            >
+              jsDelivr
+            </Link>
+            {". "}
+            {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
+            <Link
+              kind="primary"
+              onClick={(e) => openDoc(e, EXT_LINK.learnMore)}
+              to="#"
+            >
+              here
+            </Link>
+            {"."}
+          </span>
+        </div>
+        <Divider className="divider" />
+        <InstallationProgress />
+        <div className="pb-2 sticky top-0 z-2 bg-white">
+          <Text kind="heading-xs">
+            {createMessage(customJSLibraryMessages.REC_LIBRARY)}
+          </Text>
+        </div>
+        <div className="search-results">
+          {recommendedLibraries.map((lib, idx) => (
+            <LibraryCard
+              isLastCard={idx === recommendedLibraries.length - 1}
+              key={`${idx}_${lib.name}`}
+              lib={lib}
+              onClick={() => installLibrary(lib)}
+            />
+          ))}
+        </div>
       </div>
-      <div className="mb-3 text-xs">
-        <span>
-          Explore libraries on{" "}
-          <Link
-            kind="primary"
-            onClick={(e) => openDoc(e, EXT_LINK.jsDelivr)}
-            to="#"
-          >
-            jsDelivr
-          </Link>
-          {". "}
-          {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
-          <Link
-            kind="primary"
-            onClick={(e) => openDoc(e, EXT_LINK.learnMore)}
-            to="#"
-          >
-            here
-          </Link>
-          {"."}
-        </span>
-      </div>
-      <Divider className="divider" />
-      <InstallationProgress />
-      <div className="pb-2 sticky top-0 z-2 bg-white">
-        <Text kind="heading-xs">
-          {createMessage(customJSLibraryMessages.REC_LIBRARY)}
-        </Text>
-      </div>
-      {recommendedLibraries.map((lib, idx) => (
-        <LibraryCard
-          isLastCard={idx === recommendedLibraries.length - 1}
-          key={`${idx}_${lib.name}`}
-          lib={lib}
-          onClick={() => installLibrary(lib)}
-        />
-      ))}
-    </div>
+    </Wrapper>
   );
 }
 
-export function LibraryCard({
+function LibraryCard({
   isLastCard,
   lib,
   onClick,

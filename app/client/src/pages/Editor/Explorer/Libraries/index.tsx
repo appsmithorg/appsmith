@@ -311,7 +311,7 @@ function JSDependencies() {
     <Entity
       className={"group libraries"}
       customAddButton={
-        <Popover>
+        <Popover open={isOpen}>
           <Tooltip
             content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
             isDisabled={isOpen}
@@ -329,8 +329,13 @@ function JSDependencies() {
               </AddButtonWrapper>
             </PopoverTrigger>
           </Tooltip>
-          <PopoverContent>
-            <PopoverHeader isClosable>
+          <PopoverContent
+            align="start"
+            className="z-[25]"
+            side="left"
+            size="md"
+          >
+            <PopoverHeader className="sticky top-0" isClosable>
               {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
             </PopoverHeader>
             <PopoverBody>
