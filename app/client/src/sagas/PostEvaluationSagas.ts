@@ -550,7 +550,7 @@ export function* handleJSFunctionExecutionErrorLog(
               id: action.collectionId ? action.collectionId : action.id,
               name: `${collectionName}.${action.name}`,
               type: ENTITY_TYPE.JSACTION,
-              propertyPath: `${collectionName}.${action.name}`,
+              propertyPath: `${action.name}`,
             },
           },
         },

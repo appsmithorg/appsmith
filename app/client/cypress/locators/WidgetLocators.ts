@@ -59,6 +59,13 @@ export const PROPERTY_SELECTOR = {
   tableData: ".t--property-control-tabledata",
   tableColumnNames: '[data-rbd-draggable-id] input[type="text"]',
 };
+
+export const WIDGETSKIT = {
+  recorderPrompt: "//button[@status='PERMISSION_PROMPT']",
+  recorderStart: "//button[@status='DEFAULT']",
+  recorderComplete: "//button[@status='COMPLETE']",
+  recorderStop: ".bp3-minimal",
+};
 type ValueOf<T> = T[keyof T];
 
 export const getWidgetSelector = (widget: ValueOf<typeof WIDGET>) =>
@@ -68,8 +75,10 @@ export const getWidgetInputSelector = (widget: ValueOf<typeof WIDGET>) =>
 
 export const modalWidgetSelector = ".t--modal-widget";
 
-// export data-testid with user input 
-export const progressWidgetProgress = (input: any) => `[data-testid='${input}']`
+
+// export data-testid with user input
+export const progressWidgetProgress = (input: any) =>
+  `[data-testid='${input}']`;
 
 //switch widget locators
 export const switchlocators = {
@@ -85,5 +94,3 @@ export const checkboxlocators = {
   // read Blue here
   checkBoxLabel: (value: string) => `//*[contains(@class,'t--checkbox-widget-label') and text()='${value}']`,
 }
-
-

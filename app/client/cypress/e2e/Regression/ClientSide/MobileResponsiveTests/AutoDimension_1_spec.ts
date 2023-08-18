@@ -54,6 +54,7 @@ describe("Validating use cases for Auto Dimension", () => {
       // Delete existing widgets within list
       agHelper.SelectAllWidgets(locators._widgetByName("Container1"));
       agHelper.PressDelete();
+      agHelper.Sleep(2000);
       autoLayout.DropButtonAndTestForAutoDimension(
         100,
         25,
