@@ -5,7 +5,7 @@ import {
   draggableWidgets,
   entityExplorer,
   entityItems,
-  tedTestConfig,
+  dataManager,
   jsEditor,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
@@ -174,7 +174,7 @@ describe("Autocomplete tests", () => {
 
   it("5. Api data with array of object autocompletion test", () => {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     agHelper.Sleep(2000);
     apiPage.RunAPI();
@@ -256,8 +256,7 @@ describe("Autocomplete tests", () => {
     });
   });
 
-  //To fix soon
-  it.skip("7. Autocompletion for bindings inside array and objects", () => {
+  it("7. Autocompletion for bindings inside array and objects", () => {
     dataSources.CreateDataSource("Mongo", true, false);
     dataSources.CreateQueryAfterDSSaved();
 

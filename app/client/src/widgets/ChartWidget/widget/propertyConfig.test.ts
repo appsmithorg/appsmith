@@ -117,4 +117,12 @@ describe("Validate Chart Widget's property config", () => {
     expect(dataSourceValidations.params.required).toEqual(true);
     expect(dataSourceValidations.params.ignoreCase).toEqual(false);
   });
+
+  it("validates that default value is present for chartData.data property", () => {
+    const chartDataDataConfig = get(
+      config,
+      "[0].children.[2].children.[0]",
+    ) as unknown as PropertyPaneControlConfig; // propertyName: "chartData.data"
+    expect(chartDataDataConfig.validation?.params?.default).toEqual([]);
+  });
 });

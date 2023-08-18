@@ -8,8 +8,13 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { capitalizeFirstLetter } from "utils/helpers";
-import { getRampLink, showProductRamps } from "utils/ProductRamps";
-import { RAMP_NAME, RampFeature } from "utils/ProductRamps/RampsControlList";
+import { getRampLink, showProductRamps } from "selectors/rampSelectors";
+import {
+  RAMP_NAME,
+  RampFeature,
+  RampSection,
+} from "utils/ProductRamps/RampsControlList";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
   display: flex;
@@ -86,13 +91,20 @@ function DSDataFilter({
   viewMode,
 }: DSDataFilterProps) {
   const [showFilterPane, setShowFilterPane] = useState(false);
-  const showRamps = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
+  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
+  const canShowRamp = useSelector(showRampSelector);
+
+  const rampLinkSelector = getRampLink({
+    section: RampSection.DSEditor,
+    feature: RampFeature.MultipleEnv,
+  });
+  const rampLink = useSelector(rampLinkSelector);
 
   // update the selected environment if the list of environments changes
   useEffect(() => {
     const isRenderAllowed =
       environments.length > 0 &&
-      showRamps &&
+      canShowRamp &&
       !viewMode &&
       !isInsideReconnectModal;
 
@@ -144,11 +156,7 @@ function DSDataFilter({
     return (
       <Text color="var(--ads-v2-color-white)" kind="action-m">
         {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
-        <TooltipLink
-          kind="primary"
-          target="_blank"
-          to={getRampLink("ds_editor", RampFeature.MultipleEnv)}
-        >
+        <TooltipLink kind="primary" target="_blank" to={rampLink}>
           {createMessage(BUSINESS_EDITION_TEXT)}
         </TooltipLink>
       </Text>

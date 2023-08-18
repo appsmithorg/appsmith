@@ -8,11 +8,15 @@ import {
   SWITCH_ENV_DISABLED_TOOLTIP_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getRampLink, showProductRamps } from "utils/ProductRamps";
+import { getRampLink, showProductRamps } from "selectors/rampSelectors";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { matchDatasourcePath, matchSAASGsheetsPath } from "constants/routes";
 import { useLocation } from "react-router";
-import { RAMP_NAME, RampFeature } from "utils/ProductRamps/RampsControlList";
+import {
+  RAMP_NAME,
+  RampFeature,
+  RampSection,
+} from "utils/ProductRamps/RampsControlList";
 
 const Wrapper = styled.div`
   display: flex;
@@ -68,7 +72,14 @@ const TooltipLink = styled(Link)`
 
 export default function SwitchEnvironment({}: Props) {
   const [diableSwitchEnvironment, setDiableSwitchEnvironment] = useState(false);
-  const showRamps = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
+  // Fetching feature flags from the store and checking if the feature is enabled
+  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
+  const canShowRamp = useSelector(showRampSelector);
+  const rampLinkSelector = getRampLink({
+    section: RampSection.BottomBarEnvSwitcher,
+    feature: RampFeature.MultipleEnv,
+  });
+  const rampLink = useSelector(rampLinkSelector);
   const location = useLocation();
   //listen to url change and disable switch environment if datasource page is open
   useEffect(() => {
@@ -81,7 +92,7 @@ export default function SwitchEnvironment({}: Props) {
   //this parameter helps us to differentiate between the two.
   const isDatasourceViewMode = useSelector(isDatasourceInViewMode);
 
-  if (!showRamps) return null;
+  if (!canShowRamp) return null;
 
   const renderEnvOption = (env: EnvironmentType) => {
     return (
@@ -98,11 +109,7 @@ export default function SwitchEnvironment({}: Props) {
     return (
       <Text color="var(--ads-v2-color-white)" kind="action-m">
         {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
-        <TooltipLink
-          kind="primary"
-          target="_blank"
-          to={getRampLink("bottom_bar_env_switcher", RampFeature.MultipleEnv)}
-        >
+        <TooltipLink kind="primary" target="_blank" to={rampLink}>
           {createMessage(BUSINESS_EDITION_TEXT)}
         </TooltipLink>
       </Text>
