@@ -18,11 +18,15 @@ import TemplateInfoForm from "./components/TemplateInfoForm";
 import PublishedInfo from "./components/PublishedInfo";
 import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ApplicationSettings from "./components/ApplicationSettings";
+import { publishCommunityTemplate } from "actions/communityTemplateActions";
+import { isPublishingCommunityTempalteSelector } from "selectors/communityTemplatesSelector";
 
 const PublishCommunityTemplate = () => {
   const currentUser = useSelector(getCurrentUser);
+  const dispatch = useDispatch();
+  const isPublishing = useSelector(isPublishingCommunityTempalteSelector);
 
   const [templateName, setTemplateName] = useState("");
   const [templateExcerpt, setTemplateExcerpt] = useState("");
@@ -54,6 +58,7 @@ const PublishCommunityTemplate = () => {
     if (!isFormValid) {
       return;
     }
+    dispatch(publishCommunityTemplate());
   };
   return (
     <>
@@ -104,6 +109,7 @@ const PublishCommunityTemplate = () => {
       <PublishPageFooterContainer>
         <Button
           isDisabled={!isFormValid}
+          isLoading={isPublishing}
           onClick={publishToCommunity}
           size="md"
         >

@@ -49,6 +49,7 @@ import autoHeightUIReducer from "./autoHeightReducer";
 import analyticsReducer from "./analyticsReducer";
 import layoutConversionReducer from "./layoutConversionReducer";
 import oneClickBindingReducer from "./oneClickBindingReducer";
+import communityTemplateReducer from "./communityTemplatesReduxState";
 
 const uiReducer = combineReducers({
   analytics: analyticsReducer,
@@ -61,6 +62,7 @@ const uiReducer = combineReducers({
   apiPane: apiPaneReducer,
   auth: authReducer,
   templates: templateReducer,
+  communityTemplates: communityTemplateReducer,
   workspaces: workspaceReducer,
   users: usersReducer,
   widgetDragResize: widgetDraggingReducer,

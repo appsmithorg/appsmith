@@ -1953,6 +1953,7 @@ export const COMMUNITY_TEMPLATES = {
         () => "Git credentials",
       ],
     },
+    publishedFailedError: () => "Unable to publish",
   },
   modals: {
     unpublishedInfo: {
