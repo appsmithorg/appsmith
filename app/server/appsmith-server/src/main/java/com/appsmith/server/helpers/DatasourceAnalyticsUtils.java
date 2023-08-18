@@ -18,7 +18,6 @@ import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.DATASOURCE_I
 import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.DATASOURCE_IS_TEMPLATE_SHORTNAME;
 import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.DATASOURCE_NAME_SHORTNAME;
 import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.ENVIRONMENT_ID_SHORTNAME;
-import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.ENVIRONMENT_NAME_DEFAULT;
 import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.ENVIRONMENT_NAME_SHORTNAME;
 
 public class DatasourceAnalyticsUtils {
@@ -108,7 +107,7 @@ public class DatasourceAnalyticsUtils {
         data.put(DATASOURCE_IS_TEMPLATE_SHORTNAME, ObjectUtils.defaultIfNull(datasourceStorage.getIsTemplate(), ""));
         data.put(DATASOURCE_IS_MOCK_SHORTNAME, ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ""));
         data.put(DATASOURCE_CREATED_AT_SHORTNAME, dsCreatedAt);
-        data.put(ENVIRONMENT_NAME_SHORTNAME, ObjectUtils.defaultIfNull(environmentName, ENVIRONMENT_NAME_DEFAULT));
+        data.put(ENVIRONMENT_NAME_SHORTNAME, ObjectUtils.defaultIfNull(environmentName, ""));
 
         return data;
     }
