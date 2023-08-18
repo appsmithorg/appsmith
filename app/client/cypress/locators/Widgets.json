@@ -30,7 +30,7 @@
   "label": ".t--draggable-inputwidgetv2 label",
   "labelColor": ".t--property-control-labelcolor input",
   "inputval": ".t--draggable-inputwidgetv2 span.t--widget-name",
-  "dataclass": "'.bp3-input",
+  "dataclass": ".bp3-input",
   "datatype": ".t--property-control-datatype input",
   "rowHeight": ".t--property-control-defaultrowheight .rc-select-selection-search-input ",
   "innertext": ".t--draggable-inputwidgetv2 input",
