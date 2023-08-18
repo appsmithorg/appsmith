@@ -9,6 +9,8 @@ import {
   entityExplorer,
   dataSources,
   entityItems,
+  draggableWidgets,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -39,20 +41,15 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   // });
 
   before("Creates a new Amazon S3 datasource", function () {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.AmazonS3).click({ force: true }).wait(1000);
-
-    cy.generateUUID().then((uid) => {
-      datasourceName = `S3 CRUD ds ${uid}`;
-      cy.renameDatasource(datasourceName);
-      cy.wrap(datasourceName).as("dSName");
-      cy.fillAmazonS3DatasourceForm();
-      cy.testSaveDatasource();
-      entityExplorer.ExpandCollapseEntity(datasourceName, false);
+    dataSources.CreateDataSource("S3");
+    cy.get("@dsName").then((dsName) => {
+      datasourceName = dsName;
     });
   });
 
-  it("1. Validate List Files in bucket (all existing files) command, run and then delete the query", () => {
+  it("1. Validate List Files in bucket (all existing files) command, run + Widget Binding", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
+    propPane.UpdatePropertyFieldValue("Default value", "AutoTest");
     cy.NavigateToActiveDSQueryPane(datasourceName);
     dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
     dataSources.RunQuery({ toValidateResponse: false });
@@ -62,8 +59,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "Mandatory parameter 'Bucket name' is missing.",
       );
     });
+    agHelper.UpdateCodeInput(formControls.s3BucketName, "{{Input1.text}}"); //Widget Binding
 
-    cy.typeValueNValidate("AutoTest", formControls.s3BucketName);
     dataSources.RunQuery({ toValidateResponse: false });
     cy.wait(3000); //for new postExecute to come thru
     cy.wait("@postExecute").then(({ response }) => {
