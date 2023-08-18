@@ -179,7 +179,7 @@ const ExplorerDatasourceEntity = React.memo(
       >
         <DataStructureListWrapper
           height={Math.min(
-            (datasourceStructure?.tables?.length || 0) * 100,
+            (datasourceStructure?.tables?.length || 0) * 50,
             MAX_HEIGHT_LIST_WRAPPER,
           )}
         >
