@@ -30,7 +30,7 @@
   "usersTabinGroup": "[data-testid='t--tab-users']",
   "backButton": ".t--admin-settings-back-button span",
   "groupsAndRolesTab": "[data-testid='t--tab-Groups & Roles']",
-  "dataSourcesandQueriesTab": "[data-testid='t--tab-Datasources & Queries']",
+  "dataSourcesandQueriesTab": "[data-testid='t--tab-Datasources & Environments']",
   "contextMenu": "[data-testid=t--page-header-actions]",
   "applicationResourceTab": "[data-testid='t--tab-Application Resources']",
   "inviteModal": "[data-testid='t--dialog-component']",

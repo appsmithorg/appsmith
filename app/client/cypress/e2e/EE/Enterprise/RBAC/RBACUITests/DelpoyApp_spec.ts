@@ -38,7 +38,7 @@ describe("User deploying an app with and without edit permission for a page", fu
       appName = "app" + guid;
       homePage.CreateNewWorkspace(workspaceName, true);
       homePage.CreateAppInWorkspace(workspaceName, appName);
-      entityExplorer.AddNewPage("New blank page").then((newPage) => {
+      entityExplorer.AddNewPage("New blank page")?.then((newPage) => {
         entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
       });
       adminSettings.NavigateToAdminSettings();

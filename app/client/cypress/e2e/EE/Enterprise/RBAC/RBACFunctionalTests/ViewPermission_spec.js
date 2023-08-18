@@ -112,8 +112,9 @@ describe("View Permission flow ", function () {
             "response.body.responseMeta.status",
             200,
           );
-          // check the create datasource role
+          // check the make public role
           cy.contains("td", `${workspaceName}`)
+            .next()
             .next()
             .next()
             .next()
@@ -184,8 +185,7 @@ describe("View Permission flow ", function () {
     cy.launchApp(appName);
   });
 
-  // skip test to unblock CI
-  it.skip("2.Verify user with make Public permission, is able to make app public", function () {
+  it("2.Verify user with make Public permission, is able to make app public", function () {
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
     ).click();
@@ -195,12 +195,7 @@ describe("View Permission flow ", function () {
       currentUrl = url;
       cy.log(currentUrl);
       cy.LogOut();
-      cy.visit(currentUrl);
-      cy.wait("@getPagesForViewApp").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+      agHelper.VisitNAssert(currentUrl, "getPagesForViewApp");
       cy.wait(3000);
       cy.get(publishPage.pageInfo)
         .invoke("text")
@@ -229,8 +224,8 @@ describe("View Permission flow ", function () {
     cy.LogOut();
   });
 
-  // skip test to unblock CI
-  it.skip("4. View permission : Page level (View page is visible) ", function () {
+  // bug
+  it.skip("4. View permission : Page level (View page is visible)", function () {
     cy.SignupFromAPI(testUser3, password);
     cy.LogintoAppTestUser(testUser3, password);
     cy.get(homePageLocators.searchInput).type(appName);

@@ -13,7 +13,7 @@ import auditlogloc from "../../../../../locators/AuditLogsLocators";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("Checking audit logs permission", function () {
-  let workspaceName: string, appName: string, datasourceName;
+  let workspaceName: string, appName: string, datasourceName: any;
   const pageName = "page_no_permission" + fakerHelper.GetRandomNumber();
   const permissionAtPageLevel =
     "PagePermissionRule" + fakerHelper.GetRandomNumber();
@@ -45,7 +45,7 @@ describe("Checking audit logs permission", function () {
       appName = "app" + guid;
       homePage.CreateNewWorkspace(workspaceName, true);
       homePage.CreateAppInWorkspace(workspaceName, appName);
-      entityExplorer.AddNewPage("New blank page").then((newPage) => {
+      entityExplorer.AddNewPage("New blank page")?.then((newPage) => {
         entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
       });
       dataSources.CreateDataSource("Postgres");

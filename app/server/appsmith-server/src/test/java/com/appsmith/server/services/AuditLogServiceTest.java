@@ -160,6 +160,7 @@ import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.CREATE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.DELETE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.EDIT;
+import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.EXECUTE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.EXPORT;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.MAKE_PUBLIC;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.VIEW;
@@ -4707,22 +4708,22 @@ public class AuditLogServiceTest {
         UpdateRoleEntityDTO workspaceUpdateEntityDto = new UpdateRoleEntityDTO(
                 Workspace.class.getSimpleName(),
                 createdWorkspace.getId(),
-                List.of(1, 1, 1, 1, 1, 1),
+                List.of(1, 1, 1, 1, -1, 1, 1),
                 createdWorkspace.getName());
         UpdateRoleEntityDTO applicationUpdateEntityDto = new UpdateRoleEntityDTO(
                 Application.class.getSimpleName(),
                 createdApplication.getId(),
-                List.of(1, 1, 1, 1, 1, 1),
+                List.of(1, 1, 1, 1, -1, 1, 1),
                 createdApplication.getName());
         UpdateRoleEntityDTO pageUpdateEntityDto = new UpdateRoleEntityDTO(
                 NewPage.class.getSimpleName(),
                 createdPage.getId(),
-                List.of(1, 1, 1, 1, -1, -1),
+                List.of(1, 1, 1, 1, -1, -1, -1),
                 createdPage.getUnpublishedPage().getName());
         UpdateRoleEntityDTO actionCollectionUpdateEntityDto = new UpdateRoleEntityDTO(
                 ActionCollection.class.getSimpleName(),
                 createdActionCollectionDTO.getId(),
-                List.of(-1, 1, 1, 1, -1, -1),
+                List.of(-1, 1, 1, 1, 1, -1, -1),
                 createdActionCollectionDTO.getName());
 
         UpdateRoleConfigDTO roleConfigDTO = new UpdateRoleConfigDTO(
@@ -4834,7 +4835,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogGacEntityMetadataActionCollection.get().getType())
                             .isEqualTo("JS Object");
                     assertThat(auditLogGacEntityMetadataActionCollection.get().getPermissions())
-                            .isEqualTo(List.of(EDIT, DELETE, VIEW));
+                            .isEqualTo(List.of(EDIT, DELETE, VIEW, EXECUTE));
                 })
                 .verifyComplete();
     }

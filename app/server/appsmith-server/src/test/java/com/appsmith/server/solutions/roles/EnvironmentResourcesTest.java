@@ -150,7 +150,7 @@ public class EnvironmentResourcesTest {
                 List.of(1, 0, 0, 0, 0),
                 createdWorkspace.getName());
         updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceEntity));
-        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_QUERIES.getName());
+        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
 
         roleConfigurationSolution
                 .updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO)
@@ -187,7 +187,7 @@ public class EnvironmentResourcesTest {
                 List.of(0, 0, 0, 0, 0),
                 createdWorkspace.getName());
         updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceEntity2));
-        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_QUERIES.getName());
+        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
 
         Mono<RoleViewDTO> roleViewDTOMono =
                 roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO);
@@ -262,7 +262,7 @@ public class EnvironmentResourcesTest {
         UpdateRoleEntityDTO datasourceEntity = new UpdateRoleEntityDTO(
                 Datasource.class.getSimpleName(), savedDs.getId(), List.of(1, 0, 0, 0, 0), savedDs.getName());
         updateRoleConfigDTO.setEntitiesChanged(Set.of(datasourceEntity));
-        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_QUERIES.getName());
+        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
 
         roleConfigurationSolution
                 .updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO)
@@ -296,7 +296,7 @@ public class EnvironmentResourcesTest {
         UpdateRoleEntityDTO datasourceEntity2 = new UpdateRoleEntityDTO(
                 Datasource.class.getSimpleName(), savedDs.getId(), List.of(0, 0, 0, 0, 0), savedDs.getName());
         updateRoleConfigDTO.setEntitiesChanged(Set.of(datasourceEntity2));
-        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_QUERIES.getName());
+        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
 
         Mono<RoleViewDTO> roleViewDTOMono =
                 roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO);
@@ -370,7 +370,7 @@ public class EnvironmentResourcesTest {
         UpdateRoleEntityDTO datasourceEntity = new UpdateRoleEntityDTO(
                 Datasource.class.getSimpleName(), savedDs.getId(), List.of(1, 0, 0, 0, 0), savedDs.getName());
         updateRoleConfigDTO.setEntitiesChanged(Set.of(datasourceEntity));
-        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_QUERIES.getName());
+        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
 
         roleConfigurationSolution
                 .updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO)
@@ -404,7 +404,7 @@ public class EnvironmentResourcesTest {
         UpdateRoleEntityDTO datasourceEntity2 = new UpdateRoleEntityDTO(
                 Datasource.class.getSimpleName(), savedDs.getId(), List.of(0, 0, 0, 0, 0), savedDs.getName());
         updateRoleConfigDTO.setEntitiesChanged(Set.of(datasourceEntity2));
-        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_QUERIES.getName());
+        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
 
         Mono<RoleViewDTO> roleViewDTOMono =
                 roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO);

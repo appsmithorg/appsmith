@@ -90,7 +90,7 @@ public class RoleConfigurationSolutionTest {
                     List<String> tabNames = new ArrayList<>(allTabView.getTabs().keySet());
 
                     assertThat(tabNames.get(0)).isEqualTo(RoleTab.APPLICATION_RESOURCES.getName());
-                    assertThat(tabNames.get(1)).isEqualTo(RoleTab.DATASOURCES_QUERIES.getName());
+                    assertThat(tabNames.get(1)).isEqualTo(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
                     assertThat(tabNames.get(2)).isEqualTo(RoleTab.GROUPS_ROLES.getName());
                     assertThat(tabNames.get(3)).isEqualTo(RoleTab.OTHERS.getName());
                 })

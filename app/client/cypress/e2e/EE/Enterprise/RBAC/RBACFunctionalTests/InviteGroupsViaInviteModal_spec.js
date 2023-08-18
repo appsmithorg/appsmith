@@ -187,7 +187,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
   });
 
   /*
-  Group users are not allowed to leace workspace because they were not invited individually, they have to be removed from the group in order to leave the workspace. An error toaster message occurs if they try to leave the group
+  Group users are not allowed to leave workspace because they were not invited individually, they have to be removed from the group in order to leave the workspace. An error toast message occurs if they try to leave the group
 
   it("9. Login as Developer, Verify leave workspace flow", () => {
     homePage.LogintoApp(
