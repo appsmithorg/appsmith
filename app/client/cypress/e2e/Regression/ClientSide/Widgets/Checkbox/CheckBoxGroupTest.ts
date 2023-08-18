@@ -296,4 +296,61 @@ describe("Checkbox Tests", function () {
       "0.375rem",
     );
   });
+
+  it("8. Verify checkbox properties by updating text widget", () => {
+    const options =
+      '[{"label":"Blue","value":"BLUE"},{"label":"Green","value":"GREEN"},{"label":"Red","value":"RED"}]';
+
+    entityExplorer.DragDropWidgetNVerify("textwidget", 550, 500);
+    propPane.UpdatePropertyFieldValue("Text", "{{NewCheckBox.isVisible}}");
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "true",
+    );
+
+    // Verify checkbox visible
+    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    propPane.MoveToTab("Content");
+    propPane.TogglePropertyState("visible", "Off");
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "false",
+    );
+    propPane.TogglePropertyState("visible", "On");
+
+    // Verify checkbox disabled
+    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    propPane.MoveToTab("Content");
+    propPane.UpdatePropertyFieldValue("Text", "{{NewCheckBox.isDisabled}}");
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "false",
+    );
+
+    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    propPane.MoveToTab("Content");
+    propPane.TogglePropertyState("disabled", "On");
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "true",
+    );
+    propPane.TogglePropertyState("disabled", "Off");
+
+    // Verify selected value[All values selected]
+    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    propPane.MoveToTab("Content");
+    propPane.UpdatePropertyFieldValue("Text", "{{NewCheckBox.selectedValues}}");
+    agHelper.GetNClick(locators._checkboxWidgetLabel, 1);
+    agHelper.GetNClick(locators._checkboxWidgetLabel, 2);
+    agHelper.GetNAssertContains(locators._textWidget, '"BLUE"');
+    agHelper.GetNAssertContains(locators._textWidget, '"GREEN"');
+    agHelper.GetNAssertContains(locators._textWidget, '"RED"');
+    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    propPane.MoveToTab("Content");
+    propPane.UpdatePropertyFieldValue("Text", "{{NewCheckBox.isValid}}");
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "true",
+    );
+  });
 });

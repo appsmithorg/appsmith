@@ -275,4 +275,5 @@ export class CommonLocators {
   _textWidgetContaioner = ".t--text-widget-container span";
   _label = ".bp3-label";
   _checkboxHelpIcon = ".bp3-popover-target svg";
+  _checkboxWidgetLabel = ".t--checkbox-widget-label";
 }
