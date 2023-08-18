@@ -23,3 +23,10 @@ export const datasourceEnvEnabled = createSelector(
     return !!flags.release_datasource_environments_enabled;
   },
 );
+
+export const adaptiveSignpostingEnabled = createSelector(
+  selectFeatureFlags,
+  (flags) => {
+    return !!flags.ab_adaptive_signposting_enabled;
+  },
+);

@@ -61,6 +61,8 @@ import {
   setFeatureWalkthroughShown,
 } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { setExplorerSwitchIndex } from "actions/editorContextActions";
+import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 const { intercomAppID } = getAppsmithConfigs();
 
 const StyledDivider = styled(Divider)`
@@ -376,7 +378,10 @@ export default function OnboardingChecklist() {
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
+
   const { pushFeature } = useContext(WalkthroughContext) || {};
+  const adapativeSignposting = useSelector(adaptiveSignpostingEnabled);
+
   const onconnectYourWidget = () => {
     const action = actions[0];
     dispatch(showSignpostingModal(false));
@@ -459,7 +464,8 @@ export default function OnboardingChecklist() {
     );
 
     // Adding walkthrough tutorial
-    if (!isFeatureWalkthroughShown) {
+    if (!isFeatureWalkthroughShown && adapativeSignposting) {
+      dispatch(setExplorerSwitchIndex(1));
       pushFeature &&
         pushFeature({
           targetId: "#add_datasources",
@@ -553,7 +559,10 @@ export default function OnboardingChecklist() {
               },
             );
             dispatch(showSignpostingModal(false));
-            checkAndShowWalkthrough();
+
+            if (adapativeSignposting) {
+              checkAndShowWalkthrough();
+            }
           }}
           step={SIGNPOSTING_STEP.CONNECT_A_DATASOURCE}
           testid={"checklist-datasource"}

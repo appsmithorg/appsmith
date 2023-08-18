@@ -42,7 +42,10 @@ import {
   SCHEMALESS_PLUGINS,
 } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  adaptiveSignpostingEnabled,
+  selectFeatureFlagCheck,
+} from "@appsmith/selectors/featureFlagsSelectors";
 import {
   AB_TESTING_EVENT_KEYS,
   FEATURE_FLAG,
@@ -427,11 +430,14 @@ function ActionSidebar({
   };
 
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
   const checkAndShowBackToCanvasWalkthrough = async () => {
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
       FEATURE_WALKTHROUGH_KEYS.back_to_canvas,
     );
     !isFeatureWalkthroughShown &&
+      adaptiveSignposting &&
+      signpostingEnabled &&
       pushFeature &&
       pushFeature({
         targetId: "#back-to-canvas",
@@ -463,8 +469,7 @@ function ActionSidebar({
       });
   };
   useEffect(() => {
-    log.debug(widgets, "widgets");
-    if (Object.keys(widgets).length <= 1 && signpostingEnabled) {
+    if (!hasWidgets) {
       checkAndShowBackToCanvasWalkthrough();
     }
   }, [signpostingEnabled, widgets]);

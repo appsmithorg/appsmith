@@ -9,7 +9,6 @@ import {
 } from "@appsmith/constants/messages";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
@@ -23,7 +22,8 @@ import {
   setFeatureWalkthroughShown,
 } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import log from "loglevel";
+import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import { actionsExistInCurrentPage } from "selectors/entitiesSelector";
 
 type NewActionButtonProps = {
   datasource?: Datasource;
@@ -40,33 +40,33 @@ function NewActionButton(props: NewActionButtonProps) {
   const [isSelected, setIsSelected] = useState(false);
 
   const dispatch = useDispatch();
-  const actions = useSelector((state: AppState) => state.entities.actions);
+  const actionExist = useSelector(actionsExistInCurrentPage);
   const currentPageId = useSelector(getCurrentPageId);
   const currentEnvironment = getCurrentEnvironment();
 
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const adapativeSignposting = useSelector(adaptiveSignpostingEnabled);
   const {
     isOpened: isWalkthroughOpened,
     popFeature,
     pushFeature,
   } = useContext(WalkthroughContext) || {};
   const closeWalkthrough = useCallback(() => {
-    log.debug("popFeature-before");
     if (isWalkthroughOpened && popFeature) {
-      log.debug("popFeature");
       popFeature("EXPLORER_DATASOURCE_ADD");
     }
   }, [isWalkthroughOpened, popFeature]);
   useEffect(() => {
-    if (signpostingEnabled && !actions.length) {
+    if (signpostingEnabled && !actionExist) {
       checkAndShowWalkthrough();
     }
-  }, [actions.length, signpostingEnabled]);
+  }, [actionExist, signpostingEnabled]);
   const checkAndShowWalkthrough = async () => {
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
       FEATURE_WALKTHROUGH_KEYS.create_query,
     );
-    !isFeatureWalkthroughShown &&
+    adapativeSignposting &&
+      !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
         targetId: "#create-query",
@@ -130,7 +130,7 @@ function NewActionButton(props: NewActionButtonProps) {
         }
       }
     },
-    [dispatch, actions, currentPageId, datasource, pluginType],
+    [dispatch, currentPageId, datasource, pluginType],
   );
 
   return (
