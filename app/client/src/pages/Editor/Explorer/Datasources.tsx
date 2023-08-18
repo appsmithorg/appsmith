@@ -11,7 +11,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getPlugins } from "selectors/entitiesSelector";
-import { keyBy, noop } from "lodash";
+import { keyBy } from "lodash";
 import Entity from "./Entity";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -68,25 +68,21 @@ const Datasources = React.memo(() => {
     if (isWalkthroughOpened && popFeature) {
       popFeature("EXPLORER_DATASOURCE_ADD");
     }
-  }, [isWalkthroughOpened]);
+  }, [isWalkthroughOpened, popFeature]);
 
-  const addDatasource = useCallback(
-    (entryPoint: string) => {
-      closeWalkthrough();
-
-      history.push(
-        integrationEditorURL({
-          pageId,
-          selectedTab: INTEGRATION_TABS.NEW,
-        }),
-      );
-      // Event for datasource creation click
-      AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
-        entryPoint,
-      });
-    },
-    [pageId],
-  );
+  const addDatasource = (entryPoint: string) => {
+    history.push(
+      integrationEditorURL({
+        pageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
+    );
+    // Event for datasource creation click
+    AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+      entryPoint,
+    });
+    closeWalkthrough();
+  };
   const activeDatasourceId = useDatasourceIdFromURL();
   const datasourceSuggestions = useDatasourceSuggestions();
 
@@ -143,10 +139,9 @@ const Datasources = React.memo(() => {
       }
       isSticky
       name="Datasources"
-      onCreate={addDatasource.bind(
-        this,
-        DatasourceCreateEntryPoints.ENTITY_EXPLORER_ADD_DS,
-      )}
+      onCreate={() =>
+        addDatasource(DatasourceCreateEntryPoints.ENTITY_EXPLORER_ADD_DS)
+      }
       onToggle={onDatasourcesToggle}
       searchKeyword={""}
       showAddButton={canCreateDatasource}
@@ -159,20 +154,20 @@ const Datasources = React.memo(() => {
           mainText={createMessage(EMPTY_DATASOURCE_MAIN_TEXT)}
           {...(canCreateDatasource && {
             addBtnText: createMessage(EMPTY_DATASOURCE_BUTTON_TEXT),
-            addFunction:
-              addDatasource.bind(
-                this,
+            addFunction: () =>
+              addDatasource(
                 DatasourceCreateEntryPoints.ENTITY_EXPLORER_NEW_DATASOURCE,
-              ) || noop,
+              ),
           })}
         />
       )}
       {datasourceElements.length > 0 && canCreateDatasource && (
         <AddEntity
-          action={addDatasource.bind(
-            this,
-            DatasourceCreateEntryPoints.ENTITY_EXPLORER_ADD_DS_CTA,
-          )}
+          action={() =>
+            addDatasource(
+              DatasourceCreateEntryPoints.ENTITY_EXPLORER_ADD_DS_CTA,
+            )
+          }
           entityId="add_new_datasource"
           icon={<Icon name="plus" />}
           name={createMessage(ADD_DATASOURCE_BUTTON)}
