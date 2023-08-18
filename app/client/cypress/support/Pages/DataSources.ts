@@ -1794,4 +1794,24 @@ export class DataSources {
       );
     });
   }
+
+  public GeneratePostgresCRUDPage(dbName: string) {
+    this.entityExplorer.AddNewPage("Generate page with data");
+    this.agHelper.GetNClick(this._selectDatasourceDropdown);
+    this.agHelper.GetNClickByContains(
+      this._dropdownOption,
+      "Connect new datasource",
+    );
+    this.CreateDataSource("Postgres", false);
+    this.assertHelper.AssertNetworkStatus("@getDatasourceStructure");
+    this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
+    this.agHelper.GetNClickByContains(this._dropdownOption, dbName);
+    this.agHelper.GetNClick(this._generatePageBtn);
+    this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.agHelper.AssertContains("Successfully generated a page");
+    this.assertHelper.AssertNetworkStatus("@getActions", 200);
+    this.assertHelper.AssertNetworkStatus("@postExecute", 200);
+    this.agHelper.GetNClick(this._visibleTextSpan("Got it"));
+    this.assertHelper.AssertNetworkStatus("@updateLayout", 200);
+  }
 }

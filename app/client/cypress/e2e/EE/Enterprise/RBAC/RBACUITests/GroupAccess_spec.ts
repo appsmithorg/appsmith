@@ -64,14 +64,19 @@ describe("Create group, check if users in group has group roles accessess", func
         "Page1",
       );
     });
-    rbacHelper.ModifyPermissions(
+    rbacHelper.ModifyPermissionsNSave(
       permissionAtPageLevel,
       pageName,
       "Edit",
       false,
     );
-    rbacHelper.ModifyPermissions(permissionAtPageLevel, pageName, "View", true);
-    rbacHelper.ModifyPermissions(
+    rbacHelper.ModifyPermissionsNSave(
+      permissionAtPageLevel,
+      pageName,
+      "View",
+      true,
+    );
+    rbacHelper.ModifyPermissionsNSave(
       permissionAtPageLevel,
       queryName,
       "View",

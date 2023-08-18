@@ -33,12 +33,13 @@ export class GitSync {
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
   public _branchListItem = "[data-testid=t--branch-list-item]";
   public _bottomBarMergeButton = ".t--bottom-bar-merge";
+  private mergeCTA = "[data-testid=t--git-merge-button]";
   public _mergeBranchDropdownDestination =
     ".t--merge-branch-dropdown-destination";
   public _dropdownmenu = ".rc-select-item-option-content";
   private _openRepoButton = "[data-testid=t--git-repo-button]";
   public _commitButton = ".t--commit-button";
-  private _commitCommentInput = ".t--commit-comment-input textarea";
+  public _commitCommentInput = ".t--commit-comment-input textarea";
 
   public _discardChanges = ".t--discard-button";
   public _discardCallout = "[data-testid='t--discard-callout']";
@@ -276,6 +277,18 @@ export class GitSync {
     this.agHelper.GetNClickByContains(this._dropdownmenu, destinationBranch);
 
     this.agHelper.AssertElementAbsence(this._checkMergeability, 35000);
+  }
+
+  MergeToMaster() {
+    this.CheckMergeConflicts("master");
+    this.agHelper.AssertElementEnabledDisabled(this.mergeCTA, 0, false);
+    this.agHelper.GetNClick(this.mergeCTA);
+    this.assertHelper.AssertNetworkStatus("@mergeBranch");
+    this.agHelper.AssertContains(
+      Cypress.env("MESSAGES").MERGED_SUCCESSFULLY(),
+      "be.visible",
+    );
+    this.CloseGitSyncModal();
   }
 
   OpenRepositoryAndVerify() {
