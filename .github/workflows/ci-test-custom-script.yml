@@ -195,7 +195,7 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             -e APPSMITH_CLOUD_SERVICES_SIGNATURE_BASE_URL=http://host.docker.internal:8090 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
-            ${{ env.docker_container_name }}
+          cicontainer
 
       - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
