@@ -340,6 +340,7 @@ describe("Checkbox Tests", function () {
     entityExplorer.SelectEntityByName("Text1", "Widgets");
     propPane.MoveToTab("Content");
     propPane.UpdatePropertyFieldValue("Text", "{{NewCheckBox.selectedValues}}");
+    entityExplorer.DeleteWidgetFromEntityExplorer("Page2");
     agHelper.GetNClick(locators._checkboxWidgetLabel, 1);
     agHelper.GetNClick(locators._checkboxWidgetLabel, 2);
     agHelper.GetNAssertContains(locators._textWidget, '"BLUE"');
