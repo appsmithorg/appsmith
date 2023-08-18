@@ -9,7 +9,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -360,12 +359,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes) {
+    public Mono<Void> applyChanges(Map<String, String> changes) {
         return applyChanges(changes, "");
     }
 
     @Override
-    public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes, String origin) {
+    public Mono<Void> applyChanges(Map<String, String> changes, String origin) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant
         // configuration
         return verifyCurrentUserIsSuper()
@@ -446,8 +445,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         emailConfig.setEmailEnabled("true".equals(changesCopy.remove(APPSMITH_MAIL_SMTP_AUTH.name())));
                     }
 
-                    if (javaMailSender instanceof JavaMailSenderImpl) {
-                        JavaMailSenderImpl javaMailSenderImpl = (JavaMailSenderImpl) javaMailSender;
+                    if (javaMailSender instanceof JavaMailSenderImpl javaMailSenderImpl) {
                         if (changesCopy.containsKey(APPSMITH_MAIL_HOST.name())) {
                             javaMailSenderImpl.setHost(changesCopy.remove(APPSMITH_MAIL_HOST.name()));
                         }
@@ -475,13 +473,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                                 "true".equals(changesCopy.remove(APPSMITH_DISABLE_TELEMETRY.name())));
                     }
 
-                    return dependentTasks.thenReturn(new EnvChangesResponseDTO(true));
+                    return dependentTasks.then();
                 });
     }
 
     @Override
-    public Mono<EnvChangesResponseDTO> applyChangesFromMultipartFormData(
-            MultiValueMap<String, Part> formData, String origin) {
+    public Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String origin) {
         return Flux.fromIterable(formData.entrySet())
                 .flatMap(entry -> {
                     final String key = entry.getKey();
