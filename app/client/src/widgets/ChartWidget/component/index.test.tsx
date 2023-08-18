@@ -159,25 +159,4 @@ describe("Chart Widget", () => {
     userEvent.click(el);
     expect(mockCallback.mock.calls.length).toEqual(1);
   });
-
-  /**
-   * TODO - @rajatagrawal
-   *
-   * https://github.com/appsmithorg/appsmith/issues/26419
-   */
-  it("4. check if rawEventData property is present in onDataPointClick's response", async () => {
-    const mockCallback = jest.fn((params) => params);
-    const props = { ...defaultProps };
-    props.onDataPointClick = (point) => {
-      point;
-      mockCallback(point);
-    };
-
-    render(<ChartComponent {...props} />);
-
-    const el = await screen.findByText("1000");
-
-    userEvent.click(el);
-    expect(mockCallback.mock.results?.[0].value).toHaveProperty("rawEventData");
-  });
 });
