@@ -14,11 +14,11 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 
 import InputWidget from "widgets/InputWidgetV2";
-import WidgetFactory from "WidgetProvider/factory";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
-    WidgetFactory.initialize([InputWidget]);
+    registerWidgets([InputWidget]);
 
     const dataTreeEntity: WidgetEntity = {
       widgetId: "yolo",

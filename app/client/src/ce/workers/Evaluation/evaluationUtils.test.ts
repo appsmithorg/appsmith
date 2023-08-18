@@ -38,11 +38,10 @@ import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import TableWidget from "widgets/TableWidget";
 import InputWidget from "widgets/InputWidgetV2";
-import type { WidgetConfiguration } from "WidgetProvider/constants";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { Severity } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
-import WidgetFactory from "WidgetProvider/factory";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -595,7 +594,7 @@ describe("4. translateDiffEvent", () => {
 
 describe("5. overrideWidgetProperties", () => {
   beforeAll(() => {
-    WidgetFactory.initialize([TableWidget, InputWidget]);
+    registerWidgets([TableWidget, InputWidget]);
   });
 
   describe("1. Input widget ", () => {

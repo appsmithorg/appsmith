@@ -1,5 +1,4 @@
 import React from "react";
-import widgets from "widgets";
 import withMeta from "widgets/MetaHOC";
 import { withLazyRender } from "widgets/withLazyRender";
 import withWidgetProps from "widgets/withWidgetProps";
@@ -9,7 +8,7 @@ import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import type BaseWidget from "widgets/BaseWidget";
 import WidgetFactory from ".";
 
-export const registerWidgets = () => {
+export const registerWidgets = (widgets: (typeof BaseWidget)[]) => {
   const widgetAndBuilders = widgets.map((widget) => {
     const { eagerRender, needsMeta } = widget.getConfig();
 

@@ -3,11 +3,11 @@ import { getPropertiesToUpdateForReset } from "./utils";
 import ButtonWidget from "widgets/ButtonWidget";
 import TableWidget from "widgets/TableWidget";
 import JSONFormWidget from "widgets/JSONFormWidget";
-import WidgetFactory from "WidgetProvider/factory";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
 describe("AppThemingSaga test", () => {
   beforeAll(() => {
-    WidgetFactory.initialize([ButtonWidget, TableWidget, JSONFormWidget]);
+    registerWidgets([ButtonWidget, TableWidget, JSONFormWidget]);
   });
 
   it("Checks if button widget resets to correct value", () => {

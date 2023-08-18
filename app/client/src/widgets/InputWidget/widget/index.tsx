@@ -37,6 +37,7 @@ import type {
   PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/constants";
+import IconSVG from "../icon.svg";
 
 export function defaultValueValidation(
   value: any,
@@ -131,6 +132,17 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   }
 
   static type = "INPUT_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Input",
+      iconSVG: IconSVG,
+      needsMeta: true,
+      hideCard: true,
+      isDeprecated: true,
+      replacement: "INPUT_WIDGET_V2",
+    };
+  }
 
   static getDefaults() {
     return {

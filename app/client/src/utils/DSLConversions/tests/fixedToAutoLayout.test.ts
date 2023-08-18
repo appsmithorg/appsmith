@@ -8,7 +8,7 @@ import {
   processGroupedWidgets,
 } from "../fixedToAutoLayout";
 
-jest.mock("utils/WidgetFactory", () => ({
+jest.mock("WidgetProvider/factory/index", () => ({
   widgetConfigMap: {
     get: jest.fn(() => {
       /**/

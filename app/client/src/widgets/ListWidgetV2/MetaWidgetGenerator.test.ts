@@ -13,7 +13,7 @@ import TextWidget from "widgets/TextWidget";
 import ListWidget from "widgets/ListWidgetV2";
 import CanvasWidget from "widgets/CanvasWidget";
 import ContainerWidget from "widgets/ContainerWidget";
-import WidgetFactory from "WidgetProvider/factory";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
 type Validator = {
   widgetType: string;
@@ -227,7 +227,7 @@ const validateMetaWidgetType = (
 };
 
 beforeAll(() => {
-  WidgetFactory.initialize([
+  registerWidgets([
     ImageWidget,
     TextWidget,
     ListWidget,

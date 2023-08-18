@@ -6,9 +6,9 @@ import type {
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { isFunction } from "lodash";
-import type { SetterConfig } from "entities/AppTheming";
 import widgets from "widgets";
 import WidgetFactory from "WidgetProvider/factory";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
 function validatePropertyPaneConfig(
   config: PropertyPaneConfig[],
@@ -51,7 +51,7 @@ function validatePropertyControl(
     !_config.invisible &&
     !(_config.helpText || _config.helperText)
   ) {
-    return `${_config.propertyName} (${_config.label}): Help text or Helper textis mandatory for property controls`;
+    return `${_config.propertyName} (${_config.label}): Help text or Helper text is mandatory for property controls`;
   }
 
   if (
@@ -135,11 +135,16 @@ const isNotFloat = (n: any) => {
 };
 
 describe("Tests all widget's propertyPane config", () => {
+  beforeAll(() => {
+    registerWidgets(widgets);
+  });
+
   widgets.forEach((widget) => {
     const config = widget.getConfig();
 
     it(`Checks ${widget.type}'s propertyPaneConfig`, () => {
       const propertyPaneConfig = widget.getPropertyPaneConfig();
+
       expect(
         validatePropertyPaneConfig(propertyPaneConfig, !!config.hideCard),
       ).toStrictEqual(true);
