@@ -47,10 +47,4 @@ public interface CacheableFeatureFlagHelperCE {
      * @return Mono of Map
      */
     Mono<FeaturesResponseDTO> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO);
-
-    /**
-     * To force update all features of the current tenant.
-     * @return Mono of Map
-     */
-    Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId);
 }

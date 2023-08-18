@@ -134,11 +134,24 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                                         < this.tenantFeaturesCacheTimeMin) {
                                     return Mono.just(cachedFeatures);
                                 } else {
-                                    return cacheableFeatureFlagHelper.forceUpdateTenantFeatures(defaultTenantId);
+                                    return this.forceUpdateTenantFeatures(defaultTenantId);
                                 }
                             });
                 })
                 .then();
+    }
+
+    /**
+     * Method to force update the tenant level feature flags. This will be utilised in scenarios where we don't want
+     * to wait for the flags to get updated for cron scheduled time
+     * @param tenantId  tenant for which the features need to be updated
+     * @return          Cached features
+     */
+    @Override
+    public Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId) {
+        return cacheableFeatureFlagHelper
+                .evictCachedTenantNewFeatures(tenantId)
+                .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantId));
     }
 
     /**

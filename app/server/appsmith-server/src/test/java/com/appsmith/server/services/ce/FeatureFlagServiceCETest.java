@@ -214,7 +214,7 @@ public class FeatureFlagServiceCETest {
                 .verifyComplete();
 
         // Check after force update if we get updated values for existing features
-        Mono<CachedFeatures> updatedCacheMono = cacheableFeatureFlagHelper.forceUpdateTenantFeatures(tenantIdentifier);
+        Mono<CachedFeatures> updatedCacheMono = featureFlagService.forceUpdateTenantFeatures(tenantIdentifier);
         // Assert if the cache entry is updated
         StepVerifier.create(updatedCacheMono)
                 .assertNext(cachedFeatures -> {
