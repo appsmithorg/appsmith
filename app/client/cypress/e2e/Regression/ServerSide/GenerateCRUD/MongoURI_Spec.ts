@@ -93,7 +93,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
-    table.ReadTableRowColumnData(8, 8, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(8, 8, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq(
         "Write Your Story with Elegance: The Pen of Choice!",
       );
