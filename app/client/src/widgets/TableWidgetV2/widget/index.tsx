@@ -335,7 +335,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
       };
 
-      if (BaseWidget.getFeatureFlag(ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING)) {
+      if (this.getFeatureFlag(ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING)) {
         config["filters"] = generateTypeDef(widget.filters);
       }
 
