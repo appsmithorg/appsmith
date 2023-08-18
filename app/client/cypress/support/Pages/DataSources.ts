@@ -1622,7 +1622,7 @@ export class DataSources {
     );
   }
 
-  public AddSuggestedWidget(widget: Widgets) {
+  public AddSuggestedWidget(widget: Widgets, force = false, index = 0) {
     switch (widget) {
       case Widgets.Dropdown:
         this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
@@ -1631,7 +1631,11 @@ export class DataSources {
         );
         break;
       case Widgets.Table:
-        this.agHelper.GetNClick(this._suggestedWidget("TABLE_WIDGET_V2"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("TABLE_WIDGET_V2"),
+          index,
+          force,
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TABLE),
         );
