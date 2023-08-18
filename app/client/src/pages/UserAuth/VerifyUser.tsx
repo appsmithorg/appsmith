@@ -18,6 +18,12 @@ const VerifyUser = (
   const token = queryParams.get("token");
   const email = queryParams.get("email");
   const redirectUrl = queryParams.get("redirectUrl");
+  const enableFirstTimeUserExperience = queryParams.get(
+    "enableFirstTimeUserExperience",
+  );
+  if (enableFirstTimeUserExperience === "true") {
+    redirectUrl + "&enableFirstTimeUserExperience=true";
+  }
 
   useEffect(() => {
     if (!token || !email || !redirectUrl) {
