@@ -72,7 +72,6 @@ describe("Embed settings options", function () {
     cy.enablePublicAccess();
     cy.wait(8000); //adding wait time for iframe to load fully!
     getIframeBody().contains("Submit").should("exist");
-    //_.deployMode.NavigateBacktoEditor();
     _.deployMode.NavigateToHomeDirectly();
   });
 
