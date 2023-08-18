@@ -8,7 +8,7 @@ const jsEditorLocators = require("../../../../../locators/JSEditor.json");
 import {
   homePage,
   onboarding,
-  tedTestConfig,
+  dataManager,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Multiple Permission flow ", function () {
@@ -89,7 +89,7 @@ describe("Multiple Permission flow ", function () {
           cy.NavigateToAPI_Panel();
           cy.CreateAPI(APIName);
           cy.enterDatasource(
-            tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+            dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
           );
           cy.SaveAndRunAPI();
           cy.ResponseStatusCheck("200");

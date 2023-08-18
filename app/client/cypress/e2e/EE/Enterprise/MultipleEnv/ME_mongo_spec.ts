@@ -5,7 +5,7 @@ import {
   deployMode,
   entityExplorer,
   locators,
-  tedTestConfig,
+  dataManager,
   assertHelper,
   table,
   draggableWidgets,
@@ -26,8 +26,8 @@ describe(
   function () {
     before(() => {
       featureFlagIntercept({ release_datasource_environments_enabled: true });
-      prodEnv = tedTestConfig.defaultEnviorment;
-      stagingEnv = tedTestConfig.environments[1];
+      prodEnv = dataManager.defaultEnviorment;
+      stagingEnv = dataManager.environments[1];
       multipleEnv.SwitchEnv(prodEnv);
       meQueryName = "mongo_select";
       meStagingOnlyQueryName = "mongo_stageonly_select";

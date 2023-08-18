@@ -7,7 +7,7 @@ import {
   entityExplorer,
   locators,
   propPane,
-  tedTestConfig,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
 import { multipleEnv } from "../../../../support/ee/ObjectsCore_EE";
@@ -27,8 +27,8 @@ describe(
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
       featureFlagIntercept({ release_datasource_environments_enabled: true });
-      prodEnv = tedTestConfig.defaultEnviorment;
-      stagingEnv = tedTestConfig.environments[1];
+      prodEnv = dataManager.defaultEnviorment;
+      stagingEnv = dataManager.environments[1];
       multipleEnv.SwitchEnv(prodEnv);
       oosQueryName = "airtable_select";
       TABLE_DATA_STATIC = `{{${oosQueryName}.data.records}}`;
@@ -64,12 +64,12 @@ describe(
         "List records",
       );
 
-      agHelper.EnterValue(tedTestConfig.dsValues[prodEnv].AirtableBaseForME, {
+      agHelper.EnterValue(dataManager.dsValues[prodEnv].AirtableBaseForME, {
         propFieldName: "",
         directInput: false,
         inputFieldName: "Base ID ",
       });
-      agHelper.EnterValue(tedTestConfig.dsValues[prodEnv].AirtableTableForME, {
+      agHelper.EnterValue(dataManager.dsValues[prodEnv].AirtableTableForME, {
         propFieldName: "",
         directInput: false,
         inputFieldName: "Table name",

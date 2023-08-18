@@ -4,7 +4,7 @@ import { ObjectsRegistry } from "../Objects/Registry";
 export class MultipleEnvironments {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
-  private tedTestConfig = ObjectsRegistry.TEDTestConfigs;
+  private dataManager = ObjectsRegistry.DataManager;
 
   public env_switcher = '[data-testid="t--switch-env"]';
   public env_switcher_dropdown_opt_prod =
@@ -45,7 +45,7 @@ export class MultipleEnvironments {
   }
 
   public SwitchEnvInDSEditor(
-    target_environment = this.tedTestConfig.defaultEnviorment,
+    target_environment = this.dataManager.defaultEnviorment,
   ) {
     this.agHelper.GetNClick(
       this.locator.ds_editor_env_filter(target_environment),

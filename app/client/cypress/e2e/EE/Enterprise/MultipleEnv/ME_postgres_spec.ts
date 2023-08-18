@@ -5,7 +5,7 @@ import {
   deployMode,
   entityExplorer,
   locators,
-  tedTestConfig,
+  dataManager,
   table,
   assertHelper,
   draggableWidgets,
@@ -29,8 +29,8 @@ describe(
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
       featureFlagIntercept({ release_datasource_environments_enabled: true });
-      prodEnv = tedTestConfig.defaultEnviorment;
-      stagingEnv = tedTestConfig.environments[1];
+      prodEnv = dataManager.defaultEnviorment;
+      stagingEnv = dataManager.environments[1];
       multipleEnv.SwitchEnv(prodEnv);
       meQueryName = "postgres_select";
       meStagingOnlyQueryName = "postgres_stageonly_select";
@@ -54,7 +54,7 @@ describe(
       // Enter correct values and test
       cy.get(dataSources._username)
         .clear()
-        .type(tedTestConfig.dsValues[stagingEnv].postgres_username);
+        .type(dataManager.dsValues[stagingEnv].postgres_username);
       dataSources.TestDatasource(true);
       // Save env details
       dataSources.SaveDatasource(false, true);

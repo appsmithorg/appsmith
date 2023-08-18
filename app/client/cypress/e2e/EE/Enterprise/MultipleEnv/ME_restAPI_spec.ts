@@ -5,7 +5,7 @@ import {
   deployMode,
   entityExplorer,
   locators,
-  tedTestConfig,
+  dataManager,
   apiPage,
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
@@ -28,8 +28,8 @@ describe(
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
       featureFlagIntercept({ release_datasource_environments_enabled: true });
-      prodEnv = tedTestConfig.defaultEnviorment;
-      stagingEnv = tedTestConfig.environments[1];
+      prodEnv = dataManager.defaultEnviorment;
+      stagingEnv = dataManager.environments[1];
       multipleEnv.SwitchEnv(prodEnv);
       meQueryName = "rest_select";
     });
@@ -45,7 +45,7 @@ describe(
       // Fill Auth Form
       agHelper.UpdateInput(
         locators._inputFieldByName("URL"),
-        tedTestConfig.dsValues[prodEnv].ApiUrlME,
+        dataManager.dsValues[prodEnv].ApiUrlME,
       );
       agHelper.Sleep(500);
       dataSources.SaveDatasource(false, true);
@@ -55,7 +55,7 @@ describe(
       // Enter wrong values and test
       agHelper.UpdateInput(
         locators._inputFieldByName("URL"),
-        tedTestConfig.dsValues[stagingEnv].ApiUrlME,
+        dataManager.dsValues[stagingEnv].ApiUrlME,
       );
       // Save env details
       dataSources.SaveDatasource(false, true);
