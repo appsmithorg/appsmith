@@ -14,15 +14,15 @@ import {
 
 import clocators from "../../../../../locators/commonlocators.json";
 
-describe("Rating widet testcases", () => {
+describe("Button widget testcases", () => {
   before(() => {
     apiPage.CreateAndFillApi(
       tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
     );
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
   });
 
   it("1. On Click Button - execute a query ", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
     const codeToSet = `export default {
         async run() {
         const res = await Api1.run();
@@ -74,7 +74,7 @@ describe("Rating widet testcases", () => {
       locators._buttonWidgetInForm,
       1,
       false,
-    );    
+    );
     deployMode.DeployApp();
     agHelper.TypeText(clocators.inputField, fakerHelper.GetRandomNumber());
     agHelper.AssertElementEnabledDisabled(
@@ -116,5 +116,45 @@ describe("Rating widet testcases", () => {
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("@example");
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.DeleteWidgetFromEntityExplorer("Form1");
+  });
+
+  it("4. Checking reset on success - enabled and disabled", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
+    propPane.SelectPropertiesDropDown("Data type", "Email");
+
+    propPane.UpdatePropertyFieldValue(
+      "Default value",
+      "{{Api1.data[0].email}}",
+    );
+    entityExplorer.SelectEntityByName("Api1", "Queries/JS");
+    apiPage.RunAPI();
+    entityExplorer.ExpandCollapseEntity("Form1");
+    entityExplorer.SelectEntityByName("Button1");
+    propPane.SelectPlatformFunction("onClick", "Show alert");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
+      "{{Input1.text}}",
+    );
+    propPane.TogglePropertyState("Reset form on success", "On");
+    deployMode.DeployApp();
+    agHelper.TypeText(clocators.inputField, Cypress.env("USERNAME"));
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage(Cypress.env("USERNAME"));
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage("@example");
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.ExpandCollapseEntity("Form1");
+    entityExplorer.SelectEntityByName("Button1");
+    propPane.TogglePropertyState("Reset form on success", "Off");
+    deployMode.DeployApp();
+    agHelper.TypeText(clocators.inputField, Cypress.env("USERNAME"));
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage(Cypress.env("USERNAME"));
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage(Cypress.env("USERNAME"));
+    deployMode.NavigateBacktoEditor();
   });
 });
