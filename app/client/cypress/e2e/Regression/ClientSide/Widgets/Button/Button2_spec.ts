@@ -45,10 +45,10 @@ describe("Rating widet testcases", () => {
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Total record returned: 10");
     deployMode.NavigateBacktoEditor();
+    entityExplorer.DeleteWidgetFromEntityExplorer("Button1");
   });
 
-  it("2. Checking form settings", () => {
-    entityExplorer.DeleteWidgetFromEntityExplorer("Button1");
+  it("2. Checking form settings - enabled & disabled", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
     propPane.SelectPropertiesDropDown("Data type", "Email");
@@ -65,6 +65,23 @@ describe("Rating widet testcases", () => {
     );
     agHelper.TypeText(clocators.inputField, fakerHelper.GetRandomNumber());
     agHelper.AssertElementEnabledDisabled(locators._buttonWidgetInForm);
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.ExpandCollapseEntity("Form1");
+    entityExplorer.SelectEntityByName("Button1");
+    propPane.TogglePropertyState("Disabled invalid forms", "Off");
+    agHelper.TypeText(clocators.inputField, fakerHelper.GetRandomNumber());
+    agHelper.AssertElementEnabledDisabled(
+      locators._buttonWidgetInForm,
+      1,
+      false,
+    );    
+    deployMode.DeployApp();
+    agHelper.TypeText(clocators.inputField, fakerHelper.GetRandomNumber());
+    agHelper.AssertElementEnabledDisabled(
+      locators._buttonWidgetInForm,
+      1,
+      false,
+    );
     deployMode.NavigateBacktoEditor();
     entityExplorer.DeleteWidgetFromEntityExplorer("Form1");
   });
