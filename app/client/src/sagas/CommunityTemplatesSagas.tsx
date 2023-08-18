@@ -10,6 +10,7 @@ import {
   COMMUNITY_TEMPLATES,
   createMessage,
 } from "@appsmith/constants/messages";
+import { toast } from "design-system";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -20,9 +21,12 @@ function* publishCommunityTemplateSaga(action: ReduxAction<string>) {
     //   action.payload,
     // );
     // const isValid: boolean = yield validateResponse(response);
-    const isValid = !action;
+    const isValid = !!action;
 
     if (isValid) {
+      toast.show(`Templates published to community`, {
+        kind: "success",
+      });
       yield put({
         type: ReduxActionTypes.COMMUNITY_TEMPLATE_PUBLISH_SUCCESS,
         // payload: response.data,
