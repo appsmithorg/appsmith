@@ -489,10 +489,20 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
+  state.entities.canvasWidgets;
+
 export const actionsExistInCurrentPage = createSelector(
   getActionsForCurrentPage,
   (actions) => {
     return !!actions.length;
+  },
+);
+
+export const widgetsExistCurrentPage = createSelector(
+  getCanvasWidgets,
+  (widgets) => {
+    return Object.keys(widgets).length > 1;
   },
 );
 
@@ -649,9 +659,6 @@ export const getAppData = (state: AppState) => state.entities.app;
 
 export const getAppStoreData = (state: AppState): AppStoreState =>
   state.entities.app.store;
-
-export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
-  state.entities.canvasWidgets;
 
 export const getCanvasWidgetsStructure = (state: AppState) =>
   state.entities.canvasWidgetsStructure;

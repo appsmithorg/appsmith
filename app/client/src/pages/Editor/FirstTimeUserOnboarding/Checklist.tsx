@@ -56,6 +56,11 @@ import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import {
+  getFeatureWalkthroughShown,
+  setFeatureWalkthroughShown,
+} from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 const { intercomAppID } = getAppsmithConfigs();
 
 const StyledDivider = styled(Divider)`
@@ -448,36 +453,49 @@ export default function OnboardingChecklist() {
     );
   }
 
-  const checkAndShowWalkthrough = () => {
-    // const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-    //   FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
-    // );
+  const checkAndShowWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.add_datasouce,
+    );
 
-    // const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
     // Adding walkthrough tutorial
-    pushFeature &&
-      pushFeature({
-        targetId: "#add_datasources",
-        details: {
-          title: "Add New Datasource",
-          description: "Datasources can be directly and easily accessed here",
-          imageURL: `${ASSETS_CDN_URL}/schema.gif`,
-        },
-        overlayColor: "transparent",
-        offset: {
-          position: "right",
-          // left: -40,
-          top: -100,
-          highlightPad: 5,
-          indicatorLeft: -3,
-          style: {
-            transform: "none",
-            boxShadow: "var(--ads-v2-shadow-popovers)",
-            border: "1px solid var(--ads-v2-color-border-muted)",
+    if (!isFeatureWalkthroughShown) {
+      pushFeature &&
+        pushFeature({
+          targetId: "#add_datasources",
+          details: {
+            title: "Add New Datasource",
+            description: "Datasources can be directly and easily accessed here",
+            imageURL: `${ASSETS_CDN_URL}/schema.gif`,
           },
-        },
-        delay: 1000,
-      });
+          onDismiss: async () => {
+            await setFeatureWalkthroughShown(
+              FEATURE_WALKTHROUGH_KEYS.add_datasouce,
+              true,
+            );
+          },
+          overlayColor: "transparent",
+          offset: {
+            position: "right",
+            top: -100,
+            highlightPad: 5,
+            indicatorLeft: -3,
+            style: {
+              transform: "none",
+              boxShadow: "var(--ads-v2-shadow-popovers)",
+              border: "1px solid var(--ads-v2-color-border-muted)",
+            },
+          },
+          delay: 1000,
+        });
+    } else {
+      history.push(
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
+      );
+    }
   };
 
   return (
@@ -536,12 +554,6 @@ export default function OnboardingChecklist() {
             );
             dispatch(showSignpostingModal(false));
             checkAndShowWalkthrough();
-            // history.push(
-            //   integrationEditorURL({
-            //     pageId,
-            //     selectedTab: INTEGRATION_TABS.NEW,
-            //   }),
-            // );
           }}
           step={SIGNPOSTING_STEP.CONNECT_A_DATASOURCE}
           testid={"checklist-datasource"}

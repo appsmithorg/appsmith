@@ -1,4 +1,12 @@
-import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  lazy,
+  Suspense,
+  useContext,
+} from "react";
 import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
 import { APPLICATIONS_URL } from "constants/routes";
@@ -94,6 +102,7 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
 import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -325,6 +334,37 @@ export function EditorHeader() {
     (user) => user.username !== currentUser?.username,
   );
 
+  const { pushFeature } = useContext(WalkthroughContext) || {};
+  useEffect(() => {
+    if (signpostingEnabled) {
+      // checkAndShowWalkthrough();
+    }
+  }, [signpostingEnabled]);
+  const checkAndShowWalkthrough = () => {
+    pushFeature &&
+      pushFeature({
+        targetId: `#application-publish-btn`,
+        details: {
+          title: "Deploy 🚀",
+          description:
+            "Use the deploy button to quickly launch and go live with your creation",
+        },
+        offset: {
+          position: "bottom",
+          highlightPad: 5,
+          indicatorLeft: -3,
+          left: -200,
+          style: {
+            transform: "none",
+            boxShadow: "var(--ads-v2-shadow-popovers)",
+            border: "1px solid var(--ads-v2-color-border-muted)",
+          },
+        },
+        overlayColor: "transparent",
+        delay: 1000,
+      });
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper
@@ -522,6 +562,7 @@ export function EditorHeader() {
                 <Button
                   className="t--application-publish-btn"
                   data-guided-tour-iid="deploy"
+                  id={"application-publish-btn"}
                   isLoading={isPublishing}
                   kind="tertiary"
                   onClick={() => handleClickDeploy(true)}

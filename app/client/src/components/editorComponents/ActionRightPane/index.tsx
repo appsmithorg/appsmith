@@ -67,6 +67,7 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import log from "loglevel";
+import history from "utils/history";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
 
@@ -321,7 +322,11 @@ function ActionSidebar({
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const user = useSelector(getCurrentUser);
-  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const {
+    isOpened: isWalkthroughOpened,
+    popFeature,
+    pushFeature,
+  } = useContext(WalkthroughContext) || {};
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -387,8 +392,8 @@ function ActionSidebar({
 
     const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
     // Adding walkthrough tutorial
-    true &&
-      true &&
+    isNewUser &&
+      !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
         targetId: `#${SCHEMA_SECTION_ID}`,
@@ -423,14 +428,24 @@ function ActionSidebar({
 
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const checkAndShowBackToCanvasWalkthrough = async () => {
-    pushFeature &&
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.back_to_canvas,
+    );
+    !isFeatureWalkthroughShown &&
+      pushFeature &&
       pushFeature({
         targetId: "#back-to-canvas",
+        onDismiss: async () => {
+          await setFeatureWalkthroughShown(
+            FEATURE_WALKTHROUGH_KEYS.back_to_canvas,
+            true,
+          );
+        },
         details: {
           title: "Go back to canvas",
           description:
             "Go back to the canvas from here to start building the UI for your app using available widgets",
-          imageURL: `${ASSETS_CDN_URL}/schema.gif`,
+          imageURL: `${ASSETS_CDN_URL}/back-to-canvas.gif`,
         },
         offset: {
           position: "bottom",
@@ -485,14 +500,23 @@ function ActionSidebar({
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
+  const handleCloseWalkthrough = () => {
+    if (isWalkthroughOpened && popFeature) {
+      popFeature();
+    }
+  };
+
   return (
     <SideBar>
       <BackToCanvasLink
         id="back-to-canvas"
         kind="secondary"
+        onClick={() => {
+          history.push(builderURL({ pageId }));
+
+          handleCloseWalkthrough();
+        }}
         startIcon="arrow-left-line"
-        target="_self"
-        to={builderURL({ pageId })}
       >
         {createMessage(BACK_TO_CANVAS)}
       </BackToCanvasLink>

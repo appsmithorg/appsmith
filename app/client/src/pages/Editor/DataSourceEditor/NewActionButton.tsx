@@ -18,6 +18,12 @@ import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import {
+  getFeatureWalkthroughShown,
+  setFeatureWalkthroughShown,
+} from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import log from "loglevel";
 
 type NewActionButtonProps = {
   datasource?: Datasource;
@@ -39,21 +45,42 @@ function NewActionButton(props: NewActionButtonProps) {
   const currentEnvironment = getCurrentEnvironment();
 
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
-  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const {
+    isOpened: isWalkthroughOpened,
+    popFeature,
+    pushFeature,
+  } = useContext(WalkthroughContext) || {};
+  const closeWalkthrough = useCallback(() => {
+    log.debug("popFeature-before");
+    if (isWalkthroughOpened && popFeature) {
+      log.debug("popFeature");
+      popFeature("EXPLORER_DATASOURCE_ADD");
+    }
+  }, [isWalkthroughOpened, popFeature]);
   useEffect(() => {
     if (signpostingEnabled && !actions.length) {
       checkAndShowWalkthrough();
     }
   }, [actions.length, signpostingEnabled]);
   const checkAndShowWalkthrough = async () => {
-    pushFeature &&
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.create_query,
+    );
+    !isFeatureWalkthroughShown &&
+      pushFeature &&
       pushFeature({
         targetId: "#create-query",
         details: {
           title: "Add New query",
           description:
             "A new query can be created using this button for this datasource",
-          imageURL: `${ASSETS_CDN_URL}/schema.gif`,
+          imageURL: `${ASSETS_CDN_URL}/create-new-query.gif`,
+        },
+        onDismiss: async () => {
+          await setFeatureWalkthroughShown(
+            FEATURE_WALKTHROUGH_KEYS.create_query,
+            true,
+          );
         },
         offset: {
           position: "bottom",
@@ -87,6 +114,8 @@ function NewActionButton(props: NewActionButtonProps) {
         });
         return;
       }
+
+      closeWalkthrough();
 
       if (currentPageId) {
         setIsSelected(true);

@@ -64,11 +64,16 @@ const Datasources = React.memo(() => {
     userWorkspacePermissions,
   );
 
+  const closeWalkthrough = useCallback(() => {
+    if (isWalkthroughOpened && popFeature) {
+      popFeature("EXPLORER_DATASOURCE_ADD");
+    }
+  }, [isWalkthroughOpened]);
+
   const addDatasource = useCallback(
     (entryPoint: string) => {
-      if (isWalkthroughOpened && popFeature) {
-        popFeature("EXPLORER_DATASOURCE_ADD");
-      }
+      closeWalkthrough();
+
       history.push(
         integrationEditorURL({
           pageId,
@@ -80,7 +85,7 @@ const Datasources = React.memo(() => {
         entryPoint,
       });
     },
-    [pageId, isWalkthroughOpened],
+    [pageId],
   );
   const activeDatasourceId = useDatasourceIdFromURL();
   const datasourceSuggestions = useDatasourceSuggestions();

@@ -1,6 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { Colors } from "constants/Colors";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { Button } from "design-system";
-import React from "react";
+import React, { useContext, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -39,6 +44,40 @@ const ConnecData = styled(Button)`
 `;
 
 export function ConnectDataOverlay(props: { onConnectData: () => void }) {
+  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+
+  useEffect(() => {
+    if (true) {
+      // checkAndShowWalkthrough();
+    }
+  }, [signpostingEnabled]);
+
+  const checkAndShowWalkthrough = () => {
+    pushFeature &&
+      pushFeature({
+        targetId: `#table-overlay-connectdata`,
+        details: {
+          title: "Connect data",
+          description:
+            "Swiftly bind data to the widget by connecting your query with just a click of this button.",
+          imageURL: `${ASSETS_CDN_URL}/connect-data.gif`,
+        },
+        offset: {
+          position: "right",
+          highlightPad: 5,
+          indicatorLeft: -3,
+          style: {
+            transform: "none",
+            boxShadow: "var(--ads-v2-shadow-popovers)",
+            border: "1px solid var(--ads-v2-color-border-muted)",
+          },
+        },
+        overlayColor: "transparent",
+        delay: 1000,
+      });
+  };
+
   return (
     <Wrapper>
       <Container>
@@ -47,6 +86,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
         </Header>
         <ConnecData
           className="t--cypress-table-overlay-connectdata"
+          id={"table-overlay-connectdata"}
           onClick={props.onConnectData}
           size="md"
         >

@@ -1,3 +1,4 @@
+/* eslint-disable sort-destructure-keys/sort-destructure-keys */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useContext, useEffect } from "react";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
@@ -21,6 +22,15 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import {
+  actionsExistInCurrentPage,
+  widgetsExistCurrentPage,
+} from "selectors/entitiesSelector";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import {
+  getFeatureWalkthroughShown,
+  setFeatureWalkthroughShown,
+} from "utils/storage";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -78,24 +88,50 @@ function ExplorerContent() {
         dispatch(toggleInOnboardingWidgetSelection(true));
       }
     }
+
+    handleCloseWalkthrough();
   };
   const { value: activeOption } = options[activeSwitchIndex];
 
-  const { pushFeature } = useContext(WalkthroughContext) || {};
-
+  const {
+    pushFeature,
+    popFeature,
+    isOpened: isWalkthroughOpened,
+  } = useContext(WalkthroughContext) || {};
+  const actionsExist = useSelector(actionsExistInCurrentPage);
+  const widgetsExist = useSelector(widgetsExistCurrentPage);
   useEffect(() => {
-    checkAndShowWalkthrough();
-  }, [isFirstTimeUserOnboardingEnabled]);
+    if (isFirstTimeUserOnboardingEnabled && !widgetsExist && actionsExist) {
+      checkAndShowWalkthrough();
+    }
+  }, [actionsExist, isFirstTimeUserOnboardingEnabled, widgetsExist]);
+
+  const handleCloseWalkthrough = () => {
+    if (isWalkthroughOpened && popFeature) {
+      popFeature();
+    }
+  };
 
   const checkAndShowWalkthrough = async () => {
-    pushFeature &&
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.switch_to_widget,
+    );
+
+    isFeatureWalkthroughShown &&
+      pushFeature &&
       pushFeature({
         targetId: `#explorer-tab-options [data-value*="widgets"]`,
         details: {
           title: "Switch to Widgets section",
           description:
             "Segmented View in Entity Explorer enables swift switching between Explorer and Widgets. Select Widgets tab, then click on a widget to bind data",
-          imageURL: `${ASSETS_CDN_URL}/schema.gif`,
+          imageURL: `${ASSETS_CDN_URL}/switch-to-widget.gif`,
+        },
+        onDismiss: async () => {
+          await setFeatureWalkthroughShown(
+            FEATURE_WALKTHROUGH_KEYS.switch_to_widget,
+            true,
+          );
         },
         offset: {
           position: "right",

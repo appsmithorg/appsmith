@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
@@ -63,7 +64,7 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
 
   useEffect(() => {
     if (isActive) {
-      checkAndShowWalkthrough();
+      // checkAndShowWalkthrough();
     }
   }, [isActive]);
   const { pushFeature } = useContext(WalkthroughContext) || {};
