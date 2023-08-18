@@ -9,7 +9,7 @@ export const fieldStyles = css<FieldStylesProps>`
   &[data-field] {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-3);
+    gap: var(--spacing-1);
 
     &[data-position="side"] {
       flex-direction: row;

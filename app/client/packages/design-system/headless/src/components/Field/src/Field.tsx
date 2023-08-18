@@ -63,7 +63,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
       {...wrapperProps}
       className={wrapperClassName}
       data-align={labelAlign}
-      data-disabled={isDisabled}
+      data-disabled={isDisabled ? "" : undefined}
       data-field=""
       data-position={labelPosition}
       ref={ref}
