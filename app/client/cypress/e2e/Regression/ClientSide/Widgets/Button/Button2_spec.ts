@@ -9,12 +9,10 @@ import {
   jsEditor,
   tedTestConfig,
   locators,
-  dataSources,
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
 import clocators from "../../../../../locators/commonlocators.json";
-import wlocators from "../../../../../locators/Widgets.json";
 
 describe("Rating widet testcases", () => {
   before(() => {
@@ -71,7 +69,7 @@ describe("Rating widet testcases", () => {
     entityExplorer.DeleteWidgetFromEntityExplorer("Form1");
   });
 
-  it("3. Checking on click and callbacks", () => {
+  it("3. Checking on click", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
     propPane.SelectPropertiesDropDown("Data type", "Email");
@@ -96,6 +94,9 @@ describe("Rating widet testcases", () => {
       "{{Input1.text}}",
     );
     entityExplorer.SelectEntityByName("Form1");
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage("@example");
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("@example");
   });
