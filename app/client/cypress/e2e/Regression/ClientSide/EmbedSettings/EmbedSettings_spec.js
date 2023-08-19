@@ -22,6 +22,7 @@ describe("Embed settings options", function () {
   function ValidateEditModeSetting(setting) {
     _.deployMode.NavigateBacktoEditor();
     _.embedSettings.OpenEmbedSettings();
+    _.agHelper.Sleep();
     _.agHelper.GetNAssertElementText(
       _.embedSettings.locators._frameAncestorsSetting,
       setting,
