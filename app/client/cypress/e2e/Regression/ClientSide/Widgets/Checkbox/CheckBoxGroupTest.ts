@@ -308,6 +308,21 @@ describe("Checkbox Tests", function () {
       locators._widgetInDeployed("textwidget"),
       "true",
     );
+    // Preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "true",
+    );
+    agHelper.GetNClick(locators._exitPreviewMode);
+
+    // Deploy mode
+    deployMode.DeployApp();
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "true",
+    );
+    deployMode.NavigateBacktoEditor();
 
     // Verify checkbox visible
     entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
@@ -317,8 +332,25 @@ describe("Checkbox Tests", function () {
       locators._widgetInDeployed("textwidget"),
       "false",
     );
-    propPane.TogglePropertyState("visible", "On");
+    // Preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "false",
+    );
+    agHelper.GetNClick(locators._exitPreviewMode);
 
+    // Deploy mode
+    deployMode.DeployApp();
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "false",
+    );
+
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    propPane.MoveToTab("Content");
+    propPane.TogglePropertyState("visible", "On");
     // Verify checkbox disabled
     entityExplorer.SelectEntityByName("Text1", "Widgets");
     propPane.MoveToTab("Content");
@@ -327,7 +359,21 @@ describe("Checkbox Tests", function () {
       locators._widgetInDeployed("textwidget"),
       "false",
     );
+    // Preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "false",
+    );
+    agHelper.GetNClick(locators._exitPreviewMode);
 
+    // Deploy mode
+    deployMode.DeployApp();
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "false",
+    );
+    deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
     propPane.MoveToTab("Content");
     propPane.TogglePropertyState("disabled", "On");
@@ -335,6 +381,23 @@ describe("Checkbox Tests", function () {
       locators._widgetInDeployed("textwidget"),
       "true",
     );
+    // Preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "true",
+    );
+    agHelper.GetNClick(locators._exitPreviewMode);
+
+    // Deploy mode
+    deployMode.DeployApp();
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "true",
+    );
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    propPane.MoveToTab("Content");
     propPane.TogglePropertyState("disabled", "Off");
 
     // Verify selected value[All values selected]
@@ -351,6 +414,23 @@ describe("Checkbox Tests", function () {
     agHelper.GetNAssertContains(locators._textWidget, '"BLUE"');
     agHelper.GetNAssertContains(locators._textWidget, '"GREEN"');
     agHelper.GetNAssertContains(locators._textWidget, '"RED"');
+
+    // Preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    agHelper.GetNAssertContains(locators._textWidgetContaioner, '"BLUE"');
+    agHelper.GetNAssertContains(locators._textWidgetContaioner, '"GREEN"');
+    agHelper.GetNAssertContains(locators._textWidgetContaioner, '"RED"');
+    agHelper.GetNClick(locators._exitPreviewMode);
+
+    // Deploy mode
+    deployMode.DeployApp();
+    agHelper.GetNClick(locators._checkboxWidgetLabel, 1);
+    agHelper.GetNClick(locators._checkboxWidgetLabel, 2);
+    agHelper.GetNAssertContains(locators._textWidgetContaioner, '"BLUE"');
+    agHelper.GetNAssertContains(locators._textWidgetContaioner, '"GREEN"');
+    agHelper.GetNAssertContains(locators._textWidgetContaioner, '"RED"');
+    deployMode.NavigateBacktoEditor();
+
     entityExplorer.SelectEntityByName("Text1", "Widgets");
     propPane.MoveToTab("Content");
     propPane.UpdatePropertyFieldValue("Text", "{{NewCheckBox.isValid}}");
@@ -358,5 +438,20 @@ describe("Checkbox Tests", function () {
       locators._widgetInDeployed("textwidget"),
       "true",
     );
+    // Preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "true",
+    );
+    agHelper.GetNClick(locators._exitPreviewMode);
+
+    // Deploy mode
+    deployMode.DeployApp();
+    agHelper.GetNAssertContains(
+      locators._widgetInDeployed("textwidget"),
+      "true",
+    );
+    deployMode.NavigateBacktoEditor();
   });
 });
