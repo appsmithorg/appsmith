@@ -3,12 +3,8 @@ package com.appsmith.server.filters;
 import com.appsmith.server.constants.ApiConstants;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -32,35 +28,34 @@ public class PreAuth implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         log.debug("Inside PreAuth filter");
-        return getUsername(exchange)
-                .flatMap(username -> {
-                    if (username != null) {
-                        log.debug("Username: {}", username);
-                        return rateLimitService.tryIncreaseCounter("authentication", username)
-                                .flatMap(isRateLimited -> {
-                                    if (!isRateLimited) {
-                                        log.error("Rate limit exceeded. Redirecting to login page.");
-                                        return handleRateLimitExceeded(exchange);
-                                    } else {
-                                        return chain.filter(exchange);
-                                    }
-                                });
-                    } else {
-                        log.error("Username is empty. Continuing with filter chain.");
-                        return chain.filter(exchange);
-                    }
-                });
+        return getUsername(exchange).flatMap(username -> {
+            if (username != null) {
+                log.debug("Username: {}", username);
+                return rateLimitService
+                        .tryIncreaseCounter("authentication", username)
+                        .flatMap(counterIncreaseAttemptSuccessful -> {
+                            if (!counterIncreaseAttemptSuccessful) {
+                                log.error("Rate limit exceeded. Redirecting to login page.");
+                                return handleRateLimitExceeded(exchange);
+                            } else {
+                                return chain.filter(exchange);
+                            }
+                        });
+            } else {
+                log.error("Username is empty. Continuing with filter chain.");
+                return chain.filter(exchange);
+            }
+        });
     }
 
     private Mono<String> getUsername(ServerWebExchange exchange) {
-        return exchange.getFormData()
-                .flatMap(formData -> {
-                    String username = formData.getFirst("username");
-                    if (username != null) {
-                        return Mono.just(URLDecoder.decode(username, StandardCharsets.UTF_8));
-                    }
-                    return Mono.empty();
-                });
+        return exchange.getFormData().flatMap(formData -> {
+            String username = formData.getFirst("username");
+            if (username != null) {
+                return Mono.just(URLDecoder.decode(username, StandardCharsets.UTF_8));
+            }
+            return Mono.empty();
+        });
     }
 
     private Mono<Void> handleRateLimitExceeded(ServerWebExchange exchange) {

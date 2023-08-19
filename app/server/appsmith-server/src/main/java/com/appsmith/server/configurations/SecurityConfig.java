@@ -197,7 +197,9 @@ public class SecurityConfig {
                 .anyExchange()
                 .authenticated()
                 .and()
-                .addFilterBefore(new ConditionalFilter(new PreAuth(rateLimitService), Url.LOGIN_URL), SecurityWebFiltersOrder.FORM_LOGIN)
+                .addFilterBefore(
+                        new ConditionalFilter(new PreAuth(rateLimitService), Url.LOGIN_URL),
+                        SecurityWebFiltersOrder.FORM_LOGIN)
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
                 .formLogin(formLoginSpec -> formLoginSpec
                         .authenticationFailureHandler(failureHandler)
