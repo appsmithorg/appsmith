@@ -266,7 +266,7 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     if (index >= 0)
       this.ScrollIntoView(selector, index).should(textPresence, text);
-    else this.ScrollIntoView(selector).should(textPresence, text);
+    else this.GetElement(selector).should(textPresence, text);
   }
 
   public GetElementsNAssertTextPresence(selector: string, text: string) {
