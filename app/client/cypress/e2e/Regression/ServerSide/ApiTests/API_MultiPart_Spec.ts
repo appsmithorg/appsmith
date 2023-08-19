@@ -157,7 +157,7 @@ describe("Validate API request body panel", () => {
 
     apiPage.ToggleOnPageLoadRun(false); //Bug 12476
     entityExplorer.SelectEntityByName("Page1");
-    deployMode.DeployApp(locators._spanButton("Select Files"));
+    deployMode.DeployApp(locators._buttonByText("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
     assertHelper.AssertNetworkExecutionSuccess("@postExecute"); //validating Cloudinary api call
@@ -169,7 +169,7 @@ describe("Validate API request body panel", () => {
       .then(($src) => {
         expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
       });
-    agHelper.AssertElementVisibility(locators._spanButton("Select Files")); //verifying if reset!
+    agHelper.AssertElementVisibility(locators._buttonByText("Select Files")); //verifying if reset!
     deployMode.NavigateBacktoEditor();
   });
 
@@ -188,11 +188,11 @@ describe("Validate API request body panel", () => {
     agHelper.UploadFile(imageNameToUpload);
     assertHelper.AssertNetworkExecutionSuccess("@postExecute", false);
 
-    deployMode.DeployApp(locators._spanButton("Select Files"));
+    deployMode.DeployApp(locators._buttonByText("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
     assertHelper.AssertNetworkExecutionSuccess("@postExecute", false);
     agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute");
-    agHelper.AssertElementVisibility(locators._spanButton("Select Files")); //verifying if reset in case of failure!
+    agHelper.AssertElementVisibility(locators._buttonByText("Select Files")); //verifying if reset in case of failure!
   });
 });

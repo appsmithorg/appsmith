@@ -329,37 +329,43 @@ export class AggregateHelper extends ReusableHelper {
           index: number;
           force: boolean;
           waitAfterClick: boolean;
+          sleepTime: number;
         }> = 0,
   ) {
-    const button = this.locator._spanButton(btnVisibleText);
+    const button = this.locator._buttonByText(btnVisibleText);
     let index: number,
       force = true,
-      waitAfterClick = true;
+      waitAfterClick = true,
+      waitTime = 1000;
 
     if (typeof indexOrOptions === "number") {
       index = indexOrOptions;
     } else {
       index = indexOrOptions.index || 0;
-      force = indexOrOptions.force || false;
+      force =
+        typeof indexOrOptions.force !== "undefined"
+          ? indexOrOptions.force
+          : true;
       // waitAfterClick = indexOrOptions.waitAfterClick || false;
       // Check if waitAfterClick is explicitly set, otherwise default to true
       waitAfterClick =
         typeof indexOrOptions.waitAfterClick !== "undefined"
           ? indexOrOptions.waitAfterClick
           : true;
+      waitTime = indexOrOptions.sleepTime || 1000;
     }
 
     return this.ScrollIntoView(button, index)
       .click({ force })
       .then(() => {
         if (waitAfterClick) {
-          return this.Sleep();
+          return this.Sleep(waitTime);
         }
       });
   }
 
   public clickMultipleButtons(btnVisibleText: string, waitAfterClick = true) {
-    cy.xpath(this.locator._spanButton(btnVisibleText)).each(($el) => {
+    cy.xpath(this.locator._buttonByText(btnVisibleText)).each(($el) => {
       $el.trigger("click", { force: true });
       cy.wait(200);
     });
@@ -1371,10 +1377,10 @@ export class AggregateHelper extends ReusableHelper {
       });
   }
 
-  public UploadFile(fixtureName: string, toClickUpload = true) {
+  public UploadFile(fixtureName: string, toClickUpload = true, index = 0) {
     //cy.fixture(fixtureName).as("selectFileFixture");//giving issue, hence using directly as below
     cy.get(this.locator._uploadFiles)
-      .eq(0)
+      .eq(index)
       .selectFile("cypress/fixtures/" + fixtureName, { force: true })
       .wait(3000);
     toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false);
@@ -1563,11 +1569,9 @@ export class AggregateHelper extends ReusableHelper {
     index = 0,
     disabled = true,
   ) {
-    if (disabled) {
-      return this.GetElement(selector).eq(index).should("be.disabled");
-    } else {
-      return this.GetElement(selector).eq(index).should("not.be.disabled");
-    }
+    return this.GetElement(selector)
+      .eq(index)
+      .should(disabled ? "have.attr" : "not.have.attr", "disabled");
   }
 
   // Waits until all LazyCodeEditor wrappers finished loading the actual code editor.

@@ -385,7 +385,9 @@ export class HomePage {
     this.agHelper.Sleep(2000);
     workspaceId && cy.get(this._appContainer).contains(workspaceId);
     if (checkForShareButton) {
-      cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
+      cy.xpath(this.locator._buttonByText("Share"))
+        .first()
+        .should("be.visible");
     }
   }
 

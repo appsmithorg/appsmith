@@ -253,6 +253,17 @@ export class DataSources {
     dsName +
     "']/ancestor::div[contains(@class, 't--datasource')]//div[@data-testid='datasource-collapse-wrapper']";
   _snippingBanner = ".t--sniping-mode-banner";
+  _s3CrudIcons = (
+    fieldName: string,
+    type: "Edit" | "Delete" | "CopyURL" | "Download",
+  ) =>
+    "//span[text()='" +
+    fieldName +
+    "']/ancestor::div[@type='CANVAS_WIDGET'][1]//div[@data-widgetname-cy='" +
+    type +
+    "Icon']";
+  _s3EditFileName =
+    "[data-widgetname-cy='update_file_name'] div[data-testid='input-container']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -926,7 +937,7 @@ export class DataSources {
 
   private AssertRunButtonVisibility() {
     this.agHelper.AssertElementVisibility(
-      this.locator._spanButton("Run"),
+      this.locator._buttonByText("Run"),
       true,
       0,
       20000,
