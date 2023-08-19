@@ -158,14 +158,15 @@ export class DeployMode {
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
     this.agHelper.Sleep();
     localStorage.setItem("inDeployedMode", "false");
+    //Assert no error toast in Edit mode when navigating back from Deploy mode
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("There was an unexpected error"),
-    ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
+    );
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast(
         "Internal server error while processing request",
       ),
-    ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
+    );
     cy.window().then((win) => {
       win.location.reload();
     }); //only reloading edit page to load elements
