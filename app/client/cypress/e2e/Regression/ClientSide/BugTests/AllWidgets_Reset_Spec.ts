@@ -206,7 +206,7 @@ function selectTableAndReset() {
 }
 
 function selectSwitchGroupAndReset() {
-  cy.get(".bp3-control-indicator").last().click({ force: true });
+  _.agHelper.CheckUncheck(_.locators._checkboxTypeByOption("Red"));
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "RED",
@@ -441,14 +441,14 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       _.propPane.UpdatePropertyFieldValue("Text", testConfig.textBindingValue);
     });
 
-    it("3. Publish the app and check the reset assertWidgetReset", () => {
+    it(`3. Publish the app and check the reset ${testConfig.widgetName}`, () => {
       // Set onClick assertWidgetReset, storing value
-      _.deployMode.DeployApp();
+      _.deployMode.DeployApp(_.locators._widgetInDeployed(widgetSelector));
       testConfig.assertWidgetReset();
-      _.agHelper.AssertContains("Reset Success!");
+      _.agHelper.ValidateToastMessage("Reset Success!");
     });
 
-    it(`4. Delete ${testConfig.widgetName} the widgets on canvas`, () => {
+    it(`4. Delete ${testConfig.widgetName} widget from canvas`, () => {
       _.deployMode.NavigateBacktoEditor();
       _.entityExplorer.SelectEntityByName(
         `${testConfig.widgetPrefixName}`,

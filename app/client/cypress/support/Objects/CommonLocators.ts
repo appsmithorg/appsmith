@@ -159,8 +159,12 @@ export class CommonLocators {
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _evalPopup = ".evaluated-value-popup";
-  _checkboxGroupOptions = (option: string) =>
-    "//div[contains(text(),'" + option + "')]/parent::label/input";
+  _checkboxTypeByOption = (option: string) =>
+    "//div[contains(text(),'" +
+    option +
+    "')]/parent::label/input | //label[contains(text(),'" +
+    option +
+    "')]/input";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
