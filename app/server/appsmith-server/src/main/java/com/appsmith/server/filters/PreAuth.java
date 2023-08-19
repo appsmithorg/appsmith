@@ -32,62 +32,35 @@ public class PreAuth implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         log.debug("Inside PreAuth filter");
-        // get username and rate limit using rateLimitService
-        // if rate limit exceeded, return 429
-        // else continue with chain.filter(exchange)
         return getUsername(exchange)
                 .flatMap(username -> {
-                    log.debug("Username: {}", username);
-                    return rateLimitService.tryIncreaseCounter("authentication", username);
-                })
-                .flatMap(isRateLimited -> {
-                    if (isRateLimited) {
-                        log.error("Rate limit exceeded. Redirecting to login page.");
-                        return handleRateLimitExceeded(exchange);
+                    if (username != null) {
+                        log.debug("Username: {}", username);
+                        return rateLimitService.tryIncreaseCounter("authentication", username)
+                                .flatMap(isRateLimited -> {
+                                    if (!isRateLimited) {
+                                        log.error("Rate limit exceeded. Redirecting to login page.");
+                                        return handleRateLimitExceeded(exchange);
+                                    } else {
+                                        return chain.filter(exchange);
+                                    }
+                                });
                     } else {
-                        log.error("Rate limit not exceeded. Continuing with filter chain.");
+                        log.error("Username is empty. Continuing with filter chain.");
                         return chain.filter(exchange);
                     }
                 });
     }
 
     private Mono<String> getUsername(ServerWebExchange exchange) {
-        ServerHttpRequest originalRequest = exchange.getRequest();
-
-        return DataBufferUtils.join(originalRequest.getBody()).flatMap(dataBuffer -> {
-            byte[] bytes = new byte[dataBuffer.readableByteCount()];
-            dataBuffer.read(bytes);
-            DataBufferUtils.release(dataBuffer);
-
-            String body = new String(bytes, StandardCharsets.UTF_8);
-
-            // Parse form data
-            MultiValueMap<String, String> formData = parseFormData(body);
-
-            // URL decode the username value
-            String username = formData.getFirst("username");
-            if (username != null) {
-                username = URLDecoder.decode(username, StandardCharsets.UTF_8);
-            }
-
-            return Mono.just(username);
-        });
-    }
-
-    private MultiValueMap<String, String> parseFormData(String body) {
-        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-
-        if (body != null) {
-            String[] pairs = body.split("&");
-            for (String pair : pairs) {
-                String[] keyValue = pair.split("=");
-                if (keyValue.length == 2) {
-                    formData.add(keyValue[0], keyValue[1]);
-                }
-            }
-        }
-
-        return formData;
+        return exchange.getFormData()
+                .flatMap(formData -> {
+                    String username = formData.getFirst("username");
+                    if (username != null) {
+                        return Mono.just(URLDecoder.decode(username, StandardCharsets.UTF_8));
+                    }
+                    return Mono.empty();
+                });
     }
 
     private Mono<Void> handleRateLimitExceeded(ServerWebExchange exchange) {

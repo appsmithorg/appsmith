@@ -30,7 +30,7 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
 
     @Override
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
-        log.error("In the login failure handler. Cause: {}", exception.getMessage());
+        log.error("In the login failure handler. Cause: {}", exception.getMessage(), exception);
         ServerWebExchange exchange = webFilterExchange.getExchange();
         MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
         String state = queryParams.getFirst(Security.QUERY_PARAMETER_STATE);
