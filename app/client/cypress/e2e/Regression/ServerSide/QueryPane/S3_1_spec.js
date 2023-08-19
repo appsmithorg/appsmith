@@ -1,7 +1,6 @@
 /// <reference types="Cypress" />
 
 const queryLocators = require("../../../../locators/QueryEditor.json");
-const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const formControls = require("../../../../locators/FormControl.json");
 import {
@@ -87,7 +86,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "assets-test--appsmith",
       "List files",
     );
-    dataSources.RunQuery();
+
+    dataSources.RunQueryNVerifyResponseViews(100);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -399,7 +399,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
 
-  it("6. Create new file in bucket for UI Operations & Verify Search, Delete operations from NewPage UI created in S3 ds & Bug 8686, 8684", function () {
+  it("6. Create new 'text' file in bucket for UI Operations & Verify Search, Delete operations from NewPage CRUD UI created in S3 ds & Bug 8686, 8684", function () {
     //Creating new file in bucket
     cy.NavigateToActiveDSQueryPane(datasourceName);
     dataSources.ValidateNSelectDropdown(
@@ -522,7 +522,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   after("Deletes the datasource", () => {
-    cy.NavigateToQueryEditor();
     dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
   });
 });

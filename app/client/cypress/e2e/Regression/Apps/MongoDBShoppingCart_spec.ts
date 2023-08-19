@@ -143,7 +143,7 @@ describe("Shopping cart App", function () {
 
     //Wait for all post execute calls to finish
     agHelper.Sleep(3000);
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     // validating updated value in the cart
     agHelper
       .GetElement(dataSources._selectedRow)

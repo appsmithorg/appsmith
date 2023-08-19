@@ -1074,7 +1074,7 @@ export class DataSources {
     ); //For the run to give response
     if (toValidateResponse) {
       this.agHelper.Sleep();
-      this.agHelper.AssertNetworkExecutionSuccess(
+      this.assertHelper.AssertNetworkExecutionSuccess(
         "@postExecute",
         expectedStatus,
       );

@@ -265,8 +265,8 @@ export class AggregateHelper extends ReusableHelper {
     index = 0,
   ) {
     if (index >= 0)
-      this.GetElement(selector).eq(index).should(textPresence, text);
-    else this.GetElement(selector).should(textPresence, text);
+      this.ScrollIntoView(selector, index).should(textPresence, text);
+    else this.ScrollIntoView(selector).should(textPresence, text);
   }
 
   public GetElementsNAssertTextPresence(selector: string, text: string) {
@@ -321,16 +321,12 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public ClickButton(
-    btnVisibleText: string,
-    index = 0,
-    shouldSleep = true,
-    force = true,
-  ) {
-    this.ScrollIntoView(this.locator._spanButton(btnVisibleText), index).click({
-      force: force,
-    });
-    shouldSleep && this.Sleep();
+  public ClickButton(btnVisibleText: string, index = 0, force = true) {
+    return this.ScrollIntoView(this.locator._spanButton(btnVisibleText), index)
+      .click({
+        force: force,
+      })
+      .wait(1000);
   }
 
   public clickMultipleButtons(btnVisibleText: string, shouldSleep = true) {
@@ -422,13 +418,6 @@ export class AggregateHelper extends ReusableHelper {
     // cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0)
     //or
     // cy.waitUntil(()) => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector))).then(($ele) => { cy.wrap($ele).eq(0).should("be.visible");});
-  }
-
-  public AssertNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
-    cy.wait(1000).wait(aliasName); //Wait a bit for call to finish!
-    cy.get(aliasName)
-      .its("response.body.data.isExecutionSuccess")
-      .should("eq", expectedRes);
   }
 
   public AssertNetworkDataSuccess(aliasName: string, expectedRes = true) {
@@ -766,14 +755,19 @@ export class AggregateHelper extends ReusableHelper {
       this.TypeText(selector, totype, index);
     }
   }
-  public ClearTextField(selector: string, force = false) {
-    this.GetElement(selector).clear({ force });
+  public ClearTextField(selector: string, force = false, index = 0) {
+    this.GetElement(selector).eq(index).clear({ force });
     this.Sleep(500); //for text to clear for CI runs
   }
 
-  public ClearNType(selector: string, totype: string) {
-    this.ClearTextField(selector);
-    this.TypeText(selector, totype);
+  public ClearNType(
+    selector: string,
+    totype: string,
+    index = 0,
+    force = false,
+  ) {
+    this.ClearTextField(selector, force, index);
+    this.TypeText(selector, totype, index);
   }
 
   public TypeText(
@@ -1004,7 +998,7 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     if (entityType != EntityItems.Widget)
       this.GetNClick(this.locator._contextMenuItem("Are you sure?"));
-    this.Sleep(1000);
+    this.Sleep();
     toAssertAction && this.assertHelper.AssertDelete(entityType);
   }
 
