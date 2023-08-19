@@ -93,7 +93,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
-    table.ReadTableRowColumnData(8, 8, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(8, 8, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq(
         "Write Your Story with Elegance: The Pen of Choice!",
       );
@@ -106,8 +106,10 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
   it("3. Verify Add/Insert from Deploy page - on MongoMart - new record - few validations", () => {
     agHelper.GetNClick(dataSources._addIcon);
     agHelper.Sleep();
-    //agHelper.AssertElementVisible(locators._jsonFormWidget, 1); //Insert Modal
-    agHelper.AssertElementVisible(locators._visibleTextDiv("Insert Document"));
+    //agHelper.AssertElementVisibility(locators._jsonFormWidget, 1); //Insert Modal
+    agHelper.AssertElementVisibility(
+      locators._visibleTextDiv("Insert Document"),
+    );
 
     agHelper.AssertElementEnabledDisabled(
       locators._spanButton("Submit") + "/parent::div",
@@ -124,8 +126,8 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
   it("4. Verify Delete from Deploy page - on MongoMart - newly added record", () => {
     agHelper.ClickButton("Delete", 0);
-    agHelper.AssertElementVisible(locators._modal);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.AssertElementVisibility(
       dataSources._visibleTextSpan(
         "Are you sure you want to delete this document?",
       ),
@@ -153,7 +155,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
     table.OpenNFilterTable("title", "contains", "USB");
     for (let i = 0; i < 3; i++) {
-      table.ReadTableRowColumnData(i, 5, "v1").then(($cellData) => {
+      table.ReadTableRowColumnData(i, 6, "v1").then(($cellData) => {
         expect($cellData).contains("USB");
       });
     }

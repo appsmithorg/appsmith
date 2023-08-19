@@ -337,7 +337,14 @@ export function Table(props: TableProps) {
       pageSize: props.pageSize,
       yScrollVisibility: isVerticalScrollVisible(),
     });
-  }, [props.bottomRow, props.topRow, props.leftColumn, props.rightColumn]);
+  }, [
+    props.bottomRow,
+    props.topRow,
+    props.leftColumn,
+    props.rightColumn,
+    isVerticalScrollVisible,
+    props.pageSize,
+  ]);
 
   return (
     <>

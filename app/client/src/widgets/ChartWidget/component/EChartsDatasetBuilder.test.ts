@@ -19,6 +19,7 @@ describe("EChartsConfigurationBuilder", () => {
     const chartData = { seriesID1: chartData1, seriesID2: chartData2 };
     const defaultProps: ChartComponentProps = {
       allowScroll: true,
+      showDataPointLabel: true,
       chartData: chartData,
       chartName: "chart name",
       chartType: "AREA_CHART",

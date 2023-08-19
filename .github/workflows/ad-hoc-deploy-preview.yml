@@ -24,13 +24,12 @@ jobs:
     steps:
       - name: Update workflow details
         run: |
-          curl --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.uid}}' \
+          curl --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
           --header 'Content-Type: application/json' \
-          --oauth2-bearer '${{secrets.INTENRAL_OPS_API_TOKEN}}' \
+          --oauth2-bearer '${{secrets.INTERNAL_OPS_API_TOKEN}}' \
           --data ' {
                   "status": "IN_PROGRESS",
-                  "githubWorkflowId": "${{github.workflow.id}}",
-                  "githubWorkflowHtmlUrl": "${{github.workflow.githubWorkflowHtmlUrl}}",
+                  "githubWorkflowId": "${{ github.run_id }}"
           }'
             
   server-build:
@@ -177,7 +176,7 @@ jobs:
         run: |
           curl --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
           --header 'Content-Type: application/json' \
-          --oauth2-bearer '${{secrets.INTENRAL_OPS_API_TOKEN}}'  \
+          --oauth2-bearer '${{secrets.INTERNAL_OPS_API_TOKEN}}'  \
           --data ' {
                   "status": "COMPLETED"
           }'
@@ -186,7 +185,7 @@ jobs:
         run: |
           curl --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
           --header 'Content-Type: application/json' \
-          --oauth2-bearer '${{secrets.INTENRAL_OPS_API_TOKEN}}'  \
+          --oauth2-bearer '${{secrets.INTERNAL_OPS_API_TOKEN}}'  \
           --data ' {
                   "status": "FAILED"
           }'

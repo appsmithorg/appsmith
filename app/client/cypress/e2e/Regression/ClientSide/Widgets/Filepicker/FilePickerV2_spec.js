@@ -40,7 +40,7 @@ describe("File picker widget v2", () => {
       `{{FilePicker1.files[0].name}}`,
     );
     cy.createAndFillApi(
-      _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment].mockApiUrl,
+      _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
       "",
     );
     cy.updateCodeInput(

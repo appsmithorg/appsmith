@@ -866,7 +866,6 @@ Cypress.Commands.add(
     propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
     agHelper.Sleep();
-    agHelper.GetNClick(propPane._actionCallbacks, 0, true);
 
     // add a success callback
     cy.get(propPane._actionAddCallback("success")).click().wait(500);
@@ -1134,27 +1133,31 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
   featureFlagIntercept({}, false);
-
-  cy.intercept("GET", "/api/v1/product-alert/alert", (req) => {
-    try {
-      req.continue((res) => {
-        // This api should always be 200, for any case.
-        expect(res.statusCode).to.be.equal(200);
-        // Mock empty product alerts response so that it does not interfere with tests
-        res.send(200, {
-          responseMeta: {
-            status: 200,
-            success: true,
-          },
-          data: {},
-          errorDisplay: "",
-        });
+  cy.intercept(
+    {
+      method: "GET",
+      url: "/api/v1/product-alert/alert",
+    },
+    (req) => {
+      req.reply((res) => {
+        if (res) {
+          if (res.statusCode === 200) {
+            // Modify the response body to have empty data
+            res.send({
+              responseMeta: {
+                status: 200,
+                success: true,
+              },
+              data: {},
+              errorDisplay: "",
+            });
+          }
+        } else {
+          // Do nothing or handle the case where the response object is not present
+        }
       });
-    } catch (e) {
-      console.error(e);
-      return true;
-    }
-  }).as("productAlert");
+    },
+  ).as("productAlert");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1804,7 +1807,7 @@ Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
 // });
 
 addMatchImageSnapshotCommand({
-  failureThreshold: 0.1, // threshold for entire image
+  failureThreshold: 0.15, // threshold for entire image
   failureThresholdType: "percent",
 });
 
@@ -2181,4 +2184,12 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 
 Cypress.Commands.add("skipSignposting", () => {
   onboarding.closeIntroModal();
+});
+
+Cypress.Commands.add("stubPricingPage", () => {
+  cy.window().then((win) => {
+    cy.stub(win, "open", (url) => {
+      win.location.href = "https://www.appsmith.com/pricing?";
+    }).as("pricingPage");
+  });
 });

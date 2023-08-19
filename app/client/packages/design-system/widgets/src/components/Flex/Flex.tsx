@@ -1,14 +1,13 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { StyledContainerFlex, StyledFlex } from "./index.styled";
 import type { FlexProps } from "./types";
 
-export const Flex = (props: FlexProps) => {
+const _Flex = (props: FlexProps, ref: React.Ref<HTMLDivElement>) => {
   const {
     alignContent,
     alignItems,
     alignSelf,
     children,
-    className,
     columnGap,
     direction,
     flex,
@@ -17,6 +16,7 @@ export const Flex = (props: FlexProps) => {
     flexShrink,
     gap,
     height,
+    id,
     isContainer = false,
     isHidden = false,
     justifyContent,
@@ -37,7 +37,6 @@ export const Flex = (props: FlexProps) => {
     paddingRight,
     paddingTop,
     rowGap,
-    style,
     width,
     wrap,
   } = props;
@@ -77,8 +76,8 @@ export const Flex = (props: FlexProps) => {
         $rowGap={rowGap}
         $width={width}
         $wrap={wrap}
-        className={className}
-        style={style}
+        id={id}
+        ref={ref}
       >
         {children}
       </StyledFlex>
@@ -92,3 +91,5 @@ export const Flex = (props: FlexProps) => {
     </>
   );
 };
+
+export const Flex = forwardRef(_Flex);

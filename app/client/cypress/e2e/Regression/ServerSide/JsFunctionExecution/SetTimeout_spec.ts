@@ -1,5 +1,5 @@
 import {
-  tedTestConfig,
+  dataManager,
   jsEditor,
   agHelper,
   apiPage,
@@ -148,7 +148,7 @@ describe("Tests setTimeout API", function () {
 
   it("6. Access to args passed into success/error callback functions in API.run when using setTimeout", () => {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     jsEditor.CreateJSObject(
       `export default {

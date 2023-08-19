@@ -15,7 +15,8 @@ type templateActions =
   | "Distinct"
   | "Aggregate"
   | "Select"
-  | "Create";
+  | "Create"
+  | "List files";
 
 interface EntityActionParams {
   entityNameinLeftSidebar: string;
@@ -171,8 +172,9 @@ export class EntityExplorer {
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._expandCollapseArrow(entityName),
+      true,
       index,
       30000,
     );

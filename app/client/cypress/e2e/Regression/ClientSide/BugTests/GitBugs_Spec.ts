@@ -19,7 +19,7 @@ describe("Git Bugs", function () {
   it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     _.apiPage.CreateAndFillApi(
-      _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment].mockApiUrl,
+      _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
       "GitSyncTest",
     );
     _.gitSync.OpenGitSyncModal();
@@ -40,7 +40,7 @@ describe("Git Bugs", function () {
       _.dataSources.CreatePlugIn("PostgreSQL");
       _.dataSources.FillPostgresDSForm();
       _.dataSources.SaveDSFromDialog(false);
-      _.agHelper.AssertElementVisible(_.gitSync._branchButton);
+      _.agHelper.AssertElementVisibility(_.gitSync._branchButton);
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
       });
