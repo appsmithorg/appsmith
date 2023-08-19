@@ -22,15 +22,18 @@ public class RateLimitService {
     }
 
     public Mono<Boolean> tryIncreaseCounter(String apiIdentifier, String userIdentifier) {
-        log.info(
+        log.debug(
                 "RateLimitService.tryIncreaseCounter() called with apiIdentifier = {}, userIdentifier = {}",
                 apiIdentifier,
                 userIdentifier);
         // handle the case where API itself is not rate limited
+        log.debug(
+                apiBuckets.containsKey(apiIdentifier) ? "apiBuckets contains key" : "apiBuckets does not contain key");
         if (!apiBuckets.containsKey(apiIdentifier)) return Mono.just(false);
 
         BucketProxy userSpecificBucket =
                 rateLimitConfig.getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier);
+        log.debug("userSpecificBucket = {}", userSpecificBucket);
         return Mono.just(userSpecificBucket.tryConsume(DEFAULT_NUMBER_OF_TOKENS_CONSUMED_PER_REQUEST));
     }
 
