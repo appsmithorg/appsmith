@@ -1,12 +1,13 @@
 package com.appsmith.server.ratelimiting.aspects;
 
 import com.appsmith.server.constants.ApiConstants;
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.ratelimiting.RateLimitService;
-import com.appsmith.server.ratelimiting.annotations.RateLimit;
+import com.appsmith.server.ratelimiting.annotations.*;
 import com.appsmith.server.services.SessionUserService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -37,7 +38,7 @@ public class RateLimitAspect {
             return isAllowedMono.flatMap(isAllowed -> {
                 if (!isAllowed) {
                     return Mono.just(new ResponseDTO<>(
-                            HttpStatus.TOO_MANY_REQUESTS.value(), ApiConstants.RATE_LIMIT_EXCEEDED_ERROR, null));
+                            HttpStatus.TOO_MANY_REQUESTS.value(), RateLimitConstants.RATE_LIMIT_REACHED, null));
                 }
 
                 try {

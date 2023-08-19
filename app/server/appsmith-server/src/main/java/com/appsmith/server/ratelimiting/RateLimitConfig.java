@@ -1,5 +1,6 @@
 package com.appsmith.server.ratelimiting;
 
+import com.appsmith.server.constants.RateLimitConstants;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.Refill;
@@ -28,7 +29,7 @@ public class RateLimitConfig {
     }
 
     static {
-        apiConfigurations.put("authentication", createBucketConfiguration(Duration.ofDays(1), 5));
+        apiConfigurations.put(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, createBucketConfiguration(Duration.ofDays(1), 5));
         // Add more API configurations as needed
     }
 

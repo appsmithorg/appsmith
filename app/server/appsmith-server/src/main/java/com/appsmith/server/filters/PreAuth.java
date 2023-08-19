@@ -1,6 +1,7 @@
 package com.appsmith.server.filters;
 
 import com.appsmith.server.constants.ApiConstants;
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
@@ -32,7 +33,7 @@ public class PreAuth implements WebFilter {
             if (username != null) {
                 log.debug("Username: {}", username);
                 return rateLimitService
-                        .tryIncreaseCounter("authentication", username)
+                        .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, username)
                         .flatMap(counterIncreaseAttemptSuccessful -> {
                             if (!counterIncreaseAttemptSuccessful) {
                                 log.error("Rate limit exceeded. Redirecting to login page.");
@@ -61,7 +62,7 @@ public class PreAuth implements WebFilter {
     private Mono<Void> handleRateLimitExceeded(ServerWebExchange exchange) {
         // Set the error in the URL query parameter for rate limiting
         String url = "/user/login?error=true&message="
-                + URLEncoder.encode(ApiConstants.RATE_LIMIT_EXCEEDED_ERROR, StandardCharsets.UTF_8);
+                + URLEncoder.encode(RateLimitConstants.RATE_LIMIT_REACHED, StandardCharsets.UTF_8);
         return redirectWithUrl(exchange, url);
     }
 
