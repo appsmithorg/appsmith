@@ -156,10 +156,15 @@ export class DeployMode {
   public NavigateBacktoEditor() {
     this.assertHelper.AssertDocumentReady();
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
-    this.agHelper.Sleep(2000);
+    this.agHelper.Sleep();
     localStorage.setItem("inDeployedMode", "false");
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("There was an unexpected error"),
+    ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
+    this.agHelper.AssertElementAbsence(
+      this.locator._specificToast(
+        "Internal server error while processing request",
+      ),
     ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
     cy.window().then((win) => {
       win.location.reload();
