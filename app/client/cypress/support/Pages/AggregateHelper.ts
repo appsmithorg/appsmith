@@ -1449,16 +1449,9 @@ export class AggregateHelper extends ReusableHelper {
     selector: ElementType,
     text: string | number | RegExp,
     exists: "exist" | "not.exist" = "exist",
-    index?: number,
-    timeout?: number,
+    index = 0,
   ) {
-    if (index)
-      return this.GetElement(selector, timeout)
-        .eq(index)
-        .contains(text)
-        .should(exists);
-    else
-      return this.GetElement(selector, timeout).contains(text).should(exists);
+    return this.GetElement(selector).eq(index).contains(text).should(exists);
   }
 
   public AssertURL(url: string) {

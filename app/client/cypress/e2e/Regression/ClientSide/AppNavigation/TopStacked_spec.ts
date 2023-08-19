@@ -111,8 +111,6 @@ describe("Test Top + Stacked navigation style", function () {
     agHelper.GetNAssertContains(
       `${appSettings.locators._navigationMenuItem} span`,
       pageName,
-      "exist",
-      0,
     );
   });
 
