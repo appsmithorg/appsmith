@@ -1,0 +1,51 @@
+import { Meta } from "@storybook/addon-docs";
+import { useTheme, ThemeProvider } from "@design-system/theming";
+import { TokenTable, StyledLinePreview } from "../../utils/components";
+
+<Meta title="Design-system/Theme/Tokens/Spacing" />
+
+# Spacing
+
+Spacing is a crucial aspect of design that can make or break the user
+experience. It helps to create a visual hierarchy, improve readability,
+and make elements of a design easier to understand. A well-thought-out
+spacing system can add clarity and consistency to a design.
+
+## Types of Spacing
+
+There are two types of spacing in design systems: inner spacing and
+outer spacing.
+
+### Inner Spacing
+
+Inner spacing, also known as **padding**, is the space between an
+element's content and its border. It creates room for the content to
+breathe and makes the element more visually appealing.
+
+### Outer Spacing
+
+Outer spacing, also known as **margin** and **gap**, is the space
+between elements. It creates a visual separation between elements and
+contributes to the overall balance of a design.
+
+## Tokens Table
+
+export const Spacing = () => {
+  const { theme } = useTheme();
+  const { spacing } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable prefix="spacing" tokens={spacing}>
+        {(cssVar) => (
+          <StyledLinePreview
+            style={{
+              width: cssVar,
+            }}
+          />
+        )}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+<Spacing />

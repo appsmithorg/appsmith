@@ -1,0 +1,152 @@
+import { Meta } from "@storybook/addon-docs";
+import { useTheme, ThemeProvider } from "@design-system/theming";
+import {
+  TokenTable,
+  StyledTable,
+  StyledSquarePreview,
+} from "../../utils/components";
+
+<Meta title="Design-system/Theme/Tokens/Color" />
+
+# Color
+
+Color is a crucial element in any design system. It communicates
+information, creates hierarchy, and evokes emotions. Therefore, it is
+essential to establish a consistent and meaningful color palette for
+your design system.
+
+## Semantic Color Naming Strategy
+
+This naming schema is for the most part inspired by the one shown in The
+hardest part about building dark mode is that people think it’s easy
+talk by [Hassan and Jacob Miller at Figma Config 2022](https://www.youtube.com/watch?v=1DTnojio89Y&t=454s).
+This enables flexibility and focuses on deriving these tokens from a
+starting seed rather than assuming those can be hand-picked by a
+designer.
+
+<StyledTable>
+  <thead>
+    <tr>
+      <th>type</th>
+      <th>role (optional)</th>
+      <th>prominence (optional)</th>
+      <th>state (optional)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>bg</td>
+      <td>accent</td>
+      <td>regular (default)</td>
+      <td>resting (default)</td>
+    </tr>
+    <tr>
+      <td>fg</td>
+      <td>neutral</td>
+      <td>strong</td>
+      <td>hover</td>
+    </tr>
+    <tr>
+      <td>bd</td>
+      <td>content</td>
+      <td>subtle</td>
+      <td>active</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>assistive</td>
+      <td></td>
+      <td>disabled</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>negative</td>
+      <td></td>
+      <td>focus</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>positive</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>warning</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>on*</td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</StyledTable>
+
+## Background Tokens Table
+
+export const Background = () => {
+  const { theme } = useTheme();
+  const { color } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable prefix="color" filter="bg" tokens={color}>
+        {(cssVar) => (
+          <StyledSquarePreview
+            style={{
+              background: cssVar,
+            }}
+          />
+        )}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+<Background />
+
+## Foreground Tokens Table
+
+export const Foreground = () => {
+  const { theme } = useTheme();
+  const { color } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable prefix="color" filter="fg" tokens={color}>
+        {(cssVar) => (
+          <StyledSquarePreview
+            style={{
+              background: cssVar,
+            }}
+          />
+        )}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+<Foreground />
+
+### Border Tokens Table
+
+export const Border = () => {
+  const { theme } = useTheme();
+  const { color } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable prefix="color" filter="bd" tokens={color}>
+        {(cssVar) => (
+          <StyledSquarePreview
+            style={{
+              background: cssVar,
+            }}
+          />
+        )}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+<Border />
