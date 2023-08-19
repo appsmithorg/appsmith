@@ -1,17 +1,21 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import {
   agHelper,
   propPane,
   deployMode,
+  entityExplorer,
+  locators,
+  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Radio Widget Functionality", function () {
   before(() => {
     agHelper.AddDsl("newFormDsl");
   });
+
   it("1. Radio Widget Functionality", function () {
+    entityExplorer.ExpandCollapseEntity("Container3");
     propPane.RenameWidget("RadioGroup1", "RGtest");
     /**
      * @param{IndexValue} Provide Input Index Value
@@ -28,8 +32,8 @@ describe("Radio Widget Functionality", function () {
     cy.radioInput(3, "2");
     agHelper.ClickButton("Add option");
     cy.radioInput(4, this.dataSet.radio4);
-    cy.get(formWidgetsPage.deleteradiovalue).eq(2).click({ force: true });
-    cy.get(formWidgetsPage.labelradio).should("not.have.value", "test4");
+    cy.get(formWidgetsPage.deleteradiovalue).eq(1).click({ force: true });
+    cy.get(formWidgetsPage.labelradio).should("not.have.value", "test2");
     /**
      * @param{Show Alert} Css for InputChange
      */
@@ -39,25 +43,29 @@ describe("Radio Widget Functionality", function () {
       .scrollIntoView()
       .click({ force: true })
       .type("2");
-    deployMode.DeployApp();
+    deployMode.DeployApp(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+    );
+    agHelper.AssertExistingCheckedState(
+      locators._checkboxTypeByOption("test1"),
+    );
+    agHelper.CheckUncheck(locators._checkboxTypeByOption("test4"));
+    agHelper.ValidateToastMessage("hello");
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("2. Radio Functionality To Unchecked Visible Widget", function () {
-    deployMode.NavigateBacktoEditor();
+  it("2. Radio Functionality To Check/Uncheck Visible property", function () {
     cy.openPropertyPane("radiogroupwidget");
-    cy.togglebarDisable(commonlocators.visibleCheckbox);
+    propPane.TogglePropertyState("Visible", "Off");
     deployMode.DeployApp();
     cy.get(publish.radioWidget + " " + "input").should("not.exist");
     deployMode.NavigateBacktoEditor();
     //Radio Functionality To Check Visible Widget
     cy.openPropertyPane("radiogroupwidget");
-    cy.togglebar(commonlocators.visibleCheckbox);
+    propPane.TogglePropertyState("Visible", "On");
     deployMode.DeployApp();
-    cy.get(publish.radioWidget + " " + "input").should("be.checked");
-    //Radio Functionality To Button Text
-    cy.get(publish.radioWidget + " " + "label")
-      .eq(1)
-      .should("have.text", "test2");
-    deployMode.NavigateBacktoEditor();
+    agHelper.AssertExistingCheckedState(
+      locators._checkboxTypeByOption("test1"),
+    );
   });
 });

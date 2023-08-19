@@ -896,12 +896,22 @@ export class AggregateHelper extends ReusableHelper {
     }
   }
 
-  public AssertExistingCheckedState(selector: string, toggle: string) {
-    this.GetElement(selector).should(
-      "have.attr",
-      "data-selected-value",
-      toggle,
-    );
+  public AssertExistingCheckedState(selector: string, toggle = "true") {
+    this.GetElement(selector)
+      .invoke("attr", "data-selected-value")
+      .then((dataSelectedValue) => {
+        cy.log("dataSelectedValue:" + dataSelectedValue);
+        if (dataSelectedValue !== undefined) {
+          this.GetElement(selector).should(
+            "have.attr",
+            "data-selected-value",
+            toggle,
+          );
+        } else
+          this.GetElement(selector).should(
+            toggle == "true" ? "be.checked" : "not.be.checked",
+          );
+      });
   }
 
   public AssertSelectedTab(propertyName: string, value: "true" | "false") {
