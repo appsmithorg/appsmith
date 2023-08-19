@@ -441,7 +441,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       _.propPane.UpdatePropertyFieldValue("Text", testConfig.textBindingValue);
     });
 
-    it(`3. Publish the app and check the reset ${testConfig.widgetName}`, () => {
+    it(`3. Publish the app and check the reset of ${testConfig.widgetName}`, () => {
       // Set onClick assertWidgetReset, storing value
       _.deployMode.DeployApp(_.locators._widgetInDeployed(widgetSelector));
       testConfig.assertWidgetReset();
