@@ -321,20 +321,49 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public ClickButton(btnVisibleText: string, index = 0, force = true) {
-    return this.ScrollIntoView(this.locator._spanButton(btnVisibleText), index)
-      .click({
-        force: force,
-      })
-      .wait(1000);
+  public ClickButton(
+    btnVisibleText: string,
+    indexOrOptions:
+      | number
+      | Partial<{
+          index: number;
+          force: boolean;
+          waitAfterClick: boolean;
+        }> = 0,
+  ) {
+    const button = this.locator._spanButton(btnVisibleText);
+    let index: number,
+      force = true,
+      waitAfterClick = true;
+
+    if (typeof indexOrOptions === "number") {
+      index = indexOrOptions;
+    } else {
+      index = indexOrOptions.index || 0;
+      force = indexOrOptions.force || false;
+      // waitAfterClick = indexOrOptions.waitAfterClick || false;
+      // Check if waitAfterClick is explicitly set, otherwise default to true
+      waitAfterClick =
+        typeof indexOrOptions.waitAfterClick !== "undefined"
+          ? indexOrOptions.waitAfterClick
+          : true;
+    }
+
+    return this.ScrollIntoView(button, index)
+      .click({ force })
+      .then(() => {
+        if (waitAfterClick) {
+          return this.Sleep();
+        }
+      });
   }
 
-  public clickMultipleButtons(btnVisibleText: string, shouldSleep = true) {
+  public clickMultipleButtons(btnVisibleText: string, waitAfterClick = true) {
     cy.xpath(this.locator._spanButton(btnVisibleText)).each(($el) => {
       $el.trigger("click", { force: true });
       cy.wait(200);
     });
-    shouldSleep && this.Sleep();
+    waitAfterClick && this.Sleep();
   }
 
   public Paste(selector: any, pastePayload: string) {
@@ -1449,9 +1478,8 @@ export class AggregateHelper extends ReusableHelper {
     selector: ElementType,
     text: string | number | RegExp,
     exists: "exist" | "not.exist" = "exist",
-    index = 0,
   ) {
-    return this.GetElement(selector).eq(index).contains(text).should(exists);
+    return this.GetElement(selector).contains(text).should(exists);
   }
 
   public AssertURL(url: string) {

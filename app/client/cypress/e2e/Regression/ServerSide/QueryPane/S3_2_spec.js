@@ -14,6 +14,7 @@ import {
   deployMode,
   locators,
   assertHelper,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -247,8 +248,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("3. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
-    table.AddSampleTableData();
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     cy.NavigateToActiveDSQueryPane(datasourceName);
     agHelper.GetObjectName().then(($queryName) => {
       entityExplorer.SelectEntityByName($queryName, "Queries/JS");
