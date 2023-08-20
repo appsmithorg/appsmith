@@ -13,7 +13,7 @@ describe("FilePicker Widget Functionality", function () {
 
   it("1. Create API to be used in Filepicker", function () {
     _.apiPage.CreateAndFillApi(
-      _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment].mockApiUrl,
+      _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
       "FirstAPI",
     );
     _.agHelper.Sleep(2000);

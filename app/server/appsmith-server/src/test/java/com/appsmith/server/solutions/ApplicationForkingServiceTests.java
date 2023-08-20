@@ -6,7 +6,6 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
@@ -1088,11 +1087,11 @@ public class ApplicationForkingServiceTests {
         auth.setUsername("test");
         auth.setPassword("test");
         datasourceConfiguration.setAuthentication(auth);
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, srcDefaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(srcDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                srcDefaultEnvironmentId,
+                new DatasourceStorageDTO(null, srcDefaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Plugin installed_plugin =

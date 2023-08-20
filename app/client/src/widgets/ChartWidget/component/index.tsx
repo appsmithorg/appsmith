@@ -72,6 +72,7 @@ export interface ChartComponentProps extends WidgetPositionProps {
   borderRadius: string;
   boxShadow?: string;
   primaryColor?: string;
+  showDataPointLabel: boolean;
   fontFamily?: string;
   dimensions: {
     componentWidth: number;

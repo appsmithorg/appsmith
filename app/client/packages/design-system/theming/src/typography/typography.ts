@@ -1,36 +1,11 @@
 import { createFontStack, createStyleString } from "@capsizecss/core";
-
-import arial from "@capsizecss/metrics/arial";
-import inter from "@capsizecss/metrics/inter";
-import rubik from "@capsizecss/metrics/rubik";
+import { fontMetrics, TypographyVariant } from "./types";
 import roboto from "@capsizecss/metrics/roboto";
 import ubuntu from "@capsizecss/metrics/ubuntu";
-import poppins from "@capsizecss/metrics/poppins";
 import segoeUI from "@capsizecss/metrics/segoeUI";
-import openSans from "@capsizecss/metrics/openSans";
-import notoSans from "@capsizecss/metrics/notoSans";
-import montserrat from "@capsizecss/metrics/montserrat";
-import nunitoSans from "@capsizecss/metrics/nunitoSans12pt";
 import appleSystem from "@capsizecss/metrics/appleSystem";
 import BlinkMacSystemFont from "@capsizecss/metrics/blinkMacSystemFont";
 
-export const fontMetrics = {
-  Poppins: poppins,
-  Inter: inter,
-  Roboto: roboto,
-  Rubik: rubik,
-  Ubuntu: ubuntu,
-  "Noto Sans": notoSans,
-  "Open Sans": openSans,
-  Montserrat: montserrat,
-  "Nunito Sans": nunitoSans,
-  Arial: arial,
-  "-apple-system": appleSystem,
-  BlinkMacSystemFont: BlinkMacSystemFont,
-  "Segoe UI": segoeUI,
-} as const;
-
-import { TypographyVariant } from "./types";
 import type { FontFamily, Typography } from "./types";
 
 export const getTypographyClassName = (key: keyof typeof TypographyVariant) => {

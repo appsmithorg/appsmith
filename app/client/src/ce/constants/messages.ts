@@ -1384,9 +1384,9 @@ export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
 export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 
 // Branding
-export const ADMIN_BRANDING_SETTINGS_TITLE = () =>
+export const ADMIN_BRANDING_SETTINGS_TITLE_UPGRADE = () =>
   "Custom Branding for your workspaces";
-export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
+export const ADMIN_BRANDING_SETTINGS_SUBTITLE_UPGRADE = () =>
   "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business Edition.";
 export const ADMIN_BRANDING_COLOR_TOOLTIP = () =>
   `When you choose a primary color, we auto-magically fill in the secondary and accent colors. You can change them to get the look you want.`;
@@ -1752,7 +1752,7 @@ export const DATASOURCE_INTERCOM_TEXT = () =>
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
-export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate page";
+export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate new page";
 export const GSHEETS_ERR_FETCHING_PREVIEW_DATA = () =>
   "Some problem occured while fetching data";
 export const GSHEETS_FETCHING_PREVIEW_DATA = () => "Loading data";
