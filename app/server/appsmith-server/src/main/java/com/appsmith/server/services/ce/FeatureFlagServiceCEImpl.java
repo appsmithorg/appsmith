@@ -10,10 +10,10 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserIdentifierService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.core.FlippingExecutionContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -23,6 +23,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final SessionUserService sessionUserService;
@@ -42,24 +43,6 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private final UserIdentifierService userIdentifierService;
 
     private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
-
-    @Autowired
-    public FeatureFlagServiceCEImpl(
-            SessionUserService sessionUserService,
-            FF4j ff4j,
-            TenantService tenantService,
-            ConfigService configService,
-            CloudServicesConfig cloudServicesConfig,
-            UserIdentifierService userIdentifierService,
-            CacheableFeatureFlagHelper cacheableFeatureFlagHelper) {
-        this.sessionUserService = sessionUserService;
-        this.ff4j = ff4j;
-        this.tenantService = tenantService;
-        this.configService = configService;
-        this.cloudServicesConfig = cloudServicesConfig;
-        this.userIdentifierService = userIdentifierService;
-        this.cacheableFeatureFlagHelper = cacheableFeatureFlagHelper;
-    }
 
     private Mono<Boolean> checkAll(String featureName, User user) {
         Boolean check = check(featureName, user);
@@ -179,7 +162,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         return tenantService
                 .getDefaultTenantId()
                 // TODO: Update to call fetchCachedTenantCurrentFeatures once default value storing is complete
-                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(defaultTenantId))
-                .map(cachedFeatures -> cachedFeatures.getFeatures());
+                .flatMap(cacheableFeatureFlagHelper::fetchCachedTenantNewFeatures)
+                .map(CachedFeatures::getFeatures);
     }
 }
