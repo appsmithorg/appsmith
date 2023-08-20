@@ -1,3 +1,4 @@
+import { findLastKey } from "cypress/types/lodash";
 import {
   agHelper,
   locators,
@@ -308,7 +309,7 @@ describe("CUrrency Input widget Tests", function () {
     agHelper.AssertElementVisibility(propPane._colorPickerV2Color);
     // Verify full color picker
     agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 0);
-    propPane.TogglePropertyState("fontcolor", "On");
+    propPane.TogglePropertyState("fontcolor", "On", "updateLayout", false);
     agHelper.AssertAttribute(propPane._colorPickerInput, "type", "color", 0);
     // Font size
     propPane.SelectPropertiesDropDown("fontsize", "L");
