@@ -45,6 +45,7 @@ import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -884,7 +885,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     @Override
-    public Mono<Boolean> emailVerificationTokenGenerate(
+    public Mono<Boolean> resendEmailVerification(
             ResendEmailVerificationDTO resendEmailVerificationDTO, String redirectUrl) {
 
         if (resendEmailVerificationDTO.getEmail() == null
@@ -914,6 +915,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return tenantService.getTenantConfiguration().flatMap(tenant -> {
                         Boolean emailVerificationEnabled =
                                 tenant.getTenantConfiguration().getEmailVerificationEnabled();
+                        // Email verification not enabled at tenant
                         if (!TRUE.equals(emailVerificationEnabled)) {
                             return Mono.error(
                                     new AppsmithException(AppsmithError.TENANT_EMAIL_VERIFICATION_NOT_ENABLED));
@@ -921,6 +923,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         return emailVerificationTokenRepository
                                 .findByEmail(user.getEmail())
                                 .switchIfEmpty(Mono.defer(() -> {
+                                    // No existing
                                     EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
                                     emailVerificationToken.setEmail(user.getEmail());
                                     emailVerificationToken.setTokenGeneratedAt(Instant.now());
@@ -990,13 +993,16 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             String requestEmail = formData.getFirst("email");
             String requestedToken = formData.getFirst("token");
             String redirectUrl = formData.getFirst("redirectUrl");
+            String enableFirstTimeUserExperienceParam =
+                    ObjectUtils.defaultIfNull(formData.getFirst("enableFirstTimeUserExperience"), "false");
 
             String baseUrl = exchange.getRequest().getHeaders().getOrigin();
             if (redirectUrl == null) {
                 redirectUrl = baseUrl + DEFAULT_REDIRECT_URL;
             }
 
-            String postVerificationRedirectUrl = "/signup-success?redirectUrl=" + redirectUrl;
+            String postVerificationRedirectUrl = "/signup-success?redirectUrl=" + redirectUrl
+                    + "&enableFirstTimeUserExperience=" + enableFirstTimeUserExperienceParam;
             String errorRedirectUrl = "";
 
             if (requestEmail == null) {

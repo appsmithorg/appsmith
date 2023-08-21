@@ -178,7 +178,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                         url = URLDecoder.decode(url, StandardCharsets.UTF_8);
 
                                         return userService
-                                                .emailVerificationTokenGenerate(resendEmailVerificationDTO, url)
+                                                .resendEmailVerification(resendEmailVerificationDTO, url)
                                                 .then(Mono.just(url));
                                     })
                                     .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
@@ -220,7 +220,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                         }
                                         url = URLDecoder.decode(url, StandardCharsets.UTF_8);
                                         return userService
-                                                .emailVerificationTokenGenerate(resendEmailVerificationDTO, url)
+                                                .resendEmailVerification(resendEmailVerificationDTO, url)
                                                 .then(Mono.just(url));
                                     })
                                     .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
@@ -256,7 +256,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                     resendEmailVerificationDTO.setBaseUrl(baseUrl);
                                     url = URLDecoder.decode(url, StandardCharsets.UTF_8);
                                     return userService
-                                            .emailVerificationTokenGenerate(resendEmailVerificationDTO, url)
+                                            .resendEmailVerification(resendEmailVerificationDTO, url)
                                             .then(Mono.just(url));
                                 })
                                 .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
