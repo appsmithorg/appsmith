@@ -784,6 +784,7 @@ abstract class BaseWidget<
 
   /*
    * Function to get a specific feature flag
+   * TODO(Keyur): To move the below function to the EditorContextProvider
    */
   static getFeatureFlag(featureFlag: FeatureFlag) {
     const state = store.getState();
