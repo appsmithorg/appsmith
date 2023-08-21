@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.checkerframework.common.aliasing.qual.Unique;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -19,6 +20,7 @@ public class Tenant extends BaseDomain {
 
     String displayName;
 
+    @Transient
     String instanceId;
 
     PricingPlan pricingPlan;

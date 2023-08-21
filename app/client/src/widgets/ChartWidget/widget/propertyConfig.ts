@@ -162,6 +162,7 @@ export const contentConfig = [
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
+                default: [],
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
