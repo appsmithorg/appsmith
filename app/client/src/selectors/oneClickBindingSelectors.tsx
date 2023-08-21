@@ -13,6 +13,3 @@ export const getisOneClickBindingConnectingForWidget =
 
 export const getIsOneClickBindingOptionsVisibility = (state: AppState) =>
   state.ui.oneClickBinding.showOptions;
-
-export const getOneClickBindingSelectedColumns = (state: AppState) =>
-  state.ui.oneClickBinding?.selectedColumns;
