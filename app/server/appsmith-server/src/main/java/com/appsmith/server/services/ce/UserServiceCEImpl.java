@@ -116,6 +116,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final PermissionGroupService permissionGroupService;
     private final UserUtils userUtils;
     private final RedirectHelper redirectHelper;
+
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
@@ -435,7 +436,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Mono<User> create(User user) {
         // This is the path that is taken when a new user signs up on its own
-        return createUserAndSendEmail(user, null).map(UserSignupDTO::getUser);
+        return createUserAndSendEmail(user, null, FALSE).map(UserSignupDTO::getUser);
     }
 
     @Override
@@ -509,7 +510,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * @return Publishes the user object, after having been saved.
      */
     @Override
-    public Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader) {
+    public Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader, Boolean sendMail) {
 
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
@@ -589,9 +590,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 }))
                 .flatMap(userSignupDTO -> {
                     User savedUser = userSignupDTO.getUser();
-                    Mono<User> userMono = emailConfig.isWelcomeEmailEnabled()
-                            ? sendWelcomeEmail(savedUser, finalOriginHeader)
-                            : Mono.just(savedUser);
+                    Mono<User> userMono = Mono.just(savedUser);
+                    if (TRUE.equals(sendMail)) {
+                        userMono = emailConfig.isWelcomeEmailEnabled()
+                                ? sendWelcomeEmail(savedUser, finalOriginHeader)
+                                : Mono.just(savedUser);
+                    }
                     return userMono.thenReturn(userSignupDTO);
                 });
     }
@@ -630,6 +634,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         });
     }
 
+    @Override
     public Mono<User> sendWelcomeEmail(User user, String originHeader) {
         Map<String, String> params = new HashMap<>();
         params.put("primaryLinkUrl", originHeader);
@@ -1072,10 +1077,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         session.getAttributes().put(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, securityContext);
 
                         user.setEmailVerified(TRUE);
+                        Mono<Void> redirectionMono = redirectStrategy.sendRedirect(
+                                webFilterExchange.getExchange(), URI.create(postVerificationRedirectUrl));
+                        Mono<User> welcomeEmailMono = sendWelcomeEmail(user, baseUrl);
                         return repository
                                 .save(user)
-                                .then(redirectStrategy.sendRedirect(
-                                        webFilterExchange.getExchange(), URI.create(postVerificationRedirectUrl)));
+                                .then(Mono.zip(welcomeEmailMono, redirectionMono))
+                                .flatMap(objects -> Mono.just(objects.getT2()));
                     });
         });
     }

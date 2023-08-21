@@ -378,7 +378,7 @@ public class UserServiceTest {
         signUpUser.setPassword("123456");
 
         Mono<User> invitedUserSignUpMono = userService
-                .createUserAndSendEmail(signUpUser, "http://localhost:8080")
+                .createUserAndSendEmail(signUpUser, "http://localhost:8080", Boolean.TRUE)
                 .map(UserSignupDTO::getUser);
 
         StepVerifier.create(invitedUserSignUpMono)
@@ -563,7 +563,7 @@ public class UserServiceTest {
         newUser.setSource(LoginSource.FORM);
         newUser.setPassword("abcdefgh");
         Mono<User> userAndSendEmail =
-                userService.createUserAndSendEmail(newUser, null).map(UserSignupDTO::getUser);
+                userService.createUserAndSendEmail(newUser, null, Boolean.TRUE).map(UserSignupDTO::getUser);
 
         StepVerifier.create(userAndSendEmail)
                 .expectErrorMessage(AppsmithError.USER_ALREADY_EXISTS_SIGNUP.getMessage(existingUser.getEmail()))

@@ -30,7 +30,7 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<Boolean> resetPasswordAfterForgotPassword(String token, User user);
 
-    Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader);
+    Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader, Boolean sendMail);
 
     Mono<User> userCreate(User user, boolean isAdminUser);
 
@@ -48,6 +48,8 @@ public interface UserServiceCE extends CrudService<User, String> {
     Flux<User> getAllByEmails(Set<String> emails, AclPermission permission);
 
     Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin);
+
+    Mono<User> sendWelcomeEmail(User user, String originHeader);
 
     Mono<User> updateWithoutPermission(String id, User update);
 
