@@ -25,12 +25,9 @@ describe("one click binding mongodb datasource", function () {
     cy.get("@dsName").then((dsName) => {
       entityExplorer.SelectEntityByName("Table1", "Widgets");
 
-      oneClickBinding.ChooseAndAssertForm(
-        `${dsName}`,
-        dsName,
-        "netflix",
-        "creator",
-      );
+      oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "netflix", {
+        searchableColumn: "creator",
+      });
     });
 
     agHelper.GetNClick(oneClickBindingLocator.connectData);

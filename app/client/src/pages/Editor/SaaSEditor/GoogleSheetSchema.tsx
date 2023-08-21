@@ -330,6 +330,7 @@ function GoogleSheetSchema(props: Props) {
         {!isLoading && !isError && currentSheetData && (
           <Button
             className="t--gsheet-generate-page"
+            isDisabled={!currentSheetData || currentSheetData?.length == 0}
             key="gsheet-generate-page"
             kind="primary"
             onClick={onGsheetGeneratePage}

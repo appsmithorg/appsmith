@@ -140,6 +140,9 @@ export class DeployMode {
   ) {
     this.StubbingWindow();
     this.agHelper.GetNClick(selector, 0, false, 4000); //timeout new url to settle loading
+    cy.window().then((win) => {
+      win.location.reload();
+    }); //only reload page to get new url
     cy.get("@windowStub").should("be.calledOnce");
     cy.url().should("contain", expectedUrl);
     this.assertHelper.AssertDocumentReady();
@@ -153,20 +156,29 @@ export class DeployMode {
   public NavigateBacktoEditor() {
     this.assertHelper.AssertDocumentReady();
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
-    this.agHelper.Sleep(2000);
+    this.agHelper.Sleep();
     localStorage.setItem("inDeployedMode", "false");
+    //Assert no error toast in Edit mode when navigating back from Deploy mode
     this.agHelper.AssertElementAbsence(
-      this.locator._specificToast("There was an unexpcted error"),
-    ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
+      this.locator._specificToast("There was an unexpected error"),
+    );
+    this.agHelper.AssertElementAbsence(
+      this.locator._specificToast(
+        "Internal server error while processing request",
+      ),
+    );
+    cy.window().then((win) => {
+      win.location.reload();
+    }); //only reloading edit page to load elements
     this.assertHelper.AssertDocumentReady();
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
-    this.agHelper.AssertElementVisible(this.locator._editPage); //Assert if canvas is visible after Navigating back!
+    this.agHelper.AssertElementVisibility(this.locator._editPage); //Assert if canvas is visible after Navigating back!
   }
 
   public NavigateToHomeDirectly() {
     this.agHelper.GetNClick(this._backtoHome);
     this.agHelper.Sleep(2000);
-    this.agHelper.AssertElementVisible(this._homeAppsmithImage);
+    this.agHelper.AssertElementVisibility(this._homeAppsmithImage);
   }
 
   public EnterJSONInputValue(

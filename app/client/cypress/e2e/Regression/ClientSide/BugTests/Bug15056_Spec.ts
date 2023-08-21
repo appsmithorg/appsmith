@@ -1,5 +1,5 @@
 import {
-  tedTestConfig,
+  dataManager,
   agHelper,
   jsEditor,
   apiPage,
@@ -13,7 +13,7 @@ describe("JS data update on button click", function () {
 
   it("1. Populates js function data when triggered via button click", function () {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
       "Api1",
     );
 

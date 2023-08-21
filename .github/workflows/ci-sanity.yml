@@ -161,11 +161,11 @@ jobs:
        # docker cp init-mssql-dump-for-test.sql mssqldb:var/init-mssql-dump-for-test.sql
        # docker exec -i mssqldb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Root@123 -i /var/init-mssql-dump-for-test.sql
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
       # Install all the dependencies
       - name: Install dependencies

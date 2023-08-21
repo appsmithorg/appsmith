@@ -31,7 +31,7 @@ export const emptyChartData = (props: ChartWidgetProps) => {
     }
   } else {
     for (const seriesID in props.chartData) {
-      if (props.chartData[seriesID].data.length > 0) {
+      if (props.chartData[seriesID].data?.length > 0) {
         return false;
       }
     }
@@ -123,6 +123,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
               primaryColor={this.props.accentColor ?? Colors.ROYAL_BLUE_2}
               rightColumn={this.props.rightColumn}
               setAdaptiveYMin={this.props.setAdaptiveYMin}
+              showDataPointLabel={this.props.showDataPointLabel}
               topRow={this.props.topRow}
               widgetId={this.props.widgetId}
               xAxisName={this.props.xAxisName}

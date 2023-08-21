@@ -224,7 +224,7 @@ describe("Auto conversion algorithm usecases for auto-layout", function () {
 
       //Logic to add widgets without overlapping each other on the canvas
       if (index % 2 === 0) {
-        x += 400;
+        x += 300;
       } else {
         x = 300;
         y += 400;
