@@ -513,7 +513,12 @@ describe("getAllPathsFromPropertyConfig", () => {
       setAdaptiveYMin: "0",
     };
     const customEChartEnabled = true;
-    const config = [...contentConfig(customEChartEnabled), ...styleConfig];
+    const showFusionChartDeprecationMessage = true;
+
+    const config = [
+      ...contentConfig(customEChartEnabled, showFusionChartDeprecationMessage),
+      ...styleConfig,
+    ];
 
     const bindingPaths = {
       chartType: EvaluationSubstitutionType.TEMPLATE,

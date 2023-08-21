@@ -5,12 +5,16 @@ import {
   CUSTOM_CHART_TYPES,
   LabelOrientation,
   LABEL_ORIENTATION_COMPATIBLE_CHARTS,
+  messages,
 } from "../constants";
 
 export const isLabelOrientationApplicableFor = (chartType: string) =>
   LABEL_ORIENTATION_COMPATIBLE_CHARTS.includes(chartType);
 
-const labelOptions = (customEChartsEnabled: boolean) => {
+const labelOptions = (
+  customEChartsEnabled: boolean,
+  showCustomFusionChartDeprecationMessage: boolean,
+) => {
   const options = [
     {
       label: "Line chart",
@@ -33,7 +37,9 @@ const labelOptions = (customEChartsEnabled: boolean) => {
       value: "AREA_CHART",
     },
     {
-      label: "Custom Fusion chart",
+      label: messages.customFusionChartOptionLabel(
+        showCustomFusionChartDeprecationMessage,
+      ),
       value: "CUSTOM_FUSION_CHART",
     },
   ];
@@ -47,7 +53,10 @@ const labelOptions = (customEChartsEnabled: boolean) => {
   return options;
 };
 
-export const contentConfig = (customEChartsEnabled: boolean) => {
+export const contentConfig = (
+  customEChartsEnabled: boolean,
+  showCustomFusionChartDeprecationMessage: boolean,
+) => {
   return [
     {
       sectionName: "Data",
@@ -57,7 +66,10 @@ export const contentConfig = (customEChartsEnabled: boolean) => {
           propertyName: "chartType",
           label: "Chart type",
           controlType: "DROP_DOWN",
-          options: labelOptions(customEChartsEnabled),
+          options: labelOptions(
+            customEChartsEnabled,
+            showCustomFusionChartDeprecationMessage,
+          ),
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,

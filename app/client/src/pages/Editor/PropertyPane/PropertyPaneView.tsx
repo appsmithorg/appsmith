@@ -3,7 +3,7 @@ import { useContext } from "react";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
-import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import type { IPanelProps } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "./PropertyPaneTitle";
@@ -21,7 +21,7 @@ import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { Button, Callout } from "design-system";
 import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
-import { useSearchText } from "./helpers";
+import { useSearchText, widgetCallouts } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
@@ -62,11 +62,9 @@ function PropertyPaneView(
   } & IPanelProps,
 ) {
   const dispatch = useDispatch();
+
   const panel = props;
-  const widgetProperties = useSelector(
-    getWidgetPropsForPropertyPaneView,
-    equal,
-  );
+  const widgetProperties = useSelector(getWidgetPropsForPropertyPane, equal);
 
   const doActionsExist = useSelector(actionsExist);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -154,9 +152,9 @@ function PropertyPaneView(
    */
   useEffect(() => {
     sendPropertyPaneSearchAnalytics({
-      widgetType: widgetProperties?.type,
+      widgetType: widgetProperties?.type ?? "",
       searchText,
-      widgetName: widgetProperties.widgetName,
+      widgetName: widgetProperties?.widgetName ?? "",
       searchPath: "",
     });
   }, [searchText]);
@@ -261,6 +259,7 @@ function PropertyPaneView(
             {deprecationMessage}
           </Callout>
         )}
+        {widgetCallouts(widgetProperties)}
       </div>
 
       <div

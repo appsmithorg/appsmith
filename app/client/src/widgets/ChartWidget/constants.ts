@@ -44,10 +44,20 @@ export const messages = {
   MoreDetails: "More Details",
   EmptyData: "No chart data to display",
   Undefined: "Undefined",
+  customFusionChartDeprecationMessage:
+    "Custom Fusion Charts will stop being supported on March 1st 2024. Change the chart type to E-charts Custom to switch.",
+  customFusionChartOptionLabel: (showDeprecationMessage: boolean) => {
+    return showDeprecationMessage
+      ? "Custom Fusion Charts (deprecated)"
+      : "Custom Fusion Charts";
+  },
 };
 
 export const CUSTOM_ECHART_FEATURE_FLAG =
   FEATURE_FLAG["release_enable_custom_echarts"];
+
+export const FUSION_CHART_DEPRECATION_FLAG =
+  FEATURE_FLAG["release_show_custom_fusion_chart_deprecation_message"];
 
 export const CUSTOM_CHART_TYPES = [
   "area2d",

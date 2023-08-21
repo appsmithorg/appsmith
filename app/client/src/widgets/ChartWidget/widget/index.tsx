@@ -8,15 +8,19 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { contentConfig, styleConfig } from "./propertyConfig";
 import {
   CUSTOM_ECHART_FEATURE_FLAG,
+  FUSION_CHART_DEPRECATION_FLAG,
+  messages,
   type ChartSelectedDataPoint,
 } from "../constants";
-
 import type { WidgetType } from "constants/WidgetConstants";
 import type { ChartComponentProps } from "../component";
 import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AutocompletionDefinitions,
+  WidgetCallout,
+} from "widgets/constants";
 import { ChartErrorComponent } from "../component/ChartErrorComponent";
 import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 import { EmptyChartData } from "../component/EmptyChartData";
@@ -82,11 +86,18 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneContentConfig() {
-    return contentConfig(this.getFeatureFlag(CUSTOM_ECHART_FEATURE_FLAG));
+    return contentConfig(
+      this.getFeatureFlag(CUSTOM_ECHART_FEATURE_FLAG),
+      this.showCustomFusionChartDeprecationMessages(),
+    );
   }
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
+  }
+
+  static showCustomFusionChartDeprecationMessages() {
+    return this.getFeatureFlag(FUSION_CHART_DEPRECATION_FLAG);
   }
 
   static getStylesheetConfig(): Stylesheet {
@@ -96,6 +107,31 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
     };
+  }
+
+  static widgetCallouts() {
+    const callouts = (props: WidgetProps): WidgetCallout[] => {
+      if (!this.showCustomFusionChartDeprecationMessages()) {
+        return [];
+      }
+
+      if (props.chartType == "CUSTOM_FUSION_CHART") {
+        return [
+          {
+            message: messages.customFusionChartDeprecationMessage,
+            links: [
+              {
+                text: "Learn More",
+                url: "https://docs.appsmith.com",
+              },
+            ],
+          },
+        ];
+      } else {
+        return [];
+      }
+    };
+    return callouts;
   }
 
   onDataPointClick = (selectedDataPoint: ChartSelectedDataPoint) => {

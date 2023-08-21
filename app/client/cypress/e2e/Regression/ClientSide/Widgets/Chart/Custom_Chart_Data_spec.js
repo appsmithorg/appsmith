@@ -1,4 +1,5 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import featureFlagIntercept from "../../../../../support/Objects/FeatureFlags";
 
 describe("Chart Widget Functionality around custom chart data", function () {
   before(() => {
@@ -7,8 +8,11 @@ describe("Chart Widget Functionality around custom chart data", function () {
 
   it("1. change chart type to custom chart", function () {
     const value1 = 40;
+    featureFlagIntercept({
+      release_show_custom_fusion_chart_deprecation_message: true,
+    });
     cy.openPropertyPane("chartwidget");
-    cy.UpdateChartType("Custom Fusion chart");
+    cy.UpdateChartType("Custom Fusion Charts (deprecated)");
     //change chart value via input widget and validate
     enterAndTest("inputwidgetv2", value1, value1);
     cy.wait(400);
