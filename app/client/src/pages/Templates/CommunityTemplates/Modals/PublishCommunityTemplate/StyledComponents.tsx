@@ -1,12 +1,5 @@
 import styled from "styled-components";
 
-export const PublishPageHeader = styled.div`
-  width: 100%;
-
-  > a {
-    margin: 0;
-  }
-`;
 const _defaultContainer = styled.div`
   display: flex;
   overflow-y: auto;
@@ -15,6 +8,7 @@ const _defaultContainer = styled.div`
 export const PublishPageHeaderContainer = styled(_defaultContainer)`
   flex-direction: column;
   border-bottom: 1px solid var(--ads-v2-color-border);
+  width: 100%;
 `;
 export const PublishPageFooterContainer = styled(_defaultContainer)`
   border-top: 1px solid var(--ads-v2-color-border);
@@ -72,14 +66,12 @@ export const TemplatePreviewProfileContainer = styled.div`
 `;
 
 export const TemplateInfoFormWrapper = styled.div`
-  width: 480px;
   & > div {
     margin-bottom: 16px;
   }
 `;
 export const TemplateInfoFormFieldWrapper = styled.div`
   .user-profile-image-picker {
-    width: 166px;
     margin-top: 4px;
   }
 `;

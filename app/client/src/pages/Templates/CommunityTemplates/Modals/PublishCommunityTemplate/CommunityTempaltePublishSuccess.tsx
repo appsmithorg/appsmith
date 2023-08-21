@@ -1,5 +1,5 @@
 import React from "react";
-import { PublishPageBodyContainer } from "./styledComponents";
+import { PublishPageBodyContainer } from "./StyledComponents";
 import { Button, Text } from "design-system";
 import {
   COMMUNITY_TEMPLATES,

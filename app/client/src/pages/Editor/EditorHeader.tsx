@@ -96,6 +96,7 @@ import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
 import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import CommunityTemplatesPublish from "pages/Templates/CommunityTemplates/Modals/CommunityTemplatesPublish";
+import PublishCommunityTemplateModal from "pages/Templates/CommunityTemplates/Modals/PublishCommunityTemplate";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -238,6 +239,10 @@ export function EditorHeader() {
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
+  const [
+    showPublishCommunityTemplateModal,
+    setShowPublishCommunityTemplateModal,
+  ] = useState(false);
   const dsEnvEnabled = useSelector(datasourceEnvEnabled);
 
   const handlePublish = () => {
@@ -496,11 +501,9 @@ export function EditorHeader() {
                       <Tab data-tesid="t--tab-EMBED" value="embed">
                         {createMessage(IN_APP_EMBED_SETTING.embed)}
                       </Tab>
-                      {cloudHosting && (
-                        <Tab data-tesid="t--tab-Publish" value="publish">
-                          {createMessage(COMMUNITY_TEMPLATES.publish)}
-                        </Tab>
-                      )}
+                      <Tab data-tesid="t--tab-Publish" value="publish">
+                        {createMessage(COMMUNITY_TEMPLATES.publish)}
+                      </Tab>
                     </TabsList>
                     <TabPanel value="invite">
                       <AppInviteUsersForm
@@ -517,17 +520,22 @@ export function EditorHeader() {
                         changeTab={() => setActiveTab("invite")}
                       />
                     </TabPanel>
-                    {cloudHosting && (
-                      <TabPanel value="publish">
-                        <CommunityTemplatesPublish
-                          setShowHostModal={setShowModal}
-                        />
-                      </TabPanel>
-                    )}
+                    <TabPanel value="publish">
+                      <CommunityTemplatesPublish
+                        onPublishClick={() =>
+                          setShowPublishCommunityTemplateModal(true)
+                        }
+                        setShowHostModal={setShowModal}
+                      />
+                    </TabPanel>
                   </Tabs>
                 </ModalBody>
               </ModalContent>
             </Modal>
+            <PublishCommunityTemplateModal
+              setShowModal={setShowPublishCommunityTemplateModal}
+              showModal={showPublishCommunityTemplateModal}
+            />
             <div className="flex items-center">
               <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}

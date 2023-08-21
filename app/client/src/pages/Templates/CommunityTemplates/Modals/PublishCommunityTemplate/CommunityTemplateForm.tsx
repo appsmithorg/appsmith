@@ -9,7 +9,7 @@ import {
   PublishPageTemplateDetailsInputContainer,
   PublishPageAppSettingContainer,
   PublishPageFooterContainer,
-} from "./styledComponents";
+} from "./StyledComponents";
 import { publishCommunityTemplate } from "actions/communityTemplateActions";
 import { useSelector, useDispatch } from "react-redux";
 import { isPublishingCommunityTempalteSelector } from "selectors/communityTemplatesSelector";

@@ -5,21 +5,24 @@ import {
 } from "@appsmith/constants/messages";
 import { Button, Icon, Text } from "design-system";
 import React from "react";
-import history from "utils/history";
 import styled from "styled-components";
-import { builderURL } from "RouteBuilder";
-import { useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
 
 type Props = {
+  onPublishClick: () => void;
   setShowHostModal: (showModal: boolean) => void;
 };
-const CommunityTemplatesPublish = ({ setShowHostModal }: Props) => {
+const CommunityTemplatesPublish = ({
+  onPublishClick,
+  setShowHostModal,
+}: Props) => {
   const isPublished = false;
   return isPublished ? (
     <PublishedAppInstructions />
   ) : (
-    <UnPublishedAppInstructions setShowHostModal={setShowHostModal} />
+    <UnPublishedAppInstructions
+      onPublishClick={onPublishClick}
+      setShowHostModal={setShowHostModal}
+    />
   );
 };
 
@@ -45,18 +48,14 @@ const PublishedAppInstructions = () => {
     </section>
   );
 };
-const UnPublishedAppInstructions = ({ setShowHostModal }: Props) => {
-  const pageId = useSelector(getCurrentPageId);
 
+const UnPublishedAppInstructions = ({
+  onPublishClick,
+  setShowHostModal,
+}: Props) => {
   const takeUserToPublishFormPage = () => {
-    history.push(
-      builderURL({
-        pageId,
-        persistExistingParams: true,
-        suffix: "publish/community-template",
-      }),
-    );
     setShowHostModal(false);
+    onPublishClick();
   };
   return (
     <section>
