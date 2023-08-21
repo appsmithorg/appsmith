@@ -40,11 +40,7 @@ export const extractInfoFromBinding = (
   const { references } = extractIdentifierInfoFromCode(
     script,
     self.evaluationVersion,
-    {
-      ...JAVASCRIPT_KEYWORDS,
-      ...DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
-      ...libraryReservedIdentifiers,
-    },
+    invalidEntityIdentifiers,
   );
   return getPrunedReferences(references, allKeys);
 };
