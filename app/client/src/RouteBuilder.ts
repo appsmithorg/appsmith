@@ -13,6 +13,7 @@ import type {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { isNil } from "lodash";
+import type { IDEAppState } from "./pages/IDE/ideReducer";
 
 export type URLBuilderParams = {
   suffix?: string;
@@ -21,6 +22,7 @@ export type URLBuilderParams = {
   params?: Record<string, any>;
   pageId: string;
   persistExistingParams?: boolean;
+  ideState?: IDEAppState;
 };
 
 export const fillPathname = (

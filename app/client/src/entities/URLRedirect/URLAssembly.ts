@@ -1,5 +1,6 @@
 import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import {
+  IDE_PAGE_PATH,
   IDE_PATH,
   PLACEHOLDER_APP_SLUG,
   PLACEHOLDER_PAGE_SLUG,
@@ -12,6 +13,7 @@ import { generatePath } from "react-router";
 import type { URLBuilderParams } from "RouteBuilder";
 import { getQueryStringfromObject } from "RouteBuilder";
 import getQueryParamsObject from "utils/getQueryParamsObject";
+import { IDEAppState } from "../../pages/IDE/ideReducer";
 
 enum URL_TYPE {
   DEFAULT,
@@ -21,15 +23,15 @@ enum URL_TYPE {
 
 const baseURLRegistry = {
   [URL_TYPE.DEFAULT]: {
-    [APP_MODE.EDIT]: IDE_PATH,
+    [APP_MODE.EDIT]: IDE_PAGE_PATH,
     [APP_MODE.PUBLISHED]: VIEWER_PATH_DEPRECATED,
   },
   [URL_TYPE.SLUG]: {
-    [APP_MODE.EDIT]: IDE_PATH,
+    [APP_MODE.EDIT]: IDE_PAGE_PATH,
     [APP_MODE.PUBLISHED]: VIEWER_PATH,
   },
   [URL_TYPE.CUSTOM_SLUG]: {
-    [APP_MODE.EDIT]: IDE_PATH,
+    [APP_MODE.EDIT]: IDE_PAGE_PATH,
     [APP_MODE.PUBLISHED]: VIEWER_CUSTOM_PATH,
   },
 };
@@ -100,7 +102,6 @@ export class URLBuilder {
     const currentAppParams = {
       applicationSlug: this.appParams.applicationSlug || PLACEHOLDER_APP_SLUG,
       applicationId: this.appParams.applicationId,
-      ideState: "page",
     };
     let currentPageParams = this.pageParams[pageId] || {};
     currentPageParams = {
@@ -201,6 +202,7 @@ export class URLBuilder {
       suffix,
       pageId,
       branch,
+      ideState = IDEAppState.Page,
     } = builderParams;
 
     if (!pageId) {
@@ -209,7 +211,10 @@ export class URLBuilder {
       );
     }
 
-    const basePath = this.generateBasePath(pageId, mode);
+    const basePath =
+      mode === APP_MODE.EDIT
+        ? this.generateIDEBasePath({ ideState }, pageId)
+        : this.generateBasePath(pageId, mode);
 
     const queryParamsToPersist = fetchQueryParamsToPersist(
       persistExistingParams,
@@ -231,6 +236,17 @@ export class URLBuilder {
     // hash fragment should be at the end of the href
     // ref: https://www.rfc-editor.org/rfc/rfc3986#section-4.1
     return `${basePath}${suffixPath}${queryString}${hashPath}`;
+  }
+
+  private generateIDEBasePath(
+    params: { ideState: IDEAppState },
+    pageId: string,
+  ) {
+    const allParams = {
+      ...this.getFormattedParams(pageId),
+      ...params,
+    };
+    return generatePath(IDE_PATH, allParams);
   }
 }
 

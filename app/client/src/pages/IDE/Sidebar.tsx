@@ -1,11 +1,11 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
-import { useDispatch, useSelector } from "react-redux";
-import { getIdeAppState } from "./ideSelector";
 import { IDEAppState } from "./ideReducer";
-import { setIdeAppState } from "./ideActions";
 import classNames from "classnames";
+import { builderURL } from "RouteBuilder";
+import history from "utils/history";
+import { useParams } from "react-router";
 
 const DataIcon = importSvg(
   () => import("assets/icons/header/IA-POC/database-2-line.svg"),
@@ -94,10 +94,10 @@ const IconButtonContainer = styled.div`
 `;
 
 const Sidebar = () => {
-  const dispatch = useDispatch();
-  const selectedState: IDEAppState = useSelector(getIdeAppState);
+  const params = useParams<{ ideState: IDEAppState }>();
+  const selectedState = params.ideState;
   const setAppState = useCallback((state: IDEAppState) => {
-    dispatch(setIdeAppState(state));
+    history.push(builderURL({ ideState: state, pageId: "test" }));
   }, []);
   return (
     <SideBarContainer>
