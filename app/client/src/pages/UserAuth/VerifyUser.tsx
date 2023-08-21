@@ -15,12 +15,12 @@ const VerifyUser = (
   }>,
 ) => {
   const queryParams = new URLSearchParams(props.location.search);
+
   const token = queryParams.get("token");
   const email = queryParams.get("email");
-  const redirectUrl = queryParams.get("redirectUrl");
 
   useEffect(() => {
-    if (!token || !email || !redirectUrl) {
+    if (!token || !email) {
       Sentry.captureMessage("User Email Verification link is damaged");
     }
     const formElement: HTMLFormElement = document.getElementById(
@@ -35,7 +35,7 @@ const VerifyUser = (
     window.location.origin,
   ).toString();
 
-  if (!token || !email || !redirectUrl) {
+  if (!token || !email) {
     return (
       <Redirect
         to={`/user/verify-error?code=${VerificationErrorType.MISMATCH}`}
@@ -46,9 +46,16 @@ const VerifyUser = (
   return (
     <Container title={"Verifying"}>
       <form action={submitUrl} id="verification-form" method="POST">
-        <input name="token" type="hidden" value={token} />
-        <input name="email" type="hidden" value={email} />
-        <input name="redirectUrl" type="hidden" value={redirectUrl} />
+        {Array.from(queryParams.entries()).map((param) => {
+          return (
+            <input
+              key={param[0]}
+              name={param[0]}
+              type="hidden"
+              value={param[1]}
+            />
+          );
+        })}
       </form>
       <Spinner size="lg" />
     </Container>
