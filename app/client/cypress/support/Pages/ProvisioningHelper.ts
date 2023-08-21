@@ -20,8 +20,6 @@ export class Provisioning {
     radioButtons: ".ads-v2-radio",
     confirmButton: "[data-testid='t--confirm-reconfigure-api-key']",
     cancelButton: "[data-testid='t--cancel-reconfigure-api-key']",
-    upgradeContainer: "[data-testid='t--upgrade-page-container']",
-    upgradeButton: "[data-testid='t--button-upgrade']",
   };
 
   public UpdateLicenseKey(type?: "business" | "enterprise") {

@@ -64,9 +64,5 @@
   "groupMembers": "[data-testid=t--user-row]",
   "menuItems": ".ads-v2-menu__menu-item",
   "renameMenuItem": "[data-testid=t--rename-menu-item]",
-  "editDescMenuItem": "[data-testid=t--rename-desc-menu-item]",
-  "adminSettingsEntryLink": ".admin-settings-menu-option",
-  "accessControlTab": ".t--settings-category-access-control",
-  "upgradeContainer":"[data-testid='t--upgrade-page-container']",
-  "upgradeButton":"[data-testid='t--button-upgrade']"
+  "editDescMenuItem": "[data-testid=t--rename-desc-menu-item]"
 }
