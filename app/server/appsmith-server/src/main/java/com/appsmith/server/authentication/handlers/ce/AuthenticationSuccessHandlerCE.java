@@ -136,6 +136,18 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         return onAuthenticationSuccess(webFilterExchange, authentication, false, false, null);
     }
 
+    /**
+     * This function handles the redirection in case of form type signup/login.
+     * It constructs the redirect uri based on user's request, and if email verification is required
+     * then redirects the user to /verificationPending and sends the magic link with the user's redirectUrl
+     * in the email.
+     * @param webFilterExchange
+     * @param defaultWorkspaceId
+     * @param authentication
+     * @param isFromSignup
+     * @param createDefaultApplication
+     * @return
+     */
     private Mono<Void> formEmailVerificationRedirectionHandler(
             WebFilterExchange webFilterExchange,
             String defaultWorkspaceId,
@@ -153,12 +165,13 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 redirectionMono = webFilterExchange.getExchange().getSession().flatMap(webSession -> {
                     return finalIsVerificationRequiredMono.flatMap(isVerificationRequired -> {
                         if (TRUE.equals(isVerificationRequired)) {
-                            // removing login session
+                            // removing login session as verification is required
                             webSession.getAttributes().remove(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
-                            // also send email and update the email link, and check redirection
                             return createDefaultApplication(defaultWorkspaceId, authentication)
                                     .flatMap(defaultApplication -> redirectHelper.getAuthSuccessRedirectUrl(
                                             webFilterExchange, defaultApplication, true))
+                                    // verification email link redirect url
+                                    // after verification the user will be redirected to this url
                                     .flatMap(url -> {
                                         String baseUrl = webFilterExchange
                                                 .getExchange()
@@ -181,6 +194,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                                 .resendEmailVerification(resendEmailVerificationDTO, url)
                                                 .then(Mono.just(url));
                                     })
+                                    // redirecting user to the verification pending screen
                                     .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
                                     .map(URI::create)
                                     .flatMap(redirectUri -> redirectStrategy.sendRedirect(
@@ -197,9 +211,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 redirectionMono = webFilterExchange.getExchange().getSession().flatMap(webSession -> {
                     return finalIsVerificationRequiredMono1.flatMap(isVerificationRequired -> {
                         if (TRUE.equals(isVerificationRequired)) {
-                            // removing login session
                             webSession.getAttributes().remove(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
-                            // also send email and update the email link, and check redirection
                             return redirectHelper
                                     .getAuthSuccessRedirectUrl(webFilterExchange, null, true)
                                     .flatMap(url -> {
@@ -239,9 +251,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             redirectionMono = webFilterExchange.getExchange().getSession().flatMap(webSession -> {
                 return finalIsVerificationRequiredMono2.flatMap(isVerificationRequired -> {
                     if (TRUE.equals(isVerificationRequired)) {
-                        // removing login session
                         webSession.getAttributes().remove(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
-                        // also send email and update the email link, and check redirection
                         return redirectHelper
                                 .getAuthSuccessRedirectUrl(webFilterExchange, null, false)
                                 .flatMap(url -> {
@@ -292,6 +302,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             // form login method henceforth. This step is taken to avoid any security vulnerability in the login flow
             // as we are not verifying the user emails at first sign up. In future if we implement the email
             // verification this can be eliminated safely
+
+            // for oauth type signups, we don't need to verify email
             user.setEmailVerificationRequired(FALSE);
             if (user.getPassword() != null) {
                 user.setPassword(null);
@@ -333,6 +345,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
             }
         } else {
+            // form type signup/login handler
             redirectionMono = formEmailVerificationRedirectionHandler(
                     webFilterExchange, defaultWorkspaceId, authentication, isFromSignup, createDefaultApplication);
         }

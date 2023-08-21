@@ -230,6 +230,13 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
                 .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
     }
 
+    /**
+     * This function generates a unique link or magic link for verifying user email and sends an email
+     * with the link, on clicking which the user email gets verified and the user gets logged in
+     * @param resendEmailVerificationDTO
+     * @param originHeader
+     * @return
+     */
     @JsonView(Views.Public.class)
     @PostMapping("/resendEmailVerification")
     public Mono<ResponseDTO<Boolean>> resendEmailVerification(
@@ -240,6 +247,13 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
+    /**
+     * This function verifies the email verification token received from the magic link sent in the email,
+     * it verifies the token and if verified, sets the user to verified true and auto-login the user session.
+     * It also redirects to the /signup-success page with the required params.
+     * @param exchange
+     * @return
+     */
     @JsonView(Views.Public.class)
     @PostMapping(
             value = "/verifyEmailVerificationToken",

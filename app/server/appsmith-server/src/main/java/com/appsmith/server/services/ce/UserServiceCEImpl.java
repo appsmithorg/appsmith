@@ -923,7 +923,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         return emailVerificationTokenRepository
                                 .findByEmail(user.getEmail())
                                 .switchIfEmpty(Mono.defer(() -> {
-                                    // No existing
+                                    // No existing email verification request
                                     EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
                                     emailVerificationToken.setEmail(user.getEmail());
                                     emailVerificationToken.setTokenGeneratedAt(Instant.now());
@@ -931,7 +931,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                     return Mono.just(emailVerificationToken);
                                 }))
                                 .map(emailVerificationToken -> {
-                                    // update token
+                                    // generate new token and update in db
                                     emailVerificationToken.setTokenHash(passwordEncoder.encode(token));
                                     emailVerificationToken.setTokenGeneratedAt(Instant.now());
                                     return emailVerificationToken;
@@ -943,7 +943,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .flatMap(tuple -> {
                     EmailVerificationToken emailVerificationToken = tuple.getT1();
                     User user = tuple.getT2();
-                    log.debug("Email Verification Token: {} for email: {}", token, emailVerificationToken.getEmail());
                     List<NameValuePair> nameValuePairs = new ArrayList<>(2);
                     nameValuePairs.add(new BasicNameValuePair("email", emailVerificationToken.getEmail()));
                     nameValuePairs.add(new BasicNameValuePair("token", token));
@@ -956,7 +955,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             EMAIL_VERIFICATION_CLIENT_URL_FORMAT,
                             resendEmailVerificationDTO.getBaseUrl(),
                             encryptionService.encryptString(urlParams),
-                            emailVerificationToken.getEmail(),
+                            URLEncoder.encode(emailVerificationToken.getEmail(), StandardCharsets.UTF_8),
                             redirectUrlCopy);
 
                     log.debug(
