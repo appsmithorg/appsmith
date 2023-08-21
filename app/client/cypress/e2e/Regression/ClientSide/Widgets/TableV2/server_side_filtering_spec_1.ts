@@ -9,6 +9,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import { expandLoadMoreOptions } from "../../OneClickBinding/spec_utility";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 const ALERT_SUCCESS_MSG = "Table data filtered";
 
@@ -22,6 +23,7 @@ describe("Table widget v2: test server side filtering", function () {
    * 5. Bind it as a WHERE condition inside an SQL query
    */
   before(() => {
+    featureFlagIntercept({ release_table_serverside_filtering_enabled: true });
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 300);
 
     // Create SQL data-source
@@ -68,11 +70,6 @@ describe("Table widget v2: test server side filtering", function () {
     // set execute select SQL query action on table filter update:
     propPane.SelectPlatformFunction("onTableFilterUpdate", "Execute a query");
     agHelper.GetNClickByContains(".single-select", "Select_public_users1");
-    agHelper.GetNClick(
-      `${propPane._propertyControl("ontablefilterupdate")} ${
-        propPane._actionCallbacks
-      }`,
-    );
     agHelper.GetNClick(propPane._actionAddCallback("success"));
     agHelper.GetNClick(locators._dropDownValue("Show alert"));
     agHelper.EnterActionValue("Message", ALERT_SUCCESS_MSG);
@@ -111,5 +108,22 @@ describe("Table widget v2: test server side filtering", function () {
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
       expect($cellData).to.eq("4");
     });
+  });
+});
+
+describe("Table v2: Server side filtering hidden behind feature flag", () => {
+  before(() => {
+    featureFlagIntercept({ release_table_serverside_filtering_enabled: false });
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 700, 300);
+  });
+
+  it("1. should test that server side filtering option and dtable.filters autocomplete should not be visible", () => {
+    agHelper.AssertElementAbsence(
+      propPane._propertyControl("serversidefiltering"),
+    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 700);
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.TypeTextIntoField("Text", "{{Table1.filters");
+    agHelper.AssertElementAbsence(locators._hints);
   });
 });

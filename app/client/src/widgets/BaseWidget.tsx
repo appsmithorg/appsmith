@@ -73,6 +73,9 @@ import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
 import type { AutocompletionDefinitions } from "./constants";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import store from "store";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 /***
  * BaseWidget
@@ -778,6 +781,16 @@ abstract class BaseWidget<
     isFlexChild: false,
     isMobile: false,
   };
+
+  /*
+   * Function to get a specific feature flag
+   */
+  static getFeatureFlag(featureFlag: FeatureFlag) {
+    const state = store.getState();
+    const featureFlags = selectFeatureFlags(state);
+
+    return featureFlags[featureFlag];
+  }
 }
 
 export interface BaseStyle {
