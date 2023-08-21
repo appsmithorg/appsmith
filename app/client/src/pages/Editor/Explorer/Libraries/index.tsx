@@ -345,7 +345,7 @@ function JSDependencies() {
             <PopoverHeader className="sticky top-0" isClosable>
               {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
             </PopoverHeader>
-            <PopoverBody>
+            <PopoverBody className={"!overflow-y-clip"}>
               <Installer />
             </PopoverBody>
           </PopoverContent>
