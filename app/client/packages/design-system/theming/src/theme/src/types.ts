@@ -2,12 +2,12 @@ import type { CSSProperties } from "react";
 import type { ReactNode } from "react";
 
 import type { ColorMode } from "../../color";
-import type { FontFamily } from "../../typography";
+import type { FontFamily, Typography } from "../../typography";
 import type { RootUnit, ThemeToken } from "../../token";
 
 export type Theme = ThemeToken & {
-  typography?: string;
-  fontFamily?: string;
+  typography?: Typography;
+  fontFamily?: FontFamily;
   rootUnit?: RootUnit;
 };
 

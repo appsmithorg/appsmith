@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { createGlobalFontStack } from "../typography";
 import { themeProviderCss } from "./index.styled";
 import { ThemeContext } from "./ThemeContext";
@@ -13,13 +13,15 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
   const { children, className, theme } = props;
   const provider = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (provider.current) {
+      themeProviderCss(provider.current.className, theme);
+    }
+  }, [theme]);
+
   return (
     <ThemeContext.Provider value={theme}>
-      <div
-        className={cx(className, themeProviderCss(theme))}
-        data-theme-provider=""
-        ref={provider}
-      >
+      <div className={cx(className)} data-theme-provider="" ref={provider}>
         {children}
       </div>
     </ThemeContext.Provider>
