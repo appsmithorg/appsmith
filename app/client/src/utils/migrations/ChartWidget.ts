@@ -16,3 +16,12 @@ export const migrateChartWidgetLabelOrientationStaggerOption = (
     }
   });
 };
+
+export const migrateAddShowHideDataPointLabels = (currentDSL: DSLWidget) => {
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (widget.type == "CHART_WIDGET") {
+      const chartWidgetProps = widget as ChartWidgetProps;
+      chartWidgetProps.showDataPointLabel = chartWidgetProps.allowScroll;
+    }
+  });
+};

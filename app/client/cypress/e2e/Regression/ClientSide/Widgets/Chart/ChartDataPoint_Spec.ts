@@ -31,6 +31,7 @@ describe("Input widget test with default value from chart datapoint", () => {
     );
     assertHelper.AssertNetworkStatus("@updateLayout");
     entityExplorer.SelectEntityByName("Chart1");
+    propPane.TogglePropertyState("Show Labels", "On");
     propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
     agHelper.EnterActionValue("Message", dataSet.bindingDataPoint);
     entityExplorer.SelectEntityByName("Input2");
@@ -40,7 +41,7 @@ describe("Input widget test with default value from chart datapoint", () => {
     );
     deployMode.DeployApp();
     agHelper.Sleep(1500); //waiting for chart to load!
-    agHelper.GetNClick(widgetLocators.chartDataPoint);
+    agHelper.GetNClickByContains(widgetLocators.chartDataPoint, "36000");
     cy.get(locators._widgetInputSelector("inputwidgetv2"))
       .first()
       .invoke("val")

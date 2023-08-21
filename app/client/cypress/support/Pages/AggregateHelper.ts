@@ -975,7 +975,8 @@ export class AggregateHelper extends ReusableHelper {
     });
     this.assertHelper.AssertDocumentReady();
     this.Sleep(2000);
-    this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
+    networkCallAlias &&
+      this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
 
   public ActionContextMenuWithInPane({
@@ -1592,6 +1593,23 @@ export class AggregateHelper extends ReusableHelper {
     //passing 1 works as browser back
     //passing -1 works as browser forward
     cy.go(direction);
+  }
+
+  public AssertCursorInput($selector: string, cursor = { ch: 0, line: 0 }) {
+    this.EnableAllCodeEditors();
+    cy.get($selector)
+      .first()
+      .find(".CodeMirror")
+      .first()
+      .then((ins) => {
+        const input = (ins[0] as any).CodeMirror;
+        // The input gets focused with a slight delay so we need to wait for it
+        cy.waitUntil(() => input.hasFocus()).then(() => {
+          const editorCursor = input.getCursor();
+          expect(editorCursor.ch).to.equal(cursor.ch);
+          expect(editorCursor.line).to.equal(cursor.line);
+        });
+      });
   }
 
   //Not used:

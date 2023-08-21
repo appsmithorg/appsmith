@@ -156,7 +156,7 @@
   "toggleBackground": ".t--property-control-background .t--js-toggle",
   "toggleItemBackground": ".t--property-control-itembackground .t--js-toggle",
   "toggleShowStepArrows": ".t--property-control-showsteparrows .t--js-toggle",
-  "chartDataPoint": "g path[d^='M100 205.51']",
+  "chartDataPoint": "g text",
   "toggleEnableMultirowselection": ".t--property-control-enablemulti-rowselection input",
   "toggleEnableMultirowselection_tablev1": ".t--property-control-enablemultirowselection input",
   "formWidget": ".t--draggable-formwidget",
