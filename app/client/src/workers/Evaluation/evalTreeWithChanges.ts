@@ -65,7 +65,10 @@ export function evalTreeWithChanges(
       evalProps: dataTreeEvaluator.evalProps,
     });
 
-    evalMetaUpdates = [...evalMetaUpdates, ...updateResponse.evalMetaUpdates];
+    /** Make sure evalMetaUpdates is sanitized to prevent postMessage failure */
+    evalMetaUpdates = JSON.parse(
+      JSON.stringify([...evalMetaUpdates, ...updateResponse.evalMetaUpdates]),
+    );
 
     staleMetaIds = updateResponse.staleMetaIds;
     unevalTree = dataTreeEvaluator.getOldUnevalTree();

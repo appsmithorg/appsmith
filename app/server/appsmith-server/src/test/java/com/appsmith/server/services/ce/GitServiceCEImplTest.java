@@ -6,7 +6,6 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.helpers.ce.ExecutionTimeLogging;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -25,6 +24,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -117,8 +117,7 @@ public class GitServiceCEImplTest {
     @MockBean
     RedisUtils redisUtils;
 
-    @MockBean
-    ExecutionTimeLogging executionTimeLogging;
+    ObservationRegistry observationRegistry;
 
     @BeforeEach
     public void setup() {
@@ -143,11 +142,9 @@ public class GitServiceCEImplTest {
                 pluginService,
                 datasourcePermission,
                 applicationPermission,
-                pagePermission,
-                actionPermission,
                 workspaceService,
                 redisUtils,
-                executionTimeLogging);
+                observationRegistry);
     }
 
     @Test

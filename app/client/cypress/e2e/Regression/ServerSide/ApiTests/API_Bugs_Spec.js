@@ -177,7 +177,7 @@ describe("Rest Bugs tests", function () {
       });
   });
 
-  it("Bug 13515: API Response gets garbled if encoded with gzip", function () {
+  it("4. Bug 13515: API Response gets garbled if encoded with gzip", function () {
     apiPage.CreateAndFillApi(
       "https://postman-echo.com/gzip",
       "GarbledResponseAPI",
@@ -192,7 +192,17 @@ describe("Rest Bugs tests", function () {
     });
   });
 
-  afterEach(() => {
-    // put your clean up code if any
+  // this test applies to other fields as well - params and body formdata
+  it("5. Bug 25817: Assert that header fields are correctly updated.", function () {
+    apiPage.CreateAndFillApi("https://postman-echo.com/gzip", "HeaderTest");
+    apiPage.EnterHeader("hello", "world", 0);
+    apiPage.EnterHeader("", "", 1);
+    agHelper.GetNClick(apiPage._addMoreHeaderFieldButton);
+    apiPage.EnterHeader("hey", "there", 2);
+
+    agHelper.RefreshPage();
+
+    apiPage.ValidateHeaderParams({ key: "hello", value: "world" }, 0);
+    apiPage.ValidateHeaderParams({ key: "hey", value: "there" }, 1);
   });
 });

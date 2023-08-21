@@ -19,7 +19,7 @@ export interface ButtonProps extends SpectrumAriaBaseButtonProps {
 export type ButtonRef = React.Ref<HTMLButtonElement>;
 type ButtonRefObject = React.RefObject<HTMLButtonElement>;
 
-export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
+const _Button = (props: ButtonProps, ref: ButtonRef) => {
   const { autoFocus, children, className, draggable, isDisabled } = props;
   const { hoverProps, isHovered } = useHover({ isDisabled });
   const { focusProps, isFocusVisible } = useFocusRing({ autoFocus });
@@ -41,4 +41,6 @@ export const Button = forwardRef((props: ButtonProps, ref: ButtonRef) => {
       {children}
     </button>
   );
-});
+};
+
+export const Button = forwardRef(_Button);

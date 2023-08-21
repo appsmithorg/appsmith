@@ -29,7 +29,7 @@ export type CheckboxRef = FocusableRef<HTMLLabelElement>;
 
 const ICON_SIZE = 14;
 
-export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
+const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
   const {
     autoFocus,
     children,
@@ -100,4 +100,6 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
       {children}
     </label>
   );
-});
+};
+
+export const Checkbox = forwardRef(_Checkbox);

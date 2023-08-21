@@ -1901,3 +1901,6 @@ export const DEFAULT_CAMERA_LABEL_DESCRIPTION = () =>
   "Default choice for mobile users. Not applicable for other devices";
 export const FRONT_CAMERA_LABEL = () => "Front (Selfie)";
 export const BACK_CAMERA_LABEL = () => "Back (Rear)";
+
+// Color picker
+export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";

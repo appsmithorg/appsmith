@@ -44,13 +44,6 @@ Cypress.on("uncaught:exception", () => {
 });
 
 Cypress.on("fail", (error) => {
-  cy.window()
-    .its("store")
-    .invoke("getState")
-    .then((state) => {
-      cy.log(`Editor initialised: ${state.ui.editor.initialized}`);
-      cy.log(`Loading guided tour: ${state.ui.guidedTour.loading}`);
-    });
   throw error; // throw error to have test still fail
 });
 
@@ -176,14 +169,10 @@ after(function () {
   if (RapidMode.config.enabled) {
     return;
   }
-  if (Cypress.env("CYPRESS_CI") === "1") {
-    //-- Deleting the application by Api---//
-    cy.DeleteAppByApi();
-    //-- LogOut Application---//
-    cy.LogOut();
-  } else {
-    cy.log("Running locally, hence skipping app delete!");
-  }
+  //-- Deleting the application by Api---//
+  cy.DeleteAppByApi();
+  //-- LogOut Application---//
+  cy.LogOut();
   // Commenting until Upgrade Appsmith cases are fixed
   // const tedUrl = "http://localhost:5001/v1/parent/cmd";
   // cy.log("Start the appsmith container");

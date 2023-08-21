@@ -4,6 +4,7 @@
   "dropdownWidget": ".t--draggable-selectwidget",
   "menuButtonWidget": ".t--draggable-menubuttonwidget",
   "multiselectwidgetv2": ".t--draggable-multiselectwidgetv2",
+  "multiselectWidgetv2search": ".multi-select-dropdown .bp3-input",
   "multiselecttreeWidget": ".t--draggable-multiselecttreewidget",
   "singleselecttreeWidget": ".t--draggable-singleselecttreewidget",
   "dropdownSelectionType": ".t--property-control-selectiontype .bp3-popover-target",

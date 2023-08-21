@@ -65,11 +65,11 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
       # actions/setup-node@v3 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
@@ -165,7 +165,10 @@ jobs:
           rm app/client/packages/rts/dist/rts-dist.tar
 
       - name: Generate info.json
-        run: scripts/generate_info_json.sh
+        run: |
+          if [[ -f scripts/generate_info_json.sh ]]; then
+            scripts/generate_info_json.sh
+          fi
 
       - name: Login to DockerHub
         uses: docker/login-action@v1

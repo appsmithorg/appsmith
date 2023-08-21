@@ -537,6 +537,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       validationPaths: {
         "chartData.random-id.data": {
           params: {
+            default: [],
             children: {
               params: {
                 required: true,
