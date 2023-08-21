@@ -355,13 +355,13 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     deployMode.NavigateBacktoEditor();
   });
 
-  it("4. Verifying Max file size - 'Base64' file - CRUD page - Bug #18245 - 20 Mb & 50 Mb", function () {
-    let video = "Videos/brokenQRCode.y4m";
+  it("4. Verifying Max file size - 'Base64' file - CRUD page - Bug #18245 - 10 Mb & 40 Mb", function () {
+    let video = "Videos/defaultVideo.y4m";
 
     entityExplorer.SelectEntityByName("FilePicker", "Container6");
     propPane.UpdatePropertyFieldValue("Max no. of files", "2");
 
-    propPane.UpdatePropertyFieldValue("Max file size(Mb)", "20");
+    propPane.UpdatePropertyFieldValue("Max file size(Mb)", "10");
 
     deployMode.DeployApp();
     agHelper.ClickButton("Select Files");
@@ -370,32 +370,42 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     agHelper.AssertText(
       dataSources._s3MaxFileSizeAlert,
       "text",
-      "This file exceeds maximum allowed size of 20 MB ",
+      "This file exceeds maximum allowed size of 10 MB ",
     );
     agHelper.ClickButton("Close");
     deployMode.NavigateBacktoEditor();
 
-    // entityExplorer.SelectEntityByName("FilePicker", "Container6");
-    // propPane.UpdatePropertyFieldValue("Max file size(Mb)", "50");
-    // deployMode.DeployApp();
+    entityExplorer.SelectEntityByName("FilePicker", "Container6");
+    propPane.UpdatePropertyFieldValue("Max file size(Mb)", "40");
+    deployMode.DeployApp();
+    video = "Videos/rotatedQRCode.y4m";
 
-    // agHelper.ClickButton("Select Files");
-    // agHelper.UploadFile(video, false);
+    agHelper.ClickButton("Select Files");
+    agHelper.UploadFile(video, false);
+    agHelper.AssertText(
+      dataSources._s3MaxFileSizeAlert,
+      "text",
+      "This file exceeds maximum allowed size of 40 MB ",
+    );
 
-    //  agHelper.AssertElementVisibility(
-    //   dataSources._s3MaxFileSizeAlert, false
-    // );
+    video = "Videos/defaultVideo.y4m";
+    agHelper.UploadFile(video, false);
+    agHelper.AssertElementVisibility(dataSources._s3MaxFileSizeAlert, false);
 
-    // video = "Videos/defaultVideo.y4m";
-    // agHelper.ClickButton("Add more");
-    // agHelper.UploadFile(video, false);
+    video = "Videos/webCamVideo.y4m";
+    agHelper.ClickButton("Add more");
+    agHelper.UploadFile(video, false);
+    agHelper.AssertElementVisibility(dataSources._s3MaxFileSizeAlert, false);
 
-    //below validation not coming due to bug, hence commented
-    // agHelper.AssertText(
-    //   dataSources._s3MaxFileSizeAlert,
-    //   "text",
-    //   "This file exceeds maximum allowed size of 50 MB ",
-    // );
+    agHelper.ClickButton("Upload 2 files");
+    agHelper.ClickButton("2 files selected");
+
+    agHelper.ClickButton("Remove file");
+    agHelper.ClickButton("Remove file");
+
+    agHelper.ClickButton("Close");
+    agHelper.AssertElementVisibility(locators._buttonByText("Select Files"));
+    deployMode.NavigateBacktoEditor();
   });
 
   it("5. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
