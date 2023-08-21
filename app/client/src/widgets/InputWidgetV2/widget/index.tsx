@@ -71,11 +71,7 @@ export function defaultValueValidation(
   let parsed;
   switch (inputType) {
     case "NUMBER":
-      if (_.isNil(value)) {
-        parsed = null;
-      } else {
-        parsed = Number(value);
-      }
+      parsed = Number(value);
 
       let isValid, messages;
 
