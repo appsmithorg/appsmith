@@ -15,6 +15,7 @@
         <module>oraclePlugin</module>
         <module>postgresPlugin</module>
         <module>restApiPlugin</module>
+        <module>restApiPlugin</module>
         <module>mongoPlugin</module>
         <module>mysqlPlugin</module>
         <module>elasticSearchPlugin</module>

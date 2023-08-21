@@ -3090,4 +3090,35 @@ public class DatabaseChangelog2 {
         oraclePlugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.svg");
         mongoTemplate.save(oraclePlugin);
     }
+    @ChangeSet(order = "044", id = "add-grpcapi-plugin", author = "", runAlways = true)
+    public void addGrpcApiPlugin(MongoTemplate mongoTemplate) {
+        mongoTemplate.remove(query(where("packageName").is("grpcapi-plugin")), Plugin.class);
+
+        Plugin plugin = new Plugin();
+        plugin.setName("gRPC API");
+        plugin.setType(PluginType.API);
+        plugin.setPackageName("grpcapi-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        //        plugin.setIconLocation("");
+        //        plugin.setDocumentationLink("https://link-to-plugin-documentation.html");
+        plugin.setDefaultInstall(true);
+
+        // Field to distinguish if the plugin is supported in air-gap instance, by default all the plugins will be
+        // supported. One can opt out by adding this field in DB object. Generally SaaS plugins and DB which can't be
+        // self-hosted can be a candidate for opting out of air-gap
+        plugin.setSupportedForAirGap(false);
+
+        // Config to set if the plugin has any dependency on cloud-services
+        plugin.setIsDependentOnCS(false);
+
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
+    }
 }
