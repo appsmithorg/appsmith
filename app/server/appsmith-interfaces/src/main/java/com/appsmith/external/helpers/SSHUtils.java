@@ -12,6 +12,10 @@ import java.net.ServerSocket;
 
 import static com.appsmith.external.constants.PluginConstants.HostName.LOCALHOST;
 
+/**
+ * This class is meant to provide methods that should help with the creation and management of SSH tunnel by
+ * various plugins.
+ */
 @NoArgsConstructor
 public class SSHUtils {
     static Object monitor = new Object(); // monitor object to be used for synchronization lock
@@ -19,8 +23,7 @@ public class SSHUtils {
     // port
 
     /**
-     * This class is meant to provide methods that should help with the creation and management of SSH tunnel by
-     * various plugins.
+     * Create SSH tunnel and return the relevant connection context.
      *
      * @param sshHost : host address of remote SSH server
      * @param sshPort : port number for remote SSH server
