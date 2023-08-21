@@ -104,7 +104,7 @@ export class CommonLocators {
   _jsToggle = (controlToToggle: string) =>
     ".t--property-control-" + controlToToggle + " .t--js-toggle";
   _buttonByText = (btnVisibleText: string) =>
-    `//span[text()="${btnVisibleText}"]/ancestor::button | //button[text()="${btnVisibleText}"]`;
+    `//span[text()="${btnVisibleText}"]/ancestor::button | //button[text()="${btnVisibleText}" or @title="${btnVisibleText}"]`;
   _selectPropPageDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
