@@ -106,7 +106,7 @@ describe("Json & JsonB Datatype tests", function () {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
@@ -126,7 +126,7 @@ describe("Json & JsonB Datatype tests", function () {
     deployMode.EnterJSONInputValue("Price", "400");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
@@ -146,7 +146,7 @@ describe("Json & JsonB Datatype tests", function () {
     deployMode.EnterJSONInputValue("Price", "360");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -167,7 +167,7 @@ describe("Json & JsonB Datatype tests", function () {
 
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Update did not fail
-    agHelper.AssertElementVisibility(locators._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3");
     });
@@ -281,7 +281,7 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("10. Deleting all records from table - jsonbooks", () => {
     agHelper.GetNClick(locators._deleteIcon);
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
@@ -301,7 +301,7 @@ describe("Json & JsonB Datatype tests", function () {
     deployMode.EnterJSONInputValue("Price", "800");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
@@ -449,7 +449,7 @@ describe("Json & JsonB Datatype tests", function () {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
@@ -475,7 +475,7 @@ describe("Json & JsonB Datatype tests", function () {
     ]);
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
@@ -498,7 +498,7 @@ describe("Json & JsonB Datatype tests", function () {
     deployMode.SelectJsonFormMultiSelect("Genres", ["Fiction", "Spirituality"]);
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -530,7 +530,7 @@ describe("Json & JsonB Datatype tests", function () {
 
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Update did not fail
-    agHelper.AssertElementVisibility(locators._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3");
     });
@@ -639,7 +639,7 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("24. Deleting all records from table - jsonbooks", () => {
     agHelper.GetNClick(locators._deleteIcon);
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
@@ -663,7 +663,7 @@ describe("Json & JsonB Datatype tests", function () {
     ]);
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });

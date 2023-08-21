@@ -145,11 +145,11 @@ describe("Chart Widget", () => {
   });
 
   it("3. adds a click event when user adds a click callback", async () => {
-    const mockCallback = jest.fn();
+    const mockCallback = jest.fn((params) => params);
     const props = { ...defaultProps };
     props.onDataPointClick = (point) => {
       point;
-      mockCallback();
+      mockCallback(point);
     };
 
     render(<ChartComponent {...props} />);
