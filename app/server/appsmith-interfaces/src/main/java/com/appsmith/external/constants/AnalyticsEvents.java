@@ -45,6 +45,7 @@ public enum AnalyticsEvents {
     GIT_LIST_BRANCH,
     GIT_RESET,
     GIT_STATUS,
+    GIT_STATUS_WITHOUT_FETCH,
     GIT_COMMIT_HISTORY,
     GIT_CLONE,
     GIT_CHECKOUT,

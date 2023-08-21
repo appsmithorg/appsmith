@@ -20,7 +20,7 @@ export function useConnectData() {
 
   const widget = useSelector((state: AppState) => getWidget(state, widgetId));
 
-  const { columns, primaryColumn } = useColumns("");
+  const { columns, primaryColumn } = useColumns("", false);
 
   const isLoading = useSelector(
     getisOneClickBindingConnectingForWidget(widgetId),
