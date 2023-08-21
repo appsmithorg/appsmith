@@ -38,6 +38,7 @@ export type ImportTemplateResponse = ApiResponse<{
 export interface TemplateFiltersResponse extends ApiResponse {
   data: {
     functions: string[];
+    useCases?: string[];
   };
 }
 

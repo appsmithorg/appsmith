@@ -76,6 +76,7 @@ import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
+import type { CommunityTemplatesReduxState } from "reducers/uiReducers/communityTemplatesReduxState";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -99,6 +100,7 @@ export interface AppState {
     apiPane: ApiPaneReduxState;
     auth: AuthState;
     templates: TemplatesReduxState;
+    communityTemplates: CommunityTemplatesReduxState;
     workspaces: WorkspaceReduxState;
     users: UsersReduxState;
     widgetDragResize: WidgetDragResizeState;

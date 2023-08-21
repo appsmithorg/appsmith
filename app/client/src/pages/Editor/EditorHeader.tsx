@@ -496,9 +496,11 @@ export function EditorHeader() {
                       <Tab data-tesid="t--tab-EMBED" value="embed">
                         {createMessage(IN_APP_EMBED_SETTING.embed)}
                       </Tab>
-                      <Tab data-tesid="t--tab-Publish" value="publish">
-                        {createMessage(COMMUNITY_TEMPLATES.publish)}
-                      </Tab>
+                      {cloudHosting && (
+                        <Tab data-tesid="t--tab-Publish" value="publish">
+                          {createMessage(COMMUNITY_TEMPLATES.publish)}
+                        </Tab>
+                      )}
                     </TabsList>
                     <TabPanel value="invite">
                       <AppInviteUsersForm
@@ -515,9 +517,13 @@ export function EditorHeader() {
                         changeTab={() => setActiveTab("invite")}
                       />
                     </TabPanel>
-                    <TabPanel value="publish">
-                      <CommunityTemplatesPublish />
-                    </TabPanel>
+                    {cloudHosting && (
+                      <TabPanel value="publish">
+                        <CommunityTemplatesPublish
+                          setShowHostModal={setShowModal}
+                        />
+                      </TabPanel>
+                    )}
                   </Tabs>
                 </ModalBody>
               </ModalContent>

@@ -9,6 +9,7 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  PUBLISH_COMMUNITY_TEMPLATE_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
@@ -19,6 +20,7 @@ import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "./routes";
 import styled from "styled-components";
 import BottomBar from "components/BottomBar";
+import PublishCommunityTemplate from "./PublishCommunityTemplate";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -89,6 +91,11 @@ function MainContainer() {
               component={WidgetsEditor}
               exact
               path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
+            />
+            <SentryRoute
+              component={PublishCommunityTemplate}
+              exact
+              path={`${path}${PUBLISH_COMMUNITY_TEMPLATE_EDITOR_BASE_PATH}`}
             />
             <SentryRoute component={EditorsRouter} />
           </Switch>

@@ -27,10 +27,13 @@ const ConfirmCommunityTemplatePublish = ({
     <Modal onOpenChange={(isOpen) => setShowModal(isOpen)} open={showModal}>
       <ModalContent style={{ width: "640px" }}>
         <ModalHeader>
-          {createMessage(COMMUNITY_TEMPLATES.confirmModal.title, templateName)}
+          {createMessage(
+            COMMUNITY_TEMPLATES.modals.confirmModal.title,
+            templateName,
+          )}
         </ModalHeader>
         <ModalBody>
-          {createMessage(COMMUNITY_TEMPLATES.confirmModal.description)}
+          {createMessage(COMMUNITY_TEMPLATES.modals.confirmModal.description)}
         </ModalBody>
         <ModalFooter>
           <Button

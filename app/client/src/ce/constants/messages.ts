@@ -1908,20 +1908,74 @@ export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";
 export const COMMUNITY_TEMPLATES = {
   publish: () => "Publish",
   cancel: () => "Cancel",
-  unpublishedInfo: {
-    title: () => "Publish to app community",
-    description: () =>
-      "Publish this app to Appsmith community for the public to view, fork, and remix.",
+  publishSuccessPage: {
+    title: () => "Your template is now live!",
+    description: () => "Thank you for your contribution to Appsmith community.",
+    viewTemplateButton: () => "View Template",
   },
-  publishedInfo: {
-    title: () => "Live on Appsmith community!",
-    description: () =>
-      "This application is live on community as a template for users to fork and remix.",
-    viewTemplate: () => "View Template",
+  publishFormPage: {
+    title: () => "Publish to community",
+    footerPublishButton: () => "Publish to community",
+    preview: {
+      thumbnail: () => "Thumbnail will be generated automatically",
+    },
+    templateForm: {
+      titleInputLabel: () => "Title",
+      titleInputPlaceholder: () => "Title of the template",
+
+      excerptInputLabel: () => "Headline",
+      excerptInputPlaceholder: () => "One line excerpt",
+
+      descriptionInputLabel: () => "Description",
+      descriptionInputPlaceholder: () => "Description of the template",
+
+      useCasesInputLabel: () => "Use-cases",
+      useCasesInputPlaceholder: () => "Select use cases",
+    },
+    authorDetails: {
+      title: () => "Author details",
+      displayNameLabel: () => "Display name",
+      displayNamePlaceholder: () => "Display name",
+      emailLabel: () => "Email",
+      emailPlaceholder: () => "Email",
+    },
+    applicationSettings: {
+      title: () => "Application Settings",
+      publicSetting: () => "Make application public",
+      forkableSetting: () => "Make application forkable",
+    },
+    publishedInfo: {
+      title: () => "What is published?",
+      correct: [
+        () => "Widgets & their properties",
+        () => "Queries & JS Objects",
+        () => "Datasource types",
+      ],
+      incorrect: [
+        () => "Datasource credentials",
+        () => "API authentication details",
+        () => "Environment variables",
+        () => "Git credentials",
+      ],
+    },
+    publishedFailedError: () => "Unable to publish",
   },
-  confirmModal: {
-    title: (name: string) => `Publish ${name} to community?`,
-    description: () =>
-      `You are publishing this app to community.appsmth.com. Users outside your workspace will be able to fork this app to their workspace. Are you sure?`,
+  modals: {
+    unpublishedInfo: {
+      title: () => "Publish to app community",
+      description: () =>
+        "Publish this app to Appsmith community for the public to view, fork, and remix.",
+    },
+    publishedInfo: {
+      title: () => "Live on Appsmith community!",
+      description: () =>
+        "This application is live on community as a template for users to fork and remix.",
+      viewTemplate: () => "View Template",
+    },
+    confirmModal: {
+      title: (name: string) => `Publish ${name} to community?`,
+      description: () =>
+        `You are publishing this app to community.appsmth.com. Users outside your workspace will be able to fork this app to their workspace. Are you sure?`,
+    },
   },
 };
