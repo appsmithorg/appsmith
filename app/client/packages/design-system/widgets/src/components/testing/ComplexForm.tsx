@@ -22,7 +22,7 @@ export const ComplexForm = () => {
 
       <Text>Choose your favorite dishes and place an order</Text>
 
-      <Flex direction="column" gap="spacing-4">
+      <Flex direction="column" gap="spacing-5">
         <ButtonGroup>
           <Button>Fast food</Button>
           <Button>Salads</Button>

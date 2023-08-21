@@ -5,7 +5,7 @@
     "maxVw": 1920,
     "rootUnit": {
       "minV": 4,
-      "maxV": 4.4,
+      "maxV": 5,
       "minR": 1,
       "maxR": 1,
       "minN": 1,
@@ -14,13 +14,13 @@
       "stepsDown": 0
     },
     "spacing": {
-      "minV": 8,
-      "maxV": 8.8,
+      "minV": 4,
+      "maxV": 6,
       "minR": 2,
       "maxR": 3,
       "minN": 3,
       "maxN": 3,
-      "stepsUp": 6,
+      "stepsUp": 8,
       "stepsDown": 0
     },
     "typography": {
