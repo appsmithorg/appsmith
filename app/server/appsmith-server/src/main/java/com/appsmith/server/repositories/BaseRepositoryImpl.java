@@ -166,38 +166,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     }
 
     @Override
-    public Flux<T> findAllWithCursorBatchSize() {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMapMany(principal -> {
-                    Query query = new Query(notDeleted());
-                    return mongoOperations.find(
-                            query.cursorBatchSize(10000),
-                            entityInformation.getJavaType(),
-                            entityInformation.getCollectionName());
-                });
-    }
-
-    @Override
-    public Flux<T> findAllByIdWithCursorBatchSize(Iterable<String> id) {
-        Assert.notNull(id, "The given id must not be null!");
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMapMany(principal -> {
-                    Query query =
-                            new Query(where(entityInformation.getIdAttribute()).in(id));
-                    query.addCriteria(notDeleted());
-
-                    return mongoOperations.find(
-                            query.cursorBatchSize(10000),
-                            entityInformation.getJavaType(),
-                            entityInformation.getCollectionName());
-                });
-    }
-
-    @Override
     public Flux<T> findAll(Example example, Sort sort) {
         Assert.notNull(example, "Sample must not be null!");
         Assert.notNull(sort, "Sort must not be null!");

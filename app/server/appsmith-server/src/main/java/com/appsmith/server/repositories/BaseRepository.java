@@ -3,7 +3,6 @@ package com.appsmith.server.repositories;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
@@ -51,8 +50,4 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
      * This method is supposed to update the given list of fields in an object as opposed to replacing the entire object.
      */
     Mono<UpdateResult> updateByIdAndFieldNames(ID id, Map<String, Object> fieldNameValueMap);
-
-    Flux<T> findAllWithCursorBatchSize();
-
-    Flux<T> findAllByIdWithCursorBatchSize(Iterable<String> id);
 }

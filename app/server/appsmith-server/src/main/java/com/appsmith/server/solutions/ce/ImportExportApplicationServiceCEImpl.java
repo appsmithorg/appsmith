@@ -272,7 +272,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .cache();
 
         return pluginRepository
-                .findAllWithCursorBatchSize()
+                .findAll()
                 .map(plugin -> {
                     pluginMap.put(
                             plugin.getId(),
@@ -1178,7 +1178,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
     private Mono<Map<String, String>> getPluginMapMono() {
         return pluginRepository
-                .findAllWithCursorBatchSize()
+                .findAll()
                 .collectList()
                 .map(plugins -> {
                     Map<String, String> pluginMap = new HashMap<>();
@@ -2186,7 +2186,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         return Mono.just(newPage)
                 .flatMap(page -> {
-                    return newActionRepository
+                    return newActionService
                             .findAllByIdWithCursorBatchSize(getLayoutOnLoadActionsForPage(
                                     page,
                                     actionIdMap,
