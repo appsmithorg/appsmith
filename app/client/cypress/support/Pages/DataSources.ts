@@ -581,8 +581,10 @@ export class DataSources {
       "Please select an option",
       "Personal access token",
     );
-    this.agHelper.TypeIntoInput(
-      this.locator._inputFieldByName("Bearer token"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Bearer token") +
+        "//" +
+        this.locator._inputField,
       Cypress.env("AIRTABLE_BEARER"),
     );
     this.agHelper.Sleep();
@@ -625,12 +627,16 @@ export class DataSources {
   }
 
   public FillFirestoreDSForm(environment = this.dataManager.defaultEnviorment) {
-    this.agHelper.TypeIntoInput(
-      this.locator._inputFieldByName("Database URL"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Database URL") +
+        "//" +
+        this.locator._inputField,
       this.dataManager.dsValues[environment].firestore_database_url,
     );
-    this.agHelper.TypeIntoInput(
-      this.locator._inputFieldByName("Project Id"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Project Id") +
+        "//" +
+        this.locator._inputField,
       this.dataManager.dsValues[environment].firestore_projectID,
     );
     // cy.fixture("firestore-ServiceAccCreds").then((json: any) => {
@@ -689,8 +695,8 @@ export class DataSources {
   ) {
     this.NavigateToDSCreateNew();
     this.CreatePlugIn("Authenticated GraphQL API");
-    this.agHelper.TypeIntoInput(
-      this.locator._inputFieldByName("URL"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
       this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
     );
 
@@ -1460,8 +1466,8 @@ export class DataSources {
   }
 
   public FillAuthAPIUrl(environment = this.dataManager.defaultEnviorment) {
-    this.agHelper.TypeIntoInput(
-      this.locator._inputFieldByName("URL"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
       this.dataManager.dsValues[environment].authenticatedApiUrl,
     );
   }
@@ -1599,8 +1605,8 @@ export class DataSources {
   ) {
     if (dsName) this.agHelper.RenameWithInPane(dsName, false);
     // Fill Auth Form
-    this.agHelper.TypeIntoInput(
-      this.locator._inputFieldByName("URL"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
       this.dataManager.dsValues[environment].OAuth_ApiUrl,
     );
     this.agHelper.GetNClick(this._authType);
@@ -1611,25 +1617,35 @@ export class DataSources {
     else if (grantType == "AuthCode")
       this.agHelper.GetNClick(this._authorizationCode);
 
-    this.agHelper.TypeIntoInput(
-      this.locator._inputFieldByName("Access token URL"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Access token URL") +
+        "//" +
+        this.locator._inputField,
       this.dataManager.dsValues[environment].OAUth_AccessTokenUrl,
     );
 
-    this.agHelper.TypeIntoInput(
-      this.locator._inputFieldByName("Client ID"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Client ID") +
+        "//" +
+        this.locator._inputField,
       clientId,
     );
-    this.agHelper.TypeIntoInput(
-      this.locator._inputFieldByName("Client secret"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Client secret") +
+        "//" +
+        this.locator._inputField,
       clientSecret,
     );
-    this.agHelper.TypeIntoInput(
-      this.locator._inputFieldByName("Scope(s)"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Scope(s)") +
+        "//" +
+        this.locator._inputField,
       "profile",
     );
-    this.agHelper.TypeIntoInput(
-      this.locator._inputFieldByName("Authorization URL"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Authorization URL") +
+        "//" +
+        this.locator._inputField,
       this.dataManager.dsValues[environment].OAuth_AuthUrl,
     );
   }

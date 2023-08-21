@@ -1182,23 +1182,6 @@ export class AggregateHelper extends ReusableHelper {
     this.Sleep(500); //for value set to settle
   }
 
-  public TypeIntoInput(selector: string, value: string, force = false) {
-    this.GetElement(selector)
-      .find("input")
-      .clear({ force: force })
-      //.type(this.selectAll)
-      .type(value, { delay: 1, parseSpecialCharSequences: false });
-    // .type(selectAllJSObjectContentShortcut)
-    // .then((ins: any) => {
-    //   //const input = ins[0].input;
-    //   ins.clear();
-    //   this.Sleep(200);
-    //   //ins.setValue(value);
-    //   ins.val(value).trigger('change');
-    //   this.Sleep(200);
-    // });
-  }
-
   public UpdateFieldInput(selector: string, value: string) {
     this.GetElement(selector)
       .find("input")
