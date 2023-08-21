@@ -140,10 +140,6 @@ class Editor extends Component<Props> {
   }
 
   // This function is triggered on load of google apis javascript library
-  // Even though the script is loaded asynchronously, in case of firefox run on windows
-  // The gapi script is getting loaded even before the last script of index.html
-  // Hence defining this function before loading gapi
-  // For more info: https://github.com/appsmithorg/appsmith/issues/21033
   gapiLoaded = () => {
     (window as any).googleAPIsLoaded = true;
     return undefined;
@@ -173,7 +169,7 @@ class Editor extends Component<Props> {
               {`${this.props.currentApplicationName} |`} Editor | Appsmith
             </title>
 
-            {!isAirgappedInstance && (window as any)?.googleAPIsLoaded ? (
+            {!isAirgappedInstance && !(window as any)?.googleAPIsLoaded ? (
               <script
                 async
                 defer
