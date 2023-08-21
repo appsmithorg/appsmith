@@ -1153,15 +1153,15 @@ export class DataSources {
     this.agHelper.AssertAutoSave();
   }
 
-  public EnterQuery(query: string, sleep = 500) {
+  public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
     this.agHelper.UpdateCodeInput(
       this.locator._codeEditorTarget,
       query,
       "query",
     );
-    this.agHelper.AssertAutoSave();
+    toVerifySave && this.agHelper.AssertAutoSave();
     this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
-    cy.wait("@saveAction");
+    this.assertHelper.AssertNetworkStatus("@saveAction", 200);
   }
 
   public RunQueryNVerifyResponseViews(
