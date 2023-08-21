@@ -51,7 +51,7 @@ describe.skip(
       // Ensure disabled icon is also present
       agHelper.AssertElementExist(multipleEnv.ds_data_filter_disabled);
       agHelper.GoBack();
-      agHelper.AssertElementVisible(dataSources._activeDS);
+      agHelper.AssertElementVisibility(dataSources._activeDS);
     });
 
     it("2. Create and test query responses for both ds on both environmets and add to a table", function () {

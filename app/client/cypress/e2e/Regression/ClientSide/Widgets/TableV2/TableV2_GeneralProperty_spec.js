@@ -3,18 +3,26 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const testdata = require("../../../../../fixtures/testdata.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    _.agHelper.AddDsl("tableV2NewDsl");
+    agHelper.AddDsl("tableV2NewDsl");
   });
 
   it("1. Test to validate table pagination is disabled", function () {
     // Verify pagination is disabled
-    cy.get(".t--table-widget-prev-page").should("have.attr", "disabled");
-    cy.get(".t--table-widget-next-page").should("have.attr", "disabled");
-    cy.get(".t--table-widget-page-input input").should("have.attr", "disabled");
+    agHelper.AssertAttribute(table._nextPage("v2"), "disabled", "disabled");
+    agHelper.AssertAttribute(table._previousPage("v2"), "disabled", "disabled");
+    agHelper.AssertAttribute(
+      table._pageNumberServerSideOff,
+      "disabled",
+      "disabled",
+    );
   });
 
   it("2. Test to validate text allignment", function () {
@@ -165,7 +173,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.moveToStyleTab();
     cy.get("[data-value='SHORT']").click({ force: true });
     cy.wait(2000);
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.readTableV2dataValidateCSS("0", "1", "height", "29px", true);
   });
 });

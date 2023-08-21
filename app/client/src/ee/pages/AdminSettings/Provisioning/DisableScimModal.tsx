@@ -32,6 +32,7 @@ import { useDispatch } from "react-redux";
 import { StyledAsterisk } from "pages/Settings/FormGroup/Common";
 import { useHistory } from "react-router";
 import ResourceLinks from "./ResourceLinks";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledRadioGroup = styled(RadioGroup)`
   gap: var(--ads-v2-spaces-3);
@@ -50,20 +51,6 @@ const Wrapper = styled.div`
 
 const Heading = styled.div`
   display: flex;
-`;
-
-const StyledCallout = styled(Callout)`
-  a {
-    display: inline;
-
-    span {
-      display: inline;
-
-      svg {
-        display: inline;
-      }
-    }
-  }
 `;
 
 const DisableScimModal = (props: DisableScimModalProps) => {
@@ -85,8 +72,11 @@ const DisableScimModal = (props: DisableScimModalProps) => {
 
   const onDisable = () => {
     if (showFinalScreen) {
+      AnalyticsUtil.logEvent("SCIM_DISABLE_CONFIRMED", {
+        linked_users: selectedOption ? `${selectedOption}ed` : "none",
+      });
       dispatch(
-        disconnectProvisioning(selectedOption === "keep" ? true : false),
+        disconnectProvisioning(selectedOption === "retain" ? true : false),
       );
       setIsModalOpen(false);
       history.push("/settings/provisioning");
@@ -127,33 +117,35 @@ const DisableScimModal = (props: DisableScimModalProps) => {
                     <Radio value="remove">
                       {createMessage(REMOVE_PROVISIONED_RESOURCES)}
                     </Radio>
-                    <Radio value="keep">
+                    <Radio value="retain">
                       {createMessage(KEEP_PROVISIONED_RESOURCES)}
                     </Radio>
                   </StyledRadioGroup>
                 </>
-              ) : selectedOption === "keep" ? (
+              ) : selectedOption === "retain" ? (
                 <Wrapper data-testid="keep-resources-callout">
-                  <StyledCallout kind={"warning"}>
+                  <Callout kind={"warning"}>
                     <Text>You have chosen to retain</Text>&nbsp;
                     <ResourceLinks
+                      origin="disable_scim_modal"
                       provisionedGroups={provisionedGroups}
                       provisionedUsers={provisionedUsers}
                     />
                     <Text>in Appsmith via this connection.</Text>
-                  </StyledCallout>
+                  </Callout>
                   <Text>{createMessage(KEEP_RESOURCES_SUB_TEXT_ON_MODAL)}</Text>
                 </Wrapper>
               ) : (
                 <Wrapper data-testid="remove-resources-callout">
-                  <StyledCallout kind={"warning"}>
+                  <Callout kind={"warning"}>
                     <Text>You have chosen to remove</Text>&nbsp;
                     <ResourceLinks
+                      origin="disable_scim_modal"
                       provisionedGroups={provisionedGroups}
                       provisionedUsers={provisionedUsers}
                     />
                     <Text>in Appsmith via this connection.</Text>
-                  </StyledCallout>
+                  </Callout>
                   <Text>
                     {createMessage(REMOVE_RESOURCES_SUB_TEXT_ON_MODAL)}
                   </Text>
@@ -179,7 +171,7 @@ const DisableScimModal = (props: DisableScimModalProps) => {
             isDisabled={
               showFinalScreen
                 ? !confirmationCheck
-                : !["remove", "keep"].includes(selectedOption)
+                : !["remove", "retain"].includes(selectedOption)
             }
             onClick={() =>
               showFinalScreen ? onDisable() : setNextScreen(true)

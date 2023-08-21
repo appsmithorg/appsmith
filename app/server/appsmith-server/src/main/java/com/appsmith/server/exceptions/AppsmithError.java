@@ -1034,6 +1034,22 @@ public enum AppsmithError {
             "Datasource not configured for the given environment",
             ErrorType.INTERNAL_ERROR,
             null),
+    HMAC_GENERATION_EXCEPTION(
+            400,
+            AppsmithErrorCode.HMAC_GENERATION_EXCEPTION.getCode(),
+            "Unable to generate the HMAC hash, please get in touch with Appsmith support to resolve this issue!",
+            AppsmithErrorAction.DEFAULT,
+            "HMAC signature generation failed",
+            ErrorType.ARGUMENT_ERROR,
+            null),
+    TENANT_DOWNGRADE_EXCEPTION(
+            400,
+            AppsmithErrorCode.TENANT_DOWNGRADE_EXCEPTION.getCode(),
+            "Unable to downgrade current tenant. Error: {0}",
+            AppsmithErrorAction.DEFAULT,
+            "HMAC signature generation failed",
+            ErrorType.ARGUMENT_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;

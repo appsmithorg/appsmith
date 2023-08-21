@@ -24,8 +24,8 @@ describe("excludeForAirgap", "SSO with Github test functionality", function () {
     agHelper.Sleep(2000);
     // fill github form
     cy.fillGithubFormPartly();
-    agHelper.AssertElementVisible(locators._toastMsg);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(locators._toastMsg);
+    agHelper.AssertElementVisibility(
       locators._specificToast("Mandatory fields cannot be empty"),
     );
   });
@@ -48,14 +48,14 @@ describe("excludeForAirgap", "SSO with Github test functionality", function () {
     cy.fillGithubForm();
     agHelper.Sleep(2000);
     // assert server is restarting
-    agHelper.AssertElementVisible(adminSettingsLocators.restartNotice);
+    agHelper.AssertElementVisibility(adminSettingsLocators.restartNotice);
     // adding wait for server to restart
     cy.waitUntil(() =>
       cy
         .contains("GitHub authentication", { timeout: 180000 })
         .should("be.visible"),
     );
-    cy.waitUntil(() => agHelper.AssertElementVisible(homePage._profileMenu));
+    cy.waitUntil(() => agHelper.AssertElementVisibility(homePage._profileMenu));
     homePage.Signout();
     // validating sso with github is enabled
     assertHelper.AssertContains(
@@ -92,14 +92,14 @@ describe("excludeForAirgap", "SSO with Github test functionality", function () {
     agHelper.GetNClick(adminSettingsLocators.disconnectBtn);
 
     // assert server is restarting
-    agHelper.AssertElementVisible(adminSettingsLocators.restartNotice);
+    agHelper.AssertElementVisibility(adminSettingsLocators.restartNotice);
     // adding wait for server to restart
     cy.waitUntil(() =>
       cy
         .contains("GitHub authentication", { timeout: 180000 })
         .should("be.visible"),
     );
-    cy.waitUntil(() => agHelper.AssertElementVisible(homePage._profileMenu));
+    cy.waitUntil(() => agHelper.AssertElementVisibility(homePage._profileMenu));
     homePage.Signout();
     // validating sso with github is disabled
     assertHelper.AssertContains(

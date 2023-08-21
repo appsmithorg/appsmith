@@ -45,7 +45,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
   it("2. Login as Workspace owner and verify redirection for Assign custom role in invite modal dropdown", () => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid, workspaceId);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       ".t--workspace-section:contains(" + workspaceId + ")",
     );
     agHelper.GetNClick(

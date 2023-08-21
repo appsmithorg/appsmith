@@ -15,8 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -31,7 +29,6 @@ public class UsagePulseServiceImpl extends UsagePulseServiceCEImpl implements Us
     private final UsageReporter usageReporter;
 
     private static final int MAX_PULSES_TO_SEND = 100;
-    private static final String HMAC_ALGORITHM = "HmacSHA256";
 
     public UsagePulseServiceImpl(
             UsagePulseRepository repository,
@@ -94,16 +91,12 @@ public class UsagePulseServiceImpl extends UsagePulseServiceCEImpl implements Us
                         // algorithm with same secret key
                         String message = UUID.randomUUID().toString();
                         usagePulseReportDTO.setMessage(message);
-                        try {
-                            String licenseKey = currentTenant
-                                    .getTenantConfiguration()
-                                    .getLicense()
-                                    .getKey();
-                            String hashedMessage = HmacHashUtils.createHash(HMAC_ALGORITHM, message, licenseKey);
-                            usagePulseReportDTO.setHashedMessage(hashedMessage);
-                        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-                            return Mono.error(new RuntimeException(e));
-                        }
+                        final String licenseKey = currentTenant
+                                .getTenantConfiguration()
+                                .getLicense()
+                                .getKey();
+                        String hashedMessage = HmacHashUtils.createHash(message, licenseKey);
+                        usagePulseReportDTO.setHashedMessage(hashedMessage);
 
                         return usageReporter.reportUsage(usagePulseReportDTO).zipWith(Mono.just(usagePulses));
                     }

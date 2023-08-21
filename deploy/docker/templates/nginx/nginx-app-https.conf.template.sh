@@ -33,6 +33,8 @@ map \$http_forwarded \$final_forwarded {
 # redirect log to stdout for supervisor to capture
 access_log /dev/stdout;
 
+server_tokens off;
+
 server {
   listen 80;
   server_name $CUSTOM_DOMAIN;
@@ -91,8 +93,6 @@ server {
 
   gzip on;
   gzip_types *;
-
-  server_tokens off;
 
   root /opt/appsmith/editor;
   index index.html;

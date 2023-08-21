@@ -5,10 +5,12 @@ import com.appsmith.server.controllers.ce.TenantControllerCE;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.services.TenantService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,8 +33,8 @@ public class TenantController extends TenantControllerCE {
     }
 
     @PutMapping("license")
-    public Mono<ResponseDTO<Tenant>> updateTenantLicenseKey(@RequestBody @Valid License license) {
-        return service.updateTenantLicenseKey(license.getKey())
+    public Mono<ResponseDTO<Tenant>> updateTenantLicenseKey(@RequestBody UpdateLicenseKeyDTO updateLicenseKeyDTO) {
+        return service.updateTenantLicenseKey(updateLicenseKeyDTO)
                 .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
     }
 
@@ -51,5 +53,15 @@ public class TenantController extends TenantControllerCE {
     public Mono<ResponseDTO<Tenant>> getLicense() {
         return service.refreshAndGetCurrentLicense()
                 .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
+    }
+
+    @DeleteMapping("license")
+    public Mono<ResponseDTO<Tenant>> removeLicenseKey() {
+        return service.removeLicenseKey().map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
+    }
+
+    @PutMapping("license/sync-plan")
+    public Mono<ResponseDTO<Tenant>> syncLicensePlans() {
+        return service.syncLicensePlans().map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
     }
 }

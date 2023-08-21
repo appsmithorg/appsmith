@@ -106,6 +106,7 @@ export function useDatasource(searchText: string) {
     onSourceClose,
     propertyName,
     propertyValue,
+    sampleData,
     updateConfig,
     widgetId,
   } = useContext(WidgetQueryGeneratorFormContext);
@@ -321,7 +322,7 @@ export function useDatasource(searchText: string) {
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
 
   const otherOptions = useMemo(() => {
-    return [
+    const options = [
       {
         icon: <Icon name="plus" size="md" />,
         id: "Connect new datasource",
@@ -350,7 +351,35 @@ export function useDatasource(searchText: string) {
         },
       },
     ];
-  }, [currentPageId, history, propertyName]);
+
+    if (sampleData) {
+      options.push({
+        icon: <Icon name="code" size="md" />,
+        id: "Sample data",
+        label: "Sample data",
+        value: "Sample data",
+        onSelect: () => {
+          addBinding(sampleData, false);
+
+          updateConfig({
+            datasource: "",
+            datasourcePluginType: "",
+            datasourcePluginName: "",
+            datasourceConnectionMode: "",
+          });
+
+          AnalyticsUtil.logEvent("BIND_OTHER_ACTIONS", {
+            widgetName: widget.widgetName,
+            widgetType: widget.type,
+            propertyName: propertyName,
+            selectedAction: "Sample data",
+          });
+        },
+      });
+    }
+
+    return options;
+  }, [currentPageId, history, propertyName, sampleData, addBinding]);
 
   const queries = useSelector(getActionsForCurrentPage);
 
@@ -439,31 +468,47 @@ export function useDatasource(searchText: string) {
     ];
   }, [searchText, datasourceOptions, otherOptions, queryOptions]);
 
+  const selected = useMemo(() => {
+    let source;
+
+    if (config.datasource) {
+      source = datasourceOptions.find(
+        (option) => option.id === config.datasource,
+      );
+    } else if (
+      sampleData ===
+      (typeof propertyValue === "string"
+        ? propertyValue
+        : JSON.stringify(propertyValue, null, 2))
+    ) {
+      source = otherOptions.find((option) => option.value === "Sample data");
+    } else if (propertyValue) {
+      source = queryOptions.find((option) => option.value === propertyValue);
+    }
+
+    if (source) {
+      return (
+        <DropdownOption
+          label={source?.label?.replace("sample ", "")}
+          leftIcon={source?.icon}
+        />
+      );
+    } else {
+      return <Placeholder>Connect data</Placeholder>;
+    }
+  }, [
+    config,
+    datasourceOptions,
+    sampleData,
+    propertyValue,
+    otherOptions,
+    queryOptions,
+  ]);
+
   return {
     datasourceOptions: filteredDatasourceOptions,
     otherOptions,
-    selected: (() => {
-      let source;
-
-      if (config.datasource) {
-        source = datasourceOptions.find(
-          (option) => option.id === config.datasource,
-        );
-      } else if (propertyValue) {
-        source = queryOptions.find((option) => option.value === propertyValue);
-      }
-
-      if (source) {
-        return (
-          <DropdownOption
-            label={source?.label?.replace("sample ", "")}
-            leftIcon={source?.icon}
-          />
-        );
-      } else {
-        return <Placeholder>Connect data</Placeholder>;
-      }
-    })(),
+    selected,
     queryOptions: filteredQueryOptions,
     isSourceOpen,
     onSourceClose,

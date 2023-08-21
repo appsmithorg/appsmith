@@ -20,6 +20,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -32,6 +33,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
@@ -71,6 +73,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER;
 import static com.appsmith.server.constants.FieldName.ENTITY_UPDATED_PERMISSIONS;
 import static com.appsmith.server.constants.FieldName.EVENT_DATA;
 import static com.appsmith.server.constants.FieldName.GAC_TAB;
@@ -95,6 +98,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final AnalyticsService analyticsService;
     private final NewPageRepository newPageRepository;
     private final DatasourceRepository datasourceRepository;
+    private final FeatureFlagService featureFlagService;
     private final EnvironmentRepository environmentRepository;
 
     public RoleConfigurationSolutionImpl(
@@ -111,6 +115,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             AnalyticsService analyticsService,
             NewPageRepository newPageRepository,
             DatasourceRepository datasourceRepository,
+            FeatureFlagService featureFlagService,
             EnvironmentRepository environmentRepository) {
 
         this.workspaceResources = workspaceResources;
@@ -126,6 +131,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         this.analyticsService = analyticsService;
         this.newPageRepository = newPageRepository;
         this.datasourceRepository = datasourceRepository;
+        this.featureFlagService = featureFlagService;
         this.environmentRepository = environmentRepository;
     }
 
@@ -559,7 +565,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                         sideEffectsRemovedMap.merge(envId, envRemoved, ListUtils::union);
                         return 1L;
                     })
-                    .reduce(0L, Long::sum);
+                    .reduce(0L, Long::sum)
+                    .switchIfEmpty(Mono.just(0L));
         }
         sideEffects.add(environmentsUpdated);
     }
@@ -571,12 +578,24 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
             ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
-        List<String> includedFields = List.of(fieldName(QEnvironment.environment.id));
         Flux<String> envIdFlux = datasourceRepository
                 .findById(datasourceId)
                 .map(Datasource::getWorkspaceId)
                 .flatMapMany(workspaceId ->
                         environmentRepository.findByWorkspaceId(workspaceId).map(Environment::getId));
+
+        // Since cloud hosted tenants won't have access to environments,
+        // we maintain this flow for them
+        Flux<String> featureFlaggedEnvironmentFlux = featureFlagService
+                .check(FeatureFlagEnum.release_datasource_environments_enabled)
+                .flatMapMany(isFeatureFlag -> {
+                    if (Boolean.TRUE.equals(isFeatureFlag)) {
+                        return Mono.empty();
+                    }
+
+                    // This method will be used only for executing environments
+                    return envIdFlux;
+                });
 
         boolean executeDatasourceAdded = added.stream()
                 .anyMatch(permission ->
@@ -590,13 +609,14 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         Mono<Long> environmentsUpdated = Mono.just(1L);
 
         if (executeDatasourceAdded) {
-            environmentsUpdated = envIdFlux
+            environmentsUpdated = featureFlaggedEnvironmentFlux
                     .map(envId -> {
                         sideEffectsClassMap.put(envId, Environment.class);
                         sideEffectsAddedMap.merge(envId, envAdded, ListUtils::union);
                         return 1L;
                     })
-                    .reduce(0L, Long::sum);
+                    .reduce(0L, Long::sum)
+                    .switchIfEmpty(Mono.just(0L));
         }
         sideEffects.add(environmentsUpdated);
     }
@@ -1060,17 +1080,17 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                 toBeAddedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
                         toBeRemovedPermissionsForEntities.put(
                                 newAction.getId(),
-                                toBeRemovedPermissions.getOrDefault(NewPage.class.getSimpleName(), List.of()));
+                                toBeRemovedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
                     });
 
                     actionCollections.forEach(actionCollection -> {
                         entityIdEntityClassMap.put(actionCollection.getId(), ActionCollection.class);
                         toBeAddedPermissionsForEntities.put(
                                 actionCollection.getId(),
-                                toBeAddedPermissions.getOrDefault(ActionCollection.class.getSimpleName(), List.of()));
+                                toBeAddedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
                         toBeRemovedPermissionsForEntities.put(
                                 actionCollection.getId(),
-                                toBeRemovedPermissions.getOrDefault(ActionCollection.class.getSimpleName(), List.of()));
+                                toBeRemovedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
                     });
 
                     return bulkUpdateEntityPoliciesForApplicationRole(
@@ -1207,9 +1227,11 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     public Mono<Long> updateEnvironmentsInWorkspaceWithPermissionsForRole(
             String workspaceId,
             String roleId,
+            String applicationRoleType,
             Map<String, List<AclPermission>> toBeAddedPermissions,
             Map<String, List<AclPermission>> toBeRemovedPermissions) {
-        List<String> includedEnvironmentFields = List.of(fieldName(QEnvironment.environment.id));
+        List<String> includedEnvironmentFields =
+                List.of(fieldName(QEnvironment.environment.id), fieldName(QEnvironment.environment.isDefault));
         Mono<List<Environment>> allEnvironmentsInWorkspaceMono = environmentRepository
                 .findAllByWorkspaceIdsWithoutPermission(Set.of(workspaceId), includedEnvironmentFields)
                 .collectList();
@@ -1223,6 +1245,11 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             toBeRemovedPermissionsForEntities.put(
                     workspaceId, toBeRemovedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
             environments.forEach(environment -> {
+                if (APPLICATION_VIEWER.equals(applicationRoleType)
+                        && !Boolean.TRUE.equals(environment.getIsDefault())) {
+                    // If this is an app viewer role, don't make changes to anything other than default environment
+                    return;
+                }
                 entityIdEntityClassMap.put(environment.getId(), Environment.class);
                 toBeAddedPermissionsForEntities.put(
                         environment.getId(),

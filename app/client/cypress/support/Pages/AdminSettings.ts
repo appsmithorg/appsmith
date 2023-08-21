@@ -18,6 +18,6 @@ export class AdminSettings {
     this.homePage.NavigateToHome();
     this.agHelper.GetNClick(this._adminSettingsBtn);
     this.assertHelper.AssertNetworkStatus("getEnvVariables");
-    this.agHelper.AssertElementVisible(this._settingsList);
+    this.agHelper.AssertElementVisibility(this._settingsList);
   }
 }

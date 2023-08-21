@@ -416,7 +416,11 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                         application.getWorkspaceId(), applicationRole.getId(), permissionListMap, Map.of());
         Mono<Long> updateEnvironmentsInWorkspaceWithPermissionsForRoleMono =
                 roleConfigurationSolution.updateEnvironmentsInWorkspaceWithPermissionsForRole(
-                        application.getWorkspaceId(), applicationRole.getId(), permissionListMap, Map.of());
+                        application.getWorkspaceId(),
+                        applicationRole.getId(),
+                        applicationRoleType,
+                        permissionListMap,
+                        Map.of());
         if (APPLICATION_DEVELOPER.equals(applicationRoleType)) {
             /*
              * Updating the resources in sequence, because some common datasources are being updated in both the Monos.
@@ -1033,7 +1037,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                 AclPermission.EXECUTE_ENVIRONMENTS, permissionGroupId);
 
         Mono<Void> updateEnvironmentMono = policySolution
-                .updateEnvironmentPoliciesByWorkspaceId(
+                .updateDefaultEnvironmentPoliciesByWorkspaceId(
                         application.getWorkspaceId(), environmentPolicyMap, addViewAccess)
                 .then();
 

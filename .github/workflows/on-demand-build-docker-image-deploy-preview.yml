@@ -67,11 +67,11 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
       # actions/setup-node@v3 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
@@ -115,10 +115,37 @@ jobs:
               body: bodyLines.join("\n"),
             })
 
+  setup-optionals:
+    name: setup-optionals
+    runs-on: ubuntu-latest
+    outputs:
+      airgap_enabled: ${{ steps.check.outputs.airgap_enabled }}
+      client_build_name: ${{ steps.check.outputs.client_build_name }}
+      client_build_path: ${{ steps.check.outputs.client_build_path }}
+      platforms: ${{ steps.check.outputs.platforms }}
+    steps:
+      - name: Check all input conditions
+        id: check
+        run: |
+          if [[ '${{ github.event.client_payload.slash_command.args.named.airgap-enabled }}' == 'true' ]]; then
+           echo 'airgap_enabled=true' >> "$GITHUB_OUTPUT"
+           echo 'client_build_name=client-build-airgap' >> "$GITHUB_OUTPUT"
+           echo 'client_build_path=app/client/build_airgap/' >> "$GITHUB_OUTPUT"
+           echo 'platforms=[ "linux/amd64" , "linux/arm64" ]' >> "$GITHUB_OUTPUT"
+          else
+           echo 'airgap_enabled=false' >> "$GITHUB_OUTPUT"
+           echo 'client_build_name=client-build' >> "$GITHUB_OUTPUT"
+           echo 'client_build_path=app/client/build/' >> "$GITHUB_OUTPUT"
+           echo 'platforms=[ "linux/amd64" ]' >> "$GITHUB_OUTPUT"
+          fi
+
 
   push-image:
-    needs: [client-build, rts-build, server-build]
+    needs: [client-build, rts-build, server-build, setup-optionals]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: ${{ fromJSON(needs.setup-optionals.outputs.platforms) }}
     if: success()
     steps:
 
@@ -136,34 +163,22 @@ jobs:
       - id: git_hash
         run: echo "git_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Set the client build path env vars
-        run: |
-          if [[ '${{ github.event.client_payload.slash_command.args.named.airgap-enabled }}' == 'true' ]]; then
-           echo 'airgap_enabled=true' >> "$GITHUB_ENV"
-           echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
-           echo 'client_build_path=app/client/build_airgap/' >> "$GITHUB_ENV"
-          else
-           echo 'airgap-enabled=false' >> "$GITHUB_ENV"
-           echo 'client_build_name=client-build' >> "$GITHUB_ENV"
-           echo 'client_build_path=app/client/build/' >> "$GITHUB_ENV"
-           fi
-
       - name: Log the client build env vars
         run: |
-          echo "client_build_name: ${{ env.client_build_name }}"
-          echo "client_build_path: ${{ env.client_build_path }}"
+          echo "client_build_name: ${{ needs.setup-optionals.outputs.client_build_name }}"
+          echo "client_build_path: ${{ needs.setup-optionals.outputs.client_build_path }}"
 
       - name: Download the client build artifact
         uses: actions/download-artifact@v3
         with:
-          name: ${{ env.client_build_name }}
+          name: ${{ needs.setup-optionals.outputs.client_build_name }}
           path: app/client
 
       - name: Unpack the client build artifact
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          mkdir -p ${{ env.client_build_path }}
-          tar -xvf app/client/build.tar -C ${{ env.client_build_path }}
+          mkdir -p ${{ needs.setup-optionals.outputs.client_build_path }}
+          tar -xvf app/client/build.tar -C ${{ needs.setup-optionals.outputs.client_build_path }}
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3
@@ -189,6 +204,9 @@ jobs:
             scripts/generate_info_json.sh
           fi
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -201,13 +219,14 @@ jobs:
           context: .
           pull: true
           push: true
+          platforms: ${{ matrix.platform }}
           cache-from: ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-dp:${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}
           build-args: |
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
-            APPSMTITH_AIRGAP_ENABLED=${{env.airgap_enabled}}
-            APPSMITH_CLIENT_BUILD_PATH=${{env.client_build_path}}
+            APPSMITH_AIRGAP_ENABLED=${{needs.setup-optionals.outputs.airgap_enabled}}
+            APPSMITH_CLIENT_BUILD_PATH=${{needs.setup-optionals.outputs.client_build_path}}
             KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY_RELEASE }}
 
     outputs:

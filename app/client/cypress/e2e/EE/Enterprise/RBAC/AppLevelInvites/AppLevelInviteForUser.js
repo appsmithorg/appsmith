@@ -30,8 +30,19 @@ describe("Create new workspace and invite user & validate all roles", () => {
       _.homePage.NavigateToHome();
       _.homePage.CheckWorkspaceShareUsersCount(workspaceId, 3);
       _.homePage.CreateAppInWorkspace(workspaceId, appid);
+      const jsObjectBody = `export default {
+        myVar1: [],
+      }`;
+      const jsObjectCreationOptions = {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      };
+      _.jsEditor.CreateJSObject(jsObjectBody, jsObjectCreationOptions);
       _.homePage.NavigateToHome();
       _.homePage.CreateAppInWorkspace(workspaceId, appid + "Internal Apps");
+      _.jsEditor.CreateJSObject(jsObjectBody, jsObjectCreationOptions);
     });
     _.homePage.LogOutviaAPI();
   });
@@ -242,6 +253,9 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.GetNClick(".t--entity-name:contains('Postgres')");
     cy.get(_.dataSources._createQuery).should("not.have.attr", "disabled");
     _.agHelper.Sleep(2000);
+    _.deployMode.DeployApp();
+    _.deployMode.NavigateBacktoEditor();
+    _.agHelper.Sleep(2000);
     _.agHelper.ClickButton("Share");
     _.agHelper.Sleep();
     _.agHelper.GetNClick(HomePage.selectRole);
@@ -287,7 +301,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.xpath(RBAC.optionAppViewer).last().parent("div").click();
     _.agHelper.Sleep();
     _.agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
-    _.agHelper.AssertElementVisible(RBAC.optionAppViewer);
+    _.agHelper.AssertElementVisibility(RBAC.optionAppViewer);
     _.homePage.LogOutviaAPI();
 
     _.homePage.LogintoApp(

@@ -101,6 +101,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.get(`.t--widget-textwidget span:contains(${fixturePath})`)
       .should("have.length", 1)
       .scrollIntoView();
+    _.agHelper.Sleep(2000);
 
     //Verifying DeleteFile icon from UI
 

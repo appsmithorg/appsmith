@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
@@ -28,8 +29,10 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,14 +42,18 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.constants.FieldName.CONFIGURED_STATUS;
+import static com.appsmith.server.constants.FieldName.LINKED_USERS;
 import static com.appsmith.server.constants.FieldName.PROVISIONING_LAST_UPDATED_AT;
 import static com.appsmith.server.constants.FieldName.PROVISIONING_STATUS;
+import static com.appsmith.server.constants.FieldName.REMOVED;
+import static com.appsmith.server.constants.FieldName.RETAINED;
 import static com.appsmith.server.enums.ProvisionStatus.INACTIVE;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Component
 @AllArgsConstructor
 public class ProvisionServiceImpl implements ProvisionService {
+    private final AnalyticsService analyticsService;
     private final ApiKeyService apiKeyService;
     private final TenantUtils tenantUtils;
     private final TenantService tenantService;
@@ -150,9 +157,20 @@ public class ProvisionServiceImpl implements ProvisionService {
         // Delete provisioned users & Groups and update Associated roles or
         // update access policies for all provisioned users and groups
         // then archive provision token
-        return tenantMono.flatMap(tenant -> deleteOrUpdateUsersGroupsAndUpdateAssociatedRolesMono
-                .flatMap(usersGroupsRolesUpdated -> archiveProvisionToken())
-                .flatMap(archiveProvisionToken -> provisionUtils.updateStatus(INACTIVE, false)));
+        return tenantMono.flatMap(tenant -> {
+            Map<String, Object> analyticsProperties = new HashMap<>();
+            if (disconnectProvisioningDto.isKeepAllProvisionedResources()) {
+                analyticsProperties.put(LINKED_USERS, RETAINED);
+            } else {
+                analyticsProperties.put(LINKED_USERS, REMOVED);
+            }
+            Mono<Tenant> scimDisabledMono =
+                    analyticsService.sendObjectEvent(AnalyticsEvents.SCIM_DISABLED, tenant, analyticsProperties);
+            return deleteOrUpdateUsersGroupsAndUpdateAssociatedRolesMono
+                    .flatMap(usersGroupsRolesUpdated -> scimDisabledMono)
+                    .flatMap(tenant1 -> archiveProvisionToken())
+                    .flatMap(archiveProvisionToken -> provisionUtils.updateStatus(INACTIVE, false));
+        });
     }
 
     @NotNull private Mono<Boolean> transferManagementPoliciesToInstanceAdministratorForAllProvisionedUsersAndGroups(

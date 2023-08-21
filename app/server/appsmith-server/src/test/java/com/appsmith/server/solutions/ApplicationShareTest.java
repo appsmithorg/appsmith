@@ -29,6 +29,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -200,6 +201,9 @@ public class ApplicationShareTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @Autowired
+    ActionCollectionRepository actionCollectionRepository;
+
     User apiUser = null;
     User testUser = null;
 
@@ -302,6 +306,18 @@ public class ApplicationShareTest {
         ActionDTO createdActionBlock =
                 layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testActionCollection");
+        actionCollectionDTO.setApplicationId(createdApplication.getId());
+        actionCollectionDTO.setWorkspaceId(createdWorkspace.getId());
+        actionCollectionDTO.setPageId(
+                createdApplication.getPages().stream().findAny().get().getDefaultPageId());
+        actionCollectionDTO.setPluginId(pluginId);
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
+
         PermissionGroup devApplicationRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_DEVELOPER)
                 .block();
@@ -353,6 +369,10 @@ public class ApplicationShareTest {
                 .getPolicies();
         Set<Policy> newActionPolicies =
                 newActionRepository.findById(createdActionBlock.getId()).block().getPolicies();
+        Set<Policy> actionCollectionPolicies = actionCollectionRepository
+                .findById(createdActionCollectionDTO.getId())
+                .block()
+                .getPolicies();
         Set<Policy> systemThemePolicies =
                 themeRepository.findById(systemTheme.getId()).block().getPolicies();
         Set<Policy> applicationThemePolicies =
@@ -433,6 +453,21 @@ public class ApplicationShareTest {
         });
 
         newActionPolicies.forEach(policy -> {
+            if (policy.getPermission().equals(MANAGE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(DELETE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(READ_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(EXECUTE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+        });
+
+        actionCollectionPolicies.forEach(policy -> {
             if (policy.getPermission().equals(MANAGE_ACTIONS.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
             }
@@ -2060,6 +2095,25 @@ public class ApplicationShareTest {
                 .filter(member -> StringUtils.isNotEmpty(member.getUsername()))
                 .collect(Collectors.toMap(MemberInfoDTO::getUsername, MemberInfoDTO::getUserId));
         assertThat(mapUsernameToUserId).containsExactlyInAnyOrderEntriesOf(mapInvitedUsernameToUserId);
+
+        List<Environment> environmentList = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectList()
+                .block();
+
+        assertThat(environmentList).hasSize(2);
+
+        environmentList.forEach(environment -> {
+            Optional<Policy> policyOptional = environment.getPolicies().stream()
+                    .filter(policy -> EXECUTE_ENVIRONMENTS.getValue().equals(policy.getPermission()))
+                    .findFirst();
+
+            assertThat(policyOptional).isNotEmpty();
+            Policy policy = policyOptional.get();
+
+            assertThat(policy.getPermissionGroups())
+                    .contains(appDeveloperRole.get().getId());
+        });
     }
 
     @Test
@@ -2127,6 +2181,30 @@ public class ApplicationShareTest {
                 .filter(member -> StringUtils.isNotEmpty(member.getUsername()))
                 .collect(Collectors.toMap(MemberInfoDTO::getUsername, MemberInfoDTO::getUserId));
         assertThat(mapUsernameToUserId).containsExactlyInAnyOrderEntriesOf(mapInvitedUsernameToUserId);
+
+        List<Environment> environmentList = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectList()
+                .block();
+
+        assertThat(environmentList).hasSize(2);
+
+        environmentList.forEach(environment -> {
+            Optional<Policy> policyOptional = environment.getPolicies().stream()
+                    .filter(policy -> EXECUTE_ENVIRONMENTS.getValue().equals(policy.getPermission()))
+                    .findFirst();
+
+            assertThat(policyOptional).isNotEmpty();
+            Policy policy = policyOptional.get();
+
+            if (Boolean.TRUE.equals(environment.getIsDefault())) {
+                assertThat(policy.getPermissionGroups())
+                        .contains(appViewerRole.get().getId());
+            } else {
+                assertThat(policy.getPermissionGroups())
+                        .doesNotContain(appViewerRole.get().getId());
+            }
+        });
     }
 
     @Test
@@ -3881,12 +3959,11 @@ public class ApplicationShareTest {
 
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
-    public void testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToAllEnvs() {
-        String testName = "testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToAllEnvs";
+    public void testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToOnlyProductionEnv() {
+        String testName = "testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToOnlyProductionEnv";
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
-        String pluginId =
-                pluginService.findByPackageName("restapi-plugin").block().getId();
+        pluginService.findByPackageName("restapi-plugin").block().getId();
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
@@ -3925,7 +4002,11 @@ public class ApplicationShareTest {
         environmentListAfterRoleCreated.forEach(environment -> {
             for (Policy policy : environment.getPolicies()) {
                 if (policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue())) {
-                    assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
+                    if (Boolean.TRUE.equals(environment.getIsDefault())) {
+                        assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
+                    } else {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                    }
                 }
             }
         });
@@ -3937,8 +4018,7 @@ public class ApplicationShareTest {
         String testName = "testEnvironmentPolicies_createApplicationDevRole_grantsPermissionsToAllEnvs";
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
-        String pluginId =
-                pluginService.findByPackageName("restapi-plugin").block().getId();
+        pluginService.findByPackageName("restapi-plugin").block().getId();
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =

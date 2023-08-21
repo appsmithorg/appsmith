@@ -13,7 +13,7 @@ describe("Groups tab Tests", function () {
 
   it("1. Verify functionality of groups tab ", function () {
     groups = "Tech";
-    agHelper.AssertElementVisible(RBAC.groupsTab);
+    agHelper.AssertElementVisibility(RBAC.groupsTab);
     cy.createGroupAndAddUser(
       groups,
       Cypress.env("TESTUSERNAME1"),

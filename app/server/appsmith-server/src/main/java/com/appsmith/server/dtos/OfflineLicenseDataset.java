@@ -4,6 +4,7 @@ import com.appsmith.server.constants.LicenseType;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.Map;
 
 /**
  * DTO to store the fields which will be used while creating offline license on Keygen
@@ -20,4 +21,5 @@ public class OfflineLicenseDataset {
     // plans as well in future
     String contractType;
     Instant createdAt;
+    Map<String, Boolean> tenantFeatures;
 }

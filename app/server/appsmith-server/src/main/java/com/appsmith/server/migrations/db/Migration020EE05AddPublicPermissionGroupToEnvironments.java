@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations.db;
 
+import com.appsmith.external.constants.CommonFieldName;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.QEnvironment;
 import com.appsmith.server.acl.AclPermission;
@@ -83,6 +84,8 @@ public class Migration020EE05AddPublicPermissionGroupToEnvironments {
                 .andOperator(
                         olderCheckForDeletedCriteria(),
                         newerCheckForDeletedCriteria(),
+                        Criteria.where(fieldName(QEnvironment.environment.name))
+                                .is(CommonFieldName.PRODUCTION_ENVIRONMENT),
                         Criteria.where(fieldName(QEnvironment.environment.workspaceId))
                                 .in(workspaceIds),
                         // We're adding this last criterion to avoid updating environments that are already updated

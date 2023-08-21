@@ -199,7 +199,7 @@ function FormControl(props: FormControlProps) {
         >
           <div
             className={`t--form-control-${props.config.controlType}`}
-            data-replay-id={btoa(props.config.configProperty)}
+            data-location-id={btoa(props.config.configProperty)}
           >
             {showTemplate &&
             !convertFormToRaw &&

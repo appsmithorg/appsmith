@@ -8,7 +8,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type { JSCollection } from "entities/JSCollection";
 import type { CreateJSCollectionRequest } from "api/JSActionAPI";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 
 export type FetchJSCollectionsPayload = {
   applicationId: string;

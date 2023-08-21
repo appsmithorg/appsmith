@@ -42,7 +42,7 @@ describe("Workspace name validation spec", function () {
           "[data-testid=t--user-edit-tabs-wrapper]",
           "Members",
         );
-        _.agHelper.AssertElementVisible(_.homePage._inviteUserMembersPage);
+        _.agHelper.AssertElementVisibility(_.homePage._inviteUserMembersPage);
         // checking parent's(<a></a>) since the child(<span>) inherits css from it
         cy.get(homePage.workspaceHeaderName).should(
           "have.css",

@@ -29,6 +29,7 @@ public interface RoleConfigurationSolution {
     Mono<Long> updateEnvironmentsInWorkspaceWithPermissionsForRole(
             String workspaceId,
             String roleId,
+            String applicationRoleType,
             Map<String, List<AclPermission>> toBeAddedPermissions,
             Map<String, List<AclPermission>> toBeRemovedPermissions);
 }

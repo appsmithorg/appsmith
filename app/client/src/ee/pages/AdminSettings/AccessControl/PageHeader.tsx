@@ -54,6 +54,14 @@ const StyledSettingsHeader = styled(SettingsHeader)`
   max-width: 440px;
   cursor: pointer;
 
+  > div {
+    display: block !important;
+
+    .bp3-editable-text {
+      display: inline-block !important;
+    }
+  }
+
   &.not-editable {
     white-space: pre;
     text-overflow: ellipsis;

@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -11,6 +12,7 @@ import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedirectHelper;
@@ -18,7 +20,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
-import com.appsmith.server.solutions.LicenseValidator;
+import com.appsmith.server.solutions.LicenseAPIManager;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.util.StringUtils;
@@ -38,6 +40,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.constants.CommonConstants.COLUMN;
 import static com.appsmith.server.constants.CommonConstants.DEFAULT;
 import static com.appsmith.server.constants.CommonConstants.DELIMETER_SPACE;
@@ -49,7 +52,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 @Slf4j
 public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {
 
-    private final LicenseValidator licenseValidator;
+    private final LicenseAPIManager licenseAPIManager;
     private final SessionUserService sessionUserService;
     private final WorkspaceRepository workspaceRepository;
     private final ApplicationRepository applicationRepository;
@@ -67,11 +70,11 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             AnalyticsService analyticsService,
             ConfigService configService,
             SessionUserService sessionUserService,
-            LicenseValidator licenseValidator,
+            LicenseAPIManager licenseAPIManager,
             RedirectHelper redirectHelper) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService);
-        this.licenseValidator = licenseValidator;
+        this.licenseAPIManager = licenseAPIManager;
         this.sessionUserService = sessionUserService;
         this.redirectHelper = redirectHelper;
         this.workspaceRepository = workspaceRepository;
@@ -143,13 +146,65 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     }
 
     /**
-     * To update the default tenant's license key
-     * Response will be status of update with 2xx
-     * @param licenseKey License key received from client
+     * Method to remove the default tenant's license key
      * @return Mono of Tenant
      */
-    public Mono<Tenant> updateTenantLicenseKey(String licenseKey) {
-        return saveTenantLicenseKey(licenseKey).map(tuple -> getClientPertinentTenant(tuple.getT1(), null));
+    @Override
+    public Mono<Tenant> removeLicenseKey() {
+        Mono<Tenant> tenantMono = this.getDefaultTenant(MANAGE_TENANT)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, DEFAULT)));
+
+        return tenantMono.flatMap(tenant -> {
+            if (!this.isValidLicenseConfiguration(tenant)) {
+                return Mono.just(tenant);
+            }
+            License license = tenant.getTenantConfiguration().getLicense();
+            final LicensePlan previousPlan = license.getPlan();
+            license.setPlan(LicensePlan.FREE);
+            license.setPreviousPlan(previousPlan);
+            return licenseAPIManager.downgradeTenantToFreePlan(tenant).flatMap(isSuccessful -> {
+                if (Boolean.TRUE.equals(isSuccessful)) {
+                    tenant.getTenantConfiguration().setLicense(null);
+                    return this.update(tenant.getId(), tenant).map(updatedTenant -> {
+                        // TODO Update the flags in separate thread to keep the license plan and feature flags in sync
+                        return updatedTenant;
+                    });
+                }
+                return Mono.error(new AppsmithException(AppsmithError.TENANT_DOWNGRADE_EXCEPTION));
+            });
+        });
+    }
+
+    /**
+     * Method to sync current and previous license plan.
+     * @return Mono of Tenant
+     */
+    @Override
+    public Mono<Tenant> syncLicensePlans() {
+        Mono<Tenant> tenantMono = this.getDefaultTenant(MANAGE_TENANT)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, DEFAULT)));
+
+        return tenantMono.flatMap(tenant -> {
+            if (!this.isValidLicenseConfiguration(tenant)) {
+                return Mono.just(tenant);
+            }
+            License license = tenant.getTenantConfiguration().getLicense();
+            license.setPreviousPlan(license.getPlan());
+            return this.update(tenant.getId(), tenant);
+        });
+    }
+
+    /**
+     * Method to fetch license details and update the default tenant's license key based on client request
+     * Response will be status of update with 2xx
+     * @param updateLicenseKeyDTO update license key DTO which includes license key and a boolean to selectively update DB states
+     * @return Mono of Tenant
+     */
+    public Mono<Tenant> updateTenantLicenseKey(UpdateLicenseKeyDTO updateLicenseKeyDTO) {
+        return saveTenantLicenseKey(updateLicenseKeyDTO.getKey(), updateLicenseKeyDTO.getIsDryRun())
+                .map(tuple -> getClientPertinentTenant(tuple.getT1(), null));
     }
 
     /**
@@ -159,11 +214,23 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Mono of Tuple<Tenant, Boolean>
      */
     private Mono<Tuple2<Tenant, Boolean>> saveTenantLicenseKey(String licenseKey) {
+        return this.saveTenantLicenseKey(licenseKey, Boolean.FALSE);
+    }
+
+    /**
+     * Method to validate and save the license key in the DB and send corresponding analytics event
+     * License will be saved to DB if
+     *  - It's a valid license keys
+     *  - isDryRun : false
+     * @param licenseKey    License key
+     * @param isDryRun      Variable to selectively save the license to DB
+     * @return Mono of Tuple<Tenant, Boolean>
+     */
+    private Mono<Tuple2<Tenant, Boolean>> saveTenantLicenseKey(String licenseKey, Boolean isDryRun) {
         License license = new License();
-        license.setKey(licenseKey);
         // TODO: Update to getCurrentTenant when multi tenancy is introduced
         return repository
-                .findBySlug(FieldName.DEFAULT, AclPermission.MANAGE_TENANT)
+                .findBySlug(FieldName.DEFAULT, MANAGE_TENANT)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, FieldName.DEFAULT)))
                 .flatMap(tenant -> {
@@ -171,9 +238,11 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     boolean isActivateInstance = tenantConfiguration.getLicense() == null
                             || StringUtils.isNullOrEmpty(
                                     tenantConfiguration.getLicense().getKey());
+
+                    AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration.getLicense(), license);
+                    license.setKey(licenseKey);
                     tenantConfiguration.setLicense(license);
                     tenant.setTenantConfiguration(tenantConfiguration);
-
                     return checkTenantLicense(tenant).zipWith(Mono.just(isActivateInstance));
                 })
                 .flatMap(tuple -> {
@@ -201,9 +270,9 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                                 Mono.error(new AppsmithException(AppsmithError.INVALID_LICENSE_KEY_ENTERED)));
                     }
 
-                    return this.save(tenant)
-                            .flatMap(analyticsEventMono::thenReturn)
-                            .zipWith(Mono.just(isActivateInstance));
+                    // TODO Update the flags in separate thread to keep the license plan and feature flags in sync
+                    Mono<Tenant> tenantMono = Boolean.TRUE.equals(isDryRun) ? Mono.just(tenant) : this.save(tenant);
+                    return tenantMono.flatMap(analyticsEventMono::thenReturn).zipWith(Mono.just(isActivateInstance));
                 });
     }
 
@@ -215,7 +284,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     public Mono<Tenant> refreshAndGetCurrentLicense() {
         // TODO: Update to getCurrentTenant when multi tenancy is introduced
         return repository
-                .findBySlug(FieldName.DEFAULT, AclPermission.MANAGE_TENANT)
+                .findBySlug(FieldName.DEFAULT, MANAGE_TENANT)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, FieldName.DEFAULT)))
                 .flatMap(this::checkTenantLicense)
@@ -229,7 +298,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Mono of Tenant
      */
     private Mono<Tenant> checkTenantLicense(Tenant tenant) {
-        Mono<License> licenseMono = licenseValidator.licenseCheck(tenant).onErrorResume(throwable -> {
+        Mono<License> licenseMono = licenseAPIManager.licenseCheck(tenant).onErrorResume(throwable -> {
             Objects.requireNonNull(this.checkAndUpdateLicenseExpiryWithinInstance(tenant))
                     .subscribeOn(Schedulers.boundedElastic())
                     .subscribe();
@@ -313,7 +382,6 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         if (license.getExpiry() == null || license.getExpiry().isBefore(Instant.now())) {
             license.setActive(false);
             license.setStatus(LicenseStatus.EXPIRED);
-            license.setPlan(LicensePlan.FREE);
             tenantConfiguration.setLicense(license);
             tenant.setTenantConfiguration(tenantConfiguration);
             return this.save(tenant);
