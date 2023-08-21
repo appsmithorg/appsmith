@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ApplicationSettings from "./components/ApplicationSettings";
 import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import PublishedInfo from "./components/PublishedInfo";
@@ -17,11 +17,14 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { COMMUNITY_TEMPLATES } from "@appsmith/constants/messages";
 import { Button } from "design-system";
 import { createMessage } from "design-system-old/build/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getCurrentApplication } from "selectors/editorSelectors";
 
 const CommunityTemplateForm = () => {
   const currentUser = useSelector(getCurrentUser);
-  const dispatch = useDispatch();
   const isPublishing = useSelector(isPublishingCommunityTempalteSelector);
+  const currentApplication = useSelector(getCurrentApplication);
+  const dispatch = useDispatch();
 
   const [templateName, setTemplateName] = useState("");
   const [templateExcerpt, setTemplateExcerpt] = useState("");
@@ -33,6 +36,12 @@ const CommunityTemplateForm = () => {
 
   const [isPublicSetting, setIsPublicSetting] = useState(true);
   const [isForkableSetting, setIsForkableSetting] = useState(true);
+
+  useEffect(() => {
+    AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_INTENTION", {
+      id: currentApplication?.id,
+    });
+  }, []);
 
   const isFormValid = useMemo(() => {
     const requiredFields = [templateName, authorName, authorEmail];
@@ -54,6 +63,9 @@ const CommunityTemplateForm = () => {
       return;
     }
     dispatch(publishCommunityTemplate());
+    AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_CLICK", {
+      id: currentApplication?.id,
+    });
   };
   return (
     <>
