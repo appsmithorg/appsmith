@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router";
 import history, { NavigationMethod } from "utils/history";
@@ -140,7 +140,7 @@ const getSortedResults = (
 };
 
 const filterCategoryList = getFilterCategoryList();
-
+const emptyObj = {};
 function GlobalSearch() {
   const currentPageId = useSelector(getCurrentPageId) as string;
   const modalOpen = useSelector(isModalOpenSelector);
@@ -160,7 +160,7 @@ function GlobalSearch() {
     (category: SearchCategory) => {
       dispatch(setGlobalSearchFilterContext({ category: category }));
     },
-    [dispatch, setGlobalSearchFilterContext],
+    [dispatch],
   );
   const params = useParams<ExplorerURLParams>();
 
@@ -197,29 +197,32 @@ function GlobalSearch() {
     return state.entities.datasources.list.filter(
       (datasource) => datasource.id !== TEMP_DATASOURCE_ID,
     );
-  });
+  }, shallowEqual);
   const datasourcesList = useMemo(() => {
     return reducerDatasources.map((datasource) => ({
       ...datasource,
       pageId: params?.pageId,
     }));
-  }, [reducerDatasources]);
+  }, [params?.pageId, reducerDatasources]);
 
   const filteredDatasources = useMemo(() => {
     if (!query) return datasourcesList;
     return datasourcesList.filter((datasource) =>
       isMatching(datasource.name, query),
     );
-  }, [reducerDatasources, query]);
+  }, [datasourcesList, query]);
   const recentEntities = useRecentEntities();
   const recentEntityIds = recentEntities
     .map((r) => getEntityId(r))
     .filter(Boolean);
-  const recentEntityIndex = (entity: any) => {
-    const id =
-      entity.id || entity.widgetId || entity.config?.id || entity.pageId;
-    return recentEntityIds.indexOf(id);
-  };
+  const recentEntityIndex = useCallback(
+    (entity: any) => {
+      const id =
+        entity.id || entity.widgetId || entity.config?.id || entity.pageId;
+      return recentEntityIds.indexOf(id);
+    },
+    [recentEntityIds],
+  );
 
   const resetSearchQuery = useSelector(searchQuerySelector);
   const lastSelectedWidgetId = useSelector(getLastSelectedWidget);
@@ -276,16 +279,20 @@ function GlobalSearch() {
       currentPageId,
     );
   }, [
-    filteredWidgets,
+    category,
+    currentPageId,
     filteredActions,
-    filteredJSCollections,
     filteredDatasources,
+    filteredFileOperations,
+    filteredJSCollections,
+    filteredPages,
+    filteredWidgets,
     query,
-    recentEntities,
+    recentEntityIndex,
   ]);
 
   const activeItem = useMemo(() => {
-    return searchResults[activeItemIndex] || {};
+    return searchResults[activeItemIndex] || emptyObj;
   }, [searchResults, activeItemIndex]);
 
   const getNextActiveItem = (nextIndex: number) => {

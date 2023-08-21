@@ -3,7 +3,7 @@ import {
   dataSources,
   locators,
   propPane,
-  tedTestConfig,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate Empty DS error messages", () => {
@@ -30,17 +30,16 @@ describe("Validate Empty DS error messages", () => {
       agHelper.WaitUntilAllToastsDisappear();
       agHelper.UpdateInputValue(
         dataSources._host,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].postgres_host,
+        dataManager.dsValues[dataManager.defaultEnviorment].postgres_host,
       );
       agHelper.UpdateInputValue(
         dataSources._databaseName,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment]
+        dataManager.dsValues[dataManager.defaultEnviorment]
           .postgres_databaseName,
       );
       agHelper.UpdateInputValue(
         dataSources._username,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment]
-          .postgres_username,
+        dataManager.dsValues[dataManager.defaultEnviorment].postgres_username,
       );
       dataSources.TestDatasource(false);
       agHelper.ValidateToastMessage(
@@ -60,8 +59,7 @@ describe("Validate Empty DS error messages", () => {
       dataSources.ValidateNSelectDropdown("SSL mode", "Default", "Disable");
       agHelper.UpdateInputValue(
         dataSources._password,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment]
-          .postgres_password,
+        dataManager.dsValues[dataManager.defaultEnviorment].postgres_password,
       );
       dataSources.TestSaveDatasource();
       dataSources.AssertDataSourceInfo([
@@ -90,16 +88,15 @@ describe("Validate Empty DS error messages", () => {
       agHelper.WaitUntilAllToastsDisappear();
       agHelper.UpdateInputValue(
         dataSources._host,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mysql_host,
+        dataManager.dsValues[dataManager.defaultEnviorment].mysql_host,
       );
       agHelper.UpdateInputValue(
         dataSources._databaseName,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment]
-          .mysql_databaseName,
+        dataManager.dsValues[dataManager.defaultEnviorment].mysql_databaseName,
       );
       agHelper.UpdateInputValue(
         dataSources._username,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mysql_username,
+        dataManager.dsValues[dataManager.defaultEnviorment].mysql_username,
       );
       dataSources.TestDatasource(false);
       agHelper.ValidateToastMessage(
@@ -114,7 +111,7 @@ describe("Validate Empty DS error messages", () => {
       dataSources.ValidateNSelectDropdown("SSL mode", "Default", "Required");
       agHelper.UpdateInputValue(
         dataSources._password,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mysql_password,
+        dataManager.dsValues[dataManager.defaultEnviorment].mysql_password,
       );
       dataSources.TestDatasource(false);
       agHelper.ValidateToastMessage(
@@ -151,7 +148,7 @@ describe("Validate Empty DS error messages", () => {
       );
       agHelper.UpdateInputValue(
         locators._inputFieldByName("Connection string URI") + "//input",
-        tedTestConfig.mongo_uri(tedTestConfig.defaultEnviorment),
+        dataManager.mongo_uri(dataManager.defaultEnviorment),
       );
       dataSources.TestDatasource();
       dataSources.ValidateNSelectDropdown(
@@ -173,12 +170,12 @@ describe("Validate Empty DS error messages", () => {
       agHelper.ValidateToastMessage("Missing endpoint(s)");
       agHelper.UpdateInputValue(
         dataSources._host,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mongo_host,
+        dataManager.dsValues[dataManager.defaultEnviorment].mongo_host,
       );
       agHelper.UpdateInputValue(
         dataSources._port,
-        tedTestConfig.dsValues[
-          tedTestConfig.defaultEnviorment
+        dataManager.dsValues[
+          dataManager.defaultEnviorment
         ].mongo_port.toString(),
       );
       dataSources.TestDatasource(false);
@@ -202,8 +199,7 @@ describe("Validate Empty DS error messages", () => {
       );
       agHelper.ClearNType(
         dataSources._databaseName,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment]
-          .mongo_databaseName,
+        dataManager.dsValues[dataManager.defaultEnviorment].mongo_databaseName,
       );
       dataSources.ValidateNSelectDropdown(
         "Authentication type",
