@@ -102,8 +102,7 @@ jobs:
           rm -f ~/combined_failed_spec_ci
           cat ~/failed_spec_ci/failed_spec_ci* >> ~/combined_failed_spec_ci
 
-      # Verify CI test failures against known failures
-      - name: Verify CI test failures against known failures
+      - name: CI test failures
         if: needs.ci-test.result != 'success'
         shell: bash
         run: |
