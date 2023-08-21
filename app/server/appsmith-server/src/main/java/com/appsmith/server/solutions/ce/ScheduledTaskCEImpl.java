@@ -11,6 +11,7 @@ import reactor.core.scheduler.Schedulers;
 @Slf4j
 @Component
 public class ScheduledTaskCEImpl implements ScheduledTaskCE {
+
     private final FeatureFlagService featureFlagService;
 
     @Scheduled(initialDelay = 10 * 1000 /* ten seconds */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)

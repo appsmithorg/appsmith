@@ -23,7 +23,7 @@ import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
 import { Templates } from "../Pages/Templates";
 import { Onboarding } from "../Pages/Onboarding";
 import { AutoLayout } from "../Pages/AutoLayout";
-import { TEDTestConfigs } from "./TestConfigs";
+import { DataManager } from "./DataManager";
 import { AssertHelper } from "../Pages/AssertHelper";
 import { ReusableHelper } from "./ReusableHelper";
 import { Tabs } from "../Pages/Tabs";
@@ -254,12 +254,12 @@ export class ObjectsRegistry {
     return ObjectsRegistry.autoLayout__;
   }
 
-  private static tedTestConfigs__: TEDTestConfigs;
-  static get TEDTestConfigs(): TEDTestConfigs {
-    if (ObjectsRegistry.tedTestConfigs__ === undefined) {
-      ObjectsRegistry.tedTestConfigs__ = new TEDTestConfigs();
+  private static dataManager__: DataManager;
+  static get DataManager(): DataManager {
+    if (ObjectsRegistry.dataManager__ === undefined) {
+      ObjectsRegistry.dataManager__ = new DataManager();
     }
-    return ObjectsRegistry.tedTestConfigs__;
+    return ObjectsRegistry.dataManager__;
   }
 
   private static gsheetHelper__: GsheetHelper;

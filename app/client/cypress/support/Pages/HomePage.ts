@@ -43,7 +43,7 @@ export class HomePage {
   _profileMenu = ".t--profile-menu-icon";
   private _editProfileMenu = ".t--edit-profile";
   private _signout = ".t--sign-out";
-  _searchUsersInput = ".search-input";
+  _searchUsersInput = ".search-input input";
 
   private _manageUsers = ".manageUsers";
   public _closeBtn = ".ads-v2-modal__content-header-close-button";
@@ -385,7 +385,9 @@ export class HomePage {
     this.agHelper.Sleep(2000);
     workspaceId && cy.get(this._appContainer).contains(workspaceId);
     if (checkForShareButton) {
-      cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
+      cy.xpath(this.locator._buttonByText("Share"))
+        .first()
+        .should("be.visible");
     }
   }
 
@@ -430,7 +432,7 @@ export class HomePage {
       "response.body.responseMeta.status",
       200,
     );
-    this.agHelper.UpdateInput(this._searchUsersInput, email);
+    this.agHelper.TypeText(this._searchUsersInput, email);
     cy.wait(2000);
     cy.get(HomePageLocators.DeleteBtn).first().click({ force: true });
     cy.get(this._leaveWorkspaceConfirmModal).should("be.visible");
@@ -467,7 +469,7 @@ export class HomePage {
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
     cy.log(workspaceName, email, currentRole);
-    this.agHelper.UpdateInput(this._searchUsersInput, email);
+    this.agHelper.TypeText(this._searchUsersInput, email);
     cy.get(".search-highlight").should("exist").contains(email);
     this.agHelper.Sleep(2000);
     cy.xpath(this._userRoleDropDown(currentRole))

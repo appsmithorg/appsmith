@@ -107,7 +107,9 @@ export class PropertyPane {
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span//span | //div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
-    "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span";
+    "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span | //div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//div[@class='selected-item']/div";
   private _createModalButton = ".t--create-modal-btn";
   _pageName = (option: string) => "//a/div[text()='" + option + "']";
   private isMac = Cypress.platform === "darwin";
@@ -189,9 +191,13 @@ export class PropertyPane {
     this.entityExplorer.AssertEntityPresenceInExplorer(widgetName + "Copy");
   }
 
+  public DeleteWidgetDirectlyFromPropertyPane() {
+    this.agHelper.GetNClick(this._deleteWidget);
+  }
+
   public DeleteWidgetFromPropertyPane(widgetName: string) {
     this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
-    this.agHelper.GetNClick(this._deleteWidget);
+    this.DeleteWidgetDirectlyFromPropertyPane();
     this.agHelper.Sleep(500);
     this.entityExplorer.AssertEntityAbsenceInExplorer(widgetName);
   }
@@ -485,19 +491,7 @@ export class PropertyPane {
     toToggleOnJS = true,
     paste = true,
   ) {
-    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-      .invoke("attr", "class")
-      .then((classes: any) => {
-        if (toToggleOnJS && !classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else if (!toToggleOnJS && classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else this.agHelper.Sleep(500);
-      });
+    this.ToggleJSMode(endp, toToggleOnJS);
 
     if (paste) this.UpdatePropertyFieldValue(endp, value);
     else this.TypeTextIntoField(endp, value);

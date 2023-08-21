@@ -5,7 +5,7 @@ import {
   entityItems,
   apiPage,
   dataSources,
-  tedTestConfig,
+  dataManager,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("Datasource form OAuth2 client credentials related tests", function () {
@@ -13,7 +13,7 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
   it("1. Create an API with app url and save as Datasource for Client Credentials test", function () {
     dataSources.CreateOAuthClient("authorization_code");
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].OAuth_ApiUrl +
+      dataManager.dsValues[dataManager.defaultEnviorment].OAuth_ApiUrl +
         "/api/echo/get?ASDSA=ASDSA",
       "TestOAuth",
     );
@@ -26,7 +26,7 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
         clientId = id;
         clientSecret = secret;
         dataSources.AddOAuth2AuthorizationCodeDetails(
-          tedTestConfig.dsValues[tedTestConfig.defaultEnviorment]
+          dataManager.dsValues[dataManager.defaultEnviorment]
             .OAUth_AccessTokenUrl,
           clientId,
           clientSecret,
@@ -47,7 +47,7 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
 
   it("2. Create an API with app url and save as Datasource for Authorization code details test", function () {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].OAuth_ApiUrl +
+      dataManager.dsValues[dataManager.defaultEnviorment].OAuth_ApiUrl +
         "/api/echo/get?ASDSA=ASDSA",
       "TestOAuth",
     );
@@ -55,11 +55,10 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
     //Add Oauth details to datasource and save
     agHelper.AssertElementEnabledDisabled(dataSources._saveDs, 0, false);
     dataSources.AddOAuth2AuthorizationCodeDetails(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment]
-        .OAUth_AccessTokenUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].OAUth_AccessTokenUrl,
       clientId,
       clientSecret,
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].OAuth_AuthUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].OAuth_AuthUrl,
     );
   });
 
