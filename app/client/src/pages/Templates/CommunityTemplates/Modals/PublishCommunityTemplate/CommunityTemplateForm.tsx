@@ -1,24 +1,24 @@
+import { COMMUNITY_TEMPLATES } from "@appsmith/constants/messages";
+import { publishCommunityTemplate } from "actions/communityTemplateActions";
+import { Button } from "design-system";
+import { createMessage } from "design-system-old/build/constants/messages";
 import React, { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { isPublishingCommunityTempalteSelector } from "selectors/communityTemplatesSelector";
+import { getCurrentApplication } from "selectors/editorSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  PublishPageAppSettingContainer,
+  PublishPageBodyContainer,
+  PublishPageFooterContainer,
+  PublishPageTemplateDetailsInputContainer,
+} from "./StyledComponents";
 import ApplicationSettings from "./components/ApplicationSettings";
 import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import PublishedInfo from "./components/PublishedInfo";
 import TemplateCardPreview from "./components/TemplateCardPreview";
 import TemplateInfoForm from "./components/TemplateInfoForm";
-import {
-  PublishPageBodyContainer,
-  PublishPageTemplateDetailsInputContainer,
-  PublishPageAppSettingContainer,
-  PublishPageFooterContainer,
-} from "./StyledComponents";
-import { publishCommunityTemplate } from "actions/communityTemplateActions";
-import { useSelector, useDispatch } from "react-redux";
-import { isPublishingCommunityTempalteSelector } from "selectors/communityTemplatesSelector";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { COMMUNITY_TEMPLATES } from "@appsmith/constants/messages";
-import { Button } from "design-system";
-import { createMessage } from "design-system-old/build/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentApplication } from "selectors/editorSelectors";
 
 const CommunityTemplateForm = () => {
   const currentUser = useSelector(getCurrentUser);
