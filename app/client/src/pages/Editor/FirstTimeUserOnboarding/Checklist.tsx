@@ -472,7 +472,7 @@ export default function OnboardingChecklist() {
           details: {
             title: "Add New Datasource",
             description: "Datasources can be directly and easily accessed here",
-            imageURL: `${ASSETS_CDN_URL}/schema.gif`,
+            imageURL: `${ASSETS_CDN_URL}/create-datasource.gif`,
           },
           onDismiss: async () => {
             await setFeatureWalkthroughShown(
@@ -480,7 +480,7 @@ export default function OnboardingChecklist() {
               true,
             );
           },
-          overlayColor: "transparent",
+          overlayOpacity: 0,
           offset: {
             position: "right",
             top: -100,

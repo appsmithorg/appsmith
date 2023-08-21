@@ -467,7 +467,7 @@ function ActionSidebar({
           },
         },
         delay: 1000,
-        overlayColor: "transparent",
+        overlayOpacity: 0,
       });
   };
 

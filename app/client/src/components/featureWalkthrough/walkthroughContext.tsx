@@ -44,9 +44,7 @@ export type FeatureParams = {
   delay?: number;
   // Multiple Highlights -> multiple ids for highlighter, if not present considers targetId as the only highlighting div.
   multipleHighlights?: string[];
-  overlayColor?: string;
-  // id which can be used to do a walkthrough skipping the normal queue
-  featureId?: string;
+  overlayOpacity?: number;
 };
 
 type WalkthroughContextType = {

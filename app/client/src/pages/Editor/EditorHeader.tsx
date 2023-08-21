@@ -412,7 +412,7 @@ export function EditorHeader() {
               true,
             );
           },
-          overlayColor: "transparent",
+          overlayOpacity: 0,
           delay: 1000,
         },
         true,

@@ -122,7 +122,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
             },
           },
           delay: 1000,
-          overlayColor: "transparent",
+          overlayOpacity: 0,
         },
         true,
       );

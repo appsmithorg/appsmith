@@ -38,7 +38,7 @@ export default function Walkthrough({ children }: any) {
     updateActiveWalkthrough();
   };
 
-  const popFeatureInit = (triggeredFrom?: string) => {
+  const popFeature = (triggeredFrom?: string) => {
     hideIndicator();
     const eventParams = activeWalkthrough?.eventParams || {};
     if (triggeredFrom) {
@@ -48,10 +48,6 @@ export default function Walkthrough({ children }: any) {
     if (activeWalkthrough && activeWalkthrough.onDismiss) {
       activeWalkthrough.onDismiss();
     }
-  };
-
-  const popFeature = (triggeredFrom?: string) => {
-    popFeatureInit(triggeredFrom);
 
     setFeature((e) => {
       e.shift();
@@ -59,23 +55,19 @@ export default function Walkthrough({ children }: any) {
     });
   };
 
-  const updateActiveWalkthrough = useCallback(
-    (id?: string) => {
-      if (feature.length > 0) {
-        const _feature = feature.find((e) => e.featureId === id) ?? feature[0];
-        const highlightArea = document.querySelector(_feature.targetId);
-        setActiveWalkthrough(null);
-        if (highlightArea) {
-          setTimeout(() => {
-            setActiveWalkthrough(_feature);
-          }, _feature.delay || DEFAULT_DELAY);
-        }
-      } else {
-        setActiveWalkthrough(null);
+  const updateActiveWalkthrough = useCallback(() => {
+    if (feature.length > 0) {
+      const highlightArea = document.querySelector(feature[0].targetId);
+      setActiveWalkthrough(null);
+      if (highlightArea) {
+        setTimeout(() => {
+          setActiveWalkthrough(feature[0]);
+        }, feature[0].delay || DEFAULT_DELAY);
       }
-    },
-    [feature],
-  );
+    } else {
+      setActiveWalkthrough(null);
+    }
+  }, [feature]);
 
   useEffect(() => {
     if (feature.length > -1) updateActiveWalkthrough();
