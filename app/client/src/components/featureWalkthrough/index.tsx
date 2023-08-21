@@ -1,5 +1,4 @@
-/* eslint-disable no-debugger */
-import React, { lazy, useEffect, useState, Suspense } from "react";
+import React, { lazy, useEffect, useState, Suspense, useCallback } from "react";
 import type { FeatureParams } from "./walkthroughContext";
 import { DEFAULT_DELAY } from "./walkthroughContext";
 import WalkthroughContext from "./walkthroughContext";
@@ -26,16 +25,16 @@ export default function Walkthrough({ children }: any) {
   const [feature, setFeature] = useState<FeatureParams[]>([]);
   const location = useLocation();
 
-  const pushFeature = (value: FeatureParams) => {
+  const pushFeature = (value: FeatureParams, prioritize = false) => {
     const alreadyExists = feature.some((f) => f.targetId === value.targetId);
     if (!alreadyExists) {
-      if (Array.isArray(value)) {
-        setFeature((e) => [...e, ...value]);
+      const _value = Array.isArray(value) ? [...value] : [value];
+      if (prioritize) {
+        setFeature((e) => [..._value, ...e]);
       } else {
-        setFeature((e) => [...e, value]);
+        setFeature((e) => [...e, ..._value]);
       }
     }
-    // debugger;
     updateActiveWalkthrough();
   };
 
@@ -60,28 +59,23 @@ export default function Walkthrough({ children }: any) {
     });
   };
 
-  const popFeatureById = (id: string, triggeredFrom?: string) => {
-    popFeatureInit(triggeredFrom);
-
-    setFeature((features) => {
-      return [...features.filter((feature) => feature.featureId === id)];
-    });
-  };
-
-  const updateActiveWalkthrough = (id?: string) => {
-    if (feature.length > 0) {
-      const _feature = feature.find((e) => e.featureId === id) ?? feature[0];
-      const highlightArea = document.querySelector(_feature.targetId);
-      setActiveWalkthrough(null);
-      if (highlightArea) {
-        setTimeout(() => {
-          setActiveWalkthrough(_feature);
-        }, _feature.delay || DEFAULT_DELAY);
+  const updateActiveWalkthrough = useCallback(
+    (id?: string) => {
+      if (feature.length > 0) {
+        const _feature = feature.find((e) => e.featureId === id) ?? feature[0];
+        const highlightArea = document.querySelector(_feature.targetId);
+        setActiveWalkthrough(null);
+        if (highlightArea) {
+          setTimeout(() => {
+            setActiveWalkthrough(_feature);
+          }, _feature.delay || DEFAULT_DELAY);
+        }
+      } else {
+        setActiveWalkthrough(null);
       }
-    } else {
-      setActiveWalkthrough(null);
-    }
-  };
+    },
+    [feature],
+  );
 
   useEffect(() => {
     if (feature.length > -1) updateActiveWalkthrough();
@@ -92,8 +86,6 @@ export default function Walkthrough({ children }: any) {
       value={{
         pushFeature,
         popFeature,
-        popFeatureById,
-        updateActiveWalkthrough,
         feature,
         isOpened: !!activeWalkthrough,
       }}

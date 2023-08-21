@@ -1,5 +1,3 @@
-/* eslint-disable sort-destructure-keys/sort-destructure-keys */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useContext, useEffect } from "react";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
@@ -18,19 +16,18 @@ import WidgetSidebar from "../WidgetSidebar";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
-import {
-  adaptiveSignpostingEnabled,
-  selectFeatureFlags,
-} from "@appsmith/selectors/featureFlagsSelectors";
+import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import log from "loglevel";
 import {
   getFeatureWalkthroughShown,
   setFeatureWalkthroughShown,
 } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { widgetsExistCurrentPage } from "selectors/entitiesSelector";
+import {
+  actionsExistInCurrentPage,
+  widgetsExistCurrentPage,
+} from "selectors/entitiesSelector";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
@@ -55,7 +52,6 @@ function ExplorerContent() {
   const pageId = useSelector(getCurrentPageId);
   const location = useLocation();
   const activeSwitchIndex = useSelector(getExplorerSwitchIndex);
-  const featureFlags = useSelector(selectFeatureFlags);
 
   const setActiveSwitchIndex = (index: number) => {
     dispatch(setExplorerSwitchIndex(index));
@@ -95,8 +91,8 @@ function ExplorerContent() {
   const { value: activeOption } = options[activeSwitchIndex];
 
   const {
-    popFeature,
     isOpened: isWalkthroughOpened,
+    popFeature,
     pushFeature,
   } = useContext(WalkthroughContext) || {};
   const handleCloseWalkthrough = () => {
@@ -107,14 +103,12 @@ function ExplorerContent() {
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
   const hasWidgets = useSelector(widgetsExistCurrentPage);
+  const actionsExist = useSelector(actionsExistInCurrentPage);
   const checkAndShowSwitchWidgetWalkthrough = async () => {
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
       FEATURE_WALKTHROUGH_KEYS.switch_to_widget,
     );
-    signpostingEnabled &&
-      !hasWidgets &&
-      adaptiveSignposting &&
-      !isFeatureWalkthroughShown &&
+    !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
         targetId: `#explorer-tab-options [data-value*="widgets"]`,
@@ -144,6 +138,24 @@ function ExplorerContent() {
         delay: 1000,
       });
   };
+
+  useEffect(() => {
+    if (
+      activeSwitchIndex === 0 &&
+      signpostingEnabled &&
+      !hasWidgets &&
+      adaptiveSignposting &&
+      actionsExist
+    ) {
+      checkAndShowSwitchWidgetWalkthrough();
+    }
+  }, [
+    activeSwitchIndex,
+    signpostingEnabled,
+    hasWidgets,
+    adaptiveSignposting,
+    actionsExist,
+  ]);
 
   return (
     <div

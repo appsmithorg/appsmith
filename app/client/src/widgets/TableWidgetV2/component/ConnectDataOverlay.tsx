@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { Colors } from "constants/Colors";
@@ -89,33 +88,36 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
       !isFeatureWalkthroughShown &&
       signpostingEnabled &&
       pushFeature &&
-      pushFeature({
-        targetId: `#table-overlay-connectdata`,
-        details: {
-          title: "Connect data",
-          description:
-            "Swiftly bind data to the widget by connecting your query with just a click of this button.",
-          imageURL: `${ASSETS_CDN_URL}/connect-data.gif`,
-        },
-        onDismiss: async () => {
-          await setFeatureWalkthroughShown(
-            FEATURE_WALKTHROUGH_KEYS.connect_data,
-            true,
-          );
-        },
-        offset: {
-          position: "right",
-          highlightPad: 5,
-          indicatorLeft: -3,
-          style: {
-            transform: "none",
-            boxShadow: "var(--ads-v2-shadow-popovers)",
-            border: "1px solid var(--ads-v2-color-border-muted)",
+      pushFeature(
+        {
+          targetId: `#table-overlay-connectdata`,
+          details: {
+            title: "Connect data",
+            description:
+              "Swiftly bind data to the widget by connecting your query with just a click of this button.",
+            imageURL: `${ASSETS_CDN_URL}/connect-data.gif`,
           },
+          onDismiss: async () => {
+            await setFeatureWalkthroughShown(
+              FEATURE_WALKTHROUGH_KEYS.connect_data,
+              true,
+            );
+          },
+          offset: {
+            position: "right",
+            highlightPad: 5,
+            indicatorLeft: -3,
+            style: {
+              transform: "none",
+              boxShadow: "var(--ads-v2-shadow-popovers)",
+              border: "1px solid var(--ads-v2-color-border-muted)",
+            },
+          },
+          overlayColor: "transparent",
+          delay: 1000,
         },
-        overlayColor: "transparent",
-        delay: 1000,
-      });
+        true,
+      );
   };
 
   const onClick = () => {

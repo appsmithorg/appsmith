@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
@@ -106,34 +105,37 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
     );
     isFeatureWalkthroughShown &&
       pushFeature &&
-      pushFeature({
-        targetId: `#widget-card-draggable-tablewidgetv2`,
-        details: {
-          title: "Drag a widget on the canvas",
-          description:
-            "Drag and drop a table widget onto the canvas and then establish the connection with the Query you previously composed",
-          imageURL: `${ASSETS_CDN_URL}/add-table-widget.gif`,
-        },
-        onDismiss: async () => {
-          await setFeatureWalkthroughShown(
-            FEATURE_WALKTHROUGH_KEYS.add_table_widget,
-            true,
-          );
-        },
-        offset: {
-          position: "right",
-          highlightPad: 5,
-          indicatorLeft: -3,
-          top: -200,
-          style: {
-            transform: "none",
-            boxShadow: "var(--ads-v2-shadow-popovers)",
-            border: "1px solid var(--ads-v2-color-border-muted)",
+      pushFeature(
+        {
+          targetId: `#widget-card-draggable-tablewidgetv2`,
+          details: {
+            title: "Drag a widget on the canvas",
+            description:
+              "Drag and drop a table widget onto the canvas and then establish the connection with the Query you previously composed",
+            imageURL: `${ASSETS_CDN_URL}/add-table-widget.gif`,
           },
+          onDismiss: async () => {
+            await setFeatureWalkthroughShown(
+              FEATURE_WALKTHROUGH_KEYS.add_table_widget,
+              true,
+            );
+          },
+          offset: {
+            position: "right",
+            highlightPad: 5,
+            indicatorLeft: -3,
+            top: -200,
+            style: {
+              transform: "none",
+              boxShadow: "var(--ads-v2-shadow-popovers)",
+              border: "1px solid var(--ads-v2-color-border-muted)",
+            },
+          },
+          delay: 1000,
+          overlayColor: "transparent",
         },
-        delay: 1000,
-        overlayColor: "transparent",
-      });
+        true,
+      );
   };
 
   return (

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, {
   useCallback,
   useEffect,
@@ -363,8 +362,20 @@ export function EditorHeader() {
   );
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   useEffect(() => {
-    checkAndShowWalkthrough();
-  }, [signpostingEnabled]);
+    if (
+      signpostingEnabled &&
+      isConnectionPresent &&
+      adaptiveSignposting &&
+      !isDeployed
+    ) {
+      checkAndShowWalkthrough();
+    }
+  }, [
+    signpostingEnabled,
+    isConnectionPresent,
+    adaptiveSignposting,
+    isDeployed,
+  ]);
   const closeWalkthrough = () => {
     if (popFeature && isWalkthroughOpened) {
       popFeature();
@@ -374,38 +385,38 @@ export function EditorHeader() {
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
       FEATURE_WALKTHROUGH_KEYS.deploy,
     );
-    signpostingEnabled && !isFeatureWalkthroughShown;
-    isConnectionPresent &&
-      adaptiveSignposting &&
-      !isDeployed &&
+    !isFeatureWalkthroughShown &&
       pushFeature &&
-      pushFeature({
-        targetId: `#application-publish-btn`,
-        details: {
-          title: "Deploy 🚀",
-          description:
-            "Use the deploy button to quickly launch and go live with your creation",
-        },
-        offset: {
-          position: "bottom",
-          highlightPad: 5,
-          indicatorLeft: -3,
-          left: -200,
-          style: {
-            transform: "none",
-            boxShadow: "var(--ads-v2-shadow-popovers)",
-            border: "1px solid var(--ads-v2-color-border-muted)",
+      pushFeature(
+        {
+          targetId: `#application-publish-btn`,
+          details: {
+            title: "Deploy 🚀",
+            description:
+              "Use the deploy button to quickly launch and go live with your creation",
           },
+          offset: {
+            position: "bottom",
+            highlightPad: 5,
+            indicatorLeft: -3,
+            left: -200,
+            style: {
+              transform: "none",
+              boxShadow: "var(--ads-v2-shadow-popovers)",
+              border: "1px solid var(--ads-v2-color-border-muted)",
+            },
+          },
+          onDismiss: async () => {
+            await setFeatureWalkthroughShown(
+              FEATURE_WALKTHROUGH_KEYS.deploy,
+              true,
+            );
+          },
+          overlayColor: "transparent",
+          delay: 1000,
         },
-        onDismiss: async () => {
-          await setFeatureWalkthroughShown(
-            FEATURE_WALKTHROUGH_KEYS.deploy,
-            true,
-          );
-        },
-        overlayColor: "transparent",
-        delay: 1000,
-      });
+        true,
+      );
   };
 
   return (

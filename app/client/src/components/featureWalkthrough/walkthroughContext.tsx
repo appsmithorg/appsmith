@@ -50,10 +50,8 @@ export type FeatureParams = {
 };
 
 type WalkthroughContextType = {
-  pushFeature: (feature: FeatureParams) => void;
+  pushFeature: (feature: FeatureParams, prioritize?: boolean) => void;
   popFeature: (triggeredFrom?: string) => void;
-  popFeatureById: (id: string, triggeredFrom?: string) => void;
-  updateActiveWalkthrough: (id: string) => void;
   feature: FeatureParams[];
   isOpened: boolean;
 };
