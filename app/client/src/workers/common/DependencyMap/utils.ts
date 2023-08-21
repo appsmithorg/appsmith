@@ -34,7 +34,7 @@ import { libraryReservedIdentifiers } from "workers/common/JSLibrary";
  */
 export const extractInfoFromBinding = (
   script: string,
-  allKeys: Record<string, true>,
+  allKeys: Map<string, true>,
 ) => {
   const { references } = extractIdentifierInfoFromCode(
     script,
@@ -46,13 +46,13 @@ export const extractInfoFromBinding = (
 
 export const getPrunedReferences = (
   references: string[],
-  allKeys: Record<string, true>,
+  allKeys: Map<string, true>,
 ) => {
   const prunedReferences: Set<string> = new Set<string>();
 
   references.forEach((reference: string) => {
     // If the identifier exists directly, add it and return
-    if (allKeys.hasOwnProperty(reference)) {
+    if (allKeys.has(reference)) {
       prunedReferences.add(reference);
       return;
     }
@@ -65,7 +65,7 @@ export const getPrunedReferences = (
     while (subpaths.length > 1) {
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
-      if (allKeys.hasOwnProperty(current)) {
+      if (allKeys.has(current)) {
         prunedReferences.add(current);
         return;
       }
@@ -83,7 +83,7 @@ interface BindingsInfo {
 }
 export const extractInfoFromBindings = (
   bindings: string[],
-  allKeys: Record<string, true>,
+  allKeys: Map<string, true>,
 ) => {
   return bindings.reduce(
     (bindingsInfo: BindingsInfo, binding) => {

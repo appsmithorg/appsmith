@@ -21,7 +21,6 @@ import _, { difference, find, get, has, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
-import { warn as logWarn } from "loglevel";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
 import type { DataTreeEntityObject } from "entities/DataTree/dataTreeFactory";
@@ -432,48 +431,6 @@ export const removeFunctions = (value: any) => {
   } else {
     return value;
   }
-};
-
-export const makeParentsDependOnChildren = (
-  depMap: DependencyMap,
-  allkeys: Record<string, true>,
-): DependencyMap => {
-  //return depMap;
-  // Make all parents depend on child
-  Object.keys(depMap).forEach((key) => {
-    depMap = makeParentsDependOnChild(depMap, key, allkeys);
-    depMap[key].forEach((path) => {
-      depMap = makeParentsDependOnChild(depMap, path, allkeys);
-    });
-  });
-  return depMap;
-};
-
-export const makeParentsDependOnChild = (
-  depMap: DependencyMap,
-  child: string,
-  allkeys: Record<string, true>,
-): DependencyMap => {
-  const result: DependencyMap = depMap;
-  let curKey = child;
-  if (!allkeys[curKey]) {
-    logWarn(
-      `makeParentsDependOnChild - ${curKey} is not present in dataTree.`,
-      "This might result in a cyclic dependency.",
-    );
-  }
-  let matches: Array<string> | null;
-  // Note: The `=` is intentional
-  // Stops looping when match is null
-  while ((matches = curKey.match(IMMEDIATE_PARENT_REGEX)) !== null) {
-    const parentKey = matches[1];
-    // Todo: switch everything to set.
-    const existing = new Set(result[parentKey] || []);
-    existing.add(curKey);
-    result[parentKey] = Array.from(existing);
-    curKey = parentKey;
-  }
-  return result;
 };
 
 // The idea is to find the immediate parents of the property paths
@@ -980,3 +937,12 @@ export function convertJSFunctionsToString(
 
   return collections;
 }
+
+export const isActionDataProperty = (
+  entity: DataTreeEntity,
+  fullPropertyPath: string,
+) => {
+  const propertyPath =
+    getEntityNameAndPropertyPath(fullPropertyPath).propertyPath;
+  return isAction(entity) && propertyPath === "data";
+};

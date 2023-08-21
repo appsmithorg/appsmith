@@ -6,6 +6,7 @@ import {
   isValidEntity,
   getEntityNameAndPropertyPath,
   isDynamicLeaf,
+  isActionDataProperty,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type {
   DataTree,
@@ -70,7 +71,7 @@ export function createDependencyMap(
       const pathDependencies = entityDependencies[path];
       const { errors, references } = extractInfoFromBindings(
         pathDependencies,
-        allKeys,
+        dependencyMap.allNodes,
       );
       dependencyMap.addDependency(path, references);
       dataTreeEvalRef.errors.push(...errors);
@@ -149,9 +150,14 @@ export const updateDependencyMap = ({
     if (entityType !== "noop") {
       switch (event) {
         case DataTreeDiffEvent.NEW: {
-          const allAddedPaths = getAllPaths({
-            [fullPropertyPath]: get(unEvalDataTree, fullPropertyPath),
-          });
+          const allAddedPaths: Record<string, true> = isActionDataProperty(
+            entity,
+            fullPropertyPath,
+          )
+            ? { [fullPropertyPath]: true }
+            : getAllPaths({
+                [fullPropertyPath]: get(unEvalDataTree, fullPropertyPath),
+              });
           // If a new entity is added, add setter functions to all nodes
           if (entityName === fullPropertyPath) {
             const didUpdateDep = dependencyMap.addNodes(
@@ -178,7 +184,10 @@ export const updateDependencyMap = ({
                 Object.entries(entityDependencyMap).forEach(
                   ([path, pathDependencies]) => {
                     const { errors: extractDependencyErrors, references } =
-                      extractInfoFromBindings(pathDependencies, allKeys);
+                      extractInfoFromBindings(
+                        pathDependencies,
+                        dependencyMap.allNodes,
+                      );
                     dependencyMap.addDependency(path, references);
                     didUpdateDependencyMap = true;
                     dataTreeEvalErrors = dataTreeEvalErrors.concat(
@@ -211,7 +220,10 @@ export const updateDependencyMap = ({
                 allKeys,
               );
               const { errors: extractDependencyErrors, references } =
-                extractInfoFromBindings(entityPathDependencies, allKeys);
+                extractInfoFromBindings(
+                  entityPathDependencies,
+                  dependencyMap.allNodes,
+                );
               dependencyMap.addDependency(fullPropertyPath, references);
               didUpdateDependencyMap = true;
               dataTreeEvalErrors = dataTreeEvalErrors.concat(
@@ -288,7 +300,10 @@ export const updateDependencyMap = ({
               allKeys,
             );
             const { errors: extractDependencyErrors, references } =
-              extractInfoFromBindings(entityPathDependencies, allKeys);
+              extractInfoFromBindings(
+                entityPathDependencies,
+                dependencyMap.allNodes,
+              );
             dependencyMap.addDependency(fullPropertyPath, references);
             didUpdateDependencyMap = true;
             dataTreeEvalErrors = dataTreeEvalErrors.concat(

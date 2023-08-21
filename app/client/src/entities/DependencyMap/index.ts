@@ -274,4 +274,8 @@ export default class DependencyMap {
   get rawDependencies() {
     return this.#dependencies;
   }
+
+  get allNodes() {
+    return this.#nodes;
+  }
 }

@@ -1,4 +1,4 @@
-import type { DependencyMap, EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -23,10 +23,8 @@ import {
   getAllPrivateWidgetsInDataTree,
   getDataTreeWithoutPrivateWidgets,
   isPrivateEntityPath,
-  makeParentsDependOnChildren,
   translateDiffEventToDataTreeDiffEvent,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { warn as logWarn } from "loglevel";
 import type { Diff } from "deep-diff";
 import _, { flatten, set } from "lodash";
 import {
@@ -302,42 +300,6 @@ describe("2. privateWidgets", () => {
 
     expect(expectedDataTreeWithoutPrivateWidgets).toStrictEqual(
       actualDataTreeWithoutPrivateWidgets,
-    );
-  });
-});
-
-describe("3. makeParentsDependOnChildren", () => {
-  it("1. makes parent properties depend on child properties", () => {
-    let depMap: DependencyMap = {
-      Widget1: [],
-      "Widget1.defaultText": [],
-      "Widget1.defaultText.abc": [],
-    };
-    const allkeys: Record<string, true> = {
-      Widget1: true,
-      "Widget1.defaultText": true,
-      "Widget1.defaultText.abc": true,
-    };
-    depMap = makeParentsDependOnChildren(depMap, allkeys);
-    expect(depMap).toStrictEqual({
-      Widget1: ["Widget1.defaultText"],
-      "Widget1.defaultText": ["Widget1.defaultText.abc"],
-      "Widget1.defaultText.abc": [],
-    });
-  });
-
-  it("2. logs warning for child properties not listed in allKeys", () => {
-    const depMap: DependencyMap = {
-      Widget1: [],
-      "Widget1.defaultText": [],
-    };
-    const allkeys: Record<string, true> = {
-      Widget1: true,
-    };
-    makeParentsDependOnChildren(depMap, allkeys);
-    expect(logWarn).toBeCalledWith(
-      "makeParentsDependOnChild - Widget1.defaultText is not present in dataTree.",
-      "This might result in a cyclic dependency.",
     );
   });
 });
