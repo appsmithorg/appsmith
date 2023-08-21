@@ -95,6 +95,7 @@ import {
   onUpdateFilterSuccess,
 } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -510,6 +511,13 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     showFilterPane: boolean,
   ) => {
     if (id.length > 0 && this.state.filterParams.id !== id) {
+      AnalyticsUtil.logEvent("SWITCH_ENVIRONMENT", {
+        fromEnvId: this.state.filterParams.id,
+        toEnvId: id,
+        fromEnvName: this.state.filterParams.name,
+        toEnvName: name,
+        mode: "CONFIGURATION",
+      });
       if (
         !isEmpty(this.props.formData) &&
         this.props.isFormDirty &&
