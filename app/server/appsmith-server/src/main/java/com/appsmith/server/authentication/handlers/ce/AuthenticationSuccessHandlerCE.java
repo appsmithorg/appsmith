@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
@@ -88,7 +89,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
         Mono<Void> redirectionMono;
         User user = (User) authentication.getPrincipal();
-        rateLimitService.resetCounter("authentication", user.getEmail());
+        rateLimitService.resetCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, user.getEmail());
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             // In case of OAuth2 based authentication, there is no way to identify if this was a user signup (new user
