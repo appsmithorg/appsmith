@@ -38,6 +38,7 @@ const OpenExplorerMenu = (menu) => {
       break;
     case ExplorerMenu.ADD_LIBRARY:
       installer.OpenInstaller(true);
+      cy.wait(2000);
       cy.get(locators._canvas).trigger("mousemove", 500, 100, {
         force: true,
       });
