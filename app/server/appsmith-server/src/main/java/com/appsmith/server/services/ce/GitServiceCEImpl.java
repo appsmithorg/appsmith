@@ -1740,7 +1740,7 @@ public class GitServiceCEImpl implements GitServiceCE {
            1. Copy resources from DB to local repo
            2. Fetch the current status from local repo
         */
-        Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
+        Mono<User> currUserMono = sessionUserService.getCurrentUser();
         Mono<GitStatusDTO> statusMono = getGitApplicationMetadata(defaultApplicationId)
                 .flatMap(gitApplicationMetadata -> {
                     Mono<Tuple2<Application, ApplicationJson>> applicationJsonTuple = branchedAppMono
@@ -1843,17 +1843,24 @@ public class GitServiceCEImpl implements GitServiceCE {
                         GitStatusDTO gitStatusDTO = objects.getT2().getT1();
                         User currentUser = objects.getT2().getT2();
                         Application app = objects.getT2().getT3();
-                        return sendAnalyticsEvent(elapsedTime, gitStatusDTO, currentUser, app);
+                        String flowName;
+                        if (compareRemote) {
+                            flowName = AnalyticsEvents.GIT_STATUS.getEventName();
+                        } else {
+                            flowName = AnalyticsEvents.GIT_STATUS_WITHOUT_FETCH.getEventName();
+                        }
+                        return sendUnitExecutionTimeAnalyticsEvent(flowName, elapsedTime, currentUser, app)
+                                .thenReturn(gitStatusDTO);
                     })
                     .subscribe(sink::success, sink::error, null, sink.currentContext());
         });
     }
 
-    private Mono<GitStatusDTO> sendAnalyticsEvent(
-            Long elapsedTime, GitStatusDTO gitStatusDTO, User currentUser, Application app) {
+    private Mono<Void> sendUnitExecutionTimeAnalyticsEvent(
+            String flowName, Long elapsedTime, User currentUser, Application app) {
         final Map<String, Object> data = Map.of(
                 FieldName.FLOW_NAME,
-                AnalyticsEvents.GIT_STATUS.getEventName(),
+                flowName,
                 FieldName.APPLICATION_ID,
                 app.getGitApplicationMetadata().getDefaultApplicationId(),
                 "appId",
@@ -1866,9 +1873,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                 app.getGitApplicationMetadata().getRemoteUrl(),
                 "executionTime",
                 elapsedTime);
-        return analyticsService
-                .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), data)
-                .thenReturn(gitStatusDTO);
+        return analyticsService.sendEvent(
+                AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), data);
     }
 
     @Override
@@ -1896,11 +1902,13 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
         final String finalBranchName = branchName.replaceFirst("origin/", "");
 
-        Mono<BranchTrackingStatus> statusMono = getGitApplicationMetadata(defaultApplicationId)
+        Mono<Application> applicationMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(
+                        finalBranchName, defaultApplicationId, applicationPermission.getEditPermission())
+                .cache(); // caching as it'll be also used when sending analytics
+        Mono<User> currUserMono = sessionUserService.getCurrentUser(); // will be used to send analytics event
+        Mono<BranchTrackingStatus> fetchRemoteStatusMono = getGitApplicationMetadata(defaultApplicationId)
                 .flatMap(gitApplicationMetadata -> {
-                    Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(
-                            finalBranchName, defaultApplicationId, applicationPermission.getEditPermission());
-
                     if (Boolean.TRUE.equals(isFileLock)) {
                         // Add file lock to avoid sending wrong info on the status
                         return redisUtils
@@ -1952,10 +1960,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()));
                             });
+                })
+                .elapsed()
+                .zipWith(Mono.zip(currUserMono, applicationMono))
+                .flatMap(objects -> {
+                    Long elapsedTime = objects.getT1().getT1();
+                    BranchTrackingStatus branchTrackingStatus = objects.getT1().getT2();
+                    User currentUser = objects.getT2().getT1();
+                    Application app = objects.getT2().getT2();
+                    return sendUnitExecutionTimeAnalyticsEvent(
+                                    AnalyticsEvents.GIT_FETCH.getEventName(), elapsedTime, currentUser, app)
+                            .thenReturn(branchTrackingStatus);
                 });
 
         return Mono.create(sink -> {
-            statusMono.subscribe(sink::success, sink::error, null, sink.currentContext());
+            fetchRemoteStatusMono.subscribe(sink::success, sink::error, null, sink.currentContext());
         });
     }
 
@@ -2236,7 +2255,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                             .getGitApplicationMetadata()
                                                             .getIsRepoPrivate(),
                                                     false,
-                                                    true))
+                                                    mergeStatusDTO.isMergeAble()))
                                             .then(Mono.just(mergeStatusDTO))))
                             .onErrorResume(error -> {
                                 try {

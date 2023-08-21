@@ -63,6 +63,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       type,
       widgetId,
     } = props;
+
     const isPreviewMode = useSelector(previewModeSelector);
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
@@ -82,6 +83,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const evaluatedWidget = useSelector((state: AppState) =>
       getWidgetEvalValues(state, widgetName),
     );
+
     const isLoading = useSelector((state: AppState) =>
       getIsWidgetLoading(state, widgetName),
     );
@@ -316,7 +318,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           : undefined,
       };
     }
-
     return <WrappedWidget {...widgetProps} />;
   }
 

@@ -7,7 +7,7 @@ import {
   jsEditor,
   locators,
   propPane,
-  tedTestConfig,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate JS Object Refactoring does not affect the comments & variables", () => {
@@ -53,7 +53,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
       ); //Creating query from EE overlay
       //Initialize new API entity with custom header
       apiPage.CreateAndFillApi(
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+        dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
         refactorInput.api.oldName,
       );
       apiPage.EnterHeader("key1", `{{\tJSObject1.myVar1}}`);
