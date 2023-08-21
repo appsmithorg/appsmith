@@ -33,11 +33,12 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  hasCreateActionPermission,
+  hasCreateDatasourceActionPermission,
   hasCreatePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
+import { getDatasource } from "selectors/entitiesSelector";
 
 const MessageWrapper = styled.div`
   display: flex;
@@ -130,6 +131,9 @@ function GoogleSheetSchema(props: Props) {
   const [selectedSheet, setSelectedSheet] = useState<DropdownOption>({});
   const [currentSheetData, setCurrentSheetData] = useState<any>();
   const applicationId: string = useSelector(getCurrentApplicationId);
+  const datasource = useSelector((state) =>
+    getDatasource(state, props.datasourceId),
+  );
 
   const dispatch = useDispatch();
 
@@ -278,18 +282,23 @@ function GoogleSheetSchema(props: Props) {
   };
 
   const pagePermissions = useSelector(getPagePermissions);
-  const canCreateActions = hasCreateActionPermission(pagePermissions);
+  const datasourcePermissions = datasource?.userPermissions || [];
 
   const userAppPermissions = useSelector(
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
   const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
+
   const showGeneratePageBtn =
     !isLoading &&
     !isError &&
     currentSheetData &&
-    canCreateActions &&
+    canCreateDatasourceActions &&
     canCreatePages;
 
   return (

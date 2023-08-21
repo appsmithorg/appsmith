@@ -38,7 +38,6 @@ import {
   getPagePermissions,
 } from "selectors/editorSelectors";
 import {
-  hasCreateActionPermission,
   hasCreateDatasourceActionPermission,
   hasCreatePagePermission,
   hasDeleteDatasourcePermission,
@@ -165,8 +164,6 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateActions = hasCreateActionPermission(pagePermissions);
-
   const userAppPermissions = useSelector(
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
@@ -193,7 +190,7 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const supportTemplateGeneration =
     !!generateCRUDSupportedPlugin[datasource.pluginId];
-  const canGeneratePage = canCreateActions && canCreatePages;
+  const canGeneratePage = canCreateDatasourceActions && canCreatePages;
 
   useEffect(() => {
     if (confirmDelete && !isDeletingDatasource) {
