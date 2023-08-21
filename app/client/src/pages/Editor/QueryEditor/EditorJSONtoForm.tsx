@@ -146,7 +146,7 @@ const QueryFormContainer = styled.form`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: var(--ads-v2-spaces-4) 0 0;
+  padding: var(--ads-v2-spaces-5) 0 0;
   width: 100%;
   .statementTextArea {
     font-size: 14px;
