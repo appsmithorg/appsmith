@@ -36,7 +36,7 @@ const Wrapper = styled.div`
   }
 `;
 
-type Props = {
+export type SwitchEnvironmentProps = {
   defaultEnvironment?: EnvironmentType;
   environmentList: Array<EnvironmentType>;
   viewMode?: boolean;
@@ -46,7 +46,7 @@ const SwitchEnvironment = ({
   defaultEnvironment,
   environmentList,
   viewMode,
-}: Props) => {
+}: SwitchEnvironmentProps) => {
   const [diableSwitchEnvironment, setDiableSwitchEnvironment] = useState(false);
   // state to store the selected environment
   const [selectedEnv, setSelectedEnv] = useState(defaultEnvironment);
