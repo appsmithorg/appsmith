@@ -61,14 +61,9 @@ export const getIsFetchingGlobalGitConfig = (state: AppState) =>
 export const getIsFetchingLocalGitConfig = (state: AppState) =>
   state.ui.gitSync.isFetchingLocalGitConfig;
 
-// export const getIsGitStatusLiteEnabled = createSelector(
-//   selectFeatureFlags,
-//   (flags) => !!flags?.release_git_status_lite_enabled,
-// );
-
 export const getIsGitStatusLiteEnabled = createSelector(
   selectFeatureFlags,
-  () => true,
+  (flags) => !!flags?.release_git_status_lite_enabled,
 );
 
 export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
