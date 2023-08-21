@@ -346,7 +346,7 @@ class TabsWidget extends BaseWidget<
     return {};
   }
 
-  getPageView() {
+  getWidgetView() {
     const { leftColumn, parentColumnSpace, rightColumn } = this.props;
 
     const tabsComponentProps = {

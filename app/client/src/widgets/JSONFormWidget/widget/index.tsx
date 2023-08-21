@@ -538,7 +538,7 @@ class JSONFormWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("isValid", isValid);
   };
 
-  getPageView() {
+  getWidgetView() {
     const isAutoHeightEnabled = isAutoHeightEnabledForWidget(this.props);
     return (
       // Warning!!! Do not ever introduce formData as a prop directly,

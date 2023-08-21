@@ -1037,7 +1037,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return { componentHeight, componentWidth };
   };
 
-  getPageView() {
+  getWidgetView() {
     const {
       totalRecordsCount,
       delimiter,

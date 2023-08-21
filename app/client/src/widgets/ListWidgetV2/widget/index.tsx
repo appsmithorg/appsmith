@@ -1299,7 +1299,7 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  getPageView() {
+  getWidgetView() {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const {
       infiniteScroll,

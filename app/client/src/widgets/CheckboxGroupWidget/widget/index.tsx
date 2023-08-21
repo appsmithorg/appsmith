@@ -553,7 +553,7 @@ class CheckboxGroupWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <CheckboxGroupComponent
         accentColor={this.props.accentColor}

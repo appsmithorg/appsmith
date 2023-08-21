@@ -71,7 +71,7 @@ class CodeScannerWidget extends BaseWidget<
     });
   };
 
-  getPageView() {
+  getWidgetView() {
     return (
       <CodeScannerComponent
         borderRadius={this.props.borderRadius}

@@ -93,7 +93,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     );
   };
 
-  getPageView() {
+  getWidgetView() {
     const errors = syntaxErrorsFromProps(this.props);
 
     if (errors.length == 0) {

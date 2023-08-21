@@ -661,7 +661,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   isStringOrNumber = (value: any): value is string | number =>
     isString(value) || isNumber(value);
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;

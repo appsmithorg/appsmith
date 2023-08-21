@@ -554,7 +554,7 @@ class BaseInputWidget<
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <BaseInputComponent
         allowNumericCharactersOnly={this.props.allowNumericCharactersOnly}

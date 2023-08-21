@@ -456,7 +456,7 @@ class SwitchGroupWidget extends BaseWidget<
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
       accentColor,
       alignment,

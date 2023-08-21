@@ -251,7 +251,7 @@ class AudioRecorderWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
       blobURL,
       bottomRow,

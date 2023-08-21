@@ -286,7 +286,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <SwitchComponent
         accentColor={this.props.accentColor}

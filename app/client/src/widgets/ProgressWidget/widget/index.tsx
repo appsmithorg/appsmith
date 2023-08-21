@@ -203,7 +203,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
       borderRadius,
       counterClockwise,

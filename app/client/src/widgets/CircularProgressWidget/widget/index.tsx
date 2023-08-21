@@ -108,7 +108,7 @@ class CircularProgressWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <CircularProgressComponent
         counterClockwise={this.props.counterClockwise}

@@ -159,7 +159,7 @@ class DocumentViewerWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return <DocumentViewerComponent docUrl={this.props.docUrl} />;
   }
 

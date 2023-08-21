@@ -162,7 +162,7 @@ class CategorySliderWidget extends BaseWidget<
     }
   };
 
-  getPageView() {
+  getWidgetView() {
     const { sliderOptions, stepSize } = this.getSliderOptions();
 
     const sliderValue = sliderOptions.find(

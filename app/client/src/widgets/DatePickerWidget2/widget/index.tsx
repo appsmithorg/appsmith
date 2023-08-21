@@ -544,7 +544,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <DatePickerComponent
         accentColor={this.props.accentColor}

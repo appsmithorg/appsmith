@@ -380,7 +380,7 @@ class PhoneInputWidget extends BaseInputWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const value = this.props.text ?? "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;

@@ -895,7 +895,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.disableDrag(disable);
   };
 
-  getPageView() {
+  getWidgetView() {
     const {
       totalRecordsCount,
       delimiter,

@@ -244,7 +244,7 @@ export class ContainerWidget extends BaseWidget<
     );
   }
 
-  getPageView() {
+  getWidgetView() {
     return this.renderAsContainerComponent(this.props);
   }
 

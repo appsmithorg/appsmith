@@ -543,7 +543,7 @@ class SingleSelectTreeWidget extends BaseWidget<
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;

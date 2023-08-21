@@ -338,7 +338,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <CheckboxComponent
         accentColor={this.props.accentColor}

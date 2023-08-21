@@ -295,7 +295,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     );
   }
 
-  getCanvasView() {
+  getWidgetView() {
     let children = this.getChildren();
     children = this.makeModalSelectable(children);
     // children = this.showWidgetName(children, true);

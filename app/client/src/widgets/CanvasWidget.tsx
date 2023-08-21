@@ -195,7 +195,7 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  getCanvasView() {
+  getWidgetView() {
     if (!this.props.dropDisabled) {
       return this.renderAsDropTarget();
     }

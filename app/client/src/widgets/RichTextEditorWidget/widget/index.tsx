@@ -419,7 +419,7 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     let value = this.props.text ?? "";
     if (this.props.inputType === RTEFormats.MARKDOWN) {
       value = converter.makeHtml(value);

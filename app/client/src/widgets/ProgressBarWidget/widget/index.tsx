@@ -165,7 +165,7 @@ class ProgressBarWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <ProgressBarComponent
         barType={this.props.barType}
