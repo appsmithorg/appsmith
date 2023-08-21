@@ -189,10 +189,6 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 .flatMap(tuple2 -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
                         tuple2.getT1(), tuple2.getT2()))
                 .flatMap(datasourceStorage -> getSchemaPreviewData(datasourceStorage, queryTemplate))
-                .onErrorMap(
-                        IllegalArgumentException.class,
-                        error -> new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, error.getMessage()))
                 .onErrorMap(e -> {
                     if (!(e instanceof AppsmithPluginException)) {
                         return new AppsmithPluginException(
@@ -211,7 +207,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     private Mono<ActionExecutionResult> getSchemaPreviewData(
             DatasourceStorage datasourceStorage, Template queryTemplate) {
         if (Boolean.FALSE.equals(datasourceStorage.getIsValid())) {
-            return Mono.just(new ActionExecutionResult());
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE));
         }
 
         return pluginExecutorHelper
@@ -226,40 +222,31 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                     if (actionConfig != null) {
                         return datasourceContextService.retryOnce(
                                 datasourceStorage, resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
-                                        .fetchSchemaPreviewData(
+                                        .executeCommon(
                                                 resourceContext.getConnection(),
                                                 datasourceStorage.getDatasourceConfiguration(),
-                                                actionConfig));
+                                                actionConfig,
+                                                Boolean.FALSE,
+                                                null,
+                                                null,
+                                                null));
                     } else {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId()));
+                        return Mono.error(
+                                new AppsmithPluginException(AppsmithPluginError.PLUGIN_UNSUPPORTED_OPERATION));
                     }
                 })
-                .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
-                .onErrorMap(
-                        TimeoutException.class,
-                        error -> new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR,
-                                "Appsmith server timed out when fetching structure. Please reach out to appsmith "
-                                        + "customer support to resolve this."))
                 .onErrorMap(
                         StaleConnectionException.class,
                         error -> new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
                                 "Appsmith server found a secondary stale connection. Please reach out to appsmith "
                                         + "customer support to resolve this."))
-                .onErrorMap(
-                        IllegalArgumentException.class,
-                        error -> new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, error.getMessage()))
                 .onErrorMap(e -> {
                     log.error("In the datasourceStorage fetching preview data error mode.", e);
-
                     if (!(e instanceof AppsmithPluginException)) {
                         return new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_GET_PREVIEW_DATA_ERROR, e.getMessage());
                     }
-
                     return e;
                 });
     }

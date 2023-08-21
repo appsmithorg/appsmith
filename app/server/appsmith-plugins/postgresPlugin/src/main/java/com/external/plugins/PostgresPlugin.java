@@ -271,22 +271,14 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ActionExecutionResult> fetchSchemaPreviewData(
-                HikariDataSource connection,
-                DatasourceConfiguration datasourceConfiguration,
-                ActionConfiguration actionConfiguration) {
-            return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null, null);
-        }
-
-        @Override
         public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate) {
-            Template newQueryTemplate = new Template(queryTemplate.getTitle(), queryTemplate.getBody());
             ActionConfiguration actionConfig = new ActionConfiguration();
-            actionConfig.setBody(newQueryTemplate.getBody());
+            actionConfig.setBody(queryTemplate.getBody());
             return actionConfig;
         }
 
-        private Mono<ActionExecutionResult> executeCommon(
+        @Override
+        public Mono<ActionExecutionResult> executeCommon(
                 HikariDataSource connection,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration,

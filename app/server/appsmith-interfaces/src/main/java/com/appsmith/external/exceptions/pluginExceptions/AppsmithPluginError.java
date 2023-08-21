@@ -158,12 +158,21 @@ public enum AppsmithPluginError implements BasePluginError {
     PLUGIN_GET_PREVIEW_DATA_ERROR(
             500,
             AppsmithPluginErrorCode.PLUGIN_GET_PREVIEW_DATA_ERROR.getCode(),
-            "{0}",
+            AppsmithPluginErrorCode.PLUGIN_GET_PREVIEW_DATA_ERROR.getDescription(),
             AppsmithErrorAction.DEFAULT,
-            "Failure in getting datasource preview data",
+            "Failed to get preview data",
             ErrorType.INTERNAL_ERROR,
-            "{1}",
-            "{2}"),
+            "{0}",
+            "{1}"),
+    PLUGIN_UNSUPPORTED_OPERATION(
+            500,
+            AppsmithPluginErrorCode.PLUGIN_UNSUPPORTED_OPERATION.getCode(),
+            AppsmithPluginErrorCode.PLUGIN_UNSUPPORTED_OPERATION.getDescription(),
+            AppsmithErrorAction.DEFAULT,
+            "Unsupported Operation",
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"),
     ;
 
     private final Integer httpErrorCode;
