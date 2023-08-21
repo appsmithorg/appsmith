@@ -715,15 +715,15 @@ export class DataSources {
     );
   }
 
-  public fillTwilioDSForm(environment = this.tedTestConfig.defaultEnviorment) {
+  public fillTwilioDSForm(environment = this.dataManager.defaultEnviorment) {
     this.ValidateNSelectDropdown("Authentication type", "", "Basic auth");
     this.agHelper.UpdateInputValue(
       this._username,
-      this.tedTestConfig.dsValues[environment].twilio_username.toString(),
+      this.dataManager.dsValues[environment].twilio_username.toString(),
     );
     this.agHelper.UpdateInputValue(
       this._password,
-      this.tedTestConfig.dsValues[environment].twilio_password.toString(),
+      this.dataManager.dsValues[environment].twilio_password.toString(),
     );
   }
 
