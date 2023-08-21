@@ -7,6 +7,10 @@ import {
   RAMP_FOR_ROLES,
 } from "../utils/ProductRamps/RampsControlList";
 import type { EnvTypes } from "../utils/ProductRamps/RampTypes";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 
 const { cloudHosting, pricingUrl } = getAppsmithConfigs();
 
@@ -31,6 +35,7 @@ export const showProductRamps = (rampName: string) =>
   createSelector(uiState, (ui) => {
     function getUserRoleInWorkspace() {
       const { currentUser } = ui?.users;
+      const { currentApplication } = ui?.applications;
       const isSuperUser = currentUser?.isSuperUser;
       if (isSuperUser) return RAMP_FOR_ROLES.SUPER_USER;
       const workspaceUsers = ui?.workspaces?.workspaceUsers;
@@ -47,6 +52,17 @@ export const showProductRamps = (rampName: string) =>
             }
           }
         }
+      } else if (
+        !!currentApplication &&
+        currentApplication.hasOwnProperty("userPermissions") &&
+        !!currentApplication.userPermissions
+      ) {
+        return isPermitted(
+          currentApplication.userPermissions,
+          PERMISSION_TYPE.MANAGE_APPLICATION,
+        )
+          ? RAMP_FOR_ROLES.DEVELOPER
+          : RAMP_FOR_ROLES.APP_VIEWER;
       }
     }
 
