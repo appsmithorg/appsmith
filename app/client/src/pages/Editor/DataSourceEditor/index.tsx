@@ -511,13 +511,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     showFilterPane: boolean,
   ) => {
     if (id.length > 0 && this.state.filterParams.id !== id) {
-      AnalyticsUtil.logEvent("SWITCH_ENVIRONMENT", {
-        fromEnvId: this.state.filterParams.id,
-        toEnvId: id,
-        fromEnvName: this.state.filterParams.name,
-        toEnvName: name,
-        mode: "CONFIGURATION",
-      });
       if (
         !isEmpty(this.props.formData) &&
         this.props.isFormDirty &&
@@ -618,7 +611,13 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         },
       });
     }
-
+    AnalyticsUtil.logEvent("SWITCH_ENVIRONMENT", {
+      fromEnvId: this.state.filterParams.id,
+      toEnvId: id,
+      fromEnvName: this.state.filterParams.name,
+      toEnvName: name,
+      mode: "CONFIGURATION",
+    });
     // This is the event that changes the filter and updates the datasource
     this.setState({
       filterParams: {
