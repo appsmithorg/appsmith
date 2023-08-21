@@ -112,7 +112,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
     );
 
     agHelper.AssertElementEnabledDisabled(
-      locators._spanButton("Submit") + "/parent::div",
+      locators._buttonByText("Submit") + "/parent::div",
       0,
       false,
     );
@@ -222,7 +222,7 @@ function GenerateCRUDNValidateDeployPage(
   });
 
   //Validating loaded JSON form
-  cy.xpath(locators._spanButton("Update")).then((selector) => {
+  cy.xpath(locators._buttonByText("Update")).then((selector) => {
     cy.wrap(selector)
       .invoke("attr", "class")
       .then((classes) => {

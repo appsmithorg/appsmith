@@ -10,7 +10,9 @@ const githubForm = require("../locators/GithubForm.json");
 const oidcform = require("../locators/OIDCForm.json");
 const oidcData = require("../fixtures/oidcSource.json");
 import adminSettings from "../locators/AdminsSettings";
+import { ObjectsRegistry } from "./Objects/Registry";
 
+let agHelper = ObjectsRegistry.AggregateHelper;
 const BASE_URL = Cypress.config().baseUrl;
 
 Cypress.Commands.add("fillGoogleFormPartly", () => {
@@ -84,5 +86,5 @@ Cypress.Commands.add("waitForServerRestart", () => {
   cy.window().then((win) => {
     win.location.reload();
   });
-  cy.get(adminSettings.saveButton).should("be.visible");
+  agHelper.AssertElementVisibility(adminSettings.saveButton, true, 0, 30000);
 });

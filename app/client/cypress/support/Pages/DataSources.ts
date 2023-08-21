@@ -253,6 +253,18 @@ export class DataSources {
     dsName +
     "']/ancestor::div[contains(@class, 't--datasource')]//div[@data-testid='datasource-collapse-wrapper']";
   _snippingBanner = ".t--sniping-mode-banner";
+  _s3CrudIcons = (
+    fieldName: string,
+    type: "Edit" | "Delete" | "CopyURL" | "Download",
+  ) =>
+    "//span[text()='" +
+    fieldName +
+    "']/ancestor::div[@type='CANVAS_WIDGET'][1]//div[@data-widgetname-cy='" +
+    type +
+    "Icon']";
+  _s3EditFileName =
+    "[data-widgetname-cy='update_file_name'] div[data-testid='input-container']";
+  _s3MaxFileSizeAlert = "//p[@role='alert']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -569,8 +581,10 @@ export class DataSources {
       "Please select an option",
       "Personal access token",
     );
-    this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Bearer token"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Bearer token") +
+        "//" +
+        this.locator._inputField,
       Cypress.env("AIRTABLE_BEARER"),
     );
     this.agHelper.Sleep();
@@ -613,12 +627,16 @@ export class DataSources {
   }
 
   public FillFirestoreDSForm(environment = this.dataManager.defaultEnviorment) {
-    this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Database URL"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Database URL") +
+        "//" +
+        this.locator._inputField,
       this.dataManager.dsValues[environment].firestore_database_url,
     );
-    this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Project Id"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Project Id") +
+        "//" +
+        this.locator._inputField,
       this.dataManager.dsValues[environment].firestore_projectID,
     );
     // cy.fixture("firestore-ServiceAccCreds").then((json: any) => {
@@ -677,8 +695,8 @@ export class DataSources {
   ) {
     this.NavigateToDSCreateNew();
     this.CreatePlugIn("Authenticated GraphQL API");
-    this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("URL"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
       this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
     );
 
@@ -926,7 +944,7 @@ export class DataSources {
 
   private AssertRunButtonVisibility() {
     this.agHelper.AssertElementVisibility(
-      this.locator._spanButton("Run"),
+      this.locator._buttonByText("Run"),
       true,
       0,
       20000,
@@ -1074,7 +1092,7 @@ export class DataSources {
     ); //For the run to give response
     if (toValidateResponse) {
       this.agHelper.Sleep();
-      this.agHelper.AssertNetworkExecutionSuccess(
+      this.assertHelper.AssertNetworkExecutionSuccess(
         "@postExecute",
         expectedStatus,
       );
@@ -1141,15 +1159,15 @@ export class DataSources {
     this.agHelper.AssertAutoSave();
   }
 
-  public EnterQuery(query: string, sleep = 500) {
+  public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
     this.agHelper.UpdateCodeInput(
       this.locator._codeEditorTarget,
       query,
       "query",
     );
-    this.agHelper.AssertAutoSave();
+    toVerifySave && this.agHelper.AssertAutoSave();
     this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
-    cy.wait("@saveAction");
+    this.assertHelper.AssertNetworkStatus("@saveAction", 200);
   }
 
   public RunQueryNVerifyResponseViews(
@@ -1448,8 +1466,8 @@ export class DataSources {
   }
 
   public FillAuthAPIUrl(environment = this.dataManager.defaultEnviorment) {
-    this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("URL"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
       this.dataManager.dsValues[environment].authenticatedApiUrl,
     );
   }
@@ -1587,8 +1605,8 @@ export class DataSources {
   ) {
     if (dsName) this.agHelper.RenameWithInPane(dsName, false);
     // Fill Auth Form
-    this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("URL"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
       this.dataManager.dsValues[environment].OAuth_ApiUrl,
     );
     this.agHelper.GetNClick(this._authType);
@@ -1599,30 +1617,40 @@ export class DataSources {
     else if (grantType == "AuthCode")
       this.agHelper.GetNClick(this._authorizationCode);
 
-    this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Access token URL"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Access token URL") +
+        "//" +
+        this.locator._inputField,
       this.dataManager.dsValues[environment].OAUth_AccessTokenUrl,
     );
 
-    this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Client ID"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Client ID") +
+        "//" +
+        this.locator._inputField,
       clientId,
     );
-    this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Client secret"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Client secret") +
+        "//" +
+        this.locator._inputField,
       clientSecret,
     );
-    this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Scope(s)"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Scope(s)") +
+        "//" +
+        this.locator._inputField,
       "profile",
     );
-    this.agHelper.UpdateInput(
-      this.locator._inputFieldByName("Authorization URL"),
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Authorization URL") +
+        "//" +
+        this.locator._inputField,
       this.dataManager.dsValues[environment].OAuth_AuthUrl,
     );
   }
 
-  public AddSuggestedWidget(widget: Widgets) {
+  public AddSuggestedWidget(widget: Widgets, force = false, index = 0) {
     switch (widget) {
       case Widgets.Dropdown:
         this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
@@ -1631,7 +1659,11 @@ export class DataSources {
         );
         break;
       case Widgets.Table:
-        this.agHelper.GetNClick(this._suggestedWidget("TABLE_WIDGET_V2"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("TABLE_WIDGET_V2"),
+          index,
+          force,
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TABLE),
         );
