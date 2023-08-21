@@ -1,26 +1,24 @@
 import * as Sentry from "@sentry/react";
-import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, useRouteMatch } from "react-router";
 
 import { updateExplorerWidthAction } from "actions/explorerActions";
+import BottomBar from "components/BottomBar";
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
-  PUBLISH_COMMUNITY_TEMPLATE_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
-import { previewModeSelector } from "selectors/editorSelectors";
 import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
+import { previewModeSelector } from "selectors/editorSelectors";
 import { getExplorerWidth } from "selectors/explorerSelector";
+import styled from "styled-components";
 import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "./routes";
-import styled from "styled-components";
-import BottomBar from "components/BottomBar";
-import PublishCommunityTemplateModal from "../Templates/CommunityTemplates/Modals/PublishCommunityTemplate";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -91,11 +89,6 @@ function MainContainer() {
               component={WidgetsEditor}
               exact
               path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
-            />
-            <SentryRoute
-              component={PublishCommunityTemplateModal}
-              exact
-              path={`${path}${PUBLISH_COMMUNITY_TEMPLATE_EDITOR_BASE_PATH}`}
             />
             <SentryRoute component={EditorsRouter} />
           </Switch>
