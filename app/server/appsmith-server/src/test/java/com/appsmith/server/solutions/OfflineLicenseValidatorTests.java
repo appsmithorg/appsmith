@@ -29,6 +29,7 @@ import reactor.test.StepVerifier;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Map;
 
 @SpringBootTest
 @Slf4j
@@ -47,9 +48,10 @@ public class OfflineLicenseValidatorTests {
     @Autowired
     Gson gson;
 
-    private LicenseValidator licenseValidator;
+    private LicenseAPIManager licenseAPIManager;
 
     private String activeLicenseKey;
+    private String activeTenantFeaturesLicenseKey;
     private String expiredLicenseKey;
 
     String PAID_ACTIVE_DATASET = "{" + "\"origin\":\"AIR_GAP\","
@@ -57,6 +59,19 @@ public class OfflineLicenseValidatorTests {
             + "\"expiry\":\"2099-05-30\","
             + "\"email\":\"test@example.com\","
             + "\"contractType\":\"FIXED_EXPIRY\","
+            + "\"createdAt\":\"2023-03-15T08:17:39.010Z\""
+            + "}";
+
+    String PAID_ACTIVE_TENANT_FEATURES_DATASET = "{" + "\"origin\":\"AIR_GAP\","
+            + "\"type\":\"PAID\","
+            + "\"expiry\":\"2099-05-30\","
+            + "\"email\":\"test@example.com\","
+            + "\"contractType\":\"FIXED_EXPIRY\","
+            + "\"tenantFeatures\":"
+            + "{"
+            + "\"feature1\":true,"
+            + "\"feature2\":false"
+            + "},"
             + "\"createdAt\":\"2023-03-15T08:17:39.010Z\""
             + "}";
 
@@ -70,8 +85,8 @@ public class OfflineLicenseValidatorTests {
 
     @BeforeEach
     public void setup() throws Exception {
-        this.licenseValidator =
-                new OfflineLicenseValidatorImpl(releaseNotesService, configService, licenseConfig, gson);
+        this.licenseAPIManager =
+                new OfflineLicenseAPIManagerImpl(releaseNotesService, configService, licenseConfig, gson);
         // Generate Ed25519 key pair
         Ed25519KeyPairGenerator keyPairGenerator = new Ed25519KeyPairGenerator();
         keyPairGenerator.init(new Ed25519KeyGenerationParameters(new SecureRandom()));
@@ -82,6 +97,7 @@ public class OfflineLicenseValidatorTests {
 
         // Generate license key for custom dataset
         activeLicenseKey = getLicenseForCustomDataset(privateKey, PAID_ACTIVE_DATASET);
+        activeTenantFeaturesLicenseKey = getLicenseForCustomDataset(privateKey, PAID_ACTIVE_TENANT_FEATURES_DATASET);
         expiredLicenseKey = getLicenseForCustomDataset(privateKey, TRIAL_EXPIRED_DATASET);
 
         // Encode public key to hex
@@ -115,7 +131,7 @@ public class OfflineLicenseValidatorTests {
         License license = new License();
         license.setKey(activeLicenseKey);
         Tenant tenant = this.createTransientTenantWithSampleLicense(license);
-        Mono<License> verifiedLicenseMono = licenseValidator.licenseCheck(tenant);
+        Mono<License> verifiedLicenseMono = licenseAPIManager.licenseCheck(tenant);
 
         StepVerifier.create(verifiedLicenseMono)
                 .assertNext(verifiedLicense -> {
@@ -125,6 +141,7 @@ public class OfflineLicenseValidatorTests {
                     Assertions.assertTrue(license.getActive());
                     Assertions.assertEquals(license.getKey(), activeLicenseKey);
                     Assertions.assertEquals(license.getType(), LicenseType.PAID);
+                    Assertions.assertNull(license.getTenantFeatures());
                     Assertions.assertEquals(license.getStatus(), LicenseStatus.ACTIVE);
                 })
                 .verifyComplete();
@@ -136,7 +153,7 @@ public class OfflineLicenseValidatorTests {
         License license = new License();
         license.setKey("key/randomLicenseKey");
         Tenant tenant = this.createTransientTenantWithSampleLicense(license);
-        Mono<License> licenseMono = licenseValidator.licenseCheck(tenant);
+        Mono<License> licenseMono = licenseAPIManager.licenseCheck(tenant);
         StepVerifier.create(licenseMono)
                 .assertNext(verifiedLicense -> Assertions.assertEquals(verifiedLicense, new License()))
                 .verifyComplete();
@@ -149,7 +166,7 @@ public class OfflineLicenseValidatorTests {
         license.setKey(expiredLicenseKey);
 
         Tenant tenant = this.createTransientTenantWithSampleLicense(license);
-        Mono<License> verifiedLicenseMono = licenseValidator.licenseCheck(tenant);
+        Mono<License> verifiedLicenseMono = licenseAPIManager.licenseCheck(tenant);
 
         StepVerifier.create(verifiedLicenseMono)
                 .assertNext(verifiedLicense -> {
@@ -159,7 +176,35 @@ public class OfflineLicenseValidatorTests {
                     Assertions.assertFalse(license.getActive());
                     Assertions.assertEquals(license.getKey(), expiredLicenseKey);
                     Assertions.assertEquals(license.getType(), LicenseType.TRIAL);
+                    Assertions.assertNull(license.getTenantFeatures());
                     Assertions.assertEquals(license.getStatus(), LicenseStatus.EXPIRED);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void validTenantFeaturesLicense_validateLicense_success() {
+
+        License license = new License();
+        license.setKey(activeTenantFeaturesLicenseKey);
+        Tenant tenant = this.createTransientTenantWithSampleLicense(license);
+        Mono<License> verifiedLicenseMono = licenseAPIManager.licenseCheck(tenant);
+
+        StepVerifier.create(verifiedLicenseMono)
+                .assertNext(verifiedLicense -> {
+                    Assertions.assertNotNull(verifiedLicense);
+                    Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.AIR_GAP);
+                    Assertions.assertEquals(verifiedLicense.getExpiry(), Instant.parse("2099-05-30T00:00:00Z"));
+                    Assertions.assertTrue(license.getActive());
+                    Assertions.assertEquals(license.getKey(), activeTenantFeaturesLicenseKey);
+                    Assertions.assertEquals(license.getType(), LicenseType.PAID);
+                    Assertions.assertEquals(license.getStatus(), LicenseStatus.ACTIVE);
+                    Assertions.assertNotNull(license.getTenantFeatures());
+                    Map<String, Boolean> tenantFeatures = license.getTenantFeatures();
+                    Assertions.assertTrue(tenantFeatures.containsKey("feature1")
+                            && tenantFeatures.get("feature1").equals(true));
+                    Assertions.assertTrue(tenantFeatures.containsKey("feature2")
+                            && tenantFeatures.get("feature2").equals(false));
                 })
                 .verifyComplete();
     }

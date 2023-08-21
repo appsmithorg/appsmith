@@ -205,36 +205,20 @@ public class WorkspaceResources {
         Flux<Environment> environmentFlux = dataFromRepositoryForAllTabs.getEnvironmentFlux();
         Mono<Map<String, Collection<Datasource>>> workspaceDatasourceNotDtoMapMono =
                 dataFromRepositoryForAllTabs.getWorkspaceDatasourceMapMono();
-        Mono<Map<String, Collection<Application>>> workspaceApplicationMapMono =
-                dataFromRepositoryForAllTabs.getWorkspaceApplicationMapMono();
-        Mono<Map<String, Collection<NewPage>>> applicationPageMapMono =
-                dataFromRepositoryForAllTabs.getApplicationPageMapMono();
-        Mono<Map<String, Collection<NewAction>>> pageActionNotDtoMapMono =
-                dataFromRepositoryForAllTabs.getPageActionMapMono();
-        Mono<Map<String, Collection<ActionCollection>>> pageActionCollectionNotDtoMapMono =
-                dataFromRepositoryForAllTabs.getPageActionCollectionMapMono();
         Mono<Map<String, Collection<Environment>>> workspaceEnvironmentNotDtoMapMono =
                 dataFromRepositoryForAllTabs.getWorkspaceEnvironmentMapMono();
 
-        Mono<Map<String, Collection<ActionResourceDTO>>> pageActionsMapMono =
-                pageActionNotDtoMapMono.map(pageActionNotDtoMap ->
-                        getPageActionsMap(pageActionNotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
-
-        Mono<Map<String, Collection<ActionCollectionResourceDTO>>> pageActionCollectionMapMono =
-                pageActionCollectionNotDtoMapMono.map(pageActionCollectionNotDtoMap -> getPageActionCollectionMap(
-                        pageActionCollectionNotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
-
         Mono<Map<String, Collection<DatasourceResourceDTO>>> workspaceDatasourcesDtoMap =
                 workspaceDatasourceNotDtoMapMono.map(workspaceDatasourceNotDtoMap -> getWorkspaceDatasourceMap(
-                        workspaceDatasourceNotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
+                        workspaceDatasourceNotDtoMap, RoleTab.DATASOURCES_ENVIRONMENTS, permissionGroupId));
 
         Mono<Map<String, Collection<EnvironmentResourceDTO>>> workspaceEnvironmentResourceDtoMapMono =
                 workspaceEnvironmentNotDtoMapMono.map(workspaceEnvironmentnotDtoMap -> getWorkspaceEnvironmentMap(
-                        workspaceEnvironmentnotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
+                        workspaceEnvironmentnotDtoMap, RoleTab.DATASOURCES_ENVIRONMENTS, permissionGroupId));
 
         // Get the permission hover map for the tab
         Mono<Map<String, Set<IdPermissionDTO>>> linkedPermissionsMono = getLinkedPermissionsForDatasourceResources(
-                RoleTab.DATASOURCES_QUERIES,
+                RoleTab.DATASOURCES_ENVIRONMENTS,
                 workspaceFlux,
                 workspaceDatasourceNotDtoMapMono,
                 datasourceFlux,
@@ -247,32 +231,15 @@ public class WorkspaceResources {
         // Get the map for disabled edit interaction
         Mono<Map<String, Set<IdPermissionDTO>>> disableMapForDatasourceResourcesMono =
                 getDisableMapsForDatasourceResources(
-                        RoleTab.DATASOURCES_QUERIES, workspaceFlux, datasourceFlux, environmentFlux);
+                        RoleTab.DATASOURCES_ENVIRONMENTS, workspaceFlux, datasourceFlux, environmentFlux);
 
-        Mono<EntityView> entityViewMono = Mono.zip(
-                        workspaceDatasourcesDtoMap,
-                        workspaceApplicationMapMono,
-                        applicationPageMapMono,
-                        pageActionsMapMono,
-                        pageActionCollectionMapMono,
-                        workspaceEnvironmentResourceDtoMapMono)
+        Mono<EntityView> entityViewMono = Mono.zip(workspaceDatasourcesDtoMap, workspaceEnvironmentResourceDtoMapMono)
                 .flatMapMany(tuple -> {
                     Map<String, Collection<DatasourceResourceDTO>> workspaceDatasources = tuple.getT1();
-                    Map<String, Collection<Application>> workspaceApplications = tuple.getT2();
-                    Map<String, Collection<NewPage>> applicationPages = tuple.getT3();
-                    Map<String, Collection<ActionResourceDTO>> pageActions = tuple.getT4();
-                    Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections = tuple.getT5();
-                    Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironments = tuple.getT6();
+                    Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironments = tuple.getT2();
 
                     return getWorkspaceDTOsForDatasourceResources(
-                            permissionGroupId,
-                            workspaceFlux,
-                            workspaceDatasources,
-                            workspaceApplications,
-                            applicationPages,
-                            pageActions,
-                            pageActionCollections,
-                            workspaceEnvironments);
+                            permissionGroupId, workspaceFlux, workspaceDatasources, workspaceEnvironments);
                 })
                 .collectList()
                 .map(workspaceDTOs -> {
@@ -289,7 +256,7 @@ public class WorkspaceResources {
                     Map<String, Set<IdPermissionDTO>> disableHelper = tuple.getT3();
                     RoleTabDTO roleTabDTO = new RoleTabDTO();
                     roleTabDTO.setData(entityView);
-                    roleTabDTO.setPermissions(RoleTab.DATASOURCES_QUERIES.getViewablePermissions());
+                    roleTabDTO.setPermissions(RoleTab.DATASOURCES_ENVIRONMENTS.getViewablePermissions());
                     roleTabDTO.setHoverMap(linkedPermissions);
                     roleTabDTO.setDisableHelperMap(disableHelper);
 
@@ -301,22 +268,18 @@ public class WorkspaceResources {
             String permissionGroupId,
             Flux<Workspace> workspaceFlux,
             Map<String, Collection<DatasourceResourceDTO>> workspaceDatasourceMap,
-            Map<String, Collection<Application>> workspaceApplicationMap,
-            Map<String, Collection<NewPage>> applicationPageMap,
-            Map<String, Collection<ActionResourceDTO>> pageActionsMap,
-            Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollectionMap,
             Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap) {
         return featureFlagService
                 .check(FeatureFlagEnum.release_datasource_environments_enabled)
-                .flatMapMany(isFeatureFlag -> workspaceFlux
+                .flatMapMany(datasourcesEnvironmentsEnabled -> workspaceFlux
                         .map(workspace -> generateBaseViewDto(
                                 workspace,
                                 Workspace.class,
                                 workspace.getName(),
-                                RoleTab.DATASOURCES_QUERIES,
+                                RoleTab.DATASOURCES_ENVIRONMENTS,
                                 permissionGroupId,
                                 policyGenerator))
-                        .flatMap(workspaceDTO -> {
+                        .map(workspaceDTO -> {
                             // Create the empty header representations and add the respective children inside them
                             EntityView header = new EntityView();
                             header.setType("Header");
@@ -331,58 +294,24 @@ public class WorkspaceResources {
                             datasourcesEntityView.setEntities(datasourceResourceDTOS);
                             datasourcesView.setChildren(Set.of(datasourcesEntityView));
 
-                            BaseView applicationsView = new BaseView();
-                            applicationsView.setName("Applications");
-                            Collection<Application> applications = workspaceApplicationMap.get(workspaceDTO.getId());
+                            // Environment View
+                            BaseView environmentsView = new BaseView();
+                            environmentsView.setName("Environments");
+                            EntityView environmentsEntityView = new EntityView();
+                            environmentsEntityView.setType(Environment.class.getSimpleName());
+                            List<EnvironmentResourceDTO> environmentResourceDTOS =
+                                    (List<EnvironmentResourceDTO>) workspaceEnvironmentMap.get(workspaceDTO.getId());
+                            environmentsEntityView.setEntities(environmentResourceDTOS);
+                            environmentsView.setChildren(Set.of(environmentsEntityView));
 
-                            Mono<List<BaseView>> applicationsDTOsMono = Mono.just(List.of());
-
-                            // In case the workspace does not have any applications, proceed ahead by returning an empty
-                            // list
-                            if (!CollectionUtils.isEmpty(applications)) {
-                                applicationsDTOsMono = getFilteredApplicationDTOMonoForDatasourceTab(getApplicationDTOs(
-                                                permissionGroupId,
-                                                applicationPageMap,
-                                                pageActionsMap,
-                                                pageActionCollectionMap,
-                                                applications,
-                                                RoleTab.DATASOURCES_QUERIES))
-                                        .collectList();
+                            if (TRUE.equals(datasourcesEnvironmentsEnabled)) {
+                                header.setEntities(List.of(environmentsView, datasourcesView));
+                            } else {
+                                header.setEntities(List.of(datasourcesView));
                             }
 
-                            if (TRUE.equals(isFeatureFlag)) {
-                                // Environment View
-                                BaseView environmentsView = new BaseView();
-                                environmentsView.setName("Environments");
-                                EntityView environmentsEntityView = new EntityView();
-                                environmentsEntityView.setType(Environment.class.getSimpleName());
-                                List<EnvironmentResourceDTO> environmentResourceDTOS = (List<EnvironmentResourceDTO>)
-                                        workspaceEnvironmentMap.get(workspaceDTO.getId());
-                                environmentsEntityView.setEntities(environmentResourceDTOS);
-                                environmentsView.setChildren(Set.of(environmentsEntityView));
-
-                                return applicationsDTOsMono.map(applicationDTOs -> {
-                                    EntityView applicationsEntity = new EntityView();
-                                    applicationsEntity.setType(Application.class.getSimpleName());
-                                    applicationsEntity.setEntities(applicationDTOs);
-                                    applicationsView.setChildren(Set.of(applicationsEntity));
-                                    header.setEntities(List.of(environmentsView, datasourcesView, applicationsView));
-                                    workspaceDTO.setChildren(Set.of(header));
-                                    return workspaceDTO;
-                                });
-                            }
-
-                            return applicationsDTOsMono.map(applicationDTOs -> {
-                                EntityView applicationsEntity = new EntityView();
-                                applicationsEntity.setType(Application.class.getSimpleName());
-                                applicationsEntity.setEntities(applicationDTOs);
-                                applicationsView.setChildren(Set.of(applicationsEntity));
-
-                                header.setEntities(List.of(datasourcesView, applicationsView));
-
-                                workspaceDTO.setChildren(Set.of(header));
-                                return workspaceDTO;
-                            });
+                            workspaceDTO.setChildren(Set.of(header));
+                            return workspaceDTO;
                         }));
     }
 

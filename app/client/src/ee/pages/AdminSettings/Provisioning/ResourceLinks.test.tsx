@@ -13,6 +13,7 @@ function renderComponent() {
   return render(
     <StaticRouter>
       <ResourceLinks
+        origin="test"
         provisionedGroups={mockData.provisionedGroups}
         provisionedUsers={mockData.provisionedUsers}
       />
@@ -22,7 +23,7 @@ function renderComponent() {
 
 describe("ResourceLinks", () => {
   it("should render links correctly with the correct user and group counts", () => {
-    const { getByText } = renderComponent();
+    const { getAllByTestId, getByText } = renderComponent();
 
     // Verify the rendered text content with the mocked provisioningDetails
     expect(getByText(`${mockData.provisionedUsers} users`)).toBeInTheDocument();
@@ -31,7 +32,7 @@ describe("ResourceLinks", () => {
     ).toBeInTheDocument();
 
     // Verify the rendered links
-    const links = document.querySelectorAll(".ads-v2-link");
+    const links = getAllByTestId("linked-resources-link");
     expect(links).toHaveLength(2);
 
     // Verify the link properties

@@ -3,7 +3,6 @@ import {
   isEditorPath,
   isViewerPath,
 } from "@appsmith/pages/Editor/Explorer/helpers";
-import history from "utils/history";
 import { fetchWithRetry, getUsagePulsePayload } from "./utils";
 import {
   PULSE_API_ENDPOINT,
@@ -14,8 +13,6 @@ import {
 } from "@appsmith/constants/UsagePulse";
 import PageApi from "api/PageApi";
 import { APP_MODE } from "entities/App";
-import type { FetchApplicationResponse } from "@appsmith/api/ApplicationApi";
-import type { AxiosResponse } from "axios";
 import { getFirstTimeUserOnboardingIntroModalVisibility } from "utils/storage";
 
 class UsagePulse {
@@ -37,12 +34,11 @@ class UsagePulse {
           If it is private app with non-logged in user, we do not send pulse at this point instead we redirect to the login page.
           And for login page no usage pulse is required.
         */
-        const response: AxiosResponse<FetchApplicationResponse, any> =
-          await PageApi.fetchAppAndPages({
-            pageId: getAppViewerPageIdFromPath(path),
-            mode: APP_MODE.PUBLISHED,
-          });
-        const { data } = response.data || {};
+        const response: any = await PageApi.fetchAppAndPages({
+          pageId: getAppViewerPageIdFromPath(path),
+          mode: APP_MODE.PUBLISHED,
+        });
+        const { data } = response ?? {};
         if (data?.application && !data.application.isPublic) {
           return false;
         }
@@ -78,29 +74,20 @@ class UsagePulse {
 
   static registerActivityListener() {
     USER_ACTIVITY_LISTENER_EVENTS.forEach((event) => {
-      window.document.body.addEventListener(event, UsagePulse.track);
+      window.document.body.addEventListener(
+        event,
+        UsagePulse.sendPulseAndScheduleNext,
+      );
     });
   }
 
   static deregisterActivityListener() {
     USER_ACTIVITY_LISTENER_EVENTS.forEach((event) => {
-      window.document.body.removeEventListener(event, UsagePulse.track);
+      window.document.body.removeEventListener(
+        event,
+        UsagePulse.sendPulseAndScheduleNext,
+      );
     });
-  }
-
-  /*
-   * Function to register a history change event and trigger
-   * a callback and unlisten when the user goes to a trackable URL
-   */
-  static async watchForTrackableUrl(callback: () => void) {
-    UsagePulse.unlistenRouteChange = history.listen(async () => {
-      if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
-        UsagePulse.unlistenRouteChange();
-        setTimeout(callback, 0);
-      }
-    });
-
-    UsagePulse.deregisterActivityListener();
   }
 
   /*
@@ -119,26 +106,24 @@ class UsagePulse {
   /*
    * Point of entry for the user tracking
    */
-  static startTrackingActivity(
+  static async startTrackingActivity(
     isTelemetryEnabled: boolean,
     isAnonymousUser: boolean,
   ) {
     UsagePulse.isTelemetryEnabled = isTelemetryEnabled;
     UsagePulse.isAnonymousUser = isAnonymousUser;
-    UsagePulse.track();
+    if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
+      await UsagePulse.sendPulseAndScheduleNext();
+    }
   }
 
   /*
    * triggers a pulse and schedules the pulse , if user is on a trackable url, otherwise
    * registers listeners to wait for the user to go to a trackable url
    */
-  static async track() {
-    if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
-      UsagePulse.sendPulse();
-      UsagePulse.scheduleNextActivityListeners();
-    } else {
-      await UsagePulse.watchForTrackableUrl(UsagePulse.track);
-    }
+  static async sendPulseAndScheduleNext() {
+    UsagePulse.sendPulse();
+    UsagePulse.scheduleNextActivityListeners();
   }
 
   /*

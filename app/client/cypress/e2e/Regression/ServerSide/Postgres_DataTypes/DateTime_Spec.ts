@@ -37,7 +37,7 @@ describe("DateTime Datatype tests", function () {
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
     });
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       entityExplorer._entityNameInExplorer("public.datetimetypes"),
     );
   });
@@ -149,7 +149,7 @@ describe("DateTime Datatype tests", function () {
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.EnterInputText("Ts", "2016-06-22 19:10:25-07");
     agHelper.EnterInputText("Tstz", "2016-06-22 19:10:25-07");
@@ -158,7 +158,7 @@ describe("DateTime Datatype tests", function () {
     agHelper.EnterInputText("Intervaler", "P6Y5M4DT3H2M1S");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
@@ -186,7 +186,7 @@ describe("DateTime Datatype tests", function () {
 
   it("6. Inserting another format of record - datetimetypes", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.EnterInputText("Ts", "2020-10-05 14:01:10-08");
     agHelper.EnterInputText("Tstz", "2020-10-05 14:01:10-08");
@@ -195,7 +195,7 @@ describe("DateTime Datatype tests", function () {
     agHelper.EnterInputText("Intervaler", "3 4:05:06");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
 
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
@@ -225,7 +225,7 @@ describe("DateTime Datatype tests", function () {
   it("7. Updating record (emtying some field) - datetimetypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("Run UpdateQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.EnterInputText("Ts", "2019-07-01", true);
     agHelper.EnterInputText("Tstz", "2019-07-01 00:00:00+11", true);
@@ -234,7 +234,7 @@ describe("DateTime Datatype tests", function () {
     agHelper.EnterInputText("Intervaler", "P0001-03-02T06:04:05", true);
 
     agHelper.ClickButton("Update");
-    agHelper.AssertElementVisible(locators._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is same
     });
@@ -272,7 +272,7 @@ describe("DateTime Datatype tests", function () {
 
   it("9. Inserting another record (+ve record - to check serial column) - datetimetypes", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.EnterInputText("Ts", "February 8 04:05:06 1999");
     agHelper.EnterInputText("Tstz", "February 10 04:05:06 1999 PST");
@@ -281,7 +281,7 @@ describe("DateTime Datatype tests", function () {
     agHelper.EnterInputText("Intervaler", "1-2");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
 
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
@@ -310,7 +310,7 @@ describe("DateTime Datatype tests", function () {
 
   it("10. Deleting all records from table - datetimetypes", () => {
     agHelper.GetNClick(locators._deleteIcon);
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });

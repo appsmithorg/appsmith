@@ -35,8 +35,13 @@ import {
   SAML_AUTH_DESC,
   createMessage,
 } from "@appsmith/constants/messages";
+import { isSSOEnabled } from "@appsmith/utils/planHelpers";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import store from "store";
 
-const SsoAuth: AdminConfigType = {
+const featureFlags = selectFeatureFlags(store.getState());
+
+const SamlAuth: AdminConfigType = {
   type: SettingCategories.SAML_AUTH,
   categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.PAGE,
@@ -44,6 +49,7 @@ const SsoAuth: AdminConfigType = {
   component: Saml,
   subText: createMessage(SAML_AUTH_DESC),
   canSave: true,
+  isFeatureEnabled: isSSOEnabled(featureFlags),
 };
 
 const OidcAuth: AdminConfigType = {
@@ -170,6 +176,7 @@ const OidcAuth: AdminConfigType = {
       ],
     },
   ],
+  isFeatureEnabled: isSSOEnabled(featureFlags),
 };
 
 export const SamlAuthCallout: AuthMethodType = {
@@ -178,6 +185,7 @@ export const SamlAuthCallout: AuthMethodType = {
   label: "SAML 2.0",
   subText: createMessage(SAML_AUTH_DESC),
   image: SamlSso,
+  isFeatureEnabled: isSSOEnabled(featureFlags),
 };
 
 export const OidcAuthCallout: AuthMethodType = {
@@ -186,6 +194,7 @@ export const OidcAuthCallout: AuthMethodType = {
   label: "OIDC",
   subText: createMessage(OIDC_AUTH_DESC),
   image: OIDC,
+  isFeatureEnabled: isSSOEnabled(featureFlags),
 };
 
 const isAirgappedInstance = isAirgapped();
@@ -211,7 +220,7 @@ function AuthMain() {
     socialLoginList.includes("github");
   OidcAuth.isConnected = OidcAuthCallout.isConnected =
     socialLoginList.includes("oidc");
-  SsoAuth.isConnected = SamlAuthCallout.isConnected =
+  SamlAuth.isConnected = SamlAuthCallout.isConnected =
     socialLoginList.includes("saml");
   return <AuthPage authMethods={AuthMethods} />;
 }
@@ -219,7 +228,7 @@ function AuthMain() {
 export const config: AdminConfigType = {
   ...CE_config,
   children: Array.isArray(CE_config.children)
-    ? [...CE_config.children, SsoAuth, OidcAuth].filter((method) =>
+    ? [...CE_config.children, SamlAuth, OidcAuth].filter((method) =>
         isAirgappedInstance
           ? method.type !== SettingCategories.GOOGLE_AUTH &&
             method.type !== SettingCategories.GITHUB_AUTH

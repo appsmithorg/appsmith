@@ -1018,6 +1018,38 @@ public enum AppsmithError {
             "API Key not mapped.",
             ErrorType.AUTHENTICATION_ERROR,
             null),
+    ACL_NO_ACCESS_ERROR(
+            401,
+            AppsmithErrorCode.ACL_NO_ACCESS_ERROR.getCode(),
+            "You do not have access to this {0}. Please contact your {1} administrator to gain access",
+            AppsmithErrorAction.DEFAULT,
+            "No resource available for access",
+            ErrorType.INTERNAL_ERROR,
+            null),
+    UNCONFIGURED_DATASOURCE_STORAGE(
+            412,
+            AppsmithErrorCode.DATASOURCE_STORAGE_NOT_CONFIGURED.getCode(),
+            "{0} does not have a valid {1} configuration",
+            AppsmithErrorAction.DEFAULT,
+            "Datasource not configured for the given environment",
+            ErrorType.INTERNAL_ERROR,
+            null),
+    HMAC_GENERATION_EXCEPTION(
+            400,
+            AppsmithErrorCode.HMAC_GENERATION_EXCEPTION.getCode(),
+            "Unable to generate the HMAC hash, please get in touch with Appsmith support to resolve this issue!",
+            AppsmithErrorAction.DEFAULT,
+            "HMAC signature generation failed",
+            ErrorType.ARGUMENT_ERROR,
+            null),
+    TENANT_DOWNGRADE_EXCEPTION(
+            400,
+            AppsmithErrorCode.TENANT_DOWNGRADE_EXCEPTION.getCode(),
+            "Unable to downgrade current tenant. Error: {0}",
+            AppsmithErrorAction.DEFAULT,
+            "HMAC signature generation failed",
+            ErrorType.ARGUMENT_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;

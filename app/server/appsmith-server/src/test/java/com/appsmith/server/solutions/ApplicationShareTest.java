@@ -5,7 +5,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.PluginType;
@@ -29,6 +28,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -200,6 +200,9 @@ public class ApplicationShareTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @Autowired
+    ActionCollectionRepository actionCollectionRepository;
+
     User apiUser = null;
     User testUser = null;
 
@@ -266,9 +269,8 @@ public class ApplicationShareTest {
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasource = datasourceService.create(datasource).block();
@@ -277,13 +279,11 @@ public class ApplicationShareTest {
         datasourceWithoutActions.setName(testName + "WithoutAction");
         DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
         datasourceConfiguration1.setUrl("http://test.com");
-        datasourceWithoutActions.setDatasourceConfiguration(datasourceConfiguration);
         datasourceWithoutActions.setWorkspaceId(workspace.getId());
         datasourceWithoutActions.setPluginId(pluginId);
 
-        DatasourceStorage datasourceStorage2 = new DatasourceStorage(datasourceWithoutActions, environmentId);
         HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-        storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+        storages2.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
         datasourceWithoutActions.setDatasourceStorages(storages2);
 
         Datasource createdDatasourceWithoutActions =
@@ -301,6 +301,18 @@ public class ApplicationShareTest {
 
         ActionDTO createdActionBlock =
                 layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testActionCollection");
+        actionCollectionDTO.setApplicationId(createdApplication.getId());
+        actionCollectionDTO.setWorkspaceId(createdWorkspace.getId());
+        actionCollectionDTO.setPageId(
+                createdApplication.getPages().stream().findAny().get().getDefaultPageId());
+        actionCollectionDTO.setPluginId(pluginId);
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
 
         PermissionGroup devApplicationRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_DEVELOPER)
@@ -353,6 +365,10 @@ public class ApplicationShareTest {
                 .getPolicies();
         Set<Policy> newActionPolicies =
                 newActionRepository.findById(createdActionBlock.getId()).block().getPolicies();
+        Set<Policy> actionCollectionPolicies = actionCollectionRepository
+                .findById(createdActionCollectionDTO.getId())
+                .block()
+                .getPolicies();
         Set<Policy> systemThemePolicies =
                 themeRepository.findById(systemTheme.getId()).block().getPolicies();
         Set<Policy> applicationThemePolicies =
@@ -433,6 +449,21 @@ public class ApplicationShareTest {
         });
 
         newActionPolicies.forEach(policy -> {
+            if (policy.getPermission().equals(MANAGE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(DELETE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(READ_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(EXECUTE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+        });
+
+        actionCollectionPolicies.forEach(policy -> {
             if (policy.getPermission().equals(MANAGE_ACTIONS.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
             }
@@ -529,9 +560,9 @@ public class ApplicationShareTest {
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasource = datasourceService.create(datasource).block();
@@ -841,9 +872,8 @@ public class ApplicationShareTest {
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasource = datasourceService.create(datasource).block();
@@ -852,13 +882,11 @@ public class ApplicationShareTest {
         datasourceWithoutActions.setName(testName + "WithoutAction");
         DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
         datasourceConfiguration1.setUrl("http://test.com");
-        datasourceWithoutActions.setDatasourceConfiguration(datasourceConfiguration);
         datasourceWithoutActions.setWorkspaceId(workspace.getId());
         datasourceWithoutActions.setPluginId(pluginId);
 
-        DatasourceStorage datasourceStorage2 = new DatasourceStorage(datasourceWithoutActions, environmentId);
         HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-        storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+        storages2.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
         datasourceWithoutActions.setDatasourceStorages(storages2);
 
         Datasource createdDatasourceWithoutActions =
@@ -1082,16 +1110,15 @@ public class ApplicationShareTest {
         datasource.setName(testName);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
 
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasource = datasourceService.create(datasource).block();
@@ -2060,6 +2087,25 @@ public class ApplicationShareTest {
                 .filter(member -> StringUtils.isNotEmpty(member.getUsername()))
                 .collect(Collectors.toMap(MemberInfoDTO::getUsername, MemberInfoDTO::getUserId));
         assertThat(mapUsernameToUserId).containsExactlyInAnyOrderEntriesOf(mapInvitedUsernameToUserId);
+
+        List<Environment> environmentList = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectList()
+                .block();
+
+        assertThat(environmentList).hasSize(2);
+
+        environmentList.forEach(environment -> {
+            Optional<Policy> policyOptional = environment.getPolicies().stream()
+                    .filter(policy -> EXECUTE_ENVIRONMENTS.getValue().equals(policy.getPermission()))
+                    .findFirst();
+
+            assertThat(policyOptional).isNotEmpty();
+            Policy policy = policyOptional.get();
+
+            assertThat(policy.getPermissionGroups())
+                    .contains(appDeveloperRole.get().getId());
+        });
     }
 
     @Test
@@ -2127,6 +2173,30 @@ public class ApplicationShareTest {
                 .filter(member -> StringUtils.isNotEmpty(member.getUsername()))
                 .collect(Collectors.toMap(MemberInfoDTO::getUsername, MemberInfoDTO::getUserId));
         assertThat(mapUsernameToUserId).containsExactlyInAnyOrderEntriesOf(mapInvitedUsernameToUserId);
+
+        List<Environment> environmentList = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectList()
+                .block();
+
+        assertThat(environmentList).hasSize(2);
+
+        environmentList.forEach(environment -> {
+            Optional<Policy> policyOptional = environment.getPolicies().stream()
+                    .filter(policy -> EXECUTE_ENVIRONMENTS.getValue().equals(policy.getPermission()))
+                    .findFirst();
+
+            assertThat(policyOptional).isNotEmpty();
+            Policy policy = policyOptional.get();
+
+            if (Boolean.TRUE.equals(environment.getIsDefault())) {
+                assertThat(policy.getPermissionGroups())
+                        .contains(appViewerRole.get().getId());
+            } else {
+                assertThat(policy.getPermissionGroups())
+                        .doesNotContain(appViewerRole.get().getId());
+            }
+        });
     }
 
     @Test
@@ -3669,16 +3739,15 @@ public class ApplicationShareTest {
         datasource.setName(testName);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
 
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasource = datasourceService.create(datasource).block();
@@ -3798,16 +3867,14 @@ public class ApplicationShareTest {
         datasource.setName(testName);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
 
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasourceBeforeRoleCreated =
@@ -3820,14 +3887,12 @@ public class ApplicationShareTest {
         Datasource datasource1 = new Datasource();
         datasource1.setName(testName + 1);
         DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl("http://test.com");
-        datasource1.setDatasourceConfiguration(datasourceConfiguration1);
+        datasourceConfiguration1.setUrl("http://test.com");
         datasource1.setWorkspaceId(workspace.getId());
         datasource1.setPluginId(pluginId);
 
-        DatasourceStorage datasourceStorage1 = new DatasourceStorage(datasource1, environmentId);
         HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-        storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+        storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
         datasource1.setDatasourceStorages(storages1);
         Datasource createdDatasourceAfterRoleCreated =
                 datasourceService.create(datasource1).block();
@@ -3881,12 +3946,11 @@ public class ApplicationShareTest {
 
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
-    public void testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToAllEnvs() {
-        String testName = "testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToAllEnvs";
+    public void testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToOnlyProductionEnv() {
+        String testName = "testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToOnlyProductionEnv";
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
-        String pluginId =
-                pluginService.findByPackageName("restapi-plugin").block().getId();
+        pluginService.findByPackageName("restapi-plugin").block().getId();
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
@@ -3925,7 +3989,11 @@ public class ApplicationShareTest {
         environmentListAfterRoleCreated.forEach(environment -> {
             for (Policy policy : environment.getPolicies()) {
                 if (policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue())) {
-                    assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
+                    if (Boolean.TRUE.equals(environment.getIsDefault())) {
+                        assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
+                    } else {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                    }
                 }
             }
         });
@@ -3937,8 +4005,7 @@ public class ApplicationShareTest {
         String testName = "testEnvironmentPolicies_createApplicationDevRole_grantsPermissionsToAllEnvs";
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
-        String pluginId =
-                pluginService.findByPackageName("restapi-plugin").block().getId();
+        pluginService.findByPackageName("restapi-plugin").block().getId();
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =

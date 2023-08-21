@@ -4,6 +4,8 @@ import {
   homePage,
   dataSources,
   onboarding,
+  jsEditor,
+  deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 import homePageLocators from "../../../../../locators/HomePage";
 import auditLogslocators from "../../../../../locators/AuditLogsLocators";
@@ -44,8 +46,19 @@ describe("Create new workspace and invite group & validate all roles", () => {
       homePage.NavigateToHome();
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
       homePage.CreateAppInWorkspace(workspaceId, appid);
+      const jsObjectBody = `export default {
+        myVar1: [],
+      }`;
+      const jsObjectCreationOptions = {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      };
+      jsEditor.CreateJSObject(jsObjectBody, jsObjectCreationOptions);
       homePage.NavigateToHome();
       homePage.CreateAppInWorkspace(workspaceId, appid + "Internal Apps");
+      jsEditor.CreateJSObject(jsObjectBody, jsObjectCreationOptions);
     });
     homePage.LogOutviaAPI();
   });
@@ -69,7 +82,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     cy.get(RBAC.dropdownOption).should("contain.text", `Assign Custom Role`);
     cy.InviteGroupToApplication(GroupName, "Developer");
     agHelper.GetNClick(homePage._visibleTextSpan("Manage Users"));
-    agHelper.UpdateInput(homePage._searchUsersInput, GroupName);
+    agHelper.TypeText(homePage._searchUsersInput, GroupName);
     cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
     agHelper.GetNClick(RBAC.arrowRightMembersPage, 0, true);
     agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
@@ -172,7 +185,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
   it("6. Login as Administrator and delete workspace level role for group", () => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.DeleteUserFromWorkspace(appid, workspaceId, GroupName);
-    agHelper.UpdateInput(homePage._searchUsersInput, GroupName);
+    agHelper.ClearNType(homePage._searchUsersInput, GroupName);
     cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
     agHelper.AssertElementAbsence(homePageLocators.DeleteBtn);
     cy.get("table").contains("td", "No Access");
@@ -206,6 +219,9 @@ describe("Create new workspace and invite group & validate all roles", () => {
     agHelper.GetNClick(".t--entity-name:contains('Postgres')");
     cy.get(dataSources._createQuery).should("not.have.attr", "disabled");
     agHelper.Sleep(2000);
+    deployMode.DeployApp();
+    deployMode.NavigateBacktoEditor();
+    agHelper.Sleep(2000);
     agHelper.ClickButton("Share");
     agHelper.Sleep();
     agHelper.GetNClick(homePageLocators.selectRole);
@@ -215,10 +231,13 @@ describe("Create new workspace and invite group & validate all roles", () => {
     agHelper.AssertElementAbsence(homePageLocators.manageUsers);
     agHelper.GetNClick(homePageLocators.editModeInviteModalCloseBtn);
     homePage.NavigateToHome();
+    homePage.FilterApplication(appid, workspaceId, false);
     agHelper.AssertElementAbsence(homePage._appHoverIcon("edit"));
     agHelper.AssertElementAbsence(homePage._shareWorkspace(workspaceId));
     agHelper.AssertElementAbsence(homePageLocators.optionsIcon);
-    cy.get(homePageLocators.searchInput).type(appid + "Internal Apps");
+    cy.get(homePageLocators.searchInput)
+      .clear()
+      .type(appid + "Internal Apps");
     agHelper.Sleep(2000);
     cy.get(homePageLocators.appsContainer).should("not.contain", workspaceId);
     agHelper.AssertElementAbsence(".t--workspace-section");
@@ -230,7 +249,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     homePage.FilterApplication(appid, workspaceId);
     agHelper.GetNClick(homePageLocators.optionsIcon);
     agHelper.GetNClick(homePage._visibleTextSpan("Members"));
-    agHelper.UpdateInput(homePage._searchUsersInput, GroupName);
+    agHelper.TypeText(homePage._searchUsersInput, GroupName);
     cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
     agHelper.GetNClick(RBAC.arrowRightMembersPage, 0, true);
     agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
@@ -243,7 +262,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     cy.xpath(RBAC.optionAppViewer).last().parent("div").click();
     agHelper.Sleep();
     agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
-    agHelper.AssertElementVisible(RBAC.optionAppViewer);
+    agHelper.AssertElementVisibility(RBAC.optionAppViewer);
     homePage.LogOutviaAPI();
 
     homePage.LogintoApp(
@@ -276,7 +295,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     homePage.FilterApplication(appid, workspaceId);
     agHelper.GetNClick(homePageLocators.optionsIcon);
     agHelper.GetNClick(homePage._visibleTextSpan("Members"));
-    agHelper.UpdateInput(homePage._searchUsersInput, GroupName);
+    agHelper.TypeText(homePage._searchUsersInput, GroupName);
     cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
     agHelper.GetNClick(RBAC.arrowRightMembersPage, 0, true);
     agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
@@ -284,7 +303,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     cy.get(homePageLocators.leaveWorkspaceConfirmModal).should("be.visible");
     cy.get(homePageLocators.leaveWorkspaceConfirmButton).click({ force: true });
 
-    agHelper.UpdateInput(homePage._searchUsersInput, GroupName);
+    agHelper.TypeText(homePage._searchUsersInput, GroupName);
     cy.get(RBAC.searchHighlight).should("not.exist");
     homePage.LogOutviaAPI();
   });

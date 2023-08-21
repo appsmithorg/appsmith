@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.dtos.AuthenticationConfigurationDTO;
-import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.solutions.EnvManager;
@@ -29,12 +28,24 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
     }
 
     @Override
-    public Mono<EnvChangesResponseDTO> configure(AuthenticationConfigurationDTO configuration, String origin) {
+    public Mono<Void> configure(AuthenticationConfigurationDTO configuration, String origin) {
 
         if (configuration.getIsEnabled() == null || !configuration.getIsEnabled()) {
             // Delete the realm to delete all existing configuration and then update the environment with SAML disabled.
             return keycloakIntegrationService
                     .deleteRealm()
+                    // TODO : Remove the check here and instead move it to deleteRealm() method to return success if the
+                    // realm already exists.
+                    .onErrorResume(AppsmithException.class, error -> {
+                        if (error instanceof AppsmithException
+                                && error.getAppErrorCode()
+                                        .equals(AppsmithError.SAML_CONFIGURATION_FAILURE.getAppErrorCode())) {
+                            // Looks like the realm was already deleted. Let's continue.
+                            Mono.just(TRUE);
+                        }
+
+                        return Mono.error(error);
+                    })
                     .then(envManager.applyChanges(Map.of(APPSMITH_SSO_SAML_ENABLED.toString(), "false")));
         }
 

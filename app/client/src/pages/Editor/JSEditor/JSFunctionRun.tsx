@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import type { JSCollection } from "entities/JSCollection";
 import type { SelectProps } from "design-system";
-import { Button, Option, Select, Tooltip, Text, Tag } from "design-system";
+import { Button, Option, Select, Tooltip, Text } from "design-system";
 import {
   createMessage,
   NO_JS_FUNCTION_TO_RUN,
@@ -93,7 +93,6 @@ export function JSFunctionRun({
                   <OptionLabel renderAs="p">{option.label}</OptionLabel>
                 </OptionLabelWrapper>
               </Tooltip>
-              {option.hasCustomBadge && <Tag isClosable={false}>{"Async"}</Tag>}
             </OptionWrapper>
           </Option>
         ))}

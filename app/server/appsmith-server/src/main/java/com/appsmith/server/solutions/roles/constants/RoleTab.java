@@ -108,14 +108,15 @@ public enum RoleTab {
                     READ_PAGES,
 
                     // Action level permissions
+                    EXECUTE_ACTIONS,
                     MANAGE_ACTIONS,
                     DELETE_ACTIONS,
                     READ_ACTIONS),
-            List.of(CREATE, EDIT, DELETE, VIEW, MAKE_PUBLIC, EXPORT),
+            List.of(CREATE, EDIT, DELETE, VIEW, EXECUTE, MAKE_PUBLIC, EXPORT),
             // No duplicate entities for this tab
             null),
-    DATASOURCES_QUERIES(
-            "Datasources & Queries",
+    DATASOURCES_ENVIRONMENTS(
+            "Datasources & Environments",
             Set.of(
                     // Workspace level permissions
                     WORKSPACE_EXECUTE_DATASOURCES,
@@ -133,9 +134,7 @@ public enum RoleTab {
 
                     // Application level permissions : none
                     // Page level permissions : none
-
-                    // Action level permissions
-                    EXECUTE_ACTIONS,
+                    // Action level permissions : none
 
                     // environment level permissions
                     EXECUTE_ENVIRONMENTS),

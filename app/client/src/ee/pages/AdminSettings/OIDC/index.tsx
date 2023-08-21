@@ -18,7 +18,10 @@ import RestartBanner from "pages/Settings/RestartBanner";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import SaveAdminSettings from "pages/Settings/SaveSettings";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import {
+  SettingCategories,
+  SettingTypes,
+} from "@appsmith/pages/AdminSettings/config/types";
 import {
   createMessage,
   DISCONNECT_AUTH_ERROR,
@@ -42,6 +45,8 @@ import {
   getIsFormLoginEnabled,
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
+import { adminSettingsCategoryUrl } from "RouteBuilder";
+import history from "utils/history";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -64,12 +69,27 @@ function getSettingsConfig(category: string, subCategory?: string) {
 export function OidcSettingsForm(
   props: InjectedFormProps & RouteComponentProps & FormProps,
 ) {
-  const [defaultSettings, setDefaultSettings] = useState<string[]>([]);
   const params = useParams() as any;
   const { category, selected: subCategory } = params;
-  const settingsDetails = getSettingsConfig(category, subCategory);
+
   const { settings, settingsConfig } = props;
   const details = getSettingDetail(category, subCategory);
+  const settingsDetails = getSettingsConfig(category, subCategory);
+
+  const isFeatureEnabled = details?.isFeatureEnabled;
+
+  useEffect(() => {
+    if (!isFeatureEnabled) {
+      history.push(
+        adminSettingsCategoryUrl({
+          category: SettingCategories.AUTHENTICATION,
+        }),
+      );
+    }
+  }, [isFeatureEnabled]);
+
+  const [defaultSettings, setDefaultSettings] = useState<string[]>([]);
+
   const dispatch = useDispatch();
   const isSavable = AdminConfig.savableCategories.includes(
     subCategory ?? category,

@@ -45,6 +45,7 @@ public enum AnalyticsEvents {
     GIT_LIST_BRANCH,
     GIT_RESET,
     GIT_STATUS,
+    GIT_STATUS_WITHOUT_FETCH,
     GIT_COMMIT_HISTORY,
     GIT_CLONE,
     GIT_CHECKOUT,
@@ -84,7 +85,9 @@ public enum AnalyticsEvents {
     DS_TEST_EVENT_SUCCESS("Test_Datasource_Success"),
     DS_TEST_EVENT_FAILED("Test_Datasource_Failed"),
 
-    GIT_STALE_FILE_LOCK_DELETED;
+    GIT_STALE_FILE_LOCK_DELETED,
+    SCIM_DISABLED("scim_disabled"),
+    SCIM_LINKED("scim_linked");
 
     private final String eventName;
 

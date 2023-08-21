@@ -8,6 +8,6 @@ import reactor.core.publisher.Flux;
 import java.util.Map;
 
 public interface PolicySolution extends PolicySolutionCE {
-    Flux<Environment> updateEnvironmentPoliciesByWorkspaceId(
+    Flux<Environment> updateDefaultEnvironmentPoliciesByWorkspaceId(
             String workspaceId, Map<String, Policy> environmentPolicyMap, Boolean addViewAccess);
 }

@@ -68,7 +68,7 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
     inputs: [
       {
         className: "t--sso-metadata-url-input",
-        hint: "Metadata is an XML file which has configuration data used to establish trust between the SP and IDP. Paste the public URL of the XML file that contains the IdP information.",
+        hint: "Metadata is an XML file which has configuration data used to establish trust between the SP and IdP. Paste the public URL of the XML file that contains the IdP information.",
         label: "Metadata URL",
         name: "metadataUrl",
         isRequired: true,
@@ -93,7 +93,7 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
     inputs: [
       {
         className: "t--sso-metadata-xml-input",
-        hint: "Metadata is an XML file which has configuration data used to establish trust between the SP and IDP. Paste the file's text in its entirety here.",
+        hint: "Metadata is an XML file which has configuration data used to establish trust between the SP and IdP. Paste the file's text in its entirety here.",
         label: "Metadata XML",
         name: "metadataXml",
         type: "Area",
@@ -273,7 +273,7 @@ function MetadataForm(
     ) {
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
         method: pageTitle,
-        type: "SAML IDP data",
+        type: "SAML IdP data",
       });
       dispatch(
         fetchSamlMetadata({

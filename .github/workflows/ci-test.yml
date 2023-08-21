@@ -179,6 +179,7 @@ jobs:
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
             -e KEYGEN_API_URL=http://host.docker.internal:5001 \
             -e KEYGEN_BYPASS_SIGNATURE_VERIFICATION=true \
+            -e CREATE_DUMMY_LICENSES=true \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_URI=mongodb://host.docker.internal:27017 \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_DATABASE=cs \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_AUTH_DATABASE=admin \
@@ -215,11 +216,11 @@ jobs:
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             ${{ env.docker_container_name }}
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
       # actions/setup-node@v3 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488

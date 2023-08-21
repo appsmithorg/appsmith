@@ -56,7 +56,7 @@ import type { SelectOptionProps } from "design-system";
 import { Avatar, Button, Icon, Option, Select, Text } from "design-system";
 import { getInitials } from "utils/AppsmithUtils";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
-import { showProductRamps } from "utils/ProductRamps";
+import { showProductRamps } from "selectors/rampSelectors";
 import { CustomRolesRamp } from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -99,6 +99,9 @@ export default function MemberSettings(props: PageProps) {
   const onOpenConfirmationModal = () => setShowMemberDeletionConfirmation(true);
   const onCloseConfirmationModal = () =>
     setShowMemberDeletionConfirmation(false);
+
+  const showRampSelector = showProductRamps(RAMP_NAME.CUSTOM_ROLES);
+  const canShowRamp = useSelector(showRampSelector);
 
   const [userToBeDeleted, setUserToBeDeleted] = useState<{
     name: string;
@@ -446,7 +449,7 @@ export default function MemberSettings(props: PageProps) {
                 </div>
               </Option>
             ))}
-            {cloudHosting && showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+            {cloudHosting && canShowRamp && (
               <Option disabled>
                 <CustomRolesRamp />
               </Option>
@@ -624,12 +627,11 @@ export default function MemberSettings(props: PageProps) {
                           </div>
                         </Option>
                       ))}
-                      {cloudHosting &&
-                        showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
-                          <Option disabled>
-                            <CustomRolesRamp />
-                          </Option>
-                        )}
+                      {cloudHosting && canShowRamp && (
+                        <Option disabled>
+                          <CustomRolesRamp />
+                        </Option>
+                      )}
                     </Select>
                   )}
                   <DeleteIcon

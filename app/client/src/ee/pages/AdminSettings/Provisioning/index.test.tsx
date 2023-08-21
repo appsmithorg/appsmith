@@ -72,7 +72,7 @@ describe("Provisioning", () => {
     renderTruthyComponent();
 
     // Assert that each method card is correctly rendered
-    const methodCards = screen.getAllByTestId("method-card");
+    const methodCards = screen.getAllByTestId("t--method-card");
     expect(methodCards).toHaveLength(1); // Change the number based on the number of methods
 
     // Test method card details
@@ -92,7 +92,7 @@ describe("Provisioning", () => {
     renderFalsyComponent();
 
     // Assert that each method card is correctly rendered
-    const methodCards = screen.getAllByTestId("method-card");
+    const methodCards = screen.getAllByTestId("t--method-card");
     expect(methodCards).toHaveLength(1); // Change the number based on the number of methods
 
     // Test method card details

@@ -100,6 +100,9 @@ public class FieldName extends FieldNameCE {
     public static final String PROVISIONING_STATUS = "provisioningStatus";
     public static final String PROVISIONING_LAST_UPDATED_AT = "provisioningLastUpdatedAt";
     public static final String CONFIGURED_STATUS = "configuredStatus";
-
     public static final String APIKEY_USERID_DELIMITER = "::";
+    public static final String IS_PROVISIONED = "isProvisioned";
+    public static final String LINKED_USERS = "linked_users";
+    public static final String REMOVED = "removed";
+    public static final String RETAINED = "retained";
 }

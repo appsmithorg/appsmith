@@ -7,6 +7,8 @@ import { Icon, Input, Text, toast, Tooltip } from "design-system";
 export const BodyContainer = styled.div`
   width: 100%;
   padding: 0 0 16px;
+  .ads-v2-input__input-section-input,
+  .ads-v2-input__input-section-icon[data-has-onclick="true"],
   .ads-v2-input__input-section-icon[data-has-onclick="true"] * {
     cursor: pointer !important;
   }
@@ -56,10 +58,12 @@ function CopyUrlForm(props: {
   return (
     <BodyContainer>
       <Input
+        data-testid={`${fieldName}-input`}
         {...(helpText ? { description: `* ${helpText}` } : {})}
         endIcon="duplicate"
         endIconProps={{
           className: "copy-icon",
+          "data-testid": `${fieldName}-copy-icon`,
           onClick: handleCopy,
         }}
         isReadOnly
@@ -86,6 +90,7 @@ function CopyUrlForm(props: {
           </HeaderWrapper>
         }
         name={fieldName}
+        onClick={handleCopy}
         size="md"
         {...(startIcon ? { startIcon } : {})}
         value={fieldValue}

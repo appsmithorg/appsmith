@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
@@ -35,6 +36,7 @@ import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.core.Authentication;
@@ -49,6 +51,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,10 +63,16 @@ import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
+import static com.appsmith.server.constants.FieldName.IS_PROVISIONED;
 import static com.appsmith.server.constants.QueryParams.COUNT;
 import static com.appsmith.server.constants.QueryParams.EMAIL_FILTER;
 import static com.appsmith.server.constants.QueryParams.FILTER_DELIMITER;
 import static com.appsmith.server.constants.QueryParams.START_INDEX;
+import static com.appsmith.server.constants.ce.FieldNameCE.CLOUD_HOSTED_EXTRA_PROPS;
+import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
+import static com.appsmith.server.constants.ce.FieldNameCE.EVENT_DATA;
+import static com.appsmith.server.constants.ce.FieldNameCE.NUMBER_OF_USERS_INVITED;
+import static com.appsmith.server.constants.ce.FieldNameCE.USER_EMAILS;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_APPSMITH_LOGO;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_BACKGROUND_COLOR;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_FONT_COLOR;
@@ -84,6 +93,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final PolicySolution policySolution;
     private final PolicyGenerator policyGenerator;
     private final ProvisionUtils provisionUtils;
+    private final SessionUserService sessionUserService;
 
     public UserServiceImpl(
             Scheduler scheduler,
@@ -145,6 +155,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         this.policySolution = policySolution;
         this.policyGenerator = policyGenerator;
         this.provisionUtils = provisionUtils;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -308,17 +319,47 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
 
     @Override
     public Mono<ProvisionResourceDto> createProvisionUser(User user) {
-        return userCreate(user, Boolean.FALSE)
+        Mono<User> createProvisionedUserMono = userCreate(user, Boolean.FALSE)
                 .flatMap(this::updateProvisionUserPoliciesAndProvisionFlag)
                 .flatMap(this::updateProvisioningStatus)
+                .cache();
+        Mono<Long> sendAnalyticsEventForCreatedUserMono =
+                createProvisionedUserMono.flatMap(this::sendAnalyticsEventForCreatedUser);
+        return sendAnalyticsEventForCreatedUserMono
+                .then(createProvisionedUserMono)
                 .map(this::getProvisionResourceDto);
+    }
+
+    @NotNull private Mono<Long> sendAnalyticsEventForCreatedUser(User createdUser) {
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser();
+        Mono<User> sendAnalyticsEventMono = currentUserMono.flatMap(currentUser -> {
+            Map<String, Object> analyticsProperties = new HashMap<>();
+            Map<String, Object> eventData = new HashMap<>();
+            eventData.put(USER_EMAILS, List.of(createdUser.getEmail()));
+            analyticsProperties.put(NUMBER_OF_USERS_INVITED, 1);
+            Map<String, Object> extraPropsForCloudHostedInstance = Map.of(USER_EMAILS, List.of(createdUser.getEmail()));
+            analyticsProperties.put(EVENT_DATA, eventData);
+            analyticsProperties.put(CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+            analyticsProperties.put(IS_PROVISIONED, createdUser.getIsProvisioned());
+            return analyticsService.sendObjectEvent(
+                    AnalyticsEvents.EXECUTE_INVITE_USERS, currentUser, analyticsProperties);
+        });
+        return sendAnalyticsEventMono.thenReturn(1L);
     }
 
     @Override
     public Mono<ProvisionResourceDto> updateProvisionUser(String userId, UserUpdateDTO userUpdateDTO) {
         Mono<User> updateUserPolicyPostRead =
                 repository.findById(userId, READ_USERS).flatMap(this::updateProvisionUserPoliciesAndProvisionFlag);
-        Mono<User> userMono = repository.findById(userId, MANAGE_USERS).switchIfEmpty(updateUserPolicyPostRead);
+        Mono<User> sendScimLinkedEventSendLinkedUserMono = updateUserPolicyPostRead.flatMap(user -> {
+            Map<String, Object> analyticsProperties = new HashMap<>();
+            analyticsProperties.put(IS_PROVISIONED, user.getIsProvisioned());
+            analyticsProperties.put(EMAIL, user.getEmail());
+            return analyticsService.sendObjectEvent(AnalyticsEvents.SCIM_LINKED, user, analyticsProperties);
+        });
+
+        Mono<User> userMono =
+                repository.findById(userId, MANAGE_USERS).switchIfEmpty(sendScimLinkedEventSendLinkedUserMono);
         Mono<ProvisionResourceDto> updatedProvisionedUserMono;
         if (StringUtils.isEmpty(userUpdateDTO.getName()) && StringUtils.isEmpty(userUpdateDTO.getEmail())) {
             updatedProvisionedUserMono = userMono.map(this::getProvisionResourceDto);
@@ -453,5 +494,12 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                     policySolution.addPoliciesToExistingObject(userPoliciesMapWithNewPermissions, user);
                     return user;
                 });
+    }
+
+    @Override
+    public Map<String, Object> getAnalyticsProperties(User savedResource) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put(IS_PROVISIONED, savedResource.getIsProvisioned());
+        return analyticsProperties;
     }
 }

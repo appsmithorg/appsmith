@@ -22,6 +22,7 @@ describe("SyntaxErrorsEvaluation", () => {
       seriesID1: seriesData1,
       seriesID2: seriesData2,
     },
+    showDataPointLabel: true,
     chartName: "chart name",
     type: "CHART_WIDGET",
     chartType: "AREA_CHART",

@@ -1,5 +1,6 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
+  multipleEnv,
   agHelper,
   dataSources,
   deployMode,
@@ -7,10 +8,9 @@ import {
   entityExplorer,
   locators,
   propPane,
-  tedTestConfig,
-} from "../../../../support/Objects/ObjectsCore";
-import { EntityItems } from "../../../../support/Pages/AssertHelper";
-import { multipleEnv } from "../../../../support/ee/ObjectsCore_EE";
+  dataManager,
+  entityItems,
+} from "../../../../support/ee/ObjectsCore_EE";
 
 let oosDatasourceName: string,
   oosQueryName: string,
@@ -27,8 +27,8 @@ describe(
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
       featureFlagIntercept({ release_datasource_environments_enabled: true });
-      prodEnv = tedTestConfig.defaultEnviorment;
-      stagingEnv = tedTestConfig.environments[1];
+      prodEnv = dataManager.defaultEnviorment;
+      stagingEnv = dataManager.environments[1];
       multipleEnv.SwitchEnv(prodEnv);
       oosQueryName = "airtable_select";
       TABLE_DATA_STATIC = `{{${oosQueryName}.data.records}}`;
@@ -50,7 +50,7 @@ describe(
       // Ensure disabled icon is also present
       agHelper.AssertElementExist(multipleEnv.ds_data_filter_disabled);
       agHelper.GoBack();
-      agHelper.AssertElementVisible(dataSources._activeDS);
+      agHelper.AssertElementVisibility(dataSources._activeDS);
     });
 
     it("2. Create and test query responses for both ds on both environmets and add to a table", function () {
@@ -64,12 +64,12 @@ describe(
         "List records",
       );
 
-      agHelper.EnterValue(tedTestConfig.dsValues[prodEnv].AirtableBaseForME, {
+      agHelper.EnterValue(dataManager.dsValues[prodEnv].AirtableBaseForME, {
         propFieldName: "",
         directInput: false,
         inputFieldName: "Base ID ",
       });
-      agHelper.EnterValue(tedTestConfig.dsValues[prodEnv].AirtableTableForME, {
+      agHelper.EnterValue(dataManager.dsValues[prodEnv].AirtableTableForME, {
         propFieldName: "",
         directInput: false,
         inputFieldName: "Table name",
@@ -122,7 +122,13 @@ describe(
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
       agHelper.Sleep();
-      deployMode.DeployApp(undefined, true, true, true, "present");
+      deployMode.DeployApp(
+        locators._widgetInDeployed(draggableWidgets.TABLE),
+        true,
+        true,
+        true,
+        "present",
+      );
       featureFlagIntercept({ release_datasource_environments_enabled: true });
       // Check for env switcher
       agHelper.AssertElementExist(multipleEnv.env_switcher);
@@ -144,7 +150,7 @@ describe(
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1",
         action: "Delete",
-        entityType: EntityItems.Widget,
+        entityType: entityItems.Widget,
       });
       dataSources.DeleteQuery(oosQueryName);
       // Won't be deleting the ds since it is being used by a query in deploy mode

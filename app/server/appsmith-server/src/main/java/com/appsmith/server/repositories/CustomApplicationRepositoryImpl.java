@@ -9,8 +9,14 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.ComparisonOperators;
+import org.springframework.data.mongodb.core.aggregation.ConditionalOperators;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -24,13 +30,17 @@ import java.util.Set;
 public class CustomApplicationRepositoryImpl extends CustomApplicationRepositoryCEImpl
         implements CustomApplicationRepository {
 
+    private final ReactiveMongoTemplate reactiveMongoTemplate;
+
     @Autowired
     public CustomApplicationRepositoryImpl(
             @NonNull ReactiveMongoOperations mongoOperations,
             @NonNull MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper,
-            ApplicationPermission applicationPermission) {
+            ApplicationPermission applicationPermission,
+            ReactiveMongoTemplate reactiveMongoTemplate) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper, applicationPermission);
+        this.reactiveMongoTemplate = reactiveMongoTemplate;
     }
 
     @Override
@@ -91,102 +101,26 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
         //                NO_RECORD_LIMIT
         //        );
 
-        return mongoOperations
-                .query(this.genericDomain)
-                .matching(createQuery(workspaceIds))
-                .all()
-                .map(obj -> obj);
+        return fetchApplicationUsingAggregation(workspaceIds);
     }
 
-    private BasicQuery createQuery(Set<String> workspaceIds) {
-
-        // Unfortunately, due to java criteria not supporting comparison of 2 fields in the same document, building the
-        // complete query manually from scratch.
-        // TODO : Once this is fixed, we should go back to using criteria.
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\n" + "    \"$and\": [\n"
-                + "        {\n"
-                + "            \"workspaceId\": {\n"
-                + "                \"$in\": [");
-        StringBuilder workspaceIdString = new StringBuilder();
-        workspaceIds.forEach(workspaceId ->
-                workspaceIdString.append("\"").append(workspaceId).append("\","));
-        if (workspaceIdString.length() != 0) {
-            workspaceIdString.deleteCharAt(workspaceIdString.length() - 1);
-        }
-        sb.append(workspaceIdString);
-        sb.append("]}},\n" + "        {\n"
-                + "            \"$or\": [\n"
-                + "                {\n"
-                + "                    \"gitApplicationMetadata\": {\n"
-                + "                        \"$exists\": false\n"
-                + "                    }\n"
-                + "                },\n"
-                + "                {\n"
-                + "                    \"$and\": [\n"
-                + "                        {\n"
-                + "                            \"gitApplicationMetadata\": {\n"
-                + "                                \"$exists\": true\n"
-                + "                            }\n"
-                + "                        },\n"
-                + "                        {\n"
-                + "                            \"gitApplicationMetadata.defaultBranchName\": {\n"
-                + "                                \"$exists\": false\n"
-                + "                            }\n"
-                + "                        },\n"
-                + "                        {\n"
-                + "                            \"gitApplicationMetadata.branchName\": {\n"
-                + "                                \"$exists\": false\n"
-                + "                            }\n"
-                + "                        }\n"
-                + "                    ]\n"
-                + "                },\n"
-                + "                {\n"
-                + "                    \"$and\": [\n"
-                + "                        {\n"
-                + "                            \"gitApplicationMetadata\": {\n"
-                + "                                \"$exists\": true\n"
-                + "                            }\n"
-                + "                        },\n"
-                + "                        {\n"
-                + "                            \"gitApplicationMetadata.defaultBranchName\": {\n"
-                + "                                \"$exists\": true\n"
-                + "                            }\n"
-                + "                        },\n"
-                + "                        {\n"
-                + "                            \"gitApplicationMetadata.branchName\": {\n"
-                + "                                \"$exists\": true\n"
-                + "                            }\n"
-                + "                        },\n"
-                + "                        {\n"
-                + "                            \"$expr\": {\n"
-                + "                                \"$eq\": [\n"
-                + "                                    \"$gitApplicationMetadata.defaultBranchName\",\n"
-                + "                                    \"$gitApplicationMetadata.branchName\"\n"
-                + "                                ]\n"
-                + "                            }\n"
-                + "                        }\n"
-                + "                    ]\n"
-                + "                }\n"
-                + "            ]\n"
-                + "        },\n"
-                + "        {\n"
-                + "            \"$or\": [\n"
-                + "                {\n"
-                + "                    \"deleted\": {\n"
-                + "                        \"$exists\": false\n"
-                + "                    }\n"
-                + "                },\n"
-                + "                {\n"
-                + "                    \"deleted\": false\n"
-                + "                }\n"
-                + "            ]\n"
-                + "        }\n"
-                + "    ]\n"
-                + "}");
-
-        return new BasicQuery(sb.toString());
+    private Flux<Application> fetchApplicationUsingAggregation(Set<String> workspaceIds) {
+        Criteria workspaceIdCriteria = Criteria.where("workspaceId").in(workspaceIds);
+        ProjectionOperation projectionOperation = new ProjectionOperation(Application.class);
+        MatchOperation workSpaceIdMatchOperation = new MatchOperation(workspaceIdCriteria);
+        Criteria isNotDeletedCriteria = notDeleted();
+        MatchOperation isNotDeletedMatch = new MatchOperation(isNotDeletedCriteria);
+        ComparisonOperators.Eq fieldEQ = ComparisonOperators.Eq.valueOf("$gitApplicationMetadata.defaultBranchName");
+        fieldEQ = fieldEQ.equalTo("$gitApplicationMetadata.branchName");
+        ConditionalOperators.Cond cond =
+                ConditionalOperators.Cond.when(fieldEQ).then(true).otherwise(false);
+        AddFieldsOperation addFieldsOperation =
+                AddFieldsOperation.addField("isEq").withValue(cond).build();
+        Criteria criteria = Criteria.where("isEq").is(true);
+        MatchOperation matchOperation = new MatchOperation(criteria);
+        Aggregation combinedAggregation = Aggregation.newAggregation(
+                projectionOperation, workSpaceIdMatchOperation, isNotDeletedMatch, addFieldsOperation, matchOperation);
+        return reactiveMongoTemplate.aggregate(combinedAggregation, Application.class, Application.class);
     }
 
     @Override

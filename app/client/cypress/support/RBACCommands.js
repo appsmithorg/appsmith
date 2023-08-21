@@ -111,6 +111,7 @@ Cypress.Commands.add(
       .next()
       .next()
       .next()
+      .next()
       .click();
     cy.RenameRole(Role);
     cy.get(RBAC.saveButton).click();
@@ -794,7 +795,7 @@ Cypress.Commands.add(
     const _email =
       "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
     cy.stubPostHeaderReq();
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       ".t--workspace-section:contains(" + workspaceName + ")",
     );
     agHelper.GetNClick(

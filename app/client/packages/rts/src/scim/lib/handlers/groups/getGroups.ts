@@ -77,7 +77,7 @@ export async function getGroups(
     ) {
       // mandatory - return all groups the user 'id' (getObj.value) is member of - correspond to getGroupMembers() in versions < 4.x.x
       // Resources = [{ id: <id-group>> , displayName: <displayName-group>, members [{value: <id-user>}] }]
-      path = `${GROUP_PROVISION_ENDPOINT}?userIds=${getObj.value}`;
+      path = `${GROUP_PROVISION_ENDPOINT}?userId=${getObj.value}`;
     }
   } else if (getObj.rawFilter) {
     // optional - advanced filtering having and/or/not - use getObj.rawFilter

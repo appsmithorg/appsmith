@@ -13,11 +13,13 @@ export class AdminSettings {
     "//span[contains(text(), '" +
     user +
     "')]/parent::div/parent::a/parent::td/following-sibling::td[1]";
+  public _instanceName =
+    "//label[text()='Instance name']/following-sibling::div//input";
 
   public NavigateToAdminSettings() {
     this.homePage.NavigateToHome();
     this.agHelper.GetNClick(this._adminSettingsBtn);
     this.assertHelper.AssertNetworkStatus("getEnvVariables");
-    this.agHelper.AssertElementVisible(this._settingsList);
+    this.agHelper.AssertElementVisibility(this._settingsList);
   }
 }

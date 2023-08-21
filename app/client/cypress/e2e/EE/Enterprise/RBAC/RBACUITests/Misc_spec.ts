@@ -52,8 +52,8 @@ describe("rbac miscellaneous cases ", function () {
     agHelper.GetNClick(rbacHelper.rolesTab);
     agHelper.GetNClick(rbacHelper.defaultRoleToggle);
     agHelper.GetNClick(rbacHelper.rolesRow(instanceAdminRole));
-    agHelper.AssertElementVisible(rbac.saveButton);
-    agHelper.AssertElementVisible(rbac.clearButton);
+    agHelper.AssertElementVisibility(rbac.saveButton);
+    agHelper.AssertElementVisibility(rbac.clearButton);
     agHelper.GetNClick(rbac.clearButton);
     agHelper.AssertElementAbsence(rbac.saveButton);
     agHelper.AssertElementAbsence(rbac.clearButton);

@@ -167,12 +167,11 @@ public class ImportExportApplicationServiceEETest {
         auth.setPassword("awesome-password");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setAuthentication(auth);
-        testDatasource.setDatasourceConfiguration(datasourceConfiguration);
         testDatasource.setIsConfigured(true);
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, stagingEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(stagingEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                stagingEnvironmentId, new DatasourceStorageDTO(null, stagingEnvironmentId, datasourceConfiguration));
         testDatasource.setDatasourceStorages(storages);
         datasourceService.create(testDatasource).block();
 
@@ -234,9 +233,9 @@ public class ImportExportApplicationServiceEETest {
         testDatasource.setDatasourceConfiguration(datasourceConfiguration);
         testDatasource.setIsConfigured(true);
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, stagingEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(stagingEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                stagingEnvironmentId, new DatasourceStorageDTO(null, stagingEnvironmentId, datasourceConfiguration));
         testDatasource.setDatasourceStorages(storages);
         Datasource savedDatasource = datasourceService.create(testDatasource).block();
 

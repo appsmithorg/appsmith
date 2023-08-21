@@ -8,7 +8,6 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
-import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -64,6 +63,7 @@ import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.CLOUD_HOSTED_EXTRA_PROPS;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.EVENT_DATA;
+import static com.appsmith.server.constants.FieldName.IS_PROVISIONED;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USERS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USERS;
@@ -252,7 +252,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     Mono<Void> deleteUserDataMono = userDataRepository
                             .findByUserId(userId)
                             .flatMap(userData -> userDataRepository.deleteById(userData.getId()));
-                    Mono<User> userDeletedEvent = analyticsService.sendDeleteEvent(user);
+                    Map<String, Object> analyticsProperties = Map.of(IS_PROVISIONED, user.getIsProvisioned());
+                    Mono<User> userDeletedEvent = analyticsService.sendDeleteEvent(user, analyticsProperties);
 
                     Mono<Tuple2<Void, Void>> deleteUserAndDataMono = Mono.zip(deleteUserMono, deleteUserDataMono);
 
@@ -638,7 +639,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
 
     private Mono<Boolean> checkInstanceAdminUpdatedAndUpdateAdminEmails(Set<String> permissionGroupIdSet) {
         return getInstanceAdminRoleId().flatMap(id -> {
-            Mono<EnvChangesResponseDTO> updateAdminEmailsInEnvMono = Mono.empty();
+            Mono<Void> updateAdminEmailsInEnvMono = Mono.empty();
             if (permissionGroupIdSet.contains(id)) {
                 updateAdminEmailsInEnvMono = permissionGroupRepository
                         .findById(id)

@@ -53,6 +53,8 @@ export class RBACHelper {
     `//*[@data-testid="right-arrow-2"]/ancestor::tr//*[text()="${rowName}"]`;
   public contextMenuInUsers = (userName: string) =>
     `//*[text()="${userName}"]/ancestor::tr//*[@data-testid="actions-cell-menu-icon"]`;
+  public roleEditIcon = (roleName: string) =>
+    `//span[text()="${roleName}"]/parent::div/span[2]//span[@data-testid="t--edit-icon"]`;
   // groups and remove user are input
   public checkBoxInGroupsAndRolesTab = (groupName: string, action: string) =>
     "//*[contains(text(),'" +
@@ -97,9 +99,42 @@ export class RBACHelper {
     this.agHelper.GetNClick(RBAC.addButton);
     this.assertHelper.AssertNetworkStatus("@createRole", 201);
     this.agHelper.ContainsNClick(Workspace);
-    this.agHelper.GetNClick(this.checkbox(App, "Edit"));
+    this.agHelper
+      .GetElement(this.checkbox(App, "Edit") + "//input")
+      .check({ force: true });
     this.agHelper.ContainsNClick(App);
-    this.agHelper.GetNClick(this.checkbox(Page, "Create"));
+    this.agHelper
+      .GetElement(this.checkbox(Page, "Create") + "//input")
+      .check({ force: true });
+    this.RenameRole(Role);
+    this.agHelper.GetNClick(RBAC.saveButton);
+    this.assertHelper.AssertNetworkStatus("@saveRole", 200);
+    this.agHelper.GetNClick(RBAC.backButton);
+  };
+
+  /**
+   * Function to create role with app level permissions - Create, Edit, View
+   * @param Role
+   * @param Workspace
+   * @param App
+   * @param Page
+   */
+  public CreatePermissionAppLevel = (
+    Role: string,
+    Workspace: string,
+    App: string,
+  ) => {
+    this.agHelper.GetNClick(RBAC.rolesTab);
+    this.agHelper.GetNClick(RBAC.addButton);
+    this.assertHelper.AssertNetworkStatus("@createRole", 201);
+    this.agHelper.ContainsNClick(Workspace);
+    this.agHelper
+      .GetElement(this.checkbox(App, "Edit") + "//input")
+      .check({ force: true });
+    this.agHelper.ContainsNClick(App);
+    this.agHelper
+      .GetElement(this.checkbox(App, "Create") + "//input")
+      .check({ force: true });
     this.RenameRole(Role);
     this.agHelper.GetNClick(RBAC.saveButton);
     this.assertHelper.AssertNetworkStatus("@saveRole", 200);
@@ -115,7 +150,9 @@ export class RBACHelper {
     this.agHelper.WaitUntilEleAppear(this.textToClick(Role));
     this.agHelper.GetNClick(this.textToClick(Role), 0, true);
     this.agHelper.GetNClick(RBAC.othersTab);
-    this.agHelper.GetNClick(this.checkbox("Audit Logs", "View"));
+    this.agHelper
+      .GetElement(this.checkbox("Audit Logs", "View") + "//input")
+      .check({ force: true });
     this.agHelper.GetNClick(RBAC.saveButton);
     this.assertHelper.AssertNetworkStatus("@saveRole", 200);
   };
@@ -139,7 +176,7 @@ export class RBACHelper {
    * @param Action
    * @param Select
    */
-  public ModifyPermissions = (
+  public ModifyPermissionsNSave = (
     Role: string,
     entityName: string,
     Action: ActionType,
@@ -159,7 +196,15 @@ export class RBACHelper {
       "data-checked",
       (!Select).toString(),
     );
-    this.agHelper.GetNClick(this.checkbox(entityName, Action));
+    this.agHelper.WaitUntilEleAppear(this.checkbox(entityName, Action));
+    if (Select)
+      this.agHelper
+        .GetElement(this.checkbox(entityName, Action) + "//input")
+        .check({ force: true });
+    else
+      this.agHelper
+        .GetElement(this.checkbox(entityName, Action) + "//input")
+        .uncheck({ force: true });
     this.agHelper.GetNClick(RBAC.saveButton);
     this.assertHelper.AssertNetworkStatus("@saveRole", 200);
   };

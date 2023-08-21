@@ -85,7 +85,7 @@ describe("Test #2 - normalize operations on SIMPLE DSL structures", () => {
   };
 
   it("Test `flattenDSL` for simple_dsl", () => {
-    const flatDSL = flattenDSL<Record<string, any>>(simple_dsl);
+    const flatDSL = flattenDSL<Record<string, unknown>>(simple_dsl);
     expect(flatDSL).toStrictEqual(simple_flat_dsl);
   });
 

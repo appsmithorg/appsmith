@@ -1,6 +1,10 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
 import { Text, Flex } from "@design-system/widgets";
-import { TypographyVariant, TypographyColor } from "@design-system/theming";
+import {
+  TypographyVariant,
+  TypographyColor,
+  TypographyFontWeight,
+} from "@design-system/theming";
 
 <Meta
   title="Design-system/Widgets/Text"
@@ -65,6 +69,24 @@ Text is a component that renders a capsized text.
   >
     {Object.keys(TypographyColor).map((color) => (
       <Text variant="heading" color={color}>
+        aA
+      </Text>
+    ))}
+  </Flex>
+</Story>
+
+## Font weight
+
+<Story name="FontWeight">
+  <Flex
+    flex="1"
+    gap="spacing-6"
+    alignItems="center"
+    justifyContent="start"
+    direction="row-reverse"
+  >
+    {Object.keys(TypographyFontWeight).map((fontWeight) => (
+      <Text variant="heading" fontWeight={fontWeight}>
         aA
       </Text>
     ))}

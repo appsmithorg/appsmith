@@ -10,9 +10,10 @@ import {
 } from "../../../../../support/ee/ObjectsCore_EE";
 
 import auditlogloc from "../../../../../locators/AuditLogsLocators";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("Checking audit logs permission", function () {
-  let workspaceName: string, appName: string, datasourceName;
+  let workspaceName: string, appName: string, datasourceName: any;
   const pageName = "page_no_permission" + fakerHelper.GetRandomNumber();
   const permissionAtPageLevel =
     "PagePermissionRule" + fakerHelper.GetRandomNumber();
@@ -44,7 +45,7 @@ describe("Checking audit logs permission", function () {
       appName = "app" + guid;
       homePage.CreateNewWorkspace(workspaceName, true);
       homePage.CreateAppInWorkspace(workspaceName, appName);
-      entityExplorer.AddNewPage("New blank page").then((newPage) => {
+      entityExplorer.AddNewPage("New blank page")?.then((newPage) => {
         entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
       });
       dataSources.CreateDataSource("Postgres");
@@ -86,6 +87,9 @@ describe("Checking audit logs permission", function () {
   it("1. Check audit logs for above actions - instance admin", function () {
     adminSettings.NavigateToAdminSettings();
     agHelper.GetNClick(auditlogloc.LeftPaneAuditLogsLink);
+
+    featureFlagIntercept({ license_audit_logs_enabled: true });
+
     agHelper.GetNClick(auditlogloc.DateFilterContainer);
     agHelper.GetNClick(auditlogloc.datePickerToday);
     rbacHelper.AssertAuditLogText(workspaceName, "updated");
@@ -105,8 +109,12 @@ describe("Checking audit logs permission", function () {
       "App Viewer",
     );
     agHelper.GetNClick(adminSettings._adminSettingsBtn);
+    featureFlagIntercept({ license_audit_logs_enabled: true });
+    cy.wait(2000);
     assertHelper.AssertNetworkStatus("@fetchAuditLogs", 200);
     agHelper.GetNClick(auditlogloc.RefreshButton);
+    featureFlagIntercept({ license_audit_logs_enabled: true });
+    cy.wait(2000);
     assertHelper.AssertNetworkStatus("@fetchAuditLogs", 200);
     agHelper.GetNClick(auditlogloc.DateFilterContainer);
     agHelper.GetNClick(auditlogloc.datePickerToday);

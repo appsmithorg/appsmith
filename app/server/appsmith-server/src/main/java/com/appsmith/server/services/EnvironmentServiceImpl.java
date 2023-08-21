@@ -11,6 +11,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.EnvironmentRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.ce.EnvironmentServiceCEImpl;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -33,6 +35,8 @@ import static com.appsmith.external.constants.CommonFieldName.PRODUCTION_ENVIRON
 import static com.appsmith.external.constants.CommonFieldName.STAGING_ENVIRONMENT;
 import static com.appsmith.server.constants.FieldName.ENVIRONMENT_ID;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_ID;
+import static com.appsmith.server.constants.ce.FieldNameCE.PERMISSION_GROUP_ID;
+import static com.appsmith.server.constants.ce.FieldNameCE.PUBLIC_PERMISSION_GROUP;
 import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -45,6 +49,8 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     private final FeatureFlagService featureFlagService;
     private final PolicyGenerator policyGenerator;
     private final WorkspaceService workspaceService;
+    private final PermissionGroupRepository permissionGroupRepository;
+    private final ConfigService configService;
 
     @Autowired
     public EnvironmentServiceImpl(
@@ -56,12 +62,16 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
             AnalyticsService analyticsService,
             FeatureFlagService featureFlagService,
             PolicyGenerator policyGenerator,
-            @Lazy WorkspaceService workspaceService) {
+            @Lazy WorkspaceService workspaceService,
+            PermissionGroupRepository permissionGroupRepository,
+            ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.featureFlagService = featureFlagService;
         this.policyGenerator = policyGenerator;
         this.workspaceService = workspaceService;
+        this.permissionGroupRepository = permissionGroupRepository;
+        this.configService = configService;
     }
 
     @Override
@@ -125,15 +135,33 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
         return Flux.just(
                         new Environment(createdWorkspace.getId(), PRODUCTION_ENVIRONMENT),
                         new Environment(createdWorkspace.getId(), STAGING_ENVIRONMENT))
-                .map(environment -> this.generateAndSetEnvironmentPolicies(createdWorkspace, environment))
+                .flatMap(environment -> this.generateAndSetEnvironmentPolicies(createdWorkspace, environment))
                 .flatMap(repository::save);
     }
 
-    private Environment generateAndSetEnvironmentPolicies(Workspace workspace, Environment environment) {
+    private Mono<Environment> generateAndSetEnvironmentPolicies(Workspace workspace, Environment environment) {
         Set<Policy> policies =
                 policyGenerator.getAllChildPolicies(workspace.getPolicies(), Workspace.class, Environment.class);
         environment.setPolicies(policies);
-        return environment;
+        if (!Boolean.TRUE.equals(environment.getIsDefault())) {
+            Mono<List<String>> defaultGroupsListMono = permissionGroupRepository
+                    .findAllById(workspace.getDefaultPermissionGroups())
+                    .filter(permissionGroup -> permissionGroup.getName().startsWith("App Viewer"))
+                    .map(permissionGroup -> permissionGroup.getId())
+                    .collectList();
+            Mono<String> publicPermissionGroupMono = configService
+                    .getByName(PUBLIC_PERMISSION_GROUP)
+                    .map(config -> config.getConfig().getAsString(PERMISSION_GROUP_ID));
+
+            return Mono.zip(defaultGroupsListMono, publicPermissionGroupMono).map(tuple2 -> {
+                policies.stream().forEach(policy -> {
+                    tuple2.getT1().forEach(policy.getPermissionGroups()::remove);
+                    policy.getPermissionGroups().remove(tuple2.getT2());
+                });
+                return environment;
+            });
+        }
+        return Mono.just(environment);
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.InstanceAdminControllerCE;
 import com.appsmith.server.dtos.AuthenticationConfigurationDTO;
-import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.SamlConfigurationService;
 import com.appsmith.server.solutions.EnvManager;
@@ -29,11 +28,11 @@ public class InstanceAdminController extends InstanceAdminControllerCE {
     }
 
     @PutMapping("/sso/saml")
-    public Mono<ResponseDTO<EnvChangesResponseDTO>> configureSaml(
+    public Mono<ResponseDTO<Void>> configureSaml(
             @RequestBody AuthenticationConfigurationDTO config, @RequestHeader(name = "Origin") String origin) {
         log.debug("Configuring SAML SSO {}", config);
         return samlConfigurationService
                 .configure(config, origin)
-                .map(res -> new ResponseDTO<>(HttpStatus.OK.value(), res, null));
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
 }

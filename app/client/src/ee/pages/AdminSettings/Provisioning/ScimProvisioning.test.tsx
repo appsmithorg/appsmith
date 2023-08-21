@@ -13,10 +13,12 @@ import {
   API_KEY_TO_SETUP_SCIM,
   DISABLE_SCIM,
   GENERATE_API_KEY,
+  LAST_SYNC_MESSAGE,
   RECONFIGURE_API_KEY,
   createMessage,
 } from "@appsmith/constants/messages";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { PROVISIONING_SETUP_DOC } from "constants/ThirdPartyConstants";
 
 let container: any = null;
 const mockDispatch = jest.fn();
@@ -97,16 +99,48 @@ describe("ScimProvisioning", () => {
     expect(screen.queryByRole("heading", { level: 2 })).not.toBeInTheDocument();
   });
 
-  it("should render the connected status when configured", async () => {
+  it("should render the connection active status when configured", async () => {
     renderComponent();
 
     // Assert that the connected status is displayed
     expect(screen.getByText("Connection Active")).toBeInTheDocument();
-    expect(screen.getByTestId("last-sync-info")).toBeInTheDocument();
-    expect(screen.getByTestId("synced-resources-info")).toBeInTheDocument();
+    expect(screen.getByTestId("t--last-sync-info")).toBeInTheDocument();
+    expect(screen.getByTestId("t--synced-resources-info")).toBeInTheDocument();
     expect(screen.getByText("10 users")).toBeInTheDocument();
     expect(screen.getByText("5 groups")).toBeInTheDocument();
-    expect(screen.getByText("are linked to your IDP")).toBeInTheDocument();
+    expect(screen.getByText("are linked to your IdP")).toBeInTheDocument();
+
+    const disableButton = screen.getByRole("button", {
+      name: createMessage(DISABLE_SCIM),
+    });
+    expect(disableButton).toBeInTheDocument();
+    await fireEvent.click(disableButton);
+    const modal = screen.queryByRole("dialog");
+    expect(modal).toBeTruthy();
+  });
+
+  it("should render the connection inactive status when configured but connection is yet to be established", async () => {
+    renderComponent({
+      ...reduxState,
+      provisioning: {
+        ...reduxState.provisioning,
+        provisionStatus: "inactive",
+        lastUpdatedAt: undefined,
+        provisionedUsers: 0,
+        provisionedGroups: 0,
+      },
+    });
+
+    // Assert that the connected status is displayed
+    expect(screen.getByText("Connection Inactive")).toBeInTheDocument();
+    expect(screen.getByTestId("t--last-sync-info")).toBeInTheDocument();
+    expect(screen.getByTestId("t--last-sync-info")).toHaveTextContent(
+      createMessage(LAST_SYNC_MESSAGE, ""),
+    );
+    expect(screen.getByTestId("t--synced-resources-info")).toBeInTheDocument();
+    expect(screen.getByText("0 users")).toBeInTheDocument();
+    expect(screen.getByText("0 groups")).toBeInTheDocument();
+    expect(screen.getByText("are linked to your IdP")).toBeInTheDocument();
 
     const disableButton = screen.getByRole("button", {
       name: createMessage(DISABLE_SCIM),
@@ -136,6 +170,13 @@ describe("ScimProvisioning", () => {
 
     // Assert that the callout is displayed
     expect(screen.getByTestId("scim-callout")).toBeInTheDocument();
+    expect(
+      document.querySelector(".ads-v2-callout .ads-v2-link"),
+    ).toHaveAttribute("href", PROVISIONING_SETUP_DOC);
+    expect(screen.getByTestId("scim-setup-doc-link")).toHaveAttribute(
+      "href",
+      PROVISIONING_SETUP_DOC,
+    );
 
     // Assert that the API key and button are displayed
     expect(

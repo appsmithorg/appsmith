@@ -30,8 +30,19 @@ describe("Create new workspace and invite user & validate all roles", () => {
       _.homePage.NavigateToHome();
       _.homePage.CheckWorkspaceShareUsersCount(workspaceId, 3);
       _.homePage.CreateAppInWorkspace(workspaceId, appid);
+      const jsObjectBody = `export default {
+        myVar1: [],
+      }`;
+      const jsObjectCreationOptions = {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      };
+      _.jsEditor.CreateJSObject(jsObjectBody, jsObjectCreationOptions);
       _.homePage.NavigateToHome();
       _.homePage.CreateAppInWorkspace(workspaceId, appid + "Internal Apps");
+      _.jsEditor.CreateJSObject(jsObjectBody, jsObjectCreationOptions);
     });
     _.homePage.LogOutviaAPI();
   });
@@ -58,7 +69,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       "Developer",
     );
     _.agHelper.GetNClick(_.homePage._visibleTextSpan("Manage Users"));
-    _.agHelper.UpdateInput(
+    _.agHelper.TypeText(
       _.homePage._searchUsersInput,
       Cypress.env("TESTUSERNAME1"),
     );
@@ -203,7 +214,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       workspaceId,
       Cypress.env("TESTUSERNAME1"),
     );
-    _.agHelper.UpdateInput(
+    _.agHelper.ClearNType(
       _.homePage._searchUsersInput,
       Cypress.env("TESTUSERNAME1"),
     );
@@ -242,6 +253,9 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.GetNClick(".t--entity-name:contains('Postgres')");
     cy.get(_.dataSources._createQuery).should("not.have.attr", "disabled");
     _.agHelper.Sleep(2000);
+    _.deployMode.DeployApp();
+    _.deployMode.NavigateBacktoEditor();
+    _.agHelper.Sleep(2000);
     _.agHelper.ClickButton("Share");
     _.agHelper.Sleep();
     _.agHelper.GetNClick(HomePage.selectRole);
@@ -251,10 +265,13 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.AssertElementAbsence(HomePage.manageUsers);
     _.agHelper.GetNClick(HomePage.editModeInviteModalCloseBtn);
     _.homePage.NavigateToHome();
+    _.homePage.FilterApplication(appid, workspaceId, false);
     _.agHelper.AssertElementAbsence(_.homePage._appHoverIcon("edit"));
     _.agHelper.AssertElementAbsence(_.homePage._shareWorkspace(workspaceId));
     _.agHelper.AssertElementAbsence(HomePage.optionsIcon);
-    cy.get(HomePage.searchInput).type(appid + "Internal Apps");
+    cy.get(HomePage.searchInput)
+      .clear()
+      .type(appid + "Internal Apps");
     _.agHelper.Sleep(2000);
     cy.get(HomePage.appsContainer).should("not.contain", workspaceId);
     _.agHelper.AssertElementAbsence(".t--workspace-section");
@@ -266,7 +283,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.homePage.FilterApplication(appid, workspaceId);
     _.agHelper.GetNClick(HomePage.optionsIcon);
     _.agHelper.GetNClick(_.homePage._visibleTextSpan("Members"));
-    _.agHelper.UpdateInput(
+    _.agHelper.TypeText(
       _.homePage._searchUsersInput,
       Cypress.env("TESTUSERNAME1"),
     );
@@ -284,7 +301,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.xpath(RBAC.optionAppViewer).last().parent("div").click();
     _.agHelper.Sleep();
     _.agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
-    _.agHelper.AssertElementVisible(RBAC.optionAppViewer);
+    _.agHelper.AssertElementVisibility(RBAC.optionAppViewer);
     _.homePage.LogOutviaAPI();
 
     _.homePage.LogintoApp(
@@ -317,7 +334,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.homePage.FilterApplication(appid, workspaceId);
     _.agHelper.GetNClick(HomePage.optionsIcon);
     _.agHelper.GetNClick(_.homePage._visibleTextSpan("Members"));
-    _.agHelper.UpdateInput(
+    _.agHelper.TypeText(
       _.homePage._searchUsersInput,
       Cypress.env("TESTUSERNAME1"),
     );
@@ -330,7 +347,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get(HomePage.leaveWorkspaceConfirmModal).should("be.visible");
     cy.get(HomePage.leaveWorkspaceConfirmButton).click({ force: true });
 
-    _.agHelper.UpdateInput(
+    _.agHelper.TypeText(
       _.homePage._searchUsersInput,
       Cypress.env("TESTUSERNAME1"),
     );

@@ -13,7 +13,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
-import com.appsmith.server.solutions.LicenseValidator;
+import com.appsmith.server.solutions.LicenseAPIManager;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class ChatServiceImpl implements ChatService {
     private final TenantService tenantService;
     private final ConfigService configService;
     private final SessionUserService sessionUserService;
-    private final LicenseValidator licenseValidator;
+    private final LicenseAPIManager licenseAPIManager;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final DatasourceStructureSolution datasourceStructureSolution;
@@ -48,7 +48,7 @@ public class ChatServiceImpl implements ChatService {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
 
         Mono<LicenseValidationRequestDTO> requestDTOMono =
-                tenantService.getDefaultTenant().flatMap(licenseValidator::populateLicenseValidationRequest);
+                tenantService.getDefaultTenant().flatMap(licenseAPIManager::populateLicenseValidationRequest);
 
         // TODO: Change this to get current tenant when multitenancy is introduced
         return Mono.zip(

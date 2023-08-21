@@ -1,9 +1,9 @@
 name: Appsmith CI Test Workflow For Hosted Instance
 
 on:
-  # Schedule to run the workflow everyday at 7 AM or UTC (1.30 AM) only on weekday
+  # Schedule to run the workflow everyday at 8 AM or UTC (2.30 AM) only on weekday
   schedule:
-    - cron: "30 1 * * 1-5"
+    - cron: "30 2 * * 1-5"
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
     inputs:
@@ -125,11 +125,11 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
       # actions/setup-node@v3 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
@@ -427,7 +427,7 @@ jobs:
         if: always()
         id: slack_notification
         run: |
-          if [[ ${{ steps.test_status.outputs.run_result }} == 'failedtest' ]]; then
+          if [[ "${{ steps.test_status.outputs.run_result }}" == "failedtest" ]]; then
             echo "slack_message=There are test failures in the run. Please check the <${{ steps.dashboard_url.outputs.url }}|Cypress dashboard> for more details." >> $GITHUB_OUTPUT
             echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
           else

@@ -58,6 +58,7 @@ import {
 } from "@appsmith/constants/messages";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import ResourceLinks from "./ResourceLinks";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledSettingsHeader = styled(SettingsHeader)`
   display: flex;
@@ -119,10 +120,6 @@ const StyledCallout = styled(Callout)`
   top: -8px;
 `;
 
-const Container = styled.div`
-  display: flex;
-`;
-
 const CalloutContent = () => {
   return (
     <>
@@ -143,6 +140,11 @@ const ScimConnectionContent = (props: ScimProps) => {
     ? howMuchTimeBeforeText(provisioningDetails.lastUpdatedAt)
     : "";
 
+  const onDisableClick = () => {
+    setIsModalOpen(true);
+    AnalyticsUtil.logEvent("SCIM_DISABLE_CLICKED");
+  };
+
   return (
     <Connected>
       <ConnectionInfo>
@@ -153,7 +155,9 @@ const ScimConnectionContent = (props: ScimProps) => {
               name="cloud"
               size="md"
             />
-            <Text kind="heading-s">{createMessage(CONNECTION_ACTIVE)}</Text>
+            <Text data-testid="t--connection-status" kind="heading-s">
+              {createMessage(CONNECTION_ACTIVE)}
+            </Text>
           </ConnectionStatus>
         ) : (
           <ConnectionStatus>
@@ -162,25 +166,32 @@ const ScimConnectionContent = (props: ScimProps) => {
               name="cloud-off-line"
               size="md"
             />
-            <Text kind="heading-s">{createMessage(CONNECTION_INACTIVE)}</Text>
+            <Text data-testid="t--connection-status" kind="heading-s">
+              {createMessage(CONNECTION_INACTIVE)}
+            </Text>
           </ConnectionStatus>
         )}
-        <Text color="var(--ads-v2-color-fg-muted)" data-testid="last-sync-info">
+        <Text
+          color="var(--ads-v2-color-fg-muted)"
+          data-testid="t--last-sync-info"
+        >
           {createMessage(LAST_SYNC_MESSAGE, howMuchTimeBefore)}
         </Text>
-        <Container data-testid="synced-resources-info">
+        <div data-testid="t--synced-resources-info">
           <ResourceLinks
+            origin="SCIM"
             provisionedGroups={provisioningDetails.provisionedGroups}
             provisionedUsers={provisioningDetails.provisionedUsers}
           />
-          <Text>are linked to your IDP</Text>
-        </Container>
+          <Text>are linked to your IdP</Text>
+        </div>
       </ConnectionInfo>
       <Button
         UNSAFE_height="36px"
+        data-testid="t--disable-scim-btn"
         isLoading={provisioningDetails.isLoading.disconnectProvisioning}
         kind="error"
-        onClick={() => setIsModalOpen(true)}
+        onClick={onDisableClick}
       >
         {createMessage(DISABLE_SCIM)}
       </Button>
@@ -220,8 +231,22 @@ export const ScimProvisioning = () => {
   }, [configuredStatus]);
 
   const generateApiKey = () => {
+    if (!configuredStatus) {
+      AnalyticsUtil.logEvent("SCIM_GENERATE_KEY_CLICKED");
+    }
+
     setIsButtonClicked(true);
     dispatch(generateProvisioningApiKey(configuredStatus));
+  };
+
+  const openReconfigureApiKeyModal = () => {
+    setShowReconfigureApiKeyModal(true);
+    AnalyticsUtil.logEvent("SCIM_RECONFIGURE_KEY_CLICKED");
+  };
+
+  const confirmReconfigureApiKey = () => {
+    generateApiKey();
+    AnalyticsUtil.logEvent("SCIM_RECONFIGURE_KEY_CONFIRMED");
   };
 
   if (isLoading.provisionStatus) {
@@ -250,6 +275,7 @@ export const ScimProvisioning = () => {
             >
               <span>
                 <Link
+                  data-testid="scim-setup-doc-link"
                   endIcon="book-line"
                   target="_blank"
                   to={PROVISIONING_SETUP_DOC}
@@ -318,11 +344,12 @@ export const ScimProvisioning = () => {
                 <Text>{createMessage(API_KEY_TO_SETUP_SCIM)}</Text>
                 <Button
                   UNSAFE_height="36px"
+                  data-testid="t--generate-api-key"
                   isLoading={isLoading.apiKey}
                   kind="secondary"
                   onClick={() =>
                     configuredStatus
-                      ? setShowReconfigureApiKeyModal(true)
+                      ? openReconfigureApiKeyModal()
                       : generateApiKey()
                   }
                 >
@@ -359,7 +386,7 @@ export const ScimProvisioning = () => {
                         UNSAFE_height="36px"
                         data-testid="t--confirm-reconfigure-api-key"
                         kind="primary"
-                        onClick={generateApiKey}
+                        onClick={confirmReconfigureApiKey}
                       >
                         {createMessage(RECONFIGURE_API_KEY_MODAL_SUBMIT_BUTTON)}
                       </Button>

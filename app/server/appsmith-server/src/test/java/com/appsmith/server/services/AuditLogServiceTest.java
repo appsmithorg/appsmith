@@ -10,7 +10,6 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
@@ -70,6 +69,7 @@ import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UserGroupUpdateDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -160,6 +160,7 @@ import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.CREATE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.DELETE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.EDIT;
+import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.EXECUTE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.EXPORT;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.MAKE_PUBLIC;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.VIEW;
@@ -3577,11 +3578,8 @@ public class AuditLogServiceTest {
         testDatasource.setWorkspaceId(createdWorkspace.getId());
         testDatasource.setName("CRUD-Page-Table-DS");
         datasourceConfiguration.setUrl("http://test.com");
-        testDatasource.setDatasourceConfiguration(datasourceConfiguration);
-
-        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         testDatasource.setDatasourceStorages(storages);
 
         datasourceService
@@ -4710,22 +4708,22 @@ public class AuditLogServiceTest {
         UpdateRoleEntityDTO workspaceUpdateEntityDto = new UpdateRoleEntityDTO(
                 Workspace.class.getSimpleName(),
                 createdWorkspace.getId(),
-                List.of(1, 1, 1, 1, 1, 1),
+                List.of(1, 1, 1, 1, -1, 1, 1),
                 createdWorkspace.getName());
         UpdateRoleEntityDTO applicationUpdateEntityDto = new UpdateRoleEntityDTO(
                 Application.class.getSimpleName(),
                 createdApplication.getId(),
-                List.of(1, 1, 1, 1, 1, 1),
+                List.of(1, 1, 1, 1, -1, 1, 1),
                 createdApplication.getName());
         UpdateRoleEntityDTO pageUpdateEntityDto = new UpdateRoleEntityDTO(
                 NewPage.class.getSimpleName(),
                 createdPage.getId(),
-                List.of(1, 1, 1, 1, -1, -1),
+                List.of(1, 1, 1, 1, -1, -1, -1),
                 createdPage.getUnpublishedPage().getName());
         UpdateRoleEntityDTO actionCollectionUpdateEntityDto = new UpdateRoleEntityDTO(
                 ActionCollection.class.getSimpleName(),
                 createdActionCollectionDTO.getId(),
-                List.of(-1, 1, 1, 1, -1, -1),
+                List.of(-1, 1, 1, 1, 1, -1, -1),
                 createdActionCollectionDTO.getName());
 
         UpdateRoleConfigDTO roleConfigDTO = new UpdateRoleConfigDTO(
@@ -4837,7 +4835,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogGacEntityMetadataActionCollection.get().getType())
                             .isEqualTo("JS Object");
                     assertThat(auditLogGacEntityMetadataActionCollection.get().getPermissions())
-                            .isEqualTo(List.of(EDIT, DELETE, VIEW));
+                            .isEqualTo(List.of(EDIT, DELETE, VIEW, EXECUTE));
                 })
                 .verifyComplete();
     }
@@ -5861,5 +5859,650 @@ public class AuditLogServiceTest {
                 .isNull();
         assertThat(permissionGroupMetadataRoleUnAssignedFromGroup.getUnassignedUsers())
                 .isNull();
+    }
+
+    // Using api_user, instead of provisioningUser, because api_user has access to Audit Logs.
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAuditLogs_updateProvisionGroup_sameUserGroupResource_shouldGenerateNoAuditLogs() {
+        String testName = "testAuditLogs_updateProvisionGroup_sameUserGroupResource_shouldGenerateNoAuditLogs";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_1@appsmith@.com");
+        user1.setPassword(testName);
+        User createdUser1 = userService.create(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_2@appsmith@.com");
+        user2.setPassword(testName);
+        User createdUser2 = userService.create(user2).block();
+
+        User user3 = new User();
+        user3.setEmail(testName + "_3@appsmith@.com");
+        user3.setPassword(testName);
+        User createdUser3 = userService.create(user3).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_name");
+        userGroup.setDescription(testName + "_description");
+        userGroup.setUsers(Set.of(createdUser1.getId(), createdUser2.getId(), createdUser3.getId()));
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
+                .flatMap(userGroupDTO ->
+                        userGroupService.findById(userGroupDTO.getId(), AclPermission.MANAGE_USER_GROUPS))
+                .block();
+        String resourceTypeRole = auditLogService.getResourceType(createdUserGroup);
+
+        UserGroupUpdateDTO userGroupUpdateDTOSameValues = new UserGroupUpdateDTO();
+        userGroupUpdateDTOSameValues.setName(createdUserGroup.getName());
+        userGroupUpdateDTOSameValues.setDescription(createdUserGroup.getDescription());
+        userGroupUpdateDTOSameValues.setUsers(createdUserGroup.getUsers());
+
+        userGroupService
+                .updateProvisionGroup(createdUserGroup.getId(), userGroupUpdateDTOSameValues)
+                .block();
+
+        MultiValueMap<String, String> auditLogRequest = getAuditLogRequest(
+                null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_UPDATED),
+                resourceTypeRole,
+                createdUserGroup.getId(),
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        List<AuditLog> auditLogList =
+                auditLogService.getAuditLogs(auditLogRequest).block();
+        assertThat(auditLogList).isEmpty();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAuditLogs_updateProvisionGroup_sendNullName_shouldGenerateNoAuditLogs() {
+        String testName = "testAuditLogs_updateProvisionGroup_sendNullName_shouldGenerateNoAuditLogs";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_1@appsmith@.com");
+        user1.setPassword(testName);
+        User createdUser1 = userService.create(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_2@appsmith@.com");
+        user2.setPassword(testName);
+        User createdUser2 = userService.create(user2).block();
+
+        User user3 = new User();
+        user3.setEmail(testName + "_3@appsmith@.com");
+        user3.setPassword(testName);
+        User createdUser3 = userService.create(user3).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_name");
+        userGroup.setDescription(testName + "_description");
+        userGroup.setUsers(Set.of(createdUser1.getId(), createdUser2.getId(), createdUser3.getId()));
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
+                .flatMap(userGroupDTO ->
+                        userGroupService.findById(userGroupDTO.getId(), AclPermission.MANAGE_USER_GROUPS))
+                .block();
+        String resourceTypeRole = auditLogService.getResourceType(createdUserGroup);
+
+        UserGroupUpdateDTO userGroupUpdateDTONullName = new UserGroupUpdateDTO();
+        userGroupUpdateDTONullName.setDescription(createdUserGroup.getDescription());
+        userGroupUpdateDTONullName.setUsers(createdUserGroup.getUsers());
+
+        userGroupService
+                .updateProvisionGroup(createdUserGroup.getId(), userGroupUpdateDTONullName)
+                .block();
+
+        MultiValueMap<String, String> auditLogRequest = getAuditLogRequest(
+                null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_UPDATED),
+                resourceTypeRole,
+                createdUserGroup.getId(),
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        List<AuditLog> auditLogList =
+                auditLogService.getAuditLogs(auditLogRequest).block();
+        assertThat(auditLogList).isEmpty();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAuditLogs_updateProvisionGroup_sendNullDescription_shouldGenerateNoAuditLogs() {
+        String testName = "testAuditLogs_updateProvisionGroup_sendNullDescription_shouldGenerateNoAuditLogs";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_1@appsmith@.com");
+        user1.setPassword(testName);
+        User createdUser1 = userService.create(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_2@appsmith@.com");
+        user2.setPassword(testName);
+        User createdUser2 = userService.create(user2).block();
+
+        User user3 = new User();
+        user3.setEmail(testName + "_3@appsmith@.com");
+        user3.setPassword(testName);
+        User createdUser3 = userService.create(user3).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_name");
+        userGroup.setDescription(testName + "_description");
+        userGroup.setUsers(Set.of(createdUser1.getId(), createdUser2.getId(), createdUser3.getId()));
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
+                .flatMap(userGroupDTO ->
+                        userGroupService.findById(userGroupDTO.getId(), AclPermission.MANAGE_USER_GROUPS))
+                .block();
+        String resourceTypeRole = auditLogService.getResourceType(createdUserGroup);
+
+        UserGroupUpdateDTO userGroupUpdateDTONullDescription = new UserGroupUpdateDTO();
+        userGroupUpdateDTONullDescription.setName(createdUserGroup.getName());
+        userGroupUpdateDTONullDescription.setUsers(createdUserGroup.getUsers());
+
+        userGroupService
+                .updateProvisionGroup(createdUserGroup.getId(), userGroupUpdateDTONullDescription)
+                .block();
+
+        MultiValueMap<String, String> auditLogRequest = getAuditLogRequest(
+                null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_UPDATED),
+                resourceTypeRole,
+                createdUserGroup.getId(),
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        List<AuditLog> auditLogList =
+                auditLogService.getAuditLogs(auditLogRequest).block();
+        assertThat(auditLogList).isEmpty();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAuditLogs_updateProvisionGroup_sendNullUsersList_shouldGenerateNoAuditLogs() {
+        String testName = "testAuditLogs_updateProvisionGroup_sendNullUsersList_shouldGenerateNoAuditLogs";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_1@appsmith@.com");
+        user1.setPassword(testName);
+        User createdUser1 = userService.create(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_2@appsmith@.com");
+        user2.setPassword(testName);
+        User createdUser2 = userService.create(user2).block();
+
+        User user3 = new User();
+        user3.setEmail(testName + "_3@appsmith@.com");
+        user3.setPassword(testName);
+        User createdUser3 = userService.create(user3).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_name");
+        userGroup.setDescription(testName + "_description");
+        userGroup.setUsers(Set.of(createdUser1.getId(), createdUser2.getId(), createdUser3.getId()));
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
+                .flatMap(userGroupDTO ->
+                        userGroupService.findById(userGroupDTO.getId(), AclPermission.MANAGE_USER_GROUPS))
+                .block();
+        String resourceTypeRole = auditLogService.getResourceType(createdUserGroup);
+
+        UserGroupUpdateDTO userGroupUpdateDTONullUsers = new UserGroupUpdateDTO();
+        userGroupUpdateDTONullUsers.setName(createdUserGroup.getName());
+        userGroupUpdateDTONullUsers.setDescription(createdUserGroup.getDescription());
+
+        userGroupService
+                .updateProvisionGroup(createdUserGroup.getId(), userGroupUpdateDTONullUsers)
+                .block();
+
+        MultiValueMap<String, String> auditLogRequest = getAuditLogRequest(
+                null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_UPDATED),
+                resourceTypeRole,
+                createdUserGroup.getId(),
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        List<AuditLog> auditLogList =
+                auditLogService.getAuditLogs(auditLogRequest).block();
+        assertThat(auditLogList).isEmpty();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAuditLogs_updateProvisionGroup_sendNameUpdate_shouldGenerateGroupUpdateAuditLog() {
+        String testName = "testAuditLogs_updateProvisionGroup_sendNameUpdate_shouldGenerateGroupUpdateAuditLog";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_1@appsmith@.com");
+        user1.setPassword(testName);
+        User createdUser1 = userService.create(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_2@appsmith@.com");
+        user2.setPassword(testName);
+        User createdUser2 = userService.create(user2).block();
+
+        User user3 = new User();
+        user3.setEmail(testName + "_3@appsmith@.com");
+        user3.setPassword(testName);
+        User createdUser3 = userService.create(user3).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_name");
+        userGroup.setDescription(testName + "_description");
+        userGroup.setUsers(Set.of(createdUser1.getId(), createdUser2.getId(), createdUser3.getId()));
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
+                .flatMap(userGroupDTO ->
+                        userGroupService.findById(userGroupDTO.getId(), AclPermission.MANAGE_USER_GROUPS))
+                .block();
+        String resourceTypeRole = auditLogService.getResourceType(createdUserGroup);
+
+        UserGroupUpdateDTO userGroupUpdateDTOSendNameUpdate = new UserGroupUpdateDTO();
+        userGroupUpdateDTOSendNameUpdate.setName(createdUserGroup.getName() + "_updated");
+
+        userGroupService
+                .updateProvisionGroup(createdUserGroup.getId(), userGroupUpdateDTOSendNameUpdate)
+                .block();
+
+        MultiValueMap<String, String> auditLogRequest = getAuditLogRequest(
+                null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_UPDATED),
+                resourceTypeRole,
+                createdUserGroup.getId(),
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        List<AuditLog> auditLogList =
+                auditLogService.getAuditLogs(auditLogRequest).block();
+
+        assertThat(auditLogList).isNotEmpty();
+        AuditLog auditLog = auditLogList.get(0);
+
+        assertThat(auditLog.getEvent())
+                .isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_UPDATED));
+        assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLog.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLog.getResource()).isNotNull();
+        assertThat(auditLog.getMetadata()).isNotNull();
+        assertThat(auditLog.getUser()).isNotNull();
+        assertThat(auditLog.getGroup()).isNull();
+        assertThat(auditLog.getWorkspace()).isNull();
+        assertThat(auditLog.getApplication()).isNull();
+        assertThat(auditLog.getRole()).isNull();
+        assertThat(auditLog.getPage()).isNull();
+
+        AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+        assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+        AuditLogResource auditLogResource = auditLog.getResource();
+        assertThat(auditLogResource.getType()).isEqualTo("Group");
+        assertThat(auditLogResource.getId()).isEqualTo(createdUserGroup.getId());
+        assertThat(auditLogResource.getName()).isEqualTo(createdUserGroup.getName() + "_updated");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testAuditLogs_updateProvisionGroup_sendAdditionalUserIdInList_shouldGenerateUserInvitedToGroupAuditLog() {
+        String testName =
+                "testAuditLogs_updateProvisionGroup_sendAdditionalUserIdInList_shouldGenerateUserInvitedToGroupAuditLog";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_1@appsmith@.com");
+        user1.setPassword(testName);
+        User createdUser1 = userService.create(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_2@appsmith@.com");
+        user2.setPassword(testName);
+        User createdUser2 = userService.create(user2).block();
+
+        User user3 = new User();
+        user3.setEmail(testName + "_3@appsmith@.com");
+        user3.setPassword(testName);
+        User createdUser3 = userService.create(user3).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_name");
+        userGroup.setDescription(testName + "_description");
+        userGroup.setUsers(Set.of(createdUser1.getId(), createdUser2.getId()));
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
+                .flatMap(userGroupDTO ->
+                        userGroupService.findById(userGroupDTO.getId(), AclPermission.MANAGE_USER_GROUPS))
+                .block();
+        String resourceTypeRole = auditLogService.getResourceType(createdUserGroup);
+
+        UserGroupUpdateDTO userGroupUpdateDTOSendAdditionalUser = new UserGroupUpdateDTO();
+        userGroupUpdateDTOSendAdditionalUser.setUsers(
+                Set.of(createdUser1.getId(), createdUser2.getId(), createdUser3.getId()));
+
+        userGroupService
+                .updateProvisionGroup(createdUserGroup.getId(), userGroupUpdateDTOSendAdditionalUser)
+                .block();
+
+        MultiValueMap<String, String> auditLogRequest = getAuditLogRequest(
+                null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_INVITE_USERS),
+                resourceTypeRole,
+                createdUserGroup.getId(),
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        List<AuditLog> auditLogList =
+                auditLogService.getAuditLogs(auditLogRequest).block();
+
+        assertThat(auditLogList).isNotEmpty();
+        AuditLog auditLog = auditLogList.get(0);
+
+        assertThat(auditLog.getEvent())
+                .isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_INVITE_USERS));
+        assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLog.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLog.getResource()).isNotNull();
+        assertThat(auditLog.getMetadata()).isNotNull();
+        assertThat(auditLog.getUser()).isNotNull();
+        assertThat(auditLog.getGroup()).isNotNull();
+        assertThat(auditLog.getWorkspace()).isNull();
+        assertThat(auditLog.getApplication()).isNull();
+        assertThat(auditLog.getRole()).isNull();
+        assertThat(auditLog.getPage()).isNull();
+
+        AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+        assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+        AuditLogResource auditLogResource = auditLog.getResource();
+        assertThat(auditLogResource.getType()).isEqualTo("Group");
+        assertThat(auditLogResource.getId()).isEqualTo(createdUserGroup.getId());
+        assertThat(auditLogResource.getName()).isEqualTo(createdUserGroup.getName());
+
+        AuditLogUserGroupMetadata userGroupMetadata = auditLog.getGroup();
+        assertThat(userGroupMetadata.getInvitedUsers()).hasSize(1);
+        userGroupMetadata.getInvitedUsers().forEach(invitedUser -> assertThat(Set.of(createdUser3.getEmail()))
+                .contains(invitedUser));
+        assertThat(userGroupMetadata.getRemovedUsers()).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testAuditLogs_updateProvisionGroup_sendOneUserLessUserIdInList_shouldGenerateUserRemovedFromGroupAuditLog() {
+        String testName =
+                "testAuditLogs_updateProvisionGroup_sendOneUserLessUserIdInList_shouldGenerateUserRemovedFromGroupAuditLog";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_1@appsmith@.com");
+        user1.setPassword(testName);
+        User createdUser1 = userService.create(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_2@appsmith@.com");
+        user2.setPassword(testName);
+        User createdUser2 = userService.create(user2).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_name");
+        userGroup.setDescription(testName + "_description");
+        userGroup.setUsers(Set.of(createdUser1.getId(), createdUser2.getId()));
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
+                .flatMap(userGroupDTO ->
+                        userGroupService.findById(userGroupDTO.getId(), AclPermission.MANAGE_USER_GROUPS))
+                .block();
+        String resourceTypeRole = auditLogService.getResourceType(createdUserGroup);
+
+        UserGroupUpdateDTO userGroupUpdateDTOSendAdditionalUser = new UserGroupUpdateDTO();
+        userGroupUpdateDTOSendAdditionalUser.setUsers(Set.of(createdUser1.getId()));
+
+        userGroupService
+                .updateProvisionGroup(createdUserGroup.getId(), userGroupUpdateDTOSendAdditionalUser)
+                .block();
+
+        MultiValueMap<String, String> auditLogRequest = getAuditLogRequest(
+                null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_REMOVE_USERS),
+                resourceTypeRole,
+                createdUserGroup.getId(),
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        List<AuditLog> auditLogList =
+                auditLogService.getAuditLogs(auditLogRequest).block();
+
+        assertThat(auditLogList).isNotEmpty();
+        AuditLog auditLog = auditLogList.get(0);
+
+        assertThat(auditLog.getEvent())
+                .isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_REMOVE_USERS));
+        assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLog.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLog.getResource()).isNotNull();
+        assertThat(auditLog.getMetadata()).isNotNull();
+        assertThat(auditLog.getUser()).isNotNull();
+        assertThat(auditLog.getGroup()).isNotNull();
+        assertThat(auditLog.getWorkspace()).isNull();
+        assertThat(auditLog.getApplication()).isNull();
+        assertThat(auditLog.getRole()).isNull();
+        assertThat(auditLog.getPage()).isNull();
+
+        AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+        assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+        AuditLogResource auditLogResource = auditLog.getResource();
+        assertThat(auditLogResource.getType()).isEqualTo("Group");
+        assertThat(auditLogResource.getId()).isEqualTo(createdUserGroup.getId());
+        assertThat(auditLogResource.getName()).isEqualTo(createdUserGroup.getName());
+
+        AuditLogUserGroupMetadata userGroupMetadata = auditLog.getGroup();
+        assertThat(userGroupMetadata.getRemovedUsers()).hasSize(1);
+        userGroupMetadata.getRemovedUsers().forEach(removedUser -> assertThat(Set.of(createdUser2.getEmail()))
+                .contains(removedUser));
+        assertThat(userGroupMetadata.getInvitedUsers()).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testAuditLogs_updateProvisionGroup_updateNameAndListOfUsers_shouldGenerateUpdateUserGroupUserInvitedToGroupUserRemovedFromGroupAuditLog() {
+        String testName =
+                "testAuditLogs_updateProvisionGroup_updateNameAndListOfUsers_shouldGenerateUpdateUserGroupUserInvitedToGroupUserRemovedFromGroupAuditLog";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_1@appsmith@.com");
+        user1.setPassword(testName);
+        User createdUser1 = userService.create(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_2@appsmith@.com");
+        user2.setPassword(testName);
+        User createdUser2 = userService.create(user2).block();
+
+        User user3 = new User();
+        user3.setEmail(testName + "_3@appsmith@.com");
+        user3.setPassword(testName);
+        User createdUser3 = userService.create(user3).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_name");
+        userGroup.setDescription(testName + "_description");
+        userGroup.setUsers(Set.of(createdUser1.getId(), createdUser2.getId()));
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
+                .flatMap(userGroupDTO ->
+                        userGroupService.findById(userGroupDTO.getId(), AclPermission.MANAGE_USER_GROUPS))
+                .block();
+        String resourceTypeRole = auditLogService.getResourceType(createdUserGroup);
+
+        UserGroupUpdateDTO userGroupUpdateDTO = new UserGroupUpdateDTO();
+        userGroupUpdateDTO.setName(createdUserGroup.getName() + "_updated");
+        userGroupUpdateDTO.setUsers(Set.of(createdUser1.getId(), createdUser3.getId()));
+
+        userGroupService
+                .updateProvisionGroup(createdUserGroup.getId(), userGroupUpdateDTO)
+                .block();
+
+        MultiValueMap<String, String> auditLogRequestGroupUpdated = getAuditLogRequest(
+                null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_UPDATED),
+                resourceTypeRole,
+                createdUserGroup.getId(),
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        List<AuditLog> auditLogListGroupUpdated =
+                auditLogService.getAuditLogs(auditLogRequestGroupUpdated).block();
+
+        assertThat(auditLogListGroupUpdated).isNotEmpty();
+        AuditLog auditLogGroupUpdated = auditLogListGroupUpdated.get(0);
+
+        assertThat(auditLogGroupUpdated.getEvent())
+                .isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_UPDATED));
+        assertThat(auditLogGroupUpdated.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLogGroupUpdated.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLogGroupUpdated.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLogGroupUpdated.getResource()).isNotNull();
+        assertThat(auditLogGroupUpdated.getMetadata()).isNotNull();
+        assertThat(auditLogGroupUpdated.getUser()).isNotNull();
+        assertThat(auditLogGroupUpdated.getGroup()).isNull();
+        assertThat(auditLogGroupUpdated.getWorkspace()).isNull();
+        assertThat(auditLogGroupUpdated.getApplication()).isNull();
+        assertThat(auditLogGroupUpdated.getRole()).isNull();
+        assertThat(auditLogGroupUpdated.getPage()).isNull();
+
+        AuditLogMetadata auditLogMetadata = auditLogGroupUpdated.getMetadata();
+        assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+        AuditLogResource auditLogResource = auditLogGroupUpdated.getResource();
+        assertThat(auditLogResource.getType()).isEqualTo("Group");
+        assertThat(auditLogResource.getId()).isEqualTo(createdUserGroup.getId());
+        assertThat(auditLogResource.getName()).isEqualTo(createdUserGroup.getName() + "_updated");
+
+        MultiValueMap<String, String> auditLogInviteUserToGroupRequest = getAuditLogRequest(
+                null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_INVITE_USERS),
+                resourceTypeRole,
+                createdUserGroup.getId(),
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        List<AuditLog> auditLogInviteUserToGroupList =
+                auditLogService.getAuditLogs(auditLogInviteUserToGroupRequest).block();
+
+        assertThat(auditLogInviteUserToGroupList).isNotEmpty();
+        AuditLog auditLogInviteUserToGroup = auditLogInviteUserToGroupList.get(0);
+
+        assertThat(auditLogInviteUserToGroup.getEvent())
+                .isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_INVITE_USERS));
+        assertThat(auditLogInviteUserToGroup.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLogInviteUserToGroup.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLogInviteUserToGroup.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLogInviteUserToGroup.getResource()).isNotNull();
+        assertThat(auditLogInviteUserToGroup.getMetadata()).isNotNull();
+        assertThat(auditLogInviteUserToGroup.getUser()).isNotNull();
+        assertThat(auditLogInviteUserToGroup.getGroup()).isNotNull();
+        assertThat(auditLogInviteUserToGroup.getWorkspace()).isNull();
+        assertThat(auditLogInviteUserToGroup.getApplication()).isNull();
+        assertThat(auditLogInviteUserToGroup.getRole()).isNull();
+        assertThat(auditLogInviteUserToGroup.getPage()).isNull();
+
+        AuditLogMetadata auditLogMetadata1 = auditLogInviteUserToGroup.getMetadata();
+        assertThat(auditLogMetadata1.getAppsmithVersion()).isNotEmpty();
+
+        AuditLogResource auditLogResource1 = auditLogInviteUserToGroup.getResource();
+        assertThat(auditLogResource1.getType()).isEqualTo("Group");
+        assertThat(auditLogResource1.getId()).isEqualTo(createdUserGroup.getId());
+        assertThat(auditLogResource1.getName()).isEqualTo(createdUserGroup.getName() + "_updated");
+
+        AuditLogUserGroupMetadata userGroupMetadata1 = auditLogInviteUserToGroup.getGroup();
+        assertThat(userGroupMetadata1.getInvitedUsers()).hasSize(1);
+        userGroupMetadata1.getInvitedUsers().forEach(invitedUser -> assertThat(Set.of(createdUser3.getEmail()))
+                .contains(invitedUser));
+        assertThat(userGroupMetadata1.getRemovedUsers()).isNull();
+
+        MultiValueMap<String, String> auditLogRequestRemoveUserFromGroup = getAuditLogRequest(
+                null,
+                auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_REMOVE_USERS),
+                resourceTypeRole,
+                createdUserGroup.getId(),
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        List<AuditLog> auditLogListRemoveUserFromGroup =
+                auditLogService.getAuditLogs(auditLogRequestRemoveUserFromGroup).block();
+
+        assertThat(auditLogListRemoveUserFromGroup).isNotEmpty();
+        AuditLog auditLogRemoveUserFromGroup = auditLogListRemoveUserFromGroup.get(0);
+
+        assertThat(auditLogRemoveUserFromGroup.getEvent())
+                .isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.GROUP_REMOVE_USERS));
+        assertThat(auditLogRemoveUserFromGroup.getTimestamp()).isBefore(Instant.now());
+        assertThat(auditLogRemoveUserFromGroup.getCreatedAt()).isBefore(Instant.now());
+        assertThat(auditLogRemoveUserFromGroup.getOrigin()).isEqualTo(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+
+        assertThat(auditLogRemoveUserFromGroup.getResource()).isNotNull();
+        assertThat(auditLogRemoveUserFromGroup.getMetadata()).isNotNull();
+        assertThat(auditLogRemoveUserFromGroup.getUser()).isNotNull();
+        assertThat(auditLogRemoveUserFromGroup.getGroup()).isNotNull();
+        assertThat(auditLogRemoveUserFromGroup.getWorkspace()).isNull();
+        assertThat(auditLogRemoveUserFromGroup.getApplication()).isNull();
+        assertThat(auditLogRemoveUserFromGroup.getRole()).isNull();
+        assertThat(auditLogRemoveUserFromGroup.getPage()).isNull();
+
+        AuditLogMetadata auditLogMetadata2 = auditLogRemoveUserFromGroup.getMetadata();
+        assertThat(auditLogMetadata2.getAppsmithVersion()).isNotEmpty();
+
+        AuditLogResource auditLogResource2 = auditLogRemoveUserFromGroup.getResource();
+        assertThat(auditLogResource2.getType()).isEqualTo("Group");
+        assertThat(auditLogResource2.getId()).isEqualTo(createdUserGroup.getId());
+        assertThat(auditLogResource2.getName()).isEqualTo(createdUserGroup.getName() + "_updated");
+
+        AuditLogUserGroupMetadata userGroupMetadata2 = auditLogRemoveUserFromGroup.getGroup();
+        assertThat(userGroupMetadata2.getRemovedUsers()).hasSize(1);
+        userGroupMetadata2.getRemovedUsers().forEach(removedUser -> assertThat(Set.of(createdUser2.getEmail()))
+                .contains(removedUser));
+        assertThat(userGroupMetadata2.getInvitedUsers()).isNull();
     }
 }

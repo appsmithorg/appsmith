@@ -1,7 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.MultiValueMap;
@@ -15,11 +14,11 @@ public interface EnvManagerCE {
 
     List<String> transformEnvContent(String envContent, Map<String, String> changes, String origin);
 
-    Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes);
+    Mono<Void> applyChanges(Map<String, String> changes);
 
-    Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes, String origin);
+    Mono<Void> applyChanges(Map<String, String> changes, String origin);
 
-    Mono<EnvChangesResponseDTO> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String origin);
+    Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String origin);
 
     void setAnalyticsEventAction(
             Map<String, Object> properties, String newVariable, String originalVariable, String authEnv);

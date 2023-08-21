@@ -80,4 +80,17 @@ public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEImpl
                 .map(Environment::getName)
                 .switchIfEmpty(Mono.just(AnalyticsConstants.ENVIRONMENT_NAME_DEFAULT));
     }
+
+    @Override
+    protected Mono<DatasourceStorage> errorMonoWhenDatasourceStorageNotFound(
+            Datasource datasource, String environmentId) {
+
+        Mono<Environment> environmentMono = environmentService
+                .findById(environmentId)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasource.getName())));
+
+        return environmentMono.flatMap(environment -> Mono.error(new AppsmithException(
+                AppsmithError.UNCONFIGURED_DATASOURCE_STORAGE, datasource.getName(), environment.getName())));
+    }
 }

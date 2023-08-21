@@ -84,12 +84,13 @@ import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 
 const CONSOLE_DOT_LOG_INVOCATION_REGEX =
   /console.log[.call | .apply]*\s*\(.*?\)/gm;
@@ -392,7 +393,14 @@ export function* handleExecuteJSFunctionSaga(data: {
     // open response tab in debugger on runnning or page load js action.
     if (window.location.pathname.includes(collectionId)) {
       yield put(showDebugger(true));
-      yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+
+      const debuggerSelectedTab = yield select(getDebuggerSelectedTab);
+
+      yield put(
+        setDebuggerSelectedTab(
+          debuggerSelectedTab || DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        ),
+      );
     }
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
@@ -495,6 +503,7 @@ export function* handleStartExecuteJSFunctionSaga(
       action.actionConfiguration?.body?.match(CONSOLE_DOT_LOG_INVOCATION_REGEX)
         ?.length || 0,
   });
+
   yield call(handleExecuteJSFunctionSaga, {
     collectionName: collectionName,
     action: action,
@@ -652,7 +661,7 @@ function* handleUpdateJSFunctionPropertySaga(
           source: {
             type: ENTITY_TYPE.JSACTION,
             name: collection.name + "." + action.name,
-            id: actionId,
+            id: action.collectionId,
             propertyPath: fieldToBeUpdated,
           },
           state: {
@@ -704,7 +713,7 @@ function* toggleFunctionExecuteOnLoadSaga(
         source: {
           type: ENTITY_TYPE.JSACTION,
           name: collection.name + "." + jsAction?.name,
-          id: actionId,
+          id: collectionId,
           propertyPath: "executeOnLoad",
         },
         state: {

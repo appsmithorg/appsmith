@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
@@ -69,12 +68,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
@@ -288,11 +289,15 @@ public class WorkspaceServiceTest {
 
         Mono<User> userMono = userRepository.findByEmail("api_user");
 
-        StepVerifier.create(Mono.zip(workspaceResponse, userMono, defaultPermissionGroupsMono))
+        Mono<List<Environment>> environmentListMono = workspaceResponse.flatMap(workspace1 ->
+                environmentService.findByWorkspaceId(workspace1.getId()).collectList());
+
+        StepVerifier.create(Mono.zip(workspaceResponse, userMono, defaultPermissionGroupsMono, environmentListMono))
                 .assertNext(tuple -> {
                     Workspace workspace1 = tuple.getT1();
                     User user = tuple.getT2();
                     List<PermissionGroup> permissionGroups = tuple.getT3();
+                    List<Environment> environmentList = tuple.getT4();
                     assertThat(workspace1.getName()).isEqualTo("Test Name");
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
@@ -428,6 +433,25 @@ public class WorkspaceServiceTest {
                             .findFirst()
                             .ifPresent(policy -> assertThat(policy.getPermissionGroups())
                                     .containsAll(Set.of(adminPermissionGroup.getId(), viewerPermissionGroup.getId())));
+
+                    assertThat(environmentList).hasSize(2);
+                    environmentList.forEach(environment -> {
+                        Optional<Policy> policyOptional = environment.getPolicies().stream()
+                                .filter(policy ->
+                                        EXECUTE_ENVIRONMENTS.getValue().equals(policy.getPermission()))
+                                .findFirst();
+
+                        assertThat(policyOptional).isNotEmpty();
+                        Policy policy = policyOptional.get();
+
+                        assertThat(policy.getPermissionGroups()).contains(adminPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).contains(developerPermissionGroup.getId());
+                        if (Boolean.TRUE.equals(environment.getIsDefault())) {
+                            assertThat(policy.getPermissionGroups()).contains(viewerPermissionGroup.getId());
+                        } else {
+                            assertThat(policy.getPermissionGroups()).doesNotContain(viewerPermissionGroup.getId());
+                        }
+                    });
                 })
                 .verifyComplete();
     }
@@ -1136,9 +1160,8 @@ public class WorkspaceServiceTest {
                     datasource.setName("test datasource");
                     datasource.setWorkspaceId(workspace1.getId());
                     datasource.setPluginId(plugin.getId());
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, null));
                     datasource.setDatasourceStorages(storages);
                     return datasourceService.create(datasource);
                 });

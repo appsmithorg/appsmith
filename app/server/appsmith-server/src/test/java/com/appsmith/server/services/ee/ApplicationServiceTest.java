@@ -4,7 +4,6 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Environment;
@@ -37,6 +36,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
@@ -74,6 +74,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
@@ -154,6 +155,9 @@ public class ApplicationServiceTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @Autowired
+    NewActionService newActionService;
+
     String workspaceId;
 
     Workspace workspace;
@@ -188,14 +192,13 @@ public class ApplicationServiceTest {
             datasource.setPluginId(testPlugin.getId());
             DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
             datasourceConfiguration.setUrl("http://test.com");
-            datasource.setDatasourceConfiguration(datasourceConfiguration);
             datasource.setWorkspaceId(workspaceId);
             String environmentId = workspaceService
                     .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                     .block();
-            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+            storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
             datasource.setDatasourceStorages(storages);
             testDatasource = datasourceService.create(datasource).block();
 
@@ -238,12 +241,10 @@ public class ApplicationServiceTest {
             datasource1.setPluginId(testPlugin.getId());
             DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
             datasourceConfiguration1.setUrl("http://test.com");
-            datasource1.setDatasourceConfiguration(datasourceConfiguration);
             datasource1.setWorkspaceId(workspaceId);
 
-            DatasourceStorage datasourceStorage1 = new DatasourceStorage(datasource1, environmentId);
             HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-            storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+            storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
             datasource1.setDatasourceStorages(storages1);
 
             testDatasource1 = datasourceService.create(datasource1).block();
@@ -284,15 +285,15 @@ public class ApplicationServiceTest {
         // Add entity changes
         // Application : Give edit, view and make public permissions
         UpdateRoleEntityDTO applicationEntity = new UpdateRoleEntityDTO(
-                Application.class.getSimpleName(), applicationId, List.of(0, 1, 0, 1, 1, 0), "unnecessary name");
+                Application.class.getSimpleName(), applicationId, List.of(0, 1, 0, 1, -1, 1, 0), "unnecessary name");
 
         // Page : Give edit and view permissions
         UpdateRoleEntityDTO pageEntity = new UpdateRoleEntityDTO(
-                NewPage.class.getSimpleName(), pageId, List.of(0, 1, 0, 1, -1, -1), "unnecessary name");
+                NewPage.class.getSimpleName(), pageId, List.of(0, 1, 0, 1, -1, -1, -1), "unnecessary name");
 
         // Action : Give edit and view permissions
         UpdateRoleEntityDTO actionEntity = new UpdateRoleEntityDTO(
-                NewAction.class.getSimpleName(), actionId, List.of(-1, 1, 0, 1, -1, -1), "unnecessary name");
+                NewAction.class.getSimpleName(), actionId, List.of(-1, 1, 0, 1, 1, -1, -1), "unnecessary name");
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing");
@@ -351,6 +352,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(testDatasource);
+        action.setApplicationId(createdApplication.getId());
 
         ActionDTO createdAction =
                 layoutActionService.createSingleAction(action, Boolean.FALSE).block();
@@ -377,18 +379,22 @@ public class ApplicationServiceTest {
         Mono<Datasource> datasourceMono =
                 publicAppMono.flatMap(app -> datasourceService.findById(testDatasource.getId()));
 
+        Mono<NewAction> actionMono =
+                publicAppMono.flatMap(app -> newActionService.findById(createdAction.getId(), EXECUTE_ACTIONS));
+
         Mono<List<Environment>> environmentListMono = publicAppMono
                 .thenMany(environmentService.findByWorkspaceId(workspaceId))
                 .collectList();
 
         User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
 
-        StepVerifier.create(Mono.zip(publicAppMono, pageMono, datasourceMono, environmentListMono))
+        StepVerifier.create(Mono.zip(publicAppMono, pageMono, datasourceMono, environmentListMono, actionMono))
                 .assertNext(tuple -> {
                     Application publicApp = tuple.getT1();
                     PageDTO page = tuple.getT2();
                     Datasource datasource = tuple.getT3();
                     List<Environment> environmentList = tuple.getT4();
+                    NewAction newAction = tuple.getT5();
 
                     String permissionGroupId = permissionGroup.getId();
 
@@ -427,8 +433,19 @@ public class ApplicationServiceTest {
 
                         Policy policy = policyOptional.get();
 
-                        assertThat(policy.getPermissionGroups()).contains(permissionGroup.getId());
+                        if (Boolean.TRUE.equals(environment.getIsDefault())) {
+                            assertThat(policy.getPermissionGroups()).contains(permissionGroup.getId());
+                        } else {
+                            assertThat(policy.getPermissionGroups()).doesNotContain(permissionGroup.getId());
+                        }
                     });
+
+                    // Check that action are executable by permission group
+                    newAction.getPolicies().stream()
+                            .filter(policy -> EXECUTE_ACTIONS.getValue().equals(policy.getPermission()))
+                            .findFirst()
+                            .ifPresent(policy ->
+                                    assertThat(policy.getPermissionGroups()).contains(permissionGroup.getId()));
 
                     // Finally assert that permission group has been assigned to anonymous user.
                     assertThat(permissionGroup.getAssignedToUserIds()).hasSize(1);
@@ -481,6 +498,9 @@ public class ApplicationServiceTest {
             return newPageService.findPageById(privatePage, READ_PAGES, false);
         });
 
+        Mono<NewAction> actionMono =
+                privateAppMono.flatMap(app -> newActionService.findById(createdAction.getId(), EXECUTE_ACTIONS));
+
         Mono<Datasource> datasourceMono =
                 privateAppMono.flatMap(app -> datasourceService.findById(testDatasource.getId()));
 
@@ -491,12 +511,13 @@ public class ApplicationServiceTest {
         PermissionGroup permissionGroup =
                 permissionGroupService.getPublicPermissionGroup().block();
 
-        StepVerifier.create(Mono.zip(privateAppMono, pageMono, datasourceMono, environmentListMono))
+        StepVerifier.create(Mono.zip(privateAppMono, pageMono, datasourceMono, environmentListMono, actionMono))
                 .assertNext(tuple -> {
                     Application app = tuple.getT1();
                     PageDTO page = tuple.getT2();
                     Datasource datasource = tuple.getT3();
                     List<Environment> environmentList = tuple.getT4();
+                    NewAction newAction = tuple.getT5();
 
                     assertThat(app.getIsPublic()).isFalse();
 
@@ -529,6 +550,13 @@ public class ApplicationServiceTest {
                                 .ifPresent(policy -> assertThat(policy.getPermissionGroups())
                                         .doesNotContain(permissionGroup.getId()));
                     });
+
+                    // Check that action are not executable by permission group
+                    newAction.getPolicies().stream()
+                            .filter(policy -> EXECUTE_ACTIONS.getValue().equals(policy.getPermission()))
+                            .findFirst()
+                            .ifPresent(policy ->
+                                    assertThat(policy.getPermissionGroups()).doesNotContain(permissionGroup.getId()));
                 })
                 .verifyComplete();
     }
@@ -680,10 +708,9 @@ public class ApplicationServiceTest {
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
 
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();

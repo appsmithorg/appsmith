@@ -10,11 +10,11 @@ import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.migrations.CompatibilityUtils;
-import com.mongodb.DuplicateKeyException;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -74,9 +74,19 @@ public class Migration011EE02AddEnvironmentsToExistingWorkspaces {
                     .map(permissionGroup -> permissionGroup.getId())
                     .collect(Collectors.toSet());
 
+            Set<String> permissionGroupIdsWithoutAppViewer = permissionGroups.parallelStream()
+                    .filter(permissionGroup -> !permissionGroup.getName().startsWith("App Viewer"))
+                    .map(permissionGroup -> permissionGroup.getId())
+                    .collect(Collectors.toSet());
+
             Policy policies = Policy.builder()
                     .permission(AclPermission.EXECUTE_ENVIRONMENTS.getValue())
                     .permissionGroups(permissionGroupIds)
+                    .build();
+
+            Policy policiesWithoutAppViewer = Policy.builder()
+                    .permission(AclPermission.EXECUTE_ENVIRONMENTS.getValue())
+                    .permissionGroups(permissionGroupIdsWithoutAppViewer)
                     .build();
 
             Environment productionEnvironment =
@@ -84,7 +94,7 @@ public class Migration011EE02AddEnvironmentsToExistingWorkspaces {
             productionEnvironment.setPolicies(Set.of(policies));
 
             Environment stagingEnvironment = new Environment(workspace.getId(), CommonFieldName.STAGING_ENVIRONMENT);
-            stagingEnvironment.setPolicies(Set.of(policies));
+            stagingEnvironment.setPolicies(Set.of(policiesWithoutAppViewer));
 
             List.of(productionEnvironment, stagingEnvironment).parallelStream().forEach(environment -> {
                 try {

@@ -11,6 +11,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import widgets from "../../../../locators/Widgets.json";
 import explorer from "../../../../locators/explorerlocators.json";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let funcName = "";
 
@@ -81,6 +82,9 @@ describe("Audit logs", () => {
     cy.url().should("contain", "/settings/general");
     cy.get(locators.LeftPaneAuditLogsLink).should("be.visible");
     cy.get(locators.LeftPaneAuditLogsLink).click();
+
+    featureFlagIntercept({ license_audit_logs_enabled: true });
+
     cy.wait(2000);
     /* visibility tests */
     /* heading */
@@ -221,6 +225,7 @@ describe("Audit logs", () => {
 
   it("2. url to filters are populated properly", () => {
     /* Check url to filters tests */
+    featureFlagIntercept({ license_audit_logs_enabled: true });
     cy.visit("/settings/audit-logs?sort=DESC&days=0").then(() => {
       cy.wait(2000);
       cy.get(locators.ClearButton).should("not.exist");
@@ -262,7 +267,7 @@ describe("Audit logs", () => {
   //   // });
   // });
 
-  it("3. test case: event dropdown and workspace deletion log", () => {
+  it("3. event dropdown and workspace deletion log", () => {
     let defaultWorkspaceName;
     homePage.NavigateToHome();
     cy.createWorkspace();
@@ -283,6 +288,7 @@ describe("Audit logs", () => {
     });
 
     cy.visit("/settings/audit-logs").then(() => {
+      featureFlagIntercept({ license_audit_logs_enabled: true });
       cy.get(locators.EventFilterContainer).should("be.visible").click();
       /* Starting with Event Dropdown */
       cy.get(locators.OptionsInnerWrapper)
@@ -351,6 +357,7 @@ describe("Audit logs", () => {
 
     /* checking audit logs to see workspace and application creation */
     cy.visit("/settings/audit-logs").then(() => {
+      featureFlagIntercept({ license_audit_logs_enabled: true });
       cy.get(locators.RowsContainer)
         .children()
         .should("have.length.greaterThan", 1)
@@ -450,11 +457,34 @@ describe("Audit logs", () => {
 
   it("5. Function invocation events", () => {
     cy.visit("settings/audit-logs?events=query.executed&sort=DESC").then(() => {
+      featureFlagIntercept({ license_audit_logs_enabled: true });
       cy.wait(2000);
       cy.get("[data-testid='t--audit-logs-table-row-description-content']")
         .first()
         .scrollIntoView()
         .contains(funcName);
     });
+  });
+
+  it("6. Super Users on Free plan should see upgrade page", () => {
+    cy.LogOut();
+    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.get(locators.AdminSettingsEntryLink).should("be.visible");
+    cy.get(locators.AdminSettingsEntryLink).click();
+    cy.url().should("contain", "/settings/general");
+    cy.get(locators.LeftPaneAuditLogsLink).should("be.visible");
+    cy.get(locators.LeftPaneAuditLogsLink).click();
+    //set feature fflag to false
+    featureFlagIntercept({ license_audit_logs_enabled: false });
+    cy.stubPricingPage();
+    cy.get(locators.upgradeContainer).should("be.visible");
+    cy.get(locators.upgradeButton)
+      .should("be.visible")
+      .should("have.text", "Upgrade");
+
+    cy.get(locators.upgradeButton).click();
+    cy.get("@pricingPage").should("be.called");
+    cy.wait(2000);
+    cy.go(-1);
   });
 });

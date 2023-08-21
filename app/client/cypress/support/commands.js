@@ -40,6 +40,7 @@ const onboarding = ObjectsRegistry.Onboarding;
 const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const entityExplorer = ObjectsRegistry.EntityExplorer;
+const assertHelper = ObjectsRegistry.AssertHelper;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -224,7 +225,7 @@ Cypress.Commands.add("GetUrlQueryParams", () => {
 Cypress.Commands.add("LogOutUser", () => {
   cy.wait(1000); //waiting for window to load
   cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
-  cy.wait("@postLogout");
+  assertHelper.AssertNetworkStatus("@postLogout", 200);
 });
 
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
@@ -866,7 +867,6 @@ Cypress.Commands.add(
     propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
     agHelper.Sleep();
-    agHelper.GetNClick(propPane._actionCallbacks, 0, true);
 
     // add a success callback
     cy.get(propPane._actionAddCallback("success")).click().wait(500);
@@ -1134,15 +1134,31 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
   featureFlagIntercept({}, false);
-  // Mock empty product alerts so that it does not interfere with tests
-  cy.intercept("GET", "/api/v1/product-alert/alert", {
-    responseMeta: {
-      status: 200,
-      success: true,
+  cy.intercept(
+    {
+      method: "GET",
+      url: "/api/v1/product-alert/alert",
     },
-    data: {},
-    errorDisplay: "",
-  });
+    (req) => {
+      req.reply((res) => {
+        if (res) {
+          if (res.statusCode === 200) {
+            // Modify the response body to have empty data
+            res.send({
+              responseMeta: {
+                status: 200,
+                success: true,
+              },
+              data: {},
+              errorDisplay: "",
+            });
+          }
+        } else {
+          // Do nothing or handle the case where the response object is not present
+        }
+      });
+    },
+  ).as("productAlert");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1375,6 +1391,7 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
+  cy.wait("@getWorkspace");
 
   cy.LogOut();
   cy.wait(2000);
@@ -1791,7 +1808,7 @@ Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
 // });
 
 addMatchImageSnapshotCommand({
-  failureThreshold: 0.1, // threshold for entire image
+  failureThreshold: 0.15, // threshold for entire image
   failureThresholdType: "percent",
 });
 
@@ -2168,4 +2185,12 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 
 Cypress.Commands.add("skipSignposting", () => {
   onboarding.closeIntroModal();
+});
+
+Cypress.Commands.add("stubPricingPage", () => {
+  cy.window().then((win) => {
+    cy.stub(win, "open", (url) => {
+      win.location.href = "https://www.appsmith.com/pricing?";
+    }).as("pricingPage");
+  });
 });

@@ -3,16 +3,18 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserIdentifierService;
+import com.appsmith.server.solutions.ce.ScheduledTaskCEImpl;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.core.FlippingExecutionContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -22,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final SessionUserService sessionUserService;
@@ -36,29 +39,15 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final long featureFlagCacheTimeMin = 120;
 
-    private final long tenantFeaturesCacheTimeMin = 120;
+    /**
+     * To avoid race condition keep the refresh rate lower than cron execution interval {@link ScheduledTaskCEImpl}
+     * to update the tenant level feature flags
+     */
+    private final long tenantFeaturesCacheTimeMin = 115;
 
     private final UserIdentifierService userIdentifierService;
 
     private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
-
-    @Autowired
-    public FeatureFlagServiceCEImpl(
-            SessionUserService sessionUserService,
-            FF4j ff4j,
-            TenantService tenantService,
-            ConfigService configService,
-            CloudServicesConfig cloudServicesConfig,
-            UserIdentifierService userIdentifierService,
-            CacheableFeatureFlagHelper cacheableFeatureFlagHelper) {
-        this.sessionUserService = sessionUserService;
-        this.ff4j = ff4j;
-        this.tenantService = tenantService;
-        this.configService = configService;
-        this.cloudServicesConfig = cloudServicesConfig;
-        this.userIdentifierService = userIdentifierService;
-        this.cacheableFeatureFlagHelper = cacheableFeatureFlagHelper;
-    }
 
     private Mono<Boolean> checkAll(String featureName, User user) {
         Boolean check = check(featureName, user);
@@ -142,22 +131,30 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     public Mono<Void> getAllRemoteFeaturesForTenant() {
         return tenantService
                 .getDefaultTenantId()
-                .flatMap(defaultTenantId -> {
-                    return cacheableFeatureFlagHelper
-                            .fetchCachedTenantNewFeatures(defaultTenantId)
-                            .map(cachedFeatures -> {
-                                if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
-                                        < this.tenantFeaturesCacheTimeMin) {
-                                    return cachedFeatures;
-                                } else {
-                                    return cacheableFeatureFlagHelper
-                                            .evictCachedTenantNewFeatures(defaultTenantId)
-                                            .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(
-                                                    defaultTenantId));
-                                }
-                            });
-                })
+                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper
+                        .fetchCachedTenantNewFeatures(defaultTenantId)
+                        .flatMap(cachedFeatures -> {
+                            if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
+                                    < this.tenantFeaturesCacheTimeMin) {
+                                return Mono.just(cachedFeatures);
+                            } else {
+                                return this.forceUpdateTenantFeatures(defaultTenantId);
+                            }
+                        }))
                 .then();
+    }
+
+    /**
+     * Method to force update the tenant level feature flags. This will be utilised in scenarios where we don't want
+     * to wait for the flags to get updated for cron scheduled time
+     * @param tenantId  tenant for which the features need to be updated
+     * @return          Cached features
+     */
+    @Override
+    public Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId) {
+        return cacheableFeatureFlagHelper
+                .evictCachedTenantNewFeatures(tenantId)
+                .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantId));
     }
 
     /**
@@ -168,7 +165,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         return tenantService
                 .getDefaultTenantId()
                 // TODO: Update to call fetchCachedTenantCurrentFeatures once default value storing is complete
-                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(defaultTenantId))
-                .map(cachedFeatures -> cachedFeatures.getFeatures());
+                .flatMap(cacheableFeatureFlagHelper::fetchCachedTenantNewFeatures)
+                .map(CachedFeatures::getFeatures);
     }
 }

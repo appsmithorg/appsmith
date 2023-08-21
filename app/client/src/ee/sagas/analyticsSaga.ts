@@ -1,4 +1,4 @@
-export * from "../../ce/sagas/analyticsSaga";
+export * from "ce/sagas/analyticsSaga";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
 export function getUserSource() {

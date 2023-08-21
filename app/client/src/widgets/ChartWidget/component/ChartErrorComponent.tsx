@@ -30,12 +30,8 @@ const ErrorBox = styled.div`
   align-items: center;
   flex-flow: column;
   gap: 8px;
-}`;
-
-const ErrorStack = styled.div`
   overflow-y: scroll;
-  text-align: center;
-`;
+}`;
 
 const MoreDetailsButton = styled(Button)`
   flex-shrink: 2;
@@ -44,7 +40,6 @@ const MoreDetailsButton = styled(Button)`
 `;
 
 const Title = styled(Text)`
-  overflow: scroll;
   font-weight: var(--ads-font-weight-bold-xl);
 `;
 
@@ -93,11 +88,9 @@ export function ChartErrorComponent(props: ChartErrorProps) {
           text={messages.MoreDetails}
           width="200px"
         />
-        <ErrorStack>
-          <Collapse isOpen={!bodyCollapsed}>
-            <Text type={TextType.P1}>{errorMessage().body}</Text>
-          </Collapse>
-        </ErrorStack>
+        <Collapse isOpen={!bodyCollapsed}>
+          <Text type={TextType.P1}>{errorMessage().body}</Text>
+        </Collapse>
       </ErrorBox>
     </ChartErrorContainer>
   );

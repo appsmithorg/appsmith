@@ -128,7 +128,12 @@ public enum AppsmithErrorCode {
     // New EE-only errors below this line:
     SAML_CONFIGURATION_FAILURE("AE-SML-4000", "SAML configuration failed"),
     SAML_ALREADY_CONFIGURED("AE-SML-4009", "SAML already configured"),
-    MIGRATION_FAILED("AE-APP-5043", "Migration failed");
+    MIGRATION_FAILED("AE-APP-5043", "Migration failed"),
+    ACL_NO_ACCESS_ERROR("AE-ACL-4009", "User doesn't have access to essential resource"),
+    DATASOURCE_STORAGE_NOT_CONFIGURED("AE-APP-4041", "Datasource not configured"),
+    HMAC_GENERATION_EXCEPTION("AE-MAC-4000", "HMAC signature generation failed"),
+    TENANT_DOWNGRADE_EXCEPTION("AE-LIC-4000", "Tenant downgrade to free plan failed"),
+    ;
     private final String code;
     private final String description;
 

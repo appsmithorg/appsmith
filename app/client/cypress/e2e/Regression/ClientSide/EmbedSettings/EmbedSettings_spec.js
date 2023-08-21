@@ -22,6 +22,7 @@ describe("Embed settings options", function () {
   function ValidateEditModeSetting(setting) {
     _.deployMode.NavigateBacktoEditor();
     _.embedSettings.OpenEmbedSettings();
+    _.agHelper.Sleep();
     _.agHelper.GetNAssertElementText(
       _.embedSettings.locators._frameAncestorsSetting,
       setting,
@@ -72,11 +73,10 @@ describe("Embed settings options", function () {
     cy.enablePublicAccess();
     cy.wait(8000); //adding wait time for iframe to load fully!
     getIframeBody().contains("Submit").should("exist");
-    _.deployMode.NavigateBacktoEditor();
+    _.deployMode.NavigateToHomeDirectly();
   });
 
   it("1. Limit embedding", function () {
-    _.homePage.NavigateToHome();
     cy.get(".admin-settings-menu-option").click();
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
       cy.get("input").eq(1).click();

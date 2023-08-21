@@ -20,7 +20,6 @@ import {
   TabBehaviour,
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelpers/bindingMarker";
 
 import { entityMarker } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
@@ -532,7 +531,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       theme: this.props.theme,
       tabBehaviour: TabBehaviour.INPUT,
       size: EditorSize.COMPACT,
-      marking: [bindingMarker, this.handleDatasourceHighlight(), entityMarker],
+      marking: [this.handleDatasourceHighlight(), entityMarker],
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
       fill: true,
@@ -545,7 +544,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     };
 
     return (
-      <DatasourceContainer data-replay-id={btoa(props.input.name || "")}>
+      <DatasourceContainer data-location-id={btoa(props.input.name || "")}>
         <LazyCodeEditor
           {...props}
           border={CodeEditorBorder.ALL_SIDE}
