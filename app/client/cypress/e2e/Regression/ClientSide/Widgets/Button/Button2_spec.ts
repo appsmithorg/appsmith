@@ -7,7 +7,7 @@ import {
   propPane,
   apiPage,
   jsEditor,
-  tedTestConfig,
+  dataManager,
   locators,
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
@@ -17,7 +17,7 @@ import clocators from "../../../../../locators/commonlocators.json";
 describe("Button widget testcases", () => {
   before(() => {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
   });
 
