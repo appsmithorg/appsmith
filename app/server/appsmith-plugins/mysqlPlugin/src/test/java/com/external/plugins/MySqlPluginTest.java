@@ -462,8 +462,8 @@ public class MySqlPluginTest {
         actionConfiguration.setBody("show databases");
         ConnectionContext connectionContext =
                 pluginExecutor.datasourceCreate(dsConfig).block();
-        Flux<ActionExecutionResult> resultFlux =
-                Mono.from(((ConnectionPool)connectionContext.getConnection()).disposeLater())
+        Flux<ActionExecutionResult> resultFlux = Mono.from(
+                        ((ConnectionPool) connectionContext.getConnection()).disposeLater())
                 .thenMany(pluginExecutor.executeParameterized(
                         connectionContext, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -1423,8 +1423,8 @@ public class MySqlPluginTest {
                 pluginExecutor.datasourceCreate(dsConfig).cache();
         Mono<DatasourceTestResult> testConnResultMono =
                 connectionContextMonoCache.flatMap(conn -> pluginExecutor.testDatasource(conn));
-        Mono<Tuple2<ConnectionContext, DatasourceTestResult>> zipMono = zip(connectionContextMonoCache,
-                testConnResultMono);
+        Mono<Tuple2<ConnectionContext, DatasourceTestResult>> zipMono =
+                zip(connectionContextMonoCache, testConnResultMono);
         StepVerifier.create(zipMono)
                 .assertNext(tuple2 -> {
                     DatasourceTestResult testDsResult = tuple2.getT2();
@@ -1443,7 +1443,7 @@ public class MySqlPluginTest {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                    assertTrue(((ConnectionPool)connectionContext.getConnection()).isDisposed());
+                    assertTrue(((ConnectionPool) connectionContext.getConnection()).isDisposed());
                 })
                 .verifyComplete();
     }

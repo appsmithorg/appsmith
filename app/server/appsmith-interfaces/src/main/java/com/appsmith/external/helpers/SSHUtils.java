@@ -34,8 +34,8 @@ public class SSHUtils {
      * @return
      * @throws IOException
      */
-    public static SSHTunnelContext createSSHTunnel(String sshHost, int sshPort, String username, String key,
-                                                   String dbHost, int dbPort) throws IOException {
+    public static SSHTunnelContext createSSHTunnel(
+            String sshHost, int sshPort, String username, String key, String dbHost, int dbPort) throws IOException {
         final SSHClient client = new SSHClient();
 
         client.connect(sshHost, sshPort);
