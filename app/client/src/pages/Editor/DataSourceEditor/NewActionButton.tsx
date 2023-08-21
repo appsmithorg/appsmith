@@ -24,6 +24,7 @@ import {
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { actionsExistInCurrentPage } from "selectors/entitiesSelector";
+import log from "loglevel";
 
 type NewActionButtonProps = {
   datasource?: Datasource;
@@ -51,11 +52,12 @@ function NewActionButton(props: NewActionButtonProps) {
     popFeature,
     pushFeature,
   } = useContext(WalkthroughContext) || {};
-  const closeWalkthrough = useCallback(() => {
+  const closeWalkthrough = () => {
+    log.debug(isWalkthroughOpened, "closeWalkthrough");
     if (isWalkthroughOpened && popFeature) {
-      popFeature("EXPLORER_DATASOURCE_ADD");
+      popFeature();
     }
-  }, [isWalkthroughOpened, popFeature]);
+  };
   useEffect(() => {
     if (signpostingEnabled && !actionExist) {
       checkAndShowWalkthrough();
@@ -115,6 +117,7 @@ function NewActionButton(props: NewActionButtonProps) {
         return;
       }
 
+      log.debug("closeWalkthrough - create query");
       closeWalkthrough();
 
       if (currentPageId) {
@@ -130,7 +133,7 @@ function NewActionButton(props: NewActionButtonProps) {
         }
       }
     },
-    [dispatch, currentPageId, datasource, pluginType],
+    [dispatch, currentPageId, datasource, pluginType, closeWalkthrough],
   );
 
   return (

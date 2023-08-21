@@ -8,7 +8,6 @@ import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { retryPromise } from "utils/AppsmithUtils";
 import { useLocation } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import log from "loglevel";
 
 const WalkthroughRenderer = lazy(() => {
   return retryPromise(
@@ -40,7 +39,7 @@ export default function Walkthrough({ children }: any) {
     updateActiveWalkthrough();
   };
 
-  const popFeature = (triggeredFrom?: string) => {
+  const popFeatureInit = (triggeredFrom?: string) => {
     hideIndicator();
     const eventParams = activeWalkthrough?.eventParams || {};
     if (triggeredFrom) {
@@ -50,21 +49,34 @@ export default function Walkthrough({ children }: any) {
     if (activeWalkthrough && activeWalkthrough.onDismiss) {
       activeWalkthrough.onDismiss();
     }
+  };
+
+  const popFeature = (triggeredFrom?: string) => {
+    popFeatureInit(triggeredFrom);
+
     setFeature((e) => {
       e.shift();
       return [...e];
     });
   };
 
-  const updateActiveWalkthrough = () => {
+  const popFeatureById = (id: string, triggeredFrom?: string) => {
+    popFeatureInit(triggeredFrom);
+
+    setFeature((features) => {
+      return [...features.filter((feature) => feature.featureId === id)];
+    });
+  };
+
+  const updateActiveWalkthrough = (id?: string) => {
     if (feature.length > 0) {
-      const highlightArea = document.querySelector(feature[0].targetId);
-      log.debug(highlightArea, "highlightArea");
+      const _feature = feature.find((e) => e.featureId === id) ?? feature[0];
+      const highlightArea = document.querySelector(_feature.targetId);
       setActiveWalkthrough(null);
       if (highlightArea) {
         setTimeout(() => {
-          setActiveWalkthrough(feature[0]);
-        }, feature[0].delay || DEFAULT_DELAY);
+          setActiveWalkthrough(_feature);
+        }, _feature.delay || DEFAULT_DELAY);
       }
     } else {
       setActiveWalkthrough(null);
@@ -72,7 +84,6 @@ export default function Walkthrough({ children }: any) {
   };
 
   useEffect(() => {
-    log.debug(feature, "feature");
     if (feature.length > -1) updateActiveWalkthrough();
   }, [feature.length, location]);
 
@@ -81,6 +92,8 @@ export default function Walkthrough({ children }: any) {
       value={{
         pushFeature,
         popFeature,
+        popFeatureById,
+        updateActiveWalkthrough,
         feature,
         isOpened: !!activeWalkthrough,
       }}

@@ -18,19 +18,20 @@ import WidgetSidebar from "../WidgetSidebar";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  adaptiveSignpostingEnabled,
+  selectFeatureFlags,
+} from "@appsmith/selectors/featureFlagsSelectors";
 import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import {
-  actionsExistInCurrentPage,
-  widgetsExistCurrentPage,
-} from "selectors/entitiesSelector";
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import log from "loglevel";
 import {
   getFeatureWalkthroughShown,
   setFeatureWalkthroughShown,
 } from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { widgetsExistCurrentPage } from "selectors/entitiesSelector";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -94,30 +95,26 @@ function ExplorerContent() {
   const { value: activeOption } = options[activeSwitchIndex];
 
   const {
-    pushFeature,
     popFeature,
     isOpened: isWalkthroughOpened,
+    pushFeature,
   } = useContext(WalkthroughContext) || {};
-  const actionsExist = useSelector(actionsExistInCurrentPage);
-  const widgetsExist = useSelector(widgetsExistCurrentPage);
-  useEffect(() => {
-    if (isFirstTimeUserOnboardingEnabled && !widgetsExist && actionsExist) {
-      checkAndShowWalkthrough();
-    }
-  }, [actionsExist, isFirstTimeUserOnboardingEnabled, widgetsExist]);
-
   const handleCloseWalkthrough = () => {
     if (isWalkthroughOpened && popFeature) {
       popFeature();
     }
   };
-
-  const checkAndShowWalkthrough = async () => {
+  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
+  const hasWidgets = useSelector(widgetsExistCurrentPage);
+  const checkAndShowSwitchWidgetWalkthrough = async () => {
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
       FEATURE_WALKTHROUGH_KEYS.switch_to_widget,
     );
-
-    isFeatureWalkthroughShown &&
+    signpostingEnabled &&
+      !hasWidgets &&
+      adaptiveSignposting &&
+      !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
         targetId: `#explorer-tab-options [data-value*="widgets"]`,

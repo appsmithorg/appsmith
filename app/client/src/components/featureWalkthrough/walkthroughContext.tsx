@@ -45,11 +45,15 @@ export type FeatureParams = {
   // Multiple Highlights -> multiple ids for highlighter, if not present considers targetId as the only highlighting div.
   multipleHighlights?: string[];
   overlayColor?: string;
+  // id which can be used to do a walkthrough skipping the normal queue
+  featureId?: string;
 };
 
 type WalkthroughContextType = {
   pushFeature: (feature: FeatureParams) => void;
   popFeature: (triggeredFrom?: string) => void;
+  popFeatureById: (id: string, triggeredFrom?: string) => void;
+  updateActiveWalkthrough: (id: string) => void;
   feature: FeatureParams[];
   isOpened: boolean;
 };

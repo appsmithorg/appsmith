@@ -372,6 +372,8 @@ function ActionSidebar({
     getDatasourceStructureById(state, datasourceId),
   );
 
+  const hasWidgets = Object.keys(widgets).length > 1;
+
   useEffect(() => {
     if (
       datasourceId &&
@@ -468,11 +470,12 @@ function ActionSidebar({
         overlayColor: "transparent",
       });
   };
+
   useEffect(() => {
     if (!hasWidgets) {
       checkAndShowBackToCanvasWalkthrough();
     }
-  }, [signpostingEnabled, widgets]);
+  }, [hasWidgets]);
 
   const showSchema =
     isEnabledForDSSchema &&
@@ -484,8 +487,6 @@ function ActionSidebar({
       checkAndShowWalkthrough();
     }
   }, [showSchema]);
-
-  const hasWidgets = Object.keys(widgets).length > 1;
 
   const pagePermissions = useSelector(getPagePermissions);
 

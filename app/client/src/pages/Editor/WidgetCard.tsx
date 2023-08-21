@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useContext } from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
@@ -7,6 +7,7 @@ import { generateReactKey } from "utils/generators";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
 import { Text } from "design-system";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -61,6 +62,14 @@ function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
 
+  const { isOpened: isWalkthroughOpened, popFeature } =
+    useContext(WalkthroughContext) || {};
+  const closeWalkthrough = useCallback(() => {
+    if (isWalkthroughOpened && popFeature) {
+      popFeature();
+    }
+  }, [isWalkthroughOpened, popFeature]);
+
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
@@ -74,6 +83,8 @@ function WidgetCard(props: CardProps) {
         widgetId: generateReactKey(),
       });
     deselectAll();
+
+    closeWalkthrough();
   };
 
   const type = `${props.details.type.split("_").join("").toLowerCase()}`;

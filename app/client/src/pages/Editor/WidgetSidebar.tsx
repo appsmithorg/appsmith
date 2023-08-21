@@ -13,9 +13,16 @@ import {
 import Fuse from "fuse.js";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import {
+  getFeatureWalkthroughShown,
+  setFeatureWalkthroughShown,
+} from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import { widgetsExistCurrentPage } from "selectors/entitiesSelector";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import log from "loglevel";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
@@ -49,7 +56,6 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
 
   const filterCards = (keyword: string) => {
     sendWidgetSearchAnalytics(keyword);
-
     if (keyword.trim().length > 0) {
       const searchResult = fuse.search(keyword);
       setFilteredCards(searchResult as WidgetCardProps[]);
@@ -66,18 +72,29 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
     filterCards(value.toLowerCase());
   }, 300);
 
+  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
+  const hasWidgets = useSelector(widgetsExistCurrentPage);
   useEffect(() => {
-    if (isActive) {
+    async function scrollToTableWidgetCard() {
+      const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+        FEATURE_WALKTHROUGH_KEYS.switch_to_widget,
+      );
       const widgetCard = document.getElementById(
         "widget-card-draggable-tablewidgetv2",
       );
-      widgetCard?.scrollIntoView();
-      log.debug(widgetCard);
-      // checkAndShowWalkthrough();
+
+      if (!isFeatureWalkthroughShown) {
+        widgetCard?.scrollIntoView();
+        checkAndShowTableWidgetWalkthrough();
+      }
     }
-  }, [isActive]);
-  const { pushFeature } = useContext(WalkthroughContext) || {};
-  const checkAndShowWalkthrough = () => {
+    if (signpostingEnabled && !hasWidgets && adaptiveSignposting && isActive) {
+      scrollToTableWidgetCard();
+    }
+  }, [isActive, hasWidgets, signpostingEnabled, adaptiveSignposting]);
+  const checkAndShowTableWidgetWalkthrough = async () => {
     pushFeature &&
       pushFeature({
         targetId: `#widget-card-draggable-tablewidgetv2`,
@@ -85,21 +102,27 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
           title: "Drag a widget on the canvas",
           description:
             "Drag and drop a table widget onto the canvas and then establish the connection with the Query you previously composed",
-          imageURL: `${ASSETS_CDN_URL}/schema.gif`,
+          imageURL: `${ASSETS_CDN_URL}/add-table-widget.gif`,
+        },
+        onDismiss: async () => {
+          await setFeatureWalkthroughShown(
+            FEATURE_WALKTHROUGH_KEYS.add_table_widget,
+            true,
+          );
         },
         offset: {
           position: "right",
           highlightPad: 5,
-          top: -200,
           indicatorLeft: -3,
+          top: -200,
           style: {
             transform: "none",
             boxShadow: "var(--ads-v2-shadow-popovers)",
             border: "1px solid var(--ads-v2-color-border-muted)",
           },
         },
-        overlayColor: "transparent",
         delay: 1000,
+        overlayColor: "transparent",
       });
   };
 

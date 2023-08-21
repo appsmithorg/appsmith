@@ -15,6 +15,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 import { Link } from "react-router-dom";
 import {
+  getApplicationLastDeployedAt,
   getCurrentApplicationId,
   getCurrentPageId,
   getIsPublishingApplication,
@@ -64,7 +65,10 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  adaptiveSignpostingEnabled,
+  datasourceEnvEnabled,
+} from "@appsmith/selectors/featureFlagsSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
 
@@ -94,7 +98,7 @@ import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
-import { useHref } from "./utils";
+import { useHref, useIsWidgetActionConnectionPresent } from "./utils";
 import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
@@ -103,6 +107,13 @@ import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
 import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { getCanvasWidgets, getPageActions } from "selectors/entitiesSelector";
+import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
+import {
+  getFeatureWalkthroughShown,
+  setFeatureWalkthroughShown,
+} from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -306,6 +317,8 @@ export function EditorHeader() {
           dispatch(showEnvironmentDeployInfoModal());
         }
       }
+
+      closeWalkthrough();
     },
     [dispatch, handlePublish],
   );
@@ -334,14 +347,38 @@ export function EditorHeader() {
     (user) => user.username !== currentUser?.username,
   );
 
-  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const {
+    isOpened: isWalkthroughOpened,
+    popFeature,
+    pushFeature,
+  } = useContext(WalkthroughContext) || {};
+  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
+  const actions = useSelector(getPageActions(pageId));
+  const widgets = useSelector(getCanvasWidgets);
+  const deps = useSelector(getEvaluationInverseDependencyMap);
+  const isConnectionPresent = useIsWidgetActionConnectionPresent(
+    widgets,
+    actions,
+    deps,
+  );
+  const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   useEffect(() => {
-    if (signpostingEnabled) {
-      // checkAndShowWalkthrough();
-    }
+    checkAndShowWalkthrough();
   }, [signpostingEnabled]);
-  const checkAndShowWalkthrough = () => {
-    pushFeature &&
+  const closeWalkthrough = () => {
+    if (popFeature && isWalkthroughOpened) {
+      popFeature();
+    }
+  };
+  const checkAndShowWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.deploy,
+    );
+    signpostingEnabled && !isFeatureWalkthroughShown;
+    isConnectionPresent &&
+      adaptiveSignposting &&
+      !isDeployed &&
+      pushFeature &&
       pushFeature({
         targetId: `#application-publish-btn`,
         details: {
@@ -359,6 +396,12 @@ export function EditorHeader() {
             boxShadow: "var(--ads-v2-shadow-popovers)",
             border: "1px solid var(--ads-v2-color-border-muted)",
           },
+        },
+        onDismiss: async () => {
+          await setFeatureWalkthroughShown(
+            FEATURE_WALKTHROUGH_KEYS.deploy,
+            true,
+          );
         },
         overlayColor: "transparent",
         delay: 1000,

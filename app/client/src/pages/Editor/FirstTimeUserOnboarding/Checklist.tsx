@@ -465,7 +465,7 @@ export default function OnboardingChecklist() {
 
     // Adding walkthrough tutorial
     if (!isFeatureWalkthroughShown && adapativeSignposting) {
-      dispatch(setExplorerSwitchIndex(1));
+      dispatch(setExplorerSwitchIndex(0));
       pushFeature &&
         pushFeature({
           targetId: "#add_datasources",

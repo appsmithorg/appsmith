@@ -1,12 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { Colors } from "constants/Colors";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { Button } from "design-system";
+import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import React, { useContext, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCanvasWidgets, getPageActions } from "selectors/entitiesSelector";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import styled from "styled-components";
+import {
+  getFeatureWalkthroughShown,
+  setFeatureWalkthroughShown,
+} from "utils/storage";
 
 const Wrapper = styled.div`
   position: absolute;
@@ -44,17 +54,41 @@ const ConnecData = styled(Button)`
 `;
 
 export function ConnectDataOverlay(props: { onConnectData: () => void }) {
-  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const {
+    isOpened: isWalkthroughOpened,
+    popFeature,
+    pushFeature,
+  } = useContext(WalkthroughContext) || {};
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
+  const pageId = useSelector(getCurrentPageId);
+  const actions = useSelector(getPageActions(pageId));
+  const widgets = useSelector(getCanvasWidgets);
+  const deps = useSelector(getEvaluationInverseDependencyMap);
+  const isConnectionPresent = useIsWidgetActionConnectionPresent(
+    widgets,
+    actions,
+    deps,
+  );
 
   useEffect(() => {
-    if (true) {
-      // checkAndShowWalkthrough();
+    if (!isConnectionPresent) {
+      checkAndShowWalkthrough();
     }
   }, [signpostingEnabled]);
-
-  const checkAndShowWalkthrough = () => {
-    pushFeature &&
+  const closeWalkthrough = () => {
+    if (popFeature && isWalkthroughOpened) {
+      popFeature();
+    }
+  };
+  const checkAndShowWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.connect_data,
+    );
+    adaptiveSignposting &&
+      !isFeatureWalkthroughShown &&
+      signpostingEnabled &&
+      pushFeature &&
       pushFeature({
         targetId: `#table-overlay-connectdata`,
         details: {
@@ -62,6 +96,12 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
           description:
             "Swiftly bind data to the widget by connecting your query with just a click of this button.",
           imageURL: `${ASSETS_CDN_URL}/connect-data.gif`,
+        },
+        onDismiss: async () => {
+          await setFeatureWalkthroughShown(
+            FEATURE_WALKTHROUGH_KEYS.connect_data,
+            true,
+          );
         },
         offset: {
           position: "right",
@@ -78,6 +118,12 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
       });
   };
 
+  const onClick = () => {
+    props.onConnectData();
+
+    closeWalkthrough();
+  };
+
   return (
     <Wrapper>
       <Container>
@@ -87,7 +133,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
         <ConnecData
           className="t--cypress-table-overlay-connectdata"
           id={"table-overlay-connectdata"}
-          onClick={props.onConnectData}
+          onClick={onClick}
           size="md"
         >
           Connect data
