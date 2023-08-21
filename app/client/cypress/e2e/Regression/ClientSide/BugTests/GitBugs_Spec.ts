@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let repoName: any;
@@ -142,35 +143,60 @@ describe("Git Bugs", function () {
     _.gitSync.SwitchGitBranch("origin/test-24486", false, true);
   });
 
-  it("7. Bug 26038 : Simultaneous git status and remote compare api calls", function () {
-    _.gitSync.SwitchGitBranch("master");
-    _.gitSync.CreateGitBranch(`b26038`, true);
+  it("7. Bug 26038 - 1 : Simultaneous git status and remote compare api calls", function () {
+    featureFlagIntercept({
+      release_git_status_lite_enabled: true,
+    });
 
-    cy.get("@gitbranchName").then(() => {
-      cy.intercept({
-        method: "GET",
-        url: "/api/v1/git/status/app/**",
-      }).as("gitStatusApi");
+    cy.wait(1000);
 
-      cy.intercept({
-        method: "GET",
-        url: "/api/v1/git/fetch/remote/app/**",
-      }).as("gitRemoteStatusApi");
+    cy.intercept({
+      method: "GET",
+      url: "/api/v1/git/status/app/**",
+      query: { compareRemote: "false" },
+    }).as("gitStatusApi");
 
-      _.agHelper.GetNClick(_.locators._publishButton);
+    cy.intercept({
+      method: "GET",
+      url: "/api/v1/git/fetch/remote/app/**",
+    }).as("gitRemoteStatusApi");
 
-      cy.wait("@gitStatusApi").then((res1) => {
-        expect(res1.response).to.have.property("statusCode", 200);
-        cy.wait("@gitRemoteStatusApi").then((res2) => {
-          expect(res2.response).to.have.property("statusCode", 200);
+    _.agHelper.GetNClick(_.locators._publishButton);
 
-          _.agHelper.GetNClick(_.locators._dialogCloseButton);
-        });
+    cy.wait("@gitStatusApi").then((res1) => {
+      expect(res1.response).to.have.property("statusCode", 200);
+      cy.wait("@gitRemoteStatusApi").then((res2) => {
+        expect(res2.response).to.have.property("statusCode", 200);
+
+        _.agHelper.GetNClick(_.locators._dialogCloseButton);
       });
     });
   });
 
-  it("8. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
+  it("8. Bug 26038 - 2 : Simultaneous git status and remote compare api calls", function () {
+    featureFlagIntercept({
+      release_git_status_lite_enabled: false,
+    });
+
+    _.gitSync.SwitchGitBranch("master");
+
+    cy.wait(1000);
+
+    cy.intercept({
+      method: "GET",
+      url: "/api/v1/git/status/app/**",
+      query: { compareRemote: "true" },
+    }).as("gitStatusApi");
+
+    _.agHelper.GetNClick(_.locators._publishButton);
+
+    cy.wait("@gitStatusApi").then((res1) => {
+      expect(res1.response).to.have.property("statusCode", 200);
+      _.agHelper.GetNClick(_.locators._dialogCloseButton);
+    });
+  });
+
+  it("9. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
     // add navigation settings changes
     _.agHelper.GetNClick(_.appSettings.locators._appSettings);
     _.agHelper.GetNClick(_.appSettings.locators._navigationSettingsTab);
@@ -183,7 +209,7 @@ describe("Git Bugs", function () {
     _.gitSync.VerifyChangeLog(false);
   });
 
-  it("9. Bug 23858 : Branch list in git sync modal is not scrollable", function () {
+  it("10. Bug 23858 : Branch list in git sync modal is not scrollable", function () {
     // create git branches
     _.gitSync.CreateGitBranch(tempBranch1, true);
     _.gitSync.CreateGitBranch(tempBranch2, true);
@@ -201,6 +227,7 @@ describe("Git Bugs", function () {
     _.agHelper.GetNClick(_.gitSync._dropdownmenu, 5);
     _.gitSync.CloseGitSyncModal();
   });
+
   it("10. Bug 24206 : Open repository button is not functional in git sync modal", function () {
     _.gitSync.SwitchGitBranch("master");
     _.appSettings.OpenPaneAndChangeTheme("Moon");
