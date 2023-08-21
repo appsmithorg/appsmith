@@ -22,7 +22,7 @@ import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
 import "./ApiCommands";
 // Import commands.js using ES2015 syntax:
 import "./commands";
-import { initLocalstorage, removeIndexedDBKey } from "./commands";
+import { initLocalstorage, addIndexedDBKey } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
@@ -110,8 +110,12 @@ before(function () {
   });
 
   if (!Cypress.currentTest.titlePath[0].includes(WALKTHROUGH_TEST_PAGE)) {
-    // Clearing key USER_SIGN_UP which is used to show walkthrough for non walkthrough cypress tests
-    removeIndexedDBKey("USER_SIGN_UP");
+    // Adding key FEATURE_WALKTHROUGH (which is used to check if the walkthrough is already shown to the user or not) for non walkthrough cypress tests (to not show walkthrough)
+    addIndexedDBKey("FEATURE_WALKTHROUGH", {
+      ab_ds_binding_enabled: true,
+      ab_ds_schema_enabled: true,
+      binding_widget: true,
+    });
   }
 
   //console.warn = () => {};
