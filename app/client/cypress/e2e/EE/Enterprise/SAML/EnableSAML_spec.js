@@ -10,7 +10,7 @@ describe("SSO with SAML test functionality", function () {
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
-    featureFlagIntercept({ license_sso_enabled: false });
+    featureFlagIntercept({ license_sso_saml_enabled: false });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -29,7 +29,7 @@ describe("SSO with SAML test functionality", function () {
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
-    featureFlagIntercept({ license_sso_enabled: true });
+    featureFlagIntercept({ license_sso_saml_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -80,7 +80,7 @@ describe("SSO with SAML test functionality", function () {
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
-    featureFlagIntercept({ license_sso_enabled: true });
+    featureFlagIntercept({ license_sso_saml_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -129,7 +129,7 @@ describe("SSO with SAML test functionality", function () {
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
 
-    featureFlagIntercept({ license_sso_enabled: true });
+    featureFlagIntercept({ license_sso_saml_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -181,7 +181,7 @@ describe("SSO with SAML test functionality", function () {
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
 
-    featureFlagIntercept({ license_sso_enabled: true });
+    featureFlagIntercept({ license_sso_saml_enabled: true });
     cy.url().should("contain", "/settings/authentication");
     cy.get(enterpriseSettings.samlButton)
       .should("be.visible")
@@ -227,7 +227,7 @@ describe("SSO with SAML test functionality", function () {
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
 
-    featureFlagIntercept({ license_sso_enabled: true });
+    featureFlagIntercept({ license_sso_saml_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -277,7 +277,7 @@ describe("SSO with SAML test functionality", function () {
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
 
-    featureFlagIntercept({ license_sso_enabled: true });
+    featureFlagIntercept({ license_sso_saml_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
