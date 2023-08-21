@@ -95,7 +95,7 @@ describe("Character Datatype tests", function () {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisibility(locators._modal);
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
@@ -129,7 +129,7 @@ describe("Character Datatype tests", function () {
       false,
     );
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
@@ -163,7 +163,7 @@ describe("Character Datatype tests", function () {
       false,
     );
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -194,7 +194,7 @@ describe("Character Datatype tests", function () {
     agHelper.EnterInputText("Limited_4_", "Flights", true);
     agHelper.ClearInputText("Unlimited", false);
     agHelper.ClickButton("Update");
-    agHelper.AssertElementVisibility(locators._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -242,7 +242,7 @@ describe("Character Datatype tests", function () {
       false,
     );
     agHelper.ClickButton("Update");
-    agHelper.AssertElementVisibility(locators._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       //since record updated is moving to last row in table - BUg 14347!
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
@@ -276,7 +276,7 @@ describe("Character Datatype tests", function () {
       false,
     );
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
@@ -297,7 +297,7 @@ describe("Character Datatype tests", function () {
   it("11. Deleting records - chartypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 3rd record is deleted
     });
@@ -308,7 +308,7 @@ describe("Character Datatype tests", function () {
 
   it("12. Deleting all records from table - chartypes", () => {
     agHelper.GetNClick(locators._deleteIcon);
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
@@ -317,7 +317,7 @@ describe("Character Datatype tests", function () {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisibility(locators._modal);
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("5"); //asserting serial column is inserting fine in sequence
     });
