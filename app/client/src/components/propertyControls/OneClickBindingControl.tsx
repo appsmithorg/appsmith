@@ -72,6 +72,7 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
           createMessage(TABLE_CONNECT_BUTTON_TEXT)
         }
         errorMsg={this.getErrorMessage()}
+        excludePrimaryColumn={this.props.controlConfig?.excludePrimaryColumn}
         expectedType={this.props.expected?.autocompleteDataType || ""}
         onUpdate={this.onUpdatePropertyValue}
         propertyPath={this.props.propertyName}
@@ -93,5 +94,6 @@ export type OneClickBindingControlProps = ControlProps & {
     sampleData: string;
     allowFieldConfigurations: boolean;
     ctaText: string;
+    excludePrimaryColumn: boolean;
   };
 };

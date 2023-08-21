@@ -34,7 +34,8 @@ type WidgetQueryGeneratorFormContextType = {
     datasourcePluginType: string;
     datasourcePluginName: string;
     datasourceConnectionMode: string;
-    selectedColumnNames?: string[];
+    selectedColumns?: Array<Record<string, unknown>>;
+    excludePrimaryColumn?: boolean;
   };
   updateConfig: (
     property: string | Record<string, unknown>,
@@ -59,6 +60,7 @@ const DEFAULT_CONFIG_VALUE = {
   datasourcePluginType: "",
   datasourcePluginName: "",
   datasourceConnectionMode: "",
+  excludePrimaryColumn: false,
 };
 
 const DEFAULT_CONTEXT_VALUE = {
@@ -93,6 +95,7 @@ type Props = {
   sampleData: string;
   allowFieldConfigurations?: boolean;
   ctaText?: string;
+  excludePrimaryColumn?: boolean;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -105,6 +108,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     allowFieldConfigurations = false,
     ctaText = createMessage(TABLE_CONNECT_BUTTON_TEXT),
     errorMsg,
+    excludePrimaryColumn,
     expectedType,
     onUpdate,
     propertyPath,
@@ -233,6 +237,10 @@ function WidgetQueryGeneratorForm(props: Props) {
     sampleData,
     aliases,
   ]);
+
+  useEffect(() => {
+    updateConfig("excludePrimaryColumn", excludePrimaryColumn);
+  }, [excludePrimaryColumn]);
 
   useEffect(() => {
     if (!pristine && propertyValue && !isConnecting) {

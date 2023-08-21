@@ -16,10 +16,7 @@ import {
 } from "selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdown/DropdownOption";
-import {
-  getOneClickBindingSelectedColumns,
-  getisOneClickBindingConnectingForWidget,
-} from "selectors/oneClickBindingSelectors";
+import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
 import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
@@ -35,10 +32,6 @@ export function useColumns(alias: string, isSearcheable: boolean) {
 
   const columns = useSelector(
     getDatasourceTableColumns(config.datasource, config.table),
-  );
-
-  const selectedColumns = useSelector((state: AppState) =>
-    getOneClickBindingSelectedColumns(state),
   );
 
   const sheetColumns = useSelector(
@@ -138,24 +131,32 @@ export function useColumns(alias: string, isSearcheable: boolean) {
           isSelected: true,
         };
       });
-      return { columns, selectedColumnNames: config.selectedColumnNames };
+      return {
+        columns: columns,
+        selectedColumns: config.selectedColumns || columns,
+      };
     } else if (isArray(columns)) {
-      const allColumns = columns.map((column: any) => {
+      const processedColumns = columns.map((column: any) => {
         return {
           name: column.name,
           type: prepareColumns(column.type),
           isSelected:
             column.name === primaryColumn
-              ? false
+              ? config.excludePrimaryColumn
+                ? false
+                : true
               : column?.isSelected === undefined || column?.isSelected,
         };
       });
       return {
-        columns: allColumns,
-        selectedColumnNames: config.selectedColumnNames,
+        columns: processedColumns,
+        selectedColumns: config.selectedColumns || processedColumns,
       };
     } else {
-      return { columns: [], selectedColumnNames: undefined };
+      return {
+        columns: [],
+        selectedColumns: undefined,
+      };
     }
   }, [columns, sheetColumns, config, selectedDatasourcePluginPackageName]);
 
@@ -214,8 +215,10 @@ export function useColumns(alias: string, isSearcheable: boolean) {
         !!config.sheet) &&
       !!config.table,
     primaryColumn,
-    columns: columnList.columns,
-    selectedColumnNames: selectedColumns,
+    columns: columnList.selectedColumns,
+    selectedColumns: columnList.selectedColumns?.filter(
+      (column: any) => column.isSelected,
+    ),
     disabled: isConnecting,
     onClear,
   };

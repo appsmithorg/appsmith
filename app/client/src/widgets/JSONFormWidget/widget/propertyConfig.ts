@@ -138,6 +138,7 @@ export const contentConfig = [
         controlConfig: {
           allowFieldConfigurations: true,
           ctaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
+          excludePrimaryColumn: true,
         },
         isJSConvertible: true,
         placeholderText: '{ "name": "John", "age": 24 }',
