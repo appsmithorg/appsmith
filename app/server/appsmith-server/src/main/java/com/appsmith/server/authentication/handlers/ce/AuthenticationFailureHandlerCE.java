@@ -1,5 +1,6 @@
 package com.appsmith.server.authentication.handlers.ce;
 
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.exceptions.AppsmithError;
 import lombok.RequiredArgsConstructor;
@@ -84,7 +85,11 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
                         .equals(((OAuth2AuthenticationException) exception)
                                 .getError()
                                 .getErrorCode())) {
-            url = "/user/signup?error=" + URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
+            url = "/user/signup?error="
+                    + URLEncoder.encode(
+                            exception.getMessage() + ". "
+                                    + RateLimitConstants.RATE_LIMIT_ACCOUNT_SUSPENDED_WARNING_MESSAGE,
+                            StandardCharsets.UTF_8);
         } else {
             if (exception instanceof InternalAuthenticationServiceException) {
                 url = originHeader + "/user/login?error=true&message="

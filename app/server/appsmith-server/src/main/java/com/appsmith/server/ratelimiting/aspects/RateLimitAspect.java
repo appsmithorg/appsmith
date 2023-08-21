@@ -1,6 +1,5 @@
 package com.appsmith.server.ratelimiting.aspects;
 
-import com.appsmith.server.constants.ApiConstants;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;

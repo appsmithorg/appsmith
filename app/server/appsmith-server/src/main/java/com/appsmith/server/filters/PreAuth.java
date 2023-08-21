@@ -1,6 +1,5 @@
 package com.appsmith.server.filters;
 
-import com.appsmith.server.constants.ApiConstants;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +61,7 @@ public class PreAuth implements WebFilter {
     private Mono<Void> handleRateLimitExceeded(ServerWebExchange exchange) {
         // Set the error in the URL query parameter for rate limiting
         String url = "/user/login?error=true&message="
-                + URLEncoder.encode(RateLimitConstants.RATE_LIMIT_REACHED, StandardCharsets.UTF_8);
+                + URLEncoder.encode(RateLimitConstants.RATE_LIMIT_REACHED_ACCOUNT_SUSPENDED, StandardCharsets.UTF_8);
         return redirectWithUrl(exchange, url);
     }
 
