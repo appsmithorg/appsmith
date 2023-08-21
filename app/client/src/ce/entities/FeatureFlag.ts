@@ -41,7 +41,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_sso_enabled: false,
   license_branding_enabled: false,
   ab_table_widget_activation_enabled: false,
-  release_git_status_lite_enabled: true,
+  release_git_status_lite_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
