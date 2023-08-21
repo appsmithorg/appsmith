@@ -223,7 +223,7 @@ describe("Create Permission flow ", function () {
       cy.get(".rc-select-item-option-content")
         .last()
         .contains("Create new datasource");
-      dataSources.EnterQuery("select * from users limit 10");
+      dataSources.EnterQuery("select * from users limit 10", 500, false);
       dataSources.RunQuery({
         toValidateResponse: false,
       });

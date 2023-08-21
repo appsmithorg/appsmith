@@ -1,11 +1,11 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
+  multipleEnv,
   agHelper,
   deployMode,
   dataManager,
   locators,
-} from "../../../../support/Objects/ObjectsCore";
-import { multipleEnv } from "../../../../support/ee/ObjectsCore_EE";
+} from "../../../../support/ee/ObjectsCore_EE";
 
 let prodEnv: string, stagingEnv: string;
 

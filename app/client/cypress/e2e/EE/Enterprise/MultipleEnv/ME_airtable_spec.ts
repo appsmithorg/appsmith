@@ -1,5 +1,6 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
+  multipleEnv,
   agHelper,
   dataSources,
   deployMode,
@@ -8,9 +9,8 @@ import {
   locators,
   propPane,
   dataManager,
-} from "../../../../support/Objects/ObjectsCore";
-import { EntityItems } from "../../../../support/Pages/AssertHelper";
-import { multipleEnv } from "../../../../support/ee/ObjectsCore_EE";
+  entityItems,
+} from "../../../../support/ee/ObjectsCore_EE";
 
 let oosDatasourceName: string,
   oosQueryName: string,
@@ -150,7 +150,7 @@ describe(
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1",
         action: "Delete",
-        entityType: EntityItems.Widget,
+        entityType: entityItems.Widget,
       });
       dataSources.DeleteQuery(oosQueryName);
       // Won't be deleting the ds since it is being used by a query in deploy mode

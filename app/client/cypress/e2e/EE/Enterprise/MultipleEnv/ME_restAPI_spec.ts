@@ -1,5 +1,7 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import { Widgets } from "../../../../support/Pages/DataSources";
 import {
+  multipleEnv,
   agHelper,
   dataSources,
   deployMode,
@@ -8,11 +10,8 @@ import {
   dataManager,
   apiPage,
   draggableWidgets,
-} from "../../../../support/Objects/ObjectsCore";
-import { Widgets } from "../../../../support/Pages/DataSources";
-import { EntityItems } from "../../../../support/Pages/AssertHelper";
-import { multipleEnv } from "../../../../support/ee/ObjectsCore_EE";
-import { data } from "cypress/types/jquery";
+  entityItems,
+} from "../../../../support/ee/ObjectsCore_EE";
 
 let meDatasourceName: string,
   meQueryName: string,
@@ -43,8 +42,8 @@ describe(
         agHelper.RenameWithInPane(APIName, false);
       });
       // Fill Auth Form
-      agHelper.UpdateInput(
-        locators._inputFieldByName("URL"),
+      agHelper.TypeText(
+        locators._inputFieldByName("URL") + "//" + locators._inputField,
         dataManager.dsValues[prodEnv].ApiUrlME,
       );
       agHelper.Sleep(500);
@@ -53,8 +52,8 @@ describe(
       dataSources.EditDatasource();
       multipleEnv.SwitchEnvInDSEditor(stagingEnv);
       // Enter wrong values and test
-      agHelper.UpdateInput(
-        locators._inputFieldByName("URL"),
+      agHelper.TypeText(
+        locators._inputFieldByName("URL") + "//" + locators._inputField,
         dataManager.dsValues[stagingEnv].ApiUrlME,
       );
       // Save env details
@@ -108,7 +107,7 @@ describe(
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1",
         action: "Delete",
-        entityType: EntityItems.Widget,
+        entityType: entityItems.Widget,
       });
     });
   },

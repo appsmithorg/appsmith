@@ -1,5 +1,7 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import { Widgets } from "../../../../support/Pages/DataSources";
 import {
+  multipleEnv,
   agHelper,
   dataSources,
   deployMode,
@@ -9,10 +11,8 @@ import {
   table,
   assertHelper,
   draggableWidgets,
-} from "../../../../support/Objects/ObjectsCore";
-import { Widgets } from "../../../../support/Pages/DataSources";
-import { EntityItems } from "../../../../support/Pages/AssertHelper";
-import { multipleEnv } from "../../../../support/ee/ObjectsCore_EE";
+  entityItems,
+} from "../../../../support/ee/ObjectsCore_EE";
 
 let meDatasourceName: string,
   meQueryName: string,
@@ -167,7 +167,7 @@ describe(
       });
 
       //Validating loaded JSON form
-      cy.xpath(locators._spanButton("Update")).then((selector) => {
+      cy.xpath(locators._buttonByText("Update")).then((selector) => {
         cy.wrap(selector)
           .invoke("attr", "class")
           .then((classes) => {
@@ -190,7 +190,7 @@ describe(
       });
 
       //Validating loaded JSON form
-      cy.xpath(locators._spanButton("Update")).then((selector) => {
+      cy.xpath(locators._buttonByText("Update")).then((selector) => {
         cy.wrap(selector)
           .invoke("attr", "class")
           .then((classes) => {
@@ -217,7 +217,7 @@ describe(
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1",
         action: "Delete",
-        entityType: EntityItems.Widget,
+        entityType: entityItems.Widget,
       });
       dataSources.DeleteQuery(meQueryName);
       entityExplorer.SelectEntityByName("Page2", "Pages");

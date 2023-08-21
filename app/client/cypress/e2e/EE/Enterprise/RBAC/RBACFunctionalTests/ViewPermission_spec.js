@@ -164,6 +164,7 @@ describe("View Permission flow ", function () {
       });
     });
   });
+
   it("1. View permission : Workspace level (View all apps in same workspace)", function () {
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME1"),
@@ -189,6 +190,7 @@ describe("View Permission flow ", function () {
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
     ).click();
+    //cy.get("[data-testid='copy-application-url']").last().click();
     cy.enablePublicAccess();
     currentUrl = cy.url();
     cy.url().then((url) => {
@@ -224,7 +226,7 @@ describe("View Permission flow ", function () {
     cy.LogOut();
   });
 
-  // bug
+  // Bug # 26373
   it.skip("4. View permission : Page level (View page is visible)", function () {
     cy.SignupFromAPI(testUser3, password);
     cy.LogintoAppTestUser(testUser3, password);
