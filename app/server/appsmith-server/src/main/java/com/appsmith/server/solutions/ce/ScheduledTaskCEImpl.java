@@ -5,13 +5,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import reactor.core.scheduler.Schedulers;
+import reactor.core.scheduler.Scheduler;
 
 @RequiredArgsConstructor
 @Slf4j
 @Component
 public class ScheduledTaskCEImpl implements ScheduledTaskCE {
+
     private final FeatureFlagService featureFlagService;
+
+    private final Scheduler scheduler;
 
     @Scheduled(initialDelay = 10 * 1000 /* ten seconds */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)
     public void fetchFeatures() {
@@ -19,7 +22,7 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
         featureFlagService
                 .getAllRemoteFeaturesForTenant()
                 .doOnError(error -> log.error("Error while fetching features from Cloud Services {0}", error))
-                .subscribeOn(Schedulers.boundedElastic())
+                .subscribeOn(scheduler)
                 .subscribe();
     }
 }

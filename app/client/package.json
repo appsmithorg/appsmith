@@ -6,17 +6,18 @@
     "./lib/*": "./lib/*.js"
   },
   "engines": {
-    "node": "^16.14.0",
+    "node": "^18.17.1",
     "yarn": "^3.5.1"
   },
   "packageManager": "yarn@3.5.1",
   "cracoConfig": "craco.dev.config.js",
   "workspaces": [
-    "packages/**/!(build)*"
+    "packages/**",
+    "!packages/**/build"
   ],
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
-    "start": "yarn workspace @shared/dsl build && yarn workspace @shared/ast build && BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco start",
+    "start": "yarn workspace @shared/dsl build && yarn workspace @shared/ast build && BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco --max_old_space_size=7168 start",
     "build": "./build.sh",
     "build-airgap": "node download-assets.js && ./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
@@ -98,6 +99,7 @@
     "downloadjs": "^1.4.7",
     "echarts": "^5.4.2",
     "fast-deep-equal": "^3.1.3",
+    "fast-sort": "^3.4.0",
     "fast-xml-parser": "^3.17.5",
     "fastdom": "^1.0.11",
     "focus-trap-react": "^8.9.2",
@@ -207,6 +209,7 @@
     "unescape-js": "^1.1.4",
     "url-search-params-polyfill": "^8.0.0",
     "uuid": "^9.0.0",
+    "validate-color": "^2.2.4",
     "webfontloader": "^1.6.28",
     "webpack-retry-chunk-load-plugin": "^3.1.1",
     "yjs": "^13.5.12",
@@ -223,6 +226,7 @@
     "@babel/helper-string-parser": "^7.19.4",
     "@craco/craco": "^7.0.0",
     "@faker-js/faker": "^7.4.0",
+    "@peculiar/webcrypto": "^1.4.3",
     "@redux-saga/testing-utils": "^1.1.5",
     "@sentry/webpack-plugin": "^1.18.9",
     "@testing-library/jest-dom": "5.16.1",
@@ -279,7 +283,7 @@
     "compression-webpack-plugin": "^10.0.0",
     "cra-bundle-analyzer": "^0.1.0",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "^12.17.0",
+    "cypress": "^12.17.4",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-mochawesome-reporter": "^3.5.1",
@@ -323,7 +327,6 @@
     "redux-devtools": "^3.5.0",
     "redux-devtools-extension": "^2.13.8",
     "redux-mock-store": "^1.5.4",
-    "semver": "^7.3.5",
     "ts-jest": "27.0.0",
     "ts-jest-mock-import-meta": "^0.12.0",
     "ts-loader": "^9.4.1",

@@ -5,10 +5,11 @@ import { useForm } from "react-hook-form";
 import Previews from "./previews";
 import SettingsForm from "./SettingsForm";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
-import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import { Wrapper } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
-import UpgradeBanner from "@appsmith/pages/AdminSettings/config/branding/UpgradeBanner";
+
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
+import { getUpgradeBanner } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
 
 export type brandColorsKeys =
   | "primary"
@@ -19,8 +20,8 @@ export type brandColorsKeys =
 
 export type Inputs = {
   brandColors: Record<brandColorsKeys, string>;
-  APPSMITH_BRAND_LOGO: string;
-  APPSMITH_BRAND_FAVICON: string;
+  brandLogo: string;
+  brandFavicon: string;
 };
 
 type BrandingPageProps = {
@@ -29,12 +30,12 @@ type BrandingPageProps = {
 
 function BrandingPage(props: BrandingPageProps) {
   const { category } = props;
-  const { needsUpgrade = true } = category;
-  const tentantConfig = useSelector(getTenantConfig);
+  const isBrandingEnabled = category?.isFeatureEnabled ?? false;
+  const tenantConfig = useSelector(getTenantConfig);
   const defaultValues = {
-    brandColors: tentantConfig.brandColors,
-    APPSMITH_BRAND_LOGO: tentantConfig.brandLogoUrl,
-    APPSMITH_BRAND_FAVICON: tentantConfig.brandFaviconUrl,
+    brandColors: tenantConfig.brandColors,
+    brandLogo: tenantConfig.brandLogoUrl,
+    brandFavicon: tenantConfig.brandFaviconUrl,
   };
   const {
     control,
@@ -56,22 +57,22 @@ function BrandingPage(props: BrandingPageProps) {
    */
   useEffect(() => {
     reset({
-      brandColors: tentantConfig.brandColors,
-      APPSMITH_BRAND_LOGO: tentantConfig.brandLogoUrl,
-      APPSMITH_BRAND_FAVICON: tentantConfig.brandFaviconUrl,
+      brandColors: tenantConfig.brandColors,
+      brandLogo: tenantConfig.brandLogoUrl,
+      brandFavicon: tenantConfig.brandFaviconUrl,
     });
-  }, [tentantConfig, reset]);
+  }, [tenantConfig, reset]);
 
   watch();
 
   return (
     <Wrapper>
-      <UpgradeBanner />
+      {getUpgradeBanner(isBrandingEnabled)}
       <div className="grid md:grid-cols-[1fr] lg:grid-cols-[max(300px,30%)_1fr] gap-8 mt-4 pr-7">
         <SettingsForm
           control={control}
           defaultValues={defaultValues}
-          disabled={needsUpgrade}
+          disabled={!isBrandingEnabled}
           formState={formState}
           handleSubmit={handleSubmit}
           reset={reset}
@@ -81,8 +82,8 @@ function BrandingPage(props: BrandingPageProps) {
         />
         <div className="flex-grow">
           <Previews
-            favicon={getAssetUrl(values.APPSMITH_BRAND_FAVICON)}
-            logo={getAssetUrl(values.APPSMITH_BRAND_LOGO)}
+            favicon={getAssetUrl(values.brandFavicon)}
+            logo={getAssetUrl(values.brandLogo)}
             shades={values.brandColors}
           />
         </div>

@@ -377,3 +377,8 @@ export type ThemeProp = {
 };
 
 export type SnipingModeProperty = Record<"data" | "run", string>;
+
+export enum DefaultMobileCameraTypes {
+  FRONT = "user",
+  BACK = "environment",
+}

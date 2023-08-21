@@ -32,12 +32,14 @@ export interface ChartSelectedDataPoint {
   x: any;
   y: any;
   seriesTitle: string;
+  rawEventData?: unknown;
 }
 
 export const messages = {
   ErrorTitle: "Error in Chart Data/Configuration",
   MoreDetails: "More Details",
   EmptyData: "No chart data to display",
+  Undefined: "Undefined",
 };
 
 export const CUSTOM_CHART_TYPES = [

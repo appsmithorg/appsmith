@@ -364,7 +364,7 @@ describe("App Theming funtionality", function () {
       .find(".t--theme-card > main > main")
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(131, 24, 67)");
+        expect(backgroudColor).to.eq("rgb(236, 72, 153)");
       });
 
     //Check if the saved theme is present under 'Yours Themes' section with Trash button
@@ -669,7 +669,7 @@ describe("App Theming funtionality", function () {
       .eq(0)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(126, 34, 206)");
+        expect(backgroudColor).to.eq("rgb(219, 234, 254)");
       });
 
     cy.contains("Applied theme")
@@ -680,7 +680,7 @@ describe("App Theming funtionality", function () {
       .eq(1)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(253, 224, 71)");
+        expect(backgroudColor).to.eq("rgb(29, 78, 216)");
       });
 
     //#endregion
@@ -696,17 +696,17 @@ describe("App Theming funtionality", function () {
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
       "background-color",
-      "rgb(253, 224, 71)",
+      "rgb(29, 78, 216)",
     ); //Background Color
     cy.get(widgetsPage.widgetBtn).should(
       "have.css",
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     ); //Widget Color
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     ); //Widget Color
 
     cy.get(widgetsPage.widgetBtn).should("have.css", "border-radius", "24px"); //Border Radius
@@ -738,12 +738,12 @@ describe("App Theming funtionality", function () {
         cy.get(".t--widget-button1 button").should(
           "have.css",
           "background-color",
-          "rgb(126, 34, 206)",
+          "rgb(219, 234, 254)",
         ); //old widgets still conforming to theme color
         cy.get(widgetsPage.iconWidgetBtn).should(
           "have.css",
           "background-color",
-          "rgb(126, 34, 206)",
+          "rgb(219, 234, 254)",
         );
       });
 
@@ -789,20 +789,20 @@ describe("App Theming funtionality", function () {
     cy.get(".t--widget-buttonwidget:nth-child(4) button").should(
       "have.css",
       "background-color",
-      "rgb(134, 239, 172)", //rgb(134, 239, 172)
+      "rgb(190, 24, 93)",
     ); //new widget with its own color
 
     ////old widgets still conforming to theme color
     cy.get(".t--widget-buttonwidget button").should(
       "have.css",
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     );
 
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     );
 
     //Verify Border radius
@@ -845,7 +845,7 @@ describe("App Theming funtionality", function () {
     cy.get(".t--widget-button2 button").should(
       "have.css",
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     ); //verify widget reverted to theme color
     cy.get(".t--property-control-borderradius .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
@@ -866,12 +866,12 @@ describe("App Theming funtionality", function () {
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
       "background-color",
-      "rgb(253, 224, 71)",
+      "rgb(29, 78, 216)",
     ); //Background Color
     cy.get(".t--widget-button1 button").should(
       "have.css",
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     ); //Widget Color
     cy.get("body").then(($ele) => {
       if ($ele.find(widgetsPage.widgetBtn).length <= 1) {
@@ -882,12 +882,12 @@ describe("App Theming funtionality", function () {
     cy.get(".t--widget-button2 button").should(
       "have.css",
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     ); //Widget Color
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     ); //Widget Color
 
     cy.get(".t--widget-button1 button").should(
@@ -1004,7 +1004,7 @@ describe("App Theming funtionality", function () {
     cy.get(".t--widget-button1 button").should(
       "have.css",
       "background-color",
-      "rgb(252, 165, 165)",
+      "rgb(161, 98, 7)",
     ); //new widget with its own color
 
     ////old widgets still conforming to theme color

@@ -19,7 +19,7 @@ describe("Git Bugs", function () {
   it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     _.apiPage.CreateAndFillApi(
-      _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment].mockApiUrl,
+      _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
       "GitSyncTest",
     );
     _.gitSync.OpenGitSyncModal();
@@ -40,7 +40,7 @@ describe("Git Bugs", function () {
       _.dataSources.CreatePlugIn("PostgreSQL");
       _.dataSources.FillPostgresDSForm();
       _.dataSources.SaveDSFromDialog(false);
-      _.agHelper.AssertElementVisible(_.gitSync._branchButton);
+      _.agHelper.AssertElementVisibility(_.gitSync._branchButton);
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
       });
@@ -137,7 +137,12 @@ describe("Git Bugs", function () {
     });
   });
 
-  it("6. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
+  it("6. Bug 24486 : Loading state for remote branches", function () {
+    _.gitSync.CreateRemoteBranch(repoName, "test-24486");
+    _.gitSync.SwitchGitBranch("origin/test-24486", false, true);
+  });
+
+  it("7. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
     // add navigation settings changes
     _.agHelper.GetNClick(_.appSettings.locators._appSettings);
     _.agHelper.GetNClick(_.appSettings.locators._navigationSettingsTab);
@@ -150,7 +155,7 @@ describe("Git Bugs", function () {
     _.gitSync.VerifyChangeLog(false);
   });
 
-  it("7. Bug 23858 : Branch list in git sync modal is not scrollable", function () {
+  it("8. Bug 23858 : Branch list in git sync modal is not scrollable", function () {
     // create git branches
     _.gitSync.CreateGitBranch(tempBranch1, true);
     _.gitSync.CreateGitBranch(tempBranch2, true);
@@ -168,7 +173,7 @@ describe("Git Bugs", function () {
     _.agHelper.GetNClick(_.gitSync._dropdownmenu, 5);
     _.gitSync.CloseGitSyncModal();
   });
-  it("8. Bug 24206 : Open repository button is not functional in git sync modal", function () {
+  it("9. Bug 24206 : Open repository button is not functional in git sync modal", function () {
     _.gitSync.SwitchGitBranch("master");
     _.appSettings.OpenPaneAndChangeTheme("Moon");
     _.gitSync.CommitAndPush();

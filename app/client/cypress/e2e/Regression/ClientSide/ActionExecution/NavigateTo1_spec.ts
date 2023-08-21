@@ -24,7 +24,7 @@ describe("Navigate To feature", () => {
       }
       }}`,
     );
-    agHelper.PopupClose("onClick");
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
     agHelper.ClickButton("Submit");
     cy.url().should("include", "a=b").and("include", "test=123");
     entityExplorer.SelectEntityByName("Page1");

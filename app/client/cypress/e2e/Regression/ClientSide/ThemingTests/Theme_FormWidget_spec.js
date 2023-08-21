@@ -93,7 +93,7 @@ describe("Theme validation usecases", function () {
           cy.get(themelocator.inputColor).clear({ force: true });
           cy.wait(2000);
           theme.ChangeThemeColor(16, "Background");
-          cy.get(themelocator.inputColor).should("have.value", "#dc2626"); //Red
+          cy.get(themelocator.inputColor).should("have.value", "#86efac"); //Red
           cy.wait(2000);
 
           cy.get(themelocator.inputColor).eq(0).click({ force: true });
@@ -107,7 +107,7 @@ describe("Theme validation usecases", function () {
           cy.get(themelocator.inputColor).clear({ force: true });
           cy.wait(2000);
           theme.ChangeThemeColor(9, "Primary");
-          cy.get(themelocator.inputColor).should("have.value", "#18181b"); //Black
+          cy.get(themelocator.inputColor).should("have.value", "#7f1d1d"); //Black
           cy.wait(2000);
           cy.contains("Color").click({ force: true });
           appSettings.ClosePane();
