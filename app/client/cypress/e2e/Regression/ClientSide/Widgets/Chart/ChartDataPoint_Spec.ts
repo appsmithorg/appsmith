@@ -23,11 +23,6 @@ describe("Input widget test with default value from chart datapoint", () => {
     });
   });
 
-  afterEach(() => {
-    //this is to enable re-attempt passing!
-    deployMode.NavigateBacktoEditor();
-  });
-
   it("1. Chart widget - Input widget test with default value from another Input widget", () => {
     entityExplorer.SelectEntityByName("Input1", "Widgets");
     propPane.UpdatePropertyFieldValue(
@@ -58,6 +53,8 @@ describe("Input widget test with default value from chart datapoint", () => {
     cy.get(locators._widgetInputSelector("inputwidgetv2"))
       .last()
       .should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
+
+    deployMode.NavigateBacktoEditor();
   });
 
   it("2. onDataPointClick should work and respond with x, y, seriesTitle, and rawEventData (in case of custom fusion chart).", () => {
