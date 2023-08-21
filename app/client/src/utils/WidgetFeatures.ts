@@ -6,7 +6,6 @@ import type {
 import type { WidgetType } from "constants/WidgetConstants";
 import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { WidgetConfiguration } from "WidgetProvider/constants";
 import type BaseWidget from "widgets/BaseWidget";
 
 export enum RegisteredWidgetFeatures {

@@ -60,7 +60,7 @@ import ListWidgetV2 from "./ListWidgetV2";
 import { ButtonWidget as ButtonWidgetV2 } from "./ButtonWidgetV2";
 import type BaseWidget from "./BaseWidget";
 
-export default [
+const Widgets = [
   CanvasWidget,
   SkeletonWidget,
   ContainerWidget,
@@ -123,10 +123,6 @@ export default [
   ProgressWidget,
   CircularProgressWidget,
   ListWidget,
-
-  /*
-   * If a newly added widget works well inside the list widget,
-   * please add widget type in the List widget's allowed widget
-   * list, to make the new widget be droppable inside List widget.
-   */
 ] as (typeof BaseWidget)[];
+
+export default Widgets;
