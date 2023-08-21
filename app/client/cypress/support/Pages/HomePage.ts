@@ -432,7 +432,7 @@ export class HomePage {
       "response.body.responseMeta.status",
       200,
     );
-    this.agHelper.UpdateInput(this._searchUsersInput, email);
+    this.agHelper.TypeIntoInput(this._searchUsersInput, email);
     cy.wait(2000);
     cy.get(HomePageLocators.DeleteBtn).first().click({ force: true });
     cy.get(this._leaveWorkspaceConfirmModal).should("be.visible");
@@ -469,7 +469,7 @@ export class HomePage {
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
     cy.log(workspaceName, email, currentRole);
-    this.agHelper.UpdateInput(this._searchUsersInput, email);
+    this.agHelper.TypeIntoInput(this._searchUsersInput, email);
     cy.get(".search-highlight").should("exist").contains(email);
     this.agHelper.Sleep(2000);
     cy.xpath(this._userRoleDropDown(currentRole))

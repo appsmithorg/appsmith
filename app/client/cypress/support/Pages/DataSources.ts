@@ -581,7 +581,7 @@ export class DataSources {
       "Please select an option",
       "Personal access token",
     );
-    this.agHelper.UpdateInput(
+    this.agHelper.TypeIntoInput(
       this.locator._inputFieldByName("Bearer token"),
       Cypress.env("AIRTABLE_BEARER"),
     );
@@ -625,11 +625,11 @@ export class DataSources {
   }
 
   public FillFirestoreDSForm(environment = this.dataManager.defaultEnviorment) {
-    this.agHelper.UpdateInput(
+    this.agHelper.TypeIntoInput(
       this.locator._inputFieldByName("Database URL"),
       this.dataManager.dsValues[environment].firestore_database_url,
     );
-    this.agHelper.UpdateInput(
+    this.agHelper.TypeIntoInput(
       this.locator._inputFieldByName("Project Id"),
       this.dataManager.dsValues[environment].firestore_projectID,
     );
@@ -689,7 +689,7 @@ export class DataSources {
   ) {
     this.NavigateToDSCreateNew();
     this.CreatePlugIn("Authenticated GraphQL API");
-    this.agHelper.UpdateInput(
+    this.agHelper.TypeIntoInput(
       this.locator._inputFieldByName("URL"),
       this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
     );
@@ -1460,7 +1460,7 @@ export class DataSources {
   }
 
   public FillAuthAPIUrl(environment = this.dataManager.defaultEnviorment) {
-    this.agHelper.UpdateInput(
+    this.agHelper.TypeIntoInput(
       this.locator._inputFieldByName("URL"),
       this.dataManager.dsValues[environment].authenticatedApiUrl,
     );
@@ -1599,7 +1599,7 @@ export class DataSources {
   ) {
     if (dsName) this.agHelper.RenameWithInPane(dsName, false);
     // Fill Auth Form
-    this.agHelper.UpdateInput(
+    this.agHelper.TypeIntoInput(
       this.locator._inputFieldByName("URL"),
       this.dataManager.dsValues[environment].OAuth_ApiUrl,
     );
@@ -1611,24 +1611,24 @@ export class DataSources {
     else if (grantType == "AuthCode")
       this.agHelper.GetNClick(this._authorizationCode);
 
-    this.agHelper.UpdateInput(
+    this.agHelper.TypeIntoInput(
       this.locator._inputFieldByName("Access token URL"),
       this.dataManager.dsValues[environment].OAUth_AccessTokenUrl,
     );
 
-    this.agHelper.UpdateInput(
+    this.agHelper.TypeIntoInput(
       this.locator._inputFieldByName("Client ID"),
       clientId,
     );
-    this.agHelper.UpdateInput(
+    this.agHelper.TypeIntoInput(
       this.locator._inputFieldByName("Client secret"),
       clientSecret,
     );
-    this.agHelper.UpdateInput(
+    this.agHelper.TypeIntoInput(
       this.locator._inputFieldByName("Scope(s)"),
       "profile",
     );
-    this.agHelper.UpdateInput(
+    this.agHelper.TypeIntoInput(
       this.locator._inputFieldByName("Authorization URL"),
       this.dataManager.dsValues[environment].OAuth_AuthUrl,
     );

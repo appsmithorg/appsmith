@@ -116,17 +116,17 @@ describe("Shopping cart App", function () {
     //Wait for element to be in DOM
     agHelper.Sleep(3000);
     agHelper.AssertElementLength(appPage.inputValues, 9);
-    agHelper.UpdateInput(appPage.bookname, "Atomic habits", true);
-    agHelper.UpdateInput(appPage.bookgenre, "Self help", true);
-    agHelper.UpdateInput(appPage.bookprice, "200", true);
-    agHelper.UpdateInput(appPage.bookquantity, "2", true);
+    agHelper.TypeIntoInput(appPage.bookname, "Atomic habits", true);
+    agHelper.TypeIntoInput(appPage.bookgenre, "Self help", true);
+    agHelper.TypeIntoInput(appPage.bookprice, "200", true);
+    agHelper.TypeIntoInput(appPage.bookquantity, "2", true);
     agHelper.GetNClick(appPage.addButton, 0, true);
     assertHelper.AssertNetworkStatus("@postExecute");
     agHelper.GetNClick(appPage.bookname);
-    agHelper.UpdateInput(appPage.bookname, "A man called ove", true);
-    agHelper.UpdateInput(appPage.bookgenre, "Fiction", true);
-    agHelper.UpdateInput(appPage.bookprice, "100", true);
-    agHelper.UpdateInput(appPage.bookquantity, "1", true);
+    agHelper.TypeIntoInput(appPage.bookname, "A man called ove", true);
+    agHelper.TypeIntoInput(appPage.bookgenre, "Fiction", true);
+    agHelper.TypeIntoInput(appPage.bookprice, "100", true);
+    agHelper.TypeIntoInput(appPage.bookquantity, "1", true);
     agHelper.GetNClick(appPage.addButton, 0, true);
     assertHelper.AssertNetworkStatus("@postExecute");
     // Deleting the book from the cart
@@ -138,7 +138,7 @@ describe("Shopping cart App", function () {
     // validating that the book is deleted
     agHelper.AssertElementLength(appPage.deleteButton + "/parent::div", 1);
     // Updating the book quantity from edit cart
-    agHelper.UpdateInput(appPage.editbookquantity, "3", true);
+    agHelper.TypeIntoInput(appPage.editbookquantity, "3", true);
     agHelper.GetNClick(appPage.editButton, 0, true);
 
     //Wait for all post execute calls to finish
