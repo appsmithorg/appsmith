@@ -206,7 +206,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       expect($cellData).to.eq("Vintage Cars");
     });
     //Validating loaded JSON form
-    cy.xpath(locators._spanButton("Update")).then((selector) => {
+    cy.xpath(locators._buttonByText("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
@@ -341,7 +341,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
 
     //Validating loaded JSON form
-    cy.xpath(locators._spanButton("Update")).then((selector) => {
+    cy.xpath(locators._buttonByText("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {

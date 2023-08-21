@@ -118,6 +118,7 @@ export interface Message {
   type?: ErrorType;
   subType?: string;
   lineNumber?: number;
+  character?: number;
   // The section of code being referred to
   // codeSegment?: string;
 }

@@ -1,11 +1,9 @@
-import type { MutableRefObject } from "react";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { compact, get, groupBy } from "lodash";
 import type { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
-import { debounce } from "lodash";
 import type { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
 import produce from "immer";
@@ -39,13 +37,6 @@ const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   }
 };
 
-const findDataSources = (dataSources: Datasource[], keyword: string) => {
-  return dataSources.filter(
-    (dataSource: Datasource) =>
-      dataSource.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1,
-  );
-};
-
 export const useDatasourcesPageMapInCurrentApplication = () => {
   const actions = useActions();
   const reducerDatasources = useSelector((state: AppState) => {
@@ -76,56 +67,72 @@ export const useDatasourcesPageMapInCurrentApplication = () => {
 export const useCurrentApplicationDatasource = () => {
   const actions = useSelector(getActions);
   const allDatasources = useSelector(getDatasources);
-  const datasourceIdsUsedInCurrentApplication = actions.reduce(
-    (acc, action: ActionData) => {
-      if (
-        isStoredDatasource(action.config.datasource) &&
-        action.config.datasource.id
-      ) {
-        acc.add(action.config.datasource.id);
-      }
-      return acc;
-    },
-    new Set(),
-  );
-  return allDatasources.filter((ds) =>
-    datasourceIdsUsedInCurrentApplication.has(ds.id),
-  );
+  const currentApplicationDatasource = useMemo(() => {
+    const datasourceIdsUsedInCurrentApplication = actions.reduce(
+      (acc, action: ActionData) => {
+        if (
+          isStoredDatasource(action.config.datasource) &&
+          action.config.datasource.id
+        ) {
+          acc.add(action.config.datasource.id);
+        }
+        return acc;
+      },
+      new Set(),
+    );
+    return allDatasources.filter((ds) =>
+      datasourceIdsUsedInCurrentApplication.has(ds.id),
+    );
+  }, [actions, allDatasources]);
+
+  return currentApplicationDatasource;
 };
 
 export const useOtherDatasourcesInWorkspace = () => {
   const actions = useSelector(getActions);
   const allDatasources = useSelector(getDatasources);
-  const datasourceIdsUsedInCurrentApplication = actions.reduce(
-    (acc, action: ActionData) => {
-      if (
-        isStoredDatasource(action.config.datasource) &&
-        action.config.datasource.id
-      ) {
-        acc.add(action.config.datasource.id);
-      }
-      return acc;
-    },
-    new Set(),
-  );
-  return allDatasources.filter(
-    (ds) =>
-      !datasourceIdsUsedInCurrentApplication.has(ds.id) &&
-      ds.id !== TEMP_DATASOURCE_ID,
-  );
+  const otherDatasourcesInWorkspace = useMemo(() => {
+    const datasourceIdsUsedInCurrentApplication = actions.reduce(
+      (acc, action: ActionData) => {
+        if (
+          isStoredDatasource(action.config.datasource) &&
+          action.config.datasource.id
+        ) {
+          acc.add(action.config.datasource.id);
+        }
+        return acc;
+      },
+      new Set(),
+    );
+    return allDatasources.filter(
+      (ds) =>
+        !datasourceIdsUsedInCurrentApplication.has(ds.id) &&
+        ds.id !== TEMP_DATASOURCE_ID,
+    );
+  }, [actions, allDatasources]);
+  return otherDatasourcesInWorkspace;
 };
 
 export const useAppWideAndOtherDatasource = () => {
   const datasourcesUsedInApplication = useCurrentApplicationDatasource();
   const otherDatasourceInWorkspace = useOtherDatasourcesInWorkspace();
-
+  const appWideDS = useMemo(
+    () =>
+      [...datasourcesUsedInApplication].sort((ds1, ds2) =>
+        ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
+      ),
+    [datasourcesUsedInApplication],
+  );
+  const otherDS = useMemo(
+    () =>
+      [...otherDatasourceInWorkspace].sort((ds1, ds2) =>
+        ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
+      ),
+    [otherDatasourceInWorkspace],
+  );
   return {
-    appWideDS: datasourcesUsedInApplication.sort((ds1, ds2) =>
-      ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
-    ),
-    otherDS: otherDatasourceInWorkspace.sort((ds1, ds2) =>
-      ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
-    ),
+    appWideDS,
+    otherDS,
   };
 };
 
@@ -141,69 +148,6 @@ export const useDatasourceSuggestions = () => {
     0,
     MAX_DATASOURCE_SUGGESTIONS - datasourcesUsedInApplication.length,
   );
-};
-
-export const useFilteredDatasources = (searchKeyword?: string) => {
-  const pageIds = usePageIds(searchKeyword);
-  const datasources = useDatasourcesPageMapInCurrentApplication();
-  return useMemo(() => {
-    if (searchKeyword) {
-      const start = performance.now();
-      const filteredDatasources = produce(datasources, (draft) => {
-        for (const [key, value] of Object.entries(draft)) {
-          if (pageIds.includes(key)) {
-            draft[key] = value;
-          } else {
-            draft[key] = findDataSources(value, searchKeyword);
-          }
-        }
-      });
-      log.debug("Filtered datasources in:", performance.now() - start, "ms");
-      return filteredDatasources;
-    }
-
-    return datasources;
-  }, [searchKeyword, datasources]);
-};
-
-export const useJSCollections = (searchKeyword?: string) => {
-  const reducerActions = useSelector(
-    (state: AppState) => state.entities.jsActions,
-  );
-  const pageIds = usePageIds(searchKeyword);
-
-  const actions = useMemo(() => {
-    return groupBy(reducerActions, "config.pageId");
-  }, [reducerActions]);
-
-  return useMemo(() => {
-    if (searchKeyword) {
-      const start = performance.now();
-      const filteredActions = produce(actions, (draft) => {
-        for (const [key, value] of Object.entries(draft)) {
-          if (pageIds.includes(key)) {
-            draft[key] = value;
-          } else {
-            value.forEach((action, index) => {
-              const searchMatches =
-                action.config.name
-                  .toLowerCase()
-                  .indexOf(searchKeyword.toLowerCase()) > -1;
-              if (searchMatches) {
-                draft[key][index] = action;
-              } else {
-                delete draft[key][index];
-              }
-            });
-          }
-          draft[key] = draft[key].filter(Boolean);
-        }
-      });
-      log.debug("Filtered actions in:", performance.now() - start, "ms");
-      return filteredActions;
-    }
-    return actions;
-  }, [searchKeyword, actions]);
 };
 
 export const useActions = (searchKeyword?: string) => {
@@ -243,7 +187,7 @@ export const useActions = (searchKeyword?: string) => {
       return filteredActions;
     }
     return actions;
-  }, [searchKeyword, actions]);
+  }, [searchKeyword, actions, pageIds]);
 };
 
 export const useWidgets = (searchKeyword?: string) => {
@@ -272,7 +216,7 @@ export const useWidgets = (searchKeyword?: string) => {
       return filteredDSLs;
     }
     return pageCanvasStructures;
-  }, [searchKeyword, pageCanvasStructures]);
+  }, [searchKeyword, pageCanvasStructures, pageIds]);
 };
 
 export const usePageIds = (searchKeyword?: string) => {
@@ -298,50 +242,6 @@ export const usePageIds = (searchKeyword?: string) => {
     }
     return pages.map((page) => page.pageId);
   }, [searchKeyword, pages]);
-};
-
-export const useFilteredEntities = (
-  ref: MutableRefObject<HTMLInputElement | null>,
-) => {
-  const start = performance.now();
-  const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
-
-  const search = debounce((e: any) => {
-    const keyword = e.target.value;
-    if (keyword.trim().length > 0) {
-      setSearchKeyword(keyword);
-    } else {
-      setSearchKeyword(null);
-    }
-  }, 300);
-
-  const event = new Event("cleared");
-  useEffect(() => {
-    const el: HTMLInputElement | null = ref.current;
-
-    el?.addEventListener("keydown", search);
-    el?.addEventListener("cleared", search);
-    return () => {
-      el?.removeEventListener("keydown", search);
-      el?.removeEventListener("cleared", search);
-    };
-  }, [ref, search]);
-
-  const clearSearch = useCallback(() => {
-    const el: HTMLInputElement | null = ref.current;
-
-    if (el && el.value.trim().length > 0) {
-      el.value = "";
-      el?.dispatchEvent(event);
-    }
-  }, [ref, event]);
-
-  const stop = performance.now();
-  log.debug("Explorer hook props calculations took", stop - start, "ms");
-  return {
-    searchKeyword: searchKeyword ?? undefined,
-    clearSearch,
-  };
 };
 
 export const useEntityUpdateState = (entityId: string) => {

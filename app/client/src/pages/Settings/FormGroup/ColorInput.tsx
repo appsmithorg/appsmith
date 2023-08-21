@@ -161,6 +161,7 @@ export const ColorInput = (props: ColorInputProps) => {
 
       <input
         className="hidden w-0 h-0"
+        readOnly
         ref={colorInputRef}
         type="color"
         value={value[selectedIndex]} // convert to hex for safari compatibility
