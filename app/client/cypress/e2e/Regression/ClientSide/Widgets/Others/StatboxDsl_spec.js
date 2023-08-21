@@ -5,7 +5,7 @@ import {
   entityExplorer,
   propPane,
   apiPage,
-  tedTestConfig,
+  dataManager,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Statbox Widget", function () {
@@ -46,7 +46,7 @@ describe("Statbox Widget", function () {
   });
 
   it("3. Bind datasource to statbox", () => {
-    apiPage.CreateAndFillApi(tedTestConfig.paginationUrl(), "MockApi");
+    apiPage.CreateAndFillApi(dataManager.paginationUrl(), "MockApi");
     apiPage.RunAPI();
     // binding datasource to text widget in statbox
     entityExplorer.SelectEntityByName("Text1", "Statbox1");

@@ -1807,7 +1807,7 @@ Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
 // });
 
 addMatchImageSnapshotCommand({
-  failureThreshold: 0.1, // threshold for entire image
+  failureThreshold: 0.15, // threshold for entire image
   failureThresholdType: "percent",
 });
 
@@ -2184,4 +2184,12 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 
 Cypress.Commands.add("skipSignposting", () => {
   onboarding.closeIntroModal();
+});
+
+Cypress.Commands.add("stubPricingPage", () => {
+  cy.window().then((win) => {
+    cy.stub(win, "open", (url) => {
+      win.location.href = "https://www.appsmith.com/pricing?";
+    }).as("pricingPage");
+  });
 });

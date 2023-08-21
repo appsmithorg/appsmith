@@ -43,9 +43,9 @@ export class DarkModeTheme implements ColorModeTheme {
 
   public getColors = () => {
     return {
-      bg: this.bg.toString(),
-      bgAccent: this.bgAccent.toString(),
-      bgAccentHover: this.bgAccentHover.toString(),
+      bg: this.bg.to("sRGB").toString(),
+      bgAccent: this.bgAccent.to("sRGB").toString(),
+      bgAccentHover: this.bgAccentHover.to("sRGB").toString(),
       bgAccentActive: this.bgAccentActive.toString(),
       bgAccentSubtleHover: this.bgAccentSubtleHover.toString(),
       bgAccentSubtleActive: this.bgAccentSubtleActive.toString(),
@@ -121,7 +121,7 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.c = 0;
     }
 
-    if (this.seedIsAchromatic) {
+    if (!this.seedIsAchromatic) {
       color.oklch.c = 0.064;
     }
 
@@ -580,7 +580,7 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.c = 0;
     }
 
-    if (this.seedIsAchromatic) {
+    if (!this.seedIsAchromatic) {
       color.oklch.c = 0.024;
     }
 

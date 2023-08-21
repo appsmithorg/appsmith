@@ -48,7 +48,7 @@ describe("Git sync modal: connect tab", function () {
     cy.get(gitSyncLocators.generateDeployKeyBtn).should("not.exist");
 
     cy.get(gitSyncLocators.gitRepoInput).type(
-      `{selectAll}${_.tedTestConfig.GITEA_API_URL_TED}/${repoName}.git`,
+      `{selectAll}${_.dataManager.GITEA_API_URL_TED}/${repoName}.git`,
     );
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO()).should(
       "not.exist",
@@ -104,7 +104,7 @@ describe("Git sync modal: connect tab", function () {
     cy.get(gitSyncLocators.connectSubmitBtn).should("be.disabled");
 
     cy.get(gitSyncLocators.gitRepoInput).type(
-      `{selectAll}${_.tedTestConfig.GITEA_API_URL_TED}/${repoName}.git`,
+      `{selectAll}${_.dataManager.GITEA_API_URL_TED}/${repoName}.git`,
     );
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO()).should(
       "not.exist",
@@ -200,7 +200,7 @@ describe("Git sync modal: connect tab", function () {
 
     cy.get(gitSyncLocators.gitRepoInput)
       .scrollIntoView()
-      .type(`{selectAll}${_.tedTestConfig.GITEA_API_URL_TED}/${repoName}.git`, {
+      .type(`{selectAll}${_.dataManager.GITEA_API_URL_TED}/${repoName}.git`, {
         force: true,
       });
     cy.get(gitSyncLocators.connectSubmitBtn).scrollIntoView().click();
@@ -213,7 +213,7 @@ describe("Git sync modal: connect tab", function () {
 
     cy.get(gitSyncLocators.gitRepoInput)
       .scrollIntoView()
-      .type(`{selectAll}${_.tedTestConfig.GITEA_API_URL_TED}/${repoName}.git`, {
+      .type(`{selectAll}${_.dataManager.GITEA_API_URL_TED}/${repoName}.git`, {
         force: true,
       });
 
@@ -234,7 +234,7 @@ describe("Git sync modal: connect tab", function () {
 
     cy.request({
       method: "POST",
-      url: `${_.tedTestConfig.GITEA_API_BASE_TED}:${_.tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repoName}/keys`,
+      url: `${_.dataManager.GITEA_API_BASE_TED}:${_.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repoName}/keys`,
       headers: {
         Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
       },

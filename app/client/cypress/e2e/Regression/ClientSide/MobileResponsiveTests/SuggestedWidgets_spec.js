@@ -12,7 +12,7 @@ describe("Check Suggested Widgets Feature in auto-layout", function () {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
     featureFlagIntercept(
       {
-        ab_ds_binding_enabled: true,
+        ab_ds_binding_enabled: false,
       },
       false,
     );

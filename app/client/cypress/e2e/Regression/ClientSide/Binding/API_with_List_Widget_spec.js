@@ -70,6 +70,7 @@ describe("Test Create Api and Bind to List widget", function () {
 
   it("3. Test_Validate the list widget ", function () {
     deployMode.NavigateBacktoEditor();
+    cy.wait("@postExecute");
     cy.wait("@postExecute").then((interception) => {
       valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,
