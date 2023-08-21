@@ -7,6 +7,7 @@ import {
   propPane,
   dataManager,
   locators,
+  homePage,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
 import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
@@ -17,6 +18,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
     containerName = "arangodb";
   before("Create a new Arango DS", () => {
     dataSources.StartContainerNVerify("Arango", containerName, 20000);
+    homePage.CreateNewWorkspace("ArangoDS", true);
+    homePage.CreateAppInWorkspace("ArangoDS", "ArangoDSApp");
     dataSources.CreateDataSource("ArangoDB");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -337,11 +340,12 @@ describe("Validate Arango & CURL Import Datasources", () => {
       action: "Delete",
       entityType: entityItems.Api,
     }); //Deleting api created
+
     entityExplorer.ExpandCollapseEntity(dsName);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
-    }); //needed for the deltion of ds to reflect
+    }); //needed for the deletion of ds to reflect
     agHelper.AssertElementVisibility(dataSources._noSchemaAvailable(dsName));
     //Deleting datasource finally
     dataSources.DeleteDatasouceFromActiveTab(dsName);

@@ -13,6 +13,7 @@ import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.DatasourceStructure.TableType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -60,6 +61,9 @@ import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
 
 @Slf4j
 @ExtendWith(SpringExtension.class)
@@ -158,16 +162,18 @@ public class CreateDBTablePageSolutionTests {
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
 
+    private PluginExecutor spyMockPluginExecutor = spy(new MockPluginExecutor());
+
     private final CRUDPageResourceDTO resource = new CRUDPageResourceDTO();
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(spyMockPluginExecutor));
         Mockito.when(pluginExecutorHelper.getPluginExecutorFromPackageName(Mockito.anyString()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
+                .thenReturn(Mono.just(spyMockPluginExecutor))
+                .thenReturn(Mono.just(spyMockPluginExecutor));
 
         if (testWorkspace == null) {
             Workspace workspace = new Workspace();
@@ -905,6 +911,21 @@ public class CreateDBTablePageSolutionTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullPageIdForS3() {
+        /**
+         * Define handling for sanitizeGenerateCRUDPageTemplateInfo method for S3 plugin on spyMockPluginExecutor.
+         */
+        doAnswer(invocation -> {
+                    List<ActionConfiguration> actionConfigurationList = invocation.getArgument(0);
+                    Map<String, String> mappedColumnsAndTableName = invocation.getArgument(1);
+                    String bucketName = invocation.getArgument(2);
+                    Map<String, Object> formData =
+                            actionConfigurationList.get(0).getFormData();
+                    mappedColumnsAndTableName.put(
+                            (String) ((Map<?, ?>) formData.get("bucket")).get("data"), bucketName);
+                    return Mono.empty();
+                })
+                .when(spyMockPluginExecutor)
+                .sanitizeGenerateCRUDPageTemplateInfo(any(), any(), any());
 
         resource.setApplicationId(testApp.getId());
         StringBuilder pluginName = new StringBuilder();

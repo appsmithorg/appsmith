@@ -285,8 +285,9 @@ describe("Autocomplete tests", () => {
         cy.get(locators._codeMirrorTextArea)
           .eq(0)
           .focus()
+          .wait(200)
           .type(
-            "{downArrow}{downArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}",
+            "{downArrow}{downArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}",
           )
           .type(".");
 
