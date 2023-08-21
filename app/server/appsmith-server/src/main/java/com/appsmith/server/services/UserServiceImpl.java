@@ -67,6 +67,6 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                 userDataService,
                 tenantService,
                 permissionGroupService,
-                userUtils);
+                userUtils, rateLimitService);
     }
 }
