@@ -10,7 +10,7 @@ import {
   Text,
 } from "design-system";
 import React from "react";
-import CommunityTempaltePublishSuccess from "./CommunityTempaltePublishSuccess";
+import CommunityTemplatePublishSuccess from "./CommunityTemplatePublishSuccess";
 import CommunityTemplateForm from "./CommunityTemplateForm";
 import { PublishPageHeaderContainer } from "./StyledComponents";
 
@@ -33,7 +33,7 @@ const PublishCommunityTemplateModal = ({ setShowModal, showModal }: Props) => {
         </PublishPageHeaderContainer>
         <ModalBody>
           {isAppPublished ? (
-            <CommunityTempaltePublishSuccess />
+            <CommunityTemplatePublishSuccess />
           ) : (
             <CommunityTemplateForm />
           )}

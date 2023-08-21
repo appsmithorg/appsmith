@@ -7,7 +7,7 @@ import {
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
 
-const CommunityTempaltePublishSuccess = () => {
+const CommunityTemplatePublishSuccess = () => {
   return (
     <PublishPageBodyContainer>
       <Container>
@@ -27,7 +27,7 @@ const CommunityTempaltePublishSuccess = () => {
   );
 };
 
-export default CommunityTempaltePublishSuccess;
+export default CommunityTemplatePublishSuccess;
 
 const Container = styled.div`
   display: flex;

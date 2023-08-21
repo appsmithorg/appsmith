@@ -11,7 +11,7 @@ type Props = {
   onPublishClick: () => void;
   setShowHostModal: (showModal: boolean) => void;
 };
-const CommunityTemplatesPublish = ({
+const CommunityTemplatesPublishInfo = ({
   onPublishClick,
   setShowHostModal,
 }: Props) => {
@@ -26,7 +26,7 @@ const CommunityTemplatesPublish = ({
   );
 };
 
-export default CommunityTemplatesPublish;
+export default CommunityTemplatesPublishInfo;
 
 const PublishedAppInstructions = () => {
   return (

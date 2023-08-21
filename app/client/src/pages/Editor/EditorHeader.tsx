@@ -95,7 +95,7 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
 import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import CommunityTemplatesPublish from "pages/Templates/CommunityTemplates/Modals/CommunityTemplatesPublish";
+import CommunityTemplatesPublishInfo from "pages/Templates/CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
 import PublishCommunityTemplateModal from "pages/Templates/CommunityTemplates/Modals/PublishCommunityTemplate";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -521,7 +521,7 @@ export function EditorHeader() {
                       />
                     </TabPanel>
                     <TabPanel value="publish">
-                      <CommunityTemplatesPublish
+                      <CommunityTemplatesPublishInfo
                         onPublishClick={() =>
                           setShowPublishCommunityTemplateModal(true)
                         }
