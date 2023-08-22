@@ -195,10 +195,24 @@ export function gitChangeListData(
     Kind.QUERY,
     Kind.JS_OBJECT,
     Kind.DATA_SOURCE,
-    Kind.AHEAD_COMMIT,
-    Kind.BEHIND_COMMIT,
     Kind.JS_LIB,
   ];
+  return changeKind
+    .map((type: Kind) => STATUS_MAP[type](status))
+    .filter((s: GitStatusProps) => s.hasValue)
+    .map((s) => <Change {...s} key={`change-status-${s.iconName}`} />)
+    .filter((s) => !!s);
+}
+
+/**
+ * gitChangeListData: accepts a git status
+ * @param status {GitStatusData} status object that contains git-status call result from backend
+ * @returns {JSX.Element[]}
+ */
+export function gitRemoteChangeListData(
+  status: Partial<GitStatusData> = defaultStatus,
+): JSX.Element[] {
+  const changeKind = [Kind.AHEAD_COMMIT, Kind.BEHIND_COMMIT];
   return changeKind
     .map((type: Kind) => STATUS_MAP[type](status))
     .filter((s: GitStatusProps) => s.hasValue)
@@ -226,15 +240,14 @@ export default function GitChangesList() {
 
   const statusLoading = useSelector(getIsFetchingGitStatus);
   const remoteStatusLoading = useSelector(getIsFetchingGitRemoteStatus);
-  const loading = isGitStatusLiteEnabled
-    ? statusLoading || remoteStatusLoading
-    : statusLoading;
 
-  const changes = gitChangeListData(derivedStatus);
+  const statusChanges = gitChangeListData(derivedStatus);
+  const remoteStatusChanges = gitRemoteChangeListData(derivedStatus);
+
   const currentApplication = useSelector(getCurrentApplication);
   const { isAutoUpdate } = changeInfoSinceLastCommit(currentApplication);
   if (isAutoUpdate && !status?.isClean) {
-    changes.push(
+    statusChanges.push(
       <Change
         hasValue={isAutoUpdate}
         iconName="info"
@@ -243,20 +256,36 @@ export default function GitChangesList() {
       />,
     );
   }
-  return (
+  return isGitStatusLiteEnabled ? (
     <>
-      {changes.length ? (
+      <Changes data-testid={"t--git-change-statuses"}>
+        {!statusLoading ? statusChanges : null}
+        {!remoteStatusLoading ? remoteStatusChanges : null}
+        {status?.migrationMessage ? (
+          <CalloutContainer>
+            <Callout kind="info">{status.migrationMessage}</Callout>
+          </CalloutContainer>
+        ) : null}
+      </Changes>
+      {statusLoading || remoteStatusLoading ? (
+        <DummyChange data-testid={"t--git-change-loading-dummy"} />
+      ) : null}
+    </>
+  ) : (
+    // disabling for better redability
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    <>
+      {statusLoading ? (
+        <DummyChange data-testid={"t--git-change-loading-dummy"} />
+      ) : statusChanges.length ? (
         <Changes data-testid={"t--git-change-statuses"}>
-          {changes}
+          {statusChanges}
           {status?.migrationMessage ? (
             <CalloutContainer>
               <Callout kind="info">{status.migrationMessage}</Callout>
             </CalloutContainer>
           ) : null}
         </Changes>
-      ) : null}
-      {loading ? (
-        <DummyChange data-testid={"t--git-change-loading-dummy"} />
       ) : null}
     </>
   );
