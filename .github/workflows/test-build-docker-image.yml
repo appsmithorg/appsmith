@@ -219,6 +219,12 @@ jobs:
           echo "Cleaning up the tar files"
           rm app/client/packages/rts/dist/rts-dist.tar
 
+      - name: Generate info.json
+        run: |
+          if [[ -f scripts/generate_info_json.sh ]]; then
+            scripts/generate_info_json.sh
+          fi
+
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
 
@@ -286,6 +292,12 @@ jobs:
           tar -xvf app/client/packages/rts/dist/rts-dist.tar -C app/client/packages/rts/
           echo "Cleaning up the tar files"
           rm app/client/packages/rts/dist/rts-dist.tar
+
+      - name: Generate info.json
+        run: |
+          if [[ -f scripts/generate_info_json.sh ]]; then
+            scripts/generate_info_json.sh
+          fi
 
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
