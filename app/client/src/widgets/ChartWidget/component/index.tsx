@@ -128,6 +128,35 @@ class ChartComponent extends React.Component<
     };
   }
 
+  parseOnDataPointClickParams = (evt: any, chartType: ChartType) => {
+    if (chartType === "CUSTOM_FUSION_CHART") {
+      const data = evt.data;
+      const seriesTitle = get(data, "datasetName", "");
+
+      return {
+        x: data.categoryLabel ?? -1,
+        y: data.dataValue ?? -1,
+        seriesTitle,
+        rawEventData: data,
+      } as ChartSelectedDataPoint;
+    } else {
+      const data: unknown[] = evt.data as unknown[];
+      const x: unknown = data[0];
+
+      const index = (evt.seriesIndex ?? 0) + 1;
+      const y: unknown = data[index];
+
+      const seriesName =
+        evt.seriesName && evt.seriesName?.length > 0 ? evt.seriesName : "null";
+
+      return {
+        x: x ?? -1,
+        y: y ?? -1,
+        seriesTitle: seriesName,
+      } as ChartSelectedDataPoint;
+    }
+  };
+
   getEChartsOptions = () => {
     const options = {
       ...this.echartsConfigurationBuilder.prepareEChartConfig(
@@ -142,22 +171,12 @@ class ChartComponent extends React.Component<
   };
 
   dataClickCallback = (params: echarts.ECElementEvent) => {
-    const eventData: unknown[] = params.data as unknown[];
-    const x: unknown = eventData[0];
+    const dataPointClickParams = this.parseOnDataPointClickParams(
+      params,
+      this.state.chartType,
+    );
 
-    const index = (params.seriesIndex ?? 0) + 1;
-    const y: unknown = eventData[index];
-
-    const seriesName =
-      params.seriesName && params.seriesName?.length > 0
-        ? params.seriesName
-        : "null";
-
-    this.props.onDataPointClick({
-      x: x,
-      y: y,
-      seriesTitle: seriesName,
-    });
+    this.props.onDataPointClick(dataPointClickParams);
   };
 
   initializeEchartsInstance = () => {
@@ -304,13 +323,12 @@ class ChartComponent extends React.Component<
       height: "100%",
       events: {
         dataPlotClick: (evt: any) => {
-          const data = evt.data;
-          const seriesTitle = get(data, "datasetName", "");
-          this.props.onDataPointClick({
-            x: data.categoryLabel,
-            y: data.dataValue,
-            seriesTitle,
-          });
+          const dataPointClickParams = this.parseOnDataPointClickParams(
+            evt,
+            this.state.chartType,
+          );
+
+          this.props.onDataPointClick(dataPointClickParams);
         },
       },
       ...this.getCustomFusionChartDataSource(),

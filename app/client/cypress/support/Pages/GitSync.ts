@@ -311,7 +311,7 @@ export class GitSync {
     this.agHelper.AssertContains(
       Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
     );
-    this.agHelper.ClickButton("Are you sure?", 0, false);
+    this.agHelper.ClickButton("Are you sure?", { waitAfterClick: false });
     this.agHelper.AssertContains(
       Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES(),
     );
