@@ -205,7 +205,7 @@ export function gitChangeListData(
 }
 
 /**
- * gitChangeListData: accepts a git status
+ * gitRemoteChangeListData: accepts a git status
  * @param status {GitStatusData} status object that contains git-status call result from backend
  * @returns {JSX.Element[]}
  */
