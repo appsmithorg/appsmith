@@ -4,14 +4,14 @@ import {
   dataSources,
   entityItems,
   deployMode,
-  locators,
 } from "../../../../support/Objects/ObjectsCore";
+import { DataSourceKVP } from "../../../../support/Pages/DataSources";
 
 let dsName: any;
 
 describe("Check datasource doc links", function () {
   it("1. Verify Postgres documentation opens", function () {
-    dataSources.CreateDataSource("Postgres");
+    CreateDummyDSNSave(DataSourceKVP["Postgres"]);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQueryAfterDSSaved();
@@ -24,7 +24,7 @@ describe("Check datasource doc links", function () {
   });
 
   it("2. Verify Mongo documentation opens", function () {
-    dataSources.CreateDataSource("Mongo");
+    CreateDummyDSNSave(DataSourceKVP["Mongo"]);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQueryAfterDSSaved();
@@ -37,13 +37,39 @@ describe("Check datasource doc links", function () {
   });
 
   it("3. Verify MySQL documentation opens", function () {
-    dataSources.CreateDataSource("MySql");
+    CreateDummyDSNSave(DataSourceKVP["MySql"]);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQueryAfterDSSaved();
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-mysql#create-queries",
+        "getWorkspace",
+      );
+    });
+  });
+
+  it("4. Verify Arango documentation opens", function () {
+    CreateDummyDSNSave(DataSourceKVP["ArangoDB"]);
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+      dataSources.CreateQueryAfterDSSaved();
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-arango-db#using-queries-in-applications",
+        "getWorkspace",
+      );
+    });
+  });
+
+  it("5. Verify S3 documentation opens", function () {
+    dataSources.CreateDataSource("S3");
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+      dataSources.CreateQueryAfterDSSaved();
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-amazon-s3#list-files",
         "getWorkspace",
       );
     });
@@ -64,4 +90,15 @@ describe("Check datasource doc links", function () {
     //   toastToValidate: "deleted successfully",
     // });//Since after query delete, DS is not appearing in EntityExplorer, this has potential to fail
   });
+
+  function CreateDummyDSNSave(pluginName: string) {
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn(pluginName);
+      agHelper.RenameWithInPane(pluginName + " " + uid, false);
+      dataSources.SaveDatasource();
+      cy.wrap(pluginName + " " + uid).as("dsName");
+    });
+  }
 });

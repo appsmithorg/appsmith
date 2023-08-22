@@ -6,7 +6,7 @@ import {
   gitSync,
   apiPage,
   dataSources,
-  tedTestConfig,
+  dataManager,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("Content Management System App", function () {
@@ -22,7 +22,7 @@ describe("Content Management System App", function () {
   let repoName;
   it("1.Create Get echo Api call", function () {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].echoApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].echoApiUrl,
       "get_data",
     );
     // creating get request using echo
@@ -37,7 +37,7 @@ describe("Content Management System App", function () {
 
   it("2. Create Post echo Api call", function () {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].echoApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].echoApiUrl,
       "send_mail",
       10000,
       "POST",
@@ -54,7 +54,7 @@ describe("Content Management System App", function () {
 
   it("3. Create Delete echo Api call", function () {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].echoApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].echoApiUrl,
       "delete_proposal",
       10000,
       "DELETE",

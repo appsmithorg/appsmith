@@ -18,6 +18,7 @@ const Body = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
 `;
 const Email = styled(Text)`
   font-weight: var(--ads-v2-font-weight-bold);
@@ -52,6 +53,7 @@ const VerificationPending = (props: RouteComponentProps<{ email: string }>) => {
         isDisabled={!enabled}
         kind="primary"
         onClick={resendVerificationLink}
+        size="md"
       >
         {createMessage(VERIFICATION_PENDING_RESEND_LINK)}
       </Button>
