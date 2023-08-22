@@ -47,7 +47,7 @@ export class ThemeSettings {
       this.agHelper.TypeText(this.locators._colorInput(type), colorIndex); //Doing it again for since sometimes it does not type properpy
       this.agHelper.GetElement(this.locators._colorInput(type)).clear();
       this.agHelper.TypeText(this.locators._colorInput(type), colorIndex);
-      //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
+      // this.agHelper.TypeText(this._colorInputField(type), colorIndex); //not working!
     }
   }
 }

@@ -60,7 +60,7 @@ jobs:
     # Only run if the build step is successful
     if: success()
     name: ci-test
-    uses: ./.github/workflows/ci-test.yml
+    uses: ./.github/workflows/ci-test-custom-script.yml
     secrets: inherit
     with:
       pr: 0
@@ -101,6 +101,44 @@ jobs:
         run: |
           rm -f ~/combined_failed_spec_ci
           cat ~/failed_spec_ci/failed_spec_ci* >> ~/combined_failed_spec_ci
+
+      - name: CI test failures
+        if: needs.ci-test.result != 'success'
+        shell: bash
+        run: |
+          new_failed_spec_env="<ol>$(sort -u ~/combined_failed_spec_ci | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+          echo "$new_failed_spec_env"
+          echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$new_failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Generate slack message
+        continue-on-error: true
+        if: always()
+        id: slack_notification
+        run: |
+          if [[ "${{ needs.ci-test.result }}" != "success" ]]; then
+            echo "slack_message=There are test failures in the run.<br>${{env.new_failed_spec_env}}<br>Please check the <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Github Actions> for more details." >> $GITHUB_OUTPUT
+            echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
+          else
+            echo "slack_message=All tests passed successfully :tada: . Github Action: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click here!>" >> $GITHUB_OUTPUT
+            echo "slack_color=#00FF00" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Slack Notification
+        continue-on-error: true
+        if: always()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: cypresspushworkflow
+          SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
+          SLACK_ICON: https://app.slack.com/services/B05D17E4QVB
+          SLACK_TITLE: 'Result:'
+          SLACK_USERNAME: Cypress Push Workflows
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
+          MSG_MINIMAL: Ref,Event,Commit
+          SLACK_FOOTER: 'Appsmith Push Workflows'
+          SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
 
       # Force save the CI failed spec list into a cache
       - name: Store the combined run result for CI
