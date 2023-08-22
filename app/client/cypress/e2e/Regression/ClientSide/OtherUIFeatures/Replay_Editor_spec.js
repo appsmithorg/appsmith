@@ -100,20 +100,8 @@ describe("Undo/Redo functionality", function () {
       parseSpecialCharSequences: false,
     });
     cy.get("body").click(0, 0);
-    // verifying Relationships is visible on dynamic binding
-    cy.get(".icon-text")
-      .eq(1)
-      .within(() => {
-        cy.get(".connection-type").should("have.text", "Incoming entities");
-      });
 
-    cy.get(".connection span").should("have.text", "FirstAPI");
-
-    cy.get(".icon-text")
-      .last()
-      .within(() => {
-        cy.get(".connection-type").should("have.text", "Outgoing entities");
-      });
+    // Removed the verification of relationships as we have removed the `Relationships` element from the new bindings UI
 
     cy.get("body").type(`{${modifierKey}}z`);
     cy.get(".CodeEditorTarget textarea").should(
