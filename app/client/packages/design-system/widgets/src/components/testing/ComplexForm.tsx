@@ -17,12 +17,12 @@ import {
 
 export const ComplexForm = () => {
   return (
-    <Flex direction="column" gap="spacing-6">
+    <Flex direction="column" gap="spacing-7">
       <Text variant="heading">Your order</Text>
 
       <Text>Choose your favorite dishes and place an order</Text>
 
-      <Flex direction="column" gap="spacing-5">
+      <Flex direction="column" gap="spacing-6">
         <ButtonGroup>
           <Button>Fast food</Button>
           <Button>Salads</Button>
@@ -51,7 +51,7 @@ export const ComplexForm = () => {
         </RadioGroup>
       </Flex>
 
-      <Flex gap="spacing-2">
+      <Flex gap="spacing-3">
         <TooltipRoot>
           <TooltipTrigger>
             <Button variant="outlined">Cancel</Button>
