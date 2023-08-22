@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import SideBar from "./Sidebar";
 import DebugBar from "./BottomBar";
+import LeftPane from "./LeftPane";
 
 const Body = styled.div`
   background: #f1f5f9;
@@ -15,11 +16,6 @@ const Body = styled.div`
   grid-gap: 4px;
 `;
 
-const LeftPane = styled.div`
-  background-color: white;
-  margin-top: 4px;
-  border-radius: 4px;
-`;
 const MainPane = styled.div`
   margin-top: 4px;
   background-color: white;

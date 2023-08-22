@@ -1,7 +1,11 @@
 import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import {
+  IDE_ADD_PATH,
+  IDE_DATA_DETAIL_PATH,
+  IDE_DATA_PATH,
+  IDE_LIB_PATH,
   IDE_PAGE_PATH,
-  IDE_PATH,
+  IDE_SETTINGS_PATH,
   PLACEHOLDER_APP_SLUG,
   PLACEHOLDER_PAGE_SLUG,
   VIEWER_CUSTOM_PATH,
@@ -34,6 +38,17 @@ const baseURLRegistry = {
     [APP_MODE.EDIT]: IDE_PAGE_PATH,
     [APP_MODE.PUBLISHED]: VIEWER_CUSTOM_PATH,
   },
+};
+
+const ideBaseUrl = {
+  [IDEAppState.Data]: {
+    list: IDE_DATA_PATH,
+    detail: IDE_DATA_DETAIL_PATH,
+  },
+  [IDEAppState.Page]: IDE_PAGE_PATH,
+  [IDEAppState.Add]: IDE_ADD_PATH,
+  [IDEAppState.Settings]: IDE_SETTINGS_PATH,
+  [IDEAppState.Libraries]: IDE_LIB_PATH,
 };
 
 export type ApplicationURLParams = {
@@ -203,7 +218,15 @@ export class URLBuilder {
       pageId,
       branch,
       ideState = IDEAppState.Page,
+      appId,
+      dataId,
     } = builderParams;
+    if (mode === APP_MODE.EDIT) {
+      if (!appId) {
+        throw new URIError("Missing appId");
+      }
+      return this.generateIDEBasePath({ ideState, appId, pageId, dataId });
+    }
 
     if (!pageId) {
       throw new URIError(
@@ -211,10 +234,7 @@ export class URLBuilder {
       );
     }
 
-    const basePath =
-      mode === APP_MODE.EDIT
-        ? this.generateIDEBasePath({ ideState }, pageId)
-        : this.generateBasePath(pageId, mode);
+    const basePath = this.generateBasePath(pageId, mode);
 
     const queryParamsToPersist = fetchQueryParamsToPersist(
       persistExistingParams,
@@ -238,15 +258,24 @@ export class URLBuilder {
     return `${basePath}${suffixPath}${queryString}${hashPath}`;
   }
 
-  private generateIDEBasePath(
-    params: { ideState: IDEAppState },
-    pageId: string,
-  ) {
-    const allParams = {
-      ...this.getFormattedParams(pageId),
-      ...params,
-    };
-    return generatePath(IDE_PATH, allParams);
+  private generateIDEBasePath(params: {
+    ideState: IDEAppState;
+    appId: string;
+    pageId?: string;
+    dataId?: string;
+    addSection?: string;
+  }) {
+    let urlFormat = ideBaseUrl[params.ideState];
+    if (params.ideState === IDEAppState.Data) {
+      if (typeof urlFormat !== "string") {
+        if (params.dataId && "detail" in urlFormat) {
+          urlFormat = urlFormat.detail;
+        } else {
+          urlFormat = urlFormat.list;
+        }
+      }
+    }
+    return generatePath(urlFormat as string, params);
   }
 }
 

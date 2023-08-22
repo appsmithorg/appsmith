@@ -13,7 +13,7 @@ import type {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { isNil } from "lodash";
-import type { IDEAppState } from "./pages/IDE/ideReducer";
+import { IDEAppState } from "./pages/IDE/ideReducer";
 
 export type URLBuilderParams = {
   suffix?: string;
@@ -23,6 +23,8 @@ export type URLBuilderParams = {
   pageId: string;
   persistExistingParams?: boolean;
   ideState?: IDEAppState;
+  appId?: string;
+  dataId?: string;
 };
 
 export const fillPathname = (
@@ -71,7 +73,8 @@ export const datasourcesEditorIdURL = (
 ): string => {
   return urlBuilder.build({
     ...props,
-    suffix: `datasource/${props.datasourceId}`,
+    ideState: IDEAppState.Data,
+    suffix: props.datasourceId,
   });
 };
 

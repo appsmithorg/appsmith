@@ -5,9 +5,10 @@ import { connect } from "react-redux";
 import type { InitializeEditorPayload } from "actions/initActions";
 import { initEditor } from "actions/initActions";
 import { getSearchQuery } from "../../utils/helpers";
-import { GIT_BRANCH_QUERY_KEY } from "../../constants/routes";
+import { GIT_BRANCH_QUERY_KEY, IDE_PAGE_PATH } from "../../constants/routes";
 import { APP_MODE } from "../../entities/App";
 import type { RouteComponentProps } from "react-router";
+import { matchPath } from "react-router";
 
 type Props = {
   initEditor: (payload: InitializeEditorPayload) => void;
@@ -26,17 +27,26 @@ class IDELoader extends React.PureComponent<Props, { Page: any }> {
     const {
       initEditor,
       location: { search },
-      match: { params },
     } = this.props;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    const { pageId } = params;
-    if (pageId) {
-      initEditor({
-        pageId,
-        branch,
-        mode: APP_MODE.EDIT,
-      });
+    const matchParams = matchPath<{ appId: string; pageId: string }>(
+      window.location.pathname,
+      {
+        path: IDE_PAGE_PATH,
+      },
+    );
+
+    if (matchParams) {
+      const { appId, pageId } = matchParams.params;
+      if (appId) {
+        initEditor({
+          applicationId: appId,
+          pageId,
+          branch,
+          mode: APP_MODE.EDIT,
+        });
+      }
     }
   }
 

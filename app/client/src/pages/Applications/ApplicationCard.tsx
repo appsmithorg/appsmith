@@ -704,6 +704,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     if (!props.application.defaultPageId) return "";
     return builderURL({
       pageId: props.application.defaultPageId,
+      appId: props.application.id,
       params,
     });
   }, [props.application.defaultPageId, params]);
@@ -740,12 +741,13 @@ export function ApplicationCard(props: ApplicationCardProps) {
       history.push(
         builderURL({
           pageId: props.application.defaultPageId,
+          appId: props.application.id,
           params,
         }),
       );
       dispatch(getCurrentUser());
     },
-    [props.application.defaultPageId],
+    [props.application.id],
   );
 
   return (

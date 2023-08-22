@@ -94,10 +94,12 @@ const IconButtonContainer = styled.div`
 `;
 
 const Sidebar = () => {
-  const params = useParams<{ ideState: IDEAppState }>();
+  const params = useParams<{ ideState: IDEAppState; appId: string }>();
   const selectedState = params.ideState;
   const setAppState = useCallback((state: IDEAppState) => {
-    history.push(builderURL({ ideState: state, pageId: "test" }));
+    history.push(
+      builderURL({ ideState: state, appId: params.appId, pageId: "test" }),
+    );
   }, []);
   return (
     <SideBarContainer>

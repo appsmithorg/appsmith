@@ -148,7 +148,7 @@ function AppRouter(props: {
     getCurrentTenant,
     getCurrentUser,
     getFeatureFlags,
-    initCurrentPage,
+    // initCurrentPage,
   } = props;
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
@@ -157,7 +157,7 @@ function AppRouter(props: {
     getCurrentUser();
     getFeatureFlags();
     getCurrentTenant();
-    initCurrentPage();
+    // initCurrentPage();
     fetchProductAlert();
   }, []);
 
