@@ -1,4 +1,4 @@
-import React, { lazy, useEffect, useState, Suspense, useCallback } from "react";
+import React, { lazy, useEffect, useState, Suspense } from "react";
 import type { FeatureParams } from "./walkthroughContext";
 import { DEFAULT_DELAY } from "./walkthroughContext";
 import WalkthroughContext from "./walkthroughContext";
@@ -53,12 +53,12 @@ export default function Walkthrough({ children }: any) {
       e.shift();
       return [...e];
     });
+    setActiveWalkthrough(null);
   };
 
-  const updateActiveWalkthrough = useCallback(() => {
+  const updateActiveWalkthrough = () => {
     if (feature.length > 0) {
       const highlightArea = document.querySelector(feature[0].targetId);
-      setActiveWalkthrough(null);
       if (highlightArea) {
         setTimeout(() => {
           setActiveWalkthrough(feature[0]);
@@ -67,7 +67,7 @@ export default function Walkthrough({ children }: any) {
     } else {
       setActiveWalkthrough(null);
     }
-  }, [feature]);
+  };
 
   useEffect(() => {
     if (feature.length > -1) updateActiveWalkthrough();

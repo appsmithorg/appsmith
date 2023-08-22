@@ -58,6 +58,10 @@ export const getSignpostingTooltipVisible = (state: AppState) =>
   state.ui.onBoarding.showSignpostingTooltip;
 export const getIsAnonymousDataPopupVisible = (state: AppState) =>
   state.ui.onBoarding.showAnonymousDataPopup;
+// export const isWidgetActionConnectionPresent = createSelector(
+//   getCanvasWidgets,
+
+// )
 
 // Guided Tour selectors
 export const isExploringSelector = (state: AppState) =>

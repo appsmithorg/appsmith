@@ -131,8 +131,9 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
               border: "1px solid var(--ads-v2-color-border-muted)",
             },
           },
+          dismissOnOverlayClick: true,
           delay: 1000,
-          overlayOpacity: 0,
+          overlayColor: "transparent",
         },
         true,
       );

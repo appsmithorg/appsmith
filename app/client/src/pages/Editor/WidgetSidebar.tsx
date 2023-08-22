@@ -19,7 +19,10 @@ import {
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
-import { widgetsExistCurrentPage } from "selectors/entitiesSelector";
+import {
+  actionsExistInCurrentPage,
+  widgetsExistCurrentPage,
+} from "selectors/entitiesSelector";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 
@@ -75,6 +78,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
   const hasWidgets = useSelector(widgetsExistCurrentPage);
+  const actionsExist = useSelector(actionsExistInCurrentPage);
   useEffect(() => {
     async function scrollToTableWidgetCard() {
       const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
@@ -89,10 +93,22 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         checkAndShowTableWidgetWalkthrough();
       }
     }
-    if (signpostingEnabled && !hasWidgets && adaptiveSignposting && isActive) {
+    if (
+      signpostingEnabled &&
+      !hasWidgets &&
+      adaptiveSignposting &&
+      isActive &&
+      actionsExist
+    ) {
       scrollToTableWidgetCard();
     }
-  }, [isActive, hasWidgets, signpostingEnabled, adaptiveSignposting]);
+  }, [
+    isActive,
+    hasWidgets,
+    signpostingEnabled,
+    adaptiveSignposting,
+    actionsExist,
+  ]);
   const checkAndShowTableWidgetWalkthrough = async () => {
     pushFeature &&
       pushFeature(
@@ -122,7 +138,8 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
             },
           },
           delay: 1000,
-          overlayOpacity: 0,
+          overlayColor: "transparent",
+          dismissOnOverlayClick: true,
         },
         true,
       );

@@ -49,13 +49,13 @@ function TooltipContent(props: { showSignpostingTooltip: boolean }) {
   let completedTasks = 0;
 
   useEffect(() => {
-    const handleClickOutside = () => {
+    const handleEvent = () => {
       dispatch(showSignpostingTooltip(false));
     };
 
-    document.addEventListener("click", handleClickOutside, true);
+    document.addEventListener("mousemove", handleEvent, true);
     return () => {
-      document.removeEventListener("click", handleClickOutside, true);
+      document.removeEventListener("mousemove", handleEvent, true);
     };
   }, []);
 

@@ -412,7 +412,8 @@ export function EditorHeader() {
               true,
             );
           },
-          overlayOpacity: 0,
+          overlayColor: "transparent",
+          dismissOnOverlayClick: true,
           delay: 1000,
         },
         true,

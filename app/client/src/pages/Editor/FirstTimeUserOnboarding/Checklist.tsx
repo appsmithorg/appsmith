@@ -480,7 +480,7 @@ export default function OnboardingChecklist() {
               true,
             );
           },
-          overlayOpacity: 0,
+          overlayColor: "transparent",
           offset: {
             position: "right",
             top: -100,
@@ -492,6 +492,7 @@ export default function OnboardingChecklist() {
               border: "1px solid var(--ads-v2-color-border-muted)",
             },
           },
+          dismissOnOverlayClick: true,
           delay: 1000,
         });
     } else {

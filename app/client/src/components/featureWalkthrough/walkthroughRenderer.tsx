@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-debugger */
 import { Icon, Text } from "design-system";
 import { showIndicator } from "pages/Editor/GuidedTour/utils";
 import React, { useContext, useEffect, useState } from "react";
@@ -16,18 +14,13 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 const CLIPID = "clip__feature";
 const Z_INDEX = 1000;
 
-const WalkthroughWrapper = styled.div<{ overlayOpacity?: number }>`
+const WalkthroughWrapper = styled.div<{ overlayColor?: string }>`
   left: 0px;
   top: 0px;
   position: fixed;
   width: 100%;
   height: 100%;
-  color: rgb(0, 0, 0, 0.7);
-  ${(props) =>
-    props.overlayOpacity &&
-    `
-    opacity: ${props.overlayOpacity};
-  `}
+  color: ${(props) => props.overlayColor ?? "rgb(0, 0, 0, 0.7)"};
   z-index: ${Z_INDEX};
   // This allows the user to click on the target element rather than the overlay div
   pointer-events: none;
@@ -133,7 +126,8 @@ const WalkthroughRenderer = ({
   targetId,
   eventParams = {},
   multipleHighlights,
-  overlayOpacity,
+  overlayColor,
+  dismissOnOverlayClick,
 }: FeatureParams) => {
   const [boundingRects, setBoundingRects] =
     useState<BoundingRectTargets | null>(null);
@@ -206,11 +200,11 @@ const WalkthroughRenderer = ({
   return (
     <WalkthroughWrapper
       className="t--walkthrough-overlay"
-      overlayOpacity={overlayOpacity}
+      overlayColor={overlayColor}
     >
       <SvgWrapper
         height={targetBounds.bh}
-        onClick={onDismissWalkthrough}
+        onClick={dismissOnOverlayClick ? onDismissWalkthrough : () => null}
         width={targetBounds.bw}
         xmlns="http://www.w3.org/2000/svg"
       >

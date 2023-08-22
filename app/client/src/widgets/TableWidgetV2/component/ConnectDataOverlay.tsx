@@ -71,7 +71,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
   );
 
   useEffect(() => {
-    if (!isConnectionPresent) {
+    if (!isConnectionPresent && actions.length) {
       checkAndShowWalkthrough();
     }
   }, [signpostingEnabled]);
@@ -113,7 +113,8 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
               border: "1px solid var(--ads-v2-color-border-muted)",
             },
           },
-          overlayOpacity: 0,
+          dismissOnOverlayClick: true,
+          overlayColor: "transparent",
           delay: 1000,
         },
         true,

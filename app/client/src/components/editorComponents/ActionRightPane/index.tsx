@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useContext, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
@@ -69,7 +68,6 @@ import { Tooltip } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import log from "loglevel";
 import history from "utils/history";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
@@ -467,7 +465,8 @@ function ActionSidebar({
           },
         },
         delay: 1000,
-        overlayOpacity: 0,
+        overlayColor: "transparent",
+        dismissOnOverlayClick: true,
       });
   };
 

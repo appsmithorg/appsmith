@@ -134,7 +134,8 @@ function ExplorerContent() {
             border: "1px solid var(--ads-v2-color-border-muted)",
           },
         },
-        overlayOpacity: 0,
+        dismissOnOverlayClick: true,
+        overlayColor: "transparent",
         delay: 1000,
       });
   };
