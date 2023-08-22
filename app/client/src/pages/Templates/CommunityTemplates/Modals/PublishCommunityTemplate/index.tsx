@@ -21,6 +21,10 @@ type Props = {
 
 const PublishCommunityTemplateModal = ({ setShowModal, showModal }: Props) => {
   const isAppPublished = false;
+  const handlePublishSuccess = () => {
+    setShowModal(false);
+  };
+
   return (
     <Modal onOpenChange={() => setShowModal(false)} open={showModal}>
       <ModalContent style={{ padding: 0, width: "80%", maxWidth: "1000px" }}>
@@ -35,7 +39,7 @@ const PublishCommunityTemplateModal = ({ setShowModal, showModal }: Props) => {
           {isAppPublished ? (
             <CommunityTemplatePublishSuccess />
           ) : (
-            <CommunityTemplateForm />
+            <CommunityTemplateForm onPublishSuccess={handlePublishSuccess} />
           )}
         </ModalBody>
       </ModalContent>

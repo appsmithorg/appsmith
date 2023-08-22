@@ -19,8 +19,13 @@ import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import PublishedInfo from "./components/PublishedInfo";
 import TemplateCardPreview from "./components/TemplateCardPreview";
 import TemplateInfoForm from "./components/TemplateInfoForm";
+import ConfirmCommunityTemplatePublish from "../ConfirmCommunityTemplatePublish";
 
-const CommunityTemplateForm = () => {
+type Props = {
+  onPublishSuccess: () => void;
+};
+
+const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
   const currentUser = useSelector(getCurrentUser);
   const isPublishing = useSelector(isPublishingCommunityTempalteSelector);
   const currentApplication = useSelector(getCurrentApplication);
@@ -36,6 +41,7 @@ const CommunityTemplateForm = () => {
 
   const [isPublicSetting, setIsPublicSetting] = useState(true);
   const [isForkableSetting, setIsForkableSetting] = useState(true);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_INTENTION", {
@@ -58,14 +64,13 @@ const CommunityTemplateForm = () => {
     isForkableSetting,
   ]);
 
-  const publishToCommunity = () => {
-    if (!isFormValid) {
-      return;
-    }
+  const handleConfirmationClick = () => {
     dispatch(publishCommunityTemplate());
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_CLICK", {
       id: currentApplication?.id,
     });
+    setShowConfirmationModal(false);
+    onPublishSuccess();
   };
   return (
     <>
@@ -109,7 +114,7 @@ const CommunityTemplateForm = () => {
         <Button
           isDisabled={!isFormValid}
           isLoading={isPublishing}
-          onClick={publishToCommunity}
+          onClick={() => setShowConfirmationModal(true)}
           size="md"
         >
           {createMessage(
@@ -117,6 +122,12 @@ const CommunityTemplateForm = () => {
           )}
         </Button>
       </PublishPageFooterContainer>
+      <ConfirmCommunityTemplatePublish
+        onCancelClick={() => setShowConfirmationModal(false)}
+        onConfirmClick={handleConfirmationClick}
+        showModal={showConfirmationModal}
+        templateName={templateName}
+      />
     </>
   );
 };

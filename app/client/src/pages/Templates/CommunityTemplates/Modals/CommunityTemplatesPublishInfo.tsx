@@ -30,7 +30,7 @@ export default CommunityTemplatesPublishInfo;
 
 const PublishedAppInstructions = () => {
   return (
-    <section>
+    <>
       <InfoContainer>
         <Text kind="heading-s" renderAs="h2">
           <Icon name="checkbox-circle-line" size="md" />{" "}
@@ -45,7 +45,7 @@ const PublishedAppInstructions = () => {
           {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.viewTemplate)}
         </Button>
       </InfoFooter>
-    </section>
+    </>
   );
 };
 
@@ -58,7 +58,7 @@ const UnPublishedAppInstructions = ({
     onPublishClick();
   };
   return (
-    <section>
+    <>
       <InfoContainer>
         <Text kind="heading-s" renderAs="h2">
           {createMessage(COMMUNITY_TEMPLATES.modals.unpublishedInfo.title)}
@@ -77,12 +77,16 @@ const UnPublishedAppInstructions = ({
           {createMessage(COMMUNITY_TEMPLATES.publish)}
         </Button>
       </InfoFooter>
-    </section>
+    </>
   );
 };
 
 const InfoContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   min-height: 250px;
+  padding-top: var(--ads-v2-spaces-2);
 `;
 const InfoFooter = styled.footer`
   display: flex;
