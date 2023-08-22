@@ -312,13 +312,13 @@ export function Table(props: TableProps) {
       (column) => !!column.columnProperties.allowCellWrapping,
     );
 
-  const isVerticalScrollVisible = () => {
+  const isVerticalScrollVisible = useMemo(() => {
     if (scrollBarRef.current) {
       const scrollElement = scrollBarRef.current.getScrollElement();
       return scrollElement.scrollHeight > scrollElement.clientHeight;
     }
     return false;
-  };
+  }, []);
 
   useEffect(() => {
     if (props.isAddRowInProgress) {
@@ -335,7 +335,7 @@ export function Table(props: TableProps) {
       widgetName: props.widgetName,
       widgetId: props.widgetId,
       pageSize: props.pageSize,
-      yScrollVisibility: isVerticalScrollVisible(),
+      yScrollVisibility: isVerticalScrollVisible,
     });
   }, [
     props.bottomRow,
