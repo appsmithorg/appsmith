@@ -78,6 +78,10 @@ export const StyledTextInput = styled(HeadlessTextInput)`
   * PLACEHOLDER
   *-----------------------------------------------------------------------------
   */
+  & [data-field-input]::placeholder {
+    color: var(--color-fg-neutral-subtle);
+  }
+
   & [data-field-input]:placeholder-shown {
     text-overflow: ellipsis;
   }
