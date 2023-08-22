@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Checkbox as HeadlessCheckbox } from "@design-system/headless";
 
 import type { CheckboxProps } from ".";
-import { inlineLabelStyles } from "../../../styles/inlineLabelStyles";
+import { inlineLabelStyles } from "../../../styles";
 
 export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
   ${inlineLabelStyles}

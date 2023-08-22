@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Switch as HeadlessSwitch } from "@design-system/headless";
 
 import type { SwitchProps } from ".";
-import { inlineLabelStyles } from "../../../styles/inlineLabelStyles";
+import { inlineLabelStyles } from "../../../styles";
 
 export const StyledSwitch = styled(HeadlessSwitch)<SwitchProps>`
   ${inlineLabelStyles}

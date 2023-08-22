@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Radio as HeadlessRadio } from "@design-system/headless";
 
 import type { RadioProps } from ".";
-import { inlineLabelStyles } from "../../../styles/inlineLabelStyles";
+import { inlineLabelStyles } from "../../../styles";
 
 export const StyledRadio = styled(HeadlessRadio)<RadioProps>`
   ${inlineLabelStyles}
