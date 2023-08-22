@@ -1,16 +1,11 @@
 import React from "react";
-
 import * as Sentry from "@sentry/react";
 import store from "store";
-
 import type BaseWidget from "widgets/BaseWidget";
 import WidgetFactory, { NonSerialisableWidgetConfigs } from "./WidgetFactory";
-
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { memoize } from "lodash";
 import type { WidgetConfiguration } from "widgets/constants";
-import withMeta from "widgets/MetaHOC";
-import withWidgetProps from "widgets/withWidgetProps";
 import { generateReactKey } from "./generators";
 import type { RegisteredWidgetFeatures } from "./WidgetFeatures";
 import {
@@ -18,24 +13,17 @@ import {
   WidgetFeatureProps,
 } from "./WidgetFeatures";
 import { withLazyRender } from "widgets/withLazyRender";
+import { withBaseWidgetHOC } from "../widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
   needsMeta: boolean,
   eagerRender: boolean,
 ) {
-  let widget = needsMeta ? withMeta(Widget) : Widget;
-
   //@ts-expect-error: type mismatch
-  widget = withWidgetProps(widget);
-
-  //@ts-expect-error: type mismatch
+  let widget: any = withBaseWidgetHOC(Widget, needsMeta);
   widget = eagerRender ? widget : withLazyRender(widget);
-
-  return Sentry.withProfiler(
-    // @ts-expect-error: Types are not available
-    widget,
-  );
+  return Sentry.withProfiler(widget);
 });
 
 export const registerWidget = (
