@@ -1,4 +1,4 @@
-import { DarkModeTheme } from "./DarkModeTheme";
+import { DarkModeTheme } from "../src/DarkModeTheme";
 
 describe("@design-system/theming/color/DarkModeTheme", () => {
   it("checks bg color", () => {

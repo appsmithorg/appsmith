@@ -1,5 +1,5 @@
-import type { ColorMode, ColorTypes } from "../color";
-import type { FontFamily, Typography } from "../typography";
+import type { ColorMode, ColorTypes } from "../../color";
+import type { FontFamily, Typography } from "../../typography";
 
 export type ThemeToken = {
   [key in TokenType]?: { [key: string]: Token };

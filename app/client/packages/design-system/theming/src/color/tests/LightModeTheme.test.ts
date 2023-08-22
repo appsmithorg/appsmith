@@ -1,4 +1,4 @@
-import { LightModeTheme } from "./LightModeTheme";
+import { LightModeTheme } from "../src/LightModeTheme";
 
 describe("@design-system/theming/color/LightModeTheme", () => {
   it("checks bg color", () => {

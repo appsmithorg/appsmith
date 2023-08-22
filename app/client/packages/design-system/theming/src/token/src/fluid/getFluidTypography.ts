@@ -1,8 +1,8 @@
-import { TypographyVariant } from "../../typography";
+import { TypographyVariant } from "../../../typography";
 import { calculateFluidScales } from "./calculateFluidScales";
 import { calculateScales } from "./calculateScales";
 
-import type { Typography } from "../../typography";
+import type { Typography } from "../../../typography";
 import type { FluidConfig } from "./types";
 
 export const getFluidTypography = (

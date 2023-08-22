@@ -1,9 +1,9 @@
 import kebabCase from "lodash/kebabCase";
-import { DarkModeTheme, LightModeTheme } from "../color";
-import { createTypographyStringMap } from "../typography";
+import { DarkModeTheme, LightModeTheme } from "../../color";
+import { createTypographyStringMap } from "../../typography";
 
-import type { ColorMode, ColorTypes } from "../color";
-import type { FontFamily, Typography } from "../typography";
+import type { ColorMode, ColorTypes } from "../../color";
+import type { FontFamily, Typography } from "../../typography";
 import type {
   RootUnit,
   ThemeToken,
