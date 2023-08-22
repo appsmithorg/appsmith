@@ -834,9 +834,7 @@ export function EditorJSONtoForm(props: Props) {
     },
   ];
 
-  const { entityDependencies, hasDependencies } = useEntityDependencies(
-    props.actionName,
-  );
+  const { hasDependencies } = useEntityDependencies(props.actionName);
 
   const pluginImages = useSelector(getPluginImages);
 
@@ -1106,7 +1104,6 @@ export function EditorJSONtoForm(props: Props) {
               actionName={actionName}
               context={DatasourceStructureContext.QUERY_EDITOR}
               datasourceId={props.datasourceId}
-              entityDependencies={entityDependencies}
               hasConnections={hasDependencies}
               hasResponse={!!output}
               pluginId={props.pluginId}
