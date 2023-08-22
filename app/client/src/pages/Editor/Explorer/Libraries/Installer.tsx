@@ -50,7 +50,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-  max-height: calc(var(--popover-max-height) - 57px);
+  max-height: calc(var(--popover-max-height) - 69px);
 
   .search-body {
     display: flex;
