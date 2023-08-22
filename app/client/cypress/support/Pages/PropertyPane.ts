@@ -191,9 +191,13 @@ export class PropertyPane {
     this.entityExplorer.AssertEntityPresenceInExplorer(widgetName + "Copy");
   }
 
+  public DeleteWidgetDirectlyFromPropertyPane() {
+    this.agHelper.GetNClick(this._deleteWidget);
+  }
+
   public DeleteWidgetFromPropertyPane(widgetName: string) {
     this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
-    this.agHelper.GetNClick(this._deleteWidget);
+    this.DeleteWidgetDirectlyFromPropertyPane();
     this.agHelper.Sleep(500);
     this.entityExplorer.AssertEntityAbsenceInExplorer(widgetName);
   }

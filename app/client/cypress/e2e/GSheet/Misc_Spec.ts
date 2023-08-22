@@ -142,7 +142,7 @@ describe("GSheet Miscellaneous Tests", function () {
     });
 
     //Validating loaded JSON form
-    agHelper.GetElement(locators._spanButton("Update")).then((selector) => {
+    agHelper.GetElement(locators._buttonByText("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
@@ -199,7 +199,7 @@ describe("GSheet Miscellaneous Tests", function () {
     });
 
     //Validating loaded JSON form
-    agHelper.GetElement(locators._spanButton("Update")).then((selector) => {
+    agHelper.GetElement(locators._buttonByText("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {

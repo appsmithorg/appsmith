@@ -19,7 +19,6 @@ import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
-import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 import { libraryReservedIdentifiers } from "workers/common/JSLibrary";
 
 /** This function extracts validReferences and invalidReferences from a binding {{}}
@@ -40,11 +39,7 @@ export const extractInfoFromBinding = (
   const { references } = extractIdentifierInfoFromCode(
     script,
     self.evaluationVersion,
-    {
-      ...JAVASCRIPT_KEYWORDS,
-      ...DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
-      ...libraryReservedIdentifiers,
-    },
+    invalidEntityIdentifiers,
   );
   return getPrunedReferences(references, allKeys);
 };
@@ -159,7 +154,6 @@ export const mergeArrays = <T>(currentArr: T[], updateArr: T[]): T[] => {
  */
 export const invalidEntityIdentifiers: Record<string, unknown> = {
   ...JAVASCRIPT_KEYWORDS,
-  ...APPSMITH_GLOBAL_FUNCTIONS,
   ...DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   ...libraryReservedIdentifiers,
 };
