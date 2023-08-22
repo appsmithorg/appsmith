@@ -53,4 +53,8 @@ public class TenantConfigurationCE {
         emailVerificationEnabled =
                 ObjectUtils.defaultIfNull(tenantConfiguration.getEmailVerificationEnabled(), emailVerificationEnabled);
     }
+
+    public Boolean getEmailVerificationEnabled() {
+        return Boolean.TRUE.equals(this.emailVerificationEnabled);
+    }
 }
