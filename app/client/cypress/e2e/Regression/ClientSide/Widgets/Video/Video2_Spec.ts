@@ -215,15 +215,16 @@ describe("Video widget tests", function () {
     agHelper.AssertCSS(widgetLocators.video, "border-radius", "24px");
   });
 
-  it("7. Verify Camera Binding", function () {
+  //Skipping below test due to issue - https://github.com/appsmithorg/appsmith/issues/26166
+  it.skip("7. Verify Camera Binding", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Camera1", "Widgets");
-    propPane.TypeTextIntoField("URL", "{{Camera1.videoBlobURL}}");
     propPane.AssertPropertiesDropDownCurrentValue(
       "Default mobile camera",
       "Back (Rear)",
     );
     entityExplorer.SelectEntityByName("Video1", "Widgets");
+    propPane.TypeTextIntoField("URL", "{{Camera1.videoBlobURL}}");
     propPane.TogglePropertyState("Autoplay", "On");
     agHelper.AssertExistingToggleState("Visible", "true");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));

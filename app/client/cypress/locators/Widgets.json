@@ -233,5 +233,12 @@
   "videoWidgetYoutubeMuteBtn": ".ytp-mute-button",
   "videoWidgetYoutubeLargePlayBtn": ".ytp-large-play-button",
   "videoWidgetYoutubePlayBtn": ".ytp-play-button",
-  "videoWidgetYoutubeVolumeBtn": ".ytp-volume-panel"
+  "videoWidgetYoutubeVolumeBtn": ".ytp-volume-panel",
+  "image": "div[data-testid=styledImage]",
+  "imageDownloadBtn":"//a[@data-testid='t--image-download']",
+  "imageRotateAntiClockwiseBtn":"//a[@data-testid='t--image-download']//parent::div/a[1]",
+  "imageRotateClockwiseBtn":"//a[@data-testid='t--image-download']//parent::div/a[2]",
+  "styleResetBtn":".reset-button",
+  "styleOrangeIcon":".rounded-full"
+
 }
