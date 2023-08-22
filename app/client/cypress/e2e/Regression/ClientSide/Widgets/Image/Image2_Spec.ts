@@ -195,8 +195,7 @@ describe("Image widget tests", function () {
     agHelper.AssertElementVisibility(widgetLocators.styleOrangeIcon);
     agHelper.AssertElementVisibility(widgetLocators.styleResetBtn);
     agHelper.GetNClick(widgetLocators.styleResetBtn);
-    propPane.ValidateJSFieldValue(
-      "",
+    agHelper.AssertContains(
       "{{appsmith.theme.borderRadius.appBorderRadius}}",
       "be.visible",
     );
