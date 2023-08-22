@@ -13,18 +13,20 @@ import {
 import React from "react";
 
 type Props = {
+  onCancelClick: () => void;
+  onConfirmClick: () => void;
   showModal: boolean;
-  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
   templateName: string;
 };
 
 const ConfirmCommunityTemplatePublish = ({
-  setShowModal,
+  onCancelClick,
+  onConfirmClick,
   showModal,
   templateName,
 }: Props) => {
   return (
-    <Modal onOpenChange={(isOpen) => setShowModal(isOpen)} open={showModal}>
+    <Modal onOpenChange={() => onCancelClick()} open={showModal}>
       <ModalContent style={{ width: "640px" }}>
         <ModalHeader>
           {createMessage(
@@ -38,13 +40,13 @@ const ConfirmCommunityTemplatePublish = ({
         <ModalFooter>
           <Button
             kind="secondary"
-            onClick={() => setShowModal(false)}
+            onClick={onCancelClick}
             size="md"
             type="button"
           >
             {createMessage(COMMUNITY_TEMPLATES.cancel)}
           </Button>
-          <Button size="md">
+          <Button onClick={onConfirmClick} size="md">
             {createMessage(COMMUNITY_TEMPLATES.publish)}
           </Button>
         </ModalFooter>

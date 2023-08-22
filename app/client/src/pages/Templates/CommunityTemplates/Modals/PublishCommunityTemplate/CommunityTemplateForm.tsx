@@ -1,26 +1,31 @@
+import { COMMUNITY_TEMPLATES } from "@appsmith/constants/messages";
+import { publishCommunityTemplate } from "actions/communityTemplateActions";
+import { Button } from "design-system";
+import { createMessage } from "design-system-old/build/constants/messages";
 import React, { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { isPublishingCommunityTempalteSelector } from "selectors/communityTemplatesSelector";
+import { getCurrentApplication } from "selectors/editorSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  PublishPageAppSettingContainer,
+  PublishPageBodyContainer,
+  PublishPageFooterContainer,
+  PublishPageTemplateDetailsInputContainer,
+} from "./StyledComponents";
 import ApplicationSettings from "./components/ApplicationSettings";
 import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import PublishedInfo from "./components/PublishedInfo";
 import TemplateCardPreview from "./components/TemplateCardPreview";
 import TemplateInfoForm from "./components/TemplateInfoForm";
-import {
-  PublishPageBodyContainer,
-  PublishPageTemplateDetailsInputContainer,
-  PublishPageAppSettingContainer,
-  PublishPageFooterContainer,
-} from "./styledComponents";
-import { publishCommunityTemplate } from "actions/communityTemplateActions";
-import { useSelector, useDispatch } from "react-redux";
-import { isPublishingCommunityTempalteSelector } from "selectors/communityTemplatesSelector";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { COMMUNITY_TEMPLATES } from "@appsmith/constants/messages";
-import { Button } from "design-system";
-import { createMessage } from "design-system-old/build/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentApplication } from "selectors/editorSelectors";
+import ConfirmCommunityTemplatePublish from "../ConfirmCommunityTemplatePublish";
 
-const CommunityTemplateForm = () => {
+type Props = {
+  onPublishSuccess: () => void;
+};
+
+const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
   const currentUser = useSelector(getCurrentUser);
   const isPublishing = useSelector(isPublishingCommunityTempalteSelector);
   const currentApplication = useSelector(getCurrentApplication);
@@ -36,6 +41,7 @@ const CommunityTemplateForm = () => {
 
   const [isPublicSetting, setIsPublicSetting] = useState(true);
   const [isForkableSetting, setIsForkableSetting] = useState(true);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_INTENTION", {
@@ -58,14 +64,13 @@ const CommunityTemplateForm = () => {
     isForkableSetting,
   ]);
 
-  const publishToCommunity = () => {
-    if (!isFormValid) {
-      return;
-    }
+  const handleConfirmationClick = () => {
     dispatch(publishCommunityTemplate());
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_CLICK", {
       id: currentApplication?.id,
     });
+    setShowConfirmationModal(false);
+    onPublishSuccess();
   };
   return (
     <>
@@ -109,7 +114,7 @@ const CommunityTemplateForm = () => {
         <Button
           isDisabled={!isFormValid}
           isLoading={isPublishing}
-          onClick={publishToCommunity}
+          onClick={() => setShowConfirmationModal(true)}
           size="md"
         >
           {createMessage(
@@ -117,6 +122,12 @@ const CommunityTemplateForm = () => {
           )}
         </Button>
       </PublishPageFooterContainer>
+      <ConfirmCommunityTemplatePublish
+        onCancelClick={() => setShowConfirmationModal(false)}
+        onConfirmClick={handleConfirmationClick}
+        showModal={showConfirmationModal}
+        templateName={templateName}
+      />
     </>
   );
 };

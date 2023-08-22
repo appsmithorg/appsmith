@@ -1,5 +1,5 @@
 import React from "react";
-import { PublishPageBodyContainer } from "./styledComponents";
+import { PublishPageBodyContainer } from "./StyledComponents";
 import { Button, Text } from "design-system";
 import {
   COMMUNITY_TEMPLATES,
@@ -7,7 +7,7 @@ import {
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
 
-const CommunityTempaltePublishSuccess = () => {
+const CommunityTemplatePublishSuccess = () => {
   return (
     <PublishPageBodyContainer>
       <Container>
@@ -27,7 +27,7 @@ const CommunityTempaltePublishSuccess = () => {
   );
 };
 
-export default CommunityTempaltePublishSuccess;
+export default CommunityTemplatePublishSuccess;
 
 const Container = styled.div`
   display: flex;

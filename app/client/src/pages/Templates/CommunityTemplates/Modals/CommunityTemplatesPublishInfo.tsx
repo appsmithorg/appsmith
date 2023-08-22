@@ -5,29 +5,32 @@ import {
 } from "@appsmith/constants/messages";
 import { Button, Icon, Text } from "design-system";
 import React from "react";
-import history from "utils/history";
 import styled from "styled-components";
-import { builderURL } from "RouteBuilder";
-import { useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
 
 type Props = {
+  onPublishClick: () => void;
   setShowHostModal: (showModal: boolean) => void;
 };
-const CommunityTemplatesPublish = ({ setShowHostModal }: Props) => {
+const CommunityTemplatesPublishInfo = ({
+  onPublishClick,
+  setShowHostModal,
+}: Props) => {
   const isPublished = false;
   return isPublished ? (
     <PublishedAppInstructions />
   ) : (
-    <UnPublishedAppInstructions setShowHostModal={setShowHostModal} />
+    <UnPublishedAppInstructions
+      onPublishClick={onPublishClick}
+      setShowHostModal={setShowHostModal}
+    />
   );
 };
 
-export default CommunityTemplatesPublish;
+export default CommunityTemplatesPublishInfo;
 
 const PublishedAppInstructions = () => {
   return (
-    <section>
+    <>
       <InfoContainer>
         <Text kind="heading-s" renderAs="h2">
           <Icon name="checkbox-circle-line" size="md" />{" "}
@@ -42,24 +45,20 @@ const PublishedAppInstructions = () => {
           {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.viewTemplate)}
         </Button>
       </InfoFooter>
-    </section>
+    </>
   );
 };
-const UnPublishedAppInstructions = ({ setShowHostModal }: Props) => {
-  const pageId = useSelector(getCurrentPageId);
 
+const UnPublishedAppInstructions = ({
+  onPublishClick,
+  setShowHostModal,
+}: Props) => {
   const takeUserToPublishFormPage = () => {
-    history.push(
-      builderURL({
-        pageId,
-        persistExistingParams: true,
-        suffix: "publish/community-template",
-      }),
-    );
     setShowHostModal(false);
+    onPublishClick();
   };
   return (
-    <section>
+    <>
       <InfoContainer>
         <Text kind="heading-s" renderAs="h2">
           {createMessage(COMMUNITY_TEMPLATES.modals.unpublishedInfo.title)}
@@ -78,12 +77,16 @@ const UnPublishedAppInstructions = ({ setShowHostModal }: Props) => {
           {createMessage(COMMUNITY_TEMPLATES.publish)}
         </Button>
       </InfoFooter>
-    </section>
+    </>
   );
 };
 
 const InfoContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   min-height: 250px;
+  padding-top: var(--ads-v2-spaces-2);
 `;
 const InfoFooter = styled.footer`
   display: flex;
