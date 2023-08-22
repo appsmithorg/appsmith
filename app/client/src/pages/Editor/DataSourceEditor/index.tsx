@@ -79,6 +79,7 @@ import {
   getConfigInitialValues,
   getIsFormDirty,
   getTrimmedData,
+  isHidden,
   normalizeValues,
   validate,
 } from "components/formControls/utils";
@@ -91,10 +92,13 @@ import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import {
+  getCurrentEnvironment,
   isStorageEnvironmentCreated,
   onUpdateFilterSuccess,
 } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -130,6 +134,8 @@ interface ReduxStateProps {
   defaultKeyValueArrayConfig: Array<string>;
   initialValue: Datasource | ApiDatasourceForm | undefined;
   showDebugger: boolean;
+  featureFlags?: FeatureFlags;
+  currentEnvironment: string;
 }
 
 const Form = styled.div`
@@ -275,6 +281,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       this.props.initializeFormWithDefaults(this.props.pluginType);
     }
 
+    // console.log("hereee", prevProps, this.props);
+
     // if the datasource id changes, we need to reset the required fields and configDetails
     if (this.props.datasourceId !== prevProps.datasourceId) {
       this.setState({
@@ -383,9 +391,72 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     const requiredFields = this.state.requiredFields;
     configDetails[configProperty] = controlType;
     if (isRequired) requiredFields[configProperty] = config;
-    this.setState({
-      configDetails,
-      requiredFields,
+
+    // if the required fields being rendered has been hidden, then remove them.
+    if (this.hasRequiredFieldsChanged()) {
+      // derive new states
+      const newConfigDetails = { ...configDetails };
+      const newRequiredFields = { ...requiredFields };
+
+      Object.keys(requiredFields).forEach((field) => {
+        const currentConfig = requiredFields[field];
+
+        if (
+          !!field &&
+          this.props.formData &&
+          this.props.pluginDatasourceForm !==
+            DatasourceComponentTypes.RestAPIDatasourceForm &&
+          isHidden(
+            (this.props.formData as Datasource).datasourceStorages[
+              this.props.currentEnvironment
+            ],
+            currentConfig.hidden,
+            this.props?.featureFlags,
+            false,
+          )
+        ) {
+          // delete those fields.
+          delete newConfigDetails[field];
+          delete newRequiredFields[field];
+        }
+      });
+
+      this.setState({
+        configDetails: newConfigDetails,
+        requiredFields: newRequiredFields,
+      });
+    } else {
+      this.setState({
+        configDetails,
+        requiredFields,
+      });
+    }
+  };
+
+  // this method checks if any of the current required fields has been hidden/not rendered.
+  //
+  hasRequiredFieldsChanged = () => {
+    return Object.keys(this.state.requiredFields).some((field) => {
+      const currentConfig = this.state.requiredFields[field];
+
+      if (
+        !!field &&
+        this.props.formData &&
+        this.props.pluginDatasourceForm !==
+          DatasourceComponentTypes.RestAPIDatasourceForm &&
+        isHidden(
+          (this.props.formData as Datasource).datasourceStorages[
+            this.props.currentEnvironment
+          ],
+          currentConfig.hidden,
+          this.props?.featureFlags,
+          false,
+        )
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     });
   };
 
@@ -999,13 +1070,18 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId,
   );
 
+  const featureFlags = selectFeatureFlags(state);
+  const currentEnvironment = getCurrentEnvironment();
+
   return {
     canCreateDatasourceActions,
     canDeleteDatasource,
     canManageDatasource,
+    currentEnvironment,
     datasourceButtonConfiguration,
     datasourceId,
     pluginImage: getPluginImages(state)[pluginId],
+    featureFlags,
     formData,
     formName,
     isInsideReconnectModal: props.isInsideReconnectModal ?? false,
