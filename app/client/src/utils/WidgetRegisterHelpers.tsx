@@ -13,15 +13,16 @@ import {
   WidgetFeatureProps,
 } from "./WidgetFeatures";
 import { withLazyRender } from "widgets/withLazyRender";
-import { withBaseWidgetHOC } from "../widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import withWidgetProps from "widgets/withWidgetProps";
+import withMeta from "widgets/MetaHOC";
 
 const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
   needsMeta: boolean,
   eagerRender: boolean,
 ) {
-  //@ts-expect-error: type mismatch
-  let widget: any = withBaseWidgetHOC(Widget, needsMeta);
+  let widget: any = needsMeta ? withMeta(Widget as any) : Widget;
+  widget = withWidgetProps(widget);
   widget = eagerRender ? widget : withLazyRender(widget);
   return Sentry.withProfiler(widget);
 });
