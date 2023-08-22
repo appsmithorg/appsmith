@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
-import type { ColorMode } from "../color";
-import type { FontFamily } from "../typography";
-import type { RootUnit, ThemeToken } from "../token";
+import type { ColorMode } from "../../color";
+import type { FontFamily } from "../../typography";
+import type { RootUnit, ThemeToken } from "../../token";
 
 export type Theme = ThemeToken & {
   typography?: string;
