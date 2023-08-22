@@ -1,14 +1,16 @@
 import type { Ref } from "react";
 import React, { forwardRef, useRef } from "react";
 import { useTextField } from "@react-aria/textfield";
-import type { SpectrumTextFieldProps } from "@react-types/textfield";
+import type { TextInputBaseProps } from "./TextInputBase";
 
 import { TextInputBase } from "./TextInputBase";
 
-export type TextInputProps = Omit<SpectrumTextFieldProps, "isQuiet"> & {
-  loadingIcon?: React.ReactNode;
-};
+// type MyOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
+export type TextInputProps = Omit<
+  TextInputBaseProps,
+  "isQuiet" | "necessityIndicator"
+>;
 export type TextInputRef = Ref<HTMLDivElement>;
 
 function TextInput(props: TextInputProps, ref: Ref<HTMLDivElement>) {

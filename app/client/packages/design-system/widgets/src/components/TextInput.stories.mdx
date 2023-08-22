@@ -26,7 +26,64 @@ Switch is a component that allows the user to select one or more options from a 
 
 <ArgsTable of={TextInput} story="TextInput" />
 
-# States
+## Description
+
+<Story
+  name="Description"
+  args={{
+    placeholder: "Description",
+    description: "This is a description",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Label Position
+
+<Story
+  name="Label Position - Top"
+  args={{
+    placeholder: "Label Position - Top",
+    labelPosition: "top",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Label Position - Side"
+  args={{
+    placeholder: "Label Position - Side",
+    labelPosition: "side",
+    labelWidth: "100px",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Prefix and Suffix
+
+<Story
+  name="Prefix"
+  args={{
+    placeholder: "Start Visual",
+    startIcon: "$",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Suffix"
+  args={{
+    placeholder: "End Visual",
+    endIcon: "minutes",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Disabled
 
 <Story
   name="Disabled"
@@ -38,10 +95,52 @@ Switch is a component that allows the user to select one or more options from a 
   {Template.bind({})}
 </Story>
 
+## Loading
+
 <Story
-  name="isLoading"
+  name="Loading - No Icon"
   args={{
-    placeholder: "isLoading",
+    placeholder: "No Icon",
+    isLoading: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Loading - Start Icon"
+  args={{
+    placeholder: "Only Start Icon",
+    isLoading: true,
+    startIcon: (
+      <Icon>
+        <EmotionHappyLineIcon />
+      </Icon>
+    ),
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Loading - End Icon"
+  args={{
+    placeholder: "Only End Icon",
+    isLoading: true,
+    endIcon: (
+      <Icon>
+        <EmotionHappyLineIcon />
+      </Icon>
+    ),
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Loading - Both Icons"
+  args={{
+    placeholder: "Both Start + End Icon",
     isLoading: true,
     endIcon: (
       <Icon>
@@ -53,6 +152,74 @@ Switch is a component that allows the user to select one or more options from a 
         <EmotionHappyLineIcon />
       </Icon>
     ),
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Loading - Both Icons + Position Overriden"
+  args={{
+    placeholder: "Loading - Both Icons + Position Overriden",
+    isLoading: true,
+    endIcon: (
+      <Icon>
+        <EmotionHappyLineIcon />
+      </Icon>
+    ),
+    startIcon: (
+      <Icon>
+        <EmotionHappyLineIcon />
+      </Icon>
+    ),
+    loaderPosition: "end",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Validation
+
+<Story
+  name="Validation"
+  args={{
+    placeholder: "Validation",
+    validationState: "invalid",
+    errorMessage: "This field is required",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Required and Optional
+
+<Story
+  name="Required - Icon"
+  args={{
+    placeholder: "Required - Icon Indicator",
+    isRequired: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Required - Label"
+  args={{
+    placeholder: "Required - Label Indicator",
+    isRequired: true,
+    necessityIndicator: "label",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Optional - Label"
+  args={{
+    placeholder: "Required - Label Indicator",
+    isRequired: false,
+    necessityIndicator: "label",
   }}
 >
   {Template.bind({})}

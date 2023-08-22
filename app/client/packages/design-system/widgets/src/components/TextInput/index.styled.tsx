@@ -1,10 +1,9 @@
 import styled from "styled-components";
 import { TextInput as HeadlessTextInput } from "@design-system/headless";
 
-import type { TextInputProps } from ".";
 import { fieldStyles } from "../../styles/fieldStyles";
 
-export const StyledTextInput = styled(HeadlessTextInput)<TextInputProps>`
+export const StyledTextInput = styled(HeadlessTextInput)`
   ${fieldStyles}
 
   & [data-field-input-wrapper] {
@@ -21,6 +20,7 @@ export const StyledTextInput = styled(HeadlessTextInput)<TextInputProps>`
     border: 0;
     background-color: transparent;
     width: auto;
+    font-family: inherit;
 
     &:focus {
       outline: none;
@@ -40,5 +40,45 @@ export const StyledTextInput = styled(HeadlessTextInput)<TextInputProps>`
     opacity: var(--opacity-disabled);
     cursor: default;
     user-select: none;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * ERROR
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-input-wrapper][data-invalid] {
+    box-shadow: 0 0 0 1px var(--color-bd-negative);
+  }
+
+  & [data-field-input-wrapper][data-invalid][data-focused] {
+    box-shadow: 0 0 0 2px var(--color-bd-negative);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * ICON
+  *-----------------------------------------------------------------------------
+  */
+  & [data-icon] {
+    color: var(--color-fg-neutral);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DESCRIPTION
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-description-text] {
+    color: var(--color-fg-neutral);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * PLACEHOLDER
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-input]:placeholder-shown {
+    text-overflow: ellipsis;
   }
 `;

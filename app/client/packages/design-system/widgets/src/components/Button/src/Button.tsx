@@ -2,12 +2,9 @@ import type {
   ButtonRef as HeadlessButtonRef,
   ButtonProps as HeadlessButtonProps,
 } from "@design-system/headless";
-import {
-  Icon as HeadlessIcon,
-  Button as HeadlessButton,
-} from "@design-system/headless";
 import React, { forwardRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
+import { Button as HeadlessButton } from "@design-system/headless";
 
 import type {
   BUTTON_COLORS,
@@ -72,9 +69,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
         </span>
 
         <span aria-hidden={!isLoading ? true : undefined} data-loader="">
-          <HeadlessIcon>
-            <Spinner />
-          </HeadlessIcon>
+          <Spinner />
           <span {...visuallyHiddenProps}>{loadingText}</span>
         </span>
       </>
