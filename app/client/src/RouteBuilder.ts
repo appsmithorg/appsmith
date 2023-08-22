@@ -74,7 +74,7 @@ export const datasourcesEditorIdURL = (
   return urlBuilder.build({
     ...props,
     ideState: IDEAppState.Data,
-    suffix: props.datasourceId,
+    dataId: props.datasourceId,
   });
 };
 
