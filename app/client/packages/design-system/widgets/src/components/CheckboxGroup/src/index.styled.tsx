@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { CheckboxGroup as HeadlessCheckboxGroup } from "@design-system/headless";
 
-import { fieldStyles } from "../../../styles/fieldStyles";
+import { fieldStyles } from "../../../styles";
 import type { CheckboxGroupProps } from "./CheckboxGroup";
 
 export const StyledCheckboxGroup = styled(

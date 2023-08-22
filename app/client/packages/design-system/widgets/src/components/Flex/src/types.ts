@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import type { OmitRename } from "../../utils";
+import type { OmitRename } from "../../../utils";
 import type { SizingDimension, SpacingDimension } from "./dimensions";
 
 export type Responsive<T> =
