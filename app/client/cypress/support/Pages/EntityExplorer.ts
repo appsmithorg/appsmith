@@ -48,7 +48,7 @@ export class EntityExplorer {
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
   _entityNameInExplorer = (entityNameinLeftSidebar: string) =>
-    "/ancestor::div[contains(@class, 't--entity-explorer')]//div[contains(@class, 't--entity-name')][text()='" +
+    "//div[contains(@class, 't--entity-explorer')]//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
     "']";
   private _expandCollapseArrow = (entityNameinLeftSidebar: string) =>
