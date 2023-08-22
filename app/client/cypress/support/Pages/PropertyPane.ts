@@ -147,15 +147,16 @@ export class PropertyPane {
     `${this.locator._widgetByName(widgetName)} ${this._propertyText}`;
   _placeholderName = "[placeholder='Name']";
   _placeholderValue = "[placeholder='Value']";
-  _sliderMark = ".slider-mark";
   _optionsDeleteButton = "[orientation='HORIZONTAL'] .ads-v2-button";
+  _colorPickerInput = "[data-testid='t--color-picker-input']";
+  _emphasisSelector = (value: string) => `.t--button-group-${value}`;
+  _checkbox = ".bp3-checkbox";
+  _roundCursorPointer = ".rounded-full.cursor-pointer";
+  _sliderMark = ".slider-mark";
   _styleSize = (size: string) => `.ads-v2-segmented-control-value-${size}`;
   _themeColor =
     "//h3[text()='Theme Colors']//..//div[contains(@class, 't--colorpicker-v2-color')]";
   _fillColor = ".t--colorpicker-v2-popover .rounded-full";
-  _colorPickerInput = "[data-testid='t--color-picker-input']";
-  _emphasisSelector = (value: string) => `.t--button-group-${value}`;
-  _checkbox = ".bp3-checkbox";
   _multiSelect = ".rc-select-multiple";
   _currencyChangeDropdownIcon =
     ".currency-change-dropdown-trigger .remixicon-icon";
