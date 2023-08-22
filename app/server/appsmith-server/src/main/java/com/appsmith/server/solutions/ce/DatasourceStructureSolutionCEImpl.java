@@ -6,6 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
@@ -186,8 +187,12 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                         environmentId,
                         datasource.getPluginId(),
                         environmentPermission.getExecutePermission()))
-                .flatMap(tuple2 -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
-                        tuple2.getT1(), tuple2.getT2()))
+                .flatMap(tuple -> {
+                    Datasource datasource = tuple.getT1();
+                    String trueEnvironmentId = tuple.getT2();
+                    return datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
+                            datasource, trueEnvironmentId);
+                })
                 .flatMap(datasourceStorage -> getSchemaPreviewData(datasourceStorage, queryTemplate))
                 .onErrorMap(e -> {
                     if (!(e instanceof AppsmithPluginException)) {
@@ -222,14 +227,11 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                     if (actionConfig != null) {
                         return datasourceContextService.retryOnce(
                                 datasourceStorage, resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
-                                        .executeCommon(
+                                        .executeParameterized(
                                                 resourceContext.getConnection(),
+                                                null,
                                                 datasourceStorage.getDatasourceConfiguration(),
-                                                actionConfig,
-                                                Boolean.FALSE,
-                                                null,
-                                                null,
-                                                null));
+                                                actionConfig));
                     } else {
                         return Mono.error(
                                 new AppsmithPluginException(AppsmithPluginError.PLUGIN_UNSUPPORTED_OPERATION));

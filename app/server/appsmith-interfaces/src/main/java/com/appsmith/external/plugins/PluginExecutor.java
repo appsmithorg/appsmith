@@ -1,6 +1,5 @@
 package com.appsmith.external.plugins;
 
-import com.appsmith.external.constants.DataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -11,7 +10,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
@@ -327,17 +325,6 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     default Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(
             List<ActionConfiguration> actionConfigurationList, Object... args) {
         return Mono.empty();
-    }
-
-    default Mono<ActionExecutionResult> executeCommon(
-            C connection,
-            DatasourceConfiguration datasourceConfiguration,
-            ActionConfiguration actionConfiguration,
-            Boolean preparedStatement,
-            List<MustacheBindingToken> mustacheValuesInOrder,
-            ExecuteActionDTO executeActionDTO,
-            List<DataType> explicitCastDataTypes) {
-        return this.execute(connection, datasourceConfiguration, actionConfiguration);
     }
 
     /*

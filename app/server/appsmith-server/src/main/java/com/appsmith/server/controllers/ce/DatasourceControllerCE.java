@@ -218,6 +218,6 @@ public class DatasourceControllerCE {
         log.debug("Going to get schema preview data for datasource with id: '{}'.", datasourceId);
         return datasourceStructureSolution
                 .getSchemaPreviewData(datasourceId, environmentId, template)
-                .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
+                .map(actionExecutionResult -> new ResponseDTO<>(HttpStatus.OK.value(), actionExecutionResult, null));
     }
 }

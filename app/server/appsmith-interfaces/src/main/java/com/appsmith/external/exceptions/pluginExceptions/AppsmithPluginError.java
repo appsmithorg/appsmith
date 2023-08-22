@@ -161,7 +161,7 @@ public enum AppsmithPluginError implements BasePluginError {
             AppsmithPluginErrorCode.PLUGIN_GET_PREVIEW_DATA_ERROR.getDescription(),
             AppsmithErrorAction.DEFAULT,
             "Failed to get preview data",
-            ErrorType.INTERNAL_ERROR,
+            ErrorType.DATASOURCE_CONFIGURATION_ERROR,
             "{0}",
             "{1}"),
     PLUGIN_UNSUPPORTED_OPERATION(
