@@ -227,5 +227,11 @@
   "codeScannerScanButton": "//*[text()='Scan a QR/Barcode']/parent::button",
   "codeScannerNewScanButton": "//*[text()='Scan Code']/parent::button",
   "codeScannerClose": ".code-scanner-close",
-  "codeScannerModal": ".code-scanner-content"
+  "codeScannerModal": ".code-scanner-content",
+  "video": "video",
+  "iFrame": "iframe",
+  "videoWidgetYoutubeMuteBtn": ".ytp-mute-button",
+  "videoWidgetYoutubeLargePlayBtn": ".ytp-large-play-button",
+  "videoWidgetYoutubePlayBtn": ".ytp-play-button",
+  "videoWidgetYoutubeVolumeBtn": ".ytp-volume-panel"
 }

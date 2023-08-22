@@ -279,4 +279,5 @@ export class CommonLocators {
   _textWidgetContaioner = ".t--text-widget-container span";
   _buttonWidgetInForm =
     "//*[contains(@class,'t--widget-buttonwidget')]//button[contains(@class,'bp3-button')]";
+  _propertyStyle = "button[role='tab'] span:contains('Style')";
 }
