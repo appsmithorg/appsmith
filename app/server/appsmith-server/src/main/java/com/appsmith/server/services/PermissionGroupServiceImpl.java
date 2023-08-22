@@ -56,9 +56,7 @@ import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
-import static com.appsmith.server.constants.FieldName.EVENT_DATA;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USER_GROUPS;
-import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USERS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USER_GROUPS;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
@@ -396,9 +394,15 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     @Override
     public Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(
             User user, Set<String> permissionGroupIds) {
+
         return repository
                 .findAllById(permissionGroupIds)
                 .flatMap(pg -> {
+                    // Delete the User Management Role if user is being disassociated from it.
+                    if (PermissionGroupUtils.isUserManagementRole(pg)) {
+                        return repository.delete(pg);
+                    }
+
                     Set<String> assignedToUserIds = pg.getAssignedToUserIds();
                     assignedToUserIds.remove(user.getId());
 
@@ -406,19 +410,21 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                     String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
                     updateObj.set(path, assignedToUserIds);
-                    return repository.updateById(pg.getId(), updateObj).then(Mono.defer(() -> {
-                        Map<String, Object> eventData =
-                                Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, List.of(user.getUsername()));
-                        AnalyticsEvents unassignedEvent = AnalyticsEvents.UNASSIGNED_USERS_FROM_PERMISSION_GROUP;
-                        Map<String, Object> analyticalProperties = Map.of(
-                                NUMBER_OF_UNASSIGNED_USERS,
-                                1,
-                                NUMBER_OF_UNASSIGNED_USER_GROUPS,
-                                0,
-                                EVENT_DATA,
-                                eventData);
-                        return analyticsService.sendObjectEvent(unassignedEvent, pg, analyticalProperties);
-                    }));
+                    Mono<UpdateResult> updateAssignedToUserIdsForRoleMono =
+                            repository.updateById(pg.getId(), updateObj);
+
+                    // Trigger disassociation from role event, if the role is not Default Role For All Users.
+                    Mono<Long> sendEventUserRemovedFromRoleIfRoleIsNotDefaultRoleMono = permissionGroupUtils
+                            .getDefaultRoleForAllUserRoleId()
+                            .flatMap(defaultRoleId -> {
+                                if (!defaultRoleId.equals(pg.getId())) {
+                                    return sendEventUserRemovedFromRole(pg, List.of(user.getEmail()))
+                                            .thenReturn(1L);
+                                }
+                                return Mono.just(1L);
+                            });
+                    return updateAssignedToUserIdsForRoleMono.zipWhen(
+                            updatedRole -> sendEventUserRemovedFromRoleIfRoleIsNotDefaultRoleMono);
                 })
                 .then(Mono.just(TRUE));
     }

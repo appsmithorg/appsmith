@@ -87,6 +87,7 @@ import { getQueryParams } from "utils/URLUtils";
 import GoogleSheetSchema from "./GoogleSheetSchema";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -340,6 +341,14 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       this.state.filterParams.showFilterPane === showFilterPane
     )
       return false;
+
+    AnalyticsUtil.logEvent("SWITCH_ENVIRONMENT", {
+      fromEnvId: this.state.filterParams.id,
+      toEnvId: id,
+      fromEnvName: this.state.filterParams.name,
+      toEnvName: name,
+      mode: "CONFIGURATION",
+    });
     this.setState({
       filterParams: {
         id,

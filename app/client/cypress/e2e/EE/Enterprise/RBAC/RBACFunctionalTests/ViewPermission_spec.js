@@ -170,27 +170,32 @@ describe("View Permission flow ", function () {
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
     );
-    cy.get(homePageLocators.searchInput).type(appName);
+    agHelper.ClearNType(homePageLocators.searchInput, appName);
     cy.wait(2000);
     cy.get(homePageLocators.appsContainer).contains(workspaceName);
     cy.get(homePageLocators.applicationCard).trigger("mouseover");
     cy.get(homePageLocators.appEditIcon).should("not.exist");
-    cy.launchApp(appName);
+    cy.launchApp();
     cy.get(homePageLocators.backtoHome).click({ force: true });
     cy.wait(2000);
-    cy.get(homePageLocators.searchInput).clear().type(AppName2);
+    agHelper.ClearNType(homePageLocators.searchInput, AppName2);
     cy.wait(2000);
     cy.get(homePageLocators.appsContainer).contains(workspaceName);
     cy.get(homePageLocators.applicationCard).trigger("mouseover");
     cy.get(homePageLocators.appEditIcon).should("not.exist");
-    cy.launchApp(appName);
+    cy.launchApp();
   });
 
   it("2.Verify user with make Public permission, is able to make app public", function () {
+    agHelper.VisitNAssert("/applications", "getReleaseItems");
+    agHelper.ClearNType(homePageLocators.searchInput, AppName2);
+    cy.wait(2000);
+    cy.get(homePageLocators.applicationCard).trigger("mouseover");
+    cy.launchApp();
+    cy.wait(2000);
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
     ).click();
-    //cy.get("[data-testid='copy-application-url']").last().click();
     cy.enablePublicAccess();
     currentUrl = cy.url();
     cy.url().then((url) => {
@@ -221,7 +226,7 @@ describe("View Permission flow ", function () {
     cy.get(homePageLocators.appsContainer).contains(workspaceName);
     cy.get(homePageLocators.applicationCard).trigger("mouseover");
     cy.get(homePageLocators.appEditIcon).should("not.exist");
-    cy.launchApp(appName);
+    cy.launchApp();
     cy.get(homePageLocators.backtoHome).eq(0).click({ force: true });
     cy.LogOut();
   });
@@ -235,7 +240,7 @@ describe("View Permission flow ", function () {
     cy.get(homePageLocators.appsContainer).contains(workspaceName);
     cy.get(homePageLocators.applicationCard).trigger("mouseover");
     cy.get(homePageLocators.appEditIcon).should("not.exist");
-    cy.launchApp(appName);
+    cy.launchApp();
     cy.get(".t--page-switch-tab").should("not.contain", "page2");
   });
 

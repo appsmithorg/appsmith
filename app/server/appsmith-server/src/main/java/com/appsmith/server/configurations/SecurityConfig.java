@@ -33,6 +33,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.authentication.ReactiveOidcIdTokenDecoderFactory;
@@ -132,6 +133,8 @@ public class SecurityConfig {
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
 
+    private static final String INTERNAL = "INTERNAL";
+
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
      * This is to allow static resources to be served by the server. Couldn't find an easier way to do this,
@@ -159,19 +162,23 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain internalWebFilterChain(ServerHttpSecurity http) {
         return http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
-                .authorizeExchange(authorizeExchangeSpec ->
-                        authorizeExchangeSpec.anyExchange().authenticated())
-                .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationManager(authentication -> {
+                .httpBasic()
+                .authenticationManager(authentication -> {
                     if (INTERNAL_PASSWORD.equals(authentication.getCredentials().toString())) {
                         return Mono.just(UsernamePasswordAuthenticationToken.authenticated(
                                 authentication.getPrincipal(),
                                 authentication.getCredentials(),
-                                authentication.getAuthorities()));
+                                List.of(new SimpleGrantedAuthority(INTERNAL))));
                     } else {
                         return Mono.just(UsernamePasswordAuthenticationToken.unauthenticated(
                                 authentication.getPrincipal(), authentication.getCredentials()));
                     }
-                }))
+                })
+                .and()
+                .authorizeExchange()
+                .anyExchange()
+                .hasAnyAuthority(INTERNAL)
+                .and()
                 .build();
     }
 

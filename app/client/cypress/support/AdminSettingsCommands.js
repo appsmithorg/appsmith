@@ -87,4 +87,5 @@ Cypress.Commands.add("waitForServerRestart", () => {
     win.location.reload();
   });
   agHelper.AssertElementVisibility(adminSettings.saveButton, true, 0, 30000);
+  agHelper.AssertElementAbsence(adminSettings.restartNotice, 30000);
 });

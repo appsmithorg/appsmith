@@ -5,6 +5,7 @@ import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.repositories.ConfigRepository;
 import net.minidev.json.JSONObject;
@@ -25,12 +26,18 @@ import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 @Component
 public class PermissionGroupUtils {
     private Set<String> autoCreatedPermissionGroupIds = null;
+
+    private String defaultRoleForAllUserRoleId = null;
+
     private final ConfigRepository configRepository;
     private final ModelMapper modelMapper;
 
-    public PermissionGroupUtils(ConfigRepository configRepository, ModelMapper modelMapper) {
+    private final UserUtils userUtils;
+
+    public PermissionGroupUtils(ConfigRepository configRepository, ModelMapper modelMapper, UserUtils userUtils) {
         this.configRepository = configRepository;
         this.modelMapper = modelMapper;
+        this.userUtils = userUtils;
     }
 
     private Flux<Config> getAllConfigsWithAutoCreatedPermissionGroups() {
@@ -76,6 +83,17 @@ public class PermissionGroupUtils {
                 });
     }
 
+    public Mono<String> getDefaultRoleForAllUserRoleId() {
+        if (org.apache.commons.lang3.StringUtils.isNotEmpty(this.defaultRoleForAllUserRoleId)) {
+            return Mono.just(this.defaultRoleForAllUserRoleId);
+        }
+
+        return userUtils
+                .getDefaultUserPermissionGroup()
+                .map(PermissionGroup::getId)
+                .doOnNext(defaultRoleId -> this.defaultRoleForAllUserRoleId = defaultRoleId);
+    }
+
     public static boolean isUserManagementRole(PermissionGroup role) {
         Optional<Policy> readPolicy = role.getPolicies().stream()
                 .filter(policy -> policy.getPermission().equalsIgnoreCase(READ_PERMISSION_GROUPS.getValue()))
@@ -83,6 +101,7 @@ public class PermissionGroupUtils {
 
         boolean readPolicyNotPresentOrEmpty =
                 readPolicy.isEmpty() || readPolicy.get().getPermissionGroups().isEmpty();
-        return role.getName().endsWith(FieldName.SUFFIX_USER_MANAGEMENT_ROLE) && readPolicyNotPresentOrEmpty;
+        return User.class.getSimpleName().equals(role.getDefaultDomainType())
+                || (role.getName().endsWith(FieldName.SUFFIX_USER_MANAGEMENT_ROLE) && readPolicyNotPresentOrEmpty);
     }
 }
