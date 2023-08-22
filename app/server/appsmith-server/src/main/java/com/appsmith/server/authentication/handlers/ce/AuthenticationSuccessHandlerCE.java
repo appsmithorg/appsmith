@@ -93,21 +93,16 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             // If and when we find a better way to do identify this, let's please move away from this approximation.
             // If the user object was created within the last 5 seconds, we treat it as a new user.
             isFromSignup = user.getCreatedAt().isAfter(Instant.now().minusSeconds(5));
-            // If user has previously signed up using password and now using OAuth as a sign in method we are removing
-            // form login method henceforth. This step is taken to avoid any security vulnerability in the login flow
-            // as we are not verifying the user emails at first sign up. In future if we implement the email
-            // verification this can be eliminated safely
 
-            // Adding check on source because of the following scenario.
-            // Scenario:
-            // 1. User is invited.
-            // 2. User signs in via any OAuth2 Authentication mechanism.
-            // User will not have the password field set, and hence, just checking that password is null, is an
-            // incomplete check. Checking the source will complete it.
-            if (user.getPassword() != null || LoginSource.FORM.equals(user.getSource())) {
+            // Check the existing login source with the authentication source and then update the login source,
+            // if they are not the same.
+            // Also, since this is OAuth2 authentication, we remove the password from user resource object, in order to
+            // invalidate any password which may have been set during a form login.
+            LoginSource authenticationLoginSource = LoginSource.fromString(
+                    ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId());
+            if (!authenticationLoginSource.equals(user.getSource())) {
                 user.setPassword(null);
-                user.setSource(LoginSource.fromString(
-                        ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId()));
+                user.setSource(authenticationLoginSource);
                 // Update the user in separate thread
                 userRepository
                         .save(user)
