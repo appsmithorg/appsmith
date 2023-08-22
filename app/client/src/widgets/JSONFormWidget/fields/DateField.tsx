@@ -95,7 +95,7 @@ export const isValidType = (value: string) =>
     moment(value, format, true).isValid(),
   );
 
-const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: string) =>
+const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: unknown) =>
   !schemaItem.isRequired ||
   (typeof value === "string" && Boolean(value?.trim()));
 
