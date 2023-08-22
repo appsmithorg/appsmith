@@ -1,8 +1,7 @@
 import React from "react";
-import type { Meta, StoryObj } from "@storybook/react";
-
 import { Checkbox } from "@design-system/widgets";
-import { StoryGrid, DataAttrWrapper } from "../../../utils";
+import type { Meta, StoryObj } from "@storybook/react";
+import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
 
 const meta: Meta<typeof Checkbox> = {
   component: Checkbox,

@@ -1,8 +1,7 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-
 import { Radio, RadioGroup } from "@design-system/widgets";
-import { StoryGrid, DataAttrWrapper } from "../../../utils";
+import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
 
 const meta: Meta<typeof Radio> = {
   component: Radio,

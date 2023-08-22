@@ -7,8 +7,7 @@ import {
 } from "@design-system/widgets";
 import { importRemixIcon } from "design-system-old";
 import type { Meta, StoryObj } from "@storybook/react";
-
-import { StoryGrid, DataAttrWrapper } from "../../../utils";
+import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
 
 const StarIcon = importRemixIcon(() => import("remixicon-react/StarFillIcon"));
 

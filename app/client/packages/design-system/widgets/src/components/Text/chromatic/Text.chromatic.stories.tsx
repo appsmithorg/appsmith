@@ -1,13 +1,12 @@
 import React from "react";
-import type { Meta, StoryObj } from "@storybook/react";
-
-import { Text } from "@design-system/widgets";
-import { StoryGrid } from "../../../utils/components";
 import {
   TypographyColor,
   TypographyVariant,
   TypographyFontWeight,
 } from "@design-system/theming";
+import { Text } from "@design-system/widgets";
+import { StoryGrid } from "@design-system/storybook";
+import type { Meta, StoryObj } from "@storybook/react";
 
 const meta: Meta<typeof Text> = {
   component: Text,

@@ -5,7 +5,7 @@ import type {
   RadioProps as HeadlessRadioProps,
 } from "@design-system/headless";
 
-import { Text } from "../../Text";
+import { Text } from "@design-system/widgets";
 import { StyledRadio } from "./index.styled";
 
 export type RadioProps = HeadlessRadioProps;

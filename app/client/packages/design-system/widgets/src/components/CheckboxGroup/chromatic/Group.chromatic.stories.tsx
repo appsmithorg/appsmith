@@ -9,7 +9,7 @@ import {
   SwitchGroup,
   Radio,
 } from "@design-system/widgets";
-import { StoryGrid } from "../../../utils/components";
+import { StoryGrid } from "@design-system/storybook";
 
 const meta: Meta<typeof Switch> = {
   component: Switch,

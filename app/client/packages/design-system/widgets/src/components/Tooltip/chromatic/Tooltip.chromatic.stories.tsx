@@ -1,13 +1,12 @@
 import React from "react";
-import type { Meta, StoryObj } from "@storybook/react";
-
 import {
   Button,
   TooltipTrigger,
   TooltipContent,
   TooltipRoot as Tooltip,
 } from "@design-system/widgets";
-import { StoryGrid } from "../../../utils/components";
+import { StoryGrid } from "@design-system/storybook";
+import type { Meta, StoryObj } from "@storybook/react";
 
 const meta: Meta<typeof Tooltip> = {
   component: Tooltip,
