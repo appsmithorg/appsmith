@@ -62,7 +62,6 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.repository.Meta;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.LinkedMultiValueMap;
@@ -664,13 +663,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<NewAction> findAllById(Iterable<String> id) {
-        return repository.findAllById(id).flatMap(this::sanitizeAction);
-    }
-
-    @Override
-    @Meta(cursorBatchSize = 10000)
-    public Flux<NewAction> findAllByIdWithCursorBatchSize(Iterable<String> id) {
-        return this.findAllById(id).flatMap(this::sanitizeAction);
+        log.info("here mf");
+        return repository.findAllByIdIn(id).flatMap(this::sanitizeAction);
     }
 
     @Override
@@ -1914,7 +1908,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
 
         return repository
-                .findAllById(actionIds)
+                .findAllByIdIn(actionIds)
                 .map(newAction -> {
                     // Update collectionId and defaultCollectionIds in actionDTOs
                     ActionDTO unpublishedAction = newAction.getUnpublishedAction();

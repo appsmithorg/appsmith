@@ -12,5 +12,8 @@ public interface NewActionRepositoryCE extends BaseRepository<NewAction, String>
     @Meta(cursorBatchSize = 10000)
     Flux<NewAction> findByApplicationId(String applicationId);
 
+    @Meta(cursorBatchSize = 10000)
+    Flux<NewAction> findAllByIdIn(Iterable<String> ids);
+
     Mono<Long> countByDeletedAtNull();
 }

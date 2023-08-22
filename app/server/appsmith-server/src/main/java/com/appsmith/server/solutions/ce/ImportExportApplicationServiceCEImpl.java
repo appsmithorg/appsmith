@@ -2187,12 +2187,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         return Mono.just(newPage)
                 .flatMap(page -> {
                     return newActionService
-                            .findAllByIdWithCursorBatchSize(getLayoutOnLoadActionsForPage(
+                            .findAllById(getLayoutOnLoadActionsForPage(
                                     page,
                                     actionIdMap,
                                     unpublishedActionIdToCollectionIdsMap,
                                     publishedActionIdToCollectionIdsMap))
                             .map(newAction -> {
+                                log.info("here mf2 {}", newAction);
                                 final String defaultActionId =
                                         newAction.getDefaultResources().getActionId();
                                 if (page.getUnpublishedPage().getLayouts() != null) {
