@@ -422,6 +422,7 @@ public class DatasourceContextServiceTest {
 
         DatasourceStorage createdDatasourceStorage =
                 datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
+        createdDatasourceStorage.setPluginId(createdDatasource.getPluginId());
 
         DatasourceContextIdentifier datasourceContextIdentifier =
                 new DatasourceContextIdentifier(createdDatasource.getId(), defaultEnvironmentId);
