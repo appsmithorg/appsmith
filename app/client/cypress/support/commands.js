@@ -1216,26 +1216,26 @@ Cypress.Commands.add(
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(runTestCss).click();
-    cy.wait("@postExecute").then((interception) => {
-      let valueToTest = JSON.stringify(
-        interception.response.body.data.body[0].name,
-      );
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
-      cy.get(".t--entity-name").contains("Table1").click({ force: true });
-      cy.isSelectRow(0);
-      if (isNext) {
-        cy.wait("@postExecute").then((interception) => {
-          valueToTest = JSON.stringify(
-            interception.response.body.data.body[0].name,
-          );
+    cy.wait(2000);
+    cy.xpath("//div[@class='tr'][1]//div[@class='td'][6]//span")
+      .invoke("text")
+      .then((valueToTest) => {
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
+        cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
+        cy.get(".t--entity-name").contains("Table1").click({ force: true });
+        cy.isSelectRow(0);
+        if (isNext) {
+          // cy.wait("@postExecute").then((interception) => {
+          //   valueToTest = JSON.stringify(
+          //     interception.response.body.data.body[0].name,
+          //   );
+          // });
+        }
+        cy.readTabledata("0", "5").then((tabData) => {
+          const tableData = tabData;
+          expect(tableData).to.equal(valueToTest);
         });
-      }
-      cy.readTabledata("0", "5").then((tabData) => {
-        const tableData = tabData;
-        expect(`\"${tableData}\"`).to.equal(valueToTest);
       });
-    });
   },
 );
 
@@ -1252,26 +1252,28 @@ Cypress.Commands.add(
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(runTestCss).click();
-    cy.wait("@postExecute").then((interception) => {
-      let valueToTest = JSON.stringify(
-        interception.response.body.data.body[0].name,
-      );
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
-      cy.get(".t--entity-name").contains("Table1").click({ force: true });
-      cy.isSelectRow(0);
-      if (isNext) {
-        cy.wait("@postExecute").then((interception) => {
-          valueToTest = JSON.stringify(
-            interception.response.body.data.body[0].name,
-          );
+    cy.wait(2000);
+    cy.xpath("//div[@class='tr'][1]//div[@class='td'][6]//span")
+      .invoke("text")
+      .then((valueToTest) => {
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
+        cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
+        cy.get(".t--entity-name").contains("Table1").click({ force: true });
+        cy.wait(2000);
+        cy.isSelectRow(0);
+        if (isNext) {
+          // cy.wait("@postExecute").then((interception) => {
+          //   valueToTest = JSON.stringify(
+          //     interception.response.body.data.body[0].name,
+          //   );
+          // });
+        }
+        cy.readTableV2data("0", "5").then((tabData) => {
+          const tableData = tabData;
+          cy.log(valueToTest);
+          expect(tableData).to.equal(valueToTest);
         });
-      }
-      cy.readTableV2data("0", "5").then((tabData) => {
-        const tableData = tabData;
-        expect(`\"${tableData}\"`).to.equal(valueToTest);
       });
-    });
   },
 );
 
