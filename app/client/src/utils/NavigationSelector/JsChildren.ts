@@ -32,6 +32,7 @@ export const getJsChildrenNavData = (
         }),
         children: {},
         key: jsChild.name,
+        value: jsChild.value,
       });
     });
 
