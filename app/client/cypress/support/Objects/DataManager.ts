@@ -95,6 +95,9 @@ export class DataManager {
       authenticatedApiUrl: "https://fakeapi.com",
 
       GraphqlApiUrl_TED: "http://host.docker.internal:5000/graphql",
+
+      twilio_username: "random-username",
+      twilio_password: "random-password",
     },
 
     Staging: {
@@ -184,6 +187,9 @@ export class DataManager {
       authenticatedApiUrl: "https://fakeapi.com",
 
       GraphqlApiUrl_TED: "http://host.docker.internal:5000/graphql",
+
+      twilio_username: "random-username",
+      twilio_password: "random-password",
     },
   };
 
