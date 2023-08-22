@@ -14,8 +14,8 @@ import type {
   BUTTON_VARIANTS,
   BUTTON_ICON_POSITIONS,
 } from "./types";
-import { Text } from "../Text";
-import { Spinner } from "../Spinner";
+import { Text } from "../../Text";
+import { Spinner } from "../../Spinner";
 import styles from "./styles.module.css";
 
 export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {

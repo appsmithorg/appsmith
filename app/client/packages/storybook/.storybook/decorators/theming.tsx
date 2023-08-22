@@ -1,10 +1,9 @@
 import * as React from "react";
-import { css, cx } from "@emotion/css";
-// @ts-ignore
+import styled from "styled-components";
 import isChromatic from "chromatic/isChromatic";
 import { ThemeProvider, useTheme } from "@design-system/theming";
 
-const themeProviderCss = css`
+const StyledThemeProvider = styled(ThemeProvider)`
   display: inline-flex;
   min-width: 100%;
   min-height: 100%;
@@ -25,11 +24,11 @@ export const theming = (Story, args) => {
   });
 
   return (
-    <ThemeProvider
+    <StyledThemeProvider
+      className={isChromatic() ? "is-chromatic" : ""}
       theme={theme}
-      className={cx({ "is-chromatic": isChromatic() }, themeProviderCss)}
     >
       <Story />
-    </ThemeProvider>
+    </StyledThemeProvider>
   );
 };

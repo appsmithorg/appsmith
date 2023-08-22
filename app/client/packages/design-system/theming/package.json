@@ -16,7 +16,6 @@
   "dependencies": {
     "@capsizecss/core": "^3.1.1",
     "@capsizecss/metrics": "^1.2.0",
-    "@emotion/css": "*",
     "@emotion/sheet": "^1.2.2",
     "lodash": "*"
   }

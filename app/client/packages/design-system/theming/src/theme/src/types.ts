@@ -11,10 +11,6 @@ export type Theme = ThemeToken & {
   rootUnit?: RootUnit;
 };
 
-export type ThemeContextType = ThemeToken & {
-  rootUnit?: RootUnit;
-};
-
 export interface ThemeProviderProps {
   theme: Theme;
   children: ReactNode;
@@ -29,3 +25,19 @@ export type UseThemeProps = {
   fontFamily?: FontFamily;
   rootUnitRatio?: number;
 };
+
+// We use these types to make a style sheet map
+export const SheetTypes = {
+  fontFace: "fontFace",
+  borderRadius: "borderRadius",
+  borderWidth: "borderWidth",
+  boxShadow: "boxShadow",
+  color: "color",
+  opacity: "opacity",
+  sizing: "sizing",
+  spacing: "spacing",
+  zIndex: "zIndex",
+  fontFamily: "fontFamily",
+  rootUnit: "rootUnit",
+  typography: "typography",
+} as const;

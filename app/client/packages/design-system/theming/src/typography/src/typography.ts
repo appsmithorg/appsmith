@@ -14,8 +14,8 @@ export const getTypographyClassName = (key: keyof typeof TypographyVariant) => {
 
 export const createTypographyStringMap = (
   typography: Typography,
+  containerCLassName: string,
   fontFamily?: FontFamily,
-  providerCLassName?: string,
 ) => {
   return Object.keys(typography).reduce((prev, current) => {
     const { capHeight, lineGap } = typography[current as keyof Typography];
@@ -25,8 +25,8 @@ export const createTypographyStringMap = (
         capHeight,
         lineGap,
         current as keyof typeof TypographyVariant,
+        containerCLassName,
         fontFamily,
-        providerCLassName,
       )}`
     );
   }, "");
@@ -36,13 +36,13 @@ export const createTypographyString = (
   capHeight: number,
   lineGap: number,
   typographyVariant: keyof typeof TypographyVariant,
+  containerCLassName: string,
   fontFamily?: FontFamily,
-  providerCLassName?: string,
 ) => {
   // if there is no font family, use the default font stack
   if (!fontFamily) {
     return createStyleString(
-      `${providerCLassName} .${getTypographyClassName(typographyVariant)}`,
+      `${containerCLassName} .${getTypographyClassName(typographyVariant)}`,
       {
         capHeight,
         lineGap,
@@ -52,7 +52,7 @@ export const createTypographyString = (
   }
 
   return createStyleString(
-    `.${providerCLassName} .${getTypographyClassName(typographyVariant)}`,
+    `${containerCLassName} .${getTypographyClassName(typographyVariant)}`,
     {
       capHeight,
       lineGap,

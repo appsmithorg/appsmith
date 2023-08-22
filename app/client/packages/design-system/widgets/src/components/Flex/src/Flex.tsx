@@ -1,9 +1,13 @@
-import React from "react";
-import { flexCss, flexContainerCss } from "./index.styled";
-import type { FlexProps } from "./types";
-import { cx } from "@emotion/css";
+import React, { useLayoutEffect, useRef, forwardRef } from "react";
+import { StyleSheet } from "@emotion/sheet";
+import uniqueId from "lodash/uniqueId";
+import { flexCssRule } from "./flexCssRule";
+import styles from "./styles.module.css";
+import clsx from "clsx";
 
-export const Flex = (props: FlexProps) => {
+import type { FlexProps } from "./types";
+
+const _Flex = (props: FlexProps) => {
   const {
     children,
     className,
@@ -12,11 +16,29 @@ export const Flex = (props: FlexProps) => {
     style,
     ...rest
   } = props;
+  const flexElement = useRef<HTMLDivElement>(null);
+  const flexClassName = useRef(uniqueId("wds-flex-"));
+  const sheet = new StyleSheet({
+    key: flexClassName.current,
+    container: document.head,
+    // It is important to use this flag to work with container query
+    speedy: false,
+  });
+
+  useLayoutEffect(() => {
+    sheet.flush();
+    sheet.insert(flexCssRule(flexClassName.current, { isHidden, ...rest }));
+
+    return () => {
+      sheet.flush();
+    };
+  }, [isHidden, rest]);
 
   const renderFlex = () => {
     return (
       <div
-        className={cx(className, flexCss({ isHidden, ...rest }))}
+        className={clsx(className, flexClassName.current)}
+        ref={flexElement}
         style={style}
       >
         {children}
@@ -26,8 +48,12 @@ export const Flex = (props: FlexProps) => {
 
   return (
     <>
-      {isContainer && <div className={flexContainerCss}>{renderFlex()}</div>}
+      {isContainer && (
+        <div className={styles.flexContainer}>{renderFlex()}</div>
+      )}
       {!isContainer && <>{renderFlex()}</>}
     </>
   );
 };
+
+export const Flex = forwardRef(_Flex);
