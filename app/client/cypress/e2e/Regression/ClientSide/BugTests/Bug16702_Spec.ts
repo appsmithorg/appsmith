@@ -17,7 +17,7 @@ const GRAPHQL_RESPONSE = {
 };
 
 describe("Binding Expressions should not be truncated in Url and path extraction", function () {
-  it.skip("Bug 16702, Moustache+Quotes formatting goes wrong in graphql body resulting in autocomplete failure", function () {
+  it("Bug 16702, Moustache+Quotes formatting goes wrong in graphql body resulting in autocomplete failure", function () {
     const jsObjectBody = `export default {
       limitValue: 1,
       offsetValue: 1,
@@ -74,6 +74,6 @@ describe("Binding Expressions should not be truncated in Url and path extraction
     //   expectedPath: "response.body.data.body.data.launchesPast[0].mission_name",
     //   expectedRes: GRAPHQL_RESPONSE.mission_name,
     // });
-    _.apiPage.RunAPI();
+    _.apiPage.RunAPI(false);
   });
 });
