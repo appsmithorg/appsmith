@@ -9,7 +9,7 @@ import {
   locators,
   propPane,
   entityItems,
-  tedTestConfig,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
 const successMessage = "Successful Trigger";
@@ -81,7 +81,7 @@ describe("Linting", () => {
 
     // create Api1
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
 
     clickButtonAndAssertLintError(false);
@@ -97,7 +97,7 @@ describe("Linting", () => {
 
     // Re-create Api1
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
 
     clickButtonAndAssertLintError(false);
@@ -300,7 +300,7 @@ describe("Linting", () => {
       },
     );
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
 
     createMySQLDatasourceQuery();

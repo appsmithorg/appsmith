@@ -18,11 +18,14 @@ import {
   SECURITY_AND_COMPLIANCE_DETAIL2,
 } from "@appsmith/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
+import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 
 export function AuditLogsUpgradePage() {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "AUDIT_LOGS_UPGRADE_ADMIN_SETTINGS",
     logEventData: { source: "AuditLogs" },
+    featureName: RampFeature.AuditLogs,
+    sectionName: RampSection.AdminSettings,
   });
 
   const header: Header = {

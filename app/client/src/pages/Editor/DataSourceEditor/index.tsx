@@ -97,6 +97,7 @@ import {
 import type { CalloutKind } from "design-system";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -613,7 +614,13 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         },
       });
     }
-
+    AnalyticsUtil.logEvent("SWITCH_ENVIRONMENT", {
+      fromEnvId: this.state.filterParams.id,
+      toEnvId: id,
+      fromEnvName: this.state.filterParams.name,
+      toEnvName: name,
+      mode: "CONFIGURATION",
+    });
     // This is the event that changes the filter and updates the datasource
     this.setState({
       filterParams: {

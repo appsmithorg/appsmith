@@ -846,7 +846,7 @@ Cypress.Commands.add("changeButtonColor", (buttonColor) => {
   cy.get(widgetsPage.buttonColor)
     .click({ force: true })
     .clear()
-    .type(buttonColor);
+    .type(buttonColor, { delay: 0 });
   deployMode.DeployApp();
   cy.get(widgetsPage.widgetBtn).should(
     "have.css",
@@ -2184,4 +2184,12 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 
 Cypress.Commands.add("skipSignposting", () => {
   onboarding.closeIntroModal();
+});
+
+Cypress.Commands.add("stubPricingPage", () => {
+  cy.window().then((win) => {
+    cy.stub(win, "open", (url) => {
+      win.location.href = "https://www.appsmith.com/pricing?";
+    }).as("pricingPage");
+  });
 });
