@@ -16,6 +16,13 @@ export const fieldStyles = css<FieldStylesProps>`
     }
   }
 
+  // when the label is on the side, we need to make sure the label
+  // is centered aligned in case it is a field. For field group,
+  // align-items will be  of default value, that is flex-start
+  &[data-field]:is([data-field-type="field"]):is([data-position="side"]) {
+    align-items: center;
+  }
+
   /**
   * ----------------------------------------------------------------------------
   * FIELD LABEL
@@ -24,14 +31,12 @@ export const fieldStyles = css<FieldStylesProps>`
   & [data-field-label] {
     display: flex;
     align-items: center;
-    gap: var(--spacing-1);
     height: fit-content;
     color: var(--color-fg);
     font-weight: ${({ isEmphasized }) => (isEmphasized ? "bold" : "normal")};
 
     //  when the label is on the side, we need to make sure the label is aligned
     &[data-position="side"] {
-      min-height: var(--sizing-5);
       width: ${({ labelWidth }) => labelWidth};
     }
   }
@@ -88,7 +93,7 @@ export const fieldStyles = css<FieldStylesProps>`
   *-----------------------------------------------------------------------------
   */
   & [data-field-wrapper] {
-    gap: var(--spacing-3);
+    gap: var(--spacing-1);
     display: flex;
     flex-direction: column;
   }

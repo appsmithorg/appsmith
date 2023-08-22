@@ -4,8 +4,15 @@ import { filterDOMProps } from "@react-aria/utils";
 import type { DOMRef } from "@react-types/shared";
 import type { SpectrumLabelProps } from "@react-types/label";
 
-import { AsteriskIcon } from "./icons/AsteriskIcon";
-export interface LabelProps extends SpectrumLabelProps {
+type MyOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+export interface LabelProps
+  extends MyOmit<
+    SpectrumLabelProps,
+    | "necessityIndicator"
+    | "includeNecessityIndicatorInAccessibilityName"
+    | "isRequired"
+  > {
   isEmphasized?: boolean;
   labelWidth?: string;
 }
@@ -15,9 +22,6 @@ const _Label = (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
     children,
     labelPosition = "top",
     labelAlign = labelPosition === "side" ? "start" : null,
-    isRequired,
-    necessityIndicator = isRequired != null ? "icon" : null,
-    includeNecessityIndicatorInAccessibilityName = false,
     htmlFor,
     for: labelFor,
     elementType: ElementType = "label",
@@ -26,16 +30,6 @@ const _Label = (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
   } = props;
 
   const domRef = useDOMRef(ref);
-
-  const necessityLabel = isRequired ? "(required)" : "(optional)";
-  const icon = (
-    <AsteriskIcon
-      aria-label={
-        includeNecessityIndicatorInAccessibilityName ? "(required)" : undefined
-      }
-      data-field-necessity-indicator-icon=""
-    />
-  );
 
   return (
     <ElementType
@@ -48,21 +42,6 @@ const _Label = (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
       ref={domRef}
     >
       {children}
-      {/* necessityLabel is hidden to screen readers if the field is required because
-       * aria-required is set on the field in that case. That will already be announced,
-       * so no need to duplicate it here. If optional, we do want it to be announced here. */}
-      {necessityIndicator === "label" && (
-        <span
-          aria-hidden={
-            !includeNecessityIndicatorInAccessibilityName
-              ? isRequired
-              : undefined
-          }
-        >
-          {necessityLabel}
-        </span>
-      )}
-      {necessityIndicator === "icon" && isRequired && icon}
     </ElementType>
   );
 };

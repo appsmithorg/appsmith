@@ -3,15 +3,15 @@ import type {
   ButtonRef as HeadlessButtonRef,
 } from "@design-system/headless";
 import React, { forwardRef } from "react";
-import { Icon as HeadlessIcon } from "@design-system/headless";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
+
 import { Text } from "../Text";
-import { Spinner } from "../Spinner";
 import type {
   BUTTON_COLORS,
   BUTTON_VARIANTS,
   BUTTON_ICON_POSITIONS,
 } from "./types";
+import { Spinner } from "../Spinner";
 import { DragContainer, StyledButton } from "./index.styled";
 
 export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
@@ -68,9 +68,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
         </span>
 
         <span aria-hidden={!isLoading ? true : undefined} data-loader="">
-          <HeadlessIcon>
-            <Spinner />
-          </HeadlessIcon>
+          <Spinner />
           <span {...visuallyHiddenProps}>{loadingText}</span>
         </span>
       </>

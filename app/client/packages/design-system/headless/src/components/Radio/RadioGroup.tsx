@@ -35,7 +35,7 @@ const _RadioGroup = (props: RadioGroupProps, ref: RadioGroupRef) => {
       {...props}
       descriptionProps={descriptionProps}
       errorMessageProps={errorMessageProps}
-      includeNecessityIndicatorInAccessibilityName
+      fieldType="field-group"
       labelProps={labelProps}
       ref={domRef}
       wrapperClassName={className}

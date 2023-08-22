@@ -1,16 +1,16 @@
-import type { SpectrumTextFieldProps } from "@react-types/textfield";
+import type { Ref, RefObject } from "react";
 import { mergeProps } from "@react-aria/utils";
 import { useHover } from "@react-aria/interactions";
-import type { PressEvents } from "@react-types/shared";
-import type { Ref, RefObject } from "react";
+import type { TextFieldAria } from "@react-aria/textfield";
 import { useFocusRing, useFocusable } from "@react-aria/focus";
+import type { PressEvents, StyleProps } from "@react-types/shared";
+import type { SpectrumTextFieldProps } from "@react-types/textfield";
 import React, { forwardRef, useRef, useCallback, useState } from "react";
 
 import { Field } from "../Field";
-import type { TextFieldAria } from "@react-aria/textfield";
 
-interface TextInputBaseProps
-  extends Omit<SpectrumTextFieldProps, "onChange" | "icon">,
+export interface TextInputBaseProps
+  extends Omit<SpectrumTextFieldProps, "onChange" | "icon" | keyof StyleProps>,
     PressEvents {
   /** classname for the input element */
   inputClassName?: string;
@@ -34,10 +34,6 @@ interface TextInputBaseProps
   startIcon?: React.ReactNode;
   /** an icon to be displayed at the end of the component */
   endIcon?: React.ReactNode;
-  /**position of the loading icon */
-  loaderPosition?: "start" | "end" | "auto";
-  /** icon to be used when isLoading is true */
-  loadingIcon?: React.ReactNode;
 }
 
 function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
@@ -45,7 +41,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     autoFocus,
     className,
     descriptionProps,
-    endIcon: endIconProp,
+    endIcon,
     errorMessageProps,
     inputClassName,
     inputProps,
@@ -53,12 +49,10 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     isDisabled,
     isLoading,
     labelProps,
-    loaderPosition = "auto",
-    loadingIcon,
     multiLine,
     onBlur,
     onFocus,
-    startIcon: startIconProp,
+    startIcon,
     validationState,
   } = props;
   const [isFocussed, setIsFocused] = useState(false);
@@ -101,30 +95,9 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     inputRef.current?.focus();
   };
 
-  const startIcon = () => {
-    const showLoadingIndicator =
-      isLoading &&
-      (loaderPosition === "start" ||
-        Boolean(startIconProp && loaderPosition !== "end"));
-
-    if (!showLoadingIndicator) return startIconProp;
-
-    return loadingIcon;
-  };
-
-  const endIcon = () => {
-    const showLoadingIndicator =
-      isLoading &&
-      (loaderPosition === "end" ||
-        Boolean(loaderPosition === "auto" && !startIconProp));
-
-    if (!showLoadingIndicator) return endIconProp;
-
-    return loadingIcon;
-  };
-
-  const textField = (
+  const inputField = (
     <div
+      aria-busy={isLoading ? true : undefined}
       data-disabled={isDisabled ? "" : undefined}
       data-field-input-wrapper=""
       data-focused={isFocusVisible || isFocussed ? "" : undefined}
@@ -134,7 +107,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
       onClick={focusInput}
       ref={ref}
     >
-      {startIcon()}
+      {startIcon}
       <ElementType
         {...mergeProps(inputProps, hoverProps, focusProps, focusableProps)}
         className={inputClassName}
@@ -143,7 +116,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
         ref={inputRef as any}
         rows={multiLine ? 1 : undefined}
       />
-      {endIcon()}
+      {endIcon}
     </div>
   );
 
@@ -154,10 +127,9 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
       errorMessageProps={errorMessageProps}
       labelProps={labelProps}
       ref={domRef}
-      showErrorIcon={false}
       wrapperClassName={className}
     >
-      {textField}
+      {inputField}
     </Field>
   );
 }
