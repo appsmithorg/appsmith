@@ -2193,7 +2193,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     unpublishedActionIdToCollectionIdsMap,
                                     publishedActionIdToCollectionIdsMap))
                             .map(newAction -> {
-                                log.info("here mf2 {}", newAction);
                                 final String defaultActionId =
                                         newAction.getDefaultResources().getActionId();
                                 if (page.getUnpublishedPage().getLayouts() != null) {

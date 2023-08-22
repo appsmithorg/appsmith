@@ -663,7 +663,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<NewAction> findAllById(Iterable<String> id) {
-        log.info("here mf");
         return repository.findAllByIdIn(id).flatMap(this::sanitizeAction);
     }
 
