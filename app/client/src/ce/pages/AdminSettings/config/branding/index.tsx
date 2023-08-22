@@ -20,4 +20,5 @@ export const config: AdminConfigType = {
   icon: "pantone",
   component: BrandingPage,
   isFeatureEnabled: isBrandingEnabled(featureFlags),
+  needsUpgrade: true,
 };

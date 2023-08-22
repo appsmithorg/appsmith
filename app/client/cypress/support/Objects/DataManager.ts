@@ -1,4 +1,4 @@
-export class TEDTestConfigs {
+export class DataManager {
   environments = ["Production", "Staging"];
   defaultEnviorment = this.environments[0];
   GITEA_API_BASE_TED = "localhost";

@@ -219,7 +219,7 @@ export class ApiPage {
   ) {
     this.agHelper.GetNClick(this._apiRunBtn, 0, true, waitTimeInterval);
     toValidateResponse &&
-      this.agHelper.AssertNetworkExecutionSuccess("@postExecute");
+      this.assertHelper.AssertNetworkExecutionSuccess("@postExecute");
 
     // Asserting Network result
     validateNetworkAssertOptions?.expectedPath &&
