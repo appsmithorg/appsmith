@@ -16,6 +16,7 @@ import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import BusinessTag from "components/BusinessTag";
+import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -107,6 +108,8 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD",
     logEventData: { method: method.label },
+    featureName: RampFeature.Sso,
+    sectionName: RampSection.AdminSettings,
   });
 
   const onClickHandler = (method: AuthMethodType) => {
