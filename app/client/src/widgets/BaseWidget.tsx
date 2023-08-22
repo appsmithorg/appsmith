@@ -48,6 +48,9 @@ import type {
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import store from "store";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 /***
  * BaseWidget
@@ -431,6 +434,17 @@ abstract class BaseWidget<
     isFlexChild: false,
     isMobile: false,
   };
+
+  /*
+   * Function to get a specific feature flag
+   * TODO(Keyur): To move the below function to the EditorContextProvider
+   */
+  static getFeatureFlag(featureFlag: FeatureFlag) {
+    const state = store.getState();
+    const featureFlags = selectFeatureFlags(state);
+
+    return featureFlags[featureFlag];
+  }
 }
 
 export interface BaseStyle {
