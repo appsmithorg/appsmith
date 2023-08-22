@@ -4,7 +4,7 @@ import type {
   TypographyFontWeight,
 } from "@design-system/theming";
 import type { ReactNode } from "react";
-import type { OmitRename } from "../../utils";
+import type { OmitRename } from "../../../utils";
 
 export interface TextProps {
   /** Variant of the text
