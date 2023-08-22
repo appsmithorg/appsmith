@@ -2,7 +2,6 @@
 #cypress/e2e/**/**/*
 
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 
-
-
+cypress/e2e/Regression/ClientSide/ExplorerTests/Pin_spec.js
+cypress/e2e/Regression/ClientSide/Onboarding/FirstTimeUserOnboarding_spec.js
