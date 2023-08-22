@@ -159,7 +159,7 @@ describe("Undo/Redo functionality", function () {
   });
 
   //Skipping this since its failing in CI
-  it.skip("5. Checks undo/redo for Authenticated APIs", () => {
+  it("5. Checks undo/redo for Authenticated APIs", () => {
     cy.NavigateToAPI_Panel();
     cy.get(apiwidget.createAuthApiDatasource).click({ force: true });
     cy.wait(2000);

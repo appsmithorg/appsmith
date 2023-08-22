@@ -117,7 +117,7 @@ describe("JSEditor tests", function () {
   });
 
   //Skipping reason? to add
-  it.skip("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
+  it("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
     entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     jsEditor.SelectFunctionDropdown("clearStore");
     jsEditor.RunJSObj();
