@@ -201,10 +201,14 @@ function* BindWidgetToDatasource(
         const runResponse: ReduxAction<unknown> = yield take([
           ReduxActionTypes.RUN_ACTION_SUCCESS,
           ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
+          ReduxActionErrorTypes.RUN_ACTION_ERROR,
         ]);
 
         if (
-          runResponse.type === ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR
+          [
+            ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
+            ReduxActionErrorTypes.RUN_ACTION_ERROR,
+          ].includes(runResponse.type)
         ) {
           throw new Error(`Unable to run action: ${actionToRun.name}`);
         }

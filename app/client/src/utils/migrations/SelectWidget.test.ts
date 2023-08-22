@@ -1,6 +1,7 @@
 import type { DSLWidget } from "WidgetProvider/constants";
 import {
   MigrateSelectTypeWidgetDefaultValue,
+  migrateSelectWidgetAddSourceDataPropertyPathList,
   migrateSelectWidgetSourceDataBindingPathList,
 } from "./SelectWidget";
 
@@ -1958,6 +1959,209 @@ describe("migrateSelectWidgetSourceDataBindingPathList", () => {
             },
             {
               key: "optionValue",
+            },
+          ],
+        },
+      ],
+    });
+  });
+});
+
+describe("migrateSelectWidgetAddSourceDataPropertyPathList", () => {
+  test("should test that sourceData is added to the dynamicPropertyPathList", () => {
+    const result = migrateSelectWidgetAddSourceDataPropertyPathList({
+      children: [
+        {
+          type: "TABLE_WIDGET_V2",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "optionValue",
+            },
+            {
+              key: "sourceData",
+            },
+            {
+              key: "optionLabel",
+            },
+          ],
+        },
+        {
+          type: "TABLE_WIDGET_V2",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "optionValue",
+            },
+            {
+              key: "optionLabel",
+            },
+          ],
+        },
+        {
+          type: "TABLE_WIDGET_V2",
+          options: [],
+        },
+        {
+          type: "SELECT_WIDGET",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "optionValue",
+            },
+            {
+              key: "sourceData",
+            },
+            {
+              key: "optionLabel",
+            },
+          ],
+        },
+        {
+          type: "SELECT_WIDGET",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "optionValue",
+            },
+            {
+              key: "optionLabel",
+            },
+          ],
+        },
+        {
+          type: "MULTI_SELECT_WIDGET_V2",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "optionLabel",
+            },
+            {
+              key: "sourceData",
+            },
+            {
+              key: "optionValue",
+            },
+          ],
+        },
+        {
+          type: "MULTI_SELECT_WIDGET_V2",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "optionLabel",
+            },
+            {
+              key: "optionValue",
+            },
+          ],
+        },
+        {
+          type: "MULTI_SELECT_WIDGET_V2",
+          options: [],
+        },
+      ],
+    } as any as DSLWidget);
+
+    expect(result).toEqual({
+      children: [
+        {
+          type: "TABLE_WIDGET_V2",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "optionValue",
+            },
+            {
+              key: "sourceData",
+            },
+            {
+              key: "optionLabel",
+            },
+          ],
+        },
+        {
+          type: "TABLE_WIDGET_V2",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "optionValue",
+            },
+            {
+              key: "optionLabel",
+            },
+          ],
+        },
+        {
+          type: "TABLE_WIDGET_V2",
+          options: [],
+        },
+        {
+          type: "SELECT_WIDGET",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "optionValue",
+            },
+            {
+              key: "sourceData",
+            },
+            {
+              key: "optionLabel",
+            },
+          ],
+        },
+        {
+          type: "SELECT_WIDGET",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "optionValue",
+            },
+            {
+              key: "optionLabel",
+            },
+            {
+              key: "sourceData",
+            },
+          ],
+        },
+        {
+          type: "MULTI_SELECT_WIDGET_V2",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "optionLabel",
+            },
+            {
+              key: "sourceData",
+            },
+            {
+              key: "optionValue",
+            },
+          ],
+        },
+        {
+          type: "MULTI_SELECT_WIDGET_V2",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "optionLabel",
+            },
+            {
+              key: "optionValue",
+            },
+            {
+              key: "sourceData",
+            },
+          ],
+        },
+        {
+          type: "MULTI_SELECT_WIDGET_V2",
+          options: [],
+          dynamicPropertyPathList: [
+            {
+              key: "sourceData",
             },
           ],
         },

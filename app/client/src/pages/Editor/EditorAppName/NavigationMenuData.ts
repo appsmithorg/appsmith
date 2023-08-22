@@ -55,6 +55,25 @@ export const GetNavigationMenuData = ({
     }
   }, []);
 
+  const exportAppAsJSON = () => {
+    const id = `t--export-app-link`;
+    const existingLink = document.getElementById(id);
+    existingLink && existingLink.remove();
+    const link = document.createElement("a");
+
+    const branchName = currentApplication?.gitApplicationMetadata?.branchName;
+    link.href = getExportAppAPIRoute(applicationId, branchName);
+    link.id = id;
+    document.body.appendChild(link);
+    // @ts-expect-error: Types are not available
+    if (!window.Cypress) {
+      link.click();
+    }
+    toast.show(`Successfully exported ${currentApplication?.name}`, {
+      kind: "success",
+    });
+  };
+
   const openAppSettingsPane = () => dispatch(openAppSettingsPaneAction());
 
   const deleteApplication = () => {
@@ -162,8 +181,7 @@ export const GetNavigationMenuData = ({
     },
     {
       text: "Export application",
-      onClick: () =>
-        applicationId && openExternalLink(getExportAppAPIRoute(applicationId)),
+      onClick: exportAppAsJSON,
       type: MenuTypes.MENU,
       isVisible: isApplicationIdPresent && hasExportPermission,
     },

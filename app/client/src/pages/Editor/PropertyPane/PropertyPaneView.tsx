@@ -16,7 +16,6 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
 import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
-import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { Button, Callout } from "design-system";
@@ -63,7 +62,7 @@ function PropertyPaneView(
   } & IPanelProps,
 ) {
   const dispatch = useDispatch();
-  const { ...panel } = props;
+  const panel = props;
   const widgetProperties = useSelector(
     getWidgetPropsForPropertyPaneView,
     equal,
@@ -77,7 +76,7 @@ function PropertyPaneView(
     }
 
     return true;
-  }, [widgetProperties?.type, excludeList]);
+  }, [widgetProperties]);
   const { searchText, setSearchText } = useSearchText("");
   const { pushFeature } = useContext(WalkthroughContext) || {};
   const widgets = useSelector(getWidgets);
@@ -174,19 +173,6 @@ function PropertyPaneView(
    */
   const onCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
-  const handleTabKeyDownForButton = useCallback(
-    (propertyName: string) => (e: React.KeyboardEvent) => {
-      if (e.key === "Tab")
-        emitInteractionAnalyticsEvent(containerRef?.current, {
-          key: e.key,
-          propertyName,
-          propertyType: "BUTTON",
-          widgetType: widgetProperties?.type,
-        });
-    },
-    [],
-  );
-
   /**
    * actions shown on the right of title
    */
@@ -220,7 +206,7 @@ function PropertyPaneView(
         ),
       },
     ];
-  }, [onCopy, onDelete, handleTabKeyDownForButton]);
+  }, [onCopy, onDelete]);
 
   useEffect(() => {
     setSearchText("");

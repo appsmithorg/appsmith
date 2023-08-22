@@ -83,7 +83,9 @@ describe("MySQL Datatype tests", function () {
       });
       i % 2 && agHelper.ToggleSwitch("Bool_column");
       agHelper.ClickButton("insertRecord");
-      agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+      agHelper.AssertElementVisibility(
+        locators._buttonByText("Run InsertQuery"),
+      );
       agHelper.Sleep(2000);
     });
   });
