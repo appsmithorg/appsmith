@@ -297,12 +297,6 @@ describe("Validate Arango & CURL Import Datasources", () => {
   });
 
   it("3. Arango Widget Binding - from Suggested widget, Schema filter for Arango DS", () => {
-    featureFlagIntercept(
-      {
-        ab_ds_schema_enabled: true,
-      },
-      false,
-    );
     agHelper.RefreshPage();
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Connect data");
