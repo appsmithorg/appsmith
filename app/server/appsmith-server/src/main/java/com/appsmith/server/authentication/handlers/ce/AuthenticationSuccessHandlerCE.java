@@ -97,7 +97,14 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             // form login method henceforth. This step is taken to avoid any security vulnerability in the login flow
             // as we are not verifying the user emails at first sign up. In future if we implement the email
             // verification this can be eliminated safely
-            if (user.getPassword() != null) {
+
+            // Adding check on source because of the following scenario.
+            // Scenario:
+            // 1. User is invited.
+            // 2. User signs in via any OAuth2 Authentication mechanism.
+            // User will not have the password field set, and hence, just checking that password is null, is an
+            // incomplete check. Checking the source will complete it.
+            if (user.getPassword() != null || LoginSource.FORM.equals(user.getSource())) {
                 user.setPassword(null);
                 user.setSource(LoginSource.fromString(
                         ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId()));
