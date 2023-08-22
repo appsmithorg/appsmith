@@ -156,16 +156,22 @@ export class DeployMode {
   public NavigateBacktoEditor() {
     this.assertHelper.AssertDocumentReady();
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
-    this.agHelper.Sleep(2000);
+    this.agHelper.Sleep();
     localStorage.setItem("inDeployedMode", "false");
+    //Assert no error toast in Edit mode when navigating back from Deploy mode
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("There was an unexpected error"),
-    ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
-    this.assertHelper.AssertDocumentReady();
-    this.assertHelper.AssertNetworkStatus("@getWorkspace");
+    );
+    this.agHelper.AssertElementAbsence(
+      this.locator._specificToast(
+        "Internal server error while processing request",
+      ),
+    );
     cy.window().then((win) => {
       win.location.reload();
     }); //only reloading edit page to load elements
+    this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertNetworkStatus("@getWorkspace");
     this.agHelper.AssertElementVisibility(this.locator._editPage); //Assert if canvas is visible after Navigating back!
   }
 

@@ -18,7 +18,7 @@ describe("Validate basic Promises", () => {
 
   it("1. Verify storeValue via .then via direct Promises", () => {
     const date = new Date().toDateString();
-    agHelper.AddDsl("promisesBtnDsl", locator._spanButton("Submit"));
+    agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
@@ -31,7 +31,7 @@ describe("Validate basic Promises", () => {
   });
 
   it("2. Verify resolve & chaining via direct Promises", () => {
-    agHelper.AddDsl("promisesBtnDsl", locator._spanButton("Submit"));
+    agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
 
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
@@ -53,7 +53,7 @@ describe("Validate basic Promises", () => {
   });
 
   it("3. Verify Promises.any via direct JSObjects", () => {
-    agHelper.AddDsl("promisesBtnDsl", locator._spanButton("Submit"));
+    agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
 
     jsEditor.CreateJSObject(
       `export default {
@@ -92,7 +92,7 @@ describe("Validate basic Promises", () => {
 
   it("4. Bug : 11110 - Verify resetWidget via .then direct Promises", () => {
     deployMode.NavigateBacktoEditor();
-    agHelper.AddDsl("promisesBtnDsl", locator._spanButton("Submit"));
+    agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",

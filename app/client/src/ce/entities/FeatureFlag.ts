@@ -20,6 +20,8 @@ export const FEATURE_FLAG = {
   license_sso_enabled: "license_sso_enabled",
   license_branding_enabled: "license_branding_enabled",
   ab_table_widget_activation_enabled: "ab_table_widget_activation_enabled",
+  license_sso_saml_enabled: "license_sso_saml_enabled",
+  license_sso_oidc_enabled: "license_sso_oidc_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -43,6 +45,8 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_sso_enabled: false,
   license_branding_enabled: false,
   ab_table_widget_activation_enabled: false,
+  license_sso_saml_enabled: false,
+  license_sso_oidc_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

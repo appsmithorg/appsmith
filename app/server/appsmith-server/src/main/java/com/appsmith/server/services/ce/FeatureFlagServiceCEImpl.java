@@ -10,6 +10,7 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserIdentifierService;
+import com.appsmith.server.solutions.ce.ScheduledTaskCEImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
@@ -38,7 +39,11 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final long featureFlagCacheTimeMin = 120;
 
-    private final long tenantFeaturesCacheTimeMin = 120;
+    /**
+     * To avoid race condition keep the refresh rate lower than cron execution interval {@link ScheduledTaskCEImpl}
+     * to update the tenant level feature flags
+     */
+    private final long tenantFeaturesCacheTimeMin = 115;
 
     private final UserIdentifierService userIdentifierService;
 
@@ -126,18 +131,16 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     public Mono<Void> getAllRemoteFeaturesForTenant() {
         return tenantService
                 .getDefaultTenantId()
-                .flatMap(defaultTenantId -> {
-                    return cacheableFeatureFlagHelper
-                            .fetchCachedTenantNewFeatures(defaultTenantId)
-                            .flatMap(cachedFeatures -> {
-                                if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
-                                        < this.tenantFeaturesCacheTimeMin) {
-                                    return Mono.just(cachedFeatures);
-                                } else {
-                                    return this.forceUpdateTenantFeatures(defaultTenantId);
-                                }
-                            });
-                })
+                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper
+                        .fetchCachedTenantNewFeatures(defaultTenantId)
+                        .flatMap(cachedFeatures -> {
+                            if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
+                                    < this.tenantFeaturesCacheTimeMin) {
+                                return Mono.just(cachedFeatures);
+                            } else {
+                                return this.forceUpdateTenantFeatures(defaultTenantId);
+                            }
+                        }))
                 .then();
     }
 
