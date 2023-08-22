@@ -18,12 +18,6 @@ public class PackageServiceImpl extends PackageServiceCEImpl implements PackageS
             ReactiveMongoTemplate reactiveMongoTemplate,
             PackageRepository repository,
             AnalyticsService analyticsService) {
-        super(
-                scheduler,
-                validator,
-                mongoConverter,
-                reactiveMongoTemplate,
-                repository,
-                analyticsService);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
 }

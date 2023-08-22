@@ -11,13 +11,14 @@ import org.springframework.data.annotation.Transient;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @ToString
-public class PackageDTO implements Identifiable {
+public class ModuleDTO implements Identifiable {
     @Transient
     @JsonView(Views.Public.class)
     private String id;
@@ -25,20 +26,29 @@ public class PackageDTO implements Identifiable {
     @JsonView(Views.Public.class)
     String name;
 
-    @Transient
+    // Variants of publicEntityId { Query module : Id of newAction document, JS module: Id of actionCollection document,
+    // UI module: Id of the layout}
     @JsonView(Views.Public.class)
-    String workspaceId;
+    String publicEntityId;
 
     @Transient
     @JsonView(Views.Public.class)
-    String icon;
+    ModuleType type;
 
     @Transient
     @JsonView(Views.Public.class)
-    String color;
+    static List<String> whitelistedPublicEntitySettingsForModuleInstance =
+            List.of("confirmBeforeExecute", "executeOnLoad");
 
     @JsonView(Views.Public.class)
-    List<String> modules;
+    Map<String, ModuleInput> inputs;
+
+    @JsonView(Views.Public.class)
+    Map<String, ModuleActionConfig> configMap;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    List<ActionDTO> entities;
 
     @Transient
     @JsonView(Views.Public.class)
