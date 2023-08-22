@@ -13,7 +13,7 @@ export const StyledTooltipContent = styled(
 )<StyledTooltipContentProps>`
   background-color: var(--color-bg-assistive);
   color: var(--color-fg-on-assistive);
-  padding: var(--spacing-2) var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
   border-radius: var(--border-radius-1);
   z-index: var(--z-index-99);
 
