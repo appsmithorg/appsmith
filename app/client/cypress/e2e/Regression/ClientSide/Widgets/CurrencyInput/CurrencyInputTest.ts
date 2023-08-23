@@ -1,4 +1,3 @@
-import { findLastKey } from "cypress/types/lodash";
 import {
   agHelper,
   locators,
