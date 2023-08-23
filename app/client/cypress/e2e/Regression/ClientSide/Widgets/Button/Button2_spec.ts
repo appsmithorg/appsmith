@@ -153,9 +153,11 @@ describe("Button widget testcases", () => {
     // set the email
     agHelper.TypeText(clocators.inputField, Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");
+    agHelper.WaitUntilEleAppear(locators._toastMsg);
     // assert the email set
     agHelper.ValidateToastMessage(Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");
+    agHelper.WaitUntilEleAppear(locators._toastMsg);
     // on submit form should be reset and default value should ahve populated
     agHelper.ValidateToastMessage("@example");
     deployMode.NavigateBacktoEditor();
