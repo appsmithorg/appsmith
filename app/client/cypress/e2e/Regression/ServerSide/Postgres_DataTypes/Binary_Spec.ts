@@ -10,7 +10,7 @@ import {
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe.skip("Binary Datatype tests", function () {
+describe("Binary Datatype tests", function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Create DS, Importing App & setting theme", () => {
@@ -378,6 +378,7 @@ describe.skip("Binary Datatype tests", function () {
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
 
+  //Since query delete & Postgress DS delete is covered in other specs, commenting below code
   // after(
   //   "Validate Drop of the Newly Created - binarytype - Table & Verify Deletion of all created queries",
   //   () => {
