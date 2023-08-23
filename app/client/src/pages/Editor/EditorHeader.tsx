@@ -95,8 +95,8 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
 import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import CommunityTemplatesPublishInfo from "pages/Templates/CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
-import PublishCommunityTemplateModal from "pages/Templates/CommunityTemplates/Modals/PublishCommunityTemplate";
+import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
+import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
 
 const { cloudHosting } = getAppsmithConfigs();
 
