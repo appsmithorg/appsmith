@@ -9,7 +9,7 @@ import {
 
 describe("JS to non-JS mode in Action Selector", () => {
   it("1. should not show any fields with a blank JS field", () => {
-    agHelper.AddDsl("promisesBtnDsl", locators._spanButton("Submit"));
+    agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext("onClick", `{{}}`, true, false);
     propPane.ToggleJSMode("onClick", false);
