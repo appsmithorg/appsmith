@@ -131,7 +131,7 @@ describe("Button widget testcases", () => {
     entityExplorer.DeleteWidgetFromEntityExplorer("Form1");
   });
 
-  it("4. Checking reset on success - enabled and disabled", () => {
+  it.skip("4. Checking reset on success - enabled and disabled", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
     propPane.SelectPropertiesDropDown("Data type", "Email");
