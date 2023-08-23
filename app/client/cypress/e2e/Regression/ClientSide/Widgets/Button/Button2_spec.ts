@@ -148,7 +148,6 @@ describe("Button widget testcases", () => {
       propPane._actionSelectorFieldByLabel("Message"),
       "{{Input1.text}}",
     );
-    propPane.TogglePropertyState("Reset form on success", "On");
     deployMode.DeployApp();
     // set the email
     agHelper.ClickButton("Submit");
