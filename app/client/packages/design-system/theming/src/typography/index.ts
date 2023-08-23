@@ -1,2 +1,1 @@
-export * from "./typography";
-export * from "./types";
+export * from "./src";
