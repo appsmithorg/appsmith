@@ -1,10 +1,8 @@
 import React from "react";
-import * as Sentry from "@sentry/react";
 import store from "store";
 import type BaseWidget from "widgets/BaseWidget";
 import WidgetFactory, { NonSerialisableWidgetConfigs } from "./WidgetFactory";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { memoize } from "lodash";
 import type { WidgetConfiguration } from "widgets/constants";
 import { generateReactKey } from "./generators";
 import type { RegisteredWidgetFeatures } from "./WidgetFeatures";
@@ -12,26 +10,13 @@ import {
   WidgetFeaturePropertyEnhancements,
   WidgetFeatureProps,
 } from "./WidgetFeatures";
-import { withLazyRender } from "widgets/withLazyRender";
-import withWidgetProps from "widgets/withWidgetProps";
-import withMeta from "widgets/MetaHOC";
-
-const generateWidget = memoize(function getWidgetComponent(
-  Widget: typeof BaseWidget,
-  needsMeta: boolean,
-  eagerRender: boolean,
-) {
-  let widget: any = needsMeta ? withMeta(Widget as any) : Widget;
-  widget = withWidgetProps(widget);
-  widget = eagerRender ? widget : withLazyRender(widget);
-  return Sentry.withProfiler(widget);
-});
+import { withBaseWidgetHOC } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 export const registerWidget = (
   Widget: typeof BaseWidget,
   config: WidgetConfiguration,
 ) => {
-  const ProfiledWidget = generateWidget(
+  const EnhancedWidget = withBaseWidgetHOC(
     Widget,
     !!config.needsMeta,
     !!config.eagerRender,
@@ -41,7 +26,7 @@ export const registerWidget = (
     config.type,
     {
       buildWidget(widgetData: any): JSX.Element {
-        return <ProfiledWidget {...widgetData} key={widgetData.widgetId} />;
+        return <EnhancedWidget {...widgetData} key={widgetData.widgetId} />;
       },
     },
     config.properties.derived,
