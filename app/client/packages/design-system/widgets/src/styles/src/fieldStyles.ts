@@ -24,7 +24,7 @@ export const fieldStyles = css<FieldStylesProps>`
   & [data-field-label] {
     display: flex;
     align-items: center;
-    gap: var(--spacing-1);
+    gap: var(--spacing-2);
     height: fit-content;
     color: var(--color-fg);
     font-weight: ${({ isEmphasized }) => (isEmphasized ? "bold" : "normal")};
