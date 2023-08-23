@@ -140,10 +140,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     /**Validate Response data with Table data in Text Widget */
     entityExplorer.SelectEntityByName("Table1", "Widgets");
 
-    cy.ValidatePaginateResponseUrlData(
-      apiLocators.apiPaginationPrevTest,
-      false,
-    );
+    cy.ValidatePaginateResponseUrlData(apiLocators.apiPaginationPrevTest);
     cy.get("@postExecute.all");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE_V1));
     table.WaitUntilTableLoad(0, 0);
