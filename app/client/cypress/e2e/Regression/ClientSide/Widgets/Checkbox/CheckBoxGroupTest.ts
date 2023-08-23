@@ -259,7 +259,7 @@ describe("Checkbox Tests", function () {
     entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
     propPane.MoveToTab("Style");
     // Verify Accent color
-    propPane.SelectColorFromColorPicker("accentcolor", 10);
+    propPane.UpdatePropertyFieldValue("Accent color", "#b91c1c");
     agHelper.AssertAttribute(
       `${locators._propertyControl}accentcolor ${propPane._roundCursorPointer}`,
       "color",
