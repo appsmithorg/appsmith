@@ -54,7 +54,6 @@ type DSDataFilterProps = {
     id: string,
     name: string,
     userPermissions: string[],
-    showFilterPane: boolean,
   ) => boolean;
   pluginType: string;
   pluginName: string;
@@ -117,7 +116,6 @@ function DSDataFilter({
       defaultSelectedEnvironment.id,
       defaultSelectedEnvironment.name,
       defaultSelectedEnvironment?.userPermissions || [],
-      isRenderAllowed,
     );
 
     if (!updateSuccess) return;
