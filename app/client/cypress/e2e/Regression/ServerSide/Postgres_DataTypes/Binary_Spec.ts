@@ -15,7 +15,7 @@ describe("Binary Datatype tests", function () {
 
   before("Create DS, Importing App & setting theme", () => {
     agHelper.AddDsl("Datatypes/BinaryDTdsl");
-    appSettings.OpenPaneAndChangeThemeColors(24, -37);
+    appSettings.OpenPaneAndChangeThemeColors(7, -9);
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
