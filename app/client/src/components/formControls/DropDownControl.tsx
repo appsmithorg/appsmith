@@ -200,7 +200,10 @@ function renderDropdown(
         }
       });
 
-      if (selectedValue !== tempSelectedValues) {
+      // we also check if the selected options are present at all.
+      // this is because sometimes when a transition is happening the previous options become an empty array.
+      // before the new options are loaded.
+      if (selectedValue !== tempSelectedValues && selectedOptions.length > 0) {
         selectedValue = tempSelectedValues;
         props.input?.onChange(tempSelectedValues);
       }

@@ -16,6 +16,7 @@ const initialState: GitSyncReducerState = {
   activeGitSyncModalTab: GitSyncModalTab.GIT_CONNECTION,
   isErrorPopupVisible: false,
   isFetchingGitStatus: false,
+  isFetchingGitRemoteStatus: false,
   isFetchingMergeStatus: false,
   globalGitConfig: { authorEmail: "", authorName: "" },
   branches: [],
@@ -263,6 +264,27 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isFetchingGitStatus: false,
+  }),
+  [ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_INIT]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isFetchingGitRemoteStatus: true,
+    gitRemoteStatus: undefined,
+  }),
+  [ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<GitStatusData | undefined>,
+  ) => ({
+    ...state,
+    gitRemoteStatus: action.payload,
+    isFetchingGitRemoteStatus: false,
+  }),
+  [ReduxActionErrorTypes.FETCH_GIT_REMOTE_STATUS_ERROR]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isFetchingGitRemoteStatus: false,
   }),
   [ReduxActionErrorTypes.DISCONNECT_TO_GIT_ERROR]: (
     state: GitSyncReducerState,
@@ -555,6 +577,12 @@ export type GitStatusData = {
   migrationMessage?: string;
 };
 
+export type GitRemoteStatusData = {
+  aheadCount: number;
+  behindCount: number;
+  remoteTrackingBranch: string;
+};
+
 type GitErrorPayloadType = {
   code: number | string;
   errorType?: string;
@@ -620,6 +648,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   isFetchingLocalGitConfig: boolean;
 
   isFetchingGitStatus: boolean;
+  isFetchingGitRemoteStatus: boolean;
   isFetchingMergeStatus: boolean;
 
   activeGitSyncModalTab: GitSyncModalTab;
@@ -630,6 +659,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   localGitConfig: GitConfig;
   gitStatus?: GitStatusData;
+  gitRemoteStatus?: GitRemoteStatusData;
   mergeStatus?: MergeStatus;
   connectError?: GitErrorType;
   commitAndPushError?: GitErrorType;

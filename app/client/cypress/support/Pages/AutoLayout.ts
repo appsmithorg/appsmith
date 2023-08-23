@@ -112,8 +112,8 @@ export class AutoLayout {
 
   public VerifyIsAutoLayout() {
     this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
-    cy.get(this.autoConvertButton).should("contain", "fixed layout");
-    cy.get(this.flexMainContainer).should("exist");
+    this.agHelper.GetNAssertContains(this.autoConvertButton, "fixed layout");
+    this.agHelper.AssertElementExist(this.flexMainContainer);
   }
 
   public VerifyIsFixedLayout() {
@@ -128,7 +128,6 @@ export class AutoLayout {
         .siblings(this._flexComponentClass)
         .should("exist");
     } else {
-      this.agHelper.AssertExistingCheckedState;
       cy.get(`${this.locators._widgetInCanvas(widgetTypeName)} canvas`)
         .siblings(this._flexComponentClass)
         .should("exist");

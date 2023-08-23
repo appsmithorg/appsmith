@@ -186,9 +186,9 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "have.text",
     );
     agHelper
-      .GetElement(locators._checkboxGroupOptions("Ulf Merbold"))
+      .GetElement(locators._checkboxTypeByOption("Ulf Merbold"))
       .should("be.checked");
-    agHelper.CheckUncheck(locators._checkboxGroupOptions("Anil Menon"));
+    agHelper.CheckUncheck(locators._checkboxTypeByOption("Anil Menon"));
 
     //Slider
     agHelper
