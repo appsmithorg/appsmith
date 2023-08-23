@@ -26,6 +26,7 @@ import { useParams } from "react-router";
 import type { ExplorerURLParams } from "ce/pages/Editor/Explorer/helpers";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { GENERATE_PAGE_MODE } from "../GeneratePage/components/GeneratePageForm/GeneratePageForm";
+import { useDatasourceQuery } from "./hooks";
 
 const ViewModeSchemaContainer = styled.div`
   height: 100%;
@@ -76,8 +77,9 @@ const DatasourceViewModeSchema = (props: Props) => {
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
 
   const [tableName, setTableName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [previewData, setPreviewData] = useState([]);
+  // leaving this here if we ever want to show error from server
+  // const [previewDataError, setPreviewDataError] = useState(false);
 
   const numberOfEntities = useSelector(getNumberOfEntitiesInCurrentPage);
   const currentMode = useRef(
@@ -86,7 +88,10 @@ const DatasourceViewModeSchema = (props: Props) => {
       : GENERATE_PAGE_MODE.REPLACE_EMPTY,
   );
 
-  //   set first table name
+  const { failedFetchingPreviewData, fetchPreviewData, isLoading } =
+    useDatasourceQuery({ setPreviewData });
+
+  // default table name to first table
   useEffect(() => {
     if (
       datasourceStructure &&
@@ -95,67 +100,25 @@ const DatasourceViewModeSchema = (props: Props) => {
     ) {
       setTableName(datasourceStructure.tables[0].name);
     }
-  }, []);
+  }, [datasourceStructure]);
 
-  // eslint-disable-next-line no-console
-  console.log("heree", setIsLoading, setIsError);
-
-  const displayData = [
-    {
-      id: 3,
-      gender: "male",
-      latitude: "-36.032",
-      longitude: "-22.1341",
-      dob: "1988-07-19T08:59:18.63Z",
-    },
-    {
-      id: 4,
-      gender: "female",
-      latitude: "-22.1155",
-      longitude: "-50.9185",
-      dob: "1979-10-24T12:21:54.259Z",
-    },
-    {
-      id: 5,
-      gender: "male",
-      latitude: "35.1077",
-      longitude: "-124.6599",
-      dob: "1958-02-04T07:12:09.754Z",
-    },
-    {
-      id: 6,
-      gender: "male",
-      latitude: "-55.9694",
-      longitude: "-168.6133",
-      dob: "1995-04-24T19:53:54.211Z",
-    },
-    {
-      id: 8,
-      gender: "female",
-      latitude: "49.6357",
-      longitude: "-175.3",
-      dob: "1952-05-19T04:32:02.966Z",
-    },
-    {
-      id: 9,
-      gender: "female",
-      latitude: "-41.228",
-      longitude: "47.2591",
-      dob: "1947-10-17T23:15:55.261Z",
-    },
-    {
-      id: 11,
-      gender: "male",
-      latitude: "-80.8558",
-      longitude: "-126.6583",
-      dob: "1984-11-27T10:32:17.232Z",
-    },
-  ];
+  // this fetches the preview data when the table name changes
+  useEffect(() => {
+    if (tableName && datasourceStructure && datasourceStructure.tables) {
+      const templates = datasourceStructure.tables.find(
+        (structure) => structure.name === tableName,
+      )?.templates;
+      if (templates) {
+        fetchPreviewData({
+          datasourceId: props.datasourceId,
+          template: templates[0],
+        });
+      }
+    }
+  }, [tableName]);
 
   const onEntityTableClick = (table: string) => {
     setTableName(table);
-
-    // fetch records.
   };
 
   const generatePageAction = () => {
@@ -197,7 +160,7 @@ const DatasourceViewModeSchema = (props: Props) => {
         </DatasourceListContainer>
       </StructureContainer>
       <DatasourceDataContainer>
-        {!isLoading && !isError && (
+        {!isLoading && !failedFetchingPreviewData && (
           <ButtonContainer>
             <Button
               className="t--gsheet-generate-page"
@@ -220,19 +183,21 @@ const DatasourceViewModeSchema = (props: Props) => {
               </Text>
             </MessageWrapper>
           )}
-          {!isLoading && isError && (
+          {!isLoading && failedFetchingPreviewData && (
             <Text color="var(--ads-color-red-500)">
               {createMessage(GSHEETS_ERR_FETCHING_PREVIEW_DATA)}
             </Text>
           )}
-          {!isLoading && displayData?.length > 0 && (
-            <Table data={displayData} />
-          )}
-          {!isLoading && displayData?.length < 1 && (
-            <MessageWrapper>
-              <Text>{DATASOURCE_NO_RECORDS_TO_SHOW}</Text>
-            </MessageWrapper>
-          )}
+          {!isLoading &&
+            !failedFetchingPreviewData &&
+            previewData?.length > 0 && <Table data={previewData} />}
+          {!isLoading &&
+            !failedFetchingPreviewData &&
+            previewData?.length < 1 && (
+              <MessageWrapper>
+                <Text>{DATASOURCE_NO_RECORDS_TO_SHOW}</Text>
+              </MessageWrapper>
+            )}
         </TableWrapper>
       </DatasourceDataContainer>
     </ViewModeSchemaContainer>

@@ -12,7 +12,7 @@ import {
 } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { convertArrayToSentence } from "utils/helpers";
-import { PluginType } from "entities/Action";
+import { PluginName, PluginType } from "entities/Action";
 import type { AppState } from "@appsmith/reducers";
 import type { JSONtoFormProps } from "./JSONtoForm";
 import { JSONtoForm } from "./JSONtoForm";
@@ -27,6 +27,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { isEnvironmentValid } from "@appsmith/utils/Environments";
+import { getPluginNameFromDatasourceId } from "selectors/entitiesSelector";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -43,6 +44,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   showFilterComponent: boolean;
   isEnabledForDSViewModeSchema: boolean;
   isDatasourceValid: boolean;
+  pluginName?: string;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -100,10 +102,15 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       datasourceId,
       formConfig,
       messages,
+      pluginName,
       pluginType,
       showFilterComponent,
       viewMode,
     } = this.props;
+
+    const isPluginAllowedToPreviewData =
+      (pluginName && pluginName === PluginName.MY_SQL) ||
+      pluginName === PluginName.POSTGRES;
 
     return (
       <Form
@@ -152,38 +159,39 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         )}
         {viewMode && (
           <>
-            {this.props.isEnabledForDSViewModeSchema && (
-              <TabsContainer
-                defaultValue={
-                  this.props.isDatasourceValid
-                    ? VIEW_MODE_TABS.VIEW_DATA
-                    : VIEW_MODE_TABS.CONFIGURATIONS
-                }
-              >
-                <TabsList>
-                  <Tab value={VIEW_MODE_TABS.VIEW_DATA}>
-                    {createMessage(DATASOURCE_VIEW_DATA_TAB)}
-                  </Tab>
-                  <Tab value={VIEW_MODE_TABS.CONFIGURATIONS}>
-                    {createMessage(DATASOURCE_CONFIGURATIONS_TAB)}
-                  </Tab>
-                </TabsList>
-                <TabPanelContainer value={VIEW_MODE_TABS.VIEW_DATA}>
-                  <DatasourceViewModeSchema datasourceId={datasourceId} />
-                </TabPanelContainer>
-                <TabPanel value={VIEW_MODE_TABS.CONFIGURATIONS}>
-                  <ViewModeWrapper data-testid="t--ds-review-section">
-                    {!_.isNil(formConfig) && !_.isNil(datasource) ? (
-                      <DatasourceInformation
-                        config={formConfig[0]}
-                        datasource={datasource}
-                        viewMode={viewMode}
-                      />
-                    ) : undefined}
-                  </ViewModeWrapper>
-                </TabPanel>
-              </TabsContainer>
-            )}
+            {this.props.isEnabledForDSViewModeSchema &&
+              isPluginAllowedToPreviewData && (
+                <TabsContainer
+                  defaultValue={
+                    this.props.isDatasourceValid
+                      ? VIEW_MODE_TABS.VIEW_DATA
+                      : VIEW_MODE_TABS.CONFIGURATIONS
+                  }
+                >
+                  <TabsList>
+                    <Tab value={VIEW_MODE_TABS.VIEW_DATA}>
+                      {createMessage(DATASOURCE_VIEW_DATA_TAB)}
+                    </Tab>
+                    <Tab value={VIEW_MODE_TABS.CONFIGURATIONS}>
+                      {createMessage(DATASOURCE_CONFIGURATIONS_TAB)}
+                    </Tab>
+                  </TabsList>
+                  <TabPanelContainer value={VIEW_MODE_TABS.VIEW_DATA}>
+                    <DatasourceViewModeSchema datasourceId={datasourceId} />
+                  </TabPanelContainer>
+                  <TabPanel value={VIEW_MODE_TABS.CONFIGURATIONS}>
+                    <ViewModeWrapper data-testid="t--ds-review-section">
+                      {!_.isNil(formConfig) && !_.isNil(datasource) ? (
+                        <DatasourceInformation
+                          config={formConfig[0]}
+                          datasource={datasource}
+                          viewMode={viewMode}
+                        />
+                      ) : undefined}
+                    </ViewModeWrapper>
+                  </TabPanel>
+                </TabsContainer>
+              )}
             {!this.props.isEnabledForDSViewModeSchema && (
               <ViewModeWrapper data-testid="t--ds-review-section">
                 {!_.isNil(formConfig) && !_.isNil(datasource) ? (
@@ -211,11 +219,14 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const isDatasourceValid = isEnvironmentValid(datasource) || false;
 
+  const pluginName = getPluginNameFromDatasourceId(state, datasource.id);
+
   return {
     messages: hintMessages,
     datasource,
     datasourceName: datasource?.name ?? "",
     isDatasourceValid,
+    pluginName,
   };
 };
 

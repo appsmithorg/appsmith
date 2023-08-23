@@ -1478,18 +1478,22 @@ function* executeDatasourceQuerySaga(
   action: executeDatasourceQueryReduxAction<any>,
 ) {
   try {
-    // const response: GenericApiResponse<any> = yield DatasourcesApi.executeDatasourceQuery(
-    //   action.payload,
-    // );
-    const response: ApiResponse =
-      yield DatasourcesApi.executeGoogleSheetsDatasourceQuery(action.payload);
+    const response: ApiResponse = action.payload.isGeneratePage
+      ? yield DatasourcesApi.executeGoogleSheetsDatasourceQuery(action.payload)
+      : yield DatasourcesApi.executeDatasourceQuery({
+          data: action.payload?.template,
+          datasourceId: action.payload.datasourceId,
+        });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_SUCCESS,
         payload: {
-          // @ts-expect-error: we don't know what the response will be
-          data: response.data?.trigger,
+          data: action.payload.isGeneratePage
+            ? // @ts-expect-error: we don't know what the response will be
+              response.data?.trigger
+            : // @ts-expect-error: we don't know what the response will be
+              response.data?.body,
           datasourceId: action.payload.datasourceId,
         },
       });

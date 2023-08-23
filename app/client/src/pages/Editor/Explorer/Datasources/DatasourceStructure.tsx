@@ -71,20 +71,8 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
 
     if (!!props?.onEntityTableClick) {
       props?.onEntityTableClick(entity.target.outerText);
-      setActive(!active);
     }
   };
-
-  const isDefaultActive = useMemo(() => {
-    if (
-      !!props.tableName &&
-      props.context === DatasourceStructureContext.DATASOURCE_VIEW_MODE
-    ) {
-      return props.tableName === dbStructure.name;
-    }
-
-    return undefined;
-  }, [props.tableName]);
 
   const lightningMenu =
     canCreateDatasourceActions && dbStructure.templates.length > 0 ? (
@@ -130,10 +118,18 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
     templateMenu = lightningMenu;
   const columnsAndKeys = dbStructure.columns.concat(dbStructure.keys);
 
+  const activeState = useMemo(() => {
+    if (props.context === DatasourceStructureContext.DATASOURCE_VIEW_MODE) {
+      return props.tableName === dbStructure.name;
+    } else {
+      return active;
+    }
+  }, [active, props.tableName]);
+
   return (
     <Entity
       action={onEntityClick}
-      active={isDefaultActive || active}
+      active={activeState}
       className={`datasourceStructure${
         props.context !== DatasourceStructureContext.EXPLORER &&
         `-${props.context}`
