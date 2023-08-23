@@ -166,9 +166,11 @@ describe("Button widget testcases", () => {
     // set the email
     agHelper.TypeText(clocators.inputField, Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");
+    agHelper.WaitUntilEleAppear(locators._toastMsg);
     // assert the email on submit
     agHelper.ValidateToastMessage(Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");
+    agHelper.WaitUntilEleAppear(locators._toastMsg);
     // default is set to a different value, so after submit it should not reset to default value,
     // hene assert the same email which was set
     agHelper.ValidateToastMessage(Cypress.env("USERNAME"));
