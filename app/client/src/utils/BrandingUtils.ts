@@ -115,7 +115,7 @@ export const logoImageValidator = (
     return false;
   }
 
-  // case 4: check size
+  // case 4: check image dimension
   const image = new Image();
   image.src = window.URL.createObjectURL(file);
 
@@ -152,7 +152,7 @@ export const faivconImageValidator = (
     return false;
   }
 
-  // case 3: check image size
+  // case 3: check image type
   const validTypes = [
     "image/jpeg",
     "image/png",
@@ -169,7 +169,7 @@ export const faivconImageValidator = (
     return false;
   }
 
-  // case 4: check size
+  // case 4: check image dimension
   const image = new Image();
   image.src = window.URL.createObjectURL(file);
 
