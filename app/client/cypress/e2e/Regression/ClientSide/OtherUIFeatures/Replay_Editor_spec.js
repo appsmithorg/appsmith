@@ -158,19 +158,18 @@ describe("Undo/Redo functionality", function () {
     // cy.get(".function-name").should("not.contain.text", "test");
   });
 
-  //Skipping this since its failing in CI
   it("5. Checks undo/redo for Authenticated APIs", () => {
     cy.NavigateToAPI_Panel();
     cy.get(apiwidget.createAuthApiDatasource).click({ force: true });
     cy.wait(2000);
-    cy.get("input[name='url']").type(testdata.baseUrl);
-    cy.get("input[name='headers[0].key']").type(testdata.headerKey);
-    cy.get("body").click(0, 0);
-    cy.get("body").type(`{${modifierKey}}z`);
-    cy.get("body").type(`{${modifierKey}}z`);
+    agHelper.TypeText("input[name='url']", testdata.baseUrl);
+    agHelper.TypeText("input[name='headers[0].key']", testdata.headerKey);
+    agHelper.GetNClick("body");
+    agHelper.TypeText("body", `{${modifierKey}}z`);
+    agHelper.TypeText("body", `{${modifierKey}}z`);
     cy.wait(2000);
-    cy.get("input[name='url']").should("have.value", "");
     cy.get("input[name='headers[0].key']").should("have.value", "");
+    cy.get("input[name='url']").should("have.value", "");
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.get("input[name='url']").should(
