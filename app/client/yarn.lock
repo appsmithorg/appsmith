@@ -2512,7 +2512,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@design-system/storybook@workspace:packages/storybook":
+"@design-system/storybook@workspace:^, @design-system/storybook@workspace:packages/storybook":
   version: 0.0.0-use.local
   resolution: "@design-system/storybook@workspace:packages/storybook"
   dependencies:
@@ -10166,6 +10166,7 @@ __metadata:
     "@blueprintjs/popover2": ^0.5.0
     "@blueprintjs/select": ^3.10.0
     "@craco/craco": ^7.0.0
+    "@design-system/storybook": "workspace:^"
     "@design-system/theming": "workspace:^"
     "@design-system/widgets": "workspace:^"
     "@design-system/widgets-old": "workspace:^"
