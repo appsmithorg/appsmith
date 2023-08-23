@@ -37,7 +37,6 @@ import {
   getIsAppSettingsPaneWithNavigationTabOpen,
 } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
-import PropertyPaneContainer from "./PropertyPaneContainer";
 import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -224,7 +223,6 @@ function WidgetsEditor() {
           </div>
           <Debugger />
         </div>
-        <PropertyPaneContainer />
       </div>
     </EditorContextProvider>
   );

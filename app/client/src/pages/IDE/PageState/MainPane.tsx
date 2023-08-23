@@ -1,7 +1,8 @@
 import React from "react";
+import WidgetsEditor from "../../Editor/WidgetsEditor";
 
 const PageMainPane = () => {
-  return <div />;
+  return <WidgetsEditor />;
 };
 
 export default PageMainPane;

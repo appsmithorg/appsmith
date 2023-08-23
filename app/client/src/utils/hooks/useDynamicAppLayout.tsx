@@ -42,7 +42,7 @@ import type { AppState } from "@appsmith/reducers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useLocation } from "react-router";
 
-const GUTTER_WIDTH = 72;
+const GUTTER_WIDTH = 12;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
 
 export const useDynamicAppLayout = () => {
@@ -131,7 +131,7 @@ export const useDynamicAppLayout = () => {
       !isAppSettingsPaneOpen &&
       appMode === APP_MODE.EDIT
     ) {
-      calculatedWidth -= propertyPaneWidth;
+      // calculatedWidth -= propertyPaneWidth;
     }
 
     // if app setting pane is open, we need to subtract the width of app setting page width
@@ -145,8 +145,10 @@ export const useDynamicAppLayout = () => {
       !isPreviewMode &&
       appMode === APP_MODE.EDIT
     ) {
-      calculatedWidth -= explorerWidth;
+      // calculatedWidth -= explorerWidth;
     }
+
+    calculatedWidth -= 350;
 
     /**
      * If there is

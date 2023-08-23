@@ -178,7 +178,7 @@ function CanvasContainer(props: CanvasContainerProps) {
     isPreviewMode || isPreviewingNavigation ? "8px" : "40px";
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar and scrollbar height at the bottom
-  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navigationHeight}px)`;
+  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navigationHeight}px - 10px)`;
   return (
     <>
       <Container
@@ -196,7 +196,7 @@ function CanvasContainer(props: CanvasContainerProps) {
           "mt-4":
             !shouldShowSnapShotBanner &&
             (showCanvasTopSection || showAnonymousDataPopup),
-          "mt-8":
+          "mt-2":
             !shouldShowSnapShotBanner &&
             shouldHaveTopMargin &&
             !showCanvasTopSection &&
