@@ -218,14 +218,20 @@ export class URLBuilder {
       pageId,
       branch,
       ideState = IDEAppState.Page,
-      appId,
+      appId = this.appParams.applicationId,
       dataId,
     } = builderParams;
     if (mode === APP_MODE.EDIT) {
-      if (!appId) {
+      if (!appId && !this.appParams.applicationId) {
         throw new URIError("Missing appId");
       }
-      return this.generateIDEBasePath({ ideState, appId, pageId, dataId });
+      return this.generateIDEBasePath({
+        ideState,
+        appId: appId || this.appParams.applicationId || "",
+        pageId,
+        dataId,
+        suffix,
+      });
     }
 
     if (!pageId) {
@@ -264,6 +270,7 @@ export class URLBuilder {
     pageId?: string;
     dataId?: string;
     addSection?: string;
+    suffix?: string;
   }) {
     let urlFormat = ideBaseUrl[params.ideState];
     if (params.ideState === IDEAppState.Data) {
@@ -275,7 +282,7 @@ export class URLBuilder {
         }
       }
     }
-    return generatePath(urlFormat as string, params);
+    return `${generatePath(urlFormat as string, params)}${params.suffix || ""}`;
   }
 }
 

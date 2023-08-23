@@ -87,7 +87,8 @@ export const jsCollectionIdURL = (
 ): string => {
   return urlBuilder.build({
     ...props,
-    suffix: `jsObjects/${props.collectionId}`,
+    suffix: `/js/${props.collectionId}`,
+    ideState: IDEAppState.Page,
     hash: props.functionName,
   });
 };
@@ -109,7 +110,8 @@ export const queryEditorIdURL = (
 ): string =>
   urlBuilder.build({
     ...props,
-    suffix: `queries/${props.queryId}`,
+    suffix: `/queries/${props.queryId}`,
+    ideState: IDEAppState.Page,
   });
 
 export const apiEditorIdURL = (
@@ -119,7 +121,8 @@ export const apiEditorIdURL = (
 ): string =>
   urlBuilder.build({
     ...props,
-    suffix: `api/${props.apiId}`,
+    suffix: `/queries/${props.apiId}`,
+    ideState: IDEAppState.Page,
   });
 
 export const curlImportPageURL = (props: URLBuilderParams): string =>
@@ -181,7 +184,16 @@ export const widgetURL = (
 ) => {
   return urlBuilder.build({
     ...props,
-    suffix: `widgets/${props.selectedWidgets.join(",")}`,
+    suffix: `/ui/${props.selectedWidgets.join(",")}`,
+    ideState: IDEAppState.Page,
+  });
+};
+
+export const pageEntityUrl = (props: URLBuilderParams, location: string) => {
+  return urlBuilder.build({
+    ...props,
+    suffix: `/${location}`,
+    ideState: IDEAppState.Page,
   });
 };
 

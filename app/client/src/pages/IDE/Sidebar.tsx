@@ -8,23 +8,23 @@ import history from "utils/history";
 import { useParams } from "react-router";
 
 const DataIcon = importSvg(
-  () => import("assets/icons/header/IA-POC/database-2-line.svg"),
+  () => import("pages/IDE/assets/icons/database-2-line.svg"),
 );
 
 const PagesIcon = importSvg(
-  () => import("assets/icons/header/IA-POC/file-copy-2-line.svg"),
+  () => import("pages/IDE/assets/icons/file-copy-2-line.svg"),
 );
 
 const AddIcon = importSvg(
-  () => import("assets/icons/header/IA-POC/add-circle-line.svg"),
+  () => import("pages/IDE/assets/icons/add-circle-line.svg"),
 );
 
 const LibraryIcon = importSvg(
-  () => import("assets/icons/header/IA-POC/box-3-line.svg"),
+  () => import("pages/IDE/assets/icons/box-3-line.svg"),
 );
 
 const SettingsIcon = importSvg(
-  () => import("assets/icons/header/IA-POC/settings-3-line.svg"),
+  () => import("pages/IDE/assets/icons/settings-3-line.svg"),
 );
 
 const SideBarContainer = styled.div`

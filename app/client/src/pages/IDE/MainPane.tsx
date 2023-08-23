@@ -38,7 +38,7 @@ const MainPane = () => {
           exact
           path={IDE_DATA_DETAIL_PATH}
         />
-        <SentryRoute component={PageMainPane} exact path={IDE_PAGE_PATH} />
+        <SentryRoute component={PageMainPane} path={IDE_PAGE_PATH} />
         <SentryRoute component={AddMainPane} exact path={IDE_ADD_PATH} />
         <SentryRoute component={LibMainPane} exact path={IDE_LIB_PATH} />
         <SentryRoute

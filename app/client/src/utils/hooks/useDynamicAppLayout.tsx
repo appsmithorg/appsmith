@@ -41,6 +41,7 @@ import { useWindowSizeHooks } from "./dragResizeHooks";
 import type { AppState } from "@appsmith/reducers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useLocation } from "react-router";
+import { getIdeSidebarWidth } from "../../pages/IDE/ideSelector";
 
 const GUTTER_WIDTH = 12;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -74,6 +75,7 @@ export const useDynamicAppLayout = () => {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
+  const ideLeftPaneWidth = useSelector(getIdeSidebarWidth);
 
   // /**
   //  * calculates min height
@@ -148,7 +150,7 @@ export const useDynamicAppLayout = () => {
       // calculatedWidth -= explorerWidth;
     }
 
-    calculatedWidth -= 350;
+    calculatedWidth -= ideLeftPaneWidth + 50;
 
     /**
      * If there is
@@ -250,7 +252,7 @@ export const useDynamicAppLayout = () => {
     return () => {
       ele && resizeObserver.unobserve(ele);
     };
-  }, [appLayout, currentPageId, isPreviewMode]);
+  }, [appLayout, currentPageId, isPreviewMode, ideLeftPaneWidth]);
 
   /**
    * when screen height is changed, update canvas layout
@@ -300,6 +302,7 @@ export const useDynamicAppLayout = () => {
     currentApplicationDetails?.applicationDetail?.navigationSetting?.navStyle,
     isMobile,
     currentPageId, //TODO: preet - remove this after first merge.
+    ideLeftPaneWidth,
   ]);
 
   useEffect(() => {
