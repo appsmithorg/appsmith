@@ -66,7 +66,7 @@ describe("AForce - Community Issues page validations", function () {
 
   it("2. Validate table navigation with Server Side pagination enabled with Default selected row", () => {
     entityExplorer.SelectEntityByName("Table1", "Widgets");
-    agHelper.AssertExistingToggleState("serversidepagination", "true");
+    agHelper.AssertExistingToggleState("Server side pagination", "true");
 
     propPane
       .ValidatePropertyFieldValue("Default selected row", "0")
@@ -170,7 +170,7 @@ describe("AForce - Community Issues page validations", function () {
 
   it.skip("6. Validate Search table with Client Side Search enabled & disabled", () => {
     entityExplorer.SelectEntityByName("Table1", "Widgets");
-    agHelper.AssertExistingToggleState("clientsidesearch", "true");
+    agHelper.AssertExistingToggleState("Client side search", "true");
 
     deployMode.DeployApp();
     table.WaitUntilTableLoad(0, 0, "v2");
