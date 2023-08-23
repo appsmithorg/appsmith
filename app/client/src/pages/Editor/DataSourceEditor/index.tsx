@@ -14,6 +14,7 @@ import {
   getDatasource,
   getPlugin,
   getDatasourceFormButtonConfig,
+  getPluginNameFromDatasourceId,
 } from "selectors/entitiesSelector";
 import {
   switchDatasource,
@@ -87,7 +88,7 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
+import { PluginName, PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import {
@@ -134,6 +135,7 @@ interface ReduxStateProps {
   initialValue: Datasource | ApiDatasourceForm | undefined;
   showDebugger: boolean;
   isEnabledForDSViewModeSchema: boolean;
+  isPluginAllowedToPreviewData: boolean;
 }
 
 const Form = styled.div`
@@ -761,6 +763,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           formName={DATASOURCE_DB_FORM}
           hiddenHeader={isInsideReconnectModal}
           isEnabledForDSViewModeSchema={this.props.isEnabledForDSViewModeSchema}
+          isPluginAllowedToPreviewData={this.props.isPluginAllowedToPreviewData}
           isSaving={isSaving}
           pageId={pageId}
           pluginType={pluginType}
@@ -807,6 +810,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       isEnabledForDSViewModeSchema,
       isInsideReconnectModal,
       isNewDatasource,
+      isPluginAllowedToPreviewData,
       isPluginAuthorized,
       isSaving,
       isTesting,
@@ -867,7 +871,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             datasourceId={datasourceId}
             isDeleting={isDeleting}
             isNewDatasource={isNewDatasource}
-            isNewQuerySecondaryButton={isEnabledForDSViewModeSchema}
+            isNewQuerySecondaryButton={
+              isEnabledForDSViewModeSchema && isPluginAllowedToPreviewData
+            }
             isPluginAuthorized={isPluginAuthorized}
             pluginImage={pluginImage}
             pluginName={pluginName}
@@ -1018,6 +1024,12 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     FEATURE_FLAG.ab_gsheet_schema_enabled,
   );
 
+  const pluginName = getPluginNameFromDatasourceId(state, datasourceId);
+  // should plugin be able to preview data
+  const isPluginAllowedToPreviewData =
+    (pluginName && pluginName === PluginName.MY_SQL) ||
+    pluginName === PluginName.POSTGRES;
+
   return {
     canCreateDatasourceActions,
     canDeleteDatasource,
@@ -1036,6 +1048,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource,
     isEnabledForDSViewModeSchema,
+    isPluginAllowedToPreviewData,
     pageId: props.pageId ?? props.match?.params?.pageId,
     viewMode,
     pluginType: plugin?.type ?? "",

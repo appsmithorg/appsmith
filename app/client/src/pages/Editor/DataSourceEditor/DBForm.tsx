@@ -12,7 +12,7 @@ import {
 } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { convertArrayToSentence } from "utils/helpers";
-import { PluginName, PluginType } from "entities/Action";
+import { PluginType } from "entities/Action";
 import type { AppState } from "@appsmith/reducers";
 import type { JSONtoFormProps } from "./JSONtoForm";
 import { JSONtoForm } from "./JSONtoForm";
@@ -27,7 +27,6 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { isEnvironmentValid } from "@appsmith/utils/Environments";
-import { getPluginNameFromDatasourceId } from "selectors/entitiesSelector";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -44,7 +43,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   showFilterComponent: boolean;
   isEnabledForDSViewModeSchema: boolean;
   isDatasourceValid: boolean;
-  pluginName?: string;
+  isPluginAllowedToPreviewData: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -102,15 +101,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       datasourceId,
       formConfig,
       messages,
-      pluginName,
       pluginType,
       showFilterComponent,
       viewMode,
     } = this.props;
-
-    const isPluginAllowedToPreviewData =
-      (pluginName && pluginName === PluginName.MY_SQL) ||
-      pluginName === PluginName.POSTGRES;
 
     return (
       <Form
@@ -160,7 +154,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         {viewMode && (
           <>
             {this.props.isEnabledForDSViewModeSchema &&
-              isPluginAllowedToPreviewData && (
+              this.props.isPluginAllowedToPreviewData && (
                 <TabsContainer
                   defaultValue={
                     this.props.isDatasourceValid
@@ -192,17 +186,18 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                   </TabPanel>
                 </TabsContainer>
               )}
-            {!this.props.isEnabledForDSViewModeSchema && (
-              <ViewModeWrapper data-testid="t--ds-review-section">
-                {!_.isNil(formConfig) && !_.isNil(datasource) ? (
-                  <DatasourceInformation
-                    config={formConfig[0]}
-                    datasource={datasource}
-                    viewMode={viewMode}
-                  />
-                ) : undefined}
-              </ViewModeWrapper>
-            )}
+            {!this.props.isEnabledForDSViewModeSchema ||
+              (!this.props.isPluginAllowedToPreviewData && (
+                <ViewModeWrapper data-testid="t--ds-review-section">
+                  {!_.isNil(formConfig) && !_.isNil(datasource) ? (
+                    <DatasourceInformation
+                      config={formConfig[0]}
+                      datasource={datasource}
+                      viewMode={viewMode}
+                    />
+                  ) : undefined}
+                </ViewModeWrapper>
+              ))}
           </>
         )}
       </Form>
@@ -219,14 +214,11 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const isDatasourceValid = isEnvironmentValid(datasource) || false;
 
-  const pluginName = getPluginNameFromDatasourceId(state, datasource.id);
-
   return {
     messages: hintMessages,
     datasource,
     datasourceName: datasource?.name ?? "",
     isDatasourceValid,
-    pluginName,
   };
 };
 
