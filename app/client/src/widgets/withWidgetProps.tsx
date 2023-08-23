@@ -47,7 +47,6 @@ import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
-import { LayoutSystemWrapper } from "./BaseWidgetHOC/render/layoutSystems/useLayoutSystem";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -319,14 +318,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           : undefined,
       };
     }
-    if (props.type === "CANVAS_WIDGET") {
-      return <WrappedWidget {...widgetProps} />;
-    }
-    return (
-      <LayoutSystemWrapper {...widgetProps}>
-        <WrappedWidget {...widgetProps} />
-      </LayoutSystemWrapper>
-    );
+    return <WrappedWidget {...widgetProps} />;
   }
 
   return WrappedPropsComponent;
