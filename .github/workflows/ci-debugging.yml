@@ -12,7 +12,7 @@ on:
 jobs:
   ci-debugger-release:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && inputs.run_id != ''
+    if: github.event_name == 'workflow_dispatch' && inputs.run_id == ''
     defaults:
       run:
         shell: bash
