@@ -27,13 +27,27 @@ const TemplateCardPreview = ({ excerpt, templateName, useCases }: Props) => {
           {createMessage(COMMUNITY_TEMPLATES.publishFormPage.preview.thumbnail)}
         </Text>
       </TemplatePreviewImgPreviewContainer>
-      <Text kind="heading-m" renderAs="h2">
+      <Text
+        data-testid="t--community-template-name-preview"
+        kind="heading-m"
+        renderAs="h2"
+      >
         {templateName}
       </Text>
-      <Text className="strong" kind="body-m" renderAs="p">
+      <Text
+        className="strong"
+        data-testid="t--community-template-usecases-preview"
+        kind="body-m"
+        renderAs="p"
+      >
         {useCases.join(" • ")}
       </Text>
-      <Text className="excerpt" kind="body-m" renderAs="p">
+      <Text
+        className="excerpt"
+        data-testid="t--community-template-excerpt-preview"
+        kind="body-m"
+        renderAs="p"
+      >
         {excerpt}
       </Text>
       <UserProfile />

@@ -498,10 +498,10 @@ export function EditorHeader() {
                       <Tab data-testid="t--tab-INVITE" value="invite">
                         {createMessage(INVITE_TAB)}
                       </Tab>
-                      <Tab data-tesid="t--tab-EMBED" value="embed">
+                      <Tab data-testid="t--tab-EMBED" value="embed">
                         {createMessage(IN_APP_EMBED_SETTING.embed)}
                       </Tab>
-                      <Tab data-tesid="t--tab-Publish" value="publish">
+                      <Tab data-testid="t--tab-PUBLISH" value="publish">
                         {createMessage(COMMUNITY_TEMPLATES.publish)}
                       </Tab>
                     </TabsList>

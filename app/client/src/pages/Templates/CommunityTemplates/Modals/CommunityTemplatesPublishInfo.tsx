@@ -73,7 +73,11 @@ const UnPublishedAppInstructions = ({
         <Button endIcon="external-link-line" kind="tertiary" size="md">
           {createMessage(LEARN_MORE)}
         </Button>
-        <Button onClick={takeUserToPublishFormPage} size="md">
+        <Button
+          data-testid="t--Publish-Initiate"
+          onClick={takeUserToPublishFormPage}
+          size="md"
+        >
           {createMessage(COMMUNITY_TEMPLATES.publish)}
         </Button>
       </InfoFooter>

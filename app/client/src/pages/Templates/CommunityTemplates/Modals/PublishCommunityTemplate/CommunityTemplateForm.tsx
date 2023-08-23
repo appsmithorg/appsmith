@@ -117,6 +117,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
       </PublishPageBodyContainer>
       <PublishPageFooterContainer>
         <Button
+          data-testid="t--community-template-publish-submit-btn"
           isDisabled={!isFormValid}
           isLoading={isPublishing}
           onClick={() => setShowConfirmationModal(true)}
