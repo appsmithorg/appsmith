@@ -146,7 +146,7 @@ describe("Table widget inline editing functionality", () => {
     cy.editTableCell(0, 2);
     cy.enterTableCellValue(0, 2, "#14").type("{enter}");
     cy.openPropertyPane("tablewidgetv2");
-    cy.get(widgetsPage.tabedataField).type("{backspace}");
+    cy.get(widgetsPage.tabedataField).type("{cmd}{a} {backspace}");
     cy.wait(300);
     cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
   });
@@ -188,7 +188,7 @@ describe("Table widget inline editing functionality", () => {
     table.EditTableCell(2, 0, "#14");
     cy.get(commonlocators.textWidgetContainer).should("contain.text", 2);
     cy.openPropertyPane("tablewidgetv2");
-    cy.get(widgetsPage.tabedataField).type("{backspace}");
+    cy.get(widgetsPage.tabedataField).type("{cmd}{a} {backspace}");
     cy.wait(300);
     cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
   });
