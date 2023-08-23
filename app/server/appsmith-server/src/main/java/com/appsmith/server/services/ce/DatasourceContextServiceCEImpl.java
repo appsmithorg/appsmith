@@ -147,15 +147,14 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
     public Mono<Object> updateDatasourceAndSetAuthentication(Object connection, DatasourceStorage datasourceStorage) {
         Mono<DatasourceStorage> datasourceStorageMono = Mono.just(datasourceStorage);
-        if (connection instanceof UpdatableConnection) {
+        if (connection instanceof UpdatableConnection updatableConnection) {
             datasourceStorage.setUpdatedAt(Instant.now());
             datasourceStorage
                     .getDatasourceConfiguration()
-                    .setAuthentication(((UpdatableConnection) connection)
-                            .getAuthenticationDTO(datasourceStorage
-                                    .getDatasourceConfiguration()
-                                    .getAuthentication()));
-            datasourceStorageMono = datasourceStorageService.save(datasourceStorage);
+                    .setAuthentication(updatableConnection.getAuthenticationDTO(
+                            datasourceStorage.getDatasourceConfiguration().getAuthentication()));
+            datasourceStorageMono = datasourceStorageService.updateDatasourceStorage(
+                    datasourceStorage, datasourceStorage.getEnvironmentId(), Boolean.FALSE);
         }
         return datasourceStorageMono.thenReturn(connection);
     }
