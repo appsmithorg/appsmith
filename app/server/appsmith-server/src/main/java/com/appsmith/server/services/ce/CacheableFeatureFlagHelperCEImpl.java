@@ -14,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagIdentityTraits;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserIdentifierService;
@@ -205,7 +206,9 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     return featuresRequestDTO;
                 })
                 .flatMap(this::getRemoteFeaturesForTenant)
-                .map(FeaturesResponseDTO::getFeatures);
+                .map(responseDTO -> CollectionUtils.isNullOrEmpty(responseDTO.getFeatures())
+                        ? new HashMap<>()
+                        : responseDTO.getFeatures());
     }
 
     /**
