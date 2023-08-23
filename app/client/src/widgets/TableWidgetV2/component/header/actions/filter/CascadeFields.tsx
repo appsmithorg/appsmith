@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { InputGroup } from "@blueprintjs/core";
-import { debounce } from "lodash";
+import { debounce, isNaN } from "lodash";
 
 import CustomizedDropdown from "pages/common/CustomizedDropdown";
 import { Directions } from "utils/helpers";
@@ -503,9 +503,10 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
     });
   };
   const onValueChange = (value: string) => {
+    const parsedValue = value && !isNaN(Number(value)) ? Number(value) : value;
     dispatch({
       type: CascadeFieldActionTypes.CHANGE_VALUE,
-      payload: value,
+      payload: parsedValue,
     });
   };
   const onDateSelected = (date: string) => {
