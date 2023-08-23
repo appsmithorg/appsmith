@@ -37,6 +37,6 @@ jq -n \
   --arg githubRef "${GITHUB_REF-}" \
   --arg gitNearestTag "$git_tag" \
   --arg githubRunUrl "${github_run_url-}" \
-  --arg date "$(date -u -Iseconds)" \
+  --arg imageBuiltAt "$(date -u -Iseconds)" \
   --argjson isCI "${CI:-false}" \
   '$ARGS.named' | tee "$(git rev-parse --show-toplevel)/info.json"
