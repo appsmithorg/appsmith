@@ -32,7 +32,7 @@ const ActionSelectorReduxActionTypes = {
 };
 
 const IDEReduxActionTypes = {
-  SET_IDE_APP_STATE: "SET_IDE_APP_STATE",
+  SET_IDE_SIDEBAR_WIDTH: "SET_IDE_SIDEBAR_WIDTH",
 };
 
 const ActionTypes = {

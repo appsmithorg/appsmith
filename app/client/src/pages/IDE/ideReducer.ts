@@ -3,7 +3,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export interface IDEReduxState {
-  state: IDEAppState;
+  sidebarWidth: number;
 }
 
 export enum IDEAppState {
@@ -15,15 +15,15 @@ export enum IDEAppState {
 }
 
 const initialState: IDEReduxState = {
-  state: IDEAppState.Page,
+  sidebarWidth: 300,
 };
 
 const ideReducer = createReducer(initialState, {
-  [ReduxActionTypes.SET_IDE_APP_STATE]: (
+  [ReduxActionTypes.SET_IDE_SIDEBAR_WIDTH]: (
     state: IDEReduxState,
-    action: ReduxAction<IDEAppState>,
+    action: ReduxAction<number>,
   ): IDEReduxState => {
-    return { ...state, state: action.payload };
+    return { ...state, sidebarWidth: action.payload };
   },
 });
 

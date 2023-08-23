@@ -1,18 +1,19 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import SideBar from "./Sidebar";
 import DebugBar from "./BottomBar";
 import LeftPane from "./LeftPane";
 import MainPane from "./MainPane";
+import { getIdeSidebarWidth } from "./ideSelector";
 
-const Body = styled.div`
+const Body = styled.div<{ leftPaneWidth: number }>`
   background: #f1f5f9;
   height: calc(100vh - 40px);
   display: grid;
-  grid-template-columns: 50px 300px auto;
+  grid-template-columns: 50px ${(props) => props.leftPaneWidth || 300}px auto;
   grid-template-rows: 1fr 37px;
   grid-gap: 4px;
 `;
@@ -24,8 +25,9 @@ const IDE = function () {
       dispatch(widgetInitialisationSuccess());
     });
   }, []);
+  const leftPaneWidth = useSelector(getIdeSidebarWidth);
   return (
-    <Body id="IDE-body">
+    <Body id="IDE-body" leftPaneWidth={leftPaneWidth}>
       <SideBar />
       <LeftPane />
       <MainPane />

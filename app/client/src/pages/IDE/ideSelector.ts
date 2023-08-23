@@ -1,5 +1,4 @@
 import type { AppState } from "@appsmith/reducers";
-import type { IDEAppState } from "./ideReducer";
 
-export const getIdeAppState = (state: AppState): IDEAppState =>
-  state.ui.ide.state;
+export const getIdeSidebarWidth = (state: AppState): number =>
+  state.ui.ide.sidebarWidth;

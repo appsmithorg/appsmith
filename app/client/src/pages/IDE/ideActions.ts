@@ -1,9 +1,8 @@
-import type { IDEAppState } from "pages/IDE/ideReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-export const setIdeAppState = (state: IDEAppState) => {
+export const setIdeSidebarWidth = (width: number) => {
   return {
-    type: ReduxActionTypes.SET_IDE_APP_STATE,
-    payload: state,
+    type: ReduxActionTypes.SET_IDE_SIDEBAR_WIDTH,
+    payload: width,
   };
 };
