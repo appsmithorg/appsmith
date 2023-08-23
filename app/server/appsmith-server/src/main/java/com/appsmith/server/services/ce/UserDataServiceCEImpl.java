@@ -303,14 +303,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser() {
-        return Mono.zip(featureFlagService.getAllFeatureFlagsForUser(), featureFlagService.getCurrentTenantFeatures())
-                .map(tuple -> {
-                    Map<String, Boolean> featureFlags = tuple.getT1();
-                    Map<String, Boolean> features = tuple.getT2();
-                    featureFlags.putAll(features);
-
-                    return featureFlags;
-                });
+        return featureFlagService.getAllFeatureFlagsForUser();
     }
 
     /**
