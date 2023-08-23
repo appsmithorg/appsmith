@@ -14,7 +14,6 @@ import {
   getDatasource,
   getPlugin,
   getDatasourceFormButtonConfig,
-  getPluginNameFromDatasourceId,
 } from "selectors/entitiesSelector";
 import {
   switchDatasource,
@@ -88,7 +87,7 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
-import { PluginName, PluginPackageName } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import {
@@ -99,6 +98,7 @@ import type { CalloutKind } from "design-system";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConstants";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -1024,11 +1024,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     FEATURE_FLAG.ab_gsheet_schema_enabled,
   );
 
-  const pluginName = getPluginNameFromDatasourceId(state, datasourceId);
   // should plugin be able to preview data
   const isPluginAllowedToPreviewData =
-    (pluginName && pluginName === PluginName.MY_SQL) ||
-    pluginName === PluginName.POSTGRES;
+    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "");
 
   return {
     canCreateDatasourceActions,
