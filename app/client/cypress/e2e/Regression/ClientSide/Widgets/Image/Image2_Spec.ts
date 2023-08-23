@@ -190,7 +190,7 @@ describe("Image widget tests", function () {
   it("8. Verify video styles", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Image1", "Widgets");
-    agHelper.GetNClick(locators._propertyStyle);
+    propPane.MoveToTab("Style")
     propPane.EnterJSContext("Border radius", "", true, true);
     agHelper.AssertElementVisibility(widgetLocators.styleOrangeIcon);
     agHelper.AssertElementVisibility(widgetLocators.styleResetBtn);
