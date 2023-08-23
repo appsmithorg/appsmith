@@ -1,14 +1,14 @@
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
-import React, { memo } from "react";
-import { WidgetComponent } from "widgets/BaseWidgetHOC/render/common/WidgetComponent";
+import React from "react";
 import { WidgetNameLayer } from "widgets/BaseWidgetHOC/render/common/WidgetNameLayer";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import { AutoLayoutWidgetComponent } from "../common/AutoLayoutWidgetNameComponent";
 import { FlexComponentLayer } from "../common/FlexComponentLayer";
 import { ResizableLayer } from "./ResizableLayer";
 
-export const AutoLayoutEditorWidgetOnion = memo((props: BaseWidgetProps) => {
+export const AutoLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
     <FlexComponentLayer {...props}>
       <SnipeableComponent {...props}>
@@ -16,7 +16,9 @@ export const AutoLayoutEditorWidgetOnion = memo((props: BaseWidgetProps) => {
           <WidgetNameLayer {...props}>
             <ResizableLayer {...props}>
               <ErrorBoundary>
-                <WidgetComponent {...props}>{props.children}</WidgetComponent>
+                <AutoLayoutWidgetComponent {...props}>
+                  {props.children}
+                </AutoLayoutWidgetComponent>
               </ErrorBoundary>
             </ResizableLayer>
           </WidgetNameLayer>
@@ -24,4 +26,4 @@ export const AutoLayoutEditorWidgetOnion = memo((props: BaseWidgetProps) => {
       </SnipeableComponent>
     </FlexComponentLayer>
   );
-});
+};

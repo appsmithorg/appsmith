@@ -1,12 +1,12 @@
 import React from "react";
-import { useFixedLayoutViewer } from "./useFixedLayoutViewer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { FixedLayoutViewerWidgetOnion } from "./FixedLayoutViewerWidgetOnion";
 import { FixedLayoutViewerModalOnion } from "./FixedLayoutViewerModalOnion";
+import { getFixedLayoutComponentDimensions } from "../common/utils";
 
 export const FixedLayoutViewerWrapper = (props: WidgetProps) => {
-  const { getComponentDimensions } = useFixedLayoutViewer(props);
-  const { componentHeight, componentWidth } = getComponentDimensions();
+  const { componentHeight, componentWidth } =
+    getFixedLayoutComponentDimensions(props);
   const widgetViewerProps = {
     ...props,
     componentHeight,
