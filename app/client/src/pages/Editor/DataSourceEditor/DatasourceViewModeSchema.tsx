@@ -134,7 +134,7 @@ const DatasourceViewModeSchema = (props: Props) => {
             ? ""
             : currentPageId || "",
         columns: [],
-        searchColumn: datasourceStructure?.tables[0].columns[0].name || "",
+        searchColumn: "",
         tableName: tableName,
         datasourceId: props.datasourceId || "",
       };
