@@ -202,7 +202,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       delimiter: ",",
       version: 2,
       inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
-      enableServerSideFiltering: Widget.getFeatureFlag(
+      enableServerSideFiltering: TableWidgetV2.getFeatureFlag(
         ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
       )
         ? false
