@@ -83,7 +83,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
         <TemplateCardPreview
           excerpt={templateExcerpt}
           templateName={templateName}
-          useCases={["Operations", "DevOps"]}
+          useCases={templateUseCases}
         />
         <PublishPageTemplateDetailsInputContainer>
           <TemplateInfoForm

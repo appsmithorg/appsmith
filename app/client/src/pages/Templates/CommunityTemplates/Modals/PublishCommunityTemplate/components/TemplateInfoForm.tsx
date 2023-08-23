@@ -38,6 +38,14 @@ const TemplateInfoForm = ({
       <TemplateInfoFormFieldWrapper>
         <Input
           data-testid="t--community-template-name-input"
+          errorMessage={
+            templateName.length > 0
+              ? ""
+              : createMessage(
+                  COMMUNITY_TEMPLATES.publishFormPage.templateForm
+                    .titleRequiredError,
+                )
+          }
           isRequired
           label={createMessage(
             COMMUNITY_TEMPLATES.publishFormPage.templateForm.titleInputLabel,

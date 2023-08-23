@@ -24,7 +24,7 @@ const AuthorDetailsInput = ({
   setAuthorEmail,
   setAuthorName,
 }: Props) => {
-  const isEmailInvalid = useMemo(
+  const isEmailValid = useMemo(
     () => authorEmail && emailValidator(authorEmail).isValid,
     [authorEmail],
   );
@@ -34,7 +34,16 @@ const AuthorDetailsInput = ({
         {createMessage(COMMUNITY_TEMPLATES.publishFormPage.authorDetails.title)}
       </Text>
       <Input
+        data-testid="t--community-template-author-name-input"
         defaultValue={authorName}
+        errorMessage={
+          authorName.length > 0
+            ? ""
+            : createMessage(
+                COMMUNITY_TEMPLATES.publishFormPage.authorDetails
+                  .nameRequiredError,
+              )
+        }
         isDisabled={disableName}
         isRequired
         label={createMessage(
@@ -51,9 +60,10 @@ const AuthorDetailsInput = ({
         type="text"
       />
       <Input
+        data-testid="t--community-template-author-email-input"
         defaultValue={authorEmail}
         errorMessage={
-          isEmailInvalid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : ""
+          !isEmailValid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : ""
         }
         isDisabled={disableEmail}
         isRequired

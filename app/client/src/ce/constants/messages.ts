@@ -1922,6 +1922,7 @@ export const COMMUNITY_TEMPLATES = {
     templateForm: {
       titleInputLabel: () => "Title",
       titleInputPlaceholder: () => "Title of the template",
+      titleRequiredError: () => `Please provide title`,
 
       excerptInputLabel: () => "Headline",
       excerptInputPlaceholder: () => "One line excerpt",
@@ -1936,6 +1937,8 @@ export const COMMUNITY_TEMPLATES = {
       title: () => "Author details",
       displayNameLabel: () => "Display name",
       displayNamePlaceholder: () => "Display name",
+      nameRequiredError: () => `Please provide name`,
+
       emailLabel: () => "Email",
       emailPlaceholder: () => "Email",
     },
