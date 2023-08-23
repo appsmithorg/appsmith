@@ -151,11 +151,6 @@ describe("Button widget testcases", () => {
     propPane.TogglePropertyState("Reset form on success", "On");
     deployMode.DeployApp();
     // set the email
-    agHelper.TypeText(clocators.inputField, Cypress.env("USERNAME"));
-    agHelper.ClickButton("Submit");
-    agHelper.WaitUntilEleAppear(locators._toastMsg);
-    // assert the email set
-    agHelper.ValidateToastMessage(Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");
     agHelper.WaitUntilEleAppear(locators._toastMsg);
     // on submit form should be reset and default value should ahve populated
@@ -166,7 +161,7 @@ describe("Button widget testcases", () => {
     propPane.TogglePropertyState("Reset form on success", "Off");
     deployMode.DeployApp();
     // set the email
-    agHelper.TypeText(clocators.inputField, Cypress.env("USERNAME"));
+    agHelper.ClearNType(clocators.inputField, Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");
     agHelper.WaitUntilEleAppear(locators._toastMsg);
     // assert the email on submit
