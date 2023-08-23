@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import * as Sentry from "@sentry/react";
 import UserApi from "@appsmith/api/UserApi";
 import { toast } from "design-system";
+import type { ApiResponse } from "../../api/ApiResponses";
 
 export type LoginFormValues = {
   username?: string;
@@ -131,11 +132,20 @@ export const useResendEmailVerification = (
     setClicks(clicks + 1);
     setLinkEnabled(false);
     if (!email) {
-      Sentry.captureMessage("Email not found for retry verification");
+      const errorMessage = "Email not found for retry verification";
+      Sentry.captureMessage(errorMessage);
+      toast.show(errorMessage, { kind: "error" });
       return;
     }
-    UserApi.resendEmailVerification(email)
-      .then(() => {
+    UserApi.resendEmailVerification("")
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      .then((response: ApiResponse) => {
+        if (!response.responseMeta.success && response.responseMeta.error) {
+          const { code, message } = response.responseMeta.error;
+          const errorMessage = `${code}: ${message}`;
+          toast.show(errorMessage, { kind: "error" });
+        }
         toast.show("Verification email sent!", { kind: "success" });
       })
       .catch((error) => {
