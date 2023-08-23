@@ -44,12 +44,11 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       query: GRAPHQL_LIMIT_QUERY,
     });
 
-    cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
-      .contains("__offset__")
-      // .should($el => {
-      //   expect(Cypress.dom.isDetached($el)).to.false;
-      // })
-      //.trigger("mouseover")
+    agHelper.Sleep();
+    agHelper
+      .GetElement(
+        "//*[contains(@class,'t--graphql-query-editor')]//pre[contains(@class,'CodeMirror-line')]//span[contains(text(),'__offset__')]",
+      )
       .dblclick()
       .type("{{JSObject1.");
     agHelper.WaitUntilEleAppear(locators._hints);
@@ -64,9 +63,10 @@ describe("Binding Expressions should not be truncated in Url and path extraction
     apiPage.SelectPaneTab("Params");
     apiPage.SelectPaneTab("Body");
     /* End: Block of code to remove error of detached node of codemirror for cypress reference */
-    cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
-      .contains("__limit__")
-      //.trigger("mouseover")
+    agHelper
+      .GetElement(
+        "//*[contains(@class,'t--graphql-query-editor')]//pre[contains(@class,'CodeMirror-line')]//span[contains(text(),'__limit__')]",
+      )
       .dblclick()
       .type("{{JSObject1.");
 
