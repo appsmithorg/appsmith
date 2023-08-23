@@ -123,6 +123,7 @@ describe("Fork application across workspaces", function () {
     appSettings.OpenAppSettings();
     appSettings.GoToEmbedSettings();
     embedSettings.ToggleMarkForkable();
+    embedSettings.TogglePublicAccess();
 
     inviteModal.OpenShareModal();
     homePage.InviteUserToApplication(

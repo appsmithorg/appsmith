@@ -44,7 +44,6 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       // })
       //.trigger("mouseover")
       .dblclick()
-      .dblclick()
       .type("{{JSObject1.");
     _.agHelper.GetNAssertElementText(
       _.locators._hints,
@@ -61,12 +60,12 @@ describe("Binding Expressions should not be truncated in Url and path extraction
     _.apiPage.SelectPaneTab("Params");
     _.apiPage.SelectPaneTab("Body");
     /* End: Block of code to remove error of detached node of codemirror for cypress reference */
-
     cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
       .contains("__limit__")
       //.trigger("mouseover")
       .dblclick()
       .type("{{JSObject1.");
+
     _.agHelper.GetNClickByContains(_.locators._hints, "limitValue");
     _.agHelper.Sleep(2000);
     //Commenting this since - many runs means - API response is 'You are doing too many launches'
