@@ -6,6 +6,7 @@ import { editorInitializer } from "../../utils/editor/EditorUtils";
 import SideBar from "./Sidebar";
 import DebugBar from "./BottomBar";
 import LeftPane from "./LeftPane";
+import MainPane from "./MainPane";
 
 const Body = styled.div`
   background: #f1f5f9;
@@ -14,13 +15,6 @@ const Body = styled.div`
   grid-template-columns: 50px 300px auto;
   grid-template-rows: 1fr 37px;
   grid-gap: 4px;
-`;
-
-const MainPane = styled.div`
-  margin-top: 4px;
-  background-color: white;
-  border-radius: 4px;
-  margin-right: 5px;
 `;
 
 const IDE = function () {
