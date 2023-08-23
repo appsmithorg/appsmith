@@ -1,9 +1,11 @@
 import {
   COMMUNITY_TEMPLATES,
+  FORM_VALIDATION_INVALID_EMAIL,
   createMessage,
 } from "@appsmith/constants/messages";
 import { Input, Text } from "design-system";
-import React from "react";
+import { emailValidator } from "design-system-old";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 type Props = {
@@ -22,6 +24,10 @@ const AuthorDetailsInput = ({
   setAuthorEmail,
   setAuthorName,
 }: Props) => {
+  const isEmailInvalid = useMemo(
+    () => authorEmail && emailValidator(authorEmail).isValid,
+    [authorEmail],
+  );
   return (
     <Container>
       <Text kind="heading-s" renderAs="h2">
@@ -46,6 +52,9 @@ const AuthorDetailsInput = ({
       />
       <Input
         defaultValue={authorEmail}
+        errorMessage={
+          isEmailInvalid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : ""
+        }
         isDisabled={disableEmail}
         isRequired
         label={createMessage(
@@ -58,7 +67,7 @@ const AuthorDetailsInput = ({
         )}
         renderAs="input"
         size="md"
-        type="text"
+        type="email"
       />
     </Container>
   );
