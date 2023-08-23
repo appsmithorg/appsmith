@@ -41,8 +41,9 @@ public class ModuleInstanceDTO implements Identifiable {
     @JsonView(Views.Public.class)
     ModuleInstanceCreatorType creatorType;
 
+    // We will look for dynamic bindings only in the `value` field of the `inputs` map
     @JsonView(Views.Public.class)
-    Map<String, ModuleInput> inputs;
+    Map<String, String> inputs;
 
     @Transient
     @JsonView(Views.Public.class)

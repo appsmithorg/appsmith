@@ -37,9 +37,17 @@ public class ModuleDTO implements Identifiable {
 
     @Transient
     @JsonView(Views.Public.class)
-    static List<String> whitelistedPublicEntitySettingsForModuleInstance =
+    static final List<String> whitelistedPublicEntitySettingsForModuleInstance =
             List.of("confirmBeforeExecute", "executeOnLoad");
 
+    /*
+     "inputs": {
+       "token": {
+         "name": "token",
+         "defaultValue": "10"
+       }
+     }
+    */
     @JsonView(Views.Public.class)
     Map<String, ModuleInput> inputs;
 
