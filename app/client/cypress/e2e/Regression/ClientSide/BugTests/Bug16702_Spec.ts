@@ -1,4 +1,11 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  jsEditor,
+  apiPage,
+  agHelper,
+  dataSources,
+  dataManager,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 const GRAPHQL_LIMIT_QUERY = `
   query {
@@ -23,17 +30,17 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       offsetValue: 1,
     }`;
 
-    _.jsEditor.CreateJSObject(jsObjectBody, {
+    jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
     });
 
-    _.apiPage.CreateAndFillGraphqlApi(
-      _.dataManager.dsValues[_.dataManager.defaultEnviorment].GraphqlApiUrl_TED,
+    apiPage.CreateAndFillGraphqlApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].GraphqlApiUrl_TED,
     );
-    _.dataSources.UpdateGraphqlQueryAndVariable({
+    dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_LIMIT_QUERY,
     });
 
@@ -45,20 +52,17 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       //.trigger("mouseover")
       .dblclick()
       .type("{{JSObject1.");
-    _.agHelper.GetNAssertElementText(
-      _.locators._hints,
-      "offsetValue",
-      "have.text",
-      1,
-    );
-    _.agHelper.Sleep();
-    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "offsetValue", 1);
-    _.agHelper.Sleep(2000);
+    agHelper.WaitUntilEleAppear(locators._hints);
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "offsetValue");
+    agHelper.GetNClickByContains(locators._hints, "offsetValue");
+    agHelper.Sleep();
+    agHelper.TypeText(locators._codeMirrorTextArea, "offsetValue", 1);
+    agHelper.Sleep(2000);
 
     /* Start: Block of code to remove error of detached node of codemirror for cypress reference */
 
-    _.apiPage.SelectPaneTab("Params");
-    _.apiPage.SelectPaneTab("Body");
+    apiPage.SelectPaneTab("Params");
+    apiPage.SelectPaneTab("Body");
     /* End: Block of code to remove error of detached node of codemirror for cypress reference */
     cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
       .contains("__limit__")
@@ -66,13 +70,14 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       .dblclick()
       .type("{{JSObject1.");
 
-    _.agHelper.GetNClickByContains(_.locators._hints, "limitValue");
-    _.agHelper.Sleep(2000);
+    agHelper.WaitUntilEleAppear(locators._hints);
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "limitValue");
+    agHelper.GetNClickByContains(locators._hints, "limitValue");
     //Commenting this since - many runs means - API response is 'You are doing too many launches'
-    // _.apiPage.RunAPI(false, 20, {
+    // apiPage.RunAPI(false, 20, {
     //   expectedPath: "response.body.data.body.data.launchesPast[0].mission_name",
     //   expectedRes: GRAPHQL_RESPONSE.mission_name,
     // });
-    _.apiPage.RunAPI(false);
+    apiPage.RunAPI(false);
   });
 });
