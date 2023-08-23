@@ -97,6 +97,7 @@ export interface Category {
   categoryType: string;
   needsUpgrade?: boolean;
   isEnterprise?: boolean;
+  isFeatureEnabled?: boolean;
 }
 
 export const SettingCategories = {
@@ -113,6 +114,8 @@ export const SettingCategories = {
   ACCESS_CONTROL: "access-control",
   PROVISIONING: "provisioning",
   BRANDING: "branding",
+  SAML_AUTH: "saml-auth",
+  OIDC_AUTH: "oidc-auth",
 };
 
 export enum CategoryType {
@@ -136,4 +139,5 @@ export type AdminConfigType = {
   needsUpgrade?: boolean;
   categoryType: CategoryType;
   isEnterprise?: boolean;
+  isFeatureEnabled?: boolean;
 };

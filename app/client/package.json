@@ -6,17 +6,18 @@
     "./lib/*": "./lib/*.js"
   },
   "engines": {
-    "node": "^16.14.0",
+    "node": "^18.17.1",
     "yarn": "^3.5.1"
   },
   "packageManager": "yarn@3.5.1",
   "cracoConfig": "craco.dev.config.js",
   "workspaces": [
-    "packages/**/!(build)*"
+    "packages/**",
+    "!packages/**/build"
   ],
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
-    "start": "yarn workspace @shared/dsl build && yarn workspace @shared/ast build && BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco start",
+    "start": "yarn workspace @shared/dsl build && yarn workspace @shared/ast build && BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco --max_old_space_size=7168 start",
     "build": "./build.sh",
     "build-airgap": "node download-assets.js && ./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
@@ -49,6 +50,7 @@
     "@blueprintjs/icons": "3.22.0",
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
+    "@design-system/storybook": "workspace:^",
     "@design-system/theming": "workspace:^",
     "@design-system/widgets": "workspace:^",
     "@design-system/widgets-old": "workspace:^",
@@ -98,6 +100,7 @@
     "downloadjs": "^1.4.7",
     "echarts": "^5.4.2",
     "fast-deep-equal": "^3.1.3",
+    "fast-sort": "^3.4.0",
     "fast-xml-parser": "^3.17.5",
     "fastdom": "^1.0.11",
     "focus-trap-react": "^8.9.2",
@@ -281,7 +284,7 @@
     "compression-webpack-plugin": "^10.0.0",
     "cra-bundle-analyzer": "^0.1.0",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "^12.17.0",
+    "cypress": "^12.17.4",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-mochawesome-reporter": "^3.5.1",

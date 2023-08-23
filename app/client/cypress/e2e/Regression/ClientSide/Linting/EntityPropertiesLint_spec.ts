@@ -7,7 +7,7 @@ import {
   apiPage,
   draggableWidgets,
   locators,
-  tedTestConfig,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Linting of entity properties", () => {
@@ -20,7 +20,7 @@ describe("Linting of entity properties", () => {
     const invalidProperty = "unknownProperty";
     // create Api1
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     // Edit Button onclick property
     entityExplorer.SelectEntityByName("Button1", "Widgets");

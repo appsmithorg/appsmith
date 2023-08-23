@@ -31,8 +31,7 @@ describe("Binding Expressions should not be truncated in Url and path extraction
     });
 
     _.apiPage.CreateAndFillGraphqlApi(
-      _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment]
-        .GraphqlApiUrl_TED,
+      _.dataManager.dsValues[_.dataManager.defaultEnviorment].GraphqlApiUrl_TED,
     );
     _.dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_LIMIT_QUERY,
