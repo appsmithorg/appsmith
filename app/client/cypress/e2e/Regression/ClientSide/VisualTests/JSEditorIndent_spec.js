@@ -56,6 +56,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
+    agHelper.Sleep(110);
     agHelper.GetNClick(jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
 
@@ -113,6 +114,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
+    agHelper.Sleep(110);
     agHelper.GetNClick(jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
@@ -206,6 +208,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
+    agHelper.Sleep(110);
     agHelper.GetNClick(jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
@@ -311,6 +314,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
+    agHelper.Sleep(110);
     agHelper.GetNClick(jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
 
