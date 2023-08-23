@@ -35,6 +35,7 @@ import type {
   TableWidgetProps,
   TransientDataPayload,
 } from "../constants";
+import { ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING } from "../constants";
 import {
   ActionColumnTypes,
   ColumnTypes,
@@ -201,6 +202,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       delimiter: ",",
       version: 2,
       inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
+      enableServerSideFiltering: Widget.getFeatureFlag(
+        ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
+      )
+        ? false
+        : undefined,
     };
   }
 
@@ -393,7 +399,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return (widget: TableWidgetProps, extraDefsToDefine?: ExtraDef) => {
-      const config = {
+      const config: AutocompletionDefinitions = {
         "!doc":
           "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
         "!url": "https://docs.appsmith.com/widget-reference/table",
@@ -423,6 +429,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
       };
+
+      if (this.getFeatureFlag(ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING)) {
+        config["filters"] = generateTypeDef(widget.filters);
+      }
 
       return config;
     };
@@ -918,7 +928,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           this.updateColumnProperties(newTableColumns, isTableDataModified);
         }
 
-        pushBatchMetaUpdates("filters", [DEFAULT_FILTER]);
+        pushBatchMetaUpdates("filters", []);
       }
     }
 
@@ -1101,11 +1111,26 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   updateFilters = (filters: ReactTableFilter[]) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+    const {
+      commitBatchMetaUpdates,
+      enableServerSideFiltering,
+      onTableFilterUpdate,
+      pushBatchMetaUpdates,
+    } = this.props;
 
     this.pushResetSelectedRowIndexUpdates();
 
-    pushBatchMetaUpdates("filters", filters);
+    if (enableServerSideFiltering) {
+      pushBatchMetaUpdates("filters", filters, {
+        triggerPropertyName: "onTableFilterUpdate",
+        dynamicString: onTableFilterUpdate,
+        event: {
+          type: EventType.ON_FILTER_UPDATE,
+        },
+      });
+    } else {
+      pushBatchMetaUpdates("filters", filters);
+    }
 
     // Reset Page only when a filter is added
     if (!isEmpty(xorWith(filters, [DEFAULT_FILTER], equal))) {

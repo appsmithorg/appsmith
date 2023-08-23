@@ -81,6 +81,9 @@ import WidgetComponentBoundary from "components/editorComponents/WidgetComponent
 import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
+import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import store from "store";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 /***
  * BaseWidget
@@ -805,6 +808,17 @@ abstract class BaseWidget<
     isFlexChild: false,
     isMobile: false,
   };
+
+  /*
+   * Function to get a specific feature flag
+   * TODO(Keyur): To move the below function to the EditorContextProvider
+   */
+  static getFeatureFlag(featureFlag: FeatureFlag) {
+    const state = store.getState();
+    const featureFlags = selectFeatureFlags(state);
+
+    return featureFlags[featureFlag];
+  }
 }
 
 export interface BaseStyle {
