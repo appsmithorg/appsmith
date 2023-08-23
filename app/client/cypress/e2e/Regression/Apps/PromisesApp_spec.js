@@ -92,6 +92,7 @@ describe("JSEditor tests", function () {
     cy.wait(3000);
     // hit audio play button and trigger actions
     entityExplorer.SelectEntityByName("Audio1", "Widgets");
+    agHelper.Sleep(2000);
     agHelper.GetElement("audio").then(($audio) => {
       $audio[0].play();
     });
