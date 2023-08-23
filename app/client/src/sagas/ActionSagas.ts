@@ -131,6 +131,7 @@ import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { setAIPromptTriggered } from "utils/storage";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -984,13 +985,22 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.ASK_AI: {
       const context = get(actionPayload, "payload.args", {});
+      const isJavascriptMode = context.mode === EditorModes.TEXT_WITH_BINDING;
 
       const noOfTimesAIPromptTriggered: number = yield select(
         (state) => state.ai.noOfTimesAITriggered,
       );
 
-      if (noOfTimesAIPromptTriggered < 5) {
-        const currentValue: number = yield setAIPromptTriggered();
+      const noOfTimesAIPromptTriggeredForQuery: number = yield select(
+        (state) => state.ai.noOfTimesAITriggeredForQuery,
+      );
+
+      const triggerCount = isJavascriptMode
+        ? noOfTimesAIPromptTriggered
+        : noOfTimesAIPromptTriggeredForQuery;
+
+      if (triggerCount < 5) {
+        const currentValue: number = yield setAIPromptTriggered(context.mode);
         yield put({
           type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
           payload: {

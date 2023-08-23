@@ -2,6 +2,7 @@ import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
 import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export const STORAGE_KEYS: {
   [id: string]: string;
@@ -25,6 +26,7 @@ export const STORAGE_KEYS: {
     "FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
   SIGNPOSTING_APP_STATE: "SIGNPOSTING_APP_STATE",
   AI_TRIGGERED: "AI_TRIGGERED",
+  AI_TRIGGERED_FOR_QUERY: "AI_TRIGGERED_FOR_QUERY",
   FEATURE_WALKTHROUGH: "FEATURE_WALKTHROUGH",
   USER_SIGN_UP: "USER_SIGN_UP",
   VERSION_UPDATE_STATE: "VERSION_UPDATE_STATE",
@@ -424,16 +426,21 @@ export const setFirstTimeUserOnboardingTelemetryCalloutVisibility = async (
   }
 };
 
-export const setAIPromptTriggered = async () => {
+export const setAIPromptTriggered = async (mode: string) => {
   try {
-    let noOfTimesAITriggered: number = await getAIPromptTriggered();
+    let noOfTimesAITriggered: number = await getAIPromptTriggered(mode);
 
     if (noOfTimesAITriggered >= 5) {
       return noOfTimesAITriggered;
     }
 
+    const storageKey =
+      mode === EditorModes.TEXT_WITH_BINDING
+        ? STORAGE_KEYS.AI_TRIGGERED
+        : STORAGE_KEYS.AI_TRIGGERED_FOR_QUERY;
+
     noOfTimesAITriggered += 1;
-    await store.setItem(STORAGE_KEYS.AI_TRIGGERED, noOfTimesAITriggered);
+    await store.setItem(storageKey, noOfTimesAITriggered);
 
     return noOfTimesAITriggered;
   } catch (error) {
@@ -444,9 +451,14 @@ export const setAIPromptTriggered = async () => {
   }
 };
 
-export const getAIPromptTriggered = async () => {
+export const getAIPromptTriggered = async (mode: string) => {
   try {
-    const flag: number | null = await store.getItem(STORAGE_KEYS.AI_TRIGGERED);
+    const storageKey =
+      mode === EditorModes.TEXT_WITH_BINDING
+        ? STORAGE_KEYS.AI_TRIGGERED
+        : STORAGE_KEYS.AI_TRIGGERED_FOR_QUERY;
+
+    const flag: number | null = await store.getItem(storageKey);
 
     if (flag === null) return 0;
 
