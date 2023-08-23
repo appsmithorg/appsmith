@@ -41,6 +41,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -203,7 +204,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                                 .then(Mono.just(url));
                                     })
                                     // redirecting user to the verification pending screen
-                                    .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
+                                    .map(url -> String.format(
+                                            "/user/verificationPending?email=%s",
+                                            URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
                                     .map(URI::create)
                                     .flatMap(redirectUri -> redirectStrategy.sendRedirect(
                                             webFilterExchange.getExchange(), redirectUri));
@@ -245,7 +248,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                                 .resendEmailVerification(resendEmailVerificationDTO, url)
                                                 .then(Mono.just(url));
                                     })
-                                    .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
+                                    .map(url -> String.format(
+                                            "/user/verificationPending?email=%s",
+                                            URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
                                     .map(URI::create)
                                     .flatMap(redirectUri -> redirectStrategy.sendRedirect(
                                             webFilterExchange.getExchange(), redirectUri));
@@ -281,7 +286,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                             .resendEmailVerification(resendEmailVerificationDTO, url)
                                             .then(Mono.just(url));
                                 })
-                                .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
+                                .map(url -> String.format(
+                                        "/user/verificationPending?email=%s",
+                                        URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
                                 .map(URI::create)
                                 .flatMap(redirectUri ->
                                         redirectStrategy.sendRedirect(webFilterExchange.getExchange(), redirectUri));
