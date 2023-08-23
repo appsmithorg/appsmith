@@ -52,7 +52,7 @@ public class ModuleDTO implements Identifiable {
     Map<String, ModuleInput> inputs;
 
     @JsonView(Views.Public.class)
-    Map<String, ModuleActionConfig> configMap;
+    Map<String, ModuleActionConfig> settings;
 
     @Transient
     @JsonView(Views.Public.class)
