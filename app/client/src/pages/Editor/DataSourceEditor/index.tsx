@@ -158,9 +158,9 @@ export const DSEditorWrapper = styled.div`
 export const CalloutContainer = styled.div<{
   isSideBarPresent: boolean;
 }>`
-  width: 30vw; 
+  width: 30vw;
   margin-top: 24px;
-  margin-left ${(props) => (props.isSideBarPresent ? "24px" : "0px")}
+  margin-left: ${(props) => (props.isSideBarPresent ? "24px" : "0px")};
 `;
 
 export type DatasourceFilterState = {
