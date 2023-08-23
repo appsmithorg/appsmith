@@ -282,5 +282,4 @@ export class CommonLocators {
   _checkboxWidgetLabel = ".t--checkbox-widget-label";
   _buttonWidgetInForm =
     "//*[contains(@class,'t--widget-buttonwidget')]//button[contains(@class,'bp3-button')]";
-  _propertyStyle = "button[role='tab'] span:contains('Style')";
 }

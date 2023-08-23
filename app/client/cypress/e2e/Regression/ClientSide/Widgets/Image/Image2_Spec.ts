@@ -5,8 +5,8 @@ import {
   entityExplorer,
   locators,
   propPane,
+  widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
-import widgetLocators from "../../../../../locators/Widgets.json";
 
 describe("Image widget tests", function () {
   const image = (src: string) => 'img[src="' + src + '"]';

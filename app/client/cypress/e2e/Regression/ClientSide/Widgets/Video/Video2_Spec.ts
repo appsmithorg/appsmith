@@ -7,8 +7,8 @@ import {
   locators,
   propPane,
   theme,
+  widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
-import widgetLocators from "../../../../../locators/Widgets.json";
 import testdata from "../../../../../fixtures/testdata.json";
 
 describe("Video widget tests", function () {
@@ -195,7 +195,7 @@ describe("Video widget tests", function () {
   it("6. Verify video styles", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Video1", "Widgets");
-    agHelper.GetNClick(locators._propertyStyle);
+    propPane.MoveToTab("Style");
     agHelper.GetNClick(theme.locators._colorPickerV2Popover);
     agHelper.GetNClick(theme.locators._colorPickerV2Color, 6);
     agHelper.ContainsNClick("Medium");
