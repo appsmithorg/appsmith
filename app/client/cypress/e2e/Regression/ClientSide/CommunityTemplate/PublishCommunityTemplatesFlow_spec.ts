@@ -5,24 +5,32 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
+const cloudHosting = process.env.REACT_APP_CLOUD_HOSTING
+  ? process.env.REACT_APP_CLOUD_HOSTING.length > 0
+  : false;
+
 const communityForm = communityTemplates.locators._communityForm;
 describe("excludeForAirgap", "Publish app to Community flow", () => {
   afterEach(() => {
+    if (!cloudHosting) return;
     agHelper.RefreshPage();
   });
 
   beforeEach(() => {
+    if (!cloudHosting) return;
     agHelper.GetNClick(inviteModal.locators._shareButton);
     agHelper.GetNClick(inviteModal.locators._publishTab);
   });
 
   it("1. Clicking close on modal header in template form should hide the share modal", () => {
+    if (!cloudHosting) return;
     agHelper.GetNClick(communityTemplates.locators._publishInitiateButton);
     agHelper.GetNClick(locators._dialogCloseButton);
     agHelper.AssertElementAbsence(communityTemplates.locators._dialogBox);
   });
 
   it("2. Publish template for the first time for the app", () => {
+    if (!cloudHosting) return;
     agHelper.GetNClick(communityTemplates.locators._publishInitiateButton);
     // Initial name check
     communityTemplates.AssertInputValueToEqualPreviewValue(
