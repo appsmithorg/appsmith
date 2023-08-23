@@ -16,7 +16,10 @@ import WidgetSidebar from "../WidgetSidebar";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
-import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  adaptiveSignpostingEnabled,
+  selectFeatureFlags,
+} from "@appsmith/selectors/featureFlagsSelectors";
 import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import {
@@ -52,6 +55,7 @@ function ExplorerContent() {
   const pageId = useSelector(getCurrentPageId);
   const location = useLocation();
   const activeSwitchIndex = useSelector(getExplorerSwitchIndex);
+  const featureFlags = useSelector(selectFeatureFlags);
 
   const setActiveSwitchIndex = (index: number) => {
     dispatch(setExplorerSwitchIndex(index));
@@ -174,7 +178,7 @@ function ExplorerContent() {
         />
       </div>
 
-      {false ? (
+      {featureFlags.release_widgetdiscovery_enabled ? (
         <WidgetSidebarWithTags isActive={activeOption === "widgets"} />
       ) : (
         <WidgetSidebar isActive={activeOption === "widgets"} />
