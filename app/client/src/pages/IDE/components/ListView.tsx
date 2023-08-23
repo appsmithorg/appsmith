@@ -1,10 +1,12 @@
 import React from "react";
 import styled from "styled-components";
+import classNames from "classnames";
 
 type Item = {
   key: string;
   name: string;
   icon: React.ReactNode;
+  selected: boolean;
 };
 
 type Props = {
@@ -27,6 +29,9 @@ const ListItem = styled.div`
     cursor: pointer;
     background-color: #f1f5f9;
   }
+  &.selected {
+    background: #fbe6dc;
+  }
 `;
 
 const ListView = (props: Props) => {
@@ -34,7 +39,13 @@ const ListView = (props: Props) => {
     <Container>
       {props.items.map((item) => {
         return (
-          <ListItem key={item.key} onClick={() => props.onClick(item)}>
+          <ListItem
+            className={classNames({
+              selected: !!item.selected,
+            })}
+            key={item.key}
+            onClick={() => props.onClick(item)}
+          >
             {item.icon}
             {item.name}
           </ListItem>

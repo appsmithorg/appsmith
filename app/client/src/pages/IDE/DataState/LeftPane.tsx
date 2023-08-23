@@ -11,7 +11,7 @@ import { useParams } from "react-router";
 
 const DataLeftPane = () => {
   const { appWideDS } = useAppWideAndOtherDatasource();
-  const params = useParams<{ appId: string }>();
+  const params = useParams<{ appId: string; dataId?: string }>();
   const plugins = useSelector(getPlugins);
   const pluginByKey = keyBy(plugins, "id");
   const items = appWideDS.map((item) => {
@@ -20,6 +20,7 @@ const DataLeftPane = () => {
       key: item.id,
       name: item.name,
       icon: getPluginIcon(plugin),
+      selected: item.id === params.dataId,
     };
   });
   const onItemClick = (item: any) => {

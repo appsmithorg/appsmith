@@ -5,7 +5,11 @@ import { connect } from "react-redux";
 import type { InitializeEditorPayload } from "actions/initActions";
 import { initEditor } from "actions/initActions";
 import { getSearchQuery } from "../../utils/helpers";
-import { GIT_BRANCH_QUERY_KEY, IDE_PAGE_PATH } from "../../constants/routes";
+import {
+  GIT_BRANCH_QUERY_KEY,
+  IDE_PAGE_PATH,
+  IDE_PATH,
+} from "../../constants/routes";
 import { APP_MODE } from "../../entities/App";
 import type { RouteComponentProps } from "react-router";
 import { matchPath } from "react-router";
@@ -33,7 +37,7 @@ class IDELoader extends React.PureComponent<Props, { Page: any }> {
     const matchParams = matchPath<{ appId: string; pageId: string }>(
       window.location.pathname,
       {
-        path: IDE_PAGE_PATH,
+        path: [IDE_PATH, IDE_PAGE_PATH],
       },
     );
 

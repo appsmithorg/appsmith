@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import FormTitle from "./FormTitle";
 import NewActionButton from "./NewActionButton";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { Datasource } from "entities/Datasource";
@@ -17,7 +16,13 @@ import { debounce } from "lodash";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import styled from "styled-components";
-import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
+import {
+  Button,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  Text,
+} from "design-system";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 
 export const ActionWrapper = styled.div`
@@ -89,11 +94,11 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
   const {
     canCreateDatasourceActions,
     canDeleteDatasource,
-    canManageDatasource,
+    // canManageDatasource,
     datasource,
     datasourceId,
     isDeleting,
-    isNewDatasource,
+    // isNewDatasource,
     isNewQuerySecondaryButton,
     isPluginAuthorized,
     pluginImage,
@@ -144,10 +149,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
     <Header>
       <FormTitleContainer>
         <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
-        <FormTitle
-          disabled={!isNewDatasource && !canManageDatasource}
-          focusOnMount={isNewDatasource}
-        />
+        <Text kind="heading-l">{datasource?.name}</Text>
       </FormTitleContainer>
       {viewMode && (
         <ActionWrapper>
