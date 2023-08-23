@@ -60,6 +60,7 @@ class ColumnActionSelectorControl extends BaseControl<ColumnActionSelectorContro
                   <ActionCreator
                     action={this.props.label}
                     additionalControlData={{}}
+                    dataTreePath={""}
                     onValueChange={this.updateColumnActionFunction.bind(
                       this,
                       columnAction,
