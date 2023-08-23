@@ -36,7 +36,10 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.updateComputedValue(testdata.currentRowOrderAmt);
     cy.changeColumnType("Button");
     cy.moveToStyleTab();
-    cy.get(widgetsPage.buttonColor).click({ force: true }).clear().type(color);
+    cy.get(widgetsPage.buttonColor)
+      .click({ force: true })
+      .clear()
+      .type(color, { delay: 0 });
     cy.get(widgetsPage.tableV2Btn).should(
       "have.css",
       "background-color",
