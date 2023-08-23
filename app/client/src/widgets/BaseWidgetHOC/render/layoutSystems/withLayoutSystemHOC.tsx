@@ -21,9 +21,19 @@ const getLayoutSystem = (
   }
 };
 
-export const LayoutSystemWrapper = (props: WidgetProps) => {
+const LayoutSystemWrapper = (props: WidgetProps) => {
   const renderMode = useSelector(getRenderMode);
   const appPositioningType = useSelector(getAppPositioningType);
   const LayoutSystem: any = getLayoutSystem(renderMode, appPositioningType);
   return <LayoutSystem {...props} />;
+};
+
+export const withLayoutSystemHOC = (Widget: any) => {
+  return function LayoutWrappedWidget(props: WidgetProps) {
+    return (
+      <LayoutSystemWrapper {...props}>
+        <Widget {...props} />
+      </LayoutSystemWrapper>
+    );
+  };
 };
