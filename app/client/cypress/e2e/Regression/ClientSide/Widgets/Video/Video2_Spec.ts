@@ -14,6 +14,7 @@ import testdata from "../../../../../fixtures/testdata.json";
 describe("Video widget tests", function () {
   before(() => {
     homePage.NavigateToHome();
+    //Contains video widget expanded to specific size such that all the buttons in it are visible & camera widget(video)
     homePage.ImportApp("videoWidgetApp.json");
   });
 
