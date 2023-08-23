@@ -6,8 +6,11 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.Module;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
@@ -53,6 +56,7 @@ public enum AclPermission {
     // Resource creation permissions for workspace
     WORKSPACE_CREATE_APPLICATION("create:applications", Workspace.class),
     WORKSPACE_CREATE_DATASOURCE("create:datasources", Workspace.class),
+    WORKSPACE_CREATE_PACKAGE("create:package", Workspace.class),
 
     // Was the user assigned a global permission at the workspace level to manage applications?
     WORKSPACE_MANAGE_APPLICATIONS("manage:workspaceApplications", Workspace.class),
@@ -68,6 +72,13 @@ public enum AclPermission {
     WORKSPACE_DELETE_DATASOURCES("delete:workspaceDatasources", Workspace.class),
     WORKSPACE_EXECUTE_DATASOURCES("execute:workspaceDatasources", Workspace.class),
 
+    // Was the user assigned a global permission at the workspace level to manage packages?
+    WORKSPACE_MANAGE_PACKAGES("manage:workspacePackages", Workspace.class),
+    WORKSPACE_READ_PACKAGES("read:workspacePackages", Workspace.class),
+    WORKSPACE_PUBLISH_PACKAGES("publish:workspacePackages", Workspace.class),
+    WORKSPACE_EXPORT_PACKAGES("export:workspacePackages", Workspace.class),
+    WORKSPACE_DELETE_PACKAGES("delete:workspacePackages", Workspace.class),
+
     // Invitation related permissions : TODO : Delete this since invitation would be led by user groups
     @Deprecated
     WORKSPACE_INVITE_USERS("inviteUsers:workspace", Workspace.class),
@@ -81,6 +92,12 @@ public enum AclPermission {
     // Making an application public permission at Workspace level
     MAKE_PUBLIC_APPLICATIONS("makePublic:applications", Application.class),
 
+    MANAGE_PACKAGES("manage:packages", com.appsmith.server.domains.Package.class),
+    READ_PACKAGES("read:packages", com.appsmith.server.domains.Package.class),
+    PUBLISH_PACKAGES("publish:packages", com.appsmith.server.domains.Package.class),
+    EXPORT_PACKAGES("export:packages", com.appsmith.server.domains.Package.class),
+    DELETE_PACKAGES("delete:packages", Package.class),
+
     // Can the user create a comment thread on a given application?
     @Deprecated
     COMMENT_ON_APPLICATIONS("canComment:applications", Application.class),
@@ -91,12 +108,26 @@ public enum AclPermission {
     READ_PAGES("read:pages", Page.class),
     DELETE_PAGES("delete:pages", Page.class),
 
+    PACKAGE_CREATE_MODULES("create:modules", Package.class),
+
+    MANAGE_MODULES("manage:modules", com.appsmith.server.domains.Module.class),
+    READ_MODULES("read:modules", com.appsmith.server.domains.Module.class),
+    EXECUTE_MODULES("execute:modules", com.appsmith.server.domains.Module.class),
+    DELETE_MODULES("delete:modules", Module.class),
+
     PAGE_CREATE_PAGE_ACTIONS("create:pageActions", Page.class),
 
     MANAGE_ACTIONS("manage:actions", Action.class),
     READ_ACTIONS("read:actions", Action.class),
     EXECUTE_ACTIONS("execute:actions", Action.class),
     DELETE_ACTIONS("delete:actions", Action.class),
+
+    PAGE_CREATE_MODULE_INSTANCES("create:moduleInstancesInPage", Page.class),
+
+    MANAGE_MODULE_INSTANCES("manage:moduleInstances", ModuleInstance.class),
+    READ_MODULE_INSTANCES("read:moduleInstances", ModuleInstance.class),
+    EXECUTE_MODULE_INSTANCES("execute:moduleInstances", ModuleInstance.class),
+    DELETE_MODULE_INSTANCES("delete:moduleInstances", ModuleInstance.class),
 
     MANAGE_DATASOURCES("manage:datasources", Datasource.class),
     READ_DATASOURCES("read:datasources", Datasource.class),
