@@ -58,10 +58,10 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     private Boolean isEnabled = true;
 
     @JsonView(Views.Public.class)
-    private Boolean emailVerificationRequired = Boolean.FALSE;
+    private Boolean emailVerificationRequired;
 
     @JsonView(Views.Public.class)
-    private Boolean emailVerified = Boolean.FALSE;
+    private Boolean emailVerified;
 
     // Organizations migrated to workspaces, kept the field as depricated to support the old migration
     @Deprecated
