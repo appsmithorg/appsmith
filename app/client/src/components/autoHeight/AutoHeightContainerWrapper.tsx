@@ -13,38 +13,30 @@ import AutoHeightContainer from "./AutoHeightContainer";
 export type AutoHeightWrapperProps = {
   widgetProps: WidgetProps;
   children: ReactNode;
-  onUpdateDynamicHeight: (height: number) => void;
 };
 
-function AutoHeightContainerWrapper(props: AutoHeightWrapperProps) {
-  const { children, widgetProps } = props;
-  const isCanvas = useWidgetConfig(widgetProps.type, "isCanvas");
+function AutoHeightContainerWrapper(props: WidgetProps) {
+  const isCanvas = useWidgetConfig(props.type, "isCanvas");
   // eslint-disable-next-line react/jsx-no-useless-fragment
-  if (isCanvas) return <>{children}</>;
+  if (isCanvas) return <>{props.children}</>;
 
-  const onHeightUpdate = (height: number) => {
-    props.onUpdateDynamicHeight(height);
-  };
-
-  const maxDynamicHeight = getWidgetMaxAutoHeight(widgetProps);
-  const minDynamicHeight = getWidgetMinAutoHeight(widgetProps);
+  const maxDynamicHeight = getWidgetMaxAutoHeight(props);
+  const minDynamicHeight = getWidgetMinAutoHeight(props);
 
   const widgetHeightInPixels =
-    (widgetProps.bottomRow - widgetProps.topRow) *
-    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    (props.bottomRow - props.topRow) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   const isAutoHeightWithLimits =
-    widgetProps.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
+    props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
 
   return (
     <AutoHeightContainer
       isAutoHeightWithLimits={isAutoHeightWithLimits}
       maxDynamicHeight={maxDynamicHeight}
       minDynamicHeight={minDynamicHeight}
-      onHeightUpdate={onHeightUpdate}
       widgetHeightInPixels={widgetHeightInPixels}
-      widgetProps={widgetProps}
+      widgetProps={props}
     >
-      {children}
+      {props.children}
     </AutoHeightContainer>
   );
 }

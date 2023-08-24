@@ -10,20 +10,20 @@ import { ResizableLayer } from "./ResizableLayer";
 
 export const AutoLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
-    <FlexComponentLayer {...props}>
-      <SnipeableComponent {...props}>
-        <DraggableComponent {...props}>
-          <WidgetNameLayer {...props}>
-            <ResizableLayer {...props}>
-              <ErrorBoundary>
+    <ErrorBoundary>
+      <FlexComponentLayer {...props}>
+        <SnipeableComponent {...props}>
+          <DraggableComponent {...props}>
+            <WidgetNameLayer {...props}>
+              <ResizableLayer {...props}>
                 <AutoLayoutWidgetComponent {...props}>
                   {props.children}
                 </AutoLayoutWidgetComponent>
-              </ErrorBoundary>
-            </ResizableLayer>
-          </WidgetNameLayer>
-        </DraggableComponent>
-      </SnipeableComponent>
-    </FlexComponentLayer>
+              </ResizableLayer>
+            </WidgetNameLayer>
+          </DraggableComponent>
+        </SnipeableComponent>
+      </FlexComponentLayer>
+    </ErrorBoundary>
   );
 };

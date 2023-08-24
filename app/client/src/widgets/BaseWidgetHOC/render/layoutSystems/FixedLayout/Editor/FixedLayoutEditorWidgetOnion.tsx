@@ -11,22 +11,22 @@ import { ResizableLayer } from "../ResizableLayer";
 
 export const FixedLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
-    <AutoHeightOverlayLayer {...props}>
-      <PositionedComponentLayer {...props}>
-        <SnipeableComponent {...props}>
-          <DraggableComponent {...props}>
-            <WidgetNameLayer {...props}>
-              <ResizableLayer {...props}>
-                <ErrorBoundary>
+    <ErrorBoundary>
+      <AutoHeightOverlayLayer {...props}>
+        <PositionedComponentLayer {...props}>
+          <SnipeableComponent {...props}>
+            <DraggableComponent {...props}>
+              <WidgetNameLayer {...props}>
+                <ResizableLayer {...props}>
                   <FixedLayoutWigdetComponent {...props}>
                     {props.children}
                   </FixedLayoutWigdetComponent>
-                </ErrorBoundary>
-              </ResizableLayer>
-            </WidgetNameLayer>
-          </DraggableComponent>
-        </SnipeableComponent>
-      </PositionedComponentLayer>
-    </AutoHeightOverlayLayer>
+                </ResizableLayer>
+              </WidgetNameLayer>
+            </DraggableComponent>
+          </SnipeableComponent>
+        </PositionedComponentLayer>
+      </AutoHeightOverlayLayer>
+    </ErrorBoundary>
   );
 };

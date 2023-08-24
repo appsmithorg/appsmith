@@ -6,7 +6,6 @@ import renderer from "react-test-renderer";
 import { RenderModes } from "constants/WidgetConstants";
 import AutoHeightContainer from "./AutoHeightContainer";
 
-const onHeightUpdate = jest.fn();
 const DUMMY_WIDGET = {
   bottomRow: 0,
   isLoading: false,
@@ -30,7 +29,6 @@ describe("<AutoHeightContainer />", () => {
           isAutoHeightWithLimits={false}
           maxDynamicHeight={0}
           minDynamicHeight={0}
-          onHeightUpdate={onHeightUpdate}
           widgetHeightInPixels={200}
           widgetProps={DUMMY_WIDGET}
         >
@@ -48,7 +46,6 @@ describe("<AutoHeightContainer />", () => {
           isAutoHeightWithLimits={false}
           maxDynamicHeight={0}
           minDynamicHeight={0}
-          onHeightUpdate={onHeightUpdate}
           widgetHeightInPixels={200}
           widgetProps={DUMMY_WIDGET}
         >
@@ -71,7 +68,6 @@ describe("<AutoHeightContainer />", () => {
           isAutoHeightWithLimits
           maxDynamicHeight={0}
           minDynamicHeight={0}
-          onHeightUpdate={onHeightUpdate}
           widgetHeightInPixels={200}
           widgetProps={DUMMY_WIDGET}
         >

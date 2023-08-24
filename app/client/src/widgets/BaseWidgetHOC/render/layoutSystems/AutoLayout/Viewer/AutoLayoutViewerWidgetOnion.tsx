@@ -6,10 +6,10 @@ import { FlexComponentLayer } from "../common/FlexComponentLayer";
 
 export const AutoLayoutViewerWidgetOnion = (props: BaseWidgetProps) => {
   return (
-    <FlexComponentLayer {...props}>
-      <ErrorBoundary>
+    <ErrorBoundary>
+      <FlexComponentLayer {...props}>
         <WidgetComponent {...props}>{props.children}</WidgetComponent>
-      </ErrorBoundary>
-    </FlexComponentLayer>
+      </FlexComponentLayer>
+    </ErrorBoundary>
   );
 };

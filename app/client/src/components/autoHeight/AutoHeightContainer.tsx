@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import type { PropsWithChildren } from "react";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -7,6 +8,8 @@ import {
 } from "constants/WidgetConstants";
 import styled from "styled-components";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { shouldUpdateWidgetHeightAutomatically } from "widgets/WidgetUtils";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
 
 const StyledAutoHeightContainer = styled.div<{ isOverflow?: boolean }>`
   overflow-y: ${(props) => (props.isOverflow ? "auto" : "unset")};
@@ -26,7 +29,6 @@ interface AutoHeightContainerProps {
   maxDynamicHeight: number;
   minDynamicHeight: number;
   isAutoHeightWithLimits: boolean;
-  onHeightUpdate: (height: number) => void;
   widgetHeightInPixels: number;
   widgetProps: WidgetProps;
 }
@@ -41,30 +43,45 @@ export default function AutoHeightContainer({
   isAutoHeightWithLimits,
   maxDynamicHeight,
   minDynamicHeight,
-  onHeightUpdate,
   widgetHeightInPixels,
   widgetProps,
 }: PropsWithChildren<AutoHeightContainerProps>) {
   const [expectedHeight, setExpectedHeight] = useState(0);
-
   const unmountingTimeout = useRef<ReturnType<typeof setTimeout>>();
   const ref = useRef<HTMLDivElement>(null);
+  const { updateWidgetAutoHeight } = useContext(EditorContext);
 
   const observer = React.useRef(
     new ResizeObserver((entries) => {
       const height = entries[0].contentRect.height;
       if (height) {
         setExpectedHeight(height);
-        onHeightUpdate(height);
       } else {
         //setting timeout if height is 0
         unmountingTimeout.current = setTimeout(() => {
           setExpectedHeight(height);
-          onHeightUpdate(height);
         }, 0);
       }
     }),
   );
+
+  const onHeightUpdate = (height: number): void => {
+    const paddedHeight =
+      Math.ceil(
+        Math.ceil(height + WIDGET_PADDING * 2) /
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      ) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+    const shouldUpdate = shouldUpdateWidgetHeightAutomatically(
+      paddedHeight,
+      widgetProps,
+    );
+
+    if (updateWidgetAutoHeight) {
+      const { widgetId } = widgetProps;
+      shouldUpdate && updateWidgetAutoHeight(widgetId, paddedHeight);
+    }
+  };
 
   useEffect(() => {
     if (ref.current) {
@@ -80,7 +97,7 @@ export default function AutoHeightContainer({
 
   useEffect(() => {
     onHeightUpdate(expectedHeight);
-  }, [minDynamicHeight, maxDynamicHeight]);
+  }, [expectedHeight, minDynamicHeight, maxDynamicHeight]);
 
   useEffect(() => {
     if (
