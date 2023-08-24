@@ -3,6 +3,11 @@ name: Upgrade Appsmith
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+        default: 0
   workflow_call:
     inputs:
       pr:
@@ -273,7 +278,7 @@ jobs:
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
+          COMMIT_INFO_MESSAGE: "Cypress internal dashboard test run"
           CYPRESS_VERIFY_TIMEOUT: 100000
           TOTAL_RUNNERS: ${{ strategy.job-total }}
           THIS_RUNNER: ${{ strategy.job-index }}
@@ -344,7 +349,7 @@ jobs:
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
+          COMMIT_INFO_MESSAGE: "Cypress internal dashboard test run"
           CYPRESS_ENV: "NODE_ENV=development"
           CYPRESS_CONFIG_FILE: cypress_ci.config.ts
           CYPRESS_HEADLESS: "true"
