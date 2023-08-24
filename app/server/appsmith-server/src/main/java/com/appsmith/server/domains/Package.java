@@ -25,16 +25,19 @@ public class Package extends BranchAwareDomain {
     String workspaceId;
 
     @JsonView(Views.Public.class)
+    String name;
+
+    @JsonView(Views.Public.class)
     String color;
 
     @JsonView(Views.Public.class)
     String icon;
 
     @JsonView(Views.Public.class)
-    PackageDTO unpublishedPackageData;
+    PackageDTO unpublishedPackage;
 
     @JsonView(Views.Public.class)
-    PackageDTO publishedPackageData;
+    PackageDTO publishedPackage;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)

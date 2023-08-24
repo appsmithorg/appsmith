@@ -24,8 +24,8 @@ public class Module extends BranchAwareDomain {
     ModuleType type;
 
     @JsonView(Views.Public.class)
-    ModuleDTO unpublishedModuleData;
+    ModuleDTO unpublishedModule;
 
     @JsonView(Views.Public.class)
-    ModuleDTO publishedModuleData;
+    ModuleDTO publishedModule;
 }
