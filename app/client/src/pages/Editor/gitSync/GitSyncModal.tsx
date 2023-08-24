@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import {
   getActiveGitSyncModalTab,
+  getIsDeploying,
   getIsGitConnected,
   getIsGitSyncModalOpen,
 } from "selectors/gitSyncSelectors";
@@ -41,13 +42,14 @@ const allMenuOptions = Object.values(MENU_ITEMS_MAP);
 function GitSyncModal(props: { isImport?: boolean }) {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
+  const isDeploying = useSelector(getIsDeploying);
   const isGitConnected = useSelector(getIsGitConnected);
   const activeTabKey = useSelector(getActiveGitSyncModalTab);
   const { onGitConnectFailure: resetGitConnectStatus } = useGitConnect();
 
   const handleClose = useCallback(() => {
     resetGitConnectStatus();
-    dispatch(setIsGitSyncModalOpen({ isOpen: false }));
+    dispatch(setIsGitSyncModalOpen({ isOpen: false, isDeploying: false }));
     dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
 
@@ -62,7 +64,13 @@ function GitSyncModal(props: { isImport?: boolean }) {
           source: `${activeTabKey}_TAB`,
         });
       }
-      dispatch(setIsGitSyncModalOpen({ isOpen: isModalOpen, tab: tabKey }));
+      dispatch(
+        setIsGitSyncModalOpen({
+          isOpen: isModalOpen,
+          tab: tabKey,
+          isDeploying,
+        }),
+      );
     },
     [dispatch, setIsGitSyncModalOpen, isModalOpen],
   );
@@ -125,7 +133,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
           <ModalHeader>
             {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
           </ModalHeader>
-          <EnvInfoHeader />
+          {isDeploying && <EnvInfoHeader />}
           <Menu
             activeTabKey={activeTabKey}
             onSelect={(tabKey: string) =>

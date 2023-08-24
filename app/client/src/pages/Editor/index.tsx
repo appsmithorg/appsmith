@@ -43,6 +43,7 @@ import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { EnvDeployInfoModal } from "@appsmith/components/EnvDeployInfoModal";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -183,6 +184,7 @@ class Editor extends Component<Props> {
           <GlobalHotKeys>
             <MainContainer />
             <GitSyncModal />
+            <EnvDeployInfoModal />
             <DisconnectGitModal />
             <GuidedTourModal />
             <RepoLimitExceededErrorModal />
