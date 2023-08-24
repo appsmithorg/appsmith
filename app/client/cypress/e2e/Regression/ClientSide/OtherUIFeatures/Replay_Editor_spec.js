@@ -13,7 +13,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Undo/Redo functionality", function () {
-  const modifierKey = Cypress.platform === "darwin" ? "meta" : "cmd";
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   let postgresDatasourceName;
 
   it("1. Checks undo/redo in datasource forms", () => {
@@ -158,18 +158,18 @@ describe("Undo/Redo functionality", function () {
     });
     // cy.get(".function-name").should("not.contain.text", "test");
   });
- 
+
   it("5. Checks undo/redo for Authenticated APIs", () => {
     cy.NavigateToAPI_Panel();
     cy.get(apiwidget.createAuthApiDatasource).click({ force: true });
     cy.wait(2000);
-    agHelper.TypeText("input[name='headers[0].key']", testdata.headerKey);
-    agHelper.TypeText("input[name='url']", testdata.baseUrl);
+    cy.get("input[name='url']").type(testdata.baseUrl);
+    cy.get("input[name='headers[0].key']").type(testdata.headerKey);
     agHelper.Sleep(1000);
     cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}z`);
-    cy.get("input[name='headers[0].key']").should("have.value", "");
     cy.get("input[name='url']").should("have.value", "");
+    cy.get("input[name='headers[0].key']").should("have.value", "");
     cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.get("body").type(`{${modifierKey}}{shift}z`);
