@@ -34,7 +34,10 @@ describe("Table Widget property pane feature validation", function () {
     // Changing the computed value (data) to "orderAmount"
     cy.updateComputedValue(testdata.currentRowOrderAmt);
     cy.changeColumnType("Button", false);
-    cy.get(widgetsPage.buttonColor).click({ force: true }).clear().type(color);
+    cy.get(widgetsPage.buttonColor)
+      .click({ force: true })
+      .clear()
+      .type(color, { delay: 0 });
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color);
     cy.readTabledataPublish("2", "2").then((tabData) => {
       const tabValue = tabData;

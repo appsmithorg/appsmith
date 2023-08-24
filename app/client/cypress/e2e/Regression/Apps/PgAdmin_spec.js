@@ -78,7 +78,7 @@ describe("PgAdmin Clone App", function () {
     cy.xpath(appPage.columnNamefield).should("be.visible");
     cy.xpath(appPage.datatypefield).should("be.visible");
     agHelper.GetNClick(appPage.addColumnName);
-    agHelper.UpdateInput(appPage.addColumnName, "ID");
+    agHelper.TypeText(appPage.addColumnName + " " + locators._inputField, "ID");
     agHelper.SelectFromDropDown("Varchar", "", 1);
     // switching on the Primary Key toggle
     cy.get(widgetsPage.switchWidgetInactive).first().click();

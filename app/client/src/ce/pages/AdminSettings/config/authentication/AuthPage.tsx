@@ -16,6 +16,7 @@ import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import BusinessTag from "components/BusinessTag";
+import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -69,10 +70,9 @@ const MethodTitle = styled(Text)`
   align-items: center;
   margin: 0 0 4px;
   color: var(--ads-v2-color-fg);
+  gap: var(--ads-v2-spaces-2);
 
   svg {
-    width: 14px;
-    height: 14px;
     cursor: pointer;
   }
 `;
@@ -94,6 +94,7 @@ export type AuthMethodType = {
   isConnected?: boolean;
   calloutBanner?: banner;
   icon?: string;
+  isFeatureEnabled: boolean;
 };
 
 const ButtonWrapper = styled.div`
@@ -106,10 +107,12 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD",
     logEventData: { method: method.label },
+    featureName: RampFeature.Sso,
+    sectionName: RampSection.AdminSettings,
   });
 
   const onClickHandler = (method: AuthMethodType) => {
-    if (!method.needsUpgrade || method.isConnected) {
+    if (method?.isFeatureEnabled || method.isConnected) {
       AnalyticsUtil.logEvent(
         method.isConnected
           ? "ADMIN_SETTINGS_EDIT_AUTH_METHOD"
@@ -133,7 +136,9 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
     <ButtonWrapper>
       <Button
         className={`t--settings-sub-category-${
-          method.needsUpgrade ? `upgrade-${method.category}` : method.category
+          !method?.isFeatureEnabled
+            ? `upgrade-${method.category}`
+            : method.category
         }`}
         data-testid="btn-auth-account"
         kind={"secondary"}
@@ -141,7 +146,11 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
         size="md"
       >
         {createMessage(
-          method.isConnected ? EDIT : !!method.needsUpgrade ? UPGRADE : ENABLE,
+          method.isConnected
+            ? EDIT
+            : !method?.isFeatureEnabled
+            ? UPGRADE
+            : ENABLE,
         )}
       </Button>
     </ButtonWrapper>
@@ -183,7 +192,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       renderAs="p"
                     >
                       {method.label}&nbsp;
-                      {method.needsUpgrade && <BusinessTag />}
+                      {!method.isFeatureEnabled && <BusinessTag />}
                       {method.isConnected && (
                         <Tooltip
                           content={createMessage(
@@ -196,6 +205,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                             className={`${method.category}-green-check`}
                             color="var(--ads-v2-color-fg-success)"
                             name="oval-check-fill"
+                            size="md"
                           />
                         </Tooltip>
                       )}

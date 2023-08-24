@@ -38,7 +38,7 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getInitials } from "utils/AppsmithUtils";
 import { CustomRolesRamp } from "./WorkspaceInviteUsersForm";
-import { showProductRamps } from "utils/ProductRamps";
+import { showProductRamps } from "selectors/rampSelectors";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -199,6 +199,9 @@ export default function MemberSettings(props: PageProps) {
 
   const dispatch = useDispatch();
   const history = useHistory();
+
+  const showRampSelector = showProductRamps(RAMP_NAME.CUSTOM_ROLES);
+  const canShowRamp = useSelector(showRampSelector);
 
   useEffect(() => {
     dispatch(fetchUsersForWorkspace(workspaceId));
@@ -416,7 +419,7 @@ export default function MemberSettings(props: PageProps) {
                 </div>
               </Option>
             ))}
-            {showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+            {canShowRamp && (
               <Option disabled>
                 <CustomRolesRamp />
               </Option>
@@ -559,7 +562,7 @@ export default function MemberSettings(props: PageProps) {
                           </div>
                         </Option>
                       ))}
-                      {showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+                      {canShowRamp && (
                         <Option disabled>
                           <CustomRolesRamp />
                         </Option>

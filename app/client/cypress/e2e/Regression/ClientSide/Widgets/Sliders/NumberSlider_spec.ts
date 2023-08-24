@@ -179,6 +179,7 @@ describe("Number Slider spec", () => {
     propPane.UpdatePropertyFieldValue("Max. value", "-30");
 
     agHelper.GetElement(locators._sliderThumb).focus().type("{rightArrow}");
+    agHelper.Sleep(2000);
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text")
       .then(($label) => {
@@ -188,7 +189,7 @@ describe("Number Slider spec", () => {
     // Verify in Preview mode negative value
     agHelper.GetNClick(locators._enterPreviewMode);
     agHelper.GetElement(locators._sliderThumb).focus().type("{rightArrow}");
-    agHelper.Sleep(1000);
+    agHelper.Sleep(2000);
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text")
       .then(($label) => {
@@ -199,7 +200,7 @@ describe("Number Slider spec", () => {
     // Verify in Deploy mode negative value
     deployMode.DeployApp();
     agHelper.GetElement(locators._sliderThumb).focus().type("{rightArrow}");
-    agHelper.Sleep(1000);
+    agHelper.Sleep(2000);
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text", 0)
       .then(($label) => {
