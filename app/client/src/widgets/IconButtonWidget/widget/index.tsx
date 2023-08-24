@@ -241,6 +241,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       tooltip,
       widgetId,
     } = this.props;
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     return (
       <IconButtonComponent
@@ -249,12 +250,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         hasOnClickAction={!!this.props.onClick}
-        height={
-          this.isAutoLayoutMode
-            ? 32
-            : (this.props.bottomRow - this.props.topRow) *
-              this.props.parentRowSpace
-        }
+        height={this.isAutoLayoutMode ? 32 : componentHeight}
         iconName={iconName}
         isDisabled={isDisabled}
         isVisible={isVisible}
@@ -264,12 +260,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         renderMode={this.props.renderMode}
         tooltip={tooltip}
         widgetId={widgetId}
-        width={
-          this.isAutoLayoutMode
-            ? 32
-            : (this.props.rightColumn - this.props.leftColumn) *
-              this.props.parentColumnSpace
-        }
+        width={this.isAutoLayoutMode ? 32 : componentWidth}
       />
     );
   }
