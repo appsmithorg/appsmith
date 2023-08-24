@@ -10,9 +10,9 @@ import { useVisuallyHidden } from "@react-aria/visually-hidden";
 import type { SpectrumSwitchProps } from "@react-types/switch";
 import type { FocusableRef, StyleProps, Validation } from "@react-types/shared";
 
+import { CheckboxGroupContext } from "../Checkbox";
 import type { InlineLabelProps } from "../Checkbox";
-import { CheckboxGroupContext } from "../Checkbox/context";
-import type { CheckboxGroupContextType } from "../Checkbox/context";
+import type { CheckboxGroupContextType } from "../Checkbox";
 
 export interface SwitchProps
   extends Omit<SpectrumSwitchProps, keyof StyleProps>,
