@@ -8,16 +8,20 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -58,6 +62,7 @@ import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -98,6 +103,12 @@ public class UserServiceTest {
 
     @MockBean
     PasswordResetTokenRepository passwordResetTokenRepository;
+
+    @MockBean
+    EmailVerificationTokenRepository emailVerificationTokenRepository;
+
+    @Autowired
+    TenantService tenantService;
 
     Mono<User> userMono;
 
@@ -716,5 +727,73 @@ public class UserServiceTest {
                 manageUserPolicy.getPermissionGroups().stream().findFirst().get();
 
         assertThat(userManagementRole.getId()).isEqualTo(userManagementRoleId);
+    }
+
+    private ResendEmailVerificationDTO getResendEmailVerificationDTO(String email) {
+        ResendEmailVerificationDTO resendEmailVerificationDTO = new ResendEmailVerificationDTO();
+        resendEmailVerificationDTO.setEmail(email);
+        resendEmailVerificationDTO.setBaseUrl(DEFAULT_ORIGIN_HEADER);
+        return resendEmailVerificationDTO;
+    }
+
+    @Test
+    public void emailVerificationTokenGenerate_WhenInstanceEmailVerificationIsNotEnabled_ThrowsException() {
+        String testEmail = "test-email-for-verification";
+
+        // create user
+        User newUser = new User();
+        newUser.setEmail(testEmail);
+        Mono<User> userMono = userRepository.save(newUser);
+
+        // Setting tenant Config emailVerificationEnabled to FALSE
+        Mono<Tenant> tenantMono = tenantService.getDefaultTenant().flatMap(tenant1 -> {
+            TenantConfiguration tenantConfiguration = tenant1.getTenantConfiguration();
+            tenantConfiguration.setEmailVerificationEnabled(Boolean.FALSE);
+            tenant1.setTenantConfiguration(tenantConfiguration);
+            return tenantService.update(tenant1.getId(), tenant1);
+        });
+
+        Mono<Boolean> emailVerificationMono =
+                userService.resendEmailVerification(getResendEmailVerificationDTO(testEmail), null);
+
+        Mono<Boolean> resultMono = userMono.then(tenantMono).then(emailVerificationMono);
+
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(error -> {
+                    assertThat(error.getMessage()).startsWith("Email verification is not enabled");
+                    return true;
+                })
+                .verify();
+    }
+
+    @Test
+    public void emailVerificationTokenGenerate_WhenUserEmailAlreadyVerified_ThrowsException() {
+        String testEmail = "test-email-for-verification-user-already-verified";
+
+        // create user
+        User newUser = new User();
+        newUser.setEmail(testEmail);
+        newUser.setEmailVerified(Boolean.TRUE);
+        Mono<User> userMono = userRepository.save(newUser);
+
+        // Setting tenant Config emailVerificationEnabled to TRUE
+        Mono<Tenant> tenantMono = tenantService.getDefaultTenant().flatMap(tenant1 -> {
+            TenantConfiguration tenantConfiguration = tenant1.getTenantConfiguration();
+            tenantConfiguration.setEmailVerificationEnabled(Boolean.TRUE);
+            tenant1.setTenantConfiguration(tenantConfiguration);
+            return tenantService.update(tenant1.getId(), tenant1);
+        });
+
+        Mono<Boolean> emailVerificationMono =
+                userService.resendEmailVerification(getResendEmailVerificationDTO(testEmail), null);
+
+        Mono<Boolean> resultMono = userMono.then(tenantMono).then(emailVerificationMono);
+
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(error -> {
+                    assertThat(error.getMessage()).startsWith("This email has already been verified");
+                    return true;
+                })
+                .verify();
     }
 }
