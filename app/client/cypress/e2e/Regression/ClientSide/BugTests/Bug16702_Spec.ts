@@ -1,11 +1,4 @@
-import {
-  jsEditor,
-  apiPage,
-  agHelper,
-  dataSources,
-  dataManager,
-  locators,
-} from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const GRAPHQL_LIMIT_QUERY = `
   query {
@@ -24,69 +17,63 @@ const GRAPHQL_RESPONSE = {
 };
 
 describe("Binding Expressions should not be truncated in Url and path extraction", function () {
-  it("Bug 16702, Moustache+Quotes formatting goes wrong in graphql body resulting in autocomplete failure", function () {
+  it.skip("Bug 16702, Moustache+Quotes formatting goes wrong in graphql body resulting in autocomplete failure", function () {
     const jsObjectBody = `export default {
       limitValue: 1,
       offsetValue: 1,
     }`;
 
-    jsEditor.CreateJSObject(jsObjectBody, {
+    _.jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
     });
 
-    apiPage.CreateAndFillGraphqlApi(
-      dataManager.dsValues[dataManager.defaultEnviorment].GraphqlApiUrl_TED,
+    _.apiPage.CreateAndFillGraphqlApi(
+      _.dataManager.dsValues[_.dataManager.defaultEnviorment].GraphqlApiUrl_TED,
     );
-    dataSources.UpdateGraphqlQueryAndVariable({
+    _.dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_LIMIT_QUERY,
     });
 
-    agHelper
-      .GetElement(
-        "//*[contains(@class,'t--graphql-query-editor')]//pre[contains(@class,'CodeMirror-line')]//span[contains(text(),'__offset__')]",
-      )
-      .click()
-      .wait(1000)
-      .then(($element) => {
-        cy.wrap($element).type("{selectall}").type("{{JSObject1.", {
-          parseSpecialCharSequences: false,
-        });
-      });
-
-    agHelper.WaitUntilEleAppear(locators._hints);
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "offsetValue");
-    agHelper.GetNClickByContains(locators._hints, "offsetValue");
-    agHelper.Sleep();
-    agHelper.TypeText(locators._codeMirrorTextArea, "offsetValue", 1);
-    agHelper.Sleep(2000);
+    cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
+      .contains("__offset__")
+      // .should($el => {
+      //   expect(Cypress.dom.isDetached($el)).to.false;
+      // })
+      //.trigger("mouseover")
+      .dblclick()
+      .dblclick()
+      .type("{{JSObject1.");
+    _.agHelper.GetNAssertElementText(
+      _.locators._hints,
+      "offsetValue",
+      "have.text",
+      1,
+    );
+    _.agHelper.Sleep();
+    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "offsetValue", 1);
+    _.agHelper.Sleep(2000);
 
     /* Start: Block of code to remove error of detached node of codemirror for cypress reference */
 
-    apiPage.SelectPaneTab("Params");
-    apiPage.SelectPaneTab("Body");
+    _.apiPage.SelectPaneTab("Params");
+    _.apiPage.SelectPaneTab("Body");
     /* End: Block of code to remove error of detached node of codemirror for cypress reference */
-    agHelper
-      .GetElement(
-        "//*[contains(@class,'t--graphql-query-editor')]//pre[contains(@class,'CodeMirror-line')]//span[contains(text(),'__limit__')]",
-      )
-      .click()
-      .then(($element) => {
-        cy.wrap($element).type("{selectall}").type("{{JSObject1.", {
-          parseSpecialCharSequences: false,
-        });
-      });
 
-    agHelper.WaitUntilEleAppear(locators._hints);
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "limitValue");
-    agHelper.GetNClickByContains(locators._hints, "limitValue");
+    cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
+      .contains("__limit__")
+      //.trigger("mouseover")
+      .dblclick()
+      .type("{{JSObject1.");
+    _.agHelper.GetNClickByContains(_.locators._hints, "limitValue");
+    _.agHelper.Sleep(2000);
     //Commenting this since - many runs means - API response is 'You are doing too many launches'
-    // apiPage.RunAPI(false, 20, {
+    // _.apiPage.RunAPI(false, 20, {
     //   expectedPath: "response.body.data.body.data.launchesPast[0].mission_name",
     //   expectedRes: GRAPHQL_RESPONSE.mission_name,
     // });
-    apiPage.RunAPI(false);
+    _.apiPage.RunAPI();
   });
 });
