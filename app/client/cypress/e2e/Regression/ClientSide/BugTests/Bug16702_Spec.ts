@@ -10,9 +10,9 @@ import {
 const GRAPHQL_LIMIT_QUERY = `
   query {
     launchesPast(limit:
-      "__limit__"
+      "__limit"
       ,offset:
-      "__offset__"
+      "__offset"
       ) {
       mission_name
       rocket {
@@ -47,10 +47,16 @@ describe("Binding Expressions should not be truncated in Url and path extraction
     agHelper.Sleep();
     agHelper
       .GetElement(
-        "//*[contains(@class,'t--graphql-query-editor')]//pre[contains(@class,'CodeMirror-line')]//span[contains(text(),'__offset__')]",
+        "//*[contains(@class,'t--graphql-query-editor')]//pre[contains(@class,'CodeMirror-line')]//span[contains(text(),'__offset')]",
       )
       .dblclick()
-      .type("{{JSObject1.");
+      .then(($element) => {
+        // Perform actions with the element
+        cy.wrap($element).type('"{{JSObject1.', {
+          parseSpecialCharSequences: false,
+        });
+      });
+
     agHelper.WaitUntilEleAppear(locators._hints);
     agHelper.GetElementsNAssertTextPresence(locators._hints, "offsetValue");
     agHelper.GetNClickByContains(locators._hints, "offsetValue");
@@ -65,10 +71,15 @@ describe("Binding Expressions should not be truncated in Url and path extraction
     /* End: Block of code to remove error of detached node of codemirror for cypress reference */
     agHelper
       .GetElement(
-        "//*[contains(@class,'t--graphql-query-editor')]//pre[contains(@class,'CodeMirror-line')]//span[contains(text(),'__limit__')]",
+        "//*[contains(@class,'t--graphql-query-editor')]//pre[contains(@class,'CodeMirror-line')]//span[contains(text(),'__limit')]",
       )
       .dblclick()
-      .type("{{JSObject1.");
+      .then(($element) => {
+        // Perform actions with the element
+        cy.wrap($element).type('"{{JSObject1.', {
+          parseSpecialCharSequences: false,
+        });
+      });
 
     agHelper.WaitUntilEleAppear(locators._hints);
     agHelper.GetElementsNAssertTextPresence(locators._hints, "limitValue");
