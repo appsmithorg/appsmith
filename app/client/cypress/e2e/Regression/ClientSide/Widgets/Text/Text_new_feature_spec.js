@@ -1,10 +1,10 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { agHelper, propPane } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Text Widget color/font/alignment Functionality", function () {
   before(() => {
-    _.agHelper.AddDsl("textDsl");
+    agHelper.AddDsl("textDsl");
   });
 
   beforeEach(() => {
@@ -86,9 +86,8 @@ describe("Text Widget color/font/alignment Functionality", function () {
     cy.wait(500);
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(219, 234, 254)");
-    cy.get(widgetsPage.textColor)
-      .clear({ force: true })
-      .type("purple", { force: true });
+    propPane.EnterJSContext("Text color", "purple");
+    agHelper.Sleep(1000);
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(128, 0, 128)");
 
@@ -109,8 +108,7 @@ describe("Text Widget color/font/alignment Functionality", function () {
     );
 
     //Toggle JS check with cell background:
-    cy.get(widgetsPage.cellBackgroundToggle).click({ force: true });
-    cy.updateCodeInput(widgetsPage.cellBackground, "purple");
+    propPane.EnterJSContext("Background color", "purple");
 
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(128, 0, 128)");
