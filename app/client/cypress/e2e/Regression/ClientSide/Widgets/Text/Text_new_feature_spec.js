@@ -1,6 +1,10 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { agHelper, propPane } from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Text Widget color/font/alignment Functionality", function () {
   before(() => {
@@ -56,11 +60,11 @@ describe("Text Widget color/font/alignment Functionality", function () {
       this.dataSet.TextLabelValueScrollable,
     );
     cy.wait("@updateLayout");
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.get(commonlocators.headingTextStyle)
       .should("have.text", this.dataSet.TextLabelValueScrollable)
       .should("have.css", "font-size", "16px");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Test to validate text format", function () {
