@@ -9,11 +9,9 @@ import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { PluginType } from "entities/Action";
-import { Button, Callout } from "design-system";
+import { Callout } from "design-system";
 import {
   createDatasourceFromForm,
-  redirectAuthorizationCode,
   toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
@@ -268,16 +266,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderEditor = () => {
-    const { datasource, datasourceId, formData, isSaving, messages, pageId } =
-      this.props;
-    const isAuthorized = _.get(
-      datasource,
-      "datasourceConfiguration.authentication.isAuthorized",
-      false,
-    );
+    const { formData, messages } = this.props;
     if (!formData) return;
-
-    const { authentication } = formData;
 
     return (
       <>
@@ -289,29 +279,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           ))}
         {this.renderGeneralSettings()}
         {this.renderOauth2AdvancedSettings()}
-        {formData.authType &&
-          formData.authType === AuthType.OAuth2 &&
-          _.get(authentication, "grantType") ===
-            GrantType.AuthorizationCode && (
-            <FormInputContainer>
-              <Button
-                className="t--save-and-authorize-datasource"
-                isDisabled={this.validate()}
-                isLoading={isSaving}
-                onClick={() =>
-                  this.save(
-                    redirectAuthorizationCode(
-                      pageId,
-                      datasourceId,
-                      PluginType.API,
-                    ),
-                  )
-                }
-              >
-                {isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
-              </Button>
-            </FormInputContainer>
-          )}
       </>
     );
   };
@@ -356,15 +323,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             })}
           </FormInputContainer>
         )}
-        <FormInputContainer data-location-id={btoa("ssl")}>
-          {this.renderCheckboxViaFormControl(
-            "connection.ssl.authTypeControl",
-            "Use Self-Signed Certificate",
-            "",
-            true,
-          )}
-        </FormInputContainer>
-        {this.renderSelfSignedCertificateFields()}
         <Collapsible title="Headers">
           <FormInputContainer
             className="t--headers-array"
@@ -578,6 +536,15 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
     return (
       <>
+        <FormInputContainer data-location-id={btoa("ssl")}>
+          {this.renderCheckboxViaFormControl(
+            "connection.ssl.authTypeControl",
+            "Use Self-Signed Certificate",
+            "",
+            true,
+          )}
+        </FormInputContainer>
+        {this.renderSelfSignedCertificateFields()}
         <FormInputContainer data-location-id={btoa("authentication.grantType")}>
           {this.renderDropdownControlViaFormControl(
             "authentication.grantType",

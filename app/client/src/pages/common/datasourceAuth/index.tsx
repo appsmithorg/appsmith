@@ -20,7 +20,9 @@ import {
   CANCEL,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
+  SAVE_AND_AUTHORISE_BUTTON_TEXT,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
+  SAVE_AND_RE_AUTHORISE_BUTTON_TEXT,
   SAVE_BUTTON_TEXT,
   TEST_BUTTON_TEXT,
   createMessage,
@@ -369,10 +371,18 @@ function DatasourceAuth({
           }
           isLoading={isSaving}
           key={buttonType}
-          onClick={handleDefaultAuthDatasourceSave}
+          onClick={
+            authType === AuthType.OAUTH2
+              ? handleOauthDatasourceSave
+              : handleDefaultAuthDatasourceSave
+          }
           size="md"
         >
-          {createMessage(SAVE_BUTTON_TEXT)}
+          {authType === AuthType.OAUTH2
+            ? isAuthorized
+              ? createMessage(SAVE_AND_RE_AUTHORISE_BUTTON_TEXT)
+              : createMessage(SAVE_AND_AUTHORISE_BUTTON_TEXT)
+            : createMessage(SAVE_BUTTON_TEXT)}
         </Button>
       ),
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (
