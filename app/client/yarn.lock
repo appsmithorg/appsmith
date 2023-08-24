@@ -13760,9 +13760,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.12-alpha.1":
-  version: 1.1.12-alpha.1
-  resolution: "@appsmithorg/design-system-old@npm:1.1.12-alpha.1"
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.11":
+  version: 1.1.11
+  resolution: "@appsmithorg/design-system-old@npm:1.1.11"
   dependencies:
     emoji-mart: 3.0.1
   peerDependencies:
@@ -13782,7 +13782,7 @@ __metadata:
     remixicon-react: ^1.0.0
     styled-components: 5.3.6
     tinycolor2: ^1.4.2
-  checksum: 23f41b34df671b0af232968c27c4aa5376521269fd99e941321e49012eb4460b513d45f3e35889d0130b359fe91cd8fdefe5cbe713349783632ddb7241afec92
+  checksum: 968fc1be2ded862c2cac3bc8ae8eab6642d16ffda7b586aeb87ed69d1bad08ee5e3d1c05098adfb9e80f9c1a6fa6d4bc05d0cd464b700aa39005a5bb6c63b7ca
   languageName: node
   linkType: hard
 
