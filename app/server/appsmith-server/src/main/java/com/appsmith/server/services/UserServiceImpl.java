@@ -187,6 +187,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                             // Add the ID claims here as metadata which can be exposed by the client to appsmith
                             // developers
                             profile.setIdToken(userData.getOidcIdTokenClaims());
+                            profile.setRawIdToken(userData.getRawIdToken());
                         }
                     }
 

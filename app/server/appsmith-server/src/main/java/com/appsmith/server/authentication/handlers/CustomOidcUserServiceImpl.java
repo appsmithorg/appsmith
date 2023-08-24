@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
@@ -111,6 +112,7 @@ public class CustomOidcUserServiceImpl extends CustomOidcUserServiceCEImpl
             OAuth2AccessToken accessToken = userRequest.getAccessToken();
             Map<String, Object> idTokenClaims = userRequest.getIdToken().getClaims();
             Map<String, Object> userClaims = oidcUser.getUserInfo().getClaims();
+            String rawIdToken = (String) userRequest.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN);
 
             updates.setOidcAccessToken(new AppsmithOidcAccessToken(
                     accessToken.getTokenType(),
@@ -121,6 +123,7 @@ public class CustomOidcUserServiceImpl extends CustomOidcUserServiceCEImpl
 
             updates.setUserClaims(userClaims);
             updates.setOidcIdTokenClaims(idTokenClaims);
+            updates.setRawIdToken(rawIdToken);
 
             return userDataService.updateForUser(user, updates).thenReturn(user);
         });
