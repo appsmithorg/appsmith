@@ -20,7 +20,7 @@ export function useConnectData() {
 
   const widget = useSelector((state: AppState) => getWidget(state, widgetId));
 
-  const { primaryColumn, selectedColumns } = useColumns("", false);
+  const { columns, primaryColumn } = useColumns("", false);
 
   const isLoading = useSelector(
     getisOneClickBindingConnectingForWidget(widgetId),
@@ -44,7 +44,7 @@ export function useConnectData() {
       widgetId: widgetId,
       tableHeaderIndex: config.tableHeaderIndex,
       searchableColumn,
-      columns: selectedColumns,
+      columns: columns.filter((column) => column.isSelected),
       primaryColumn,
       connectionMode: config.datasourceConnectionMode,
       aliases: Object.entries(config.alias).map(([key, value]) => ({

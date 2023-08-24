@@ -124,39 +124,26 @@ export function useColumns(alias: string, isSearcheable: boolean) {
       selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
       isArray(sheetColumns?.value)
     ) {
-      const columns = sheetColumns.value.map((column: any) => {
+      return sheetColumns.value.map((column: any) => {
         return {
           name: column.value,
           type: "string",
           isSelected: true,
         };
       });
-      return {
-        columns: columns,
-        selectedColumns: config.selectedColumns || columns,
-      };
     } else if (isArray(columns)) {
-      const processedColumns = columns.map((column: any) => {
+      return columns.map((column: any) => {
         return {
           name: column.name,
           type: prepareColumns(column.type),
           isSelected:
             column.name === primaryColumn
-              ? config.excludePrimaryColumn
-                ? false
-                : true
+              ? !config.excludePrimaryColumn
               : column?.isSelected === undefined || column?.isSelected,
         };
       });
-      return {
-        columns: processedColumns,
-        selectedColumns: config.selectedColumns || processedColumns,
-      };
     } else {
-      return {
-        columns: [],
-        selectedColumns: undefined,
-      };
+      return [];
     }
   }, [columns, sheetColumns, config, selectedDatasourcePluginPackageName]);
 
@@ -215,10 +202,7 @@ export function useColumns(alias: string, isSearcheable: boolean) {
         !!config.sheet) &&
       !!config.table,
     primaryColumn,
-    columns: columnList.selectedColumns,
-    selectedColumns: columnList.selectedColumns?.filter(
-      (column: any) => column.isSelected,
-    ),
+    columns: config.selectedColumns || columnList,
     disabled: isConnecting,
     onClear,
   };
