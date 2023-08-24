@@ -14,7 +14,7 @@
         {
           "label": "Connection method",
           "configProperty": "datasourceConfiguration.properties[1].value",
-          "controlType": "DROP_DOWN",
+          "controlType": "SEGMENTED_CONTROL",
           "initialValue": "STANDARD",
           "options": [
             {

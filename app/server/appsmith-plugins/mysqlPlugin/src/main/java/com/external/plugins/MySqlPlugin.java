@@ -77,6 +77,7 @@ import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SSHUtils.getConnectionContext;
+import static com.appsmith.external.helpers.SSHUtils.isSSHTunnelConnected;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.plugins.exceptions.MySQLErrorMessages.CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG;
 import static com.external.utils.MySqlDatasourceUtils.getNewConnectionPool;
@@ -94,7 +95,7 @@ public class MySqlPlugin extends BasePlugin {
     private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
     private static final String IS_KEY = "is";
     public static final String JSON_DB_TYPE = "JSON";
-    public static final int CONNECTION_TYPE_INDEX = 1;
+    public static final int CONNECTION_METHOD_INDEX = 1;
     public static final MySqlErrorUtils mySqlErrorUtils = MySqlErrorUtils.getInstance();
 
     /**
@@ -584,40 +585,49 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<ConnectionContext> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            // TODO: convert this into Mono
-            ConnectionPool pool = null;
-            ConnectionContext connectionContext = null;
-            try {
-                connectionContext = getConnectionContext(datasourceConfiguration, CONNECTION_TYPE_INDEX);
-                pool = getNewConnectionPool(datasourceConfiguration, connectionContext);
-                connectionContext.setConnection(pool);
-            } catch (AppsmithPluginException e) {
-                return Mono.error(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e); // TODO: return Appsmith exception
-            }
-
-            return Mono.just(connectionContext);
+            return Mono.just(datasourceConfiguration)
+                    .flatMap(ignore -> {
+                        ConnectionContext connectionContext;
+                        try {
+                            connectionContext = getConnectionContext(datasourceConfiguration, CONNECTION_METHOD_INDEX);
+                            ConnectionPool pool = getNewConnectionPool(datasourceConfiguration, connectionContext);
+                            connectionContext.setConnection(pool);
+                            return Mono.just(connectionContext);
+                        } catch (AppsmithPluginException e) {
+                            return Mono.error(e);
+                        }
+                    });
         }
 
         @Override
         public void datasourceDestroy(ConnectionContext connectionContext) {
-            // TODO: convert to mono and handle try catch
-            SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
-            if (sshTunnelContext != null) {
-                try {
-                    sshTunnelContext.getServerSocket().close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                    sshTunnelContext.getSshClient().disconnect();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                sshTunnelContext.getThread().stop();
-            }
+            Mono.just(connectionContext)
+                    .flatMap(ignore -> {
+                        SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
+                        if (sshTunnelContext != null) {
+                            try {
+                                /**
+                                 * IMO, order of these operations is important here (not sure), this particular order
+                                 * seems safe. e.g. if the thread is stopped first then there may be some issues with
+                                 * closing the server socket or disconnecting client.
+                                 */
+                                sshTunnelContext.getServerSocket().close();
+                                sshTunnelContext.getSshClient().disconnect();
+                                sshTunnelContext.getThread().stop();
+                            } catch (IOException e) {
+                                log.debug("Failed to destroy SSH tunnel context: {}", e.getMessage());
+                            }
+                        }
 
+                        return Mono.empty();
+                    })
+                    .subscribeOn(scheduler)
+                    .subscribe();
+
+            /**
+             * This database connection destroy can be scheduled independently of the previous SSH tunnel destroy
+             * because they are not related to each other. They operate as independent units.
+             */
             ConnectionPool connectionPool = (ConnectionPool) connectionContext.getConnection();
             if (connectionPool != null) {
                 connectionPool
@@ -644,13 +654,15 @@ public class MySqlPlugin extends BasePlugin {
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
             ConnectionPool connectionPool = (ConnectionPool) connectionContext.getConnection();
+            SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
             return Mono.usingWhen(
                             connectionPool.create(),
                             connection -> Mono.from(connection.validate(ValidationDepth.REMOTE))
                                     .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
                                     .onErrorMap(
-                                            TimeoutException.class,
-                                            error -> new StaleConnectionException(error.getMessage()))
+                                        TimeoutException.class,
+                                        error -> new StaleConnectionException(error.getMessage()))
+                                    .map(isConnectionValid -> isConnectionValid && isSSHTunnelConnected(sshTunnelContext))
                                     .flatMapMany(isValid -> {
                                         if (isValid) {
                                             return connection
