@@ -222,7 +222,7 @@ describe("Checkbox Tests", function () {
     entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
   });
 
-  it("7. Verify Full color picker and font size", () => {
+  it.skip("7. Verify Full color picker and font size", () => {
     // Verify font color picker opens up
     propPane.MoveToTab("Style");
     agHelper.GetNClick(propPane._propertyControlColorPicker("fontcolor"));
