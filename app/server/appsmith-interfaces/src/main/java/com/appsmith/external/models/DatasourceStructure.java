@@ -114,21 +114,28 @@ public class DatasourceStructure {
         String title;
         String body;
         Object configuration;
+        boolean isSuggested;
 
         // To create templates for plugins which store the configurations
         // in List<Property> format
-        public Template(String title, String body, List<Property> configuration) {
+        public Template(String title, String body, List<Property> configuration, boolean isSuggested) {
             this.title = title;
             this.body = body;
             this.configuration = configuration;
+            if (isSuggested) {
+                this.isSuggested = isSuggested;
+            }
         }
 
         // To create templates for plugins with UQI framework which store the configurations
         // as a map
-        public Template(String title, String body, Map<String, ?> configuration) {
+        public Template(String title, String body, Map<String, ?> configuration, boolean isSuggested) {
             this.title = title;
             this.body = body;
             this.configuration = configuration;
+            if (isSuggested) {
+                this.isSuggested = isSuggested;
+            }
         }
 
         /**
@@ -136,15 +143,21 @@ public class DatasourceStructure {
          * <p>
          * For integrations that use UQI interface, a config map is used to indicate the required template.
          */
-        public Template(String title, Map<String, ?> configuration) {
+        public Template(String title, Map<String, ?> configuration, boolean isSuggested) {
             this.title = title;
             this.configuration = configuration;
+            if (isSuggested) {
+                this.isSuggested = isSuggested;
+            }
         }
 
         // Creating templates without configuration
-        public Template(String title, String body) {
+        public Template(String title, String body, boolean isSuggested) {
             this.title = title;
             this.body = body;
+            if (isSuggested) {
+                this.isSuggested = isSuggested;
+            }
         }
     }
 
