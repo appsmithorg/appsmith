@@ -73,7 +73,6 @@ describe("Binding Expressions should not be truncated in Url and path extraction
         "//*[contains(@class,'t--graphql-query-editor')]//pre[contains(@class,'CodeMirror-line')]//span[contains(text(),'__limit__')]",
       )
       .click()
-      .wait(1000)
       .then(($element) => {
         cy.wrap($element).type("{selectall}").type("{{JSObject1.", {
           parseSpecialCharSequences: false,
