@@ -17,10 +17,32 @@ import type { AutocompletionDefinitions } from "widgets/constants";
 import { ChartErrorComponent } from "../component/ChartErrorComponent";
 import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 import { EmptyChartData } from "../component/EmptyChartData";
+import * as Sentry from "@sentry/react";
 
 const ChartComponent = lazy(() =>
   retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
 );
+
+export const isChartDataValid = (props: ChartWidgetProps): boolean => {
+  switch (props.chartType) {
+    case "CUSTOM_FUSION_CHART": {
+      return !!props.customFusionChartConfig;
+    }
+    default: {
+      for (const seriesID in props.chartData) {
+        const seriesData = props.chartData[seriesID];
+
+        if (!seriesData) {
+          return false;
+        }
+        if (!seriesData.data) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+};
 
 export const emptyChartData = (props: ChartWidgetProps) => {
   if (props.chartType == "CUSTOM_FUSION_CHART") {
@@ -93,11 +115,36 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     );
   };
 
+  sendSentryErrorMessage(props: ChartWidgetProps) {
+    try {
+      const errorProps = {
+        chartData: props.chartData,
+        customFusionChartConfig: props.customFusionChartConfig,
+        chartType: props.chartType,
+      };
+
+      const message = `Getting undefined/null chart data ${JSON.stringify(
+        errorProps,
+      )}`;
+      Sentry.captureMessage(message, Sentry.Severity.Error);
+    } catch (error) {
+      const message =
+        "Error in capturing sentry error " + (error as Error).message;
+      Sentry.captureMessage(message, Sentry.Severity.Error);
+    }
+  }
+
   getPageView() {
     const errors = syntaxErrorsFromProps(this.props);
 
     if (errors.length == 0) {
-      if (emptyChartData(this.props)) {
+      const validData = isChartDataValid(this.props);
+
+      if (!validData) {
+        this.sendSentryErrorMessage(this.props);
+      }
+
+      if (!validData || emptyChartData(this.props)) {
         return <EmptyChartData />;
       } else {
         return (

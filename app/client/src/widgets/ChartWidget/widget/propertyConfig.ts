@@ -73,6 +73,7 @@ export const contentConfig = [
         validation: {
           type: ValidationTypes.OBJECT,
           params: {
+            default: {},
             allowedKeys: [
               {
                 type: ValidationTypes.TEXT,

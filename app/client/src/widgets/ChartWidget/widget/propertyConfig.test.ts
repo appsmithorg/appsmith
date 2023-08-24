@@ -125,4 +125,11 @@ describe("Validate Chart Widget's property config", () => {
     ) as unknown as PropertyPaneControlConfig; // propertyName: "chartData.data"
     expect(chartDataDataConfig.validation?.params?.default).toEqual([]);
   });
+
+  it("validates that default value is present for customFusionChartConfig property", () => {
+    const customFusionChartConfig: any = get(config, "[0].children.[1]");
+    const defaultValue = customFusionChartConfig.validation.params.default;
+
+    expect(defaultValue).toEqual({});
+  });
 });
