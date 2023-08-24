@@ -729,8 +729,6 @@ export const SCHEMA_WALKTHROUGH_DESC = () =>
 
 export const DATASOURCE_VIEW_DATA_TAB = () => "View data";
 export const DATASOURCE_CONFIGURATIONS_TAB = () => "Configurations";
-export const DATASOURCE_LIST_AND_DETAIL_PAGE = () =>
-  "Create a list and detail page";
 export const DATASOURCE_NO_RECORDS_TO_SHOW = () => "No data records to show";
 
 // Git sync

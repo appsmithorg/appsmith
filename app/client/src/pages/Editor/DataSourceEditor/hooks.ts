@@ -16,12 +16,13 @@ type UseDatasourceQueryReturn = {
 
 type UseDatasourceQueryParams = {
   setPreviewData: (data: any) => void;
+  setPreviewDataError: (string: any) => void;
 };
 
 export const useDatasourceQuery = ({
   setPreviewData,
-}: //   setPreviewDataError,
-UseDatasourceQueryParams): UseDatasourceQueryReturn => {
+  setPreviewDataError,
+}: UseDatasourceQueryParams): UseDatasourceQueryReturn => {
   const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +36,7 @@ UseDatasourceQueryParams): UseDatasourceQueryReturn => {
       if (Array.isArray(payload.data?.body)) {
         setPreviewData(payload.data?.body);
       } else {
-        // setPreviewDataError(payload.data?.body);
+        setPreviewDataError(payload.data?.body);
       }
     }
   }, []);
@@ -49,6 +50,10 @@ UseDatasourceQueryParams): UseDatasourceQueryReturn => {
     (data: FetchPreviewData) => {
       setIsLoading(true);
       setFailedFetchingPreviewData(false);
+
+      // reset states
+      setPreviewDataError("");
+      setPreviewData([]);
 
       dispatch(
         executeDatasourceQuery({

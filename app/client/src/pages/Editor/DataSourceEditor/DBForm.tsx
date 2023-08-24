@@ -175,7 +175,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                     </Tab>
                   </TabsList>
                   <TabPanelContainer value={VIEW_MODE_TABS.VIEW_DATA}>
-                    <DatasourceViewModeSchema datasourceId={datasourceId} />
+                    <DatasourceViewModeSchema
+                      datasource={datasource}
+                      datasourceId={datasourceId}
+                    />
                   </TabPanelContainer>
                   <ConfigurationTabPanelContainer
                     value={VIEW_MODE_TABS.CONFIGURATIONS}
@@ -192,18 +195,18 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                   </ConfigurationTabPanelContainer>
                 </TabsContainer>
               )}
-            {!this.props.isEnabledForDSViewModeSchema ||
-              (!this.props.isPluginAllowedToPreviewData && (
-                <ViewModeWrapper data-testid="t--ds-review-section">
-                  {!_.isNil(formConfig) && !_.isNil(datasource) ? (
-                    <DatasourceInformation
-                      config={formConfig[0]}
-                      datasource={datasource}
-                      viewMode={viewMode}
-                    />
-                  ) : undefined}
-                </ViewModeWrapper>
-              ))}
+            {(!this.props.isEnabledForDSViewModeSchema ||
+              !this.props.isPluginAllowedToPreviewData) && (
+              <ViewModeWrapper data-testid="t--ds-review-section">
+                {!_.isNil(formConfig) && !_.isNil(datasource) ? (
+                  <DatasourceInformation
+                    config={formConfig[0]}
+                    datasource={datasource}
+                    viewMode={viewMode}
+                  />
+                ) : undefined}
+              </ViewModeWrapper>
+            )}
           </>
         )}
       </Form>

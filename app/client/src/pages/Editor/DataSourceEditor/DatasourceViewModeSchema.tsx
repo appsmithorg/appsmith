@@ -13,10 +13,10 @@ import DatasourceStructureHeader from "../Explorer/Datasources/DatasourceStructu
 import { MessageWrapper, TableWrapper } from "../SaaSEditor/GoogleSheetSchema";
 import { Spinner, Text, Button } from "design-system";
 import {
-  DATASOURCE_LIST_AND_DETAIL_PAGE,
   DATASOURCE_NO_RECORDS_TO_SHOW,
   GSHEETS_ERR_FETCHING_PREVIEW_DATA,
   GSHEETS_FETCHING_PREVIEW_DATA,
+  GSHEETS_GENERATE_PAGE_BUTTON,
   createMessage,
 } from "@appsmith/constants/messages";
 import Table from "pages/Editor/QueryEditor/Table";
@@ -24,9 +24,20 @@ import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams } from "react-router";
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import type { ExplorerURLParams } from "ce/pages/Editor/Explorer/helpers";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { GENERATE_PAGE_MODE } from "../GeneratePage/components/GeneratePageForm/GeneratePageForm";
 import { useDatasourceQuery } from "./hooks";
+import type { Datasource, DatasourceTable } from "entities/Datasource";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import {
+  hasCreateDatasourceActionPermission,
+  hasCreatePagePermission,
+} from "@appsmith/utils/permissionHelpers";
+import type { AppState } from "@appsmith/reducers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ViewModeSchemaContainer = styled.div`
   height: 100%;
@@ -64,6 +75,7 @@ const ButtonContainer = styled.div`
 
 type Props = {
   datasourceId: string;
+  datasource: Datasource;
 };
 
 const DatasourceViewModeSchema = (props: Props) => {
@@ -73,13 +85,25 @@ const DatasourceViewModeSchema = (props: Props) => {
     getDatasourceStructureById(state, props.datasourceId),
   );
 
+  const pagePermissions = useSelector(getPagePermissions);
+  const datasourcePermissions = props.datasource?.userPermissions || [];
+
+  const userAppPermissions = useSelector(
+    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+  );
+  const canCreatePages = hasCreatePagePermission(userAppPermissions);
+
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
+
   const applicationId: string = useSelector(getCurrentApplicationId);
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
 
   const [tableName, setTableName] = useState("");
   const [previewData, setPreviewData] = useState([]);
-  // leaving this here if we ever want to show error from server
-  // const [previewDataError, setPreviewDataError] = useState(false);
+  const [previewDataError, setPreviewDataError] = useState("");
 
   const numberOfEntities = useSelector(getNumberOfEntitiesInCurrentPage);
   const currentMode = useRef(
@@ -89,7 +113,7 @@ const DatasourceViewModeSchema = (props: Props) => {
   );
 
   const { failedFetchingPreviewData, fetchPreviewData, isLoading } =
-    useDatasourceQuery({ setPreviewData });
+    useDatasourceQuery({ setPreviewData, setPreviewDataError });
 
   // default table name to first table
   useEffect(() => {
@@ -100,13 +124,19 @@ const DatasourceViewModeSchema = (props: Props) => {
     ) {
       setTableName(datasourceStructure.tables[0].name);
     }
+
+    if (datasourceStructure && datasourceStructure?.error) {
+      setPreviewData([]);
+      setPreviewDataError(datasourceStructure?.error?.message);
+      setTableName("");
+    }
   }, [datasourceStructure]);
 
   // this fetches the preview data when the table name changes
   useEffect(() => {
     if (tableName && datasourceStructure && datasourceStructure.tables) {
       const templates = datasourceStructure.tables.find(
-        (structure) => structure.name === tableName,
+        (structure: DatasourceTable) => structure.name === tableName,
       )?.templates;
       if (templates) {
         fetchPreviewData({
@@ -117,7 +147,20 @@ const DatasourceViewModeSchema = (props: Props) => {
     }
   }, [tableName]);
 
+  useEffect(() => {
+    if (previewData && previewData.length > 0) {
+      AnalyticsUtil.logEvent("DATASOURCE_PREVIEW_DATA_SHOWN", {
+        datasourceId: props.datasourceId,
+        pluginId: props.datasource.pluginId,
+      });
+    }
+  }, [previewData]);
+
   const onEntityTableClick = (table: string) => {
+    AnalyticsUtil.logEvent("DATASOURCE_PREVIEW_TABLE_CHANGE", {
+      datasourceId: props.datasourceId,
+      pluginId: props.datasource.pluginId,
+    });
     setTableName(table);
   };
 
@@ -139,9 +182,21 @@ const DatasourceViewModeSchema = (props: Props) => {
         datasourceId: props.datasourceId || "",
       };
 
+      AnalyticsUtil.logEvent("DATASOURCE_GENERATE_PAGE_BUTTON_CLICKED", {
+        datasourceId: props.datasourceId,
+        pluginId: props.datasource.pluginId,
+      });
+
       dispatch(generateTemplateToUpdatePage(payload));
     }
   };
+
+  const showGeneratePageBtn =
+    !isLoading &&
+    !failedFetchingPreviewData &&
+    tableName &&
+    canCreateDatasourceActions &&
+    canCreatePages;
 
   return (
     <ViewModeSchemaContainer>
@@ -160,7 +215,7 @@ const DatasourceViewModeSchema = (props: Props) => {
         </DatasourceListContainer>
       </StructureContainer>
       <DatasourceDataContainer>
-        {!isLoading && !failedFetchingPreviewData && (
+        {showGeneratePageBtn && (
           <ButtonContainer>
             <Button
               className="t--gsheet-generate-page"
@@ -169,7 +224,7 @@ const DatasourceViewModeSchema = (props: Props) => {
               onClick={generatePageAction}
               size="md"
             >
-              {createMessage(DATASOURCE_LIST_AND_DETAIL_PAGE)}
+              {createMessage(GSHEETS_GENERATE_PAGE_BUTTON)}
             </Button>
           </ButtonContainer>
         )}
@@ -190,14 +245,22 @@ const DatasourceViewModeSchema = (props: Props) => {
           )}
           {!isLoading &&
             !failedFetchingPreviewData &&
+            !previewDataError &&
             previewData?.length > 0 && <Table data={previewData} />}
           {!isLoading &&
             !failedFetchingPreviewData &&
+            !previewDataError &&
             previewData?.length < 1 && (
               <MessageWrapper>
-                <Text>{DATASOURCE_NO_RECORDS_TO_SHOW}</Text>
+                <Text>{createMessage(DATASOURCE_NO_RECORDS_TO_SHOW)}</Text>
               </MessageWrapper>
             )}
+          {/* leaving this here in case we decide to show errors from server */}
+          {/* {!isLoading && !failedFetchingPreviewData && previewDataError && (
+            <MessageWrapper>
+              <Text>{previewDataError}</Text>
+            </MessageWrapper>
+          )} */}
         </TableWrapper>
       </DatasourceDataContainer>
     </ViewModeSchemaContainer>
