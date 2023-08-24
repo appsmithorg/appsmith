@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import { get, omit } from "lodash";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -14,9 +14,45 @@ import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { Classes } from "@blueprintjs/core";
 import Resizable from "resizable/modalresize";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { MAX_MODAL_WIDTH_FROM_MAIN_WIDTH } from "constants/WidgetConstants";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import { getWidgetByID } from "sagas/selectors";
+import { getCanvasWidth } from "selectors/editorSelectors";
+const minSize = 100;
 
 export const ModalResizableLayer = (props: BaseWidgetProps) => {
+  const { updateWidget } = useContext(EditorContext);
+  const widget = useSelector(getWidgetByID(props.widgetId));
   const disabledResizeHandles = get(props, "disabledResizeHandles", []);
+  const mainCanvasWidth = useSelector(getCanvasWidth);
+  const getMaxModalWidth = () => {
+    return (mainCanvasWidth || 0) * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH;
+  };
+
+  const getModalWidth = (width: number) => {
+    return Math.min(getMaxModalWidth(), width);
+  };
+  const onModalResize = (dimensions: UIElementSize) => {
+    const newDimensions = {
+      height: Math.max(minSize, dimensions.height),
+      width: Math.max(minSize, getModalWidth(dimensions.width)),
+    };
+
+    if (
+      newDimensions.height !== props.height &&
+      isAutoHeightEnabledForWidget(props)
+    )
+      return;
+
+    const canvasWidgetId =
+      widget.children && widget.children.length > 0 ? widget.children[0] : "";
+    updateWidget &&
+      updateWidget("MODAL_RESIZE", props.widgetId, {
+        ...newDimensions,
+        canvasWidgetId,
+      });
+  };
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -32,7 +68,7 @@ export const ModalResizableLayer = (props: BaseWidgetProps) => {
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
   const onResizeStop = (dimensions: UIElementSize) => {
-    props.resizeModal && props.resizeModal(dimensions);
+    onModalResize(dimensions);
     // Tell the Canvas that we've stopped resizing
     // Put it later in the stack so that other updates like click, are not propagated to the parent container
     setTimeout(() => {

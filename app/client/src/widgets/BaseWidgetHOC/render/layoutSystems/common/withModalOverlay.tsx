@@ -8,9 +8,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { WidgetComponent } from "../../common/WidgetComponent";
 import { ErrorBoundary } from "@sentry/react";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { FixedLayoutWigdetComponent } from "../FixedLayout/common/FixedLayoutWidgetComponent";
 const Container = styled.div<{
   width?: number;
   height?: number;
@@ -124,7 +124,7 @@ export const withModalOverlay = (
     // }, []);
     return (
       <ErrorBoundary {...props}>
-        <WidgetComponent {...props}>
+        <FixedLayoutWigdetComponent {...props}>
           {/* <ComponentContainer modalPosition={modalPosition}> */}
           <Overlay
             autoFocus={false}
@@ -168,7 +168,7 @@ export const withModalOverlay = (
             </Container>
           </Overlay>
           {/* </ComponentContainer> */}
-        </WidgetComponent>
+        </FixedLayoutWigdetComponent>
       </ErrorBoundary>
     );
   }
