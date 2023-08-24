@@ -7,6 +7,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.SSHTunnelContext;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -44,7 +45,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.mariadb.r2dbc.message.server.ColumnDefinitionPacket;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -52,6 +52,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import reactor.pool.PoolShutdownException;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -75,6 +76,7 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.SSHUtils.getConnectionContext;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.plugins.exceptions.MySQLErrorMessages.CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG;
 import static com.external.utils.MySqlDatasourceUtils.getNewConnectionPool;
@@ -84,6 +86,7 @@ import static com.external.utils.MySqlGetStructureUtils.getTemplates;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 public class MySqlPlugin extends BasePlugin {
@@ -91,6 +94,7 @@ public class MySqlPlugin extends BasePlugin {
     private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
     private static final String IS_KEY = "is";
     public static final String JSON_DB_TYPE = "JSON";
+    public static final int CONNECTION_TYPE_INDEX = 1;
     public static final MySqlErrorUtils mySqlErrorUtils = MySqlErrorUtils.getInstance();
 
     /**
@@ -487,7 +491,7 @@ public class MySqlPlugin extends BasePlugin {
             Set<String> messages = new HashSet<>();
 
             List<String> identicalColumns = getIdenticalColumns(columnNames);
-            if (!CollectionUtils.isEmpty(identicalColumns)) {
+            if (!isEmpty(identicalColumns)) {
                 messages.add("Your MySQL query result may not have all the columns because duplicate column names "
                         + "were found for the column(s): "
                         + String.join(", ", identicalColumns) + ". You may use the "
@@ -580,18 +584,40 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<ConnectionContext> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            // TODO: convert this into Mono
             ConnectionPool pool = null;
+            ConnectionContext connectionContext = null;
             try {
-                pool = getNewConnectionPool(datasourceConfiguration);
+                connectionContext = getConnectionContext(datasourceConfiguration, CONNECTION_TYPE_INDEX);
+                pool = getNewConnectionPool(datasourceConfiguration, connectionContext);
+                connectionContext.setConnection(pool);
             } catch (AppsmithPluginException e) {
                 return Mono.error(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e); // TODO: return Appsmith exception
             }
 
-            return Mono.just(new ConnectionContext(pool, null));
+            return Mono.just(connectionContext);
         }
 
         @Override
         public void datasourceDestroy(ConnectionContext connectionContext) {
+            // TODO: convert to mono and handle try catch
+            SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
+            if (sshTunnelContext != null) {
+                try {
+                    sshTunnelContext.getServerSocket().close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    sshTunnelContext.getSshClient().disconnect();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                sshTunnelContext.getThread().stop();
+            }
+
             ConnectionPool connectionPool = (ConnectionPool) connectionContext.getConnection();
             if (connectionPool != null) {
                 connectionPool

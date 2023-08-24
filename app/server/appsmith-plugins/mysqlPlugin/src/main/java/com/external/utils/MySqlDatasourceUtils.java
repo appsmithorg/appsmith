@@ -2,6 +2,7 @@ package com.external.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.ConnectionContext;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
@@ -15,7 +16,6 @@ import io.r2dbc.spi.Option;
 import org.apache.commons.lang.ObjectUtils;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 public class MySqlDatasourceUtils {
 
@@ -59,18 +60,22 @@ public class MySqlDatasourceUtils {
      */
     public static final Duration BACKGROUND_EVICTION_TIME = Duration.ofMinutes(5);
 
-    public static ConnectionFactoryOptions.Builder getBuilder(DatasourceConfiguration datasourceConfiguration) {
+    public static ConnectionFactoryOptions.Builder getBuilder(DatasourceConfiguration datasourceConfiguration, ConnectionContext connectionContext) {
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
         StringBuilder urlBuilder = new StringBuilder();
-        if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+        if (isEmpty(datasourceConfiguration.getEndpoints())) {
             urlBuilder.append(datasourceConfiguration.getUrl());
         } else {
             urlBuilder.append("r2dbc:pool:mariadb://");
             final List<String> hosts = new ArrayList<>();
 
-            for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
+            if (connectionContext.getSshTunnelContext() == null) {
+                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
+                }
+            } else {
+                hosts.add("localhost:" + connectionContext.getSshTunnelContext().getServerSocket().getLocalPort());
             }
 
             urlBuilder.append(String.join(",", hosts)).append("/");
@@ -83,12 +88,12 @@ public class MySqlDatasourceUtils {
         urlBuilder.append("?zeroDateTimeBehavior=convertToNull&allowMultiQueries=true");
         final List<Property> dsProperties = datasourceConfiguration.getProperties();
 
-        if (dsProperties != null) {
-            for (Property property : dsProperties) {
-                if ("serverTimezone".equals(property.getKey()) && !StringUtils.isEmpty(property.getValue())) {
-                    urlBuilder.append("&serverTimezone=").append(property.getValue());
-                    break;
-                }
+        if (!isEmpty(dsProperties)) {
+            Property property = dsProperties.get(0);
+            if (property != null
+                    && "serverTimezone".equals(property.getKey())
+                    && !StringUtils.isEmpty(property.getValue())) {
+                urlBuilder.append("&serverTimezone=").append(property.getValue());
             }
         }
 
@@ -154,9 +159,9 @@ public class MySqlDatasourceUtils {
         }
 
         if (StringUtils.isEmpty(datasourceConfiguration.getUrl())
-                && CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                && isEmpty(datasourceConfiguration.getEndpoints())) {
             invalids.add(MySQLErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
-        } else if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+        } else if (!isEmpty(datasourceConfiguration.getEndpoints())) {
             for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                 if (endpoint.getHost() == null || endpoint.getHost().isBlank()) {
                     invalids.add(MySQLErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
@@ -200,9 +205,9 @@ public class MySqlDatasourceUtils {
         return invalids;
     }
 
-    public static ConnectionPool getNewConnectionPool(DatasourceConfiguration datasourceConfiguration)
+    public static ConnectionPool getNewConnectionPool(DatasourceConfiguration datasourceConfiguration, ConnectionContext connectionContext)
             throws AppsmithPluginException {
-        ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration);
+        ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration, connectionContext);
         ob = addSslOptionsToBuilder(datasourceConfiguration, ob);
         MariadbConnectionFactory connectionFactory =
                 MariadbConnectionFactory.from(MariadbConnectionConfiguration.fromOptions(ob.build())

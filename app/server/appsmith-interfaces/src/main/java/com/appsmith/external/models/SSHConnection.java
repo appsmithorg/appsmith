@@ -1,10 +1,14 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,6 +25,15 @@ public class SSHConnection implements AppsmithDomain {
     String host;
 
     Long port;
+
+    @JsonView(Views.Public.class)
+    List<Endpoint> endpoints;
+
+    public void setEndpoints(List<Endpoint> endpoints) {
+        this.endpoints = endpoints;
+        this.host = endpoints.get(0).getHost();
+        this.port = endpoints.get(0).getPort();
+    }
 
     String username;
 
