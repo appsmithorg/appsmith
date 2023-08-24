@@ -512,7 +512,8 @@ describe("getAllPathsFromPropertyConfig", () => {
       ],
       setAdaptiveYMin: "0",
     };
-    const config = [...contentConfig, ...styleConfig];
+    const customEChartEnabled = true;
+    const config = [...contentConfig(customEChartEnabled), ...styleConfig];
 
     const bindingPaths = {
       chartType: EvaluationSubstitutionType.TEMPLATE,
@@ -579,6 +580,7 @@ describe("getAllPathsFromPropertyConfig", () => {
               "PIE_CHART",
               "COLUMN_CHART",
               "AREA_CHART",
+              "CUSTOM_ECHART",
               "CUSTOM_FUSION_CHART",
             ],
           },
