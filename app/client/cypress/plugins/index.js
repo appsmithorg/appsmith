@@ -74,15 +74,15 @@ module.exports = (on, config) => {
       return launchOptions;
     }
 
-    // if (browser.name === "electron") {
-    //   // && browser.isHeadless) {
-    //   launchOptions.preferences.fullscreen = true;
-    //   launchOptions.preferences.darkTheme = true;
-    //   launchOptions["width"] = 1400;
-    //   launchOptions["height"] = 1100;
-    //   launchOptions["resizable"] = false;
-    //   return launchOptions;
-    // }
+    if (browser.name === "electron") {
+      // && browser.isHeadless) {
+      launchOptions.preferences.fullscreen = true;
+      launchOptions.preferences.darkTheme = true;
+      launchOptions["width"] = 1400;
+      launchOptions["height"] = 1100;
+      launchOptions["resizable"] = false;
+      return launchOptions;
+    }
   });
   // module.exports = (on, config) => {
   //   on("after:spec", (spec, results) => {
