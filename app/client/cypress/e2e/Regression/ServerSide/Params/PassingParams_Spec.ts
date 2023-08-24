@@ -66,10 +66,10 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     apiPage.ToggleOnPageLoadRun(false); //Bug 12476
 
-    deployMode.DeployApp(locators._spanButton("Submit"));
+    deployMode.DeployApp(locators._buttonByText("Submit"));
     agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0, "v2", 3000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
@@ -82,10 +82,10 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this?.params?.condition })() || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locators._spanButton("Submit"));
+    deployMode.DeployApp(locators._buttonByText("Submit"));
     agHelper.SelectDropDown("9");
     agHelper.ClickButton("Submit");
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0, "v2", 3000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
@@ -98,10 +98,10 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this?.params?.condition })() || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locators._spanButton("Submit"));
+    deployMode.DeployApp(locators._buttonByText("Submit"));
     agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
@@ -114,10 +114,10 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{this?.params.condition || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locators._spanButton("Submit"));
+    deployMode.DeployApp(locators._buttonByText("Submit"));
     agHelper.SelectDropDown("9");
     agHelper.ClickButton("Submit");
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
@@ -130,10 +130,10 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this?.params.condition })() || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locators._spanButton("Submit"));
+    deployMode.DeployApp(locators._buttonByText("Submit"));
     agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
@@ -146,10 +146,10 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this?.params.condition })() || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locators._spanButton("Submit"));
+    deployMode.DeployApp(locators._buttonByText("Submit"));
     agHelper.SelectDropDown("9");
     agHelper.ClickButton("Submit");
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
@@ -162,10 +162,10 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{this.params.condition || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locators._spanButton("Submit"));
+    deployMode.DeployApp(locators._buttonByText("Submit"));
     agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
@@ -178,10 +178,10 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this.params.condition })() || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locators._spanButton("Submit"));
+    deployMode.DeployApp(locators._buttonByText("Submit"));
     agHelper.SelectDropDown("8");
     agHelper.ClickButton("Submit");
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
@@ -194,10 +194,10 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '1=1'}} order by id",
     );
-    deployMode.DeployApp(locators._spanButton("Submit"));
+    deployMode.DeployApp(locators._buttonByText("Submit"));
     agHelper.SelectDropDown("9");
     agHelper.ClickButton("Submit");
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
@@ -211,13 +211,13 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '7'}} order by id",
     );
 
-    deployMode.DeployApp(locators._spanButton("Submit"));
+    deployMode.DeployApp(locators._buttonByText("Submit"));
     //Verifh when No selected option passed
     cy.xpath(locators._selectWidgetDropdownInDeployed("selectwidget")).within(
       () => cy.get(locators._crossBtn).click(),
     );
     agHelper.ClickButton("Submit");
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
@@ -230,9 +230,9 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })()}} order by id",
     );
-    deployMode.DeployApp(locators._spanButton("Submit"));
+    deployMode.DeployApp(locators._buttonByText("Submit"));
     agHelper.ClickButton("Submit");
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });

@@ -116,7 +116,7 @@ describe("Tests setTimeout API", function () {
     agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist("Hey there!");
     debuggerHelper.DoesConsoleLogExist("Bye!");
-    debuggerHelper.DoesConsoleLogExist("Working!", false, undefined, 100);
+    debuggerHelper.DoesConsoleLogExist("Working!", false);
     agHelper.Sleep(4000);
     debuggerHelper.DoesConsoleLogExist("Working!");
   });
