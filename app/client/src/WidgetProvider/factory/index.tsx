@@ -183,39 +183,39 @@ class WidgetFactory {
     },
   );
 
-  static getWidgetDefaultPropertiesMap(
-    widgetType: WidgetType,
-  ): Record<string, string> {
-    const widget = WidgetFactory.widgetsMap.get(widgetType);
+  static getWidgetDefaultPropertiesMap = memoize(
+    (widgetType: WidgetType): Record<string, string> => {
+      const widget = WidgetFactory.widgetsMap.get(widgetType);
 
-    const defaultProperties = widget?.getDefaultPropertiesMap();
+      const defaultProperties = widget?.getDefaultPropertiesMap();
 
-    if (defaultProperties) {
-      return defaultProperties;
-    } else {
-      log.error(
-        `Default properties are not defined for widget type: ${widgetType}`,
-      );
-      return {};
-    }
-  }
+      if (defaultProperties) {
+        return defaultProperties;
+      } else {
+        log.error(
+          `Default properties are not defined for widget type: ${widgetType}`,
+        );
+        return {};
+      }
+    },
+  );
 
-  static getWidgetMetaPropertiesMap(
-    widgetType: WidgetType,
-  ): Record<string, unknown> {
-    const widget = WidgetFactory.widgetsMap.get(widgetType);
+  static getWidgetMetaPropertiesMap = memoize(
+    (widgetType: WidgetType): Record<string, unknown> => {
+      const widget = WidgetFactory.widgetsMap.get(widgetType);
 
-    const metaProperties = widget?.getMetaPropertiesMap();
+      const metaProperties = widget?.getMetaPropertiesMap();
 
-    if (metaProperties) {
-      return metaProperties;
-    } else {
-      log.error(
-        `Meta properties are not defined for widget type: ${widgetType}`,
-      );
-      return {};
-    }
-  }
+      if (metaProperties) {
+        return metaProperties;
+      } else {
+        log.error(
+          `Meta properties are not defined for widget type: ${widgetType}`,
+        );
+        return {};
+      }
+    },
+  );
 
   static getWidgetPropertyPaneCombinedConfig = memoize(
     (type: WidgetType): readonly PropertyPaneConfig[] => {
@@ -405,20 +405,15 @@ class WidgetFactory {
     }
   }
 
-  static getWidgetSetterConfig(type: WidgetType): Record<string, any> {
-    const widget = WidgetFactory.widgetsMap.get(type);
+  static getWidgetSetterConfig = memoize(
+    (type: WidgetType): Record<string, any> | null => {
+      const widget = WidgetFactory.widgetsMap.get(type);
 
-    const setterConfig = widget?.getSetterConfig();
+      const setterConfig = widget?.getSetterConfig() || null;
 
-    if (setterConfig) {
       return setterConfig;
-    } else {
-      log.error(
-        `properties setters config is not defined for widget type: ${type}`,
-      );
-      return {};
-    }
-  }
+    },
+  );
 
   static getLoadingProperties(type: WidgetType): Array<RegExp> | undefined {
     const widget = WidgetFactory.widgetsMap.get(type);
@@ -426,7 +421,7 @@ class WidgetFactory {
     return widget?.getLoadingProperties();
   }
 
-  static getWidgetStylesheetConfigMap(widgetType: WidgetType) {
+  static getWidgetStylesheetConfigMap = memoize((widgetType: WidgetType) => {
     const widget = WidgetFactory.widgetsMap.get(widgetType);
 
     const stylesheet = widget?.getStylesheetConfig();
@@ -439,7 +434,7 @@ class WidgetFactory {
       );
       return undefined;
     }
-  }
+  });
 
   static getWidgetMethods(type: WidgetType): WidgetMethods {
     const widget = WidgetFactory.widgetsMap.get(type);
