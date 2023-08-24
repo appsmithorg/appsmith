@@ -12,6 +12,7 @@ import type { ResponseMeta } from "api/ApiResponses";
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
   tab?: GitSyncModalTab;
+  isDeploying: boolean;
 }) => {
   return {
     type: ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN,

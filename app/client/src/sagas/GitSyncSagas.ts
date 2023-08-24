@@ -110,7 +110,7 @@ export function* handleRepoLimitReachedError(response?: ApiResponse) {
     responseMeta?.error?.code ===
     GIT_ERROR_CODES.PRIVATE_REPO_CONNECTIONS_LIMIT_REACHED
   ) {
-    yield put(setIsGitSyncModalOpen({ isOpen: false }));
+    yield put(setIsGitSyncModalOpen({ isOpen: false, isDeploying: false }));
     yield put(setShowRepoLimitErrorModal(true));
     return true;
   }
@@ -688,7 +688,11 @@ function* showConnectGitModal() {
   // currently it just opens the git sync modal assuming the APIs would
   // throw an error instead
   yield put(
-    setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+    setIsGitSyncModalOpen({
+      isOpen: true,
+      tab: GitSyncModalTab.DEPLOY,
+      isDeploying: true,
+    }),
   );
 }
 
@@ -722,6 +726,7 @@ function* disconnectGitSaga() {
       yield put(
         setIsGitSyncModalOpen({
           isOpen: false,
+          isDeploying: false,
         }),
       );
       yield put({
@@ -734,6 +739,7 @@ function* disconnectGitSaga() {
           setIsGitSyncModalOpen({
             isOpen: true,
             tab: GitSyncModalTab.GIT_CONNECTION,
+            isDeploying: false,
           }),
         );
       }
@@ -778,7 +784,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
         // @ts-expect-error: response can be undefined
         const { application: app, isPartialImport } = response?.data;
         yield put(importAppViaGitSuccess()); // reset flag for loader
-        yield put(setIsGitSyncModalOpen({ isOpen: false }));
+        yield put(setIsGitSyncModalOpen({ isOpen: false, isDeploying: false }));
         // there is configuration-missing datasources
         if (isPartialImport) {
           yield put(

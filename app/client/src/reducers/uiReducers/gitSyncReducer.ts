@@ -37,6 +37,7 @@ const initialState: GitSyncReducerState = {
 
   isSwitchingBranch: false,
   switchingToBranch: null,
+  isDeploying: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -45,6 +46,7 @@ const gitSyncReducer = createReducer(initialState, {
     action: ReduxAction<{
       isOpen: boolean;
       tab: GitSyncModalTab;
+      isDeploying: boolean;
     }>,
   ) => {
     const activeGitSyncModalTab = action.payload.tab;
@@ -60,6 +62,7 @@ const gitSyncReducer = createReducer(initialState, {
       mergeError: null,
       pullFailed: false, // reset conflicts when the modal is opened
       gitImportError: null,
+      isDeploying: action.payload.isDeploying,
     };
   },
   [ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT]: (state: GitSyncReducerState) => ({
@@ -663,6 +666,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   isSwitchingBranch: boolean;
   switchingToBranch: string | null;
+  isDeploying: boolean;
 };
 
 export default gitSyncReducer;
