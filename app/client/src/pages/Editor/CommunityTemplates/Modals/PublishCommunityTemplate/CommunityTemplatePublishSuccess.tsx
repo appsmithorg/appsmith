@@ -17,7 +17,7 @@ const CommunityTemplatePublishSuccess = () => {
         <Text kind="body-m" renderAs="p">
           {createMessage(COMMUNITY_TEMPLATES.publishSuccessPage.description)}
         </Text>
-        <Button endIcon="external-link-line" kind="secondary" size="md">
+        <Button endIcon="link" kind="secondary" size="md">
           {createMessage(
             COMMUNITY_TEMPLATES.publishSuccessPage.viewTemplateButton,
           )}
