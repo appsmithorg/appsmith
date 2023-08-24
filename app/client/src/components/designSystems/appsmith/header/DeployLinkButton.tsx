@@ -29,6 +29,7 @@ export const DeployLinkButton = (props: Props) => {
       setIsGitSyncModalOpen({
         isOpen: true,
         tab: GitSyncModalTab.GIT_CONNECTION,
+        isDeploying: false,
       }),
     );
   };

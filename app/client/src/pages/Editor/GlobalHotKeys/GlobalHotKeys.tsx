@@ -396,7 +396,11 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(setExplorerPinnedAction(shouldSet)),
     showCommitModal: () =>
       dispatch(
-        setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+        setIsGitSyncModalOpen({
+          isOpen: true,
+          tab: GitSyncModalTab.DEPLOY,
+          isDeploying: false,
+        }),
       ),
     hideInstaller: () => dispatch(toggleInstaller(false)),
   };

@@ -44,7 +44,7 @@ function DisconnectGitModal() {
 
   const handleClickOnBack = useCallback(() => {
     dispatch(setIsDisconnectGitModalOpen(false));
-    dispatch(setIsGitSyncModalOpen({ isOpen: true }));
+    dispatch(setIsGitSyncModalOpen({ isOpen: true, isDeploying: false }));
     dispatch(setDisconnectingGitApplication({ id: "", name: "" }));
   }, [dispatch]);
 

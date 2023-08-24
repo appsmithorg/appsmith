@@ -210,6 +210,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       setIsGitSyncModalOpen({
         isOpen: true,
         tab: GitSyncModalTab.GIT_CONNECTION,
+        isDeploying: false,
       }),
     );
 

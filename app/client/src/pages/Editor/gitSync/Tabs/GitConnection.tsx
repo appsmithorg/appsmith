@@ -327,7 +327,7 @@ function GitConnection({ isImport }: Props) {
     AnalyticsUtil.logEvent("GS_DISCONNECT_GIT_CLICK", {
       source: "GIT_CONNECTION_MODAL",
     });
-    dispatch(setIsGitSyncModalOpen({ isOpen: false }));
+    dispatch(setIsGitSyncModalOpen({ isOpen: false, isDeploying: false }));
     dispatch(
       setDisconnectingGitApplication({
         id: currentApp?.id || "",
