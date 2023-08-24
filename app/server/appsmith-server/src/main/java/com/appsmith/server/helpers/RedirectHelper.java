@@ -208,8 +208,8 @@ public class RedirectHelper {
     public Mono<String> getAuthSuccessRedirectUrl(
             WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
-        return Mono.just(exchange.getRequest()).flatMap(this::getRedirectUrl).map(s -> {
-            String url = s;
+        return Mono.just(exchange.getRequest()).flatMap(this::getRedirectUrl).map(redirectUrl -> {
+            String url = redirectUrl;
             if (isFromSignup) {
                 boolean addFirstTimeExperienceParam = false;
 

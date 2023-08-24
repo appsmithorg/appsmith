@@ -30,7 +30,9 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<Boolean> resetPasswordAfterForgotPassword(String token, User user);
 
-    Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader, Boolean sendMail);
+    Mono<UserSignupDTO> createUser(User user, String originHeader);
+
+    Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader);
 
     Mono<User> userCreate(User user, boolean isAdminUser);
 

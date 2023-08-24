@@ -17,5 +17,5 @@ import java.time.Instant;
 public class EmailVerificationToken extends BaseDomain {
     String tokenHash;
     String email;
-    Instant tokenGeneratedAt; // verification link is valid for 48 hours
+    Instant tokenGeneratedAt;
 }

@@ -436,7 +436,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Mono<User> create(User user) {
         // This is the path that is taken when a new user signs up on its own
-        return createUserAndSendEmail(user, null, FALSE).map(UserSignupDTO::getUser);
+        return createUser(user, null).map(UserSignupDTO::getUser);
     }
 
     @Override
@@ -499,25 +499,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return addUserPolicies(user).flatMap(repository::save);
     }
 
-    /**
-     * This function creates a new user in the system. Primarily used by new users signing up for the first time on the
-     * platform. This flow also ensures that a default workspace name is created for the user. The new user is then
-     * given admin permissions to the default workspace.
-     * <p>
-     * For new user invite flow, please {@link com.appsmith.server.solutions.UserAndAccessManagementService#inviteUsers(InviteUsersDTO, String)}
-     *
-     * @param user User object representing the user to be created/enabled.
-     * @return Publishes the user object, after having been saved.
-     */
     @Override
-    public Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader, Boolean sendMail) {
-
+    public Mono<UserSignupDTO> createUser(User user, String originHeader) {
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
             originHeader = Appsmith.DEFAULT_ORIGIN_HEADER;
         }
-
-        final String finalOriginHeader = originHeader;
 
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
         if (LoginSource.FORM.equals(user.getSource())) {
@@ -587,17 +574,28 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 log.debug("UserServiceCEImpl::Time taken to find created user: {} ms", pair.getT1());
                                 return pair.getT2();
                             });
-                }))
-                .flatMap(userSignupDTO -> {
-                    User savedUser = userSignupDTO.getUser();
-                    Mono<User> userMono = Mono.just(savedUser);
-                    if (TRUE.equals(sendMail)) {
-                        userMono = emailConfig.isWelcomeEmailEnabled()
-                                ? sendWelcomeEmail(savedUser, finalOriginHeader)
-                                : Mono.just(savedUser);
-                    }
-                    return userMono.thenReturn(userSignupDTO);
-                });
+                }));
+    }
+
+    /**
+     * This function creates a new user in the system. Primarily used by new users signing up for the first time on the
+     * platform. This flow also ensures that a default workspace name is created for the user. The new user is then
+     * given admin permissions to the default workspace.
+     * <p>
+     * For new user invite flow, please {@link com.appsmith.server.solutions.UserAndAccessManagementService#inviteUsers(InviteUsersDTO, String)}
+     *
+     * @param user User object representing the user to be created/enabled.
+     * @return Publishes the user object, after having been saved.
+     */
+    @Override
+    public Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader) {
+        return createUser(user, originHeader).flatMap(userSignupDTO -> {
+            User savedUser = userSignupDTO.getUser();
+            Mono<User> userMono = emailConfig.isWelcomeEmailEnabled()
+                    ? sendWelcomeEmail(savedUser, originHeader)
+                    : Mono.just(savedUser);
+            return userMono.thenReturn(userSignupDTO);
+        });
     }
 
     private Mono<User> signupIfAllowed(User user) {
