@@ -35,6 +35,12 @@ export type ConnectToGitPayload = {
 type GitStatusParam = {
   applicationId: string;
   branch: string;
+  compareRemote: "true" | "false";
+};
+
+type GitRemoteStatusParam = {
+  applicationId: string;
+  branch: string;
 };
 
 class GitSyncAPI extends Api {
@@ -134,9 +140,23 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static getGitStatus({ applicationId, branch }: GitStatusParam) {
+  static getGitStatus({
+    applicationId,
+    branch,
+    compareRemote = "true",
+  }: GitStatusParam) {
     return Api.get(
-      `${GitSyncAPI.baseURL}/status/app/${applicationId}?branchName=${branch}`,
+      `${GitSyncAPI.baseURL}/status/app/${applicationId}`,
+      { compareRemote },
+      { headers: { branchName: branch } },
+    );
+  }
+
+  static getGitRemoteStatus({ applicationId, branch }: GitRemoteStatusParam) {
+    return Api.get(
+      `${GitSyncAPI.baseURL}/fetch/remote/app/${applicationId}`,
+      {},
+      { headers: { branchName: branch } },
     );
   }
 

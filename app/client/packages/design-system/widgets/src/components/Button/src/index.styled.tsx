@@ -75,7 +75,7 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   font-family: inherit;
   border-style: solid;
   border-width: var(--border-width-1);
-  padding-inline: var(--spacing-4);
+  padding-inline: var(--spacing-5);
   block-size: var(--sizing-8);
   min-inline-size: var(--sizing-8);
   border-radius: var(--border-radius-1);
@@ -120,8 +120,6 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: var(--sizing-4);
-    width: var(--sizing-4);
   }
 
   /**
