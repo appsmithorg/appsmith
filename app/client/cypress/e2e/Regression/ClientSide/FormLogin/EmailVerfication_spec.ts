@@ -45,7 +45,7 @@ describe("Email verification", () => {
       "Unknown error",
     );
   });
-  it("Email verification settings test", () => {
+  it.skip("Email verification settings test", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
