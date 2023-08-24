@@ -68,7 +68,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
 
     // Based on information provided on the Branding page.
     private static final int MAX_LOGO_SIZE_KB = 2048;
-    private static final int MAX_FAVICON_SIZE_KB = 1;
+    private static final int MAX_FAVICON_SIZE_KB = 1024;
 
     @Autowired
     public TenantServiceImpl(
@@ -423,7 +423,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     }
 
                     return updateTenantConfiguration(defaultTenant.getId(), updateForTenantConfig);
-                });
+                })
+                .flatMap(updatedTenant -> getTenantConfiguration());
     }
 
     /**
