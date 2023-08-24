@@ -185,6 +185,7 @@ class Editor extends Component<Props> {
             <MainContainer />
             <GitSyncModal />
             <EnvDeployInfoModal />
+
             <DisconnectGitModal />
             <GuidedTourModal />
             <RepoLimitExceededErrorModal />
