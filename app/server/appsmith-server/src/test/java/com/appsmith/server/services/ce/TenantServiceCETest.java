@@ -12,8 +12,10 @@ import com.appsmith.server.solutions.EnvManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -38,7 +40,7 @@ class TenantServiceCETest {
     @Autowired
     TenantService tenantService;
 
-    @Autowired
+    @MockBean
     EnvManager envManager;
 
     @Autowired
@@ -149,9 +151,11 @@ class TenantServiceCETest {
         // adding invalid mail host
         envVars.put("APPSMITH_MAIL_HOST", "");
 
-        final Mono<TenantConfiguration> resultMono = envManager
-                .applyChanges(envVars)
-                .then(tenantService.updateDefaultTenantConfiguration(changes))
+        // mocking env vars file
+        Mockito.when(envManager.getAllNonEmpty()).thenReturn(Mono.just(envVars));
+
+        final Mono<TenantConfiguration> resultMono = tenantService
+                .updateDefaultTenantConfiguration(changes)
                 .then(tenantService.getTenantConfiguration())
                 .map(Tenant::getTenantConfiguration);
 
@@ -173,9 +177,11 @@ class TenantServiceCETest {
         // adding valid mail host
         envVars.put("APPSMITH_MAIL_HOST", "smtp.sendgrid.net");
 
-        final Mono<TenantConfiguration> resultMono = envManager
-                .applyChanges(envVars)
-                .then(tenantService.updateDefaultTenantConfiguration(changes))
+        // mocking env vars file
+        Mockito.when(envManager.getAllNonEmpty()).thenReturn(Mono.just(envVars));
+
+        final Mono<TenantConfiguration> resultMono = tenantService
+                .updateDefaultTenantConfiguration(changes)
                 .then(tenantService.getTenantConfiguration())
                 .map(Tenant::getTenantConfiguration);
 
