@@ -145,6 +145,7 @@ export const useResendEmailVerification = (
           const { code, message } = response.responseMeta.error;
           const errorMessage = `${code}: ${message}`;
           toast.show(errorMessage, { kind: "error" });
+          return;
         }
         toast.show("Verification email sent!", { kind: "success" });
       })
