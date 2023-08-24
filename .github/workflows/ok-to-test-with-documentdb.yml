@@ -1,5 +1,5 @@
 # If someone with write access comments "/ok-to-test" on a pull request, emit a repository_dispatch event
-name: Ok To Test
+name: Ok To Test with DocumentDB
 
 on:
   issue_comment:
@@ -19,7 +19,8 @@ jobs:
           app_id: ${{ secrets.APPSMITH_INTEGRATION_TESTING_ID }}
           private_key: ${{ secrets.APPSMITH_INTEGRATION_TESTING_KEY }}
 
-      - name: Slash Command Dispatch
+      - if: contains(github.event.comment.body, '/ok-to-test-with-documentdb') 
+        name: Slash Command Dispatch
         uses: peter-evans/slash-command-dispatch@v3
         env:
           TOKEN: ${{ steps.generate_token.outputs.token }}
@@ -28,7 +29,6 @@ jobs:
           reaction-token: ${{ secrets.GITHUB_TOKEN }}
           issue-type: pull-request
           commands: |
-            ok-to-test
-            perf-test
-            ci-merge-check
+            ok-to-test-with-documentdb
+            perf-test-on-documentdb
           permission: write
