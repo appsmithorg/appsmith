@@ -312,14 +312,6 @@ export function Table(props: TableProps) {
       (column) => !!column.columnProperties.allowCellWrapping,
     );
 
-  const isVerticalScrollVisible = useMemo(() => {
-    if (scrollBarRef.current) {
-      const scrollElement = scrollBarRef.current.getScrollElement();
-      return scrollElement.scrollHeight > scrollElement.clientHeight;
-    }
-    return false;
-  }, []);
-
   useEffect(() => {
     if (props.isAddRowInProgress) {
       fastdom.mutate(() => {
@@ -331,18 +323,25 @@ export function Table(props: TableProps) {
   }, [props.isAddRowInProgress]);
 
   useEffect(() => {
+    const isVerticalScrollVisible = () => {
+      if (scrollBarRef.current) {
+        const scrollElement = scrollBarRef.current.getScrollElement();
+        return scrollElement.scrollHeight > scrollElement.clientHeight;
+      }
+      return false;
+    };
+
     AnalyticsUtil.logEvent("TABLE_VERTICAL_SCROLL", {
       widgetName: props.widgetName,
       widgetId: props.widgetId,
       pageSize: props.pageSize,
-      yScrollVisibility: isVerticalScrollVisible,
+      yScrollVisibility: isVerticalScrollVisible(),
     });
   }, [
     props.bottomRow,
     props.topRow,
     props.leftColumn,
     props.rightColumn,
-    isVerticalScrollVisible,
     props.pageSize,
   ]);
 
