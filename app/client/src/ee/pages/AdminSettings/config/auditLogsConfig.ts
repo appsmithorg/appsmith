@@ -16,5 +16,4 @@ export const config: AdminConfigType = {
   component: getAuditLogsComponent(isFeatureEnabled),
   title: "Audit logs",
   isFeatureEnabled: isFeatureEnabled,
-  needsUpgrade: !isFeatureEnabled,
 } as AdminConfigType;
