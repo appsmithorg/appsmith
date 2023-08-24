@@ -469,7 +469,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    return this.getView(true);
+    return this.getView(false);
   }
 }
 export interface ModalWidgetProps extends WidgetProps {
