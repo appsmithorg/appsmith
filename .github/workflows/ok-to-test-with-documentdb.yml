@@ -30,5 +30,4 @@ jobs:
           issue-type: pull-request
           commands: |
             ok-to-test-with-documentdb
-            perf-test-on-documentdb
           permission: write
