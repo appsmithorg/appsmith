@@ -435,7 +435,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_noUpdatesSent() {
-        Tenant defaultTenant = tenantService.getDefaultTenant().block();
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         Tenant defaultTenantPostUpdate = tenantService
                 .updateDefaultTenantConfiguration(Mono.empty(), Mono.empty(), Mono.empty())
                 .block();
@@ -460,32 +460,6 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void test_updateDefaultTenantConfiguration_updateWhiteLabelEnable() {
-        Tenant defaultTenant = tenantService.getDefaultTenant().block();
-        TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
-        Mono<String> update1_whiteLabelEnableMono = Mono.just("{\"APPSMITH_BRAND_ENABLE\": false}");
-
-        Tenant defaultTenantPostUpdate1 = tenantService
-                .updateDefaultTenantConfiguration(update1_whiteLabelEnableMono, Mono.empty(), Mono.empty())
-                .block();
-        TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
-        assertThat(newTenantConfiguration1.isWhitelabelEnabled()).isFalse();
-        assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, false, true, true, true, true, true);
-
-        Mono<String> update2_whiteLabelEnableMono = Mono.just("{\"APPSMITH_BRAND_ENABLE\": true}");
-
-        Tenant defaultTenantPostUpdate2 = tenantService
-                .updateDefaultTenantConfiguration(update2_whiteLabelEnableMono, Mono.empty(), Mono.empty())
-                .block();
-        TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
-        assertThat(newTenantConfiguration2.isWhitelabelEnabled()).isTrue();
-        assertTenantConfigurations(
-                newTenantConfiguration2, defaultTenantConfiguration, false, true, true, true, true, true);
-    }
-
-    @Test
-    @WithUserDetails("api_user")
     public void removeTenantLicenseKey_noLicensePresent_provideExistingTenant() {
 
         // Mock CS response
@@ -502,7 +476,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_updateBrandColors() {
-        Tenant defaultTenant = tenantService.getDefaultTenant().block();
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         String primary1 = "#df8d67";
         String background1 = "#fdf9f7";
@@ -579,7 +553,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_updateBrandLogo() {
-        Tenant defaultTenant = tenantService.getDefaultTenant().block();
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         Mono<Part> update_brandLogo = Mono.just(createMockFilePart(2047));
 
@@ -632,7 +606,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_updateBrandFavicon() {
-        Tenant defaultTenant = tenantService.getDefaultTenant().block();
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         Mono<Part> update_brandFavicon = Mono.just(createMockFilePart(1));
 
@@ -648,7 +622,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_updateShowRolesAndGroups() {
-        Tenant defaultTenant = tenantService.getDefaultTenant().block();
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         Mono<String> update1_showRolesAndGroups = Mono.just("{\"showRolesAndGroups\": true}");
 
@@ -674,7 +648,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_updateSingleSessionPerUserEnabled() {
-        Tenant defaultTenant = tenantService.getDefaultTenant().block();
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         Mono<String> update1_singleSessionPerUserEnabled = Mono.just("{\"singleSessionPerUserEnabled\": true}");
 
