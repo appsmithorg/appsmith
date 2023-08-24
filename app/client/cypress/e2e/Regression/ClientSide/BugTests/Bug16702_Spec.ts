@@ -44,24 +44,16 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       query: GRAPHQL_LIMIT_QUERY,
     });
 
-    agHelper.Sleep();
     agHelper
       .GetElement(
         "//*[contains(@class,'t--graphql-query-editor')]//pre[contains(@class,'CodeMirror-line')]//span[contains(text(),'__offset__')]",
       )
-      .dblclick()
+      .click()
       .wait(1000)
       .then(($element) => {
-        // Log the selected element's text for debugging
-        cy.log("Element text:", $element.text());
-
-        // Perform actions with the element
         cy.wrap($element).type("{selectall}").type("{{JSObject1.", {
           parseSpecialCharSequences: false,
         });
-
-        // Log the updated element text for debugging
-        cy.log("Updated element text:", $element.text());
       });
 
     agHelper.WaitUntilEleAppear(locators._hints);
@@ -80,19 +72,12 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       .GetElement(
         "//*[contains(@class,'t--graphql-query-editor')]//pre[contains(@class,'CodeMirror-line')]//span[contains(text(),'__limit__')]",
       )
-      .dblclick()
+      .click()
       .wait(1000)
       .then(($element) => {
-        // Log the selected element's text for debugging
-        cy.log("Element text:", $element.text());
-
-        // Perform actions with the element
         cy.wrap($element).type("{selectall}").type("{{JSObject1.", {
           parseSpecialCharSequences: false,
         });
-
-        // Log the updated element text for debugging
-        cy.log("Updated element text:", $element.text());
       });
 
     agHelper.WaitUntilEleAppear(locators._hints);
