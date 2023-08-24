@@ -759,10 +759,7 @@ public class UserServiceTest {
         Mono<Boolean> resultMono = userMono.then(tenantMono).then(emailVerificationMono);
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(error -> {
-                    assertThat(error.getMessage()).startsWith("Email verification is not enabled");
-                    return true;
-                })
+                .expectErrorMessage(AppsmithError.TENANT_EMAIL_VERIFICATION_NOT_ENABLED.getMessage())
                 .verify();
     }
 
@@ -790,10 +787,7 @@ public class UserServiceTest {
         Mono<Boolean> resultMono = userMono.then(tenantMono).then(emailVerificationMono);
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(error -> {
-                    assertThat(error.getMessage()).startsWith("This email has already been verified");
-                    return true;
-                })
+                .expectErrorMessage(AppsmithError.USER_ALREADY_VERIFIED.getMessage())
                 .verify();
     }
 }

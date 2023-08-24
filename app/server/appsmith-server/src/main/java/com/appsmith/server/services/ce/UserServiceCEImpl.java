@@ -1032,8 +1032,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             Mono<SecurityContext> securityContextMono = ReactiveSecurityContextHolder.getContext();
             Mono<User> userMono = repository.findByEmail(parsedEmailTokenDTO.getEmail());
 
-            Mono<EmailVerificationToken> emailVerificationTokenMono =
-                    emailVerificationTokenRepository.findByEmail(parsedEmailTokenDTO.getEmail());
+            Mono<EmailVerificationToken> emailVerificationTokenMono = emailVerificationTokenRepository
+                    .findByEmail(parsedEmailTokenDTO.getEmail())
+                    .defaultIfEmpty(new EmailVerificationToken());
 
             return Mono.zip(emailVerificationTokenMono, userMono, sessionMono, securityContextMono)
                     .flatMap(tuple -> {
