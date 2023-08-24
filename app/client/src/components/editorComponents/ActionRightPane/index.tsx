@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
@@ -6,7 +6,7 @@ import { Button, Divider, Icon, Link, Text } from "design-system";
 import { useState } from "react";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
-import type { ReactNode } from "react";
+import type { ReactNode, MutableRefObject } from "react";
 import { useEffect } from "react";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { useParams } from "react-router";
@@ -48,6 +48,7 @@ import {
 } from "@appsmith/entities/FeatureFlag";
 import {
   getDatasourceStructureById,
+  getIsFetchingDatasourceStructure,
   getPluginDatasourceComponentFromId,
   getPluginNameFromId,
 } from "selectors/entitiesSelector";
@@ -193,7 +194,7 @@ const DataStructureListWrapper = styled.div`
   flex-direction: column;
 `;
 
-const SchemaSideBarSection = styled.div<{ height: string; marginTop?: number }>`
+const CollapsibleSection = styled.div<{ height: string; marginTop?: number }>`
   margin-top: ${(props) => props?.marginTop && `${props.marginTop}px`};
   height: auto;
   display: flex;
@@ -212,6 +213,7 @@ type CollapsibleProps = {
   CustomLabelComponent?: (props: any) => JSX.Element;
   isDisabled?: boolean;
   datasourceId?: string;
+  containerRef?: MutableRefObject<HTMLDivElement | null>;
 };
 
 type DisabledCollapsibleProps = {
@@ -221,6 +223,7 @@ type DisabledCollapsibleProps = {
 
 export function Collapsible({
   children,
+  containerRef,
   CustomLabelComponent,
   datasourceId,
   expand = true,
@@ -228,13 +231,24 @@ export function Collapsible({
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(!!expand);
 
+  const handleCollapse = (openStatus: boolean) => {
+    if (containerRef?.current) {
+      if (openStatus) {
+        containerRef.current.style.height = "";
+      } else {
+        containerRef.current.style.height = "auto";
+      }
+    }
+    setIsOpen(openStatus);
+  };
+
   useEffect(() => {
-    setIsOpen(expand);
+    handleCollapse(expand);
   }, [expand]);
 
   return (
     <CollapsibleWrapper isOpen={isOpen}>
-      <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
+      <Label className="icon-text" onClick={() => handleCollapse(!isOpen)}>
         <Icon
           className="collapsible-icon"
           name={isOpen ? "down-arrow" : "arrow-right-s-line"}
@@ -243,7 +257,7 @@ export function Collapsible({
         {!!CustomLabelComponent ? (
           <CustomLabelComponent
             datasourceId={datasourceId}
-            onRefreshCallback={() => setIsOpen(true)}
+            onRefreshCallback={() => handleCollapse(true)}
           />
         ) : (
           <Text className="label" kind="heading-xs">
@@ -324,6 +338,7 @@ function ActionSidebar({
   const pageId = useSelector(getCurrentPageId);
   const user = useSelector(getCurrentUser);
   const { pushFeature } = useContext(WalkthroughContext) || {};
+  const schemaRef = useRef(null);
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -360,6 +375,10 @@ function ActionSidebar({
   // A/B feature flag for query binding.
   const isEnabledForQueryBinding = useSelector((state) =>
     selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
+  );
+
+  const isLoadingSchema = useSelector((state: AppState) =>
+    getIsFetchingDatasourceStructure(state, datasourceId),
   );
 
   const datasourceStructure = useSelector((state) =>
@@ -466,12 +485,18 @@ function ActionSidebar({
       </BackToCanvasLink>
 
       {showSchema && (
-        <SchemaSideBarSection
-          height={datasourceStructure?.tables?.length ? "50%" : "auto"}
+        <CollapsibleSection
+          height={
+            datasourceStructure?.tables?.length && !isLoadingSchema
+              ? "50%"
+              : "auto"
+          }
           id={SCHEMA_SECTION_ID}
+          ref={schemaRef}
         >
           <Collapsible
             CustomLabelComponent={DatasourceStructureHeader}
+            containerRef={schemaRef}
             datasourceId={datasourceId}
             expand={!showSuggestedWidgets}
             label="Schema"
@@ -487,7 +512,7 @@ function ActionSidebar({
               />
             </DataStructureListWrapper>
           </Collapsible>
-        </SchemaSideBarSection>
+        </CollapsibleSection>
       )}
 
       {showSchema && isEnabledForQueryBinding && <Divider />}
@@ -516,13 +541,13 @@ function ActionSidebar({
           </Collapsible>
         )}
       {showSuggestedWidgets ? (
-        <SchemaSideBarSection height={"40%"} marginTop={12}>
+        <CollapsibleSection height={"40%"} marginTop={12}>
           <SuggestedWidgets
             actionName={actionName}
             hasWidgets={hasWidgets}
             suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
           />
-        </SchemaSideBarSection>
+        </CollapsibleSection>
       ) : (
         isEnabledForQueryBinding && (
           <DisabledCollapsible
