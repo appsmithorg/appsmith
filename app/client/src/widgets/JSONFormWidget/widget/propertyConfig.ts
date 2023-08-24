@@ -17,6 +17,7 @@ import {
   JSON_FORM_CONNECT_BUTTON_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
+
 const MAX_NESTING_LEVEL = 5;
 
 const panelConfig = generatePanelPropertyConfig(MAX_NESTING_LEVEL);
@@ -139,6 +140,59 @@ export const contentConfig = [
           allowFieldConfigurations: true,
           ctaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
           excludePrimaryColumn: true,
+          otherFields: [
+            {
+              label: "Form Type",
+              value: "formType",
+              fieldType: "SELECT",
+              optionType: "CUSTOM",
+              options: [
+                {
+                  label: "Create records",
+                  value: "create",
+                  id: "create",
+                },
+                {
+                  label: "Edit records",
+                  value: "edit",
+                  id: "edit",
+                },
+              ],
+              isVisible: (config: any) => {
+                return config.otherFields.formType === "edit";
+              },
+            },
+            {
+              label: "Get values from",
+              value: "defaultValues",
+              fieldType: "SELECT",
+              optionType: "CUSTOM",
+              options: [
+                {
+                  label: "Create records",
+                  value: "create",
+                  id: "create",
+                },
+                {
+                  label: "Edit records",
+                  value: "edit",
+                  id: "edit",
+                },
+              ],
+              isVisible: (config: any) => {
+                return config.otherFields.formType === "edit";
+              },
+            },
+            {
+              label: "Data Identifier",
+              value: "dataIdentifier",
+              fieldType: "SELECT",
+              optionType: "COLUMNS",
+              isVisible: (config: any) => {
+                return config.otherFields.formType === "edit";
+              },
+            },
+          ],
         },
         isJSConvertible: true,
         placeholderText: '{ "name": "John", "age": 24 }',
