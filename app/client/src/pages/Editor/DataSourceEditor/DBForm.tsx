@@ -78,6 +78,10 @@ export const TabPanelContainer = styled(TabPanel)`
   height: 95%;
 `;
 
+export const ConfigurationTabPanelContainer = styled(TabPanel)`
+  margin-top: 0px;
+`;
+
 class DatasourceDBEditor extends JSONtoForm<Props> {
   openDocumentation = () => {
     openDoc(DocsLink.WHITELIST_IP);
@@ -173,7 +177,9 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                   <TabPanelContainer value={VIEW_MODE_TABS.VIEW_DATA}>
                     <DatasourceViewModeSchema datasourceId={datasourceId} />
                   </TabPanelContainer>
-                  <TabPanel value={VIEW_MODE_TABS.CONFIGURATIONS}>
+                  <ConfigurationTabPanelContainer
+                    value={VIEW_MODE_TABS.CONFIGURATIONS}
+                  >
                     <ViewModeWrapper data-testid="t--ds-review-section">
                       {!_.isNil(formConfig) && !_.isNil(datasource) ? (
                         <DatasourceInformation
@@ -183,7 +189,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                         />
                       ) : undefined}
                     </ViewModeWrapper>
-                  </TabPanel>
+                  </ConfigurationTabPanelContainer>
                 </TabsContainer>
               )}
             {!this.props.isEnabledForDSViewModeSchema ||
