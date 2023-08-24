@@ -19,7 +19,6 @@ import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import PublishedInfo from "./components/PublishedInfo";
 import TemplateCardPreview from "./components/TemplateCardPreview";
 import TemplateInfoForm from "./components/TemplateInfoForm";
-import ConfirmCommunityTemplatePublish from "../ConfirmCommunityTemplatePublish";
 
 type Props = {
   onPublishSuccess: () => void;
@@ -43,7 +42,6 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
   const [isForkableSetting, setIsForkableSetting] = useState(true);
 
   const [tnCCheck, setTnCCheck] = useState(false);
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_INTENTION", {
@@ -77,7 +75,6 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_CLICK", {
       id: currentApplication?.id,
     });
-    setShowConfirmationModal(false);
     onPublishSuccess();
   };
   return (
@@ -126,7 +123,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
           data-testid="t--community-template-publish-submit-btn"
           isDisabled={!isFormValid}
           isLoading={isPublishing}
-          onClick={() => setShowConfirmationModal(true)}
+          onClick={handleConfirmationClick}
           size="md"
         >
           {createMessage(
@@ -134,12 +131,6 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
           )}
         </Button>
       </PublishPageFooterContainer>
-      <ConfirmCommunityTemplatePublish
-        onCancelClick={() => setShowConfirmationModal(false)}
-        onConfirmClick={handleConfirmationClick}
-        showModal={showConfirmationModal}
-        templateName={templateName}
-      />
     </>
   );
 };
