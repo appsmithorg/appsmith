@@ -12,6 +12,7 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
@@ -52,6 +53,7 @@ import reactor.core.scheduler.Schedulers;
 import reactor.pool.PoolShutdownException;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -231,6 +233,21 @@ public class MySqlPlugin extends BasePlugin {
                     connection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO, requestData);
         }
 
+        @Override
+        public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate) {
+            ActionConfiguration actionConfig = new ActionConfiguration();
+            // Sets query body
+            actionConfig.setBody(queryTemplate.getBody());
+
+            // Sets prepared statement to false
+            Property preparedStatement = new Property();
+            preparedStatement.setValue(false);
+            List<Property> pluginSpecifiedTemplates = new ArrayList<Property>();
+            pluginSpecifiedTemplates.add(preparedStatement);
+            actionConfig.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            return actionConfig;
+        }
+
         public Mono<ActionExecutionResult> executeCommon(
                 ConnectionPool connectionPool,
                 ActionConfiguration actionConfiguration,
@@ -263,6 +280,7 @@ public class MySqlPlugin extends BasePlugin {
             String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(finalQuery) : finalQuery;
             List<RequestParamDTO> requestParams =
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, transformedQuery, null, null, psParams));
+            Instant requestedAt = Instant.now();
 
             return Mono.usingWhen(
                             connectionPool.create(),
@@ -367,6 +385,9 @@ public class MySqlPlugin extends BasePlugin {
                                             request.setQuery(finalQuery);
                                             request.setProperties(requestData);
                                             request.setRequestParams(requestParams);
+                                            if (request.getRequestedAt() == null) {
+                                                request.setRequestedAt(requestedAt);
+                                            }
                                             ActionExecutionResult result = actionExecutionResult;
                                             result.setRequest(request);
 
