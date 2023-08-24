@@ -3,13 +3,10 @@ const testdata = require("../../../../fixtures/testdata.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../../../../fixtures/datasources.json");
-const queryLocators = require("../../../../locators/QueryEditor.json");
-
 import {
   agHelper,
   jsEditor,
   dataSources,
-  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Undo/Redo functionality", function () {
