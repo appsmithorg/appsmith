@@ -1,6 +1,6 @@
 import { COMMUNITY_TEMPLATES } from "@appsmith/constants/messages";
 import { publishCommunityTemplate } from "actions/communityTemplateActions";
-import { Button } from "design-system";
+import { Button, Checkbox } from "design-system";
 import { createMessage } from "design-system-old/build/constants/messages";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,6 +41,8 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
 
   const [isPublicSetting, setIsPublicSetting] = useState(true);
   const [isForkableSetting, setIsForkableSetting] = useState(true);
+
+  const [tnCCheck, setTnCCheck] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   useEffect(() => {
@@ -60,13 +62,14 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
       (field) => field.length > 0,
     );
     const areSettingsTurnedON = isPublicSetting && isForkableSetting;
-    return areRequiredFieldsPresent && areSettingsTurnedON;
+    return areRequiredFieldsPresent && areSettingsTurnedON && tnCCheck;
   }, [
     templateName,
     authorName,
     authorEmail,
     isPublicSetting,
     isForkableSetting,
+    tnCCheck,
   ]);
 
   const handleConfirmationClick = () => {
@@ -116,6 +119,9 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
         </PublishPageTemplateDetailsInputContainer>
       </PublishPageBodyContainer>
       <PublishPageFooterContainer>
+        <Checkbox isSelected={tnCCheck} onChange={setTnCCheck}>
+          {createMessage(COMMUNITY_TEMPLATES.publishFormPage.footer.tnCText)}
+        </Checkbox>
         <Button
           data-testid="t--community-template-publish-submit-btn"
           isDisabled={!isFormValid}
@@ -124,7 +130,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
           size="md"
         >
           {createMessage(
-            COMMUNITY_TEMPLATES.publishFormPage.footerPublishButton,
+            COMMUNITY_TEMPLATES.publishFormPage.footer.publishButton,
           )}
         </Button>
       </PublishPageFooterContainer>

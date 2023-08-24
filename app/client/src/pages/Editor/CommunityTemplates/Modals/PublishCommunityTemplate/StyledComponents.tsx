@@ -12,7 +12,8 @@ export const PublishPageHeaderContainer = styled(_defaultContainer)`
 `;
 export const PublishPageFooterContainer = styled(_defaultContainer)`
   border-top: 1px solid var(--ads-v2-color-border);
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   padding: var(--ads-v2-spaces-5);
 `;
 export const PublishPageBodyContainer = styled(_defaultContainer)`

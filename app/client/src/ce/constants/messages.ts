@@ -1915,7 +1915,11 @@ export const COMMUNITY_TEMPLATES = {
   },
   publishFormPage: {
     title: () => "Publish to community",
-    footerPublishButton: () => "Publish to community",
+    footer: {
+      publishButton: () => "Publish to community",
+      tnCText: () =>
+        "I understand publishing this app will allow users outside my workspace to fork it to their workspace.",
+    },
     preview: {
       thumbnail: () => "Thumbnail will be generated automatically",
     },

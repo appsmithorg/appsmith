@@ -15,7 +15,7 @@ const CommunityTemplatesPublishInfo = ({
   onPublishClick,
   setShowHostModal,
 }: Props) => {
-  const isPublished = true;
+  const isPublished = false;
   return isPublished ? (
     <PublishedAppInstructions />
   ) : (
