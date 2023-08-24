@@ -162,6 +162,9 @@ jobs:
       - name: Run Appsmith, CS & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
+        env:
+          APPSMITH_MONGODB_URI: ${{ secrets.INTERNAL_CI_DOC_DB_URI }}
+
         run: |
           sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
@@ -205,7 +208,7 @@ jobs:
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             -e APPSMITH_CLOUD_SERVICES_SIGNATURE_BASE_URL=http://host.docker.internal:8090 \
-            -e APPSMITH_MONGODB_URI="mongodb://appsmithadmin:W58w5yCN6ZY5Y42A@host.docker.internal:27010/${DB_NAME}?retryWrites=false&replicaSet=rs0&directConnection=true" \
+            -e APPSMITH_MONGODB_URI=$APPSMITH_MONGODB_URI \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
 
