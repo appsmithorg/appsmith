@@ -145,7 +145,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.APPSMITH_CI_TUNNEL_PRIVATE_KEY }}
         run: |
-          echo "$SSH_PRIVATE_KEY" > ssh_key.pem
+          echo "$SSH_PRIVATE_KEY" > ssh_key.pem \
           chmod 600 ssh_key.pem
 
       - name: Setup SSH tunnel to AWS DocumentDB instance
