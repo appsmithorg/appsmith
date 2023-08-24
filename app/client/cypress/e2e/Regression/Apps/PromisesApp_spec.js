@@ -90,9 +90,9 @@ describe("JSEditor tests", function () {
       cy.get("input.bp3-input").should("have.value", "2");
     });
     cy.wait(3000);
+
     // hit audio play button and trigger actions
     entityExplorer.SelectEntityByName("Audio1", "Widgets");
-    agHelper.Sleep(2000);
     agHelper.GetElement("audio").then(($audio) => {
       $audio[0].play();
     });
@@ -103,14 +103,11 @@ describe("JSEditor tests", function () {
     );
     cy.wait(1000);
     // verify text is visible
-    cy.get(".t--draggable-textwidget span")
-      .eq(5)
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal(
-          "Step 4: Value is Green and will default to GREEN",
-        );
-      });
+    agHelper.AssertContains(
+      "Step 4: Value is Green and will default to GREEN",
+      "be.visible",
+      ".t--draggable-textwidget span",
+    );
     cy.get(commonlocators.tableNextPage).click();
     cy.get(".t--table-widget-page-input").within(() => {
       cy.get("input.bp3-input").should("have.value", "2");
@@ -119,14 +116,10 @@ describe("JSEditor tests", function () {
     agHelper.ValidateToastMessage("GREEN");
   });
 
-  //Skipping reason? to add
   it("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
     entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     jsEditor.SelectFunctionDropdown("clearStore");
     jsEditor.RunJSObj();
-    // cy.wait("@postExecute")
-    //   .its("response.body.responseMeta.status")
-    //   .should("eq", 200);
     entityExplorer.SelectEntityByName("Page1", "Pages");
     cy.xpath("//span[text()='Clear store']").click({ force: true });
     cy.get(".t--draggable-textwidget span")
