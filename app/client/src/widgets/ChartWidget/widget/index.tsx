@@ -32,10 +32,7 @@ export const isChartDataValid = (props: ChartWidgetProps): boolean => {
       for (const seriesID in props.chartData) {
         const seriesData = props.chartData[seriesID];
 
-        if (!seriesData) {
-          return false;
-        }
-        if (!seriesData.data) {
+        if (!seriesData || !seriesData.data) {
           return false;
         }
       }
