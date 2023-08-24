@@ -66,7 +66,7 @@ export const AutoHeightOverlayLayer = (props: BaseWidgetProps) => {
         onMaxHeightSet={onMaxHeightSet}
         onMinHeightSet={onMinHeightSet}
       />
-      {props.childern}
+      {props.children}
     </>
   );
 };
