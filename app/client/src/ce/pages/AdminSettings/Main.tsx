@@ -2,7 +2,7 @@ import React from "react";
 import AdminConfig from "./config";
 import { Redirect, useParams } from "react-router";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
-import SettingsForm from "pages/Settings/SettingsForm";
+import SettingsForm from "pages/AdminSettings/SettingsForm";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";

@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Switch, useLocation, useRouteMatch } from "react-router-dom";
-import Login from "@appsmith/pages/UserAuth/Login";
-import SignUp from "@appsmith/pages/UserAuth/SignUp";
+import Login from "pages/UserAuth/Login";
+import SignUp from "pages/UserAuth/SignUp";
 import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPassword";
 import PageNotFound from "pages/common/ErrorPages/PageNotFound";

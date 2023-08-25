@@ -1,7 +1,7 @@
 import type React from "react";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { Dispatch } from "react";
-import type { RadioOptionProps } from "pages/Settings/FormGroup/Radio";
+import type { RadioOptionProps } from "pages/AdminSettings/FormGroup/Radio";
 import type { CalloutKind, SelectOptionProps } from "design-system";
 
 type ControlType = {
@@ -16,6 +16,7 @@ type ControlPropsType = {
   [SettingTypes.TEXTINPUT]: unknown;
   [SettingTypes.TOGGLE]: unknown;
   [SettingTypes.LINK]: unknown;
+  [SettingTypes.CALLOUT]: unknown;
   [SettingTypes.BUTTON]: unknown;
   [SettingTypes.GROUP]: unknown;
   [SettingTypes.TEXT]: unknown;
@@ -31,6 +32,7 @@ export enum SettingTypes {
   TEXTINPUT = "TEXTINPUT",
   TOGGLE = "TOGGLE",
   LINK = "LINK",
+  CALLOUT = "CALLOUT",
   BUTTON = "BUTTON",
   GROUP = "GROUP",
   TEXT = "TEXT",
