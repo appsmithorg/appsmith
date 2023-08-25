@@ -184,7 +184,7 @@ export default function Group({
                     <Callout
                       kind={setting?.calloutType || "info"}
                       links={
-                        setting.url
+                        setting.url || setting.action
                           ? [
                               {
                                 children: createMessage(LEARN_MORE),
