@@ -906,6 +906,14 @@ public enum AppsmithError {
             "Invalid application property configuration",
             ErrorType.INTERNAL_ERROR,
             null),
+    INVALID_METHOD_LEVEL_ANNOTATION_USAGE(
+            403,
+            AppsmithErrorCode.INVALID_METHOD_LEVEL_ANNOTATION_USAGE.getCode(),
+            "Invalid usage for {0} annotation from class {1} on method {2}. {3}. Please contact Appsmith support for more details!",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Invalid usage for custom annotation",
+            ErrorType.CONFIGURATION_ERROR,
+            null);
     ;
 
     private final Integer httpErrorCode;
