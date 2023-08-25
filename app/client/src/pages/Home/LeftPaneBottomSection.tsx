@@ -26,6 +26,8 @@ import {
   showAdminSettings,
 } from "@appsmith/utils/adminSettingsHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { ShowUpgradeMenuItem } from "@appsmith/utils/licenseHelpers";
 
 export const Wrapper = styled.div`
   background-color: var(--ads-v2-color-bg);
@@ -63,10 +65,12 @@ function LeftPaneBottomSection() {
   const tenantPermissions = useSelector(getTenantPermissions);
   const [isProductUpdatesModalOpen, setIsProductUpdatesModalOpen] =
     useState(false);
+  const isAirgappedInstance = isAirgapped();
 
   return (
     <Wrapper>
       <MenuWrapper>
+        <ShowUpgradeMenuItem />
         {showAdminSettings(user) && !isFetchingApplications && (
           <MenuItem
             className="admin-settings-menu-option"
@@ -82,45 +86,49 @@ function LeftPaneBottomSection() {
             text={createMessage(ADMIN_SETTINGS)}
           />
         )}
-        <MenuItem
-          icon="discord"
-          onSelect={() => {
-            window.open("https://discord.gg/rBTTVJp", "_blank");
-          }}
-          text={"Join our discord"}
-        />
-        <MenuItem
-          icon="book"
-          onSelect={() => {
-            window.open("https://docs.appsmith.com/", "_blank");
-          }}
-          text={createMessage(DOCUMENTATION)}
-        />
+        {!isAirgappedInstance && (
+          <>
+            <MenuItem
+              icon="discord"
+              onSelect={() => {
+                window.open("https://discord.gg/rBTTVJp", "_blank");
+              }}
+              text={"Join our discord"}
+            />
+            <MenuItem
+              icon="book"
+              onSelect={() => {
+                window.open("https://docs.appsmith.com/", "_blank");
+              }}
+              text={createMessage(DOCUMENTATION)}
+            />
 
-        <MenuItem
-          containerClassName={"t--welcome-tour"}
-          icon="guide"
-          onSelect={() => {
-            if (!isFetchingApplications && !!onboardingWorkspaces.length) {
-              AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-              dispatch(onboardingCreateApplication());
-            }
-          }}
-          text={createMessage(WELCOME_TOUR)}
-        />
-        <MenuItem
-          containerClassName={"t--product-updates-btn"}
-          data-testid="t--product-updates-btn"
-          icon="updates"
-          onSelect={() => {
-            setIsProductUpdatesModalOpen(true);
-          }}
-          text="What's new?"
-        />
-        <ProductUpdatesModal
-          isOpen={isProductUpdatesModalOpen}
-          onClose={() => setIsProductUpdatesModalOpen(false)}
-        />
+            <MenuItem
+              containerClassName={"t--welcome-tour"}
+              icon="guide"
+              onSelect={() => {
+                if (!isFetchingApplications && !!onboardingWorkspaces.length) {
+                  AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
+                  dispatch(onboardingCreateApplication());
+                }
+              }}
+              text={createMessage(WELCOME_TOUR)}
+            />
+            <MenuItem
+              containerClassName={"t--product-updates-btn"}
+              data-testid="t--product-updates-btn"
+              icon="updates"
+              onSelect={() => {
+                setIsProductUpdatesModalOpen(true);
+              }}
+              text="What's new?"
+            />
+            <ProductUpdatesModal
+              isOpen={isProductUpdatesModalOpen}
+              onClose={() => setIsProductUpdatesModalOpen(false)}
+            />
+          </>
+        )}
         <LeftPaneVersionData>
           <span>
             {createMessage(
