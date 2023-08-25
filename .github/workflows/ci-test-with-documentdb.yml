@@ -331,6 +331,10 @@ jobs:
             echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
           fi
 
+      - name: Wait until appsmith server is healthy
+        run: |
+          bash scripts/health_check.sh
+        
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         id: cypress_test
