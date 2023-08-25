@@ -1,8 +1,10 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
@@ -158,7 +160,7 @@ public class DatasourceControllerCE {
                 "Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
         return authenticationService
                 .getAuthorizationCodeURLForGenericOAuth2(
-                        datasourceId, environmentId, pageId, serverWebExchange.getRequest(), Boolean.TRUE)
+                        datasourceId, environmentId, pageId, serverWebExchange.getRequest())
                 .flatMap(url -> {
                     serverWebExchange.getResponse().setStatusCode(HttpStatus.FOUND);
                     serverWebExchange.getResponse().getHeaders().setLocation(URI.create(url));
@@ -205,5 +207,17 @@ public class DatasourceControllerCE {
         return datasourceTriggerSolution
                 .trigger(datasourceId, environmentId, triggerRequestDTO)
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/{datasourceId}/schema-preview")
+    public Mono<ResponseDTO<ActionExecutionResult>> getSchemaPreviewData(
+            @PathVariable String datasourceId,
+            @RequestBody Template template,
+            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+        log.debug("Going to get schema preview data for datasource with id: '{}'.", datasourceId);
+        return datasourceStructureSolution
+                .getSchemaPreviewData(datasourceId, environmentId, template)
+                .map(actionExecutionResult -> new ResponseDTO<>(HttpStatus.OK.value(), actionExecutionResult, null));
     }
 }

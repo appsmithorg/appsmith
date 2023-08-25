@@ -33,6 +33,7 @@ export function* logLatestLintPropertyErrors({
       type: error.errorType,
       message: error.errorMessage,
       lineNumber: error.line,
+      character: error.ch,
     }));
     const debuggerKey = entity.actionId + propertyPath + "-lint";
 

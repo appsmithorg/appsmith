@@ -1,5 +1,5 @@
 import { PluginType } from "entities/Action";
-import type { SourceEntity } from "entities/AppsmithConsole";
+import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,7 +9,7 @@ import { getAction, getDatasource } from "selectors/entitiesSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
-import { datasourcesEditorIdURL, jsCollectionIdURL } from "RouteBuilder";
+import { datasourcesEditorIdURL } from "RouteBuilder";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { Link } from "design-system";
 import type { Plugin } from "api/PluginApi";
@@ -56,23 +56,33 @@ function ActionLink(props: EntityLinkProps) {
 }
 
 function JSCollectionLink(props: EntityLinkProps) {
-  const pageId = useSelector(getCurrentPageId);
+  const dispatch = useDispatch();
+  let position: { ch: number; line: number } | undefined;
+  if (props.message) {
+    if (props.message.character && props.message.lineNumber) {
+      position = {
+        ch: props.message.character,
+        line: props.message.lineNumber,
+      };
+    }
+  }
   const onClick = useCallback(() => {
     if (props.id) {
-      const url = jsCollectionIdURL({
-        pageId,
-        collectionId: props.id,
-      });
+      dispatch(
+        navigateToEntity({
+          id: props.id,
+          entityType: ENTITY_TYPE.JSACTION,
+          propertyPath: props.propertyPath,
+          position,
+        }),
+      );
 
-      if (url) {
-        history.push(url);
-        AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
-          errorType: props.errorType,
-          errorSubType: props.errorSubType,
-          appsmithErrorCode: props.appsmithErrorCode,
-          entityType: "JSACTION",
-        });
-      }
+      AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
+        errorType: props.errorType,
+        errorSubType: props.errorSubType,
+        appsmithErrorCode: props.appsmithErrorCode,
+        entityType: "JSACTION",
+      });
     }
   }, [
     props.id,
@@ -216,6 +226,7 @@ type EntityLinkProps = {
   errorType?: LOG_TYPE;
   errorSubType?: string;
   appsmithErrorCode?: string;
+  message?: Message;
 } & SourceEntity;
 
 export enum DebuggerLinkUI {

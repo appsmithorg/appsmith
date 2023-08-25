@@ -29,4 +29,9 @@ export const PRICING_PAGE_URL = (
   URL: string,
   source: string,
   instanceId: string,
-) => `${URL}?source=${source}${instanceId ? `&instance=${instanceId}` : ``}`;
+  feature?: string,
+  section?: string,
+) =>
+  `${URL}?source=${source}${instanceId ? `&instance=${instanceId}` : ``}${
+    feature ? `&feature=${feature}` : ""
+  }${section ? `&section=${section}` : ""}`;
