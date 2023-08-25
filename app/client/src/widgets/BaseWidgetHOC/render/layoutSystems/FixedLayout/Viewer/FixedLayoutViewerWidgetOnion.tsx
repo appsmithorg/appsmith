@@ -6,12 +6,12 @@ import { PositionedComponentLayer } from "../PositionedComponentLayer";
 
 export const FixedLayoutViewerWidgetOnion = (props: BaseWidgetProps) => {
   return (
-    <ErrorBoundary>
-      <PositionedComponentLayer {...props}>
+    <PositionedComponentLayer {...props}>
+      <ErrorBoundary>
         <FixedLayoutWigdetComponent {...props}>
           {props.children}
         </FixedLayoutWigdetComponent>
-      </PositionedComponentLayer>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </PositionedComponentLayer>
   );
 };
