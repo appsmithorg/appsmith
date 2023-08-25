@@ -263,6 +263,8 @@ export const contentConfig = (
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.TEXT },
+          hidden: (props: ChartWidgetProps) =>
+            ["CUSTOM_ECHART"].includes(props.chartType),
         },
         {
           propertyName: "isVisible",

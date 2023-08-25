@@ -148,6 +148,7 @@ describe("Validate Chart Widget's data property config", () => {
         "xAxisName",
         "yAxisName",
         "customFusionChartConfig",
+        "title",
       ].includes(propertyConfig.propertyName);
     });
 
