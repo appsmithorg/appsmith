@@ -187,13 +187,6 @@ export const getIsCreatingApplicationByWorkspaceId = (workspaceId: string) =>
       applications.creatingApplication[workspaceId],
   );
 
-export const getApplicationsByWorkspaceId = (workspaceId: string) =>
-  createSelector(
-    getApplicationsState,
-    (applications: ApplicationsReduxState) =>
-      applications.creatingApplication[workspaceId],
-  );
-
 export const getCreateApplicationError = createSelector(
   getApplicationsState,
   (applications: ApplicationsReduxState): string | undefined =>
