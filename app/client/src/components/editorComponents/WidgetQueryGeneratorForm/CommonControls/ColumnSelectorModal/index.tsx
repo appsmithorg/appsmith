@@ -10,10 +10,10 @@ import {
   Button,
   Tooltip,
 } from "design-system";
-import { EditFieldsButton } from "../styles";
+import { EditFieldsButton } from "../../styles";
 import styled from "styled-components";
 import { klona } from "klona";
-import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns";
+import { useColumns } from "../../WidgetSpecificControls/ColumnDropdown/useColumns";
 import {
   CANCEL_DIALOG,
   COLUMN_NAME,
@@ -25,12 +25,13 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import EditFieldsTable from "./EditFieldsTable";
-import { WidgetQueryGeneratorFormContext } from "..";
+import { WidgetQueryGeneratorFormContext } from "../../index";
 
 const StyledCheckbox = styled(Checkbox)`
   input {
     position: relative !important;
   }
+
   input[type="checkbox"]:checked + span {
     border-color: transparent;
     background-color: var(--ads-v2-color-orange-500);
@@ -39,8 +40,10 @@ const StyledCheckbox = styled(Checkbox)`
 
 const StyledModalBody = styled(ModalBody)`
   padding-top: 0px !important;
+
   table {
     border: 1px solid var(--ads-v2-color-border-muted) !important;
+
     thead {
       z-index: 3 !important;
     }
