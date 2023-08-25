@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import PageWrapper from "@appsmith/pages/common/PageWrapper";
+import PageWrapper from "pages/common/PageWrapper";
 import { getSettingsLoadingState } from "selectors/settingsSelectors";
 import styled from "styled-components";
 import LeftPane from "pages/AdminSettings/LeftPane";

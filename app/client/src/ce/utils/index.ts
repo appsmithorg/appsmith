@@ -17,3 +17,11 @@ export const useHtmlPageTitle = () => {
 export const isCEMode = () => {
   return true;
 };
+
+export const getPageTitle = (
+  displayName?: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  titleSuffix?: string,
+) => {
+  return `${displayName ? `${displayName} | ` : ""}Appsmith`;
+};

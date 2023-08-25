@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import React from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
+import { Banner } from "@appsmith/utils/licenseHelpers";
+import { getPageTitle, useHtmlPageTitle } from "@appsmith/utils";
 
 export const Wrapper = styled.section<{ isFixed?: boolean }>`
   ${(props) =>
@@ -57,12 +59,12 @@ export type PageWrapperProps = {
 
 export function PageWrapper(props: PageWrapperProps) {
   const { isFixed = false, isSavable = false } = props;
+  const titleSuffix = useHtmlPageTitle();
   return (
     <Wrapper isFixed={isFixed}>
+      <Banner />
       <Helmet>
-        <title>{`${
-          props.displayName ? `${props.displayName} | ` : ""
-        }Appsmith`}</title>
+        <title>{getPageTitle(props.displayName, titleSuffix)}</title>
       </Helmet>
       <PageBody isSavable={isSavable}>{props.children}</PageBody>
     </Wrapper>
