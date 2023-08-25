@@ -333,7 +333,7 @@ jobs:
 
       - name: Wait for Appsmith Server to be in ready state
         run: |
-          endpoint="http://localhost.com/api/v1/health"
+          endpoint="http://localhost/api/v1/health"
           status_code=0
           
           while [ $status_code -ne 200 ]; do
@@ -342,10 +342,10 @@ jobs:
               
               if [ $status_code -ne 200 ]; then
                   echo "Response status code: $status_code. Retrying..."
-                  sleep 5
+                  sleep 30
               fi
           done
-          
+
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         id: cypress_test
