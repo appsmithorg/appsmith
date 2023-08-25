@@ -23,6 +23,13 @@ describe("Chart Widget Functionality around custom chart feature", function () {
       viewWidgetsPage.chartWidget,
       widgetsPage.widgetNameSpan,
     );
+
+    //Entering the Chart data
+    cy.testJsontext(
+      "chart-series-data-control",
+      JSON.stringify(this.dataSet.chartInput),
+    );
+
     //changing the Chart Title
     /**
      * @param{Text} Random Input Value
@@ -32,11 +39,6 @@ describe("Chart Widget Functionality around custom chart feature", function () {
       .contains("App Sign Up")
       .should("have.text", "App Sign Up");
 
-    //Entering the Chart data
-    cy.testJsontext(
-      "chart-series-data-control",
-      JSON.stringify(this.dataSet.chartInput),
-    );
     cy.get(".t--propertypane").click("right");
 
     // Asserting Chart Height
@@ -66,7 +68,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
   it("2. Custom Chart Widget Functionality", function () {
     //changing the Chart type
     //cy.get(widgetsPage.toggleChartType).click({ force: true });
-    cy.UpdateChartType("Custom chart");
+    cy.UpdateChartType("Custom Fusion chart");
 
     cy.testJsontext(
       "customfusionchart",

@@ -1,3 +1,6 @@
+import { Colors } from "constants/Colors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+
 export type ChartType =
   | "LINE_CHART"
   | "BAR_CHART"
@@ -5,6 +8,7 @@ export type ChartType =
   | "COLUMN_CHART"
   | "AREA_CHART"
   | "SCATTER_CHART"
+  | "CUSTOM_ECHART"
   | "CUSTOM_FUSION_CHART";
 
 export const XAxisCategory = "Category";
@@ -29,10 +33,10 @@ export interface AllChartData {
 }
 
 export interface ChartSelectedDataPoint {
-  x: any;
-  y: any;
-  seriesTitle: string;
-  rawEventData?: unknown;
+  x: unknown | undefined;
+  y: unknown | undefined;
+  seriesTitle: string | undefined;
+  rawEventData?: Record<string, unknown>;
 }
 
 export const messages = {
@@ -41,6 +45,9 @@ export const messages = {
   EmptyData: "No chart data to display",
   Undefined: "Undefined",
 };
+
+export const CUSTOM_ECHART_FEATURE_FLAG =
+  FEATURE_FLAG["release_enable_custom_echarts"];
 
 export const CUSTOM_CHART_TYPES = [
   "area2d",
@@ -165,3 +172,138 @@ export const LABEL_ORIENTATION_COMPATIBLE_CHARTS = [
   "AREA_CHART",
   "COLUMN_CHART",
 ];
+
+export const DefaultEChartConfig = {
+  dataset: {
+    source: [
+      ["product", "2012", "2013", "2014", "2015", "2016", "2017"],
+      ["Milk Tea", 56.5, 82.1, 88.7, 70.1, 53.4, 85.1],
+      ["Matcha Latte", 51.1, 51.4, 55.1, 53.3, 73.8, 68.7],
+      ["Cheese Cocoa", 40.1, 62.2, 69.5, 36.4, 45.2, 32.5],
+      ["Walnut Brownie", 25.2, 37.1, 41.2, 18, 33.9, 49.1],
+    ],
+  },
+  legend: {},
+  tooltip: {
+    trigger: "axis",
+    showContent: false,
+  },
+  xAxis: { type: "category" },
+  yAxis: { gridIndex: 0 },
+  grid: { top: "55%" },
+  series: [
+    {
+      type: "line",
+      smooth: true,
+      seriesLayoutBy: "row",
+      emphasis: { focus: "series" },
+    },
+    {
+      type: "line",
+      smooth: true,
+      seriesLayoutBy: "row",
+      emphasis: { focus: "series" },
+    },
+    {
+      type: "line",
+      smooth: true,
+      seriesLayoutBy: "row",
+      emphasis: { focus: "series" },
+    },
+    {
+      type: "line",
+      smooth: true,
+      seriesLayoutBy: "row",
+      emphasis: { focus: "series" },
+    },
+    {
+      type: "pie",
+      id: "pie",
+      radius: "30%",
+      center: ["50%", "25%"],
+      emphasis: {
+        focus: "self",
+      },
+      label: {
+        formatter: "{b}: {@2012} ({d}%)",
+      },
+      encode: {
+        itemName: "product",
+        value: "2012",
+        tooltip: "2012",
+      },
+    },
+  ],
+};
+
+export const DefaultEChartsBasicChartsData = {
+  seriesName: "2023",
+  data: [
+    {
+      x: "Product1",
+      y: 20000,
+    },
+    {
+      x: "Product2",
+      y: 22000,
+    },
+    {
+      x: "Product3",
+      y: 32000,
+    },
+  ],
+};
+
+export const DefaultFusionChartConfig = {
+  type: "column2d",
+  dataSource: {
+    data: [
+      {
+        label: "Product1",
+        value: 20000,
+      },
+      {
+        label: "Product2",
+        value: 22000,
+      },
+      {
+        label: "Product3",
+        value: 32000,
+      },
+    ],
+    chart: {
+      caption: "Sales Report",
+      xAxisName: "Product Line",
+      yAxisName: "Revenue($)",
+      theme: "fusion",
+      alignCaptionWithCanvas: 1,
+      // Caption styling =======================
+      captionFontSize: "24",
+      captionAlignment: "center",
+      captionPadding: "20",
+      captionFontColor: Colors.THUNDER,
+      // legend position styling ==========
+      legendIconSides: "4",
+      legendIconBgAlpha: "100",
+      legendIconAlpha: "100",
+      legendPosition: "top",
+      // Canvas styles ========
+      canvasPadding: "0",
+      // Chart styling =======
+      chartLeftMargin: "20",
+      chartTopMargin: "10",
+      chartRightMargin: "40",
+      chartBottomMargin: "10",
+      // Axis name styling ======
+      xAxisNameFontSize: "14",
+      labelFontSize: "12",
+      labelFontColor: Colors.DOVE_GRAY2,
+      xAxisNameFontColor: Colors.DOVE_GRAY2,
+
+      yAxisNameFontSize: "14",
+      yAxisValueFontSize: "12",
+      yAxisValueFontColor: Colors.DOVE_GRAY2,
+      yAxisNameFontColor: Colors.DOVE_GRAY2,
+    },
+  },
+};

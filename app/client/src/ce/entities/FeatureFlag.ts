@@ -17,6 +17,8 @@ export const FEATURE_FLAG = {
   release_widgetdiscovery_enabled: "release_widgetdiscovery_enabled",
   release_table_serverside_filtering_enabled:
     "release_table_serverside_filtering_enabled",
+  release_enable_custom_echarts: "release_enable_custom_echarts",
+  license_sso_enabled: "license_sso_enabled",
   license_branding_enabled: "license_branding_enabled",
   ab_table_widget_activation_enabled: "ab_table_widget_activation_enabled",
   release_git_status_lite_enabled: "release_git_status_lite_enabled",
@@ -42,6 +44,8 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_wds_enabled: false,
   release_widgetdiscovery_enabled: false,
   release_table_serverside_filtering_enabled: false,
+  release_enable_custom_echarts: false,
+  license_sso_enabled: false,
   license_branding_enabled: false,
   ab_table_widget_activation_enabled: false,
   release_git_status_lite_enabled: false,
