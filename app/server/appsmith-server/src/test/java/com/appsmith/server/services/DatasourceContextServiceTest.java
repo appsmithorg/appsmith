@@ -1,12 +1,15 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.restApiUtils.connections.OAuth2ClientCredentials;
 import com.appsmith.external.models.ApiKeyAuth;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
@@ -151,7 +154,9 @@ public class DatasourceContextServiceTest {
         datasource.setWorkspaceId("workspaceId1");
         datasource.setPluginId("mockPluginId");
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId,
+                datasourceStorageService.createDatasourceStorageDTOFromDatasourceStorage(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         doReturn(Mono.just(datasource))
@@ -278,11 +283,11 @@ public class DatasourceContextServiceTest {
         datasourceConfiguration.setUrl("http://test.com");
         DBAuth authenticationDTO = new DBAuth();
         datasourceConfiguration.setAuthentication(authenticationDTO);
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         final Datasource createdDatasource = pluginMono
@@ -385,6 +390,8 @@ public class DatasourceContextServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
         datasource.setName("test datasource name for updatable connection test");
+        datasource.setWorkspaceId(workspaceId);
+
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         DBAuth authenticationDTO = new DBAuth();
@@ -393,11 +400,10 @@ public class DatasourceContextServiceTest {
         authenticationDTO.setUsername(username);
         authenticationDTO.setPassword(password);
         datasourceConfiguration.setAuthentication(authenticationDTO);
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         final Datasource createdDatasource = pluginMono
@@ -414,7 +420,9 @@ public class DatasourceContextServiceTest {
                 createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
         assert datasourceStorageDTO != null;
 
-        DatasourceStorage createdDatasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+        DatasourceStorage createdDatasourceStorage =
+                datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
+        createdDatasourceStorage.setPluginId(createdDatasource.getPluginId());
 
         DatasourceContextIdentifier datasourceContextIdentifier =
                 new DatasourceContextIdentifier(createdDatasource.getId(), defaultEnvironmentId);
@@ -540,5 +548,79 @@ public class DatasourceContextServiceTest {
 
         assertThat(datasourceContextIdentifier.getDatasourceId()).isEqualTo(sampleDatasourceId);
         assertThat(datasourceContextIdentifier.getEnvironmentId()).isEqualTo(defaultEnvironmentId);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testUpdateDatasourceAndSetAuthentication_withNoRealChange_keepsDatasourceConfigurationValuesDecrypted() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
+        Datasource datasource = new Datasource();
+        datasource.setName(
+                "testUpdateDatasourceAndSetAuthentication_withNoRealChange_keepsDatasourceConfigurationValuesDecrypted");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        OAuth2 authenticationDTO = new OAuth2();
+        String username = "username";
+        String password = "This is the decrypted value to test for";
+        authenticationDTO.setClientId(username);
+        authenticationDTO.setClientSecret(password);
+        authenticationDTO.setAccessTokenUrl("http://test.com");
+        authenticationDTO.setGrantType(OAuth2.Type.CLIENT_CREDENTIALS);
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+        datasource.setWorkspaceId(workspaceId);
+
+        DatasourceStorageDTO datasourceStorageDTO = new DatasourceStorageDTO();
+        datasourceStorageDTO.setDatasourceConfiguration(datasourceConfiguration);
+        datasourceStorageDTO.setEnvironmentId(defaultEnvironmentId);
+        datasourceStorageDTO.setIsConfigured(Boolean.TRUE);
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(defaultEnvironmentId, datasourceStorageDTO);
+        datasource.setDatasourceStorages(storages);
+
+        final Datasource createdDatasource = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .block();
+
+        assert createdDatasource != null;
+
+        DatasourceStorage datasourceStorage = datasourceService
+                .findById(createdDatasource.getId())
+                .flatMap(datasource1 ->
+                        datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, defaultEnvironmentId))
+                .block();
+
+        OAuth2ClientCredentials oAuth2ClientCredentials = Mockito.mock(OAuth2ClientCredentials.class);
+        Mockito.when(oAuth2ClientCredentials.getAuthenticationDTO(Mockito.any()))
+                .thenCallRealMethod();
+
+        // Check that the value was decrypted before
+        DatasourceConfiguration savedDsConfig = datasourceStorage.getDatasourceConfiguration();
+        AuthenticationDTO auth1 = savedDsConfig.getAuthentication();
+        assertThat(auth1).isInstanceOf(OAuth2.class);
+        assertThat(((OAuth2) auth1).getClientSecret()).isEqualTo(password);
+
+        Mono<Object> resultMono = datasourceContextService.updateDatasourceAndSetAuthentication(
+                oAuth2ClientCredentials, datasourceStorage);
+
+        // Check that the value remains decrypted after
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    DatasourceConfiguration newDsConfig = datasourceStorage.getDatasourceConfiguration();
+                    AuthenticationDTO auth2 = newDsConfig.getAuthentication();
+
+                    assertThat(auth2).isInstanceOf(OAuth2.class);
+
+                    assertThat(((OAuth2) auth2).getClientSecret()).isEqualTo(password);
+                })
+                .verifyComplete();
     }
 }

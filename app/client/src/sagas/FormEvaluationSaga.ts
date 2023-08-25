@@ -28,6 +28,7 @@ import {
   extractQueueOfValuesToBeFetched,
 } from "./helper";
 import type { DatasourceConfiguration } from "entities/Datasource";
+import { buffers } from "redux-saga";
 
 export type FormEvalActionPayload = {
   formId: string;
@@ -260,9 +261,15 @@ function* fetchDynamicValueSaga(
 }
 
 function* formEvaluationChangeListenerSaga() {
+  const buffer = buffers.fixed();
   const formEvalChannel: ActionPattern<ReduxAction<FormEvalActionPayload>> =
-    yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS);
+    yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS, buffer as any);
   while (true) {
+    if (buffer.isEmpty()) {
+      yield put({
+        type: ReduxActionTypes.FORM_EVALUATION_EMPTY_BUFFER,
+      });
+    }
     const action: ReduxAction<FormEvalActionPayload> = yield take(
       formEvalChannel,
     );

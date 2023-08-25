@@ -131,18 +131,11 @@ export class DebuggerHelper {
     this.agHelper.AssertSelectedTab(this.locators._debuggerSelectedTab, "true");
   }
 
-  DoesConsoleLogExist(
-    text: string,
-    exists = true,
-    index?: number,
-    timeout?: number,
-  ) {
+  DoesConsoleLogExist(text: string, exists = true) {
     this.agHelper.GetNAssertContains(
       this.locators._logMessage,
       text,
       exists ? "exist" : "not.exist",
-      index,
-      timeout,
     );
   }
 

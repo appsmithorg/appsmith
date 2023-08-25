@@ -93,9 +93,6 @@ const SecondaryWrapper = styled.div`
     &.js-editor-tab {
       height: 100%;
     }
-    .js-editor-tab .js-editor {
-      padding-top: var(--ads-v2-spaces-4);
-    }
   }
 `;
 
