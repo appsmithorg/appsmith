@@ -235,6 +235,10 @@ jobs:
         working-directory: app/client
         run: |
           yarn install --immutable
+          
+      - name: Wait until appsmith server is healthy
+        run: |
+          bash scripts/health_check.sh
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
@@ -335,10 +339,6 @@ jobs:
           else
             echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
           fi
-
-      - name: Wait until appsmith server is healthy
-        run: |
-          bash scripts/health_check.sh
         
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
