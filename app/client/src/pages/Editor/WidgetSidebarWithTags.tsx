@@ -103,7 +103,7 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
       FEATURE_WALKTHROUGH_KEYS.add_table_widget,
     );
-    isFeatureWalkthroughShown &&
+    !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature(
         {

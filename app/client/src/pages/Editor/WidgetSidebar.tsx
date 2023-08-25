@@ -82,7 +82,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
   useEffect(() => {
     async function scrollToTableWidgetCard() {
       const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-        FEATURE_WALKTHROUGH_KEYS.switch_to_widget,
+        FEATURE_WALKTHROUGH_KEYS.add_table_widget,
       );
       const widgetCard = document.getElementById(
         "widget-card-draggable-tablewidgetv2",

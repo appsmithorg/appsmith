@@ -27,6 +27,6 @@ export const datasourceEnvEnabled = createSelector(
 export const adaptiveSignpostingEnabled = createSelector(
   selectFeatureFlags,
   (flags) => {
-    return !!flags.ab_adaptive_signposting_enabled;
+    return !!flags.ab_gif_signposting_enabled;
   },
 );
