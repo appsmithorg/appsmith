@@ -36,6 +36,11 @@ jobs:
           # Opens tcp port 6379 on the host and service container
           - 6379:6379
 
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
     steps:
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
@@ -141,8 +146,8 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.APPSMITH_CI_TUNNEL_PRIVATE_KEY }}
         run: |
-          echo "$SSH_PRIVATE_KEY" > ssh_key.pem \
-          chmod 600 ssh_key.pem
+          echo "$SSH_PRIVATE_KEY" > ssh_key.pem
+          chmod 400 ssh_key.pem
 
       - name: Setup SSH tunnel to AWS DocumentDB instance
         run: |
@@ -230,6 +235,10 @@ jobs:
         working-directory: app/client
         run: |
           yarn install --immutable
+          
+      - name: Wait until appsmith server is healthy
+        run: |
+          bash scripts/health_check.sh
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
@@ -330,7 +339,7 @@ jobs:
           else
             echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
           fi
-
+        
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         id: cypress_test
