@@ -5,10 +5,10 @@ import { Provider } from "react-redux";
 import { render } from "test/testUtils";
 import OnboardingStatusbar from "./Statusbar";
 import { getStore } from "./testUtils";
-import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIGNPOSTING_STEP } from "./Utils";
 import { signpostingStepUpdateInit } from "actions/onboardingActions";
+import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";
 
 let container: any = null;
 
@@ -111,11 +111,7 @@ describe("Statusbar", () => {
   it("should test useIsWidgetActionConnectionPresent function", () => {
     const store = getStore(4).getState() as any;
     const useIsWidgetActionConnectionPresentHelper = () => {
-      return useIsWidgetActionConnectionPresent(
-        store.entities.canvasWidgets,
-        store.entities.actions,
-        store.evaluations.dependencies.inverseDependencyMap,
-      );
+      return isWidgetActionConnectionPresent(store);
     };
     //Both property and trigger dependency present
     expect(useIsWidgetActionConnectionPresentHelper()).toBe(true);

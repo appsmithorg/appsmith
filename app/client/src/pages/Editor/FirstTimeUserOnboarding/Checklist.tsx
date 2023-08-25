@@ -7,8 +7,6 @@ import {
   getPageActions,
   getSavedDatasources,
 } from "selectors/entitiesSelector";
-import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
-import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import { INTEGRATION_TABS } from "constants/routes";
 import {
   getApplicationLastDeployedAt,
@@ -27,6 +25,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getFirstTimeUserOnboardingComplete,
   getSignpostingStepStateByStep,
+  isWidgetActionConnectionPresent,
 } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
@@ -360,12 +359,7 @@ export default function OnboardingChecklist() {
   const pageId = useSelector(getCurrentPageId);
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
-  const deps = useSelector(getEvaluationInverseDependencyMap);
-  const isConnectionPresent = useIsWidgetActionConnectionPresent(
-    widgets,
-    actions,
-    deps,
-  );
+  const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
   const applicationId = useSelector(getCurrentApplicationId);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   const { completedTasks } = getSuggestedNextActionAndCompletedTasks(

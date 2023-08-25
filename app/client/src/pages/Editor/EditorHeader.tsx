@@ -97,17 +97,18 @@ import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
-import { useHref, useIsWidgetActionConnectionPresent } from "./utils";
+import { useHref } from "./utils";
 import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
 import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
 import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import {
+  getIsFirstTimeUserOnboardingEnabled,
+  isWidgetActionConnectionPresent,
+} from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { getCanvasWidgets, getPageActions } from "selectors/entitiesSelector";
-import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
   getFeatureWalkthroughShown,
   setFeatureWalkthroughShown,
@@ -352,14 +353,7 @@ export function EditorHeader() {
     pushFeature,
   } = useContext(WalkthroughContext) || {};
   const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
-  const actions = useSelector(getPageActions(pageId));
-  const widgets = useSelector(getCanvasWidgets);
-  const deps = useSelector(getEvaluationInverseDependencyMap);
-  const isConnectionPresent = useIsWidgetActionConnectionPresent(
-    widgets,
-    actions,
-    deps,
-  );
+  const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   useEffect(() => {
     if (

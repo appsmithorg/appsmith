@@ -4,13 +4,14 @@ import { Colors } from "constants/Colors";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { Button } from "design-system";
-import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import React, { useContext, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getCanvasWidgets, getPageActions } from "selectors/entitiesSelector";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { getPageActions } from "selectors/entitiesSelector";
+import {
+  getIsFirstTimeUserOnboardingEnabled,
+  isWidgetActionConnectionPresent,
+} from "selectors/onboardingSelectors";
 import styled from "styled-components";
 import {
   getFeatureWalkthroughShown,
@@ -62,13 +63,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
   const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
   const pageId = useSelector(getCurrentPageId);
   const actions = useSelector(getPageActions(pageId));
-  const widgets = useSelector(getCanvasWidgets);
-  const deps = useSelector(getEvaluationInverseDependencyMap);
-  const isConnectionPresent = useIsWidgetActionConnectionPresent(
-    widgets,
-    actions,
-    deps,
-  );
+  const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
 
   useEffect(() => {
     if (!isConnectionPresent && actions.length) {
