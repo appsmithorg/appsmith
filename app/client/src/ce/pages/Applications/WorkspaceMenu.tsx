@@ -28,7 +28,7 @@ type WorkspaceMenuProps = {
   handleWorkspaceMenuClose: (open: boolean) => void;
   hasCreateNewApplicationPermission: boolean;
   hasManageWorkspacePermissions: boolean;
-  isFetchingApplications: boolean;
+  isFetchingResources: boolean;
   isSavingWorkspaceInfo: boolean;
   leaveWS: (workspaceId: string) => void;
   setSelectedWorkspaceIdForImportApplication: (workspaceId?: string) => void;
@@ -55,7 +55,7 @@ function WorkspaceMenu({
   handleWorkspaceMenuClose,
   hasCreateNewApplicationPermission,
   hasManageWorkspacePermissions,
-  isFetchingApplications,
+  isFetchingResources,
   isSavingWorkspaceInfo,
   leaveWS,
   setSelectedWorkspaceIdForImportApplication,
@@ -78,7 +78,7 @@ function WorkspaceMenu({
       <MenuTrigger>
         <Button
           className="t--options-icon"
-          isDisabled={isFetchingApplications}
+          isDisabled={isFetchingResources}
           isIconButton
           kind="tertiary"
           onClick={() => {
