@@ -69,6 +69,14 @@ export default function ModalComponent(props: ModalComponentProps) {
   const isTableFilterPaneVisible = useSelector(
     (state: AppState) => state.ui.tableFilterPane.isVisible,
   );
+  useEffect(() => {
+    return () => {
+      // handle modal close events when this component unmounts
+      // will be called in all cases :-
+      //  escape key press, click out side, close click from other btn widget
+      if (props.onModalClose) props.onModalClose();
+    };
+  }, []);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);

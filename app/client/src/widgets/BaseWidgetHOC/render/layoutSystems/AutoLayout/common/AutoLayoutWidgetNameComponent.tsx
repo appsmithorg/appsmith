@@ -1,3 +1,4 @@
+import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
 import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
@@ -28,8 +29,10 @@ export const AutoLayoutWidgetComponent = (props: BaseWidgetProps) => {
   }
 
   return (
-    <WidgetComponentBoundary widgetType={type}>
-      {props.children}
-    </WidgetComponentBoundary>
+    <ErrorBoundary>
+      <WidgetComponentBoundary widgetType={type}>
+        {props.children}
+      </WidgetComponentBoundary>
+    </ErrorBoundary>
   );
 };

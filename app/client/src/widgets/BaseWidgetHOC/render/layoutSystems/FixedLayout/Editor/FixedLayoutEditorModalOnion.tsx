@@ -4,23 +4,20 @@ import { WidgetNameLayer } from "widgets/BaseWidgetHOC/render/common/WidgetNameL
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import { ModalResizableLayer } from "../../common/ModalResizableLayer";
 import { ModalOverlayLayer } from "../../common/ModalOverlayLayer";
-import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { FixedLayoutWigdetComponent } from "../common/FixedLayoutWidgetComponent";
 
 export const FixedLayoutEditorModalOnion = (props: BaseWidgetProps) => {
   return (
-    <ErrorBoundary>
-      <FixedLayoutWigdetComponent {...props}>
-        <ModalOverlayLayer {...props} isEditMode>
-          <ModalResizableLayer {...props}>
-            <WidgetNameLayer {...props}>
-              <ClickContentToOpenPropPane widgetId={props.widgetId}>
-                {props.children}
-              </ClickContentToOpenPropPane>
-            </WidgetNameLayer>
-          </ModalResizableLayer>
-        </ModalOverlayLayer>
-      </FixedLayoutWigdetComponent>
-    </ErrorBoundary>
+    <FixedLayoutWigdetComponent {...props}>
+      <ModalOverlayLayer {...props} isEditMode>
+        <ModalResizableLayer {...props}>
+          <WidgetNameLayer {...props}>
+            <ClickContentToOpenPropPane widgetId={props.widgetId}>
+              {props.children}
+            </ClickContentToOpenPropPane>
+          </WidgetNameLayer>
+        </ModalResizableLayer>
+      </ModalOverlayLayer>
+    </FixedLayoutWigdetComponent>
   );
 };
