@@ -333,8 +333,8 @@ jobs:
 
       - name: Wait until appsmith server is healthy
         run: |
-          chmod +x scripts/health-check.sh
-          bash scripts/health-check.sh
+          chmod +x scripts/health_check.sh
+          bash scripts/health_check.sh
         
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
