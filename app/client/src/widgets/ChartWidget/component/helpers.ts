@@ -3,7 +3,6 @@ import type { ChartType, ChartSelectedDataPoint } from "../constants";
 import { omit, cloneDeep } from "lodash";
 
 export const parseOnDataPointClickParams = (evt: any, chartType: ChartType) => {
-  //console.log("***", "chart type is ", chartType, " event is ", evt)
   switch (chartType) {
     case "CUSTOM_FUSION_CHART": {
       return parseOnDataPointClickForCustomFusionChart(evt);
