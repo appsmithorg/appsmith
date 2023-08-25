@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -51,7 +52,7 @@ public class EnvironmentServiceTest {
     @SpyBean
     WorkspaceService workspaceService;
 
-    @SpyBean
+    @MockBean
     FeatureFlagService featureFlagService;
 
     @SpyBean
@@ -71,13 +72,12 @@ public class EnvironmentServiceTest {
                 .block();
 
         doReturn(Mono.justOrEmpty(workspace)).when(workspaceService).findById(any(), Mockito.<AclPermission>any());
+        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(Boolean.TRUE));
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void verifyGetEnvironmentDTOByWorkspaceId() {
-
-        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
 
         Flux<EnvironmentDTO> environmentDTOFlux = environmentService
                 .getEnvironmentDTOByWorkspaceId(workspace.getId())
@@ -97,8 +97,6 @@ public class EnvironmentServiceTest {
     @WithUserDetails(value = "api_user")
     public void verifyFindByWorkspaceIdWithoutPermission() {
 
-        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(any());
-
         Flux<Environment> environmentFlux = environmentService
                 .findByWorkspaceId(workspace.getId())
                 .sort(Comparator.comparing(Environment::getName));
@@ -116,11 +114,6 @@ public class EnvironmentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void verifyGetEnvironmentDTOByEnvironmentId() {
-
-        doReturn(Mono.just(Boolean.TRUE))
-                .doReturn(Mono.just(Boolean.TRUE))
-                .when(featureFlagService)
-                .check(any());
 
         Flux<Environment> environmentFlux =
                 environmentService.findByWorkspaceId(workspace.getId()).cache();
@@ -184,8 +177,6 @@ public class EnvironmentServiceTest {
     @WithUserDetails(value = "api_user")
     public void verifySetStagingAsDefault() {
 
-        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
-
         Map<String, Environment> environmentMap = environmentService
                 .findByWorkspaceId(workspace.getId())
                 .collectMap(Environment::getName)
@@ -210,7 +201,6 @@ public class EnvironmentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void verifyErrorWhenNoPermissionForWorkspace() {
-        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
 
         doReturn(Mono.empty()).when(workspaceService).findById(any(), Mockito.<AclPermission>any());
 
@@ -235,9 +225,8 @@ public class EnvironmentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void verifyErrorWhenWorkspaceIdOrEnvironmentIdIsGiven() {
-        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
 
-        doReturn(Mono.empty()).when(workspaceService).findById(any(), Mockito.<AclPermission>any());
+        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
 
         Map<String, Environment> environmentMap = environmentService
                 .findByWorkspaceId(workspace.getId())

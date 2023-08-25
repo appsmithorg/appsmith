@@ -1,4 +1,4 @@
-package com.appsmith.server.solutions.roles;
+package com.appsmith.server.solutions.roles.ce_compatible;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -21,6 +21,9 @@ import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
+import com.appsmith.server.solutions.roles.TenantResources;
+import com.appsmith.server.solutions.roles.WorkspaceResources;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
@@ -45,13 +48,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
-import static java.lang.Boolean.TRUE;
+import static java.lang.Boolean.FALSE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class EnvironmentResourcesTest {
+public class EnvironmentResourceCECompatibleTest {
 
     @Autowired
     UserRepository userRepository;
@@ -116,107 +119,14 @@ public class EnvironmentResourcesTest {
 
         // This stub has been added for feature flag placed for multiple environments
         Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.release_datasource_environments_enabled)))
-                .thenReturn(Mono.just(TRUE));
+                .thenReturn(Mono.just(FALSE));
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     @DirtiesContext
     public void
-            testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenExecuteOnWorkspace_assertExecuteOnEnvironments() {
-
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        Workspace workspace = new Workspace();
-        workspace.setName("givenExecuteOnWorkspace_assertExecuteOnEnvironments workspace");
-        Workspace createdWorkspace = workspaceService.create(workspace).block();
-
-        PermissionGroup permissionGroup = new PermissionGroup();
-        permissionGroup.setName("New role for editing : givenExecuteOnWorkspace_assertExecuteOnEnvironments");
-        PermissionGroup createdPermissionGroup =
-                permissionGroupService.create(permissionGroup).block();
-
-        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
-
-        // Add entity changes
-        // Workspace : Give execute permissions to the workspace
-        UpdateRoleEntityDTO workspaceEntity = new UpdateRoleEntityDTO(
-                Workspace.class.getSimpleName(),
-                createdWorkspace.getId(),
-                List.of(1, 0, 0, 0, 0),
-                createdWorkspace.getName());
-        updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceEntity));
-        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
-
-        roleConfigurationSolution
-                .updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO)
-                .block();
-
-        // Fetch the environment post the role change with execute permissions
-        Mono<List<Environment>> environmentsMono =
-                environmentService.findByWorkspaceId(createdWorkspace.getId()).collectList();
-
-        StepVerifier.create(environmentsMono)
-                .assertNext(environmentList -> {
-
-                    // Assert that environment execute has been given executegi permission for this permission group
-                    assertThat(environmentList).isNotEmpty();
-                    assertThat(environmentList).hasSize(2);
-                    environmentList.stream().forEach(env -> {
-                        Optional<Policy> policyOptional = env.getPolicies().stream()
-                                .filter(policy -> policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue()))
-                                .findFirst();
-
-                        assertThat(policyOptional.isPresent()).isTrue();
-                        Policy policy = policyOptional.get();
-                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
-                    });
-                })
-                .verifyComplete();
-
-        // Now test for removal of the same permission
-        // Remove entity changes
-        // Workspace : Remove execute permissions to the workspace
-        UpdateRoleEntityDTO workspaceEntity2 = new UpdateRoleEntityDTO(
-                Workspace.class.getSimpleName(),
-                createdWorkspace.getId(),
-                List.of(0, 0, 0, 0, 0),
-                createdWorkspace.getName());
-        updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceEntity2));
-        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
-
-        Mono<RoleViewDTO> roleViewDTOMono =
-                roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO);
-
-        // Fetch the environment post the role change with execute permissions
-        Mono<List<Environment>> environmentsMono2 = roleViewDTOMono.then(
-                environmentService.findByWorkspaceId(createdWorkspace.getId()).collectList());
-
-        StepVerifier.create(environmentsMono2)
-                .assertNext(environmentList -> {
-
-                    // Assert that environment execute has been revoked for this permission group
-                    assertThat(environmentList).isNotEmpty();
-                    assertThat(environmentList).hasSize(2);
-                    environmentList.stream().forEach(env -> {
-                        Optional<Policy> policyOptional = env.getPolicies().stream()
-                                .filter(policy -> policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue()))
-                                .findFirst();
-
-                        assertThat(policyOptional.isPresent()).isTrue();
-                        Policy policy = policyOptional.get();
-                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
-                    });
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    @DirtiesContext
-    public void
-            testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenExecuteOnDatasource_assertNoExecuteOnEnvironments() {
+            testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenExecuteOnDatasource_assertExecuteOnEnvironments() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
@@ -234,7 +144,6 @@ public class EnvironmentResourcesTest {
         Plugin installed_plugin =
                 pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
-
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         storages.put(
                 environment.getId(),
@@ -277,7 +186,7 @@ public class EnvironmentResourcesTest {
 
                         assertThat(policyOptional.isPresent()).isTrue();
                         Policy policy = policyOptional.get();
-                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
                     });
                 })
                 .verifyComplete();
@@ -310,7 +219,7 @@ public class EnvironmentResourcesTest {
 
                         assertThat(policyOptional.isPresent()).isTrue();
                         Policy policy = policyOptional.get();
-                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
                     });
                 })
                 .verifyComplete();
