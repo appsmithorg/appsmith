@@ -36,16 +36,19 @@ function configureDbClient() {
 }
 
 // This is to setup the AWS client
-AWS.config.update({ region: "ap-south-1" });
-const s3 = new AWS.S3({
-  credentials: {
-    accessKeyId: getEnvValue("CYPRESS_S3_ACCESS", { required: true }),
-    secretAccessKey: getEnvValue("CYPRESS_S3_SECRET", { required: true }),
-  },
-});
+function configureS3() {
+  AWS.config.update({ region: "ap-south-1" });
+  const s3client = new AWS.S3({
+    credentials: {
+      accessKeyId: getEnvValue("CYPRESS_S3_ACCESS", { required: true }),
+      secretAccessKey: getEnvValue("CYPRESS_S3_SECRET", { required: true }),
+    },
+  });
+  return s3client;
+}
 
 // This is to upload files to s3 when required
-function uploadToS3(filePath, key) {
+function uploadToS3(s3Client, filePath, key) {
   const fileContent = fs.readFileSync(filePath);
 
   const params = {
@@ -53,10 +56,11 @@ function uploadToS3(filePath, key) {
     Key: key,
     Body: fileContent,
   };
-  return s3.upload(params).promise();
+  return s3Client.upload(params).promise();
 }
 
 async function cypressHooks(on, config) {
+  const s3 = configureS3();
   const dbClient = configureDbClient();
   const runData = {
     commitMsg: getEnvValue("COMMIT_INFO_MESSAGE", { required: false }),
@@ -182,7 +186,7 @@ async function cypressHooks(on, config) {
             const key = `${testResponse.rows[0].id}_${specData.specId}_${
               scr.testAttemptIndex + 1
             }`;
-            Promise.all([uploadToS3(scr.path, key)]).catch((error) => {
+            Promise.all([uploadToS3(s3, scr.path, key)]).catch((error) => {
               console.log("Error in uploading screenshots:", error);
             });
           }
@@ -197,7 +201,7 @@ async function cypressHooks(on, config) {
       ) {
         console.log("Uploading video...");
         const key = `${specData.specId}`;
-        Promise.all([uploadToS3(results.video, key)]).catch((error) => {
+        Promise.all([uploadToS3(s3, results.video, key)]).catch((error) => {
           console.log("Error in uploading video:", error);
         });
       }
