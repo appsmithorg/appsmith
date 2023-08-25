@@ -36,7 +36,8 @@ public class MySqlStaleConnectionErrorMessageTest {
         ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
         String expectedErrorMessage = "Timeout exception from MockConnectionPool";
         when(mockConnectionPool.create()).thenReturn(Mono.error(new TimeoutException(expectedErrorMessage)));
-        ConnectionContext connectionContext = new ConnectionContext(mockConnectionPool, null);
+        ConnectionContext<ConnectionPool> connectionContext =
+                new ConnectionContext<ConnectionPool>(mockConnectionPool, null);
         Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
                 connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
         StepVerifier.create(actionExecutionResultMono)
@@ -54,7 +55,8 @@ public class MySqlStaleConnectionErrorMessageTest {
         ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
         String expectedErrorMessage = "Timeout exception from MockConnectionPool";
         when(mockConnectionPool.create()).thenReturn(Mono.error(new PoolShutdownException(expectedErrorMessage)));
-        ConnectionContext connectionContext = new ConnectionContext(mockConnectionPool, null);
+        ConnectionContext<ConnectionPool> connectionContext =
+                new ConnectionContext<ConnectionPool>(mockConnectionPool, null);
         Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
                 connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
         StepVerifier.create(actionExecutionResultMono)
@@ -72,7 +74,8 @@ public class MySqlStaleConnectionErrorMessageTest {
         ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
         String expectedErrorMessage = "Timeout exception from MockConnectionPool";
         when(mockConnectionPool.create()).thenReturn(Mono.error(new IllegalStateException(expectedErrorMessage)));
-        ConnectionContext connectionContext = new ConnectionContext(mockConnectionPool, null);
+        ConnectionContext<ConnectionPool> connectionContext =
+                new ConnectionContext<ConnectionPool>(mockConnectionPool, null);
         Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
                 connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
         StepVerifier.create(actionExecutionResultMono)
@@ -91,7 +94,8 @@ public class MySqlStaleConnectionErrorMessageTest {
         String expectedErrorMessage = "Timeout exception from MockConnectionPool";
         when(mockConnectionPool.create())
                 .thenReturn(Mono.error(new R2dbcNonTransientResourceException(expectedErrorMessage)));
-        ConnectionContext connectionContext = new ConnectionContext(mockConnectionPool, null);
+        ConnectionContext<ConnectionPool> connectionContext =
+                new ConnectionContext<ConnectionPool>(mockConnectionPool, null);
         Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
                 connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
         StepVerifier.create(actionExecutionResultMono)
@@ -111,7 +115,8 @@ public class MySqlStaleConnectionErrorMessageTest {
         when(mockConnectionPool.create()).thenReturn(Mono.just(mockConnection));
         when(mockConnection.validate(ValidationDepth.LOCAL)).thenReturn(Mono.just(false));
         when(mockConnection.close()).thenReturn(Mono.empty());
-        ConnectionContext connectionContext = new ConnectionContext(mockConnectionPool, null);
+        ConnectionContext<ConnectionPool> connectionContext =
+                new ConnectionContext<ConnectionPool>(mockConnectionPool, null);
         Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
                 connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
         StepVerifier.create(actionExecutionResultMono)

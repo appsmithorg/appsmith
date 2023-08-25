@@ -150,8 +150,8 @@ public class MySqlPlugin extends BasePlugin {
     }
 
     @Extension
-    public static class MySqlPluginExecutor implements PluginExecutor<ConnectionContext<ConnectionPool>>,
-            SmartSubstitutionInterface {
+    public static class MySqlPluginExecutor
+            implements PluginExecutor<ConnectionContext<ConnectionPool>>, SmartSubstitutionInterface {
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
         private final Scheduler scheduler = Schedulers.boundedElastic();
@@ -580,7 +580,8 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ConnectionContext<ConnectionPool>> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<ConnectionContext<ConnectionPool>> datasourceCreate(
+                DatasourceConfiguration datasourceConfiguration) {
             ConnectionPool pool = null;
             try {
                 pool = getNewConnectionPool(datasourceConfiguration);

@@ -1092,7 +1092,8 @@ public class MySqlPluginTest {
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLED);
-        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono =
+                pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<Object> executeMono = connectionContextMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1114,7 +1115,8 @@ public class MySqlPluginTest {
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.REQUIRED);
-        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono =
+                pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<Object> executeMono = connectionContextMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1138,7 +1140,8 @@ public class MySqlPluginTest {
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
-        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono =
+                pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<Object> executeMono = connectionContextMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
