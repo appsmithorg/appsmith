@@ -143,9 +143,11 @@ export const contentConfig = [
           otherFields: [
             {
               label: "Form Type",
-              value: "formType",
+              name: "formType",
               fieldType: "SELECT",
               optionType: "CUSTOM",
+              isRequired: true,
+              defaultValue: "create",
               options: [
                 {
                   label: "Create records",
@@ -158,36 +160,27 @@ export const contentConfig = [
                   id: "edit",
                 },
               ],
+              // TODO: config type
               isVisible: (config: any) => {
-                return config.otherFields.formType === "edit";
+                return config.tableName !== "";
               },
             },
             {
               label: "Get values from",
-              value: "defaultValues",
+              name: "defaultValues",
               fieldType: "SELECT",
-              optionType: "CUSTOM",
-              options: [
-                {
-                  label: "Create records",
-                  value: "create",
-                  id: "create",
-                },
-                {
-                  label: "Edit records",
-                  value: "edit",
-                  id: "edit",
-                },
-              ],
+              optionType: "WIDGETS",
+              isRequired: true,
               isVisible: (config: any) => {
                 return config.otherFields.formType === "edit";
               },
             },
             {
               label: "Data Identifier",
-              value: "dataIdentifier",
+              name: "dataIdentifier",
               fieldType: "SELECT",
               optionType: "COLUMNS",
+              isRequired: true,
               isVisible: (config: any) => {
                 return config.otherFields.formType === "edit";
               },
