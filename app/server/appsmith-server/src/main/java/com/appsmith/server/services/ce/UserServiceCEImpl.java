@@ -334,8 +334,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private Boolean isEmailVerificationTokenValid(EmailVerificationToken emailVerificationToken) {
         Duration duration = Duration.between(emailVerificationToken.getTokenGeneratedAt(), Instant.now());
-        long l = duration.toMinutes();
-        if (l > 5) { // the token has expired
+        long l = duration.toHours();
+        if (l > 48) { // the token has expired
             return FALSE;
         }
         return TRUE;
