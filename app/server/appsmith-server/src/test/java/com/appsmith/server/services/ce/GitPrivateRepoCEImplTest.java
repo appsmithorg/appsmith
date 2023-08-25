@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class GitPrivateRepoImplTest {
+public class GitPrivateRepoCEImplTest {
 
     @Autowired
     GitPrivateRepoHelper gitPrivateRepoHelper;
