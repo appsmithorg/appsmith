@@ -1,4 +1,8 @@
 import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
+import type {
+  AdminConfigType,
+  Category,
+} from "@appsmith/pages/AdminSettings/config/types";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import type { User } from "constants/userConstants";
 
@@ -48,4 +52,44 @@ export const isTenantConfig = (name: string): boolean => {
   const fields: string[] = tenantConfigConnection;
 
   return fields.includes(name);
+};
+
+export const getWrapperCategory = (
+  categories: Record<string, AdminConfigType>,
+  subCategory: string,
+  category: string,
+) => {
+  return categories[subCategory || category];
+};
+
+export const getFilteredGeneralCategories = (categories: any) => {
+  return categories
+    ?.map((category: any) => {
+      return category;
+    })
+    .filter(Boolean) as Category[];
+};
+
+export const getFilteredAclCategories = (
+  categories: any,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isSuperUser?: boolean,
+) => {
+  return categories
+    ?.map((category: any) => {
+      return category;
+    })
+    .filter(Boolean) as Category[];
+};
+
+export const getFilteredOtherCategories = (
+  categories: any,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isSuperUser?: boolean,
+) => {
+  return categories
+    ?.map((category: any) => {
+      return category;
+    })
+    .filter(Boolean) as Category[];
 };

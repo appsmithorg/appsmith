@@ -17,7 +17,11 @@ import BusinessTag from "components/BusinessTag";
 import EnterpriseTag from "components/EnterpriseTag";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { hasAuditLogsReadPermission } from "@appsmith/utils/permissionHelpers";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import {
+  getFilteredAclCategories,
+  getFilteredGeneralCategories,
+  getFilteredOtherCategories,
+} from "@appsmith/utils/adminSettingsHelpers";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};
@@ -187,40 +191,18 @@ export default function LeftPane() {
   const isSuperUser = user?.isSuperUser;
   const tenantPermissions = useSelector(getTenantPermissions);
   const isAuditLogsEnabled = hasAuditLogsReadPermission(tenantPermissions);
-  const isAirgappedInstance = isAirgapped();
 
-  const filteredGeneralCategories = categories
-    ?.map((category: any) => {
-      if (isAirgappedInstance && category.slug === "google-maps") {
-        return null;
-      }
-      return category;
-    })
-    .filter(Boolean) as Category[];
+  const filteredGeneralCategories = getFilteredGeneralCategories(categories);
 
-  const filteredAclCategories = aclCategories
-    ?.map((category: any) => {
-      if (
-        (!isSuperUser && ["groups", "roles"].includes(category.slug)) ||
-        isSuperUser
-      ) {
-        return category;
-      }
-      return null;
-    })
-    .filter(Boolean) as Category[];
+  const filteredAclCategories = getFilteredAclCategories(
+    aclCategories,
+    isSuperUser,
+  );
 
-  const filteredOthersCategories = othersCategories
-    ?.map((category: any) => {
-      if (
-        (!isSuperUser && ["audit-logs"].includes(category.slug)) ||
-        isSuperUser
-      ) {
-        return category;
-      }
-      return null;
-    })
-    .filter(Boolean) as Category[];
+  const filteredOthersCategories = getFilteredOtherCategories(
+    othersCategories,
+    isSuperUser,
+  );
 
   return (
     <Wrapper>
