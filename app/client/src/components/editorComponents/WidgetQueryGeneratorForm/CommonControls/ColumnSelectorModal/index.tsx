@@ -39,7 +39,7 @@ const StyledCheckbox = styled(Checkbox)`
 `;
 
 const StyledModalBody = styled(ModalBody)`
-  padding-top: 0px !important;
+  padding-top: 0 !important;
 
   table {
     border: 1px solid var(--ads-v2-color-border-muted) !important;
