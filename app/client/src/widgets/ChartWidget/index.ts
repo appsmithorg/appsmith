@@ -62,7 +62,7 @@ export const CONFIG = {
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   methods: {
-    getEditorCallouts: Widget.widgetCallouts(),
+    getEditorCallouts: Widget.editorCallouts(),
   },
   autoLayout: {
     widgetSize: [
