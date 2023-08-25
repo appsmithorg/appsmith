@@ -333,7 +333,6 @@ jobs:
 
       - name: Wait until appsmith server is healthy
         run: |
-          chmod +x scripts/health_check.sh
           bash scripts/health_check.sh
         
       - name: Run the cypress test
