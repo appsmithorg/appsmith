@@ -206,7 +206,7 @@ export const DefaultEChartConfig = {
     text: "Search Engine Usage",
     left: "center",
     textStyle: {
-      width: 40,
+      width: 200,
       overflow: "truncate",
     },
   },
