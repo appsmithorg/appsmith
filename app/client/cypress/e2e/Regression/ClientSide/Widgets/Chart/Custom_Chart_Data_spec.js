@@ -1,5 +1,5 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import featureFlagIntercept from "../../../../../support/Objects/FeatureFlags";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("Chart Widget Functionality around custom chart data", function () {
   before(() => {
