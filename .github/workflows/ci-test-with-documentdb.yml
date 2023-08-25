@@ -36,6 +36,11 @@ jobs:
           # Opens tcp port 6379 on the host and service container
           - 6379:6379
 
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
     steps:
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
