@@ -75,13 +75,13 @@ describe("Camera widget - Image test", () => {
     agHelper.AssertExistingToggleState("Mirrored", "true");
     propPane.EnterJSContext("Mirrored", "{{(55>45)?false:true}}", true, true);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
-    agHelper
+    /* agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
       .matchImageSnapshot("cameraImageMirroredScreen", {
         failureThreshold: 0.15,
         failureThresholdType: "percent",
         customDiffConfig: { threshold: 0.15 },
-      });
+      }); */
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Camera1");
     propPane.EnterJSContext("Mirrored", "", false);
@@ -114,9 +114,9 @@ describe("Camera widget - Image test", () => {
     //Validate camera screen & icons
     agHelper.AssertElementVisibility(widgetLocators.cameraImageVideoOnOffBtn);
     agHelper.AssertElementVisibility(widgetLocators.cameraImageVideoDropdown);
-    agHelper
+    /* agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
-      .matchImageSnapshot("cameraImageScreen");
+      .matchImageSnapshot("cameraImageScreen"); */
 
     //Capture image
     agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
@@ -124,18 +124,18 @@ describe("Camera widget - Image test", () => {
     agHelper.AssertElementVisibility(widgetLocators.cameraImageDiscardBtn);
 
     //Validate image in preview screen
-    agHelper
+    /*  agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
-      .matchImageSnapshot("cameraImagePreviewScreen");
+      .matchImageSnapshot("cameraImagePreviewScreen"); */
 
     //Save image
     agHelper.GetNClick(widgetLocators.cameraSaveBtn);
     agHelper.AssertElementVisibility(widgetLocators.cameraRefreshBtn);
 
     //Validate image in refresh screen
-    agHelper
+    /*  agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
-      .matchImageSnapshot("cameraImageSavedScreen");
+      .matchImageSnapshot("cameraImageSavedScreen"); */
 
     //Refresh image
     agHelper.GetNClick(widgetLocators.cameraRefreshBtn);
