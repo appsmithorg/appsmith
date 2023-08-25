@@ -84,8 +84,8 @@ describe("Video widget tests", function () {
     agHelper.AssertContains("Please provide a valid url");
     agHelper.AssertElementAbsence(
       locators._widgetInDeployed(draggableWidgets.VIDEO) +
-        " " +
-        widgetLocators.video,
+      " " +
+      widgetLocators.video,
     );
 
     deployMode.NavigateBacktoEditor();
@@ -137,8 +137,8 @@ describe("Video widget tests", function () {
     agHelper.AssertElementAbsence(
       locators._widgetInDeployed(
         locators._widgetInDeployed(draggableWidgets.VIDEO) +
-          " " +
-          widgetLocators.video,
+        " " +
+        widgetLocators.video,
       ),
     );
     deployMode.NavigateBacktoEditor();
@@ -149,8 +149,8 @@ describe("Video widget tests", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
     agHelper.AssertElementVisibility(
       locators._widgetInDeployed(draggableWidgets.VIDEO) +
-        " " +
-        widgetLocators.video,
+      " " +
+      widgetLocators.video,
     );
   });
 
@@ -197,8 +197,7 @@ describe("Video widget tests", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Video1", "Widgets");
     propPane.MoveToTab("Style");
-    agHelper.GetNClick(theme.locators._colorPickerV2Popover);
-    agHelper.GetNClick(theme.locators._colorPickerV2Color, 6);
+    propPane.SelectColorFromColorPicker("backgroundcolor", 9)
     agHelper.ContainsNClick("Medium");
     propPane.EnterJSContext("Border radius", "1.5rem");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
@@ -231,8 +230,8 @@ describe("Video widget tests", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
     agHelper.AssertElementVisibility(
       locators._widgetInDeployed(draggableWidgets.VIDEO) +
-        " " +
-        widgetLocators.video,
+      " " +
+      widgetLocators.video,
     );
     agHelper.AssertProperty(widgetLocators.video, "paused", false);
     agHelper.ValidateToastMessage("Video is playing!");
@@ -253,8 +252,8 @@ describe("Video widget tests", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
     agHelper.AssertElementVisibility(
       locators._widgetInDeployed(draggableWidgets.VIDEO) +
-        " " +
-        widgetLocators.video,
+      " " +
+      widgetLocators.video,
     );
     agHelper.AssertProperty(widgetLocators.video, "paused", false);
     agHelper.ValidateToastMessage("Video is playing!");

@@ -187,7 +187,7 @@ describe("Image widget tests", function () {
     );
   });
 
-  it("8. Verify video styles", function () {
+  it("8. Verify image styles", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Image1", "Widgets");
     propPane.MoveToTab("Style")
