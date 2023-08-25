@@ -2,7 +2,6 @@
 cypress/e2e/Regression/ClientSide/Widgets/Image/Image2_Spec.ts
 cypress/e2e/Regression/ClientSide/Widgets/Video/Video2_Spec.ts
 
-
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
 
