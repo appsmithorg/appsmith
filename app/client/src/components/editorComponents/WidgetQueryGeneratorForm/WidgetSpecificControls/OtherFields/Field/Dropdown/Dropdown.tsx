@@ -1,8 +1,8 @@
 import React from "react";
-import { ErrorMessage, Label, SelectWrapper } from "../../../styles";
+import { ErrorMessage, Label, SelectWrapper } from "../../../../styles";
 import { Select } from "design-system";
 import type { DefaultOptionType } from "rc-select/lib/Select";
-import type { OtherField } from "../../../types";
+import type { OtherField } from "../../../../types";
 import { useDropdown } from "./useDropdown";
 
 export function OneClickDropdownFieldControl(

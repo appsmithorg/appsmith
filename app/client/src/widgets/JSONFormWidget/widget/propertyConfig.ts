@@ -9,14 +9,15 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import type { JSONFormWidgetProps } from ".";
-import { ROOT_SCHEMA_KEY } from "../constants";
+import { FieldType, ROOT_SCHEMA_KEY } from "../constants";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
 import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
-  JSON_FORM_CONNECT_BUTTON_TEXT,
   createMessage,
+  JSON_FORM_CONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
+import { DropdownOptionType } from "../../../components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
 
 const MAX_NESTING_LEVEL = 5;
 
@@ -144,8 +145,8 @@ export const contentConfig = [
             {
               label: "Form Type",
               name: "formType",
-              fieldType: "SELECT",
-              optionType: "CUSTOM",
+              fieldType: FieldType.SELECT,
+              optionType: DropdownOptionType.CUSTOM,
               isRequired: true,
               defaultValue: "create",
               options: [
@@ -160,28 +161,27 @@ export const contentConfig = [
                   id: "edit",
                 },
               ],
-              // TODO: config type
-              isVisible: (config: any) => {
+              isVisible: (config: Record<string, any>) => {
                 return config.tableName !== "";
               },
             },
             {
               label: "Get values from",
               name: "defaultValues",
-              fieldType: "SELECT",
-              optionType: "WIDGETS",
+              fieldType: FieldType.SELECT,
+              optionType: DropdownOptionType.WIDGETS,
               isRequired: true,
-              isVisible: (config: any) => {
+              isVisible: (config: Record<string, any>) => {
                 return config.otherFields.formType === "edit";
               },
             },
             {
               label: "Data Identifier",
               name: "dataIdentifier",
-              fieldType: "SELECT",
-              optionType: "COLUMNS",
+              fieldType: FieldType.SELECT,
+              optionType: DropdownOptionType.COLUMNS,
               isRequired: true,
-              isVisible: (config: any) => {
+              isVisible: (config: Record<string, any>) => {
                 return config.otherFields.formType === "edit";
               },
             },

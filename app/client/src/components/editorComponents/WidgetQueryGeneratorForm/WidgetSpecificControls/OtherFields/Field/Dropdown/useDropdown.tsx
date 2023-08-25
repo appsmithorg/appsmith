@@ -1,13 +1,14 @@
 import React, { useCallback, useContext, useMemo } from "react";
 import { Option } from "design-system";
-import { DropdownOption } from "../../../CommonControls/DatasourceDropdown/DropdownOption";
-import { WidgetQueryGeneratorFormContext } from "../../../index";
-import { useColumns } from "../../ColumnDropdown/useColumns";
+import { DropdownOption } from "../../../../CommonControls/DatasourceDropdown/DropdownOption";
+import { WidgetQueryGeneratorFormContext } from "../../../../index";
+import { useColumns } from "../../../ColumnDropdown/useColumns";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
-import { getAllPageWidgets } from "../../../../../../selectors/entitiesSelector";
+import { getAllPageWidgets } from "../../../../../../../selectors/entitiesSelector";
 import { StyledImage } from "./styles";
+import { DropdownOptionType } from "./types";
 
 export type OneClickDropdownFieldProps = {
   label: string;
@@ -31,6 +32,8 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
   const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
   const { disabled, options: columns } = useColumns("", false);
 
+  const configName = `otherFields.${name}`;
+
   const allowedWidgetsToBind = [
     "TABLE_WIDGET_V2",
     "LIST_WIDGET_V2",
@@ -51,27 +54,25 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
       };
     });
 
-  // TODO: enums
   const options = useMemo(() => {
     switch (optionType) {
-      case "CUSTOM":
+      case DropdownOptionType.CUSTOM:
         return fieldOptions;
-      case "COLUMNS":
+      case DropdownOptionType.COLUMNS:
         return columns;
-      case "WIDGETS":
+      case DropdownOptionType.WIDGETS:
         return widgetOptions;
       default:
         return [];
     }
   }, [fieldOptions, columns]);
 
-  // TODO: don't repeat otherFields have it in a variable at top
   const onSelect = (value: string) => {
-    updateConfig(`otherFields.${name}`, value);
+    updateConfig(configName, value);
   };
 
   const handleClear = useCallback(() => {
-    updateConfig(`otherFields.${name}`, "");
+    updateConfig(configName, "");
   }, [updateConfig]);
 
   const handleSelect = (value: string, selectedOption: DefaultOptionType) => {
@@ -82,10 +83,9 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
     }
   };
 
-  const selectedValue = get(config, `otherFields.${name}`);
+  const selectedValue = get(config, configName);
 
   const getDefaultDropdownValue = useCallback(() => {
-    // TODO: enums
     if (name === "formType" && !selectedValue && defaultValue) {
       updateConfig("otherFields.formType", defaultValue);
     }
