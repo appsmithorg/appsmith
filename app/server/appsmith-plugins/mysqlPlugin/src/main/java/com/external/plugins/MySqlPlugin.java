@@ -150,7 +150,8 @@ public class MySqlPlugin extends BasePlugin {
     }
 
     @Extension
-    public static class MySqlPluginExecutor implements PluginExecutor<ConnectionContext>, SmartSubstitutionInterface {
+    public static class MySqlPluginExecutor implements PluginExecutor<ConnectionContext<ConnectionPool>>,
+            SmartSubstitutionInterface {
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
         private final Scheduler scheduler = Schedulers.boundedElastic();
@@ -171,7 +172,7 @@ public class MySqlPlugin extends BasePlugin {
          */
         @Override
         public Mono<ActionExecutionResult> executeParameterized(
-                ConnectionContext connectionContext,
+                ConnectionContext<ConnectionPool> connectionContext,
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
@@ -233,7 +234,7 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         public Mono<ActionExecutionResult> executeCommon(
-                ConnectionContext connectionContext,
+                ConnectionContext<ConnectionPool> connectionContext,
                 ActionConfiguration actionConfiguration,
                 Boolean preparedStatement,
                 List<MustacheBindingToken> mustacheValuesInOrder,
@@ -428,7 +429,7 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(ConnectionContext connectionContext) {
+        public Mono<DatasourceTestResult> testDatasource(ConnectionContext<ConnectionPool> connectionContext) {
             ConnectionPool pool = (ConnectionPool) connectionContext.getConnection();
             return Mono.just(pool)
                     .flatMap(p -> p.create())
@@ -579,7 +580,7 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ConnectionContext> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<ConnectionContext<ConnectionPool>> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             ConnectionPool pool = null;
             try {
                 pool = getNewConnectionPool(datasourceConfiguration);
@@ -591,8 +592,8 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public void datasourceDestroy(ConnectionContext connectionContext) {
-            ConnectionPool connectionPool = (ConnectionPool) connectionContext.getConnection();
+        public void datasourceDestroy(ConnectionContext<ConnectionPool> connectionContext) {
+            ConnectionPool connectionPool = connectionContext.getConnection();
             if (connectionPool != null) {
                 connectionPool
                         .disposeLater()
@@ -612,7 +613,7 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStructure> getStructure(
-                ConnectionContext connectionContext, DatasourceConfiguration datasourceConfiguration) {
+                ConnectionContext<ConnectionPool> connectionContext, DatasourceConfiguration datasourceConfiguration) {
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
