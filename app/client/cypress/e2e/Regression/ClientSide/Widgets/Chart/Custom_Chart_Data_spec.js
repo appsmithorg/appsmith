@@ -9,7 +9,7 @@ describe("Chart Widget Functionality around custom chart data", function () {
   it("1. change chart type to custom chart", function () {
     const value1 = 40;
     featureFlagIntercept({
-      release_show_custom_fusion_chart_deprecation_message: true,
+      deprecate_custom_fusioncharts_enabled: true,
     });
     cy.openPropertyPane("chartwidget");
     cy.UpdateChartType("Custom Fusion Charts (deprecated)");

@@ -54,10 +54,10 @@ export const messages = {
 };
 
 export const CUSTOM_ECHART_FEATURE_FLAG =
-  FEATURE_FLAG["release_enable_custom_echarts"];
+  FEATURE_FLAG["release_custom_echarts_enabled"];
 
 export const FUSION_CHART_DEPRECATION_FLAG =
-  FEATURE_FLAG["release_show_custom_fusion_chart_deprecation_message"];
+  FEATURE_FLAG["deprecate_custom_fusioncharts_enabled"];
 
 export const CUSTOM_CHART_TYPES = [
   "area2d",
