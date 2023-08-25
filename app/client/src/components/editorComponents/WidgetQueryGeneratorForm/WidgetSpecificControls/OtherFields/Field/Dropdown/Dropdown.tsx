@@ -35,7 +35,7 @@ export function OneClickDropdownFieldControl(
       <Label>{label}</Label>
       <Select
         allowClear
-        data-testId={`t--one-click-binding-column-${props.id}`} //TODO: change test id
+        data-testId={`t--one-click-binding-column-${props.id}`}
         defaultValue={defaultValue}
         dropdownStyle={{
           minWidth: "350px",
