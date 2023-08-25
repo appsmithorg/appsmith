@@ -5,8 +5,8 @@ import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
 import {
   PRODUCT_RAMPS_LIST,
   RAMP_FOR_ROLES,
-} from "../utils/ProductRamps/RampsControlList";
-import type { EnvTypes } from "../utils/ProductRamps/RampTypes";
+} from "utils/ProductRamps/RampsControlList";
+import type { EnvTypes } from "utils/ProductRamps/RampTypes";
 
 const { cloudHosting, pricingUrl } = getAppsmithConfigs();
 
