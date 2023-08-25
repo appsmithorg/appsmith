@@ -984,7 +984,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         String appErrorCode = appsmithError.getAppErrorCode();
         String errorMessage = appsmithError.getMessage(args);
         errorMessage = errorMessage.replace(" ", "-").replace(".", "");
-        return String.format(EMAIL_VERIFICATION_ERROR_URL_FORMAT, appErrorCode, errorMessage, userEmail);
+        return String.format(
+                EMAIL_VERIFICATION_ERROR_URL_FORMAT,
+                appErrorCode,
+                errorMessage,
+                URLEncoder.encode(userEmail, StandardCharsets.UTF_8));
     }
 
     @Override
