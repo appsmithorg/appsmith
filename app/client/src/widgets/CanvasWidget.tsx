@@ -196,7 +196,9 @@ class CanvasWidget extends ContainerWidget {
   }
 
   getWidgetView() {
-    if (!this.props.dropDisabled) {
+    //ToDo(Ashok): Make sure Layout Factory takes care of render mode based widget view.
+    // untill then this part of the widget will have a abstraction leak.
+    if (!this.props.dropDisabled && this.props.renderMode === "CANVAS") {
       return this.renderAsDropTarget();
     }
     return this.getPageView();
