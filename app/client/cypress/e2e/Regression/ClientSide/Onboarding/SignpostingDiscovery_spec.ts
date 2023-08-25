@@ -51,7 +51,14 @@ describe("Signposting discovery", function () {
     agHelper.AssertElementVisibility(onboarding.locators.table_widget_card);
     agHelper.Sleep();
     agHelper.AssertElementVisibility(locators._walkthrough_overlay);
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 500, 700);
+    entityExplorer.DragDropWidgetNVerify(
+      draggableWidgets.TABLE,
+      500,
+      700,
+      "",
+      "",
+      true,
+    );
 
     // Connect data popup
     agHelper.AssertElementVisibility(onboarding.locators.connect_data_overlay);

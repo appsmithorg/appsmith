@@ -45,7 +45,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_table_serverside_filtering_enabled: false,
   license_branding_enabled: false,
   ab_table_widget_activation_enabled: false,
-  ab_gif_signposting_enabled: true,
+  ab_gif_signposting_enabled: false,
   release_git_status_lite_enabled: false,
   license_sso_saml_enabled: false,
   license_sso_oidc_enabled: false,
