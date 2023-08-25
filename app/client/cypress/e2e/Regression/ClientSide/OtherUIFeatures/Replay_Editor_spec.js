@@ -160,8 +160,8 @@ describe("Undo/Redo functionality", function () {
     cy.NavigateToAPI_Panel();
     cy.get(apiwidget.createAuthApiDatasource).click({ force: true });
     cy.wait(2000);
-    cy.get("input[name='url']").type(testdata.baseUrl);
-    cy.get("input[name='headers[0].key']").type(testdata.headerKey);
+    agHelper.TypeText(dataSources._headerKey, testdata.headerKey);
+    agHelper.TypeText(dataSources._urlInputControl, testdata.baseUrl);
     agHelper.Sleep(1000);
     cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}z`);
