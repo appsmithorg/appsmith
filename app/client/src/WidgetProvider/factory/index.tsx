@@ -130,9 +130,9 @@ class WidgetFactory {
     }
   }
 
-  static getConfigs() {
+  static getConfigs = memoize(() => {
     return Object.fromEntries(WidgetFactory.widgetConfigMap);
-  }
+  });
 
   static createWidget(
     widgetData: CanvasWidgetStructure,
@@ -161,9 +161,9 @@ class WidgetFactory {
     }
   }
 
-  static getWidgetTypes(): WidgetType[] {
+  static getWidgetTypes = memoize((): WidgetType[] => {
     return Array.from(WidgetFactory.widgetsMap.keys());
-  }
+  });
 
   static getWidgetDerivedPropertiesMap = memoize(
     (widgetType: WidgetType): DerivedPropertiesMap => {
@@ -388,22 +388,22 @@ class WidgetFactory {
     return typeConfigMap;
   });
 
-  static getAutocompleteDefinitions(
-    type: WidgetType,
-  ): AutocompletionDefinitions {
-    const widget = WidgetFactory.widgetsMap.get(type);
+  static getAutocompleteDefinitions = memoize(
+    (type: WidgetType): AutocompletionDefinitions => {
+      const widget = WidgetFactory.widgetsMap.get(type);
 
-    const autocompleteDefinition = widget?.getAutocompleteDefinitions();
+      const autocompleteDefinition = widget?.getAutocompleteDefinitions();
 
-    if (autocompleteDefinition) {
-      return autocompleteDefinition;
-    } else {
-      log.error(
-        `Auto complete definitions are not defined for widget type: ${type}`,
-      );
-      return {};
-    }
-  }
+      if (autocompleteDefinition) {
+        return autocompleteDefinition;
+      } else {
+        log.error(
+          `Auto complete definitions are not defined for widget type: ${type}`,
+        );
+        return {};
+      }
+    },
+  );
 
   static getWidgetSetterConfig = memoize(
     (type: WidgetType): Record<string, any> | null => {
@@ -415,11 +415,13 @@ class WidgetFactory {
     },
   );
 
-  static getLoadingProperties(type: WidgetType): Array<RegExp> | undefined {
-    const widget = WidgetFactory.widgetsMap.get(type);
+  static getLoadingProperties = memoize(
+    (type: WidgetType): Array<RegExp> | undefined => {
+      const widget = WidgetFactory.widgetsMap.get(type);
 
-    return widget?.getLoadingProperties();
-  }
+      return widget?.getLoadingProperties();
+    },
+  );
 
   static getWidgetStylesheetConfigMap = memoize((widgetType: WidgetType) => {
     const widget = WidgetFactory.widgetsMap.get(widgetType);
@@ -436,7 +438,7 @@ class WidgetFactory {
     }
   });
 
-  static getWidgetMethods(type: WidgetType): WidgetMethods {
+  static getWidgetMethods = memoize((type: WidgetType): WidgetMethods => {
     const widget = WidgetFactory.widgetsMap.get(type);
 
     const methods = widget?.getMethods();
@@ -446,7 +448,7 @@ class WidgetFactory {
     } else {
       return {};
     }
-  }
+  });
 }
 
 export type WidgetTypeConfigMap = Record<
