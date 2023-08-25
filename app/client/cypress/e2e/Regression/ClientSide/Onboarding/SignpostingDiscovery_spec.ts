@@ -5,13 +5,19 @@ import {
   onboarding,
   draggableWidgets,
   dataSources,
+  debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Signposting discovery", function () {
-  before(() => {
+  beforeEach(() => {
+    cy.generateUUID().then((uid) => {
+      cy.Signup(`${uid}@appsmithtest.com`, uid);
+    });
+  });
+  it("1. Add datasource popup should be visible", function () {
     featureFlagIntercept(
       {
         ab_gif_signposting_enabled: true,
@@ -19,14 +25,8 @@ describe("Signposting discovery", function () {
       false,
     );
     agHelper.RefreshPage();
-  });
 
-  beforeEach(() => {
-    cy.generateUUID().then((uid) => {
-      cy.Signup(`${uid}@appsmithtest.com`, uid);
-    });
-  });
-  it("1. Add datasource popup should be visible", function () {
+    agHelper.GetNClick(debuggerHelper.locators._helpButton);
     cy.get(OnboardingLocator.introModal).should("be.visible");
 
     // Create datasource
