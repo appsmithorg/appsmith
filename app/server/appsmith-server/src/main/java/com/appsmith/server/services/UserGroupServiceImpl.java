@@ -33,6 +33,7 @@ import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.PolicySolution;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -84,6 +85,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 @Service
 public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserGroup, String>
         implements UserGroupService {
@@ -607,7 +609,8 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                     Mono<Long> usersInvitedAndThenRemoved =
                             inviteUsersToUserGroupMono.then(removeUsersFromUserGroupMono);
 
-                    return Mono.zip(updateUserGroupNameAndDescriptionMono, usersInvitedAndThenRemoved)
+                    return updateUserGroupNameAndDescriptionMono
+                            .then(usersInvitedAndThenRemoved)
                             .then(updatedUserGroupMono);
                 })
                 .flatMap(this::updateProvisioningStatus)

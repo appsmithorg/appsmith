@@ -34,7 +34,7 @@ export const config: AdminConfigType = {
         title: "Provisioning",
         canSave: false,
         children: [ScimProvisioningConfig],
-        needsUpgrade: false,
+        isFeatureEnabled: true,
       }
     : {}),
 } as AdminConfigType;

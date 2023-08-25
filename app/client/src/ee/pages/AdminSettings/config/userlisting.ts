@@ -9,5 +9,5 @@ export const config: AdminConfigType = {
   type: SettingCategories.USER_LISTING,
   component: UserListing,
   title: "Users",
-  needsUpgrade: false,
+  isFeatureEnabled: true,
 } as AdminConfigType;
