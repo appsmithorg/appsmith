@@ -913,7 +913,7 @@ public enum AppsmithError {
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Invalid usage for custom annotation",
             ErrorType.CONFIGURATION_ERROR,
-            null);
+            null),
     ;
 
     private final Integer httpErrorCode;
