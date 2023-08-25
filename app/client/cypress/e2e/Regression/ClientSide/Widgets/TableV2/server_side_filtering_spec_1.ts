@@ -33,7 +33,9 @@ describe("Table widget v2: test server side filtering", function () {
       oneClickBindingLocator.otherActionSelector("Connect new datasource"),
     );
 
-    dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
+    dataSources.CreateDataSource("MySql");
+
+    cy.get("@dsName").then(($dsName) => {
       dataSources.CreateQueryAfterDSSaved();
       cy.wait(500);
 
@@ -42,14 +44,14 @@ describe("Table widget v2: test server side filtering", function () {
 
       expandLoadMoreOptions();
       agHelper.GetNClick(
-        oneClickBindingLocator.datasourceSelector($createdMockUsers),
+        oneClickBindingLocator.datasourceSelector($dsName as unknown as string),
       );
 
       agHelper.Sleep(3000); //for tables to populate for CI runs
 
       agHelper.GetNClick(oneClickBindingLocator.tableOrSpreadsheetDropdown);
       agHelper.GetNClick(
-        oneClickBindingLocator.tableOrSpreadsheetDropdownOption("public.users"),
+        oneClickBindingLocator.tableOrSpreadsheetDropdownOption("employees"),
       );
 
       agHelper.GetNClick(oneClickBindingLocator.connectData);
@@ -69,7 +71,7 @@ describe("Table widget v2: test server side filtering", function () {
 
     // set execute select SQL query action on table filter update:
     propPane.SelectPlatformFunction("onTableFilterUpdate", "Execute a query");
-    agHelper.GetNClickByContains(".single-select", "Select_public_users1");
+    agHelper.GetNClickByContains(".single-select", "Select_employees1");
     agHelper.GetNClick(propPane._actionAddCallback("success"));
     agHelper.GetNClick(locators._dropDownValue("Show alert"));
     agHelper.EnterActionValue("Message", ALERT_SUCCESS_MSG);
@@ -79,7 +81,7 @@ describe("Table widget v2: test server side filtering", function () {
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
       expect(Number($cellData)).to.greaterThan(-1);
     });
-    table.OpenNFilterTable("id", "greater than", "10");
+    table.OpenNFilterTable("employeeNumber", "greater than", "1000");
     agHelper.WaitUntilToastDisappear(ALERT_SUCCESS_MSG);
     table.CloseFilter();
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
@@ -101,12 +103,12 @@ describe("Table widget v2: test server side filtering", function () {
   it("4. should test that data is filtered client-side when serverside filtering is turned off", () => {
     propPane.TogglePropertyState("serversidefiltering", "Off");
 
-    table.OpenNFilterTable("id", "is equal to", "4");
+    table.OpenNFilterTable("employeeNumber", "is equal to", "1002");
     table.CloseFilter();
 
     // check first row
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
-      expect($cellData).to.eq("4");
+      expect($cellData).to.eq("1002");
     });
   });
 });

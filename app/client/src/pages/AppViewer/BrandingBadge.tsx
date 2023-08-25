@@ -10,6 +10,10 @@ const Wrapper = styled.span`
   border-radius: var(--ads-v2-border-radius);
   border: 1px solid var(--ads-v2-color-border);
   background-color: var(--ads-v2-color-bg);
+
+  svg {
+    margin-top: 2px;
+  }
 `;
 
 function BrandingBadge() {
