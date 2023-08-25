@@ -459,13 +459,6 @@ export default function OnboardingChecklist() {
       dispatch(setExplorerSwitchIndex(0));
       pushFeature &&
         pushFeature(SignpostingWalkthroughConfig.CONNECT_A_DATASOURCE);
-    } else {
-      history.push(
-        integrationEditorURL({
-          pageId,
-          selectedTab: INTEGRATION_TABS.NEW,
-        }),
-      );
     }
   };
 
@@ -527,6 +520,13 @@ export default function OnboardingChecklist() {
 
             if (adapativeSignposting) {
               checkAndShowWalkthrough();
+            } else {
+              history.push(
+                integrationEditorURL({
+                  pageId,
+                  selectedTab: INTEGRATION_TABS.NEW,
+                }),
+              );
             }
           }}
           step={SIGNPOSTING_STEP.CONNECT_A_DATASOURCE}

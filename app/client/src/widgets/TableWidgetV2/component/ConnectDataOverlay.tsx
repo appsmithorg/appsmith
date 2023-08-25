@@ -87,7 +87,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
     );
     !isFeatureWalkthroughShown &&
       pushFeature &&
-      pushFeature(SignpostingWalkthroughConfig.CONNECT_DATA_TO_WIDGET, true);
+      pushFeature(SignpostingWalkthroughConfig.CONNECT_DATA, true);
   };
 
   const onClick = () => {

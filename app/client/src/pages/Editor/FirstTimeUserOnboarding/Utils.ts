@@ -24,7 +24,7 @@ export enum SIGNPOSTING_STEP {
 }
 
 export const SignpostingWalkthroughConfig: Record<string, FeatureParams> = {
-  [SIGNPOSTING_STEP.CONNECT_A_DATASOURCE]: {
+  CONNECT_A_DATASOURCE: {
     targetId: "#add_datasources",
     details: {
       title: "Add New Datasource",
@@ -52,7 +52,7 @@ export const SignpostingWalkthroughConfig: Record<string, FeatureParams> = {
     dismissOnOverlayClick: true,
     delay: 1000,
   },
-  [SIGNPOSTING_STEP.CREATE_A_QUERY]: {
+  CREATE_A_QUERY: {
     targetId: "#create-query",
     details: {
       title: "Add New query",

@@ -24,7 +24,10 @@ import {
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
-import { widgetsExistCurrentPage } from "selectors/entitiesSelector";
+import {
+  actionsExistInCurrentPage,
+  widgetsExistCurrentPage,
+} from "selectors/entitiesSelector";
 import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
@@ -91,11 +94,24 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
   const hasWidgets = useSelector(widgetsExistCurrentPage);
+  const actionsExist = useSelector(actionsExistInCurrentPage);
   useEffect(() => {
-    if (signpostingEnabled && !hasWidgets && adaptiveSignposting && isActive) {
+    if (
+      signpostingEnabled &&
+      !hasWidgets &&
+      actionsExist &&
+      adaptiveSignposting &&
+      isActive
+    ) {
       checkAndShowTableWidgetWalkthrough();
     }
-  }, [isActive, hasWidgets, signpostingEnabled, adaptiveSignposting]);
+  }, [
+    isActive,
+    hasWidgets,
+    signpostingEnabled,
+    adaptiveSignposting,
+    actionsExist,
+  ]);
   const checkAndShowTableWidgetWalkthrough = async () => {
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
       FEATURE_WALKTHROUGH_KEYS.add_table_widget,
