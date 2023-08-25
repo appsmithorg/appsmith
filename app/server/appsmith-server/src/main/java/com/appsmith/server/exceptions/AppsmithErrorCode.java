@@ -115,7 +115,7 @@ public enum AppsmithErrorCode {
     UNSUPPORTED_IMPORT_OPERATION("AE-APP-4040", "Unsupported operation for import application via file"),
     DUPLICATE_DATASOURCE_CONFIGURATION("AE-APP-4093", "Duplicate datasource configuration"),
 
-    INVALID_SMTP_CONFIGURATION("AE-APP-4094", "Invalid SMTP configuration"),
+    INVALID_SMTP_CONFIGURATION("AE-APP-4099", "Invalid SMTP configuration"),
 
     USER_EMAIL_ALREADY_VERIFIED("AE-EMV-4095", "User email already verified"),
 
