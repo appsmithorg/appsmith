@@ -20,7 +20,6 @@ import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { actionsExistInCurrentPage } from "selectors/entitiesSelector";
-import log from "loglevel";
 import { SignpostingWalkthroughConfig } from "../FirstTimeUserOnboarding/Utils";
 
 type NewActionButtonProps = {
@@ -50,13 +49,12 @@ function NewActionButton(props: NewActionButtonProps) {
     pushFeature,
   } = useContext(WalkthroughContext) || {};
   const closeWalkthrough = () => {
-    log.debug(isWalkthroughOpened, "closeWalkthrough");
     if (isWalkthroughOpened && popFeature) {
       popFeature();
     }
   };
   useEffect(() => {
-    if (signpostingEnabled && !actionExist) {
+    if (adapativeSignposting && signpostingEnabled && !actionExist) {
       checkAndShowWalkthrough();
     }
   }, [actionExist, signpostingEnabled]);
@@ -64,8 +62,7 @@ function NewActionButton(props: NewActionButtonProps) {
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
       FEATURE_WALKTHROUGH_KEYS.create_query,
     );
-    adapativeSignposting &&
-      !isFeatureWalkthroughShown &&
+    !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature(SignpostingWalkthroughConfig.CREATE_A_QUERY);
   };
@@ -87,7 +84,7 @@ function NewActionButton(props: NewActionButtonProps) {
         return;
       }
 
-      log.debug("closeWalkthrough - create query");
+      // Close signposting walkthrough on click of create query button
       closeWalkthrough();
 
       if (currentPageId) {

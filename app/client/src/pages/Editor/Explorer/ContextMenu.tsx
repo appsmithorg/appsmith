@@ -16,7 +16,6 @@ import {
 } from "@appsmith/constants/messages";
 import { AddButtonWrapper, EntityClassNames } from "./Entity";
 import styled from "styled-components";
-import log from "loglevel";
 
 export type TreeDropdownOption = {
   label: string;
@@ -115,8 +114,6 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       {list}
     </MenuContent>
   );
-
-  log.debug(props.triggerId, "props.triggerId");
 
   return (
     <Menu open={isOpen}>

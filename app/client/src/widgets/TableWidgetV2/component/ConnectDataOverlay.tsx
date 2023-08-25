@@ -7,8 +7,7 @@ import { Button } from "design-system";
 import { SignpostingWalkthroughConfig } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import React, { useContext, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { getPageActions } from "selectors/entitiesSelector";
+import { actionsExistInCurrentPage } from "selectors/entitiesSelector";
 import {
   getIsFirstTimeUserOnboardingEnabled,
   isWidgetActionConnectionPresent,
@@ -59,15 +58,24 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
   } = useContext(WalkthroughContext) || {};
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
-  const pageId = useSelector(getCurrentPageId);
-  const actions = useSelector(getPageActions(pageId));
+  const actionsExist = useSelector(actionsExistInCurrentPage);
   const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
 
   useEffect(() => {
-    if (!isConnectionPresent && actions.length) {
+    if (
+      signpostingEnabled &&
+      adaptiveSignposting &&
+      !isConnectionPresent &&
+      actionsExist
+    ) {
       checkAndShowWalkthrough();
     }
-  }, [signpostingEnabled]);
+  }, [
+    signpostingEnabled,
+    adaptiveSignposting,
+    isConnectionPresent,
+    actionsExist,
+  ]);
   const closeWalkthrough = () => {
     if (popFeature && isWalkthroughOpened) {
       popFeature();
@@ -77,9 +85,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
       FEATURE_WALKTHROUGH_KEYS.connect_data,
     );
-    adaptiveSignposting &&
-      !isFeatureWalkthroughShown &&
-      signpostingEnabled &&
+    !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature(SignpostingWalkthroughConfig.CONNECT_DATA_TO_WIDGET, true);
   };

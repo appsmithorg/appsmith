@@ -438,17 +438,14 @@ function ActionSidebar({
       FEATURE_WALKTHROUGH_KEYS.back_to_canvas,
     );
     !isFeatureWalkthroughShown &&
-      adaptiveSignposting &&
-      signpostingEnabled &&
       pushFeature &&
       pushFeature(SignpostingWalkthroughConfig.BACK_TO_CANVAS);
   };
-
   useEffect(() => {
-    if (!hasWidgets) {
+    if (!hasWidgets && adaptiveSignposting && signpostingEnabled) {
       checkAndShowBackToCanvasWalkthrough();
     }
-  }, [hasWidgets]);
+  }, [hasWidgets, adaptiveSignposting, signpostingEnabled]);
 
   const showSchema =
     isEnabledForDSSchema &&
