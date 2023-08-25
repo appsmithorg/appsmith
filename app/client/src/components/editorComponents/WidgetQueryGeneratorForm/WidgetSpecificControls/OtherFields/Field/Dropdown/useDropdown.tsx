@@ -8,12 +8,13 @@ import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getAllPageWidgets } from "../../../../../../../selectors/entitiesSelector";
 import { StyledImage } from "./styles";
-import { DropdownOptionType } from "./types";
+import { FieldOptionsType } from "./types";
+import type { DropdownOptionType } from "../../../../types";
 
 export type OneClickDropdownFieldProps = {
   label: string;
   name: string;
-  options: unknown[];
+  options: DropdownOptionType[];
   optionType: string;
   id: string;
   defaultValue?: string;
@@ -56,11 +57,11 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
 
   const options = useMemo(() => {
     switch (optionType) {
-      case DropdownOptionType.CUSTOM:
+      case FieldOptionsType.CUSTOM:
         return fieldOptions;
-      case DropdownOptionType.COLUMNS:
+      case FieldOptionsType.COLUMNS:
         return columns;
-      case DropdownOptionType.WIDGETS:
+      case FieldOptionsType.WIDGETS:
         return widgetOptions;
       default:
         return [];
@@ -76,7 +77,9 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
   }, [updateConfig]);
 
   const handleSelect = (value: string, selectedOption: DefaultOptionType) => {
-    const option = options?.find((d) => d.id === selectedOption.key);
+    const option = (options as DropdownOptionType[]).find(
+      (d: any) => d.id === selectedOption.key,
+    );
 
     if (option) {
       onSelect(value);
@@ -93,7 +96,9 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
 
   const selected = useMemo(() => {
     if (selectedValue) {
-      const option = options.find((option) => option.value === selectedValue);
+      const option = (options as DropdownOptionType[]).find(
+        (option) => option.value === selectedValue,
+      );
       return {
         label: <DropdownOption label={option?.label} leftIcon={option?.icon} />,
         key: option?.id,

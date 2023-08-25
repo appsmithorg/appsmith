@@ -17,7 +17,7 @@ import {
   createMessage,
   JSON_FORM_CONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { DropdownOptionType } from "../../../components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
+import { FieldOptionsType } from "../../../components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
 
 const MAX_NESTING_LEVEL = 5;
 
@@ -146,7 +146,7 @@ export const contentConfig = [
               label: "Form Type",
               name: "formType",
               fieldType: FieldType.SELECT,
-              optionType: DropdownOptionType.CUSTOM,
+              optionType: FieldOptionsType.CUSTOM,
               isRequired: true,
               defaultValue: "create",
               options: [
@@ -169,7 +169,7 @@ export const contentConfig = [
               label: "Get values from",
               name: "defaultValues",
               fieldType: FieldType.SELECT,
-              optionType: DropdownOptionType.WIDGETS,
+              optionType: FieldOptionsType.WIDGETS,
               isRequired: true,
               isVisible: (config: Record<string, any>) => {
                 return config.otherFields.formType === "edit";
@@ -179,7 +179,7 @@ export const contentConfig = [
               label: "Data Identifier",
               name: "dataIdentifier",
               fieldType: FieldType.SELECT,
-              optionType: DropdownOptionType.COLUMNS,
+              optionType: FieldOptionsType.COLUMNS,
               isRequired: true,
               isVisible: (config: Record<string, any>) => {
                 return config.otherFields.formType === "edit";
