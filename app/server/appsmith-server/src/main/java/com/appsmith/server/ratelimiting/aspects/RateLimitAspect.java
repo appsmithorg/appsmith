@@ -1,6 +1,5 @@
 package com.appsmith.server.ratelimiting.aspects;
 
-import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -11,7 +10,6 @@ import com.appsmith.server.services.SessionUserService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -36,8 +34,8 @@ public class RateLimitAspect {
             Mono<Boolean> isAllowedMono = rateLimitService.tryIncreaseCounter(apiIdentifier, email);
             return isAllowedMono.flatMap(isAllowed -> {
                 if (!isAllowed) {
-                    return Mono.just(new ResponseDTO<>(
-                            HttpStatus.TOO_MANY_REQUESTS.value(), RateLimitConstants.RATE_LIMIT_REACHED, null));
+                    AppsmithException exception = new AppsmithException(AppsmithError.TOO_MANY_REQUESTS);
+                    return Mono.just(new ResponseDTO<>(exception.getHttpStatus(), exception.getMessage(), null));
                 }
 
                 try {
