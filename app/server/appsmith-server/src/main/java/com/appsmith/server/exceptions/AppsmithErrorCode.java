@@ -114,6 +114,7 @@ public enum AppsmithErrorCode {
     CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
     UNSUPPORTED_IMPORT_OPERATION("AE-APP-4040", "Unsupported operation for import application via file"),
     DUPLICATE_DATASOURCE_CONFIGURATION("AE-APP-4093", "Duplicate datasource configuration"),
+
     INVALID_SMTP_CONFIGURATION("AE-APP-4094", "Invalid SMTP configuration"),
 
     USER_EMAIL_ALREADY_VERIFIED("AE-EMV-4095", "User email already verified"),
@@ -122,6 +123,8 @@ public enum AppsmithErrorCode {
     TENANT_EMAIL_VERIFICATION_NOT_ENABLED("AE-EMV-4097", "Email Verification not enabled"),
 
     INVALID_EMAIL_VERIFICATION("AE-EMV-4098", "Invalid email verification request"),
+
+    INVALID_METHOD_LEVEL_ANNOTATION_USAGE("AE-APP-4094", "Invalid usage for custom annotation"),
     ;
     private final String code;
     private final String description;

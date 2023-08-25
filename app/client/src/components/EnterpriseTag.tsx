@@ -15,7 +15,7 @@ const EnterpriseTag = ({
       className={`enterprise-tag ${classes}`}
       data-testid="t--enterprise-tag"
       isClosable={false}
-      // kind="special"
+      kind="special"
       {...(size && { size })}
     >
       {createMessage(ENTERPRISE_TAG)}

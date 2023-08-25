@@ -82,7 +82,7 @@ export type Setting = ControlType & {
   formName?: string;
   fieldName?: string;
   dropdownOptions?: Partial<SelectOptionProps>[];
-  needsUpgrade?: boolean;
+  isFeatureEnabled?: boolean;
   tooltip?: string;
 };
 
@@ -95,7 +95,6 @@ export interface Category {
   children?: Category[];
   icon?: string;
   categoryType: string;
-  needsUpgrade?: boolean;
   isEnterprise?: boolean;
   isFeatureEnabled?: boolean;
 }
@@ -136,7 +135,6 @@ export type AdminConfigType = {
   isConnected?: boolean;
   needsRefresh?: boolean;
   icon?: string;
-  needsUpgrade?: boolean;
   categoryType: CategoryType;
   isEnterprise?: boolean;
   isFeatureEnabled?: boolean;

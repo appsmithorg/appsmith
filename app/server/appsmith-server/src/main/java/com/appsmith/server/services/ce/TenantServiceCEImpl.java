@@ -154,7 +154,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration) {
-        return getDefaultTenantId().flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration));
+        return getDefaultTenantId()
+                .flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration))
+                .flatMap(updatedTenant -> getTenantConfiguration());
     }
 
     /**

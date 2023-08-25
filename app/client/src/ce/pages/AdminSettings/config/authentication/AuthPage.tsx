@@ -70,10 +70,9 @@ const MethodTitle = styled(Text)`
   align-items: center;
   margin: 0 0 4px;
   color: var(--ads-v2-color-fg);
+  gap: var(--ads-v2-spaces-2);
 
   svg {
-    width: 14px;
-    height: 14px;
     cursor: pointer;
   }
 `;
@@ -91,7 +90,6 @@ export type AuthMethodType = {
   label: string;
   subText?: string;
   image?: any;
-  needsUpgrade?: boolean;
   isConnected?: boolean;
   calloutBanner?: banner;
   icon?: string;
@@ -206,6 +204,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                             className={`${method.category}-green-check`}
                             color="var(--ads-v2-color-fg-success)"
                             name="oval-check-fill"
+                            size="md"
                           />
                         </Tooltip>
                       )}
