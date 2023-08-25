@@ -172,7 +172,7 @@ export default function Group({
                 return (
                   <div
                     className={classNames({
-                      "t--read-more-link mb-2": true,
+                      "t--read-more-link mb-2 callout-link": true,
                       hide:
                         setting.isHidden ||
                         (setting.isVisible &&

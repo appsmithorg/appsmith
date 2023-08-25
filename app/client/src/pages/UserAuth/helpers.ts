@@ -137,7 +137,7 @@ export const useResendEmailVerification = (
       toast.show(errorMessage, { kind: "error" });
       return;
     }
-    UserApi.resendEmailVerification("")
+    UserApi.resendEmailVerification(email)
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       .then((response: ApiResponse) => {

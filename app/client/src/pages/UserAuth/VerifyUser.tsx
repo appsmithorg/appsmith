@@ -21,7 +21,7 @@ const VerifyUser = (
 
   useEffect(() => {
     if (!token || !email) {
-      Sentry.captureMessage("User Email Verification link is damaged");
+      Sentry.captureMessage("User email verification link is damaged");
     }
     const formElement: HTMLFormElement = document.getElementById(
       "verification-form",

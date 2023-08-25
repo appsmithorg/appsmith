@@ -60,7 +60,11 @@ const VerificationError = (
           </Callout>
         </Body>
         <Body>
-          <Button isDisabled={!enabled} onClick={resendVerificationLink}>
+          <Button
+            isDisabled={!enabled}
+            onClick={resendVerificationLink}
+            size="md"
+          >
             Send new link
           </Button>
         </Body>
@@ -77,7 +81,11 @@ const VerificationError = (
           </Callout>
         </Body>
         <Body>
-          <Button isDisabled={!enabled} onClick={resendVerificationLink}>
+          <Button
+            isDisabled={!enabled}
+            onClick={resendVerificationLink}
+            size="md"
+          >
             Send new link
           </Button>
         </Body>
@@ -125,7 +133,11 @@ const VerificationError = (
           </Callout>
         </Body>
         <Body>
-          <Button isDisabled={!enabled} onClick={resendVerificationLink}>
+          <Button
+            isDisabled={!enabled}
+            onClick={resendVerificationLink}
+            size="md"
+          >
             Send new link
           </Button>
         </Body>

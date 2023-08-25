@@ -109,7 +109,7 @@ const FormAuth: AdminConfigType = {
         if (!settings) {
           return false;
         }
-        return !(!settings.emailVerificationEnabled && !mailEnabled);
+        return settings.emailVerificationEnabled && mailEnabled;
       },
     },
     {
