@@ -15,6 +15,9 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import BusinessTag from "components/BusinessTag";
 import EnterpriseTag from "components/EnterpriseTag";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { hasAuditLogsReadPermission } from "@appsmith/utils/permissionHelpers";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};
@@ -182,10 +185,40 @@ export default function LeftPane() {
   const { category, selected: subCategory } = useParams() as any;
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
+  const tenantPermissions = useSelector(getTenantPermissions);
+  const isAuditLogsEnabled = hasAuditLogsReadPermission(tenantPermissions);
+  const isAirgappedInstance = isAirgapped();
+
+  const filteredGeneralCategories = categories
+    ?.map((category: any) => {
+      if (isAirgappedInstance && category.slug === "google-maps") {
+        return null;
+      }
+      return category;
+    })
+    .filter(Boolean) as Category[];
 
   const filteredAclCategories = aclCategories
-    ?.map((category) => {
-      return category;
+    ?.map((category: any) => {
+      if (
+        (!isSuperUser && ["groups", "roles"].includes(category.slug)) ||
+        isSuperUser
+      ) {
+        return category;
+      }
+      return null;
+    })
+    .filter(Boolean) as Category[];
+
+  const filteredOthersCategories = othersCategories
+    ?.map((category: any) => {
+      if (
+        (!isSuperUser && ["audit-logs"].includes(category.slug)) ||
+        isSuperUser
+      ) {
+        return category;
+      }
+      return null;
     })
     .filter(Boolean) as Category[];
 
@@ -197,7 +230,7 @@ export default function LeftPane() {
             Admin settings
           </StyledHeader>
           <Categories
-            categories={categories}
+            categories={filteredGeneralCategories}
             currentCategory={category}
             currentSubCategory={subCategory}
           />
@@ -213,16 +246,18 @@ export default function LeftPane() {
           currentSubCategory={subCategory}
         />
       </HeaderContainer>
-      <HeaderContainer>
-        <StyledHeader kind="heading-s" renderAs="p">
-          Others
-        </StyledHeader>
-        <Categories
-          categories={othersCategories}
-          currentCategory={category}
-          currentSubCategory={subCategory}
-        />
-      </HeaderContainer>
+      {isAuditLogsEnabled && (
+        <HeaderContainer>
+          <StyledHeader kind="heading-s" renderAs="p">
+            Others
+          </StyledHeader>
+          <Categories
+            categories={filteredOthersCategories}
+            currentCategory={category}
+            currentSubCategory={subCategory}
+          />
+        </HeaderContainer>
+      )}
     </Wrapper>
   );
 }

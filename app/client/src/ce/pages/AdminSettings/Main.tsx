@@ -15,7 +15,11 @@ const Main = () => {
   const tenantPermissions = useSelector(getTenantPermissions);
   const isSuperUser = user?.isSuperUser || false;
   const wrapperCategory =
-    AdminConfig.wrapperCategories[subCategory ?? category];
+    AdminConfig.wrapperCategories[
+      ["users", "groups", "roles"].includes(category)
+        ? category
+        : subCategory ?? category
+    ];
 
   if (!!wrapperCategory?.component) {
     const { component: WrapperCategoryComponent } = wrapperCategory;
