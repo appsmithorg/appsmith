@@ -29,19 +29,19 @@ public class PreAuth implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         return getUsername(exchange).flatMap(username -> {
-            if (username != null) {
+            if (!username.isEmpty()) {
                 return rateLimitService
                         .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, username)
                         .flatMap(counterIncreaseAttemptSuccessful -> {
                             if (!counterIncreaseAttemptSuccessful) {
                                 log.error("Rate limit exceeded. Redirecting to login page.");
                                 return handleRateLimitExceeded(exchange);
-                            } else {
-                                return chain.filter(exchange);
                             }
+
+                            return chain.filter(exchange);
                         });
             } else {
-                log.error("Username is empty. Continuing with filter chain.");
+                // If username is empty, simply continue with the filter chain
                 return chain.filter(exchange);
             }
         });
@@ -50,10 +50,11 @@ public class PreAuth implements WebFilter {
     private Mono<String> getUsername(ServerWebExchange exchange) {
         return exchange.getFormData().flatMap(formData -> {
             String username = formData.getFirst(USERNAME);
-            if (username != null) {
+            if (username != null && !username.isEmpty()) {
                 return Mono.just(URLDecoder.decode(username, StandardCharsets.UTF_8));
             }
-            return Mono.empty();
+
+            return Mono.just("");
         });
     }
 
