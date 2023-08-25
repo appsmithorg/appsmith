@@ -832,7 +832,7 @@ export const DISCONNECT_SERVICE_SUBHEADER = () =>
 export const DISCONNECT_SERVICE_WARNING = () =>
   "will be removed as primary method of authentication";
 export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
-  ${methodName} authentication method is enabled
+  ${methodName} authentication is enabled
 `;
 
 export const REVOKE_EXISTING_REPOSITORIES = () =>
