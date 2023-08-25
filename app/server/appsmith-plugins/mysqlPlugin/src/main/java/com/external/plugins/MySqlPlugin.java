@@ -240,7 +240,7 @@ public class MySqlPlugin extends BasePlugin {
                 List<MustacheBindingToken> mustacheValuesInOrder,
                 ExecuteActionDTO executeActionDTO,
                 Map<String, Object> requestData) {
-            ConnectionPool connectionPool = (ConnectionPool) connectionContext.getConnection();
+            ConnectionPool connectionPool = connectionContext.getConnection();
             String query = actionConfiguration.getBody();
 
             /**
@@ -430,7 +430,7 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(ConnectionContext<ConnectionPool> connectionContext) {
-            ConnectionPool pool = (ConnectionPool) connectionContext.getConnection();
+            ConnectionPool pool = connectionContext.getConnection();
             return Mono.just(pool)
                     .flatMap(p -> p.create())
                     .flatMap(conn -> Mono.from(conn.close()))
@@ -619,7 +619,7 @@ public class MySqlPlugin extends BasePlugin {
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
-            ConnectionPool connectionPool = (ConnectionPool) connectionContext.getConnection();
+            ConnectionPool connectionPool = connectionContext.getConnection();
             return Mono.usingWhen(
                             connectionPool.create(),
                             connection -> Mono.from(connection.validate(ValidationDepth.REMOTE))

@@ -462,8 +462,7 @@ public class MySqlPluginTest {
         actionConfiguration.setBody("show databases");
         ConnectionContext<ConnectionPool> connectionContext =
                 pluginExecutor.datasourceCreate(dsConfig).block();
-        Flux<ActionExecutionResult> resultFlux = Mono.from(
-                        ((ConnectionPool) connectionContext.getConnection()).disposeLater())
+        Flux<ActionExecutionResult> resultFlux = Mono.from((connectionContext.getConnection()).disposeLater())
                 .thenMany(pluginExecutor.executeParameterized(
                         connectionContext, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -1446,7 +1445,7 @@ public class MySqlPluginTest {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                    assertTrue(((ConnectionPool) connectionContext.getConnection()).isDisposed());
+                    assertTrue((connectionContext.getConnection()).isDisposed());
                 })
                 .verifyComplete();
     }
