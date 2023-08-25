@@ -141,11 +141,12 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.APPSMITH_CI_TUNNEL_PRIVATE_KEY }}
         run: |
-          echo "$SSH_PRIVATE_KEY" > ssh_key.pem \
-          chmod 600 ssh_key.pem
+          echo "$SSH_PRIVATE_KEY" > ssh_key.pem
+          chmod 400 ssh_key.pem
 
       - name: Setup SSH tunnel to AWS DocumentDB instance
         run: |
+          chmod 400 ssh_key.pem 
           ssh -4 -o StrictHostKeyChecking=no -o ServerAliveInterval=180 -o ServerAliveCountMax=5 -i "ssh_key.pem" -L 0.0.0.0:27010:docdb-ansible-test-cluster.cluster-cz8diybf9wdj.ap-south-1.docdb.amazonaws.com:27017 ubuntu@65.1.106.35 -N -f
       
       - name: Run Appsmith, CS & TED docker image
