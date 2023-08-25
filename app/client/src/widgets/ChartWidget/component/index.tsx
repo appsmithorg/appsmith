@@ -1,4 +1,3 @@
-import { get } from "lodash";
 import React from "react";
 import styled from "styled-components";
 import * as echarts from "echarts";
@@ -19,6 +18,7 @@ import { ChartErrorComponent } from "./ChartErrorComponent";
 import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
 import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
 import { isBasicEChart } from "../widget";
+import { parseOnDataPointClickParams } from "./helpers";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -129,35 +129,6 @@ class ChartComponent extends React.Component<
     };
   }
 
-  parseOnDataPointClickParams = (evt: any, chartType: ChartType) => {
-    if (chartType === "CUSTOM_FUSION_CHART") {
-      const data = evt.data;
-      const seriesTitle = get(data, "datasetName", "");
-
-      return {
-        x: data.categoryLabel ?? -1,
-        y: data.dataValue ?? -1,
-        seriesTitle,
-        rawEventData: data,
-      } as ChartSelectedDataPoint;
-    } else {
-      const data: unknown[] = evt.data as unknown[];
-      const x: unknown = data[0];
-
-      const index = (evt.seriesIndex ?? 0) + 1;
-      const y: unknown = data[index];
-
-      const seriesName =
-        evt.seriesName && evt.seriesName?.length > 0 ? evt.seriesName : "null";
-
-      return {
-        x: x ?? -1,
-        y: y ?? -1,
-        seriesTitle: seriesName,
-      } as ChartSelectedDataPoint;
-    }
-  };
-
   getBasicEChartOptions = () => {
     const chartData = EChartsDatasetBuilder.chartData(
       this.props.chartType,
@@ -176,7 +147,7 @@ class ChartComponent extends React.Component<
   };
 
   dataClickCallback = (params: echarts.ECElementEvent) => {
-    const dataPointClickParams = this.parseOnDataPointClickParams(
+    const dataPointClickParams = parseOnDataPointClickParams(
       params,
       this.state.chartType,
     );
@@ -353,7 +324,7 @@ class ChartComponent extends React.Component<
       height: "100%",
       events: {
         dataPlotClick: (evt: any) => {
-          const dataPointClickParams = this.parseOnDataPointClickParams(
+          const dataPointClickParams = parseOnDataPointClickParams(
             evt,
             this.state.chartType,
           );
