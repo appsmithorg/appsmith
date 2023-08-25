@@ -7,6 +7,7 @@ import {
 } from "../Explorer/Datasources/DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
+  getIsFetchingDatasourceStructure,
   getNumberOfEntitiesInCurrentPage,
 } from "selectors/entitiesSelector";
 import DatasourceStructureHeader from "../Explorer/Datasources/DatasourceStructureHeader";
@@ -86,6 +87,10 @@ const DatasourceViewModeSchema = (props: Props) => {
     getDatasourceStructureById(state, props.datasourceId),
   );
 
+  const isDatasourceStructureLoading = useSelector((state: AppState) =>
+    getIsFetchingDatasourceStructure(state, props.datasourceId),
+  );
+
   const pagePermissions = useSelector(getPagePermissions);
   const datasourcePermissions = props.datasource?.userPermissions || [];
 
@@ -127,7 +132,10 @@ const DatasourceViewModeSchema = (props: Props) => {
       setTableName(datasourceStructure.tables[0].name);
     }
 
+    // if the datasource structure is loading or undefined or if there's an error in the structure
+    // reset the preview data states
     if (
+      isDatasourceStructureLoading ||
       !datasourceStructure ||
       (datasourceStructure && datasourceStructure?.error)
     ) {
@@ -135,11 +143,16 @@ const DatasourceViewModeSchema = (props: Props) => {
       setPreviewDataError(true);
       setTableName("");
     }
-  }, [datasourceStructure]);
+  }, [datasourceStructure, isDatasourceStructureLoading]);
 
   // this fetches the preview data when the table name changes
   useEffect(() => {
-    if (tableName && datasourceStructure && datasourceStructure.tables) {
+    if (
+      !isDatasourceStructureLoading &&
+      tableName &&
+      datasourceStructure &&
+      datasourceStructure.tables
+    ) {
       const templates = datasourceStructure.tables.find(
         (structure: DatasourceTable) => structure.name === tableName,
       )?.templates;
@@ -150,7 +163,7 @@ const DatasourceViewModeSchema = (props: Props) => {
         });
       }
     }
-  }, [tableName]);
+  }, [tableName, isDatasourceStructureLoading]);
 
   useEffect(() => {
     if (previewData && previewData.length > 0) {
@@ -196,11 +209,17 @@ const DatasourceViewModeSchema = (props: Props) => {
     }
   };
 
+  // custom edit datasource function
   const customEditDatasourceFn = () => {
     props.setDatasourceViewModeFlag(false);
   };
 
+  // only show generate button if schema is not being fetched, if the preview data is not being fetched
+  // if there was a failure in the fetching of the data
+  // if tableName from schema is availble
+  // if the user has permissions
   const showGeneratePageBtn =
+    !isDatasourceStructureLoading &&
     !isLoading &&
     !failedFetchingPreviewData &&
     tableName &&
