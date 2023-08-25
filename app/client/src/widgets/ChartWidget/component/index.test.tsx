@@ -106,8 +106,8 @@ describe("Chart Widget", () => {
 
     rerender(<ChartComponent {...props} />);
 
-    const matchaLatte = getByText("Matcha Latte");
-    expect(matchaLatte).toBeInTheDocument();
+    const bing = getByText("Bing");
+    expect(bing).toBeInTheDocument();
   });
 
   it("2. successfully switches sequence of basic chart/custom fusion chart/basic chart/custom echart", async () => {
@@ -162,8 +162,8 @@ describe("Chart Widget", () => {
 
     rerender(<ChartComponent {...props} />);
 
-    const matchaLatte = getByText("Matcha Latte");
-    expect(matchaLatte).toBeInTheDocument();
+    const bing = getByText("Bing");
+    expect(bing).toBeInTheDocument();
   });
 
   it("3. adds a click event when user adds a click callback", async () => {
@@ -190,8 +190,8 @@ describe("Chart Widget", () => {
       <ChartComponent {...props} />,
     );
 
-    const matchaLatte = getByText("Matcha Latte");
-    expect(matchaLatte).toBeInTheDocument();
+    const bing = getByText("Bing");
+    expect(bing).toBeInTheDocument();
 
     // incorrect source key, thus incorrect echart configuration
     props = JSON.parse(JSON.stringify(props));
@@ -202,7 +202,7 @@ describe("Chart Widget", () => {
 
     const errorTitle = getByText("Error in Chart Data/Configuration");
     expect(errorTitle).toBeInTheDocument();
-    expect(queryByText("Matcha Latte")).toBeNull();
+    expect(queryByText("Bing")).toBeNull();
 
     // change chart type to basic echart
     props = JSON.parse(JSON.stringify(props));
@@ -211,7 +211,7 @@ describe("Chart Widget", () => {
     rerender(<ChartComponent {...props} />);
 
     expect(queryByText("Error in Chart Data/Configuration")).toBeNull();
-    expect(queryByText("Matcha Latte")).toBeNull();
+    expect(queryByText("Bing")).toBeNull();
     expect(queryByText("xaxisname")).toBeInTheDocument();
 
     // Check if updating props in basic charts is working
@@ -222,7 +222,7 @@ describe("Chart Widget", () => {
     rerender(<ChartComponent {...props} />);
 
     expect(queryByText("Error in Chart Data/Configuration")).toBeNull();
-    expect(queryByText("Matcha Latte")).toBeNull();
+    expect(queryByText("Bing")).toBeNull();
     expect(queryByText("xaxisname")).not.toBeInTheDocument();
     expect(queryByText("xaxisname123")).toBeInTheDocument();
 
@@ -247,19 +247,19 @@ describe("Chart Widget", () => {
     expect(
       queryByText("Error in Chart Data/Configuration"),
     ).not.toBeInTheDocument();
-    expect(queryByText("Matcha Latte")).toBeInTheDocument();
+    expect(queryByText("Bing")).toBeInTheDocument();
 
     // Check if updating the props in custom ECharts is working now
     props = JSON.parse(JSON.stringify(props));
     let updatedSource = JSON.parse(
       JSON.stringify((props.customEChartConfig.dataset as any).source),
     );
-    updatedSource[2][0] = "Matcha Latte 123";
+    updatedSource[2][0] = "Bing 123";
     props.customEChartConfig.dataset.source = updatedSource;
     props.chartType = "CUSTOM_ECHART";
 
     rerender(<ChartComponent {...props} />);
-    expect(queryByText("Matcha Latte 123")).toBeInTheDocument();
+    expect(queryByText("Bing 123")).toBeInTheDocument();
 
     // Switch to custom fusion charts
     props = JSON.parse(JSON.stringify(props));
@@ -284,19 +284,19 @@ describe("Chart Widget", () => {
 
     rerender(<ChartComponent {...props} />);
 
-    expect(queryByText("Matcha Latte")).toBeInTheDocument();
+    expect(queryByText("Bing")).toBeInTheDocument();
 
     // Updating props in custom echart should work.
     props = JSON.parse(JSON.stringify(props));
     updatedSource = JSON.parse(
       JSON.stringify((props.customEChartConfig.dataset as any).source),
     );
-    updatedSource[2][0] = "Matcha Latte 456";
+    updatedSource[2][0] = "Bing 456";
 
     props.customEChartConfig.dataset.source = updatedSource;
     props.chartType = "CUSTOM_ECHART";
 
     rerender(<ChartComponent {...props} />);
-    expect(queryByText("Matcha Latte 456")).toBeInTheDocument();
+    expect(queryByText("Bing 456")).toBeInTheDocument();
   });
 });
