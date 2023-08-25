@@ -13,7 +13,7 @@ import { useFormConfig } from "../common/useFormConfig";
 export function useConnectData() {
   const dispatch = useDispatch();
 
-  const { aliases, config, propertyName, widgetId } = useContext(
+  const { aliases, config, otherFields, propertyName, widgetId } = useContext(
     WidgetQueryGeneratorFormContext,
   );
 
@@ -60,7 +60,15 @@ export function useConnectData() {
         !isValidGsheetConfig(config)) ||
       aliases?.some((alias) => {
         return alias.isRequired && !config.alias[alias.name];
-      })
+      }) ||
+      (otherFields &&
+        otherFields?.some((field) => {
+          return (
+            field.isRequired &&
+            field.isVisible?.(config) &&
+            !config.otherFields?.[field.name]
+          );
+        }))
     );
   }, [config, aliases]);
 

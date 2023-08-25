@@ -33,5 +33,6 @@ export function useFormConfig() {
       name: key,
       alias: value,
     })),
+    otherFields: config.otherFields,
   };
 }

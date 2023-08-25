@@ -14,7 +14,7 @@ import {
   getOneClickBindingConfigForWidget,
 } from "selectors/oneClickBindingSelectors";
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
-import type { Alias } from "./types";
+import type { Alias, OtherField } from "./types";
 import {
   TABLE_CONNECT_BUTTON_TEXT,
   createMessage,
@@ -36,6 +36,7 @@ type WidgetQueryGeneratorFormContextType = {
     datasourceConnectionMode: string;
     selectedColumns?: Array<Record<string, unknown>>;
     excludePrimaryColumn?: boolean;
+    otherFields?: Record<string, string>;
   };
   updateConfig: (
     property: string | Record<string, unknown>,
@@ -48,6 +49,7 @@ type WidgetQueryGeneratorFormContextType = {
   expectedType: string;
   sampleData: string;
   aliases: Alias[];
+  otherFields: OtherField[];
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -61,6 +63,7 @@ const DEFAULT_CONFIG_VALUE = {
   datasourcePluginName: "",
   datasourceConnectionMode: "",
   excludePrimaryColumn: false,
+  otherFields: {},
 };
 
 const DEFAULT_CONTEXT_VALUE = {
@@ -76,6 +79,7 @@ const DEFAULT_CONTEXT_VALUE = {
   expectedType: "",
   sampleData: "",
   aliases: [],
+  otherFields: [],
 };
 
 export const WidgetQueryGeneratorFormContext =
@@ -96,6 +100,7 @@ type Props = {
   allowFieldConfigurations?: boolean;
   ctaText?: string;
   excludePrimaryColumn?: boolean;
+  otherFields?: OtherField[];
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -116,6 +121,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     sampleData,
     searchableColumn,
     widgetId,
+    otherFields = [],
   } = props;
 
   const isSourceOpen = useSelector(getIsOneClickBindingOptionsVisibility);
@@ -223,6 +229,7 @@ function WidgetQueryGeneratorForm(props: Props) {
       expectedType,
       sampleData,
       aliases,
+      otherFields,
     };
   }, [
     config,
@@ -236,6 +243,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     propertyPath,
     sampleData,
     aliases,
+    otherFields,
   ]);
 
   useEffect(() => {
@@ -256,6 +264,7 @@ function WidgetQueryGeneratorForm(props: Props) {
         <WidgetSpecificControls
           aliases={aliases}
           hasSearchableColumn={searchableColumn}
+          otherFields={otherFields}
         />
         <ConnectData btnText={ctaText} />
       </WidgetQueryGeneratorFormContext.Provider>
