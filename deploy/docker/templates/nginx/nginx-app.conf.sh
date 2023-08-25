@@ -42,6 +42,7 @@ map \$http_forwarded \$final_forwarded {
 access_log /dev/stdout;
 
 server_tokens off;
+more_set_headers 'Server: ';
 
 server {
 
