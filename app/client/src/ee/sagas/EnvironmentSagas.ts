@@ -74,6 +74,7 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
           env.userPermissions.length > 0 &&
           env.userPermissions[0] === PERMISSION_TYPE.EXECUTE_ENVIRONMENT,
       );
+      // if there are no executable environments then remove the current environment from localstorage and query param.
       if (executableEnvs.length === 0) {
         removeCurrentEnvironment();
         queryParams.delete(ENVIRONMENT_QUERY_KEY);
@@ -86,7 +87,9 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
         const seletedEnv = defaultEnvironment
           ? defaultEnvironment
           : executableEnvs[0];
-        if (!checkIfEnvIsAlreadySet(response.data, queryParams)) {
+        // Check if there was any environment set in previous session and if it is valid for currently.
+        // If not, update the environemnt to selected environment.
+        if (!checkIfEnvIsAlreadySet(executableEnvs, queryParams)) {
           updateLocalStorage(seletedEnv.name, seletedEnv.id);
           if (datasourceEnv) {
             // Set new if there is no query param
