@@ -1,31 +1,55 @@
-import React from "react";
-import { ImageInput } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
-import { Button, Text } from "design-system";
+import React, { useEffect, useState } from "react";
+import { ImageInput } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
+import { Text } from "design-system";
 import {
   createMessage,
   APP_NAVIGATION_SETTING,
 } from "@appsmith/constants/messages";
-import type { UpdateSetting } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings";
+import type { UpdateSetting } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { NavigationSetting } from "constants/AppConstants";
-import { logoImageValidation } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/utils";
+import { logoImageValidation } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/utils";
 import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,
 } from "@appsmith/selectors/applicationSelectors";
+import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { DeleteLogoButton } from "@appsmith/pages/Editor/NavigationSettings/DeleteLogoButton";
 
 export type ButtonGroupSettingProps = {
   updateSetting: UpdateSetting;
   navigationSetting: NavigationSetting;
 };
 
+export const { cloudHosting } = getAppsmithConfigs();
+
 const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
   const isUploadingNavigationLogo = useSelector(getIsUploadingNavigationLogo);
   const isDeletingNavigationLogo = useSelector(getIsDeletingNavigationLogo);
+  const tenantConfig = useSelector(getTenantConfig);
+  const { logoAssetId } = navigationSetting;
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (logoAssetId?.length) {
+      setLogoUrl(`/api/v1/assets/${logoAssetId}`);
+      return;
+    } else if (cloudHosting) {
+      setLogoUrl(null);
+      return;
+    } else if (!cloudHosting && tenantConfig?.brandLogoUrl) {
+      setLogoUrl(tenantConfig.brandLogoUrl);
+      return;
+    }
+
+    setLogoUrl(null);
+    return;
+  }, [logoAssetId, tenantConfig, cloudHosting]);
 
   const handleChange = (file: File) => {
     dispatch({
@@ -54,22 +78,12 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
         </Text>
 
         {navigationSetting?.logoAssetId?.length ? (
-          <Button
-            className="flex items-center justify-center text-center h-7 w-7 ml-auto"
-            isDisabled={isUploadingNavigationLogo || isDeletingNavigationLogo}
-            isIconButton
-            kind="tertiary"
-            onClick={() => handleDelete()}
-            startIcon="trash"
+          <DeleteLogoButton
+            handleDelete={handleDelete}
+            isDeletingNavigationLogo={isDeletingNavigationLogo}
+            isUploadingNavigationLogo={isUploadingNavigationLogo}
           />
-        ) : // <button
-        //   className="flex items-center justify-center text-center h-7 w-7 ml-auto"
-        //   disabled={isUploadingNavigationLogo || isDeletingNavigationLogo}
-        //   onClick={() => handleDelete()}
-        // >
-        //   <Icon fillColor="#575757" name="trash" size="extraLarge" />
-        // </button>
-        null}
+        ) : null}
       </div>
       <div className="pt-1">
         <ImageInput
@@ -78,11 +92,7 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
             handleChange && handleChange(file);
           }}
           validate={logoImageValidation}
-          value={
-            navigationSetting?.logoAssetId?.length
-              ? `/api/v1/assets/${navigationSetting?.logoAssetId}`
-              : ""
-          }
+          value={logoUrl}
         />
       </div>
     </div>
