@@ -203,6 +203,7 @@ public class SecurityConfig {
                 .anyExchange()
                 .authenticated()
                 .and()
+                // Add Pre Auth rate limit filter before authentication filter
                 .addFilterBefore(
                         new ConditionalFilter(new PreAuth(rateLimitService), Url.LOGIN_URL),
                         SecurityWebFiltersOrder.FORM_LOGIN)

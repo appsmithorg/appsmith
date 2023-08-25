@@ -20,6 +20,7 @@ public class PreAuth implements WebFilter {
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
     private final RateLimitService rateLimitService;
+    private final String USERNAME = "username";
 
     public PreAuth(RateLimitService rateLimitService) {
         this.rateLimitService = rateLimitService;
@@ -27,10 +28,8 @@ public class PreAuth implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        log.debug("Inside PreAuth filter");
         return getUsername(exchange).flatMap(username -> {
             if (username != null) {
-                log.debug("Username: {}", username);
                 return rateLimitService
                         .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, username)
                         .flatMap(counterIncreaseAttemptSuccessful -> {
@@ -50,7 +49,7 @@ public class PreAuth implements WebFilter {
 
     private Mono<String> getUsername(ServerWebExchange exchange) {
         return exchange.getFormData().flatMap(formData -> {
-            String username = formData.getFirst("username");
+            String username = formData.getFirst(USERNAME);
             if (username != null) {
                 return Mono.just(URLDecoder.decode(username, StandardCharsets.UTF_8));
             }

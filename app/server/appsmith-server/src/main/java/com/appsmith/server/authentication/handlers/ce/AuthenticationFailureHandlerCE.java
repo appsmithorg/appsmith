@@ -33,6 +33,8 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
         log.error("In the login failure handler. Cause: {}", exception.getMessage(), exception);
         ServerWebExchange exchange = webFilterExchange.getExchange();
+        // On authentication failure, we send a redirect to the client's login error page. The browser will re-load the
+        // login page again with an error message shown to the user.
         MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
         String state = queryParams.getFirst(Security.QUERY_PARAMETER_STATE);
         String originHeader = "/";
@@ -62,6 +64,7 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
         return "/";
     }
 
+    // this method extracts the origin from the referer header
     private String getOriginFromReferer(String refererHeader) {
         if (refererHeader != null && !refererHeader.isBlank()) {
             try {
@@ -76,6 +79,7 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
         return "/";
     }
 
+    // this method constructs the redirect URL based on the exception type
     private String constructRedirectUrl(AuthenticationException exception, String originHeader, String redirectUrl) {
         String url = "";
         if (exception instanceof OAuth2AuthenticationException

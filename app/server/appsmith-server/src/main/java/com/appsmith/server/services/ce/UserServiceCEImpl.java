@@ -128,7 +128,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             UserDataService userDataService,
             TenantService tenantService,
             PermissionGroupService permissionGroupService,
-            UserUtils userUtils, RateLimitService rateLimitService) {
+            UserUtils userUtils,
+            RateLimitService rateLimitService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -383,14 +384,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                     .flatMap(passwordResetTokenRepository::delete)
                                     .then(repository.save(userFromDb))
                                     .doOnSuccess(result -> {
-                                            // In a separate thread, we delete all other sessions of this user.
-                                            sessionUserService
-                                                    .logoutAllSessions(userFromDb.getEmail())
-                                                    .subscribeOn(Schedulers.boundedElastic())
-                                                    .subscribe();
+                                        // In a separate thread, we delete all other sessions of this user.
+                                        sessionUserService
+                                                .logoutAllSessions(userFromDb.getEmail())
+                                                .subscribeOn(Schedulers.boundedElastic())
+                                                .subscribe();
 
-                                            // we reset the counter for user's login attempts once password is reset
-                                            rateLimitService.resetCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, userFromDb.getEmail());
+                                        // we reset the counter for user's login attempts once password is reset
+                                        rateLimitService.resetCounter(
+                                                RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, userFromDb.getEmail());
                                     })
                                     .thenReturn(true);
                         }));
