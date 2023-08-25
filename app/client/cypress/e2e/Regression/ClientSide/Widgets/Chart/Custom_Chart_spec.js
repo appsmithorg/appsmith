@@ -1,6 +1,7 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("Chart Widget Functionality around custom chart feature", function () {
   before(() => {
@@ -68,11 +69,18 @@ describe("Chart Widget Functionality around custom chart feature", function () {
   it("2. Custom Chart Widget Functionality", function () {
     //changing the Chart type
     //cy.get(widgetsPage.toggleChartType).click({ force: true });
-    cy.UpdateChartType("Custom Fusion chart");
+    featureFlagIntercept({
+      release_show_custom_fusion_chart_deprecation_message: true,
+    });
+    cy.UpdateChartType("Custom Fusion Charts (deprecated)");
 
     cy.testJsontext(
       "customfusionchart",
       `{{${JSON.stringify(this.dataSet.ChartCustomConfig)}}}`,
+    );
+
+    _.agHelper.AssertContains(
+      "Custom Fusion Charts will stop being supported on March 1st 2024. Change the chart type to E-charts Custom to switch.",
     );
 
     //Verifying X-axis labels

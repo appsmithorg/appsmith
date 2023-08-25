@@ -5,7 +5,11 @@ import { styleConfig, contentConfig } from "./propertyConfig";
 import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 
 const customEChartsEnabled = true;
-const config = [...contentConfig(customEChartsEnabled), ...styleConfig];
+const showFusionChartDeprecationMessage = true;
+const config = [
+  ...contentConfig(customEChartsEnabled, showFusionChartDeprecationMessage),
+  ...styleConfig,
+];
 
 declare global {
   namespace jest {

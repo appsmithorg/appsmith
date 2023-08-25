@@ -61,6 +61,9 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
+  methods: {
+    getEditorCallouts: Widget.widgetCallouts(),
+  },
   autoLayout: {
     widgetSize: [
       {

@@ -1,5 +1,5 @@
 import { emptyChartData } from ".";
-
+import ChartWidget from ".";
 import { LabelOrientation } from "../constants";
 import type { ChartWidgetProps } from ".";
 import type { ChartData } from "../constants";
@@ -140,6 +140,43 @@ describe("emptyChartData", () => {
       props.customEChartConfig = { key: "value" };
 
       expect(emptyChartData(props)).toEqual(false);
+    })
+  });
+
+  describe("Widget Callouts", () => {
+    const calloutsFunc = ChartWidget.widgetCallouts();
+
+    it("returns custom fusion chart deprecation notice when chart type is custom fusion chart", () => {
+      const props = JSON.parse(JSON.stringify(defaultProps));
+      props.chartType = "CUSTOM_FUSION_CHART";
+
+      const messages = calloutsFunc(props);
+      expect(messages.length).toEqual(1);
+
+      const deprecationMessage = messages[0];
+      expect(deprecationMessage.message).toEqual(
+        "Custom Fusion Charts will stop being supported on March 1st 2024. Change the chart type to E-charts Custom to switch.",
+      );
+      expect(deprecationMessage.links).toEqual([
+        {
+          text: "Learn More",
+          url: "https://docs.appsmith.com",
+        },
+      ]);
+    });
+
+    it("returns no callouts when chart type isn't custom fusion charts", () => {
+      let props = JSON.parse(JSON.stringify(defaultProps));
+      props.chartType = "LINE_CHART";
+
+      let messages = calloutsFunc(props);
+      expect(messages.length).toEqual(0);
+
+      props = JSON.parse(JSON.stringify(defaultProps));
+      props.chartType = "CUSTOM_ECHART";
+
+      messages = calloutsFunc(props);
+      expect(messages.length).toEqual(0);
     });
   });
 });
