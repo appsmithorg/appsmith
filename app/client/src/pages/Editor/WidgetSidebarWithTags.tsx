@@ -22,7 +22,7 @@ import {
   Text,
 } from "design-system";
 
-function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
+function WidgetSidebarWithTags({ isActive = true }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
   const groupedCards = useMemo(() => groupWidgetCardsByTags(cards), [cards]);
   const [filteredCards, setFilteredCards] =
