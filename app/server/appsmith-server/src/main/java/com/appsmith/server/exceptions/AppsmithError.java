@@ -950,6 +950,7 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Invalid email verification request",
             ErrorType.INTERNAL_ERROR,
+            null),
 
     INVALID_METHOD_LEVEL_ANNOTATION_USAGE(
             403,
