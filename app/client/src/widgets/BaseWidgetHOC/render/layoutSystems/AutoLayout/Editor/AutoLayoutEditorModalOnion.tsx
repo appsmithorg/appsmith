@@ -2,19 +2,25 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import React from "react";
 import { WidgetNameLayer } from "widgets/BaseWidgetHOC/render/common/WidgetNameLayer";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
-import { withModalOverlay } from "../../common/withModalOverlay";
 import { ModalResizableLayer } from "../../common/ModalResizableLayer";
+import ErrorBoundary from "components/editorComponents/ErrorBoundry";
+import { AutoLayoutWidgetComponent } from "../common/AutoLayoutWidgetNameComponent";
+import { ModalOverlayLayer } from "../../common/ModalOverlayLayer";
 
-const Wrapper = (props: BaseWidgetProps) => {
+export const AutoLayoutEditorModalOnion = (props: BaseWidgetProps) => {
   return (
-    <ModalResizableLayer {...props}>
-      <WidgetNameLayer {...props}>
-        <ClickContentToOpenPropPane widgetId={props.widgetId}>
-          {props.children}
-        </ClickContentToOpenPropPane>
-      </WidgetNameLayer>
-    </ModalResizableLayer>
+    <ErrorBoundary>
+      <AutoLayoutWidgetComponent {...props}>
+        <ModalOverlayLayer {...props} isEditMode>
+          <ModalResizableLayer {...props}>
+            <WidgetNameLayer {...props}>
+              <ClickContentToOpenPropPane widgetId={props.widgetId}>
+                {props.children}
+              </ClickContentToOpenPropPane>
+            </WidgetNameLayer>
+          </ModalResizableLayer>
+        </ModalOverlayLayer>
+      </AutoLayoutWidgetComponent>
+    </ErrorBoundary>
   );
 };
-
-export const AutoLayoutEditorModalOnion = withModalOverlay(Wrapper);
