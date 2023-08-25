@@ -82,7 +82,7 @@ export type Setting = ControlType & {
   formName?: string;
   fieldName?: string;
   dropdownOptions?: Partial<SelectOptionProps>[];
-  needsUpgrade?: boolean;
+  isFeatureEnabled?: boolean;
   tooltip?: string;
 };
 
@@ -95,7 +95,6 @@ export interface Category {
   children?: Category[];
   icon?: string;
   categoryType: string;
-  needsUpgrade?: boolean;
   isEnterprise?: boolean;
   isFeatureEnabled?: boolean;
 }
@@ -114,6 +113,8 @@ export const SettingCategories = {
   ACCESS_CONTROL: "access-control",
   PROVISIONING: "provisioning",
   BRANDING: "branding",
+  SAML_AUTH: "saml-auth",
+  OIDC_AUTH: "oidc-auth",
 };
 
 export enum CategoryType {
@@ -134,7 +135,6 @@ export type AdminConfigType = {
   isConnected?: boolean;
   needsRefresh?: boolean;
   icon?: string;
-  needsUpgrade?: boolean;
   categoryType: CategoryType;
   isEnterprise?: boolean;
   isFeatureEnabled?: boolean;

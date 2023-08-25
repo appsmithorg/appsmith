@@ -212,7 +212,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
     existingLink && existingLink.remove();
     const link = document.createElement("a");
 
-    link.href = getExportAppAPIRoute(applicationId);
+    const branchName = props.application.gitApplicationMetadata?.branchName;
+    link.href = getExportAppAPIRoute(applicationId, branchName);
     link.id = id;
     document.body.appendChild(link);
     // @ts-expect-error: Types are not available

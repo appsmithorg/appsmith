@@ -19,7 +19,10 @@ import { SelectWrapper } from "../GeneratePage/components/GeneratePageForm/style
 import { isEmpty } from "lodash";
 import Table from "pages/Editor/QueryEditor/Table";
 import styled from "styled-components";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import {
   createMessage,
@@ -29,6 +32,13 @@ import {
   GSHEETS_SCHEMA_NO_DATA,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  hasCreateDatasourceActionPermission,
+  hasCreatePagePermission,
+} from "@appsmith/utils/permissionHelpers";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import type { AppState } from "@appsmith/reducers";
+import { getDatasource } from "selectors/entitiesSelector";
 
 const MessageWrapper = styled.div`
   display: flex;
@@ -121,6 +131,9 @@ function GoogleSheetSchema(props: Props) {
   const [selectedSheet, setSelectedSheet] = useState<DropdownOption>({});
   const [currentSheetData, setCurrentSheetData] = useState<any>();
   const applicationId: string = useSelector(getCurrentApplicationId);
+  const datasource = useSelector((state) =>
+    getDatasource(state, props.datasourceId),
+  );
 
   const dispatch = useDispatch();
 
@@ -268,6 +281,26 @@ function GoogleSheetSchema(props: Props) {
     dispatch(generateTemplateToUpdatePage(payload));
   };
 
+  const pagePermissions = useSelector(getPagePermissions);
+  const datasourcePermissions = datasource?.userPermissions || [];
+
+  const userAppPermissions = useSelector(
+    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+  );
+  const canCreatePages = hasCreatePagePermission(userAppPermissions);
+
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
+
+  const showGeneratePageBtn =
+    !isLoading &&
+    !isError &&
+    currentSheetData &&
+    canCreateDatasourceActions &&
+    canCreatePages;
+
   return (
     <>
       <SelectContainer>
@@ -327,9 +360,10 @@ function GoogleSheetSchema(props: Props) {
             </SelectWrapper>
           </SelectListWrapper>
         ) : null}
-        {!isLoading && !isError && currentSheetData && (
+        {showGeneratePageBtn && (
           <Button
             className="t--gsheet-generate-page"
+            isDisabled={!currentSheetData || currentSheetData?.length == 0}
             key="gsheet-generate-page"
             kind="primary"
             onClick={onGsheetGeneratePage}

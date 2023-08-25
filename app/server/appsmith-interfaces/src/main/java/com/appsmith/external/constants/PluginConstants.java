@@ -33,4 +33,8 @@ public interface PluginConstants {
         public static final String SMTP_PLUGIN_NAME = "Smtp";
         public static final String SNOWFLAKE_PLUGIN_NAME = "Snowflake";
     }
+
+    interface HostName {
+        public static final String LOCALHOST = "localhost";
+    }
 }

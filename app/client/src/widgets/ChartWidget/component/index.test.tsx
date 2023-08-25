@@ -48,7 +48,7 @@ describe("Chart Widget", () => {
     boxShadow: "1",
     primaryColor: "primarycolor",
     fontFamily: "fontfamily",
-    dimensions: { componentWidth: 11, componentHeight: 11 },
+    dimensions: { componentWidth: 1000, componentHeight: 1000 },
     parentColumnSpace: 1,
     parentRowSpace: 1,
     topRow: 0,
@@ -145,11 +145,11 @@ describe("Chart Widget", () => {
   });
 
   it("3. adds a click event when user adds a click callback", async () => {
-    const mockCallback = jest.fn();
+    const mockCallback = jest.fn((params) => params);
     const props = { ...defaultProps };
     props.onDataPointClick = (point) => {
       point;
-      mockCallback();
+      mockCallback(point);
     };
 
     render(<ChartComponent {...props} />);

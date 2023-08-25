@@ -9,7 +9,7 @@ import { Wrapper } from "@appsmith/pages/AdminSettings/config/authentication/Aut
 
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
-import { getUpgradeBanner } from "utils/BusinessFeatures/brandingPageHelpers";
+import { getUpgradeBanner } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
 
 export type brandColorsKeys =
   | "primary"
@@ -20,8 +20,8 @@ export type brandColorsKeys =
 
 export type Inputs = {
   brandColors: Record<brandColorsKeys, string>;
-  APPSMITH_BRAND_LOGO: string;
-  APPSMITH_BRAND_FAVICON: string;
+  brandLogo: string;
+  brandFavicon: string;
 };
 
 type BrandingPageProps = {
@@ -31,11 +31,11 @@ type BrandingPageProps = {
 function BrandingPage(props: BrandingPageProps) {
   const { category } = props;
   const isBrandingEnabled = category?.isFeatureEnabled ?? false;
-  const tentantConfig = useSelector(getTenantConfig);
+  const tenantConfig = useSelector(getTenantConfig);
   const defaultValues = {
-    brandColors: tentantConfig.brandColors,
-    APPSMITH_BRAND_LOGO: tentantConfig.brandLogoUrl,
-    APPSMITH_BRAND_FAVICON: tentantConfig.brandFaviconUrl,
+    brandColors: tenantConfig.brandColors,
+    brandLogo: tenantConfig.brandLogoUrl,
+    brandFavicon: tenantConfig.brandFaviconUrl,
   };
   const {
     control,
@@ -57,11 +57,11 @@ function BrandingPage(props: BrandingPageProps) {
    */
   useEffect(() => {
     reset({
-      brandColors: tentantConfig.brandColors,
-      APPSMITH_BRAND_LOGO: tentantConfig.brandLogoUrl,
-      APPSMITH_BRAND_FAVICON: tentantConfig.brandFaviconUrl,
+      brandColors: tenantConfig.brandColors,
+      brandLogo: tenantConfig.brandLogoUrl,
+      brandFavicon: tenantConfig.brandFaviconUrl,
     });
-  }, [tentantConfig, reset]);
+  }, [tenantConfig, reset]);
 
   watch();
 
@@ -82,8 +82,8 @@ function BrandingPage(props: BrandingPageProps) {
         />
         <div className="flex-grow">
           <Previews
-            favicon={getAssetUrl(values.APPSMITH_BRAND_FAVICON)}
-            logo={getAssetUrl(values.APPSMITH_BRAND_LOGO)}
+            favicon={getAssetUrl(values.brandFavicon)}
+            logo={getAssetUrl(values.brandLogo)}
             shades={values.brandColors}
           />
         </div>

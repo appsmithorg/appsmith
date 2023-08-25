@@ -90,6 +90,13 @@ export class AssertHelper extends ReusableHelper {
     // });
   }
 
+  public AssertNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
+    this.WaitForNetworkCall(aliasName);
+    cy.get(aliasName)
+      .its("response.body.data.isExecutionSuccess")
+      .should("eq", expectedRes);
+  }
+
   public AssertContains(
     text: string | RegExp,
     exists: "exist" | "not.exist" | "be.visible" = "exist",

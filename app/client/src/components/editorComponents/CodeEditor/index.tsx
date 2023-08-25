@@ -160,6 +160,7 @@ import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEdito
 import { getDeleteLineShortcut } from "./utils/deleteLine";
 import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
+import resizeObserver from "utils/resizeObserver";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -236,7 +237,6 @@ export type EditorProps = EditorStyleProps &
     isRawView?: boolean;
     isJSObject?: boolean;
     jsObjectName?: string;
-    containerHeight?: number;
     // Custom gutter
     customGutter?: CodeEditorGutter;
 
@@ -486,6 +486,13 @@ class CodeEditor extends Component<Props, State> {
     }
     window.addEventListener("keydown", this.handleKeydown);
     window.addEventListener("keyup", this.handleKeyUp);
+
+    if (this.codeEditorTarget.current) {
+      // refresh editor on resize which prevents issue #23796
+      resizeObserver.observe(this.codeEditorTarget.current, [
+        this.debounceEditorRefresh,
+      ]);
+    }
   }
 
   handleSlashCommandSelection = (...args: any) => {
@@ -533,14 +540,6 @@ class CodeEditor extends Component<Props, State> {
   componentDidUpdate(prevProps: Props): void {
     const identifierHasChanged =
       getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps);
-    if (
-      prevProps.containerHeight &&
-      this.props.containerHeight &&
-      prevProps.containerHeight < this.props.containerHeight
-    ) {
-      //Refresh editor when the container height is increased.
-      this.debounceEditorRefresh();
-    }
 
     const entityInformation = this.getEntityInformation();
     const isWidgetType = entityInformation.entityType === ENTITY_TYPE.WIDGET;
@@ -560,6 +559,23 @@ class CodeEditor extends Component<Props, State> {
       }
 
       if (shouldFocusOnPropertyControl()) {
+        setTimeout(() => {
+          if (this.props.editorIsFocused) {
+            this.editor.focus();
+          }
+        }, 200);
+      }
+    } else if (this.props.editorLastCursorPosition) {
+      // This is for when we want to change cursor positions
+      // for e.g navigating to a line from the debugger
+      if (
+        !isEqual(
+          this.props.editorLastCursorPosition,
+          prevProps.editorLastCursorPosition,
+        ) &&
+        this.props.editorLastCursorPosition.origin ===
+          CursorPositionOrigin.Navigation
+      ) {
         setTimeout(() => {
           if (this.props.editorIsFocused) {
             this.editor.focus();
@@ -830,6 +846,12 @@ class CodeEditor extends Component<Props, State> {
   };
 
   componentWillUnmount() {
+    if (this.codeEditorTarget.current) {
+      resizeObserver.unobserve(this.codeEditorTarget.current, [
+        this.debounceEditorRefresh,
+      ]);
+    }
+
     // if the highlighted element exists, remove the event listeners to prevent memory leaks
     if (this.highlightedUrlElement) {
       removeEventFromHighlightedElement(this.highlightedUrlElement, [

@@ -333,6 +333,7 @@ export function LeftPane(props: LeftPaneProps) {
     <LeftPaneWrapper isBannerVisible={isBannerVisible}>
       <LeftPaneSection
         heading={createMessage(WORKSPACES_HEADING)}
+        isBannerVisible={isBannerVisible}
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-testid="t--left-panel">
