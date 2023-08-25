@@ -13,6 +13,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.solutions.EnvManager;
 import jakarta.validation.Validator;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.StringUtils;
@@ -39,7 +40,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             TenantRepository repository,
             AnalyticsService analyticsService,
             ConfigService configService,
-            EnvManager envManager) {
+            @Lazy EnvManager envManager) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;

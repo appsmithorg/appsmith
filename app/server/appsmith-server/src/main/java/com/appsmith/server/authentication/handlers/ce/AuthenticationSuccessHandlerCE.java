@@ -144,6 +144,50 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         return onAuthenticationSuccess(webFilterExchange, authentication, false, false, null);
     }
 
+    private Mono<String> extractRedirectUrlAndSendVerificationMail(
+            WebFilterExchange webFilterExchange, User user, String redirectUrl) {
+        String baseUrl =
+                webFilterExchange.getExchange().getRequest().getHeaders().getOrigin();
+        ResendEmailVerificationDTO resendEmailVerificationDTO = new ResendEmailVerificationDTO();
+        resendEmailVerificationDTO.setEmail(user.getEmail());
+        resendEmailVerificationDTO.setBaseUrl(baseUrl);
+        // This is the case post signup when the url is /signup-success?redirectUrl=<>
+        // After verification we redirect the user to /signup-success always and use the redirect url
+        // to navigate to next page after signup-success
+        try {
+            redirectUrl = redirectUrl.split("redirectUrl=")[1];
+        } catch (Exception e) {
+            log.error(String.valueOf(e));
+        }
+        redirectUrl = URLDecoder.decode(redirectUrl, StandardCharsets.UTF_8);
+        return userService
+                .resendEmailVerification(resendEmailVerificationDTO, redirectUrl)
+                .then(Mono.just(redirectUrl));
+    }
+
+    private Mono<Void> postVerificationRequiredHandler(
+            WebFilterExchange webFilterExchange, User user, Application defaultApplication, Boolean isFromSignup) {
+        /**
+         * This function:
+         * Removes the user session as only post verification login is allowed
+         * Extracts the redirect url post signup/login
+         * Send email verification mail with the redirect url
+         * Redirects the user to verificationPending screen
+         */
+        return webFilterExchange.getExchange().getSession().flatMap(webSession -> {
+            webSession.getAttributes().remove(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
+            return redirectHelper
+                    .getAuthSuccessRedirectUrl(webFilterExchange, defaultApplication, true)
+                    .flatMap(redirectUrl -> extractRedirectUrlAndSendVerificationMail(
+                                    webFilterExchange, user, redirectUrl)
+                            .map(url -> String.format(
+                                    "/user/verificationPending?email=%s",
+                                    URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
+                            .flatMap(redirectUri -> redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(redirectUri))));
+        });
+    }
+
     /**
      * This function handles the redirection in case of form type signup/login.
      * It constructs the redirect uri based on user's request, and if email verification is required
@@ -171,133 +215,41 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "signup");
             if (createDefaultApplication) {
                 Mono<Boolean> finalIsVerificationRequiredMono = isVerificationRequiredMono;
-                redirectionMono = webFilterExchange.getExchange().getSession().flatMap(webSession -> {
-                    return finalIsVerificationRequiredMono.flatMap(isVerificationRequired -> {
-                        if (TRUE.equals(isVerificationRequired)) {
-                            // removing login session as verification is required
-                            webSession.getAttributes().remove(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
-                            return createDefaultApplication(defaultWorkspaceId, authentication)
-                                    .flatMap(defaultApplication -> redirectHelper.getAuthSuccessRedirectUrl(
-                                            webFilterExchange, defaultApplication, true))
-                                    // verification email link redirect url
-                                    // after verification the user will be redirected to this url
-                                    .flatMap(url -> {
-                                        String baseUrl = webFilterExchange
-                                                .getExchange()
-                                                .getRequest()
-                                                .getHeaders()
-                                                .getOrigin();
-                                        ResendEmailVerificationDTO resendEmailVerificationDTO =
-                                                new ResendEmailVerificationDTO();
-                                        resendEmailVerificationDTO.setEmail(user.getEmail());
-                                        resendEmailVerificationDTO.setBaseUrl(baseUrl);
-                                        try {
-                                            url = url.split("redirectUrl=")[1];
-                                        } catch (Exception e) {
-                                            log.error(String.valueOf(e));
-                                            log.debug("Redirect Url not present from form signup:  ", url);
-                                        }
-                                        url = URLDecoder.decode(url, StandardCharsets.UTF_8);
-
-                                        return userService
-                                                .resendEmailVerification(resendEmailVerificationDTO, url)
-                                                .then(Mono.just(url));
-                                    })
-                                    // redirecting user to the verification pending screen
-                                    .map(url -> String.format(
-                                            "/user/verificationPending?email=%s",
-                                            URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
-                                    .map(URI::create)
-                                    .flatMap(redirectUri -> redirectStrategy.sendRedirect(
-                                            webFilterExchange.getExchange(), redirectUri));
-                        } else {
-                            return Mono.zip(
-                                            userService.sendWelcomeEmail(user, originHeader),
-                                            createDefaultApplication(defaultWorkspaceId, authentication))
-                                    .flatMap(objects ->
-                                            redirectHelper.handleRedirect(webFilterExchange, objects.getT2(), true));
-                        }
-                    });
+                redirectionMono = finalIsVerificationRequiredMono.flatMap(isVerificationRequired -> {
+                    if (TRUE.equals(isVerificationRequired)) {
+                        return createDefaultApplication(defaultWorkspaceId, authentication)
+                                .flatMap(defaultApplication -> postVerificationRequiredHandler(
+                                        webFilterExchange, user, defaultApplication, TRUE));
+                    } else {
+                        return Mono.zip(
+                                        userService.sendWelcomeEmail(user, originHeader),
+                                        createDefaultApplication(defaultWorkspaceId, authentication))
+                                .flatMap(obj -> redirectHelper.handleRedirect(webFilterExchange, obj.getT2(), true));
+                    }
                 });
             } else {
                 Mono<Boolean> finalIsVerificationRequiredMono1 = isVerificationRequiredMono;
-                redirectionMono = webFilterExchange.getExchange().getSession().flatMap(webSession -> {
-                    return finalIsVerificationRequiredMono1.flatMap(isVerificationRequired -> {
-                        if (TRUE.equals(isVerificationRequired)) {
-                            webSession.getAttributes().remove(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
-                            return redirectHelper
-                                    .getAuthSuccessRedirectUrl(webFilterExchange, null, true)
-                                    .flatMap(url -> {
-                                        String baseUrl = webFilterExchange
-                                                .getExchange()
-                                                .getRequest()
-                                                .getHeaders()
-                                                .getOrigin();
-                                        ResendEmailVerificationDTO resendEmailVerificationDTO =
-                                                new ResendEmailVerificationDTO();
-                                        resendEmailVerificationDTO.setEmail(user.getEmail());
-                                        resendEmailVerificationDTO.setBaseUrl(baseUrl);
-                                        try {
-                                            url = url.split("redirectUrl=")[1];
-                                        } catch (Exception e) {
-                                            log.error(String.valueOf(e));
-                                            log.debug("Redirect Url not present from form signup:  ", url);
-                                        }
-                                        url = URLDecoder.decode(url, StandardCharsets.UTF_8);
-                                        return userService
-                                                .resendEmailVerification(resendEmailVerificationDTO, url)
-                                                .then(Mono.just(url));
-                                    })
-                                    .map(url -> String.format(
-                                            "/user/verificationPending?email=%s",
-                                            URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
-                                    .map(URI::create)
-                                    .flatMap(redirectUri -> redirectStrategy.sendRedirect(
-                                            webFilterExchange.getExchange(), redirectUri));
-                        } else {
-                            return userService
-                                    .sendWelcomeEmail(user, originHeader)
-                                    .then(redirectHelper.handleRedirect(webFilterExchange, null, true));
-                        }
-                    });
+                redirectionMono = finalIsVerificationRequiredMono1.flatMap(isVerificationRequired -> {
+                    if (TRUE.equals(isVerificationRequired)) {
+                        return postVerificationRequiredHandler(webFilterExchange, user, null, TRUE);
+                    } else {
+                        return userService
+                                .sendWelcomeEmail(user, originHeader)
+                                .then(redirectHelper.handleRedirect(webFilterExchange, null, true));
+                    }
                 });
             }
         } else {
             isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "login");
             Mono<Boolean> finalIsVerificationRequiredMono2 = isVerificationRequiredMono;
-            redirectionMono = webFilterExchange.getExchange().getSession().flatMap(webSession -> {
-                return finalIsVerificationRequiredMono2.flatMap(isVerificationRequired -> {
-                    if (TRUE.equals(isVerificationRequired)) {
-                        webSession.getAttributes().remove(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
-                        return redirectHelper
-                                .getAuthSuccessRedirectUrl(webFilterExchange, null, false)
-                                .flatMap(url -> {
-                                    String baseUrl = webFilterExchange
-                                            .getExchange()
-                                            .getRequest()
-                                            .getHeaders()
-                                            .getOrigin();
-                                    ResendEmailVerificationDTO resendEmailVerificationDTO =
-                                            new ResendEmailVerificationDTO();
-                                    resendEmailVerificationDTO.setEmail(user.getEmail());
-                                    resendEmailVerificationDTO.setBaseUrl(baseUrl);
-                                    url = URLDecoder.decode(url, StandardCharsets.UTF_8);
-                                    return userService
-                                            .resendEmailVerification(resendEmailVerificationDTO, url)
-                                            .then(Mono.just(url));
-                                })
-                                .map(url -> String.format(
-                                        "/user/verificationPending?email=%s",
-                                        URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
-                                .map(URI::create)
-                                .flatMap(redirectUri ->
-                                        redirectStrategy.sendRedirect(webFilterExchange.getExchange(), redirectUri));
-                    } else {
-                        return userService
-                                .sendWelcomeEmail(user, originHeader)
-                                .then(redirectHelper.handleRedirect(webFilterExchange, null, false));
-                    }
-                });
+            redirectionMono = finalIsVerificationRequiredMono2.flatMap(isVerificationRequired -> {
+                if (TRUE.equals(isVerificationRequired)) {
+                    return postVerificationRequiredHandler(webFilterExchange, user, null, FALSE);
+                } else {
+                    return userService
+                            .sendWelcomeEmail(user, originHeader)
+                            .then(redirectHelper.handleRedirect(webFilterExchange, null, false));
+                }
             });
         }
         return redirectionMono;
