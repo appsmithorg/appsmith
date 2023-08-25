@@ -76,6 +76,7 @@ const ButtonContainer = styled.div`
 type Props = {
   datasourceId: string;
   datasource: Datasource;
+  setDatasourceViewModeFlag: (viewMode: boolean) => void;
 };
 
 const DatasourceViewModeSchema = (props: Props) => {
@@ -103,7 +104,8 @@ const DatasourceViewModeSchema = (props: Props) => {
 
   const [tableName, setTableName] = useState("");
   const [previewData, setPreviewData] = useState([]);
-  const [previewDataError, setPreviewDataError] = useState("");
+  // this error is for when there's an issue with the datasource structure
+  const [previewDataError, setPreviewDataError] = useState(false);
 
   const numberOfEntities = useSelector(getNumberOfEntitiesInCurrentPage);
   const currentMode = useRef(
@@ -125,9 +127,12 @@ const DatasourceViewModeSchema = (props: Props) => {
       setTableName(datasourceStructure.tables[0].name);
     }
 
-    if (datasourceStructure && datasourceStructure?.error) {
+    if (
+      !datasourceStructure ||
+      (datasourceStructure && datasourceStructure?.error)
+    ) {
       setPreviewData([]);
-      setPreviewDataError(datasourceStructure?.error?.message);
+      setPreviewDataError(true);
       setTableName("");
     }
   }, [datasourceStructure]);
@@ -191,6 +196,10 @@ const DatasourceViewModeSchema = (props: Props) => {
     }
   };
 
+  const customEditDatasourceFn = () => {
+    props.setDatasourceViewModeFlag(false);
+  };
+
   const showGeneratePageBtn =
     !isLoading &&
     !failedFetchingPreviewData &&
@@ -206,6 +215,7 @@ const DatasourceViewModeSchema = (props: Props) => {
         <DatasourceListContainer>
           <DatasourceStructureList
             context={DatasourceStructureContext.DATASOURCE_VIEW_MODE}
+            customEditDatasourceFn={customEditDatasourceFn}
             datasourceId={props.datasourceId}
             datasourceStructure={datasourceStructure}
             onEntityTableClick={onEntityTableClick}

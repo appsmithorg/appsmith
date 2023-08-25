@@ -35,6 +35,7 @@ type Props = {
   currentActionId?: string;
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
+  customEditDatasourceFn?: () => void;
 };
 
 export enum DatasourceStructureContext {
@@ -227,6 +228,8 @@ const Container = (props: Props) => {
       if (props.context !== DatasourceStructureContext.EXPLORER) {
         view = (
           <DatasourceStructureNotFound
+            context={props.context}
+            customEditDatasourceFn={props?.customEditDatasourceFn}
             datasourceId={props.datasourceId}
             error={
               !!props.datasourceStructure &&

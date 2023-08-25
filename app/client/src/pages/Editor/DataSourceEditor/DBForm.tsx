@@ -27,6 +27,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { isEnvironmentValid } from "@appsmith/utils/Environments";
+import { setDatasourceViewModeFlag } from "actions/datasourceActions";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -44,6 +45,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   isEnabledForDSViewModeSchema: boolean;
   isDatasourceValid: boolean;
   isPluginAllowedToPreviewData: boolean;
+  setDatasourceViewModeFlag: (viewMode: boolean) => void;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -178,6 +180,9 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                     <DatasourceViewModeSchema
                       datasource={datasource}
                       datasourceId={datasourceId}
+                      setDatasourceViewModeFlag={
+                        this.props.setDatasourceViewModeFlag
+                      }
                     />
                   </TabPanelContainer>
                   <ConfigurationTabPanelContainer
@@ -231,7 +236,15 @@ const mapStateToProps = (state: AppState, props: any) => {
   };
 };
 
-export default connect(mapStateToProps)(
+const mapDispatchToProps = (dispatch: any) => ({
+  setDatasourceViewModeFlag: (viewMode: boolean) =>
+    dispatch(setDatasourceViewModeFlag(viewMode)),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(
   reduxForm<Datasource, DatasourceDBEditorProps>({
     form: DATASOURCE_DB_FORM,
     enableReinitialize: true,

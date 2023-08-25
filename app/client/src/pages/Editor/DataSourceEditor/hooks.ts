@@ -36,7 +36,8 @@ export const useDatasourceQuery = ({
       if (Array.isArray(payload.data?.body)) {
         setPreviewData(payload.data?.body);
       } else {
-        setPreviewDataError(payload.data?.body);
+        // if the response from the server is anything but an array of data, set the error flag
+        setFailedFetchingPreviewData(true);
       }
     }
   }, []);
@@ -52,7 +53,7 @@ export const useDatasourceQuery = ({
       setFailedFetchingPreviewData(false);
 
       // reset states
-      setPreviewDataError("");
+      setPreviewDataError(false);
       setPreviewData([]);
 
       dispatch(
