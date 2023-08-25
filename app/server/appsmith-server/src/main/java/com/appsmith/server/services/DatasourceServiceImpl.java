@@ -34,7 +34,6 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
 
     private final WorkspaceService workspaceService;
     private final ObservationRegistry observationRegistry;
-
     private final EnvironmentPermission environmentPermission;
 
     public DatasourceServiceImpl(
@@ -157,7 +156,9 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                                 null)
                         .map(trueEnvironmentId -> {
                             datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
-                            DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+                            DatasourceStorage datasourceStorage =
+                                    datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(
+                                            datasourceStorageDTO);
                             datasourceStorage.prepareTransientFields(savedDatasource);
                             storagesToBeSaved.put(trueEnvironmentId, datasourceStorage);
                             return datasourceStorage;

@@ -1,11 +1,11 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
+  multipleEnv,
   agHelper,
   deployMode,
-  tedTestConfig,
+  dataManager,
   locators,
-} from "../../../../support/Objects/ObjectsCore";
-import { multipleEnv } from "../../../../support/ee/ObjectsCore_EE";
+} from "../../../../support/ee/ObjectsCore_EE";
 
 let prodEnv: string, stagingEnv: string;
 
@@ -15,8 +15,8 @@ describe(
   function () {
     before(() => {
       featureFlagIntercept({ release_datasource_environments_enabled: true });
-      prodEnv = tedTestConfig.defaultEnviorment;
-      stagingEnv = tedTestConfig.environments[1];
+      prodEnv = dataManager.defaultEnviorment;
+      stagingEnv = dataManager.environments[1];
       multipleEnv.SwitchEnv(prodEnv);
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");

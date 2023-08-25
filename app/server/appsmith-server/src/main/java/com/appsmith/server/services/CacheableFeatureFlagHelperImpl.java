@@ -5,6 +5,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.dtos.ce.FeaturesRequestDTO;
 import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
+import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.CacheableFeatureFlagHelperCEImpl;
 import com.appsmith.server.solutions.LicenseAPIManager;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -14,16 +15,18 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
+
 @Component
 @Slf4j
 public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCEImpl
         implements CacheableFeatureFlagHelper {
-    TenantService tenantService;
-    AirgapInstanceConfig airgapInstanceConfig;
-    LicenseAPIManager licenseAPIManager;
+    private final TenantRepository tenantRepository;
+    private final AirgapInstanceConfig airgapInstanceConfig;
+    private final LicenseAPIManager licenseAPIManager;
 
     public CacheableFeatureFlagHelperImpl(
-            TenantService tenantService,
+            TenantRepository tenantRepository,
             ConfigService configService,
             CloudServicesConfig cloudServicesConfig,
             CommonConfig commonConfig,
@@ -32,13 +35,13 @@ public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCE
             AirgapInstanceConfig airgapInstanceConfig,
             LicenseAPIManager licenseAPIManager) {
         super(
-                tenantService,
+                tenantRepository,
                 configService,
                 cloudServicesConfig,
                 commonConfig,
                 userIdentifierService,
                 releaseNotesService);
-        this.tenantService = tenantService;
+        this.tenantRepository = tenantRepository;
         this.airgapInstanceConfig = airgapInstanceConfig;
         this.licenseAPIManager = licenseAPIManager;
     }
@@ -53,14 +56,13 @@ public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCE
         if (airgapInstanceConfig.isAirgapEnabled()) {
             FeaturesResponseDTO featuresResponseDTO = new FeaturesResponseDTO();
             featuresResponseDTO.setFeatures(new HashMap<>());
-            return tenantService
-                    .getDefaultTenant()
-                    .flatMap(tenant -> licenseAPIManager.licenseCheck(tenant))
+            return tenantRepository
+                    .findBySlug(DEFAULT)
+                    .flatMap(licenseAPIManager::licenseCheck)
                     .map(license -> {
                         if (license.getTenantFeatures() != null) {
                             featuresResponseDTO.setFeatures(license.getTenantFeatures());
                         }
-
                         return featuresResponseDTO;
                     });
         }

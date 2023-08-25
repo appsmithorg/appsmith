@@ -15,18 +15,22 @@ import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import com.appsmith.server.solutions.LicenseAPIManager;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -46,6 +50,7 @@ import static com.appsmith.server.constants.CommonConstants.DEFAULT;
 import static com.appsmith.server.constants.CommonConstants.DELIMETER_SPACE;
 import static com.appsmith.server.constants.CommonConstants.FOR;
 import static com.appsmith.server.constants.CommonConstants.IN;
+import static com.appsmith.server.domains.TenantConfiguration.ASSET_PREFIX;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
@@ -57,6 +62,13 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     private final WorkspaceRepository workspaceRepository;
     private final ApplicationRepository applicationRepository;
     private final RedirectHelper redirectHelper;
+    private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
+    private final AssetService assetService;
+    private final ObjectMapper objectMapper;
+
+    // Based on information provided on the Branding page.
+    private static final int MAX_LOGO_SIZE_KB = 2048;
+    private static final int MAX_FAVICON_SIZE_KB = 1024;
 
     @Autowired
     public TenantServiceImpl(
@@ -71,7 +83,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             ConfigService configService,
             SessionUserService sessionUserService,
             LicenseAPIManager licenseAPIManager,
-            RedirectHelper redirectHelper) {
+            RedirectHelper redirectHelper,
+            AssetService assetService,
+            ObjectMapper objectMapper,
+            CacheableFeatureFlagHelper cacheableFeatureFlagHelper) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService);
         this.licenseAPIManager = licenseAPIManager;
@@ -79,6 +94,9 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         this.redirectHelper = redirectHelper;
         this.workspaceRepository = workspaceRepository;
         this.applicationRepository = applicationRepository;
+        this.assetService = assetService;
+        this.objectMapper = objectMapper;
+        this.cacheableFeatureFlagHelper = cacheableFeatureFlagHelper;
     }
 
     @Override
@@ -166,10 +184,9 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             return licenseAPIManager.downgradeTenantToFreePlan(tenant).flatMap(isSuccessful -> {
                 if (Boolean.TRUE.equals(isSuccessful)) {
                     tenant.getTenantConfiguration().setLicense(null);
-                    return this.update(tenant.getId(), tenant).map(updatedTenant -> {
-                        // TODO Update the flags in separate thread to keep the license plan and feature flags in sync
-                        return updatedTenant;
-                    });
+                    return this.update(tenant.getId(), tenant)
+                            .flatMap(updatedTenant -> this.forceUpdateTenantFeatures(updatedTenant.getId())
+                                    .thenReturn(updatedTenant));
                 }
                 return Mono.error(new AppsmithException(AppsmithError.TENANT_DOWNGRADE_EXCEPTION));
             });
@@ -270,8 +287,14 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                                 Mono.error(new AppsmithException(AppsmithError.INVALID_LICENSE_KEY_ENTERED)));
                     }
 
-                    // TODO Update the flags in separate thread to keep the license plan and feature flags in sync
-                    Mono<Tenant> tenantMono = Boolean.TRUE.equals(isDryRun) ? Mono.just(tenant) : this.save(tenant);
+                    Mono<Tenant> tenantMono;
+                    if (Boolean.TRUE.equals(isDryRun)) {
+                        tenantMono = Mono.just(tenant);
+                    } else {
+                        tenantMono = this.save(tenant)
+                                .flatMap(savedTenant -> this.forceUpdateTenantFeatures(savedTenant.getId())
+                                        .thenReturn(savedTenant));
+                    }
                     return tenantMono.flatMap(analyticsEventMono::thenReturn).zipWith(Mono.just(isActivateInstance));
                 });
     }
@@ -361,6 +384,49 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         });
     }
 
+    @Override
+    public Mono<Tenant> updateDefaultTenantConfiguration(
+            Mono<String> tenantConfigAsStringMono, Mono<Part> brandLogoMono, Mono<Part> brandFaviconMono) {
+        Mono<Tenant> defaultTenantMono =
+                getDefaultTenant(AclPermission.MANAGE_TENANT).cache();
+        Mono<String> brandLogoAssetIdMono = brandLogoMono
+                .flatMap(brandLogoFile -> uploadFileAndGetFormattedAssetId(brandLogoFile, MAX_LOGO_SIZE_KB))
+                .switchIfEmpty(Mono.just(""));
+        Mono<String> brandFaviconAssetIdMono = brandFaviconMono
+                .flatMap(brandFaviconFile -> uploadFileAndGetFormattedAssetId(brandFaviconFile, MAX_FAVICON_SIZE_KB))
+                .switchIfEmpty(Mono.just(""));
+        Mono<TenantConfiguration> newBrandConfigMono = tenantConfigAsStringMono
+                .flatMap(tenantConfigurationAsString -> {
+                    try {
+                        return Mono.just(
+                                objectMapper.readValue(tenantConfigurationAsString, TenantConfiguration.class));
+                    } catch (JsonProcessingException e) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GENERIC_BAD_REQUEST, "Invalid Tenant configuration"));
+                    }
+                })
+                .switchIfEmpty(Mono.just(new TenantConfiguration()));
+
+        return Mono.zip(defaultTenantMono, brandLogoAssetIdMono, brandFaviconAssetIdMono, newBrandConfigMono)
+                .flatMap(tuple4 -> {
+                    Tenant defaultTenant = tuple4.getT1();
+                    String brandLogoAssetId = tuple4.getT2();
+                    String brandFaviconAssetId = tuple4.getT3();
+                    TenantConfiguration updateForTenantConfig = tuple4.getT4();
+
+                    if (org.apache.commons.lang3.StringUtils.isNotEmpty(brandLogoAssetId)) {
+                        updateForTenantConfig.setWhiteLabelLogo(brandLogoAssetId);
+                    }
+
+                    if (org.apache.commons.lang3.StringUtils.isNotEmpty(brandFaviconAssetId)) {
+                        updateForTenantConfig.setWhiteLabelFavicon(brandFaviconAssetId);
+                    }
+
+                    return updateTenantConfiguration(defaultTenant.getId(), updateForTenantConfig);
+                })
+                .flatMap(updatedTenant -> getTenantConfiguration());
+    }
+
     /**
      * Currently {@link License}.{@link LicenseOrigin} is set to ENTERPRISE & AIR_GAP for Enterprise and AirGapped respectively.
      * Hence we use a set of ENTERPRISE & AIR_GAP as EnterPrise License Origins
@@ -387,5 +453,26 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             return this.save(tenant);
         }
         return Mono.just(tenant);
+    }
+
+    private TenantConfiguration.BrandColors getUpdatedBrandColors(
+            TenantConfiguration.BrandColors currentBrandColors, TenantConfiguration.BrandColors newBrandColors) {
+        if (Objects.isNull(currentBrandColors)) {
+            return newBrandColors;
+        }
+        AppsmithBeanUtils.copyNestedNonNullProperties(newBrandColors, currentBrandColors);
+        return currentBrandColors;
+    }
+
+    private Mono<String> uploadFileAndGetFormattedAssetId(Part partFile, int maxFileSizeKB) {
+        return assetService
+                .upload(List.of(partFile), maxFileSizeKB, false)
+                .map(brandLogoAsset -> ASSET_PREFIX + brandLogoAsset.getId());
+    }
+
+    private Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId) {
+        return cacheableFeatureFlagHelper
+                .evictCachedTenantNewFeatures(tenantId)
+                .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantId));
     }
 }

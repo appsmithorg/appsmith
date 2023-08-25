@@ -111,6 +111,7 @@ Cypress.Commands.add(
       .next()
       .next()
       .next()
+      .next()
       .click();
     cy.RenameRole(Role);
     cy.get(RBAC.saveButton).click();

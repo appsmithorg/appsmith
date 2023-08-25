@@ -154,7 +154,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     RoleViewDTO roleViewDTO = new RoleViewDTO();
                     LinkedHashMap<String, RoleTabDTO> tabs = new LinkedHashMap<>();
                     tabs.put(RoleTab.APPLICATION_RESOURCES.getName(), applicationData);
-                    tabs.put(RoleTab.DATASOURCES_QUERIES.getName(), datasourceData);
+                    tabs.put(RoleTab.DATASOURCES_ENVIRONMENTS.getName(), datasourceData);
                     tabs.put(RoleTab.GROUPS_ROLES.getName(), groupsRolesData);
                     tabs.put(RoleTab.OTHERS.getName(), othersData);
 
@@ -500,13 +500,6 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             sideEffectOnCustomThemeGivenApplicationUpdate(
                     sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
 
-        } else if (tab == RoleTab.APPLICATION_RESOURCES && NewPage.class.equals(aClazz)) {
-
-            // If the tab is application resources, and the entity is a page, then we need to give actions and action
-            // collections execute permission if view is given on the page.
-            sideEffectOnActionsGivenPageUpdate(
-                    sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
-
         } else if (tab == RoleTab.GROUPS_ROLES && PermissionGroup.class.equals(aClazz)) {
 
             sideEffectOnAssociateRoleGivenPermissionGroupUpdate(
@@ -517,10 +510,10 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             // associated actions the same permission as the entity.
             sideEffectOnActionsGivenActionCollectionUpdate(
                     sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
-        } else if (tab == RoleTab.DATASOURCES_QUERIES && Workspace.class.equals(aClazz)) {
+        } else if (tab == RoleTab.DATASOURCES_ENVIRONMENTS && Workspace.class.equals(aClazz)) {
             sideEffectOnEnvironmentsGivenWorkspaceUpdate(
                     sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
-        } else if (tab == RoleTab.DATASOURCES_QUERIES && Datasource.class.equals(aClazz)) {
+        } else if (tab == RoleTab.DATASOURCES_ENVIRONMENTS && Datasource.class.equals(aClazz)) {
             sideEffectOnEnvironmentsGivenDatasourceUpdate(
                     sideEffects, id, added, sideEffectsAddedMap, sideEffectsClassMap);
         }
@@ -843,7 +836,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             workspaceReadGivenAsSideEffect.add(id);
         }
 
-        boolean allPermissionsFalse = permissions.stream().allMatch(permission -> permission == 0);
+        boolean allPermissionsFalse = permissions.stream().allMatch(permission -> permission == 0 || permission == -1);
 
         if (allPermissionsFalse) {
             applicationsRevokedInApplicationResourcesTab.add(id);

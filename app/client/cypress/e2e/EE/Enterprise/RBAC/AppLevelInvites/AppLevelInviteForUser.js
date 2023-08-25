@@ -69,7 +69,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       "Developer",
     );
     _.agHelper.GetNClick(_.homePage._visibleTextSpan("Manage Users"));
-    _.agHelper.UpdateInput(
+    _.agHelper.TypeText(
       _.homePage._searchUsersInput,
       Cypress.env("TESTUSERNAME1"),
     );
@@ -214,7 +214,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       workspaceId,
       Cypress.env("TESTUSERNAME1"),
     );
-    _.agHelper.UpdateInput(
+    _.agHelper.ClearNType(
       _.homePage._searchUsersInput,
       Cypress.env("TESTUSERNAME1"),
     );
@@ -283,7 +283,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.homePage.FilterApplication(appid, workspaceId);
     _.agHelper.GetNClick(HomePage.optionsIcon);
     _.agHelper.GetNClick(_.homePage._visibleTextSpan("Members"));
-    _.agHelper.UpdateInput(
+    _.agHelper.TypeText(
       _.homePage._searchUsersInput,
       Cypress.env("TESTUSERNAME1"),
     );
@@ -334,7 +334,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.homePage.FilterApplication(appid, workspaceId);
     _.agHelper.GetNClick(HomePage.optionsIcon);
     _.agHelper.GetNClick(_.homePage._visibleTextSpan("Members"));
-    _.agHelper.UpdateInput(
+    _.agHelper.TypeText(
       _.homePage._searchUsersInput,
       Cypress.env("TESTUSERNAME1"),
     );
@@ -347,7 +347,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get(HomePage.leaveWorkspaceConfirmModal).should("be.visible");
     cy.get(HomePage.leaveWorkspaceConfirmButton).click({ force: true });
 
-    _.agHelper.UpdateInput(
+    _.agHelper.TypeText(
       _.homePage._searchUsersInput,
       Cypress.env("TESTUSERNAME1"),
     );

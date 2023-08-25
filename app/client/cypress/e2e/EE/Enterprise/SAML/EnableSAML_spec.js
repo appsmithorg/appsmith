@@ -1,14 +1,35 @@
 import adminSettings from "../../../../locators/AdminsSettings";
 const enterpriseSettings = require("../../../../locators/EnterpriseAdminSettingsLocators.json");
 import homePage from "../../../../locators/HomePage";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("SSO with SAML test functionality", function () {
-  it("1. Go to admin settings and enable SAML via Metadata URL", function () {
+  it("1. Authentication Settings should show upgrade when the user is on a free plan", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
+    featureFlagIntercept({ license_sso_saml_enabled: false });
+    // click authentication tab
+    cy.get(adminSettings.authenticationTab).click();
+    cy.url().should("contain", "/settings/authentication");
+    cy.stubPricingPage();
+    cy.get(enterpriseSettings.upgradeSamlButton)
+      .should("be.visible")
+      .should("contain", "Upgrade");
+    cy.get(enterpriseSettings.upgradeSamlButton).click();
+    cy.get("@pricingPage").should("be.called");
+    cy.wait(2000);
+    cy.go(-1);
+  });
+  it("2. Go to admin settings and enable SAML via Metadata URL", function () {
+    cy.LogOut();
+    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.get(".admin-settings-menu-option").should("be.visible");
+    cy.get(".admin-settings-menu-option").click();
+    cy.url().should("contain", "/settings/general");
+    featureFlagIntercept({ license_sso_saml_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -53,12 +74,13 @@ describe("SSO with SAML test functionality", function () {
     );
   });
 
-  it("2. Go to admin settings and disable SAML", function () {
+  it("3. Go to admin settings and disable SAML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
+    featureFlagIntercept({ license_sso_saml_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -100,12 +122,14 @@ describe("SSO with SAML test functionality", function () {
     cy.get(enterpriseSettings.loginWithSAML).should("not.exist");
   });
 
-  it("3. Go to admin settings and enable SAML via Metadata XML", function () {
+  it("4. Go to admin settings and enable SAML via Metadata XML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
+
+    featureFlagIntercept({ license_sso_saml_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -148,7 +172,7 @@ describe("SSO with SAML test functionality", function () {
     );
   });
 
-  it("4. Go to admin settings and disable SAML", function () {
+  it("5. Go to admin settings and disable SAML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
@@ -156,6 +180,8 @@ describe("SSO with SAML test functionality", function () {
     cy.url().should("contain", "/settings/general");
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
+
+    featureFlagIntercept({ license_sso_saml_enabled: true });
     cy.url().should("contain", "/settings/authentication");
     cy.get(enterpriseSettings.samlButton)
       .should("be.visible")
@@ -194,12 +220,14 @@ describe("SSO with SAML test functionality", function () {
     cy.get(enterpriseSettings.loginWithSAML).should("not.exist");
   });
 
-  it("5. Go to admin settings and enable SAML via IdP data", function () {
+  it("6. Go to admin settings and enable SAML via IdP data", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
+
+    featureFlagIntercept({ license_sso_saml_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -242,12 +270,14 @@ describe("SSO with SAML test functionality", function () {
     );
   });
 
-  it("6. Go to admin settings and disable SAML", function () {
+  it("7. Go to admin settings and disable SAML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
+
+    featureFlagIntercept({ license_sso_saml_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");

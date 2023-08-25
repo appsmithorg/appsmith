@@ -74,7 +74,8 @@ public class DatasourceStorageServiceTest {
         renderedConfiguration.setHeaders(List.of(renderedHeader));
 
         String environmentId = "mockEnvironmentId";
-        DatasourceStorage mockStorage = new DatasourceStorage(testDatasource, environmentId);
+        DatasourceStorage mockStorage =
+                datasourceStorageService.createDatasourceStorageFromDatasource(testDatasource, environmentId);
         Mockito.when(variableReplacementService.replaceValue(Mockito.any())).thenReturn(Mono.just(renderedValue));
         Mockito.when(variableReplacementService.replaceAll(Mockito.any(AppsmithDomain.class)))
                 .thenReturn(Mono.just(renderedConfiguration));
@@ -130,6 +131,24 @@ public class DatasourceStorageServiceTest {
             assertThat(error).isInstanceOf(AppsmithException.class);
             assertThat(((AppsmithException) error).getAppErrorCode())
                     .isEqualTo(AppsmithError.UNCONFIGURED_DATASOURCE_STORAGE.getAppErrorCode());
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyEnvironmentNameFromEnvironmentId() {
+        Mono<User> userMono = userRepository.findByEmail("api_user").cache();
+        Workspace workspace = userMono.flatMap(user -> workspaceService.createDefault(new Workspace(), user))
+                .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
+                .block();
+
+        Environment environment =
+                environmentService.findByWorkspaceId(workspace.getId()).blockFirst();
+
+        Mono<String> environmentNameMono =
+                datasourceStorageService.getEnvironmentNameFromEnvironmentIdForAnalytics(environment.getId());
+        StepVerifier.create(environmentNameMono).assertNext(environmentName -> {
+            assertThat(environmentName).isEqualTo(environment.getName());
         });
     }
 }

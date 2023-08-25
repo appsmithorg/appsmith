@@ -77,10 +77,8 @@ class TenantServiceCETest {
         final TenantConfiguration changes = new TenantConfiguration();
         changes.setGoogleMapsKey("test-key");
 
-        final Mono<TenantConfiguration> resultMono = tenantService
-                .updateDefaultTenantConfiguration(changes)
-                .then(tenantService.getTenantConfiguration())
-                .map(Tenant::getTenantConfiguration);
+        final Mono<TenantConfiguration> resultMono =
+                tenantService.updateDefaultTenantConfiguration(changes).map(Tenant::getTenantConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(tenantConfiguration -> {

@@ -7,6 +7,7 @@ import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.LicenseType;
+import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
@@ -16,8 +17,10 @@ import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
+import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -33,21 +36,36 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -84,6 +102,9 @@ public class TenantServiceTest {
 
     @Autowired
     UserGroupRepository userGroupRepository;
+
+    @SpyBean
+    CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
 
     private Tenant tenant;
 
@@ -412,6 +433,23 @@ public class TenantServiceTest {
     }
 
     @Test
+    @WithUserDetails("api_user")
+    public void test_updateDefaultTenantConfiguration_noUpdatesSent() {
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
+        Tenant defaultTenantPostUpdate = tenantService
+                .updateDefaultTenantConfiguration(Mono.empty(), Mono.empty(), Mono.empty())
+                .block();
+        assertTenantConfigurations(
+                defaultTenantPostUpdate.getTenantConfiguration(),
+                defaultTenant.getTenantConfiguration(),
+                true,
+                true,
+                true,
+                true,
+                true,
+                true);
+    }
+
     public void removeTenantLicenseKey_withoutPermission_throwException() {
         StepVerifier.create(tenantService.removeLicenseKey())
                 .expectErrorMatches(error -> error instanceof AppsmithException
@@ -433,6 +471,57 @@ public class TenantServiceTest {
                     assertThat(tenant1.getTenantConfiguration().getLicense()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_updateDefaultTenantConfiguration_updateBrandColors() {
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
+        TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
+        String primary1 = "#df8d67";
+        String background1 = "#fdf9f7";
+        String font1 = "#000";
+        String disabled1 = "#f8e6dd";
+        String hover1 = "#d66d3e";
+        String primary2 = "#df8d68";
+        String background2 = "#fdf9f8";
+        String font2 = "#001";
+        String disabled2 = "#f8e6de";
+        Mono<String> update1_brandColors = Mono.just(
+                "{\"brandColors\": {\"primary\":\"" + primary1 + "\",\"background\":\"" + background1 + "\",\"font\":\""
+                        + font1 + "\",\"disabled\":\"" + disabled1 + "\",\"hover\":\"" + hover1 + "\"}}");
+
+        Tenant defaultTenantPostUpdate1 = tenantService
+                .updateDefaultTenantConfiguration(update1_brandColors, Mono.empty(), Mono.empty())
+                .block();
+        TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
+        assertThat(newTenantConfiguration1.getBrandColors()).isNotNull();
+        TenantConfiguration.BrandColors newBrandColors1 = newTenantConfiguration1.getBrandColors();
+        assertThat(newBrandColors1.getPrimary()).isEqualTo(primary1);
+        assertThat(newBrandColors1.getBackground()).isEqualTo(background1);
+        assertThat(newBrandColors1.getFont()).isEqualTo(font1);
+        assertThat(newBrandColors1.getDisabled()).isEqualTo(disabled1);
+        assertThat(newBrandColors1.getHover()).isEqualTo(hover1);
+        assertTenantConfigurations(
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, false);
+
+        Mono<String> update2_brandColors =
+                Mono.just("{\"brandColors\": {\"primary\":\"" + primary2 + "\",\"background\":\"" + background2
+                        + "\",\"font\":\"" + font2 + "\",\"disabled\":\"" + disabled2 + "\"}}");
+
+        Tenant defaultTenantPostUpdate2 = tenantService
+                .updateDefaultTenantConfiguration(update2_brandColors, Mono.empty(), Mono.empty())
+                .block();
+        TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
+        assertThat(newTenantConfiguration2.getBrandColors()).isNotNull();
+        TenantConfiguration.BrandColors newBrandColors2 = newTenantConfiguration2.getBrandColors();
+        assertThat(newBrandColors2.getPrimary()).isEqualTo(primary2);
+        assertThat(newBrandColors2.getBackground()).isEqualTo(background2);
+        assertThat(newBrandColors2.getFont()).isEqualTo(font2);
+        assertThat(newBrandColors2.getDisabled()).isEqualTo(disabled2);
+        assertThat(newBrandColors2.getHover()).isEqualTo(hover1);
+        assertTenantConfigurations(
+                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, true, false);
     }
 
     @Test
@@ -459,6 +548,22 @@ public class TenantServiceTest {
                     assertThat(tenant1.getTenantConfiguration().getLicense()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_updateDefaultTenantConfiguration_updateBrandLogo() {
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
+        TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
+        Mono<Part> update_brandLogo = Mono.just(createMockFilePart(2047));
+
+        Tenant defaultTenantPostUpdate1 = tenantService
+                .updateDefaultTenantConfiguration(Mono.empty(), update_brandLogo, Mono.empty())
+                .block();
+        TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
+        assertThat(newTenantConfiguration1.getBrandLogoUrl()).startsWith(Url.ASSET_URL);
+        assertTenantConfigurations(
+                newTenantConfiguration1, defaultTenantConfiguration, true, false, true, true, true, true);
     }
 
     @Test
@@ -500,6 +605,137 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
+    public void test_updateDefaultTenantConfiguration_updateBrandFavicon() {
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
+        TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
+        Mono<Part> update_brandFavicon = Mono.just(createMockFilePart(1));
+
+        Tenant defaultTenantPostUpdate1 = tenantService
+                .updateDefaultTenantConfiguration(Mono.empty(), Mono.empty(), update_brandFavicon)
+                .block();
+        TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
+        assertThat(newTenantConfiguration1.getBrandFaviconUrl()).startsWith(Url.ASSET_URL);
+        assertTenantConfigurations(
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, false, true, true, true);
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_updateDefaultTenantConfiguration_updateShowRolesAndGroups() {
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
+        TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
+        Mono<String> update1_showRolesAndGroups = Mono.just("{\"showRolesAndGroups\": true}");
+
+        Tenant defaultTenantPostUpdate1 = tenantService
+                .updateDefaultTenantConfiguration(update1_showRolesAndGroups, Mono.empty(), Mono.empty())
+                .block();
+        TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
+        assertThat(newTenantConfiguration1.getShowRolesAndGroups()).isTrue();
+        assertTenantConfigurations(
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, false, true, true);
+
+        Mono<String> update2_showRolesAndGroups = Mono.just("{\"showRolesAndGroups\": false}");
+
+        Tenant defaultTenantPostUpdate2 = tenantService
+                .updateDefaultTenantConfiguration(update2_showRolesAndGroups, Mono.empty(), Mono.empty())
+                .block();
+        TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
+        assertThat(newTenantConfiguration2.getShowRolesAndGroups()).isFalse();
+        assertTenantConfigurations(
+                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, false, true, true);
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_updateDefaultTenantConfiguration_updateSingleSessionPerUserEnabled() {
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
+        TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
+        Mono<String> update1_singleSessionPerUserEnabled = Mono.just("{\"singleSessionPerUserEnabled\": true}");
+
+        Tenant defaultTenantPostUpdate1 = tenantService
+                .updateDefaultTenantConfiguration(update1_singleSessionPerUserEnabled, Mono.empty(), Mono.empty())
+                .block();
+        TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
+        assertThat(newTenantConfiguration1.getSingleSessionPerUserEnabled()).isTrue();
+        assertTenantConfigurations(
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, false, true);
+
+        Mono<String> update2_singleSessionPerUserEnabled = Mono.just("{\"singleSessionPerUserEnabled\": false}");
+
+        Tenant defaultTenantPostUpdate2 = tenantService
+                .updateDefaultTenantConfiguration(update2_singleSessionPerUserEnabled, Mono.empty(), Mono.empty())
+                .block();
+        TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
+        assertThat(newTenantConfiguration2.getSingleSessionPerUserEnabled()).isFalse();
+        assertTenantConfigurations(
+                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, false, true);
+    }
+
+    private FilePart createMockFilePart(int fileSizeKB) {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
+                        new ClassPathResource("test_assets/WorkspaceServiceTest/favicon-16x16.png"),
+                        new DefaultDataBufferFactory(),
+                        fileSizeKB)
+                .cache();
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
+        return filepart;
+    }
+
+    private void assertTenantConfigurations(
+            TenantConfiguration expectedTenantConfiguration,
+            TenantConfiguration actualTenantConfiguration,
+            boolean assertWhiteLabelEnable,
+            boolean assertWhiteLabelLogo,
+            boolean assertWhiteLabelFavicon,
+            boolean assertShowRolesAndGroups,
+            boolean assertSingleSessionPerUserEnabled,
+            boolean assertBrandColors) {
+        if (assertWhiteLabelEnable) {
+            assertThat(actualTenantConfiguration.isWhitelabelEnabled())
+                    .isEqualTo(expectedTenantConfiguration.isWhitelabelEnabled());
+        }
+
+        if (assertWhiteLabelLogo) {
+            assertThat(actualTenantConfiguration.getBrandLogoUrl())
+                    .isEqualTo(expectedTenantConfiguration.getBrandLogoUrl());
+        }
+
+        if (assertWhiteLabelFavicon) {
+            assertThat(actualTenantConfiguration.getBrandFaviconUrl())
+                    .isEqualTo(expectedTenantConfiguration.getBrandFaviconUrl());
+        }
+
+        if (assertShowRolesAndGroups) {
+            assertThat(actualTenantConfiguration.getShowRolesAndGroups())
+                    .isEqualTo(expectedTenantConfiguration.getShowRolesAndGroups());
+        }
+
+        if (assertSingleSessionPerUserEnabled) {
+            assertThat(actualTenantConfiguration.getSingleSessionPerUserEnabled())
+                    .isEqualTo(expectedTenantConfiguration.getSingleSessionPerUserEnabled());
+        }
+
+        if (assertBrandColors) {
+            TenantConfiguration.BrandColors expectedBrandColors = expectedTenantConfiguration.getBrandColors();
+            TenantConfiguration.BrandColors actualBrandColors = actualTenantConfiguration.getBrandColors();
+
+            assertThat(Objects.nonNull(actualBrandColors)).isEqualTo(Objects.nonNull(expectedBrandColors));
+            assertThat(Objects.isNull(actualBrandColors)).isEqualTo(Objects.isNull(expectedBrandColors));
+
+            if (Objects.nonNull(actualBrandColors) && Objects.nonNull(expectedBrandColors)) {
+                assertThat(actualBrandColors.getPrimary()).isEqualTo(expectedBrandColors.getPrimary());
+                assertThat(actualBrandColors.getBackground()).isEqualTo(expectedBrandColors.getBackground());
+                assertThat(actualBrandColors.getFont()).isEqualTo(expectedBrandColors.getFont());
+                assertThat(actualBrandColors.getDisabled()).isEqualTo(expectedBrandColors.getDisabled());
+                assertThat(actualBrandColors.getHover()).isEqualTo(expectedBrandColors.getHover());
+            }
+        }
+    }
+
+    @Test
+    @WithUserDetails("api_user")
     public void updateTenantLicenseKey_validLicenseKeyWithDryRun_dbStateIsUnchanged() {
         String licenseKey = "sample-license-key";
         License license = new License();
@@ -535,6 +771,52 @@ public class TenantServiceTest {
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                     assertThat(tenantConfiguration.getLicense()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void forceUpdateFeatures_licenseUpdate_cacheUpdateSuccess() {
+        // Insert dummy value for tenant flags
+        Map<String, Boolean> flags = new HashMap<>();
+        String feature1 = UUID.randomUUID().toString();
+        String feature2 = UUID.randomUUID().toString();
+
+        flags.put(feature1, true);
+        flags.put(feature2, false);
+        FeaturesResponseDTO featuresResponseDTO = new FeaturesResponseDTO();
+        featuresResponseDTO.setFeatures(flags);
+
+        doReturn(Mono.just(featuresResponseDTO))
+                .when(cacheableFeatureFlagHelper)
+                .getRemoteFeaturesForTenant(any());
+
+        String defaultTenantId = tenantService.getDefaultTenantId().block();
+
+        String licenseKey = "sample-license-key";
+        License license = new License();
+        license.setActive(true);
+        license.setType(LicenseType.PAID);
+        license.setKey(licenseKey);
+        license.setStatus(LicenseStatus.valueOf("ACTIVE"));
+        license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
+        license.setOrigin(LicenseOrigin.SELF_SERVE);
+        license.setPlan(LicensePlan.SELF_SERVE);
+
+        // Mock CS response to get valid license
+        Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
+
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false);
+        // Check after force update if we get updated values for existing features
+        tenantService.updateTenantLicenseKey(updateLicenseKeyDTO).block();
+        Mono<CachedFeatures> updatedCacheMono =
+                cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(defaultTenantId);
+        // Assert if the cache entry is updated
+        StepVerifier.create(updatedCacheMono)
+                .assertNext(cachedFeatures -> {
+                    assertTrue(cachedFeatures.getFeatures().get(feature1));
+                    assertFalse(cachedFeatures.getFeatures().get(feature2));
                 })
                 .verifyComplete();
     }

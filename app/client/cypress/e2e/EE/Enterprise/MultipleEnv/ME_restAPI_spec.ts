@@ -1,18 +1,17 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import { Widgets } from "../../../../support/Pages/DataSources";
 import {
+  multipleEnv,
   agHelper,
   dataSources,
   deployMode,
   entityExplorer,
   locators,
-  tedTestConfig,
+  dataManager,
   apiPage,
   draggableWidgets,
-} from "../../../../support/Objects/ObjectsCore";
-import { Widgets } from "../../../../support/Pages/DataSources";
-import { EntityItems } from "../../../../support/Pages/AssertHelper";
-import { multipleEnv } from "../../../../support/ee/ObjectsCore_EE";
-import { data } from "cypress/types/jquery";
+  entityItems,
+} from "../../../../support/ee/ObjectsCore_EE";
 
 let meDatasourceName: string,
   meQueryName: string,
@@ -28,8 +27,8 @@ describe(
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
       featureFlagIntercept({ release_datasource_environments_enabled: true });
-      prodEnv = tedTestConfig.defaultEnviorment;
-      stagingEnv = tedTestConfig.environments[1];
+      prodEnv = dataManager.defaultEnviorment;
+      stagingEnv = dataManager.environments[1];
       multipleEnv.SwitchEnv(prodEnv);
       meQueryName = "rest_select";
     });
@@ -43,9 +42,9 @@ describe(
         agHelper.RenameWithInPane(APIName, false);
       });
       // Fill Auth Form
-      agHelper.UpdateInput(
-        locators._inputFieldByName("URL"),
-        tedTestConfig.dsValues[prodEnv].ApiUrlME,
+      agHelper.TypeText(
+        locators._inputFieldByName("URL") + "//" + locators._inputField,
+        dataManager.dsValues[prodEnv].ApiUrlME,
       );
       agHelper.Sleep(500);
       dataSources.SaveDatasource(false, true);
@@ -53,9 +52,9 @@ describe(
       dataSources.EditDatasource();
       multipleEnv.SwitchEnvInDSEditor(stagingEnv);
       // Enter wrong values and test
-      agHelper.UpdateInput(
-        locators._inputFieldByName("URL"),
-        tedTestConfig.dsValues[stagingEnv].ApiUrlME,
+      agHelper.TypeText(
+        locators._inputFieldByName("URL") + "//" + locators._inputField,
+        dataManager.dsValues[stagingEnv].ApiUrlME,
       );
       // Save env details
       dataSources.SaveDatasource(false, true);
@@ -108,7 +107,7 @@ describe(
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1",
         action: "Delete",
-        entityType: EntityItems.Widget,
+        entityType: entityItems.Widget,
       });
     });
   },

@@ -38,7 +38,7 @@ describe("User deploying an app with and without edit permission for a page", fu
       appName = "app" + guid;
       homePage.CreateNewWorkspace(workspaceName, true);
       homePage.CreateAppInWorkspace(workspaceName, appName);
-      entityExplorer.AddNewPage("New blank page").then((newPage) => {
+      entityExplorer.AddNewPage("New blank page")?.then((newPage) => {
         entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
       });
       adminSettings.NavigateToAdminSettings();
@@ -49,7 +49,7 @@ describe("User deploying an app with and without edit permission for a page", fu
         "Page1",
       );
     });
-    rbacHelper.ModifyPermissions(
+    rbacHelper.ModifyPermissionsNSave(
       permissionAtPageLevel,
       pageName,
       "Edit",
@@ -114,7 +114,7 @@ describe("User deploying an app with and without edit permission for a page", fu
   it("3. Test user with export permission is able to export the app", function () {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     adminSettings.NavigateToAdminSettings();
-    rbacHelper.ModifyPermissions(
+    rbacHelper.ModifyPermissionsNSave(
       permissionAtPageLevel,
       appName,
       "Export",

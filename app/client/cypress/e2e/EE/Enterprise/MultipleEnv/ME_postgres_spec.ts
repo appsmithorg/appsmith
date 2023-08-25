@@ -1,18 +1,18 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import { Widgets } from "../../../../support/Pages/DataSources";
 import {
+  multipleEnv,
   agHelper,
   dataSources,
   deployMode,
   entityExplorer,
   locators,
-  tedTestConfig,
+  dataManager,
   table,
   assertHelper,
   draggableWidgets,
-} from "../../../../support/Objects/ObjectsCore";
-import { Widgets } from "../../../../support/Pages/DataSources";
-import { EntityItems } from "../../../../support/Pages/AssertHelper";
-import { multipleEnv } from "../../../../support/ee/ObjectsCore_EE";
+  entityItems,
+} from "../../../../support/ee/ObjectsCore_EE";
 
 let meDatasourceName: string,
   meQueryName: string,
@@ -29,8 +29,8 @@ describe(
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
       featureFlagIntercept({ release_datasource_environments_enabled: true });
-      prodEnv = tedTestConfig.defaultEnviorment;
-      stagingEnv = tedTestConfig.environments[1];
+      prodEnv = dataManager.defaultEnviorment;
+      stagingEnv = dataManager.environments[1];
       multipleEnv.SwitchEnv(prodEnv);
       meQueryName = "postgres_select";
       meStagingOnlyQueryName = "postgres_stageonly_select";
@@ -54,7 +54,7 @@ describe(
       // Enter correct values and test
       cy.get(dataSources._username)
         .clear()
-        .type(tedTestConfig.dsValues[stagingEnv].postgres_username);
+        .type(dataManager.dsValues[stagingEnv].postgres_username);
       dataSources.TestDatasource(true);
       // Save env details
       dataSources.SaveDatasource(false, true);
@@ -167,7 +167,7 @@ describe(
       });
 
       //Validating loaded JSON form
-      cy.xpath(locators._spanButton("Update")).then((selector) => {
+      cy.xpath(locators._buttonByText("Update")).then((selector) => {
         cy.wrap(selector)
           .invoke("attr", "class")
           .then((classes) => {
@@ -190,7 +190,7 @@ describe(
       });
 
       //Validating loaded JSON form
-      cy.xpath(locators._spanButton("Update")).then((selector) => {
+      cy.xpath(locators._buttonByText("Update")).then((selector) => {
         cy.wrap(selector)
           .invoke("attr", "class")
           .then((classes) => {
@@ -217,7 +217,7 @@ describe(
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1",
         action: "Delete",
-        entityType: EntityItems.Widget,
+        entityType: entityItems.Widget,
       });
       dataSources.DeleteQuery(meQueryName);
       entityExplorer.SelectEntityByName("Page2", "Pages");

@@ -1,18 +1,18 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import { Widgets } from "../../../../support/Pages/DataSources";
 import {
+  multipleEnv,
   agHelper,
   dataSources,
   deployMode,
   entityExplorer,
   locators,
-  tedTestConfig,
+  dataManager,
   assertHelper,
   table,
   draggableWidgets,
-} from "../../../../support/Objects/ObjectsCore";
-import { Widgets } from "../../../../support/Pages/DataSources";
-import { EntityItems } from "../../../../support/Pages/AssertHelper";
-import { multipleEnv } from "../../../../support/ee/ObjectsCore_EE";
+  entityItems,
+} from "../../../../support/ee/ObjectsCore_EE";
 
 let meDatasourceName: string,
   meDSStagingOnlyName: string,
@@ -26,8 +26,8 @@ describe(
   function () {
     before(() => {
       featureFlagIntercept({ release_datasource_environments_enabled: true });
-      prodEnv = tedTestConfig.defaultEnviorment;
-      stagingEnv = tedTestConfig.environments[1];
+      prodEnv = dataManager.defaultEnviorment;
+      stagingEnv = dataManager.environments[1];
       multipleEnv.SwitchEnv(prodEnv);
       meQueryName = "mongo_select";
       meStagingOnlyQueryName = "mongo_stageonly_select";
@@ -66,7 +66,7 @@ describe(
       dataSources.CreateQueryFromActiveTab(meDatasourceName);
       agHelper.RenameWithInPane(meQueryName, true);
 
-      dataSources.ValidateNSelectDropdown("Collection", undefined, "netflix");
+      dataSources.ValidateNSelectDropdown("Collection", "", "netflix");
       // Run and verify the response for the query
       dataSources.RunQueryNVerifyResponseViews(10, false);
       // Bind the mongo query to a table
@@ -82,11 +82,7 @@ describe(
       dataSources.NavigateToActiveTab();
       dataSources.CreateQueryFromActiveTab(meDSStagingOnlyName);
       agHelper.RenameWithInPane(meStagingOnlyQueryName, true);
-      dataSources.ValidateNSelectDropdown(
-        "Collection",
-        undefined,
-        "coffeeCafe",
-      );
+      dataSources.ValidateNSelectDropdown("Collection", "", "coffeeCafe");
       // Run and verify the response for the query
       dataSources.RunQuery();
       multipleEnv.SwitchEnv(prodEnv);
@@ -157,7 +153,7 @@ describe(
       });
 
       //Validating loaded JSON form
-      cy.xpath(locators._spanButton("Update")).then((selector) => {
+      cy.xpath(locators._buttonByText("Update")).then((selector) => {
         cy.wrap(selector)
           .invoke("attr", "class")
           .then((classes) => {
@@ -179,7 +175,7 @@ describe(
       });
 
       //Validating loaded JSON form
-      cy.xpath(locators._spanButton("Update")).then((selector) => {
+      cy.xpath(locators._buttonByText("Update")).then((selector) => {
         cy.wrap(selector)
           .invoke("attr", "class")
           .then((classes) => {
@@ -207,7 +203,7 @@ describe(
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1",
         action: "Delete",
-        entityType: EntityItems.Widget,
+        entityType: entityItems.Widget,
       });
       dataSources.DeleteQuery(meQueryName);
       // Won't be deleting the ds since it is being used by a query in deploy mode

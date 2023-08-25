@@ -8,7 +8,6 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
-import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -640,7 +639,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
 
     private Mono<Boolean> checkInstanceAdminUpdatedAndUpdateAdminEmails(Set<String> permissionGroupIdSet) {
         return getInstanceAdminRoleId().flatMap(id -> {
-            Mono<EnvChangesResponseDTO> updateAdminEmailsInEnvMono = Mono.empty();
+            Mono<Void> updateAdminEmailsInEnvMono = Mono.empty();
             if (permissionGroupIdSet.contains(id)) {
                 updateAdminEmailsInEnvMono = permissionGroupRepository
                         .findById(id)

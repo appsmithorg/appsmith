@@ -74,6 +74,9 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Public.class)
     Map<String, Object> userClaims;
 
+    @JsonView(Views.Public.class)
+    String rawIdToken;
+
     // list of template ids that were recently forked by the user
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedTemplateIds;

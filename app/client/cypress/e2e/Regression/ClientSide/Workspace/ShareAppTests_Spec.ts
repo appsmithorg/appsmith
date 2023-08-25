@@ -42,7 +42,7 @@ describe("Create new workspace and share with a user", function () {
     agHelper.Sleep(2000);
     agHelper.GetNAssertContains(homePage._appContainer, workspaceId);
     if (CURRENT_REPO === REPO.CE) {
-      agHelper.AssertElementVisibility(locators._spanButton("Share"));
+      agHelper.AssertElementVisibility(locators._buttonByText("Share"));
     }
     agHelper.GetElement(homePage._applicationCard).first().trigger("mouseover");
     agHelper.AssertElementAbsence(homePage._appEditIcon);

@@ -42,7 +42,7 @@ describe("User performing actions on page with access and without access Tests",
       appName = "app" + guid;
       homePage.CreateNewWorkspace(workspaceName, true);
       homePage.CreateAppInWorkspace(workspaceName, appName);
-      entityExplorer.AddNewPage("New blank page").then((newPage) => {
+      entityExplorer.AddNewPage("New blank page")?.then((newPage) => {
         entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
       });
       dataSources.CreateDataSource("Postgres");
@@ -62,14 +62,19 @@ describe("User performing actions on page with access and without access Tests",
         "Page1",
       );
     });
-    rbacHelper.ModifyPermissions(
+    rbacHelper.ModifyPermissionsNSave(
       permissionAtPageLevel,
       pageName,
       "Edit",
       false,
     );
-    rbacHelper.ModifyPermissions(permissionAtPageLevel, pageName, "View", true);
-    rbacHelper.ModifyPermissions(
+    rbacHelper.ModifyPermissionsNSave(
+      permissionAtPageLevel,
+      pageName,
+      "View",
+      true,
+    );
+    rbacHelper.ModifyPermissionsNSave(
       permissionAtPageLevel,
       queryName,
       "View",
@@ -140,7 +145,7 @@ describe("User performing actions on page with access and without access Tests",
       permissionAtPageLevel,
       Cypress.env("TESTUSERNAME2"),
     );
-    rbacHelper.ModifyPermissions(
+    rbacHelper.ModifyPermissionsNSave(
       permissionAtPageLevel,
       queryName,
       "Edit",
@@ -169,7 +174,7 @@ describe("User performing actions on page with access and without access Tests",
       permissionAtPageLevel,
       Cypress.env("TESTUSERNAME2"),
     );
-    rbacHelper.ModifyPermissions(
+    rbacHelper.ModifyPermissionsNSave(
       permissionAtPageLevel,
       queryName,
       "Delete",

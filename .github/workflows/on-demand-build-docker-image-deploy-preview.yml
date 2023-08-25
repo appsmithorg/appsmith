@@ -131,21 +131,18 @@ jobs:
            echo 'airgap_enabled=true' >> "$GITHUB_OUTPUT"
            echo 'client_build_name=client-build-airgap' >> "$GITHUB_OUTPUT"
            echo 'client_build_path=app/client/build_airgap/' >> "$GITHUB_OUTPUT"
-           echo 'platforms=[ "linux/amd64" , "linux/arm64" ]' >> "$GITHUB_OUTPUT"
+           echo 'platforms=linux/amd64,linux/arm64' >> "$GITHUB_OUTPUT"
           else
            echo 'airgap_enabled=false' >> "$GITHUB_OUTPUT"
            echo 'client_build_name=client-build' >> "$GITHUB_OUTPUT"
            echo 'client_build_path=app/client/build/' >> "$GITHUB_OUTPUT"
-           echo 'platforms=[ "linux/amd64" ]' >> "$GITHUB_OUTPUT"
+           echo 'platforms=linux/amd64' >> "$GITHUB_OUTPUT"
           fi
 
 
   push-image:
     needs: [client-build, rts-build, server-build, setup-optionals]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform: ${{ fromJSON(needs.setup-optionals.outputs.platforms) }}
     if: success()
     steps:
 
@@ -219,7 +216,7 @@ jobs:
           context: .
           pull: true
           push: true
-          platforms: ${{ matrix.platform }}
+          platforms: ${{ needs.setup-optionals.outputs.platforms }}
           cache-from: ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-dp:${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}

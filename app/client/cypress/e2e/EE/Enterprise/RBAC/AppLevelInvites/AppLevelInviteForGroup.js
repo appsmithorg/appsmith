@@ -82,7 +82,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     cy.get(RBAC.dropdownOption).should("contain.text", `Assign Custom Role`);
     cy.InviteGroupToApplication(GroupName, "Developer");
     agHelper.GetNClick(homePage._visibleTextSpan("Manage Users"));
-    agHelper.UpdateInput(homePage._searchUsersInput, GroupName);
+    agHelper.TypeText(homePage._searchUsersInput, GroupName);
     cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
     agHelper.GetNClick(RBAC.arrowRightMembersPage, 0, true);
     agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
@@ -185,7 +185,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
   it("6. Login as Administrator and delete workspace level role for group", () => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.DeleteUserFromWorkspace(appid, workspaceId, GroupName);
-    agHelper.UpdateInput(homePage._searchUsersInput, GroupName);
+    agHelper.ClearNType(homePage._searchUsersInput, GroupName);
     cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
     agHelper.AssertElementAbsence(homePageLocators.DeleteBtn);
     cy.get("table").contains("td", "No Access");
@@ -249,7 +249,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     homePage.FilterApplication(appid, workspaceId);
     agHelper.GetNClick(homePageLocators.optionsIcon);
     agHelper.GetNClick(homePage._visibleTextSpan("Members"));
-    agHelper.UpdateInput(homePage._searchUsersInput, GroupName);
+    agHelper.TypeText(homePage._searchUsersInput, GroupName);
     cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
     agHelper.GetNClick(RBAC.arrowRightMembersPage, 0, true);
     agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
@@ -295,7 +295,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     homePage.FilterApplication(appid, workspaceId);
     agHelper.GetNClick(homePageLocators.optionsIcon);
     agHelper.GetNClick(homePage._visibleTextSpan("Members"));
-    agHelper.UpdateInput(homePage._searchUsersInput, GroupName);
+    agHelper.TypeText(homePage._searchUsersInput, GroupName);
     cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
     agHelper.GetNClick(RBAC.arrowRightMembersPage, 0, true);
     agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
@@ -303,7 +303,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     cy.get(homePageLocators.leaveWorkspaceConfirmModal).should("be.visible");
     cy.get(homePageLocators.leaveWorkspaceConfirmButton).click({ force: true });
 
-    agHelper.UpdateInput(homePage._searchUsersInput, GroupName);
+    agHelper.TypeText(homePage._searchUsersInput, GroupName);
     cy.get(RBAC.searchHighlight).should("not.exist");
     homePage.LogOutviaAPI();
   });

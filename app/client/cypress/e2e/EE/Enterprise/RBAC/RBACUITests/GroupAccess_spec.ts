@@ -44,7 +44,7 @@ describe("Create group, check if users in group has group roles accessess", func
       appName = "app" + guid;
       homePage.CreateNewWorkspace(workspaceName, true);
       homePage.CreateAppInWorkspace(workspaceName, appName);
-      entityExplorer.AddNewPage("New blank page").then((newPage) => {
+      entityExplorer.AddNewPage("New blank page")?.then((newPage) => {
         entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
       });
       dataSources.CreateDataSource("Postgres");
@@ -64,14 +64,19 @@ describe("Create group, check if users in group has group roles accessess", func
         "Page1",
       );
     });
-    rbacHelper.ModifyPermissions(
+    rbacHelper.ModifyPermissionsNSave(
       permissionAtPageLevel,
       pageName,
       "Edit",
       false,
     );
-    rbacHelper.ModifyPermissions(permissionAtPageLevel, pageName, "View", true);
-    rbacHelper.ModifyPermissions(
+    rbacHelper.ModifyPermissionsNSave(
+      permissionAtPageLevel,
+      pageName,
+      "View",
+      true,
+    );
+    rbacHelper.ModifyPermissionsNSave(
       permissionAtPageLevel,
       queryName,
       "View",

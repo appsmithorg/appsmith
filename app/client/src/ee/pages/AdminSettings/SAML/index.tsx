@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import ReadMetadata from "./ReadMetadata";
@@ -28,6 +28,9 @@ import {
   getIsFormLoginEnabled,
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
+import history from "utils/history";
+import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { SettingCategories } from "../config/types";
 
 export function getSettingLabel(name = "") {
   return name.replace(/-/g, "");
@@ -51,6 +54,17 @@ export function Saml() {
   const params = useParams() as any;
   const { category, selected: subCategory } = params;
   const details = getSettingDetail(category, subCategory);
+  const isFeatureEnabled = details?.isFeatureEnabled;
+
+  useEffect(() => {
+    if (!isFeatureEnabled) {
+      history.push(
+        adminSettingsCategoryUrl({
+          category: SettingCategories.AUTHENTICATION,
+        }),
+      );
+    }
+  }, [isFeatureEnabled]);
   const pageTitle = getSettingLabel(
     details?.title || (subCategory ?? category),
   );

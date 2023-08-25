@@ -83,17 +83,9 @@ describe("Table widget one click binding feature", () => {
 
     agHelper.Sleep(2000);
 
-    cy.get(formWidgetsPage.multiSelectWidget)
-      .find(".rc-select-selector")
-      .click({
-        force: true,
-      });
-
-    cy.get(formWidgetsPage.multiselectwidgetv2)
-      .find(".rc-select-selection-search-input")
-      .first()
-      .focus({ force: true } as any)
-      .type("Anne", { force: true });
+    cy.get(formWidgetsPage.multiSelectWidgetSearch).type("Anne", {
+      force: true,
+    });
 
     assertHelper.AssertNetworkStatus("@postExecute");
 

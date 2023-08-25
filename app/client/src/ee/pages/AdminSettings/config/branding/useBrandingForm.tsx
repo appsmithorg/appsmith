@@ -2,8 +2,8 @@ export * from "ce/pages/AdminSettings/config/branding/useBrandingForm";
 
 import { useDispatch } from "react-redux";
 
-import { saveSettings } from "@appsmith/actions/settingsAction";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { updateTenantConfig } from "@appsmith/actions/tenantActions";
 
 /**
  * grabs all the dirty values from the form
@@ -39,7 +39,6 @@ type useBrandingFormProps = {
 export const useBrandingForm = (props: useBrandingFormProps) => {
   const { dirtyFields } = props;
   const dispatch = useDispatch();
-
   /**
    * on submit for branding form, we need to pluck the dirty values
    * and send it to the server
@@ -49,7 +48,10 @@ export const useBrandingForm = (props: useBrandingFormProps) => {
   const onSubmit = (data: any) => {
     const values = pluckDirtyValues(dirtyFields, data);
 
-    const formData = new FormData();
+    const formData: Record<string, any> = new FormData();
+
+    // this is required so that branding env values shows up in tenant api
+    const tenantConfig: any = { APPSMITH_BRAND_ENABLE: "true" };
 
     for (const key in values) {
       if (values[key] instanceof File) {
@@ -59,18 +61,22 @@ export const useBrandingForm = (props: useBrandingFormProps) => {
       }
 
       if (typeof values[key] === "object") {
-        formData.append(key, JSON.stringify(values[key]));
+        tenantConfig[key] = values[key];
 
         continue;
       }
 
-      formData.append(key, values[key]);
+      tenantConfig[key] = values[key];
     }
 
-    // this is required so that branding env values shows up in tenant api
-    formData.append("APPSMITH_BRAND_ENABLE", "true");
+    formData.append("tenantConfig", JSON.stringify(tenantConfig));
 
-    dispatch(saveSettings(formData, false));
+    dispatch(
+      updateTenantConfig({
+        tenantConfiguration: formData,
+        isOnlyTenantSettings: true,
+      }),
+    );
 
     AnalyticsUtil.logEvent("BRANDING_SUBMIT_CLICK");
   };

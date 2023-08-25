@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.dtos.AuthenticationConfigurationDTO;
-import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.solutions.EnvManager;
@@ -29,7 +28,7 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
     }
 
     @Override
-    public Mono<EnvChangesResponseDTO> configure(AuthenticationConfigurationDTO configuration, String origin) {
+    public Mono<Void> configure(AuthenticationConfigurationDTO configuration, String origin) {
 
         if (configuration.getIsEnabled() == null || !configuration.getIsEnabled()) {
             // Delete the realm to delete all existing configuration and then update the environment with SAML disabled.

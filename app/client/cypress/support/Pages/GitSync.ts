@@ -5,7 +5,7 @@ const GITHUB_API_BASE = "https://api.github.com";
 export class GitSync {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
-  private tedTestConfig = ObjectsRegistry.TEDTestConfigs;
+  private dataManager = ObjectsRegistry.DataManager;
   private assertHelper = ObjectsRegistry.AssertHelper;
   private homePage = ObjectsRegistry.HomePage;
 
@@ -33,12 +33,13 @@ export class GitSync {
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
   public _branchListItem = "[data-testid=t--branch-list-item]";
   public _bottomBarMergeButton = ".t--bottom-bar-merge";
+  private mergeCTA = "[data-testid=t--git-merge-button]";
   public _mergeBranchDropdownDestination =
     ".t--merge-branch-dropdown-destination";
   public _dropdownmenu = ".rc-select-item-option-content";
   private _openRepoButton = "[data-testid=t--git-repo-button]";
   public _commitButton = ".t--commit-button";
-  private _commitCommentInput = ".t--commit-comment-input textarea";
+  public _commitCommentInput = ".t--commit-comment-input textarea";
 
   public _discardChanges = ".t--discard-button";
   public _discardCallout = "[data-testid='t--discard-callout']";
@@ -76,7 +77,7 @@ export class GitSync {
   public CreateTestGiteaRepo(repo: string, privateFlag = false) {
     cy.request({
       method: "POST",
-      url: `${this.tedTestConfig.GITEA_API_BASE_TED}:${this.tedTestConfig.GITEA_API_PORT_TED}/api/v1/org/Cypress/repos`,
+      url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/org/Cypress/repos`,
       headers: {
         Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
       },
@@ -111,7 +112,7 @@ export class GitSync {
     );
     this.agHelper.TypeText(
       this._gitRepoInput,
-      `${this.tedTestConfig.GITEA_API_URL_TED}/${repo}.git`,
+      `${this.dataManager.GITEA_API_URL_TED}/${repo}.git`,
       //`git@github.com:${owner}/${repo}.git`,
     );
 
@@ -124,7 +125,7 @@ export class GitSync {
         // fetch the generated key and post to the github repo
         cy.request({
           method: "POST",
-          url: `${this.tedTestConfig.GITEA_API_BASE_TED}:${this.tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
+          url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
           headers: {
             Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
           },
@@ -172,7 +173,7 @@ export class GitSync {
   DeleteTestGithubRepo(repo: any) {
     cy.request({
       method: "DELETE",
-      url: `${this.tedTestConfig.GITEA_API_BASE_TED}:${this.tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}`,
+      url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}`,
       headers: {
         Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
       },
@@ -182,7 +183,7 @@ export class GitSync {
   DeleteDeployKey(repo: any, id: number) {
     cy.request({
       method: "DELETE",
-      url: `${this.tedTestConfig.GITEA_API_BASE_TED}:${this.tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys/${id}`,
+      url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys/${id}`,
       headers: {
         Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
       },
@@ -192,7 +193,7 @@ export class GitSync {
   public CreateRemoteBranch(repo: string, branchName: string) {
     cy.request({
       method: "POST",
-      url: `${this.tedTestConfig.GITEA_API_BASE_TED}:${this.tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/branches`,
+      url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/branches`,
       headers: {
         Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
       },
@@ -278,6 +279,18 @@ export class GitSync {
     this.agHelper.AssertElementAbsence(this._checkMergeability, 35000);
   }
 
+  MergeToMaster() {
+    this.CheckMergeConflicts("master");
+    this.agHelper.AssertElementEnabledDisabled(this.mergeCTA, 0, false);
+    this.agHelper.GetNClick(this.mergeCTA);
+    this.assertHelper.AssertNetworkStatus("@mergeBranch");
+    this.agHelper.AssertContains(
+      Cypress.env("MESSAGES").MERGED_SUCCESSFULLY(),
+      "be.visible",
+    );
+    this.CloseGitSyncModal();
+  }
+
   OpenRepositoryAndVerify() {
     this.agHelper.GetNClick(this._openRepoButton);
   }
@@ -311,7 +324,7 @@ export class GitSync {
     this.agHelper.AssertContains(
       Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
     );
-    this.agHelper.ClickButton("Are you sure?", 0, false);
+    this.agHelper.ClickButton("Are you sure?", { waitAfterClick: false });
     this.agHelper.AssertContains(
       Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES(),
     );
@@ -363,7 +376,7 @@ export class GitSync {
       // fetch the generated key and post to the github repo
       cy.request({
         method: "POST",
-        url: `http://${this.tedTestConfig.GITEA_API_BASE_TED}:${this.tedTestConfig.GITEA_API_PORT_TED}/v1/gitserver/addgitssh`,
+        url: `http://${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/v1/gitserver/addgitssh`,
         //body: formdata,
         body: {
           sshkey: generatedKey,
@@ -424,7 +437,7 @@ export class GitSync {
     cy.request({
       method: "GET",
       url:
-        `http://${this.tedTestConfig.GITEA_API_BASE_TED}:${this.tedTestConfig.GITEA_API_PORT_TED}/v1/gitserver/addrepo?reponame=` +
+        `http://${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/v1/gitserver/addrepo?reponame=` +
         repo,
     }).then((response) => {
       remoteUrl = JSON.stringify(response.body).replace(/['"]+/g, "");

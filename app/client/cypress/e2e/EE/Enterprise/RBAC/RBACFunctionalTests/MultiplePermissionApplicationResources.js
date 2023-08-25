@@ -8,7 +8,7 @@ const jsEditorLocators = require("../../../../../locators/JSEditor.json");
 import {
   homePage,
   onboarding,
-  tedTestConfig,
+  dataManager,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Multiple Permission flow ", function () {
@@ -89,7 +89,7 @@ describe("Multiple Permission flow ", function () {
           cy.NavigateToAPI_Panel();
           cy.CreateAPI(APIName);
           cy.enterDatasource(
-            tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+            dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
           );
           cy.SaveAndRunAPI();
           cy.ResponseStatusCheck("200");
@@ -198,7 +198,8 @@ describe("Multiple Permission flow ", function () {
       "Successfully exported",
     );
   });
-  it("4. Verify when user has appsmith provided role along with custom role it works as expected ", function () {
+
+  it("4. Verify when user has appsmith provided role along with custom role it works as expected", function () {
     cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME2"),

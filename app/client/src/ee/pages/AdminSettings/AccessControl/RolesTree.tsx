@@ -28,6 +28,7 @@ import {
   TabPanel,
   TabsList,
   Spinner,
+  Tooltip,
 } from "design-system";
 import { usePrevious } from "@mantine/hooks";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
@@ -168,11 +169,15 @@ const ResourceCellWrapper = styled.div`
       height: 16px;
     }
 
-    span {
+    > span {
       display: -webkit-inline-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       text-overflow: ellipsis;
+      width: 100%;
+      white-space: break-spaces;
+      overflow: hidden;
+      word-break: break-all;
     }
   }
 `;
@@ -277,8 +282,12 @@ function Table({
     let shouldHide = true;
     const filteredDataStr = JSON.stringify(filteredData);
     if (
-      filteredDataStr.includes(row.original.id) &&
-      filteredDataStr.includes(row.original.name)
+      filteredDataStr.includes(
+        `"id":"${row.original.id}","name":"${row.original.name}"`,
+      ) ||
+      filteredDataStr.includes(
+        `"name":"${row.original.name}","type":"Header","id":"Header","searchKey":"${row.original.searchKey}"`,
+      )
     ) {
       shouldHide = false;
     }
@@ -351,12 +360,14 @@ export const makeData = ({
   data,
   hoverMap,
   isMultiple = false,
+  parentId,
   permissions,
 }: {
   data: any[];
   hoverMap: any;
   permissions: string[];
   isMultiple?: boolean;
+  parentId?: string;
 }) => {
   const computedData = data.map((dt: any) => {
     return dt?.entities?.map((d: any) => {
@@ -368,6 +379,7 @@ export const makeData = ({
         ...(dt.type === "Header"
           ? {
               id: "Header",
+              searchKey: `${parentId}_Header`,
             }
           : {
               permissions: enabled,
@@ -385,12 +397,14 @@ export const makeData = ({
                   ? makeData({
                       data: children,
                       hoverMap,
+                      parentId: d.id || parentId,
                       permissions,
                       isMultiple: true,
                     })
                   : makeData({
                       data: children,
                       hoverMap,
+                      parentId: d.id || parentId,
                       permissions,
                     }),
             }
@@ -787,7 +801,13 @@ export function RolesTree(props: RoleTreeProps & { selectedTab: boolean }) {
             )}
             <div className="text-wrapper">
               {icon}
-              <HighlightText highlight={searchValue} text={row.name} />
+              <Tooltip
+                content={row.name}
+                isDisabled={row.name.length < 80}
+                placement="bottomLeft"
+              >
+                <HighlightText highlight={searchValue} text={row.name} />
+              </Tooltip>
             </div>
           </ResourceCellWrapper>
         ) : (
@@ -795,7 +815,13 @@ export function RolesTree(props: RoleTreeProps & { selectedTab: boolean }) {
             {cellProps.row.depth ? del : null}
             <div className="text-wrapper">
               {icon}
-              <HighlightText highlight={searchValue} text={row.name} />
+              <Tooltip
+                content={row.name}
+                isDisabled={row.name.length < 80}
+                placement="bottomLeft"
+              >
+                <HighlightText highlight={searchValue} text={row.name} />
+              </Tooltip>
             </div>
           </ResourceCellWrapper>
         );

@@ -264,9 +264,12 @@ public class ActionExecutionOOSPluginsTest {
                 pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+        DatasourceStorage datasourceStorage =
+                datasourceStorageService.createDatasourceStorageFromDatasource(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId,
+                new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceStorage.getDatasourceConfiguration()));
         datasource.setDatasourceStorages(storages);
     }
 
@@ -345,9 +348,9 @@ public class ActionExecutionOOSPluginsTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("some url here");
         externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         externalDatasource.setDatasourceStorages(storages);
         Datasource savedDs = datasourceService.create(externalDatasource).block();
 
@@ -387,9 +390,9 @@ public class ActionExecutionOOSPluginsTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("some url here");
         externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         externalDatasource.setDatasourceStorages(storages);
         Datasource savedDs = datasourceService.create(externalDatasource).block();
 

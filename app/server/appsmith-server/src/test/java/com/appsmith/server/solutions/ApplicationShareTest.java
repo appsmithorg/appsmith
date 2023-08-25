@@ -5,7 +5,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.PluginType;
@@ -270,9 +269,8 @@ public class ApplicationShareTest {
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasource = datasourceService.create(datasource).block();
@@ -281,13 +279,11 @@ public class ApplicationShareTest {
         datasourceWithoutActions.setName(testName + "WithoutAction");
         DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
         datasourceConfiguration1.setUrl("http://test.com");
-        datasourceWithoutActions.setDatasourceConfiguration(datasourceConfiguration);
         datasourceWithoutActions.setWorkspaceId(workspace.getId());
         datasourceWithoutActions.setPluginId(pluginId);
 
-        DatasourceStorage datasourceStorage2 = new DatasourceStorage(datasourceWithoutActions, environmentId);
         HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-        storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+        storages2.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
         datasourceWithoutActions.setDatasourceStorages(storages2);
 
         Datasource createdDatasourceWithoutActions =
@@ -564,9 +560,9 @@ public class ApplicationShareTest {
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasource = datasourceService.create(datasource).block();
@@ -876,9 +872,8 @@ public class ApplicationShareTest {
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasource = datasourceService.create(datasource).block();
@@ -887,13 +882,11 @@ public class ApplicationShareTest {
         datasourceWithoutActions.setName(testName + "WithoutAction");
         DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
         datasourceConfiguration1.setUrl("http://test.com");
-        datasourceWithoutActions.setDatasourceConfiguration(datasourceConfiguration);
         datasourceWithoutActions.setWorkspaceId(workspace.getId());
         datasourceWithoutActions.setPluginId(pluginId);
 
-        DatasourceStorage datasourceStorage2 = new DatasourceStorage(datasourceWithoutActions, environmentId);
         HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-        storages2.put(environmentId, new DatasourceStorageDTO(datasourceStorage2));
+        storages2.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
         datasourceWithoutActions.setDatasourceStorages(storages2);
 
         Datasource createdDatasourceWithoutActions =
@@ -1117,16 +1110,15 @@ public class ApplicationShareTest {
         datasource.setName(testName);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
 
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasource = datasourceService.create(datasource).block();
@@ -3747,16 +3739,15 @@ public class ApplicationShareTest {
         datasource.setName(testName);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
 
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasource = datasourceService.create(datasource).block();
@@ -3876,16 +3867,14 @@ public class ApplicationShareTest {
         datasource.setName(testName);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
 
         String environmentId = workspaceService
                 .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
                 .block();
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource createdDatasourceBeforeRoleCreated =
@@ -3898,14 +3887,12 @@ public class ApplicationShareTest {
         Datasource datasource1 = new Datasource();
         datasource1.setName(testName + 1);
         DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl("http://test.com");
-        datasource1.setDatasourceConfiguration(datasourceConfiguration1);
+        datasourceConfiguration1.setUrl("http://test.com");
         datasource1.setWorkspaceId(workspace.getId());
         datasource1.setPluginId(pluginId);
 
-        DatasourceStorage datasourceStorage1 = new DatasourceStorage(datasource1, environmentId);
         HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-        storages1.put(environmentId, new DatasourceStorageDTO(datasourceStorage1));
+        storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
         datasource1.setDatasourceStorages(storages1);
         Datasource createdDatasourceAfterRoleCreated =
                 datasourceService.create(datasource1).block();
