@@ -22,7 +22,7 @@ type CheckboxProps = {
   label?: React.ReactNode;
   id?: string;
   isDisabled?: boolean;
-  needsUpgrade?: boolean;
+  isFeatureEnabled?: boolean;
   text: string;
   labelSuffix?: React.ReactElement;
   isPropertyDisabled?: boolean;
@@ -85,7 +85,7 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
         >
           {setting.label}
         </Text>
-        {setting.needsUpgrade && <BusinessTag />}
+        {setting.isFeatureEnabled === false && <BusinessTag />}
       </div>
       <Field
         component={FieldCheckboxWithCheckboxText({
@@ -93,7 +93,7 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
           text: setting.text || "",
           id: setting.id,
           isDisabled: setting.isDisabled && setting.isDisabled(settings),
-          needsUpgrade: setting.needsUpgrade,
+          isFeatureEnabled: setting.isFeatureEnabled,
           labelSuffix: setting.textSuffix,
           isPropertyDisabled: isTenantConfig(setting.id)
             ? false
