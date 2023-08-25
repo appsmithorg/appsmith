@@ -24,10 +24,16 @@ export const StyledTable = styled.table`
   td {
     text-align: left;
     padding: var(--spacing-2);
+    color: var(--color-fg) !important;
+    //border-color: var(--color-bd-neutral) !important;
   }
 
   td {
     padding-bottom: 0;
+  }
+
+  tr {
+    background-color: var(--color-bg) !important;
   }
 
   thead tr {
