@@ -280,9 +280,9 @@ export const contentConfig = (customEChartsEnabled: boolean) => {
           controlType: "SWITCH",
           isBindProperty: false,
           isTriggerProperty: false,
-          hidden: (x: ChartWidgetProps) =>
+          hidden: (props: ChartWidgetProps) =>
             ["CUSTOM_FUSION_CHART", "PIE_CHART", "CUSTOM_ECHART"].includes(
-              x.chartType,
+              props.chartType,
             ),
           dependencies: ["chartType"],
         },
@@ -293,8 +293,8 @@ export const contentConfig = (customEChartsEnabled: boolean) => {
           controlType: "SWITCH",
           isBindProperty: false,
           isTriggerProperty: false,
-          hidden: (x: ChartWidgetProps) =>
-            ["CUSTOM_FUSION_CHART", "CUSTOM_ECHART"].includes(x.chartType),
+          hidden: (props: ChartWidgetProps) =>
+            ["CUSTOM_FUSION_CHART", "CUSTOM_ECHART"].includes(props.chartType),
           dependencies: ["chartType"],
         },
       ],
@@ -310,7 +310,7 @@ export const contentConfig = (customEChartsEnabled: boolean) => {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.BOOLEAN },
-          hidden: (x: any) => x.chartType == "CUSTOM_ECHART",
+          hidden: (props: any) => props.chartType == "CUSTOM_ECHART",
         },
         {
           helpText: "Specifies the label of the x-axis",
@@ -321,8 +321,8 @@ export const contentConfig = (customEChartsEnabled: boolean) => {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.TEXT },
-          hidden: (x: any) =>
-            ["CUSTOM_FUSION_CHART", "CUSTOM_ECHART"].includes(x.chartType),
+          hidden: (props: any) =>
+            ["CUSTOM_FUSION_CHART", "CUSTOM_ECHART"].includes(props.chartType),
           dependencies: ["chartType"],
         },
         {
@@ -334,16 +334,16 @@ export const contentConfig = (customEChartsEnabled: boolean) => {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.TEXT },
-          hidden: (x: any) =>
-            ["CUSTOM_FUSION_CHART", "CUSTOM_ECHART"].includes(x.chartType),
+          hidden: (props: any) =>
+            ["CUSTOM_FUSION_CHART", "CUSTOM_ECHART"].includes(props.chartType),
           dependencies: ["chartType"],
         },
         {
           helpText: "Changes the x-axis label orientation",
           propertyName: "labelOrientation",
           label: "x-axis label orientation",
-          hidden: (x: ChartWidgetProps) =>
-            !isLabelOrientationApplicableFor(x.chartType),
+          hidden: (props: ChartWidgetProps) =>
+            !isLabelOrientationApplicableFor(props.chartType),
           isBindProperty: false,
           isTriggerProperty: false,
           dependencies: ["chartType"],
