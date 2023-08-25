@@ -4,6 +4,8 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { match } = require("path-to-regexp");
 
+import { IDE_BASE } from "./ideRoutes";
+
 export const BUILDER_VIEWER_PATH_PREFIX = "/app/";
 export const BUILDER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const BUILDER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId/edit`;
@@ -72,7 +74,8 @@ export const matchBuilderPath = (
   match(BUILDER_CUSTOM_PATH, options)(pathName) ||
   match(BUILDER_PATH + WIDGETS_EDITOR_ID_PATH, options)(pathName) ||
   match(BUILDER_CUSTOM_PATH + WIDGETS_EDITOR_ID_PATH, options)(pathName) ||
-  match(BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH, options)(pathName);
+  match(BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH, options)(pathName) ||
+  match(IDE_BASE);
 
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = (pathName: string) =>

@@ -2,11 +2,11 @@ import { setPropertyPaneWidthAction } from "actions/propertyPaneActions";
 import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
+import { getIdeSidebarWidth } from "../../IDE/ideSelector";
 
 function PropertyPaneContainer() {
   const dispatch = useDispatch();
-  const propertyPaneWidth = useSelector(getPropertyPaneWidth);
+  const propertyPaneWidth = useSelector(getIdeSidebarWidth);
 
   /**
    * on property pane sidebar drag end
