@@ -45,7 +45,7 @@ export const EmbedWrapper = styled.div`
   }
 `;
 
-function ShareModal() {
+export function ShareModal() {
   const embedSnippet = useUpdateEmbedSnippet();
   const [selectedMethod, setSelectedMethod] = useState<string>(
     defaultOptionSelected,
@@ -105,7 +105,6 @@ function ShareModal() {
 
       {!isPublicApp && (
         <PrivateEmbedSettings
-          embedSnippet={embedSnippet}
           selectedMethod={selectedMethod}
           setSelectedMethod={setSelectedMethod}
         />
@@ -130,7 +129,7 @@ function ShareModal() {
   );
 }
 
-function AppSettings() {
+export function AppSettings() {
   const embedSnippet = useUpdateEmbedSnippet();
   const [selectedMethod, setSelectedMethod] = useState<string>(
     defaultOptionSelected,
@@ -191,7 +190,6 @@ function AppSettings() {
 
         {!isPublicApp && (
           <PrivateEmbedSettings
-            embedSnippet={embedSnippet}
             selectedMethod={selectedMethod}
             setSelectedMethod={setSelectedMethod}
           />
