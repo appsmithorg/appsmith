@@ -140,11 +140,11 @@ describe("emptyChartData", () => {
       props.customEChartConfig = { key: "value" };
 
       expect(emptyChartData(props)).toEqual(false);
-    })
+    });
   });
 
   describe("Widget Callouts", () => {
-    const calloutsFunc = ChartWidget.widgetCallouts();
+    const calloutsFunc = ChartWidget.editorCallouts();
 
     it("returns custom fusion chart deprecation notice when chart type is custom fusion chart", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));

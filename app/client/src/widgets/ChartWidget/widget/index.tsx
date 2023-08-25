@@ -109,7 +109,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
-  static widgetCallouts() {
+  static editorCallouts() {
     const callouts = (props: WidgetProps): WidgetCallout[] => {
       if (!this.showCustomFusionChartDeprecationMessages()) {
         return [];

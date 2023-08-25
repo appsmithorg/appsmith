@@ -21,7 +21,7 @@ import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { Button, Callout } from "design-system";
 import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
-import { useSearchText, widgetCallouts } from "./helpers";
+import { useSearchText, editorCallouts } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
@@ -259,7 +259,7 @@ function PropertyPaneView(
             {deprecationMessage}
           </Callout>
         )}
-        {widgetCallouts(widgetProperties)}
+        {editorCallouts(widgetProperties)}
       </div>
 
       <div
