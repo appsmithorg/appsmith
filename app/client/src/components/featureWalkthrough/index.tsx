@@ -30,6 +30,7 @@ export default function Walkthrough({ children }: any) {
     if (!alreadyExists) {
       const _value = Array.isArray(value) ? [...value] : [value];
       if (prioritize) {
+        // Get ahead of the queue
         setFeature((e) => [..._value, ...e]);
       } else {
         setFeature((e) => [...e, ..._value]);

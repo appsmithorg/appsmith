@@ -46,7 +46,7 @@ import {
 import type { Datasource } from "entities/Datasource";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { SIGNPOSTING_STEP } from "./Utils";
+import { SIGNPOSTING_STEP, SignpostingWalkthroughConfig } from "./Utils";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import classNames from "classnames";
@@ -54,11 +54,8 @@ import lazyLottie from "utils/lazyLottie";
 import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import {
-  getFeatureWalkthroughShown,
-  setFeatureWalkthroughShown,
-} from "utils/storage";
+
+import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
 import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
@@ -461,34 +458,7 @@ export default function OnboardingChecklist() {
     if (!isFeatureWalkthroughShown && adapativeSignposting) {
       dispatch(setExplorerSwitchIndex(0));
       pushFeature &&
-        pushFeature({
-          targetId: "#add_datasources",
-          details: {
-            title: "Add New Datasource",
-            description: "Datasources can be directly and easily accessed here",
-            imageURL: `${ASSETS_CDN_URL}/create-datasource.gif`,
-          },
-          onDismiss: async () => {
-            await setFeatureWalkthroughShown(
-              FEATURE_WALKTHROUGH_KEYS.add_datasouce,
-              true,
-            );
-          },
-          overlayColor: "transparent",
-          offset: {
-            position: "right",
-            top: -100,
-            highlightPad: 5,
-            indicatorLeft: -3,
-            style: {
-              transform: "none",
-              boxShadow: "var(--ads-v2-shadow-popovers)",
-              border: "1px solid var(--ads-v2-color-border-muted)",
-            },
-          },
-          dismissOnOverlayClick: true,
-          delay: 1000,
-        });
+        pushFeature(SignpostingWalkthroughConfig.CONNECT_A_DATASOURCE);
     } else {
       history.push(
         integrationEditorURL({

@@ -1,9 +1,10 @@
 import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { Colors } from "constants/Colors";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { Button } from "design-system";
+import { SignpostingWalkthroughConfig } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import React, { useContext, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -13,10 +14,7 @@ import {
   isWidgetActionConnectionPresent,
 } from "selectors/onboardingSelectors";
 import styled from "styled-components";
-import {
-  getFeatureWalkthroughShown,
-  setFeatureWalkthroughShown,
-} from "utils/storage";
+import { getFeatureWalkthroughShown } from "utils/storage";
 
 const Wrapper = styled.div`
   position: absolute;
@@ -83,37 +81,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
       !isFeatureWalkthroughShown &&
       signpostingEnabled &&
       pushFeature &&
-      pushFeature(
-        {
-          targetId: `#table-overlay-connectdata`,
-          details: {
-            title: "Connect data",
-            description:
-              "Swiftly bind data to the widget by connecting your query with just a click of this button.",
-            imageURL: `${ASSETS_CDN_URL}/connect-data.gif`,
-          },
-          onDismiss: async () => {
-            await setFeatureWalkthroughShown(
-              FEATURE_WALKTHROUGH_KEYS.connect_data,
-              true,
-            );
-          },
-          offset: {
-            position: "right",
-            highlightPad: 5,
-            indicatorLeft: -3,
-            style: {
-              transform: "none",
-              boxShadow: "var(--ads-v2-shadow-popovers)",
-              border: "1px solid var(--ads-v2-color-border-muted)",
-            },
-          },
-          dismissOnOverlayClick: true,
-          overlayColor: "transparent",
-          delay: 1000,
-        },
-        true,
-      );
+      pushFeature(SignpostingWalkthroughConfig.CONNECT_DATA_TO_WIDGET, true);
   };
 
   const onClick = () => {

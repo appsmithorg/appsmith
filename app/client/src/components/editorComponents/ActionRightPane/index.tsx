@@ -69,6 +69,8 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import history from "utils/history";
+import { SignpostingWalkthroughConfig } from "pages/Editor/FirstTimeUserOnboarding/Utils";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
 
@@ -409,7 +411,7 @@ function ActionSidebar({
         details: {
           title: createMessage(SCHEMA_WALKTHROUGH_TITLE),
           description: createMessage(SCHEMA_WALKTHROUGH_DESC),
-          imageURL: SCHEMA_GUIDE_GIF,
+          imageURL: getAssetUrl(SCHEMA_GUIDE_GIF),
         },
         offset: {
           position: "left",
@@ -439,35 +441,7 @@ function ActionSidebar({
       adaptiveSignposting &&
       signpostingEnabled &&
       pushFeature &&
-      pushFeature({
-        targetId: "#back-to-canvas",
-        onDismiss: async () => {
-          await setFeatureWalkthroughShown(
-            FEATURE_WALKTHROUGH_KEYS.back_to_canvas,
-            true,
-          );
-        },
-        details: {
-          title: "Go back to canvas",
-          description:
-            "Go back to the canvas from here to start building the UI for your app using available widgets",
-          imageURL: `${ASSETS_CDN_URL}/back-to-canvas.gif`,
-        },
-        offset: {
-          position: "bottom",
-          left: -200,
-          highlightPad: 5,
-          indicatorLeft: -3,
-          style: {
-            transform: "none",
-            boxShadow: "var(--ads-v2-shadow-popovers)",
-            border: "1px solid var(--ads-v2-color-border-muted)",
-          },
-        },
-        delay: 1000,
-        overlayColor: "transparent",
-        dismissOnOverlayClick: true,
-      });
+      pushFeature(SignpostingWalkthroughConfig.BACK_TO_CANVAS);
   };
 
   useEffect(() => {

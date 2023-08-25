@@ -14,17 +14,14 @@ import type { Datasource } from "entities/Datasource";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { noop } from "utils/AppsmithUtils";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import {
-  getFeatureWalkthroughShown,
-  setFeatureWalkthroughShown,
-} from "utils/storage";
+import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { actionsExistInCurrentPage } from "selectors/entitiesSelector";
 import log from "loglevel";
+import { SignpostingWalkthroughConfig } from "../FirstTimeUserOnboarding/Utils";
 
 type NewActionButtonProps = {
   datasource?: Datasource;
@@ -70,35 +67,7 @@ function NewActionButton(props: NewActionButtonProps) {
     adapativeSignposting &&
       !isFeatureWalkthroughShown &&
       pushFeature &&
-      pushFeature({
-        targetId: "#create-query",
-        details: {
-          title: "Add New query",
-          description:
-            "A new query can be created using this button for this datasource",
-          imageURL: `${ASSETS_CDN_URL}/create-new-query.gif`,
-        },
-        onDismiss: async () => {
-          await setFeatureWalkthroughShown(
-            FEATURE_WALKTHROUGH_KEYS.create_query,
-            true,
-          );
-        },
-        offset: {
-          position: "bottom",
-          highlightPad: 5,
-          indicatorLeft: -3,
-          left: -200,
-          style: {
-            transform: "none",
-            boxShadow: "var(--ads-v2-shadow-popovers)",
-            border: "1px solid var(--ads-v2-color-border-muted)",
-          },
-        },
-        dismissOnOverlayClick: true,
-        overlayColor: "transparent",
-        delay: 1000,
-      });
+      pushFeature(SignpostingWalkthroughConfig.CREATE_A_QUERY);
   };
 
   const createQueryAction = useCallback(

@@ -21,16 +21,13 @@ import {
   SearchInput,
   Text,
 } from "design-system";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { widgetsExistCurrentPage } from "selectors/entitiesSelector";
-import {
-  getFeatureWalkthroughShown,
-  setFeatureWalkthroughShown,
-} from "utils/storage";
+import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
 
 function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
@@ -105,38 +102,7 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
     );
     !isFeatureWalkthroughShown &&
       pushFeature &&
-      pushFeature(
-        {
-          targetId: `#widget-card-draggable-tablewidgetv2`,
-          details: {
-            title: "Drag a widget on the canvas",
-            description:
-              "Drag and drop a table widget onto the canvas and then establish the connection with the Query you previously composed",
-            imageURL: `${ASSETS_CDN_URL}/add-table-widget.gif`,
-          },
-          onDismiss: async () => {
-            await setFeatureWalkthroughShown(
-              FEATURE_WALKTHROUGH_KEYS.add_table_widget,
-              true,
-            );
-          },
-          offset: {
-            position: "right",
-            highlightPad: 5,
-            indicatorLeft: -3,
-            top: -200,
-            style: {
-              transform: "none",
-              boxShadow: "var(--ads-v2-shadow-popovers)",
-              border: "1px solid var(--ads-v2-color-border-muted)",
-            },
-          },
-          dismissOnOverlayClick: true,
-          delay: 1000,
-          overlayColor: "transparent",
-        },
-        true,
-      );
+      pushFeature(SignpostingWalkthroughConfig.ADD_TABLE_WIDGET, true);
   };
 
   return (

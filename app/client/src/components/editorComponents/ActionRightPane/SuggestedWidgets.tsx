@@ -493,7 +493,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
         details: {
           title: createMessage(BINDING_WALKTHROUGH_TITLE),
           description: createMessage(BINDING_WALKTHROUGH_DESC),
-          imageURL: BINDING_GUIDE_GIF,
+          imageURL: getAssetUrl(BINDING_GUIDE_GIF),
         },
         offset: {
           position: "left",

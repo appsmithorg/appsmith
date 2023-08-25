@@ -109,11 +109,9 @@ import {
   isWidgetActionConnectionPresent,
 } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import {
-  getFeatureWalkthroughShown,
-  setFeatureWalkthroughShown,
-} from "utils/storage";
+import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -381,37 +379,7 @@ export function EditorHeader() {
     );
     !isFeatureWalkthroughShown &&
       pushFeature &&
-      pushFeature(
-        {
-          targetId: `#application-publish-btn`,
-          details: {
-            title: "Deploy 🚀",
-            description:
-              "Use the deploy button to quickly launch and go live with your creation",
-          },
-          offset: {
-            position: "bottom",
-            highlightPad: 5,
-            indicatorLeft: -3,
-            left: -200,
-            style: {
-              transform: "none",
-              boxShadow: "var(--ads-v2-shadow-popovers)",
-              border: "1px solid var(--ads-v2-color-border-muted)",
-            },
-          },
-          onDismiss: async () => {
-            await setFeatureWalkthroughShown(
-              FEATURE_WALKTHROUGH_KEYS.deploy,
-              true,
-            );
-          },
-          overlayColor: "transparent",
-          dismissOnOverlayClick: true,
-          delay: 1000,
-        },
-        true,
-      );
+      pushFeature(SignpostingWalkthroughConfig.DEPLOY_APP, true);
   };
 
   return (

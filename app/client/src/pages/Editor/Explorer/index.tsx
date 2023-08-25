@@ -22,16 +22,13 @@ import {
 } from "@appsmith/selectors/featureFlagsSelectors";
 import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import {
-  getFeatureWalkthroughShown,
-  setFeatureWalkthroughShown,
-} from "utils/storage";
+import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import {
   actionsExistInCurrentPage,
   widgetsExistCurrentPage,
 } from "selectors/entitiesSelector";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { SignpostingWalkthroughConfig } from "../FirstTimeUserOnboarding/Utils";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -114,34 +111,7 @@ function ExplorerContent() {
     );
     !isFeatureWalkthroughShown &&
       pushFeature &&
-      pushFeature({
-        targetId: `#explorer-tab-options [data-value*="widgets"]`,
-        details: {
-          title: "Switch to Widgets section",
-          description:
-            "Segmented View in Entity Explorer enables swift switching between Explorer and Widgets. Select Widgets tab, then click on a widget to bind data",
-          imageURL: `${ASSETS_CDN_URL}/switch-to-widget.gif`,
-        },
-        onDismiss: async () => {
-          await setFeatureWalkthroughShown(
-            FEATURE_WALKTHROUGH_KEYS.switch_to_widget,
-            true,
-          );
-        },
-        offset: {
-          position: "right",
-          highlightPad: 5,
-          indicatorLeft: -3,
-          style: {
-            transform: "none",
-            boxShadow: "var(--ads-v2-shadow-popovers)",
-            border: "1px solid var(--ads-v2-color-border-muted)",
-          },
-        },
-        dismissOnOverlayClick: true,
-        overlayColor: "transparent",
-        delay: 1000,
-      });
+      pushFeature(SignpostingWalkthroughConfig.EXPLORER_WIDGET_TAB);
   };
 
   useEffect(() => {
