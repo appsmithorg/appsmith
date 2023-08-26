@@ -8,7 +8,7 @@ import TextComponent from "./Text";
 import Button from "./Button";
 import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
 import { Callout, Text } from "design-system";
 import CopyUrlForm from "./CopyUrlForm";
@@ -18,8 +18,8 @@ import Dropdown from "./Dropdown";
 import { Classes } from "@blueprintjs/core";
 import Checkbox from "./Checkbox";
 import Radio from "./Radio";
+import { useDispatch } from "react-redux";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import classNames from "classnames";
 
 type GroupProps = {
   name?: string;
@@ -171,38 +171,30 @@ export default function Group({
               case SettingTypes.LINK:
                 return (
                   <div
-                    className={classNames({
-                      "t--read-more-link mb-2 callout-link": true,
-                      hide:
-                        setting.isHidden ||
-                        (setting.isVisible &&
-                          !setting.isVisible(formValuesSelector(state))),
-                    })}
+                    className={`${
+                      setting.isHidden ? "hide" : "callout-link"
+                    } t--read-more-link`}
                     data-testid="admin-settings-group-link"
                     key={setting.name || setting.id}
                   >
                     <Callout
                       kind={setting?.calloutType || "info"}
-                      links={
-                        setting.url || setting.action
-                          ? [
-                              {
-                                children: createMessage(LEARN_MORE),
-                                ...(setting.url && { to: setting.url }),
-                                ...(setting.action && {
-                                  onClick: (e: any) => {
-                                    if (setting.action) {
-                                      e.preventDefault();
-                                      setting.action(
-                                        calloutDispatch,
-                                      ) as unknown as React.MouseEventHandler<HTMLElement>;
-                                    }
-                                  },
-                                }),
-                              },
-                            ]
-                          : []
-                      }
+                      links={[
+                        {
+                          children: createMessage(LEARN_MORE),
+                          ...(setting.url && { to: setting.url }),
+                          ...(setting.action && {
+                            onClick: (e: any) => {
+                              if (setting.action) {
+                                e.preventDefault();
+                                setting.action(
+                                  calloutDispatch,
+                                ) as unknown as React.MouseEventHandler<HTMLElement>;
+                              }
+                            },
+                          }),
+                        },
+                      ]}
                     >
                       {setting.label || ""}
                     </Callout>

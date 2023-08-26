@@ -31,10 +31,6 @@ public class UserSessionDTO {
 
     private Long createdAt;
 
-    private Boolean emailVerified;
-
-    private Boolean emailVerificationRequired;
-
     private LoginSource source;
 
     private UserState state;
@@ -87,8 +83,6 @@ public class UserSessionDTO {
         session.currentWorkspaceId = user.getCurrentWorkspaceId();
         session.workspaceIds = user.getWorkspaceIds();
         session.tenantId = user.getTenantId();
-        session.emailVerified = Boolean.TRUE.equals(user.getEmailVerified());
-        session.emailVerificationRequired = Boolean.TRUE.equals(user.getEmailVerificationRequired());
 
         session.credentials = authentication.getCredentials();
         session.authorities = authentication.getAuthorities();
@@ -129,8 +123,6 @@ public class UserSessionDTO {
         user.setCurrentWorkspaceId(currentWorkspaceId);
         user.setWorkspaceIds(workspaceIds);
         user.setTenantId(tenantId);
-        user.setEmailVerified(Boolean.TRUE.equals(emailVerified));
-        user.setEmailVerificationRequired(Boolean.TRUE.equals(emailVerificationRequired));
 
         if (PASSWORD_PROVIDER.equals(authorizedClientRegistrationId)) {
             return new UsernamePasswordAuthenticationToken(user, credentials, authorities);

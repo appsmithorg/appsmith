@@ -177,7 +177,6 @@ class AnalyticsUtil {
           name: userData.name,
           userId: userId,
           source: "cloud",
-          emailVerified: userData.emailVerified,
         };
         AnalyticsUtil.user = userData;
         log.debug("Identify User " + userId);

@@ -11,16 +11,12 @@ import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.solutions.EnvManager;
 import jakarta.validation.Validator;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-
-import java.util.Map;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 
@@ -30,8 +26,6 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final ConfigService configService;
 
-    private final EnvManager envManager;
-
     public TenantServiceCEImpl(
             Scheduler scheduler,
             Validator validator,
@@ -39,11 +33,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             ReactiveMongoTemplate reactiveMongoTemplate,
             TenantRepository repository,
             AnalyticsService analyticsService,
-            ConfigService configService,
-            @Lazy EnvManager envManager) {
+            ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.configService = configService;
-        this.envManager = envManager;
     }
 
     @Override
@@ -72,24 +64,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     if (oldtenantConfiguration == null) {
                         oldtenantConfiguration = new TenantConfiguration();
                     }
-                    Mono<Map<String, String>> envMono = Mono.empty();
-                    // instance admin is setting the email verification to true but the SMTP settings are not configured
-                    if (tenantConfiguration.getEmailVerificationEnabled() == Boolean.TRUE) {
-                        envMono = envManager.getAllNonEmpty().flatMap(properties -> {
-                            String mailHost = properties.get("APPSMITH_MAIL_HOST");
-                            if (mailHost == null || mailHost == "") {
-                                return Mono.error(new AppsmithException(AppsmithError.INVALID_SMTP_CONFIGURATION));
-                            }
-                            return Mono.empty();
-                        });
-                    }
-                    return envMono.then(Mono.zip(Mono.just(oldtenantConfiguration), Mono.just(tenant)));
-                })
-                .flatMap(tuple2 -> {
-                    Tenant tenant = tuple2.getT2();
-                    TenantConfiguration oldConfig = tuple2.getT1();
-                    AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldConfig);
-                    tenant.setTenantConfiguration(oldConfig);
+                    AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldtenantConfiguration);
+                    tenant.setTenantConfiguration(oldtenantConfiguration);
                     return repository.updateById(tenantId, tenant, MANAGE_TENANT);
                 });
     }
