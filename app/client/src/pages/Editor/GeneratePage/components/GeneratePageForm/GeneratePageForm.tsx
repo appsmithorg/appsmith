@@ -64,6 +64,7 @@ import { getPluginImages } from "selectors/entitiesSelector";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
+import equal from "fast-deep-equal";
 
 //  ---------- Styles ----------
 
@@ -494,11 +495,23 @@ function GeneratePageForm() {
         }
       }
     }
+
+    // The datasourceOptions can be update in case the environments are refreshed, need to sync the
+    // selected datasource with the updated datasourceOptions
+    for (let i = 0; i < dataSourceOptions.length; i++) {
+      if (dataSourceOptions[i].id === selectedDatasource.id) {
+        if (equal(dataSourceOptions[i], selectedDatasource))
+          selectDataSource(dataSourceOptions[i]);
+        break;
+      }
+    }
   }, [
     dataSourceOptions,
     datasourceIdToBeSelected,
     onSelectDataSource,
+    selectedDatasource,
     setDatasourceIdToBeSelected,
+    selectDataSource,
   ]);
 
   useEffect(() => {
