@@ -44,7 +44,7 @@ export const Form = styled.form<{
     !props.viewMode && `height: ${`calc(100% - ${props?.theme.backBanner})`};`}
   overflow-y: scroll;
   padding-bottom: 20px;
-  margin-left: 24px;
+  margin-left: ${(props) => (props.viewMode ? "0px" : "24px")};
 `;
 
 export const ViewModeWrapper = styled.div`
