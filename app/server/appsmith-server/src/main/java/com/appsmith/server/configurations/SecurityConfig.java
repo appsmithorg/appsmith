@@ -252,6 +252,9 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ANALYTICS_URL + "/event"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/resendEmailVerification"),
+                        ServerWebExchangeMatchers.pathMatchers(
+                                HttpMethod.POST, USER_URL + "/verifyEmailVerificationToken"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ENVIRONMENT_URL + "/workspaces/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PRODUCT_ALERT + "/alert"))
                 .permitAll()
