@@ -401,15 +401,22 @@ function GeneratePageForm() {
     workspace?.userPermissions || [],
   );
 
+  const spreadSheetsProps = useSpreadSheets({
+    setSelectedDatasourceTableOptions,
+    setSelectedDatasourceIsInvalid,
+  });
+
+  const fetchingDatasourceConfigs =
+    isFetchingDatasourceStructure ||
+    (isFetchingBucketList && isS3Plugin) ||
+    ((isFetchingSheetPluginForm || spreadSheetsProps.isFetchingSpreadsheets) &&
+      isGoogleSheetPlugin);
+
   const dataSourceOptions = useDatasourceOptions({
     canCreateDatasource,
     datasources,
     generateCRUDSupportedPlugin,
-  });
-
-  const spreadSheetsProps = useSpreadSheets({
-    setSelectedDatasourceTableOptions,
-    setSelectedDatasourceIsInvalid,
+    fetchingDatasourceConfigs,
   });
 
   const sheetsListProps = useSheetsList();
@@ -591,12 +598,6 @@ function GeneratePageForm() {
       : PluginFormInputFieldMap.DEFAULT;
 
   let tableDropdownErrorMsg = "";
-
-  const fetchingDatasourceConfigs =
-    isFetchingDatasourceStructure ||
-    (isFetchingBucketList && isS3Plugin) ||
-    ((isFetchingSheetPluginForm || spreadSheetsProps.isFetchingSpreadsheets) &&
-      isGoogleSheetPlugin);
 
   const fetchingDatasourceConfigError =
     selectedDatasourceIsInvalid ||
