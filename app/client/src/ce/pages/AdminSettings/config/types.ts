@@ -75,9 +75,9 @@ export type Setting = ControlType & {
   sortOrder?: number;
   subText?: string;
   toggleText?: (value: boolean) => string;
-  isVisible?: (values: Record<string, any>) => boolean;
+  isVisible?: (values?: Record<string, any>) => boolean;
   isHidden?: boolean;
-  isDisabled?: (values: Record<string, any>) => boolean;
+  isDisabled?: (values?: Record<string, any>) => boolean;
   calloutType?: CalloutKind;
   advanced?: Setting[];
   isRequired?: boolean;

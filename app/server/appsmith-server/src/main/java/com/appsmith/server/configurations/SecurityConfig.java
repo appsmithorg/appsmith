@@ -198,6 +198,9 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/resendEmailVerification"),
+                        ServerWebExchangeMatchers.pathMatchers(
+                                HttpMethod.POST, USER_URL + "/verifyEmailVerificationToken"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PRODUCT_ALERT + "/alert"))
                 .permitAll()
                 .pathMatchers("/public/**", "/oauth2/**")

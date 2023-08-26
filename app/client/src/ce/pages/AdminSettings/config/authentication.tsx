@@ -1,8 +1,8 @@
 import React from "react";
 import {
+  EMAIL_SETUP_DOC,
   GITHUB_SIGNUP_SETUP_DOC,
   GOOGLE_SIGNUP_SETUP_DOC,
-  SIGNUP_RESTRICTION_DOC,
 } from "constants/ThirdPartyConstants";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
@@ -34,8 +34,9 @@ import {
 import { isSAMLEnabled, isOIDCEnabled } from "@appsmith/utils/planHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import store from "store";
-
 const featureFlags = selectFeatureFlags(store.getState());
+import { getAppsmithConfigs } from "@appsmith/configs";
+const { mailEnabled } = getAppsmithConfigs();
 
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
@@ -62,13 +63,72 @@ const FormAuth: AdminConfigType = {
           : "Allow all users to signup",
     },
     {
+      id: "emailVerificationEnabled",
+      category: SettingCategories.FORM_AUTH,
+      controlType: SettingTypes.TOGGLE,
+      label: "email verification",
+      isDisabled: (settings) => {
+        // Disabled when mail is not enabled, unless setting already enabled then enabled
+        if (!settings) {
+          return true;
+        }
+        if (settings.emailVerificationEnabled) {
+          return false;
+        }
+        return !mailEnabled;
+      },
+    },
+    {
+      id: "APPSMITH_FORM_DISABLED_BANNER",
+      category: SettingCategories.FORM_AUTH,
+      controlType: SettingTypes.LINK,
+      label:
+        "To enable email verification for form login, you must enable SMTP server from email settings",
+      url: EMAIL_SETUP_DOC,
+      calloutType: "warning",
+      isVisible: (settings) => {
+        // Visible when mail is disabled, unless setting already enabled then visible
+        if (!settings) {
+          return false;
+        }
+        if (settings.emailVerificationEnabled) {
+          return false;
+        }
+        return !mailEnabled;
+      },
+    },
+    {
       id: "APPSMITH_FORM_CALLOUT_BANNER",
       category: SettingCategories.FORM_AUTH,
       controlType: SettingTypes.CALLOUT,
       label:
-        "The form login method does not verify the emails of users that create accounts.",
-      url: SIGNUP_RESTRICTION_DOC,
+        "Please ensure that your SMTP settings are correctly configured to ensure that the verification emails can be delivered",
       calloutType: "warning",
+      isVisible: (settings) => {
+        // Visible when mail is enabled and setting is true
+        if (!settings) {
+          return false;
+        }
+        return settings.emailVerificationEnabled && mailEnabled;
+      },
+    },
+    {
+      id: "APPSMITH_FORM_ERROR_BANNER",
+      category: SettingCategories.FORM_AUTH,
+      controlType: SettingTypes.LINK,
+      label:
+        "Valid SMTP settings not found. Signup with email verification will not work without SMTP configuration",
+      calloutType: "error",
+      isVisible: (settings) => {
+        // Visible when mail is disabled but settings is true
+        if (!settings) {
+          return false;
+        }
+        if (!mailEnabled && settings.emailVerificationEnabled) {
+          return true;
+        }
+        return false;
+      },
     },
   ],
 };
