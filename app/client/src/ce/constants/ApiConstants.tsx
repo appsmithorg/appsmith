@@ -39,6 +39,7 @@ export const GithubOAuthURL = `${OAuthURL}/github`;
 export const LOGIN_SUBMIT_PATH = "login";
 export const SIGNUP_SUBMIT_PATH = "users";
 export const SUPER_USER_SUBMIT_PATH = `${SIGNUP_SUBMIT_PATH}/super`;
+export const EMAIL_VERIFICATION_PATH = `users/verifyEmailVerificationToken`;
 
 export const getExportAppAPIRoute = (
   applicationId: string,
@@ -50,5 +51,6 @@ export const getExportAppAPIRoute = (
   }
   return exportUrl;
 };
+
 export const getSnapShotAPIRoute = (applicationId: string) =>
   `/v1/applications/snapshot/${applicationId}`;
