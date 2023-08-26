@@ -99,6 +99,7 @@ export const ActionButton = styled(Button)<{
   &&& {
     // Pulling button to the left if floatLeft is set as true
     margin-right: ${(props) => (props.floatLeft ? "auto" : "9px")};
+    margin-left: ${(props) => (props.floatLeft ? "16px" : "0px")};
   }
 `;
 
