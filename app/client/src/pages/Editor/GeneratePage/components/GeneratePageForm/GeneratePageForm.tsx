@@ -636,6 +636,8 @@ function GeneratePageForm() {
 
   const showSearchableColumn =
     !!selectedTable.value &&
+    !fetchingDatasourceConfigs &&
+    !fetchingDatasourceConfigError &&
     PluginPackageName.S3 !== selectedDatasourcePluginPackageName;
 
   const showSubmitButton =
