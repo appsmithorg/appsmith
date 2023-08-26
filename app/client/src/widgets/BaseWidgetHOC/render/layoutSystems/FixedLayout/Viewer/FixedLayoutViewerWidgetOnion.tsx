@@ -5,10 +5,10 @@ import { PositionedComponentLayer } from "../PositionedComponentLayer";
 
 export const FixedLayoutViewerWidgetOnion = (props: BaseWidgetProps) => {
   return (
-    <FixedLayoutWigdetComponent {...props}>
-      <PositionedComponentLayer {...props}>
+    <PositionedComponentLayer {...props}>
+      <FixedLayoutWigdetComponent {...props}>
         {props.children}
-      </PositionedComponentLayer>
-    </FixedLayoutWigdetComponent>
+      </FixedLayoutWigdetComponent>
+    </PositionedComponentLayer>
   );
 };
