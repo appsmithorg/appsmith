@@ -23,9 +23,11 @@ import com.appsmith.server.enums.ProvisionStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ProvisionUtils;
+import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
@@ -117,6 +119,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
             TenantService tenantService,
             PermissionGroupService permissionGroupService,
             UserUtils userUtils,
+            EmailVerificationTokenRepository emailVerificationTokenRepository,
+            RedirectHelper redirectHelper,
             PermissionGroupRepository permissionGroupRepository,
             UserGroupRepository userGroupRepository,
             PolicyGenerator policyGenerator,
@@ -143,7 +147,9 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                 userDataService,
                 tenantService,
                 permissionGroupService,
-                userUtils);
+                userUtils,
+                emailVerificationTokenRepository,
+                redirectHelper);
 
         this.userDataService = userDataService;
         this.tenantService = tenantService;
