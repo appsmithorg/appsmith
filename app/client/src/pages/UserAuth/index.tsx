@@ -11,9 +11,6 @@ import { useSelector } from "react-redux";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { ThemeProvider } from "styled-components";
-import VerificationPending from "./VerificationPending";
-import VerifyUser from "./VerifyUser";
-import VerificationError from "./VerificationError";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -40,17 +37,6 @@ export function UserAuth() {
             component={ForgotPassword}
             exact
             path={`${path}/forgotPassword`}
-          />
-          <SentryRoute
-            component={VerificationPending}
-            exact
-            path={`${path}/verificationPending`}
-          />
-          <SentryRoute component={VerifyUser} exact path={`${path}/verify`} />
-          <SentryRoute
-            component={VerificationError}
-            exact
-            path={`${path}/verify-error`}
           />
           <SentryRoute component={PageNotFound} />
         </Switch>

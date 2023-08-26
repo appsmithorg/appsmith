@@ -16,7 +16,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserIdentifierService;
-import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -49,8 +48,7 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
             FeatureFlagService featureFlagService,
             CommonConfig commonConfig,
             UserIdentifierService userIdentifierService,
-            TenantService tenantService,
-            UserService userService) {
+            TenantService tenantService) {
 
         super(
                 forkExamplesWorkspace,
@@ -66,9 +64,7 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                 configService,
                 featureFlagService,
                 commonConfig,
-                userIdentifierService,
-                tenantService,
-                userService);
+                userIdentifierService);
         this.tenantService = tenantService;
         this.sessionUserService = sessionUserService;
     }

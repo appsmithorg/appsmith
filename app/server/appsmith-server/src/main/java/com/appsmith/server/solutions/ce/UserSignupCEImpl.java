@@ -125,9 +125,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                     AppsmithError.INVALID_PASSWORD_LENGTH, LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH));
         }
 
-        // only creating user, welcome email will be sent post user email verification
         Mono<UserSignupDTO> createUserAndSendEmailMono = userService
-                .createUser(user, exchange.getRequest().getHeaders().getOrigin())
+                .createUserAndSendEmail(user, exchange.getRequest().getHeaders().getOrigin())
                 .elapsed()
                 .map(pair -> {
                     log.debug("UserSignupCEImpl::Time taken for create user and send email: {} ms", pair.getT1());

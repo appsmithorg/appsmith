@@ -21,7 +21,6 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
-import com.appsmith.server.solutions.EnvManager;
 import com.appsmith.server.solutions.LicenseAPIManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +28,6 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.http.codec.multipart.Part;
@@ -83,23 +81,14 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             ApplicationRepository applicationRepository,
             AnalyticsService analyticsService,
             ConfigService configService,
-            @Lazy EnvManager envManager,
             SessionUserService sessionUserService,
             LicenseAPIManager licenseAPIManager,
             RedirectHelper redirectHelper,
             AssetService assetService,
             ObjectMapper objectMapper,
             CacheableFeatureFlagHelper cacheableFeatureFlagHelper) {
-        super(
-                scheduler,
-                validator,
-                mongoConverter,
-                reactiveMongoTemplate,
-                repository,
-                analyticsService,
-                configService,
-                envManager);
 
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService);
         this.licenseAPIManager = licenseAPIManager;
         this.sessionUserService = sessionUserService;
         this.redirectHelper = redirectHelper;

@@ -1,13 +1,11 @@
 import React, { memo } from "react";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
-import { Field, getFormValues } from "redux-form";
+import { Field } from "redux-form";
 import styled from "styled-components";
 import type { SettingComponentProps } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { createMessage } from "@appsmith/constants/messages";
 import { Switch, Text } from "design-system";
-import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
-import { useSelector } from "react-redux";
 
 const ToggleWrapper = styled.div`
   margin-bottom: 16px;
@@ -20,7 +18,6 @@ function FieldToggleWithToggleText(
   id?: string,
   isPropertyDisabled?: boolean,
   label?: React.ReactNode,
-  isDisabled = false,
 ) {
   return function FieldToggle(
     componentProps: FormTextFieldProps & {
@@ -45,7 +42,6 @@ function FieldToggleWithToggleText(
       <ToggleWrapper>
         <Switch
           data-testid={id}
-          isDisabled={isDisabled}
           isSelected={isPropertyDisabled ? !val : val}
           onChange={onToggle}
         >
@@ -64,10 +60,7 @@ const StyledFieldToggleGroup = styled.div`
   margin-bottom: 8px;
 `;
 
-const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
-
 export function ToggleComponent({ setting }: SettingComponentProps) {
-  const settings = useSelector(formValuesSelector);
   return (
     <StyledFieldToggleGroup className="t--admin-settings-toggle">
       <Field
@@ -76,9 +69,8 @@ export function ToggleComponent({ setting }: SettingComponentProps) {
           setting.id,
           !setting.name?.toLowerCase().includes("enable"),
           setting.label,
-          setting.isDisabled ? setting.isDisabled(settings) : false,
         )}
-        name={setting.name || setting.id}
+        name={setting.name}
       />
     </StyledFieldToggleGroup>
   );
