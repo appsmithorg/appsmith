@@ -119,7 +119,7 @@ class GlobalHotKeys extends React.Component<Props> {
   }
 
   public renderHotkeys() {
-    const { isOpened: isWalkthroughOpened } = this.context;
+    const { isOpened: isWalkthroughOpened } = this.context ?? {};
     // If walkthrough is open disable shortcuts
     if (isWalkthroughOpened) return <Hotkeys />;
 
