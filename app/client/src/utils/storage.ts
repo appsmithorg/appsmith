@@ -28,6 +28,7 @@ export const STORAGE_KEYS: {
   FEATURE_WALKTHROUGH: "FEATURE_WALKTHROUGH",
   USER_SIGN_UP: "USER_SIGN_UP",
   VERSION_UPDATE_STATE: "VERSION_UPDATE_STATE",
+  CURRENT_ENV: "CURRENT_ENV",
 };
 
 const store = localforage.createInstance({
@@ -105,6 +106,42 @@ export const getCopiedWidgets = async () => {
     return;
   }
   return [];
+};
+
+// Function to save the current environment and the appId in indexedDB
+export const saveCurrentEnvironment = async (envId: string, appId: string) => {
+  try {
+    await store.setItem(STORAGE_KEYS.CURRENT_ENV, { envId, appId });
+    return true;
+  } catch (error) {
+    log.error("An error occurred when storing current env: ", error);
+    return false;
+  }
+};
+
+// Function to fetch the current environment and related appId from indexedDB
+export const getSavedCurrentEnvironmentDetails = async () => {
+  try {
+    return (
+      (await store.getItem(STORAGE_KEYS.CURRENT_ENV)) || {
+        envId: "",
+        appId: "",
+      }
+    );
+  } catch (error) {
+    log.error("An error occurred when fetching current env: ", error);
+  }
+};
+
+// Function to reset the current environment and related appId from indexedDB
+export const resetCurrentEnvironment = async () => {
+  try {
+    await store.removeItem(STORAGE_KEYS.CURRENT_ENV);
+    return true;
+  } catch (error) {
+    log.error("An error occurred when resetting current env: ", error);
+    return false;
+  }
 };
 
 export const setPostWelcomeTourState = async (flag: boolean) => {
