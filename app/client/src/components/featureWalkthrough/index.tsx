@@ -7,6 +7,7 @@ import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { retryPromise } from "utils/AppsmithUtils";
 import { useLocation } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { isElementVisible } from "./utils";
 
 const WalkthroughRenderer = lazy(() => {
   return retryPromise(
@@ -58,11 +59,16 @@ export default function Walkthrough({ children }: any) {
   };
 
   const updateActiveWalkthrough = () => {
+    // If a walkthrough is active we do not want to reset it
+    if (activeWalkthrough) return;
+
     if (feature.length > 0) {
       const highlightArea = document.querySelector(feature[0].targetId);
       if (highlightArea) {
         setTimeout(() => {
-          setActiveWalkthrough(feature[0]);
+          if (isElementVisible(highlightArea as HTMLElement)) {
+            setActiveWalkthrough(feature[0]);
+          }
         }, feature[0].delay || DEFAULT_DELAY);
       }
     } else {

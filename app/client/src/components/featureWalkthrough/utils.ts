@@ -90,3 +90,7 @@ export function getPosition({ offset, targetId }: PositionCalculator) {
       };
   }
 }
+
+export function isElementVisible(el: HTMLElement) {
+  return !!(el?.offsetWidth || el?.offsetHeight || el.getClientRects().length);
+}
