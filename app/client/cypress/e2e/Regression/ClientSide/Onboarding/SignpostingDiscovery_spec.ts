@@ -18,15 +18,11 @@ describe("Signposting discovery", function () {
     });
   });
   it("1. Add datasource popup should be visible", function () {
-    featureFlagIntercept(
-      {
-        ab_gif_signposting_enabled: true,
-      },
-      false,
-    );
-    agHelper.RefreshPage();
+    featureFlagIntercept({
+      ab_gif_signposting_enabled: true,
+    });
+    agHelper.AssertElementExist("#sidebar", 0, 40000);
 
-    agHelper.GetNClick(debuggerHelper.locators._helpButton);
     cy.get(OnboardingLocator.introModal).should("be.visible");
 
     // Create datasource
