@@ -13,16 +13,17 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Signposting discovery", function () {
   beforeEach(() => {
+    featureFlagIntercept(
+      {
+        ab_gif_signposting_enabled: true,
+      },
+      false,
+    );
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmithtest.com`, uid);
     });
   });
   it("1. Add datasource popup should be visible", function () {
-    featureFlagIntercept({
-      ab_gif_signposting_enabled: true,
-    });
-    agHelper.AssertElementExist("#sidebar", 0, 40000);
-
     cy.get(OnboardingLocator.introModal).should("be.visible");
 
     // Create datasource
