@@ -21,6 +21,9 @@ public class TenantConfigurationCE {
 
     protected License license;
 
+    // tenant admin can toggle this field to enable/disable email verification
+    private Boolean emailVerificationEnabled;
+
     // We add `JsonInclude` here, so that this field is included in the JSON response, even if it is `null`. Reason is,
     // if this field is not present, then the existing value in client's state doesn't get updated. It's just the way
     // the splat (`...`) operator works in the client. Evidently, we'll want this for all fields in this class.
@@ -47,5 +50,11 @@ public class TenantConfigurationCE {
         googleMapsKey = ObjectUtils.defaultIfNull(tenantConfiguration.getGoogleMapsKey(), googleMapsKey);
         isFormLoginEnabled = ObjectUtils.defaultIfNull(tenantConfiguration.getIsFormLoginEnabled(), isFormLoginEnabled);
         instanceName = ObjectUtils.defaultIfNull(tenantConfiguration.getInstanceName(), instanceName);
+        emailVerificationEnabled =
+                ObjectUtils.defaultIfNull(tenantConfiguration.getEmailVerificationEnabled(), emailVerificationEnabled);
+    }
+
+    public Boolean getEmailVerificationEnabled() {
+        return Boolean.TRUE.equals(this.emailVerificationEnabled);
     }
 }
