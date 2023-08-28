@@ -19,7 +19,7 @@ export default async function (request: EvalWorkerASyncRequest) {
   ExecutionMetaData.setExecutionMetaData({ triggerMeta, eventType });
 
   const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-    dataTreeEvaluator.setupUpdateTree(
+    await dataTreeEvaluator.setupUpdateTree(
       unEvalTree.unEvalTree,
       unEvalTree.configTree,
     );

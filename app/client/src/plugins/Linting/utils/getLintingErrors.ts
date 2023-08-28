@@ -135,11 +135,8 @@ function convertJsHintErrorToAppsmithLintError(
   const { a, b, c, code, d, evidence, reason } = jsHintError;
 
   // Compute actual error position
-  const actualErrorLineNumber = jsHintError.line - scriptPos.line;
-  const actualErrorCh =
-    jsHintError.line === scriptPos.line
-      ? jsHintError.character - scriptPos.ch
-      : jsHintError.character;
+  const actualErrorLineNumber = jsHintError.line - 1;
+  const actualErrorCh = jsHintError.character;
   const lintErrorMessage = getLintErrorMessage(
     reason,
     code,

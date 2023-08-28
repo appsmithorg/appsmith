@@ -514,8 +514,20 @@ function* handleUpdateJSCollectionBody(
         yield JSActionAPI.updateJSCollection(jsCollection);
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
-        // @ts-expect-error: response is of type unknown
-        yield put(updateJSCollectionBodySuccess({ data: response?.data }));
+        yield put(
+          updateJSCollectionBodySuccess({
+            data: {
+              // @ts-expect-error: response is of type unknown
+              ...response?.data,
+              url: URL.createObjectURL(
+                // @ts-expect-error: response is of type unknown
+                new Blob([response.data.body], {
+                  type: "application/javascript",
+                }),
+              ),
+            },
+          }),
+        );
         checkAndLogErrorsIfCyclicDependency(
           (response.data as JSCollection).errorReports,
         );

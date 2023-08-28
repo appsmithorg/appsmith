@@ -5,9 +5,12 @@ import { syncHandlerMap, asyncHandlerMap } from "./handlers";
 import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
 import { WorkerMessenger } from "./fns/utils/Messenger";
+import { EVAL_WORKER_SYNC_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+
+const workerBusy: Promise<any>[] = [];
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
-function syncRequestMessageListener(
+async function syncRequestMessageListener(
   e: MessageEvent<TMessage<EvalWorkerSyncRequest>>,
 ) {
   const { messageType } = e.data;
@@ -16,12 +19,18 @@ function syncRequestMessageListener(
   const { body, messageId } = e.data;
   const { method } = body;
   if (!method) return;
+  await Promise.allSettled(workerBusy);
+  let workerBusyResolve: any;
+  if (method === EVAL_WORKER_SYNC_ACTION.EVAL_TREE) {
+    workerBusy.push(new Promise((resolve) => (workerBusyResolve = resolve)));
+  }
   const messageHandler = syncHandlerMap[method];
   if (typeof messageHandler !== "function") return;
-  const responseData = messageHandler(body);
+  const responseData = await messageHandler(body);
   if (!responseData) return;
   const endTime = performance.now();
   WorkerMessenger.respond(messageId, responseData, endTime - startTime);
+  if (workerBusyResolve) workerBusyResolve(true);
 }
 
 async function asyncRequestMessageListener(

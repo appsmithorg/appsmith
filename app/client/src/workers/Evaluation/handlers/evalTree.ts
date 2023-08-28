@@ -29,7 +29,7 @@ export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
 
-export default function (request: EvalWorkerSyncRequest) {
+export default async function (request: EvalWorkerSyncRequest) {
   const { data } = request;
   let evalOrder: string[] = [];
   let reValidatedPaths: string[] = [];
@@ -73,7 +73,7 @@ export default function (request: EvalWorkerSyncRequest) {
         allActionValidationConfig,
       );
 
-      const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
+      const setupFirstTreeResponse = await dataTreeEvaluator.setupFirstTree(
         unevalTree,
         configTree,
       );
@@ -106,7 +106,7 @@ export default function (request: EvalWorkerSyncRequest) {
           allActionValidationConfig,
         );
       }
-      const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
+      const setupFirstTreeResponse = await dataTreeEvaluator.setupFirstTree(
         unevalTree,
         configTree,
       );
@@ -139,7 +139,7 @@ export default function (request: EvalWorkerSyncRequest) {
       if (shouldReplay && replayMap) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
-      const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
+      const setupUpdateTreeResponse = await dataTreeEvaluator.setupUpdateTree(
         unevalTree,
         configTree,
       );

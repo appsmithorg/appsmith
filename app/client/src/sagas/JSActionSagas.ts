@@ -73,7 +73,14 @@ export function* fetchJSCollectionsSaga(
       yield JSActionAPI.fetchJSCollections(applicationId);
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
-      payload: response.data || [],
+      payload: (response.data || []).map((jsAction) => ({
+        ...jsAction,
+        url: URL.createObjectURL(
+          new Blob([jsAction.body], {
+            type: "application/javascript",
+          }),
+        ),
+      })),
     });
   } catch (error) {
     yield put({

@@ -66,7 +66,6 @@ import {
   get,
   isArray,
   isEmpty,
-  isEqual,
   isFunction,
   isObject,
   isUndefined,
@@ -223,13 +222,13 @@ export default class DataTreeEvaluator {
    * Method to create all data required for linting and
    * evaluation of the first tree
    */
-  setupFirstTree(
+  async setupFirstTree(
     unEvalTree: any,
     configTree: ConfigTree,
-  ): {
+  ): Promise<{
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
-  } {
+  }> {
     this.setConfigTree(configTree);
 
     const totalFirstTreeSetupStartTime = performance.now();
@@ -244,7 +243,7 @@ export default class DataTreeEvaluator {
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
     const parseJSActionsStartTime = performance.now();
-    const parsedCollections = parseJSActions(this, localUnEvalTree);
+    const parsedCollections = await parseJSActions(this, localUnEvalTree);
     const parseJSActionsEndTime = performance.now();
 
     jsUpdates = parsedCollections.jsUpdates;
@@ -409,17 +408,17 @@ export default class DataTreeEvaluator {
    * evaluation of the updated tree
    */
 
-  setupUpdateTree(
+  async setupUpdateTree(
     unEvalTree: any,
     configTree: ConfigTree,
-  ): {
+  ): Promise<{
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
     jsUpdates: Record<string, JSUpdate>;
     nonDynamicFieldValidationOrder: string[];
     removedPaths: Array<{ entityId: string; fullpath: string }>;
     isNewWidgetAdded: boolean;
-  } {
+  }> {
     this.setConfigTree(configTree);
     const totalUpdateTreeSetupStartTime = performance.now();
 
@@ -442,9 +441,8 @@ export default class DataTreeEvaluator {
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
-
     //save parsed functions in resolveJSFunctions, update current state of js collection
-    const parsedCollections = parseJSActions(
+    const parsedCollections = await parseJSActions(
       this,
       localUnEvalTree,
       this.oldUnEvalTree,
@@ -727,9 +725,7 @@ export default class DataTreeEvaluator {
     };
   }
 
-  setupUpdateTreeWithDifferences(
-    updatedValuePaths: string[][],
-  ): ReturnType<typeof DataTreeEvaluator.prototype.setupUpdateTree> {
+  setupUpdateTreeWithDifferences(updatedValuePaths: string[][]) {
     const localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local unEvalTree
     if (updatedValuePaths.length === 0) {
@@ -1114,27 +1110,12 @@ export default class DataTreeEvaluator {
                 (entityConfig as JSActionEntityConfig).variables || [];
 
               if (variableList.indexOf(propertyPath) > -1) {
-                const prevEvaluatedValue = get(
-                  this.evalProps,
-                  getEvalValuePath(fullPropertyPath, {
-                    isPopulated: true,
-                    fullPath: true,
-                  }),
+                const prevUnEvalValue = get(
+                  JSObjectCollection.getUnEvalState(),
+                  fullPropertyPath,
                 );
 
-                const prevUnEvalValue = JSObjectCollection.getPrevUnEvalState({
-                  fullPath: fullPropertyPath,
-                });
-
-                const hasUnEvalValueModified = !isEqual(
-                  prevUnEvalValue,
-                  unEvalPropertyValue,
-                );
-
-                const evalValue =
-                  !hasUnEvalValueModified && prevEvaluatedValue
-                    ? prevEvaluatedValue
-                    : evalPropertyValue;
+                const evalValue = prevUnEvalValue;
 
                 const evalPath = getEvalValuePath(fullPropertyPath, {
                   isPopulated: true,
