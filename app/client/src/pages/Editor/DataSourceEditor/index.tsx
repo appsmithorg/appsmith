@@ -90,12 +90,10 @@ import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
-import {
-  isStorageEnvironmentCreated,
-  onUpdateFilterSuccess,
-} from "@appsmith/utils/Environments";
+import { isStorageEnvironmentCreated } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { setCurrentEditingEnvironmentID } from "@appsmith/actions/environmentAction";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -211,6 +209,7 @@ export interface DatasourcePaneFunctions {
   resetForm: (formName: string) => void;
   initializeFormWithDefaults: (pluginType: string) => void;
   datasourceDiscardAction: (pluginId: string) => void;
+  setCurrentEditingEnvironmentID: (id: string) => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props, State> {
@@ -510,46 +509,56 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     userPermissions: string[],
     showFilterPane: boolean,
   ) => {
-    if (id.length > 0 && this.state.filterParams.id !== id) {
-      if (
-        !isEmpty(this.props.formData) &&
-        this.props.isFormDirty &&
-        this.state.filterParams.id.length > 0
+    if (id.length > 0) {
+      if (!this.props.viewMode) {
+        this.props.setCurrentEditingEnvironmentID(id);
+      }
+      if (this.state.filterParams.id !== id) {
+        if (
+          !isEmpty(this.props.formData) &&
+          this.props.isFormDirty &&
+          this.state.filterParams.id.length > 0
+        ) {
+          this.setState({
+            showDialog: true,
+            switchFilterBlocked: true,
+            navigation: () => {
+              this.updateFilterSuccess(
+                id,
+                name,
+                userPermissions,
+                showFilterPane,
+              );
+            },
+          });
+          return false;
+        } else {
+          this.props.resetForm(this.props.formName);
+        }
+        return this.updateFilterSuccess(
+          id,
+          name,
+          userPermissions,
+          showFilterPane,
+        );
+      } else if (
+        !isStorageEnvironmentCreated(this.props.formData as Datasource, id)
       ) {
+        return this.updateFilterSuccess(
+          id,
+          name,
+          userPermissions,
+          showFilterPane,
+        );
+      } else if (showFilterPane !== this.state.filterParams.showFilterPane) {
+        // In case just the viewmode changes but the id remains the same
         this.setState({
-          showDialog: true,
-          switchFilterBlocked: true,
-          navigation: () => {
-            this.updateFilterSuccess(id, name, userPermissions, showFilterPane);
+          filterParams: {
+            ...this.state.filterParams,
+            showFilterPane,
           },
         });
-        return false;
-      } else {
-        this.props.resetForm(this.props.formName);
       }
-      return this.updateFilterSuccess(
-        id,
-        name,
-        userPermissions,
-        showFilterPane,
-      );
-    } else if (
-      !isStorageEnvironmentCreated(this.props.formData as Datasource, id)
-    ) {
-      return this.updateFilterSuccess(
-        id,
-        name,
-        userPermissions,
-        showFilterPane,
-      );
-    } else if (showFilterPane !== this.state.filterParams.showFilterPane) {
-      // In case just the viewmode changes but the id remains the same
-      this.setState({
-        filterParams: {
-          ...this.state.filterParams,
-          showFilterPane,
-        },
-      });
     }
     return true;
   };
@@ -560,7 +569,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     userPermissions: string[],
     showFilterPane: boolean,
   ) => {
-    onUpdateFilterSuccess(id);
     const { datasourceStorages } = this.props.datasource as Datasource;
     // check all datasource storages and remove the ones which do not have an id object
     const datasourceStoragesWithId = Object.keys(datasourceStorages).reduce(
@@ -874,7 +882,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           <ResizerContentContainer className="db-form-resizer-content">
             <DSEditorWrapper>
               <DSDataFilter
-                datasourceId={datasourceId}
                 filterId={this.state.filterParams.id}
                 isInsideReconnectModal={!!isInsideReconnectModal}
                 pluginName={pluginName}
@@ -1071,6 +1078,8 @@ const mapDispatchToProps = (
     dispatch(initializeDatasourceFormDefaults(pluginType)),
   datasourceDiscardAction: (pluginId) =>
     dispatch(datasourceDiscardAction(pluginId)),
+  setCurrentEditingEnvironmentID: (id: string) =>
+    dispatch(setCurrentEditingEnvironmentID(id)),
 });
 
 export default connect(
