@@ -154,6 +154,7 @@ describe("Camera widget - Video test", () => {
     table.ValidateDownloadNVerify("video.mp4");
   });
 
+  //Tests to Validate camera to video widget binding
   //Skipping below tests due to issue - https://github.com/appsmithorg/appsmith/issues/26166
   it.skip("7. Video Recording test - Disabled Camera but Enabled Microphone", () => {
     deployMode.NavigateBacktoEditor();
@@ -245,7 +246,7 @@ describe("Camera widget - Video test", () => {
       .should(($el) => {
         const attrValue = $el[0].webkitAudioDecodedByteCount;
 
-        //Threshold less than 30000 shows that the audio is playing
+        //Threshold greater than 30000 shows that the audio is playing
         expect(attrValue).be.greaterThan(30000);
       });
     agHelper
@@ -254,7 +255,7 @@ describe("Camera widget - Video test", () => {
       .should(($el) => {
         const attrValue = $el[0].webkitVideoDecodedByteCount;
 
-        //Threshold less than 30000 shows that the video is playing
+        //Threshold greater than 30000 shows that the video is playing
         expect(attrValue).be.greaterThan(30000);
       });
   });
