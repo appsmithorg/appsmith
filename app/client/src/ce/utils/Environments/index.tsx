@@ -86,10 +86,6 @@ export const isEnvironmentValid = (
   return isValid ? isValid : false;
 };
 
-export const onUpdateFilterSuccess = (id: string) => {
-  return id;
-};
-
 /*
  * Functiont to check get the datasource configuration for current ENV
  */
