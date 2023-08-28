@@ -1,6 +1,8 @@
 import type { Package } from "@appsmith/constants/PackageConstants";
 import type { AppState } from "@appsmith/reducers";
 
+const DEFAULT_PACKAGE_LIST: Package[] = [];
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getIsFetchingPackages = (state: AppState) => false;
 
@@ -9,4 +11,5 @@ export const getIsCreatingPackage = (state: AppState, workspaceId: string) =>
   false;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getPackagesList = (state: AppState): Package[] => [];
+export const getPackagesList = (state: AppState): Package[] =>
+  DEFAULT_PACKAGE_LIST;

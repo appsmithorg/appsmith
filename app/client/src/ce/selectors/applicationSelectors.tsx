@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { createSelector } from "reselect";
 import { groupBy } from "lodash";
 import type { AppState } from "@appsmith/reducers";
