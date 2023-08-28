@@ -54,6 +54,7 @@ import classNames from "classnames";
 import lazyLottie from "utils/lazyLottie";
 import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 const { intercomAppID } = getAppsmithConfigs();
 
 const StyledDivider = styled(Divider)`
@@ -329,10 +330,7 @@ function CheckListItem(props: {
                 AnalyticsUtil.logEvent("SIGNPOSTING_INFO_CLICK", {
                   step: props.step,
                 });
-                window.open(
-                  props.docLink ?? "https://docs.appsmith.com/",
-                  "_blank",
-                );
+                window.open(props.docLink ?? DOCS_BASE_URL, "_blank");
                 e.stopPropagation();
               }}
               startIcon="book-line"
