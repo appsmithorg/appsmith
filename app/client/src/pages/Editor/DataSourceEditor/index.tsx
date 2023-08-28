@@ -737,6 +737,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           <RestAPIDatasourceForm
             applicationId={this.props.applicationId}
             currentEnvironment={this.state.filterParams.id}
+            currentEnvironmentName={this.state.filterParams.name}
             datasource={datasource}
             datasourceId={datasourceId}
             formData={formData}

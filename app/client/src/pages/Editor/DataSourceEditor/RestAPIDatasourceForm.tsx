@@ -42,10 +42,6 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Form } from "./DBForm";
-import {
-  getCurrentEnvName,
-  getCurrentEnvironment,
-} from "@appsmith/utils/Environments";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -55,6 +51,7 @@ interface DatasourceRestApiEditorProps {
     onSuccess?: ReduxAction<unknown>,
   ) => void;
   currentEnvironment: string;
+  currentEnvironmentName: string;
   isSaving: boolean;
   applicationId: string;
   datasourceId: string;
@@ -218,8 +215,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
-      environmentId: getCurrentEnvironment(),
-      environmentName: getCurrentEnvName(),
+      environmentId: this.props.currentEnvironment,
+      environmentName: this.props.currentEnvironmentName,
       pluginName: this.props.pluginName || "",
       pluginPackageName: this.props.pluginPackageName || "",
     });
