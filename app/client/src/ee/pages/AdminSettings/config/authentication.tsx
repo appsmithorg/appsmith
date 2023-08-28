@@ -1,6 +1,5 @@
-import { useSelector } from "react-redux";
-
 export * from "ce/pages/AdminSettings/config/authentication";
+import { useSelector } from "react-redux";
 import {
   config as CE_config,
   FormAuthCallout,
