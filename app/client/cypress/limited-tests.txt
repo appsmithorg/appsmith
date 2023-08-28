@@ -2,9 +2,10 @@
 cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 
 # For running all specs - uncomment below:
-#cypress/e2e/**/**/*
+# cypress/e2e/**/**/*
 
-#ci-test-limit uses this file to run minimum of specs. Do not run entire suite with this command.# To run only limited tests - give the spec names in below format:
+# ci-test-limit uses this file to run minimum of specs. Do not run entire suite with this command.
+# To run only limited tests - give the spec names in below format:
 # cypress/e2e/**/**/*
 
 #ci-test-limit uses this file to run minimum of specs. Do not run entire suite with this command.
