@@ -95,7 +95,6 @@ export const checkboxlocators = {
   checkBoxLabel: (value: string) => `//*[contains(@class,'t--checkbox-widget-label') and text()='${value}']`,
 }
 
-
 export const buttongroupwidgetlocators = {
   buttongroup: ".t--buttongroup-widget",
   buttonSettingInPropPane: ".t--property-control-buttons .t--edit-column-btn",
