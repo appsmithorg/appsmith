@@ -79,7 +79,6 @@ import Debugger, {
 } from "../DataSourceEditor/Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Form, ViewModeWrapper } from "../DataSourceEditor/DBForm";
-import { getCurrentEditingEnvID } from "@appsmith/utils/Environments";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DSEditorWrapper } from "../DataSourceEditor";
 import type { DatasourceFilterState } from "../DataSourceEditor";
@@ -88,6 +87,7 @@ import GoogleSheetSchema from "./GoogleSheetSchema";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -182,7 +182,6 @@ type RouteProps = {
 type SaasEditorWrappperState = {
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
-  currentEditingEnvironment: string;
 };
 class SaasEditorWrapper extends React.Component<
   SaasEditorWrappperProps,
@@ -193,7 +192,6 @@ class SaasEditorWrapper extends React.Component<
     this.state = {
       requiredFields: {},
       configDetails: {},
-      currentEditingEnvironment: getCurrentEditingEnvID(),
     };
   }
 
@@ -225,7 +223,6 @@ class SaasEditorWrapper extends React.Component<
       <SaaSEditor
         {...this.props}
         configDetails={this.state.configDetails}
-        currentEnvironment={this.state.currentEditingEnvironment}
         requiredFields={this.state.requiredFields}
         setupConfig={this.setupConfig}
       />
@@ -555,7 +552,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           <ResizerContentContainer className="db-form-resizer-content">
             <DSEditorWrapper>
               <DSDataFilter
-                datasourceId={datasourceId}
                 filterId={this.state.filterParams.id}
                 isInsideReconnectModal={!!isInsideReconnectModal}
                 pluginName={plugin?.name || ""}
@@ -638,7 +634,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 {/* Render datasource form call-to-actions */}
                 {datasource && (
                   <DatasourceAuth
-                    currentEnvironment={this.props.currentEnvironment}
+                    currentEnvironment={this.state.filterParams.id}
                     datasource={datasource}
                     datasourceButtonConfiguration={
                       datasourceButtonConfiguration
@@ -754,13 +750,15 @@ const mapStateToProps = (state: AppState, props: any) => {
     viewMode = viewModeFromURLParams === "true";
   }
 
+  const currentEnvironment = getCurrentEnvironmentId(state);
+
   // Returning false to isPluginAuthorized if there exists no plugin or formdata.
   const isPluginAuthorized =
     !!plugin && !!formData
       ? isDatasourceAuthorizedForQueryCreation(
           formData,
           plugin,
-          getCurrentEditingEnvID(),
+          currentEnvironment,
         )
       : false;
 
@@ -771,7 +769,7 @@ const mapStateToProps = (state: AppState, props: any) => {
       ? isDatasourceAuthorizedForQueryCreation(
           formData,
           plugin,
-          getCurrentEditingEnvID(),
+          currentEnvironment,
           [
             AuthenticationStatus.FAILURE,
             AuthenticationStatus.FAILURE_ACCESS_DENIED,
