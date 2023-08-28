@@ -28,6 +28,7 @@ import type {
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { SetterConfig } from "entities/AppTheming";
 
 class CanvasWidget extends ContainerWidget {
   static type = "CANVAS_WIDGET";
@@ -61,8 +62,10 @@ class CanvasWidget extends ContainerWidget {
     return {};
   }
 
-  static getSetterConfig() {
-    return {};
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {},
+    };
   }
 
   getCanvasProps(): DSLWidget & { minHeight: number } {

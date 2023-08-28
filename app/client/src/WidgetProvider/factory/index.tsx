@@ -406,7 +406,7 @@ class WidgetFactory {
   );
 
   static getWidgetSetterConfig = memoize(
-    (type: WidgetType): Partial<SetterConfig> | undefined => {
+    (type: WidgetType): Partial<SetterConfig> => {
       const widget = WidgetFactory.widgetsMap.get(type);
 
       const setterConfig = widget?.getSetterConfig() || {};
