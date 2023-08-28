@@ -2,7 +2,7 @@ import {
   agHelper,
   apiPage,
   dataSources,
-  tedTestConfig,
+  dataManager,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("Authentiacted Api with OAuth 2.O authorization code test cases", function () {
@@ -22,8 +22,8 @@ describe("Authentiacted Api with OAuth 2.O authorization code test cases", funct
           );
           //Create API from datasource
           apiPage.CreateAndFillApi(
-            tedTestConfig.dsValues[tedTestConfig.defaultEnviorment]
-              .OAuth_ApiUrl + "/api/echo/get?ASDSA=ASDSA",
+            dataManager.dsValues[dataManager.defaultEnviorment].OAuth_ApiUrl +
+              "/api/echo/get?ASDSA=ASDSA",
             "EchoOauth",
             10000,
             "GET",

@@ -34,7 +34,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
     _.agHelper.GetNClick(_.homePage._visibleTextSpan("Manage Users"));
     cy.get(".search-highlight").should("not.exist");
-    _.agHelper.UpdateInput(
+    _.agHelper.TypeText(
       _.homePage._searchUsersInput,
       Cypress.env("TESTUSERNAME1"),
     );

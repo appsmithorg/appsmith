@@ -13,6 +13,7 @@ import {
 } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
 import styled from "styled-components";
 import BusinessTag from "components/BusinessTag";
+import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 
 const StyledSettingsSubHeader = styled(SettingsSubHeader)`
   margin: 0;
@@ -21,6 +22,8 @@ const StyledSettingsSubHeader = styled(SettingsSubHeader)`
 const UpgradeBanner = () => {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "BRANDING_UPGRADE_CLICK",
+    featureName: RampFeature.Branding,
+    sectionName: RampSection.AdminSettings,
   });
 
   return (

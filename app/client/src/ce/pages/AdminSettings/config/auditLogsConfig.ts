@@ -14,5 +14,5 @@ export const config: AdminConfigType = {
   component: AuditLogsUpgradePage,
   title: "Audit logs",
   canSave: false,
-  needsUpgrade: true,
+  isFeatureEnabled: false,
 } as AdminConfigType;
