@@ -188,7 +188,7 @@ const Placeholder = styled.div`
 `;
 
 const DataStructureListWrapper = styled.div`
-  overflow-y: scroll;
+  overflow-y: auto;
   height: 100%;
   display: flex;
   flex-direction: column;

@@ -47,7 +47,7 @@ type ExplorerDatasourceEntityProps = {
 const MAX_HEIGHT_LIST_WRAPPER = 300;
 
 const DataStructureListWrapper = styled.div<{ height: number }>`
-  overflow-y: scroll;
+  overflow-y: auto;
   height: 100%;
   display: flex;
   flex-direction: column;
