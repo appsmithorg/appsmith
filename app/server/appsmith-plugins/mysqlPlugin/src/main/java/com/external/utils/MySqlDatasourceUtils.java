@@ -215,7 +215,7 @@ public class MySqlDatasourceUtils {
         }
 
         if (isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
-            if (isBlank(datasourceConfiguration.getSshProxy().getHost())) {
+            if (datasourceConfiguration.getSshProxy() == null || isBlank(datasourceConfiguration.getSshProxy().getHost())) {
                 invalids.add(DS_MISSING_SSH_HOSTNAME_ERROR_MSG);
             }
             else {
@@ -229,8 +229,8 @@ public class MySqlDatasourceUtils {
                 invalids.add(DS_MISSING_SSH_USERNAME_ERROR_MSG);
             }
 
-            // TODO: improve it.
-            if (isBlank(datasourceConfiguration.getSshProxy().getPrivateKey().getKeyFile().getBase64Content())) {
+            if (datasourceConfiguration.getSshProxy().getPrivateKey() == null || datasourceConfiguration.getSshProxy().getPrivateKey().getKeyFile() == null ||
+                    isBlank(datasourceConfiguration.getSshProxy().getPrivateKey().getKeyFile().getBase64Content())) {
                 invalids.add(DS_MISSING_SSH_KEY_ERROR_MSG);
             }
         }
