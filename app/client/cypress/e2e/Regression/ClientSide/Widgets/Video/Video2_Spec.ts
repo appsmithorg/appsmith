@@ -186,7 +186,7 @@ describe("Video widget tests", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Video1", "Widgets");
     propPane.MoveToTab("Style");
-    propPane.SelectColorFromColorPicker("backgroundcolor", 9);
+    propPane.SelectColorFromColorPicker("backgroundcolor", 14);
     agHelper.ContainsNClick("Medium");
     propPane.EnterJSContext("Border radius", "1.5rem");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
