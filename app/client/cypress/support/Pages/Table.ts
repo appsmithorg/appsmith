@@ -248,15 +248,12 @@ export class Table {
   }
 
   public WaitForTableEmpty(tableVersion: "v1" | "v2" = "v1") {
-    cy.waitUntil(() => cy.get(this._tableEmptyColumnData(tableVersion)), {
-      errorMsg: "Table is populated when not expected",
-      timeout: 10000,
-      interval: 2000,
-    }).then(($children) => {
-      cy.wrap($children).children().should("have.length", 0); //or below
-      //expect($children).to.have.lengthOf(0)
-      this.agHelper.Sleep(500);
-    });
+    this.agHelper
+      .GetElement(this._tableEmptyColumnData(tableVersion))
+      .children()
+      .should("have.length", 0); //or below
+    //expect($children).to.have.lengthOf(0)
+    this.agHelper.Sleep(500);
   }
 
   public AssertTableHeaderOrder(expectedOrder: string) {

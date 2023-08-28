@@ -173,67 +173,68 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.AssertExistingToggleState("Client side search", "true");
 
     deployMode.DeployApp();
-    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 1, "v2");
 
     table.SearchTable("Best", 2);
-    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 1, "v2");
     table.ResetSearch();
 
     table.SearchTable("Quest");
-    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 1, "v2");
     table.ResetSearch();
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 1, "v2");
 
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     propPane.TogglePropertyState("Client side search", "Off");
 
     deployMode.DeployApp();
-    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 1, "v2");
 
     table.SearchTable("Bug", 2);
-    table.WaitUntilTableLoad(0, 0, "v2"); //Since onSearchTextChanged is set , Search is queried for Search text with Client side search On or Off
+    table.WaitUntilTableLoad(0, 1, "v2"); //Since onSearchTextChanged is set , Search is queried for Search text with Client side search On or Off
     table.ResetSearch();
 
     table.SearchTable("Quest");
-    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 1, "v2");
     table.ResetSearch();
 
     //Remove onSearchTextChanged & test
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 1, "v2");
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     propPane.TogglePropertyState("Client side search", "On");
     propPane.EnterJSContext("onSearchTextChanged", "");
     propPane.ToggleJSMode("onSearchTextChanged", false);
 
     deployMode.DeployApp();
-    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 1, "v2");
     agHelper.Sleep(5000); //for table to load
 
-    table.SearchTable("Best", 2);
-    table.WaitForTableEmpty("v2"); //Since Best is present in 2nd page & Client side search is On
+    table.SearchTable("Xano", 2);
+    table.WaitForTableEmpty("v2"); //Since Xano is present in 2nd page & Client side search is On
     table.ResetSearch();
 
     table.SearchTable("SSL");
-    table.WaitUntilTableLoad(0, 0, "v2"); //as 1st page has SSL entries
+    table.WaitUntilTableLoad(0, 1, "v2"); //as 1st page has SSL entries
     table.ResetSearch();
 
     //if the client side search is off, and there is no text in onSearchTextChanged, we still go ahead with client side search. this is a known limitation    deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad(0, 0, "v2");
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad(0, 1, "v2");
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     propPane.TogglePropertyState("Client side search", "Off");
 
     deployMode.DeployApp();
-    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 1, "v2");
 
-    table.SearchTable("Best", 2);
-    table.WaitForTableEmpty("v2"); //Since Best is present in 2nd page & Client side search is Off
+    table.SearchTable("Xano", 2);
+    table.WaitForTableEmpty("v2"); //Since Xano is present in 2nd page & Client side search is Off
     table.ResetSearch();
 
     table.SearchTable("SSL");
-    table.WaitUntilTableLoad(0, 0, "v2"); //as 1st page has SSL entries
+    table.WaitUntilTableLoad(0, 1, "v2"); //as 1st page has SSL entries
     table.ResetSearch();
 
     deployMode.NavigateBacktoEditor();
