@@ -210,12 +210,13 @@ describe("AForce - Community Issues page validations", function () {
 
     deployMode.DeployApp();
     table.WaitUntilTableLoad(0, 0, "v2");
+    agHelper.Sleep(5000); //for table to load
 
-    table.SearchTable("Best");
+    table.SearchTable("Best", 2);
     table.WaitForTableEmpty("v2"); //Since Best is present in 2nd page & Client side search is On
     table.ResetSearch();
 
-    table.SearchTable("SSL", 2);
+    table.SearchTable("SSL");
     table.WaitUntilTableLoad(0, 0, "v2"); //as 1st page has SSL entries
     table.ResetSearch();
 
@@ -231,7 +232,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitForTableEmpty("v2"); //Since Best is present in 2nd page & Client side search is Off
     table.ResetSearch();
 
-    table.SearchTable("SSL", 2);
+    table.SearchTable("SSL");
     table.WaitUntilTableLoad(0, 0, "v2"); //as 1st page has SSL entries
     table.ResetSearch();
 
