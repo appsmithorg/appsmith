@@ -1,6 +1,7 @@
 import { StyleSheet } from "@emotion/sheet";
 import kebabCase from "lodash/kebabCase";
 import { createTypographyStringMap } from "../../typography";
+import { cssRule } from "../../utils/cssRule";
 import { SheetTypes } from "./types";
 
 import type { RootUnit, ThemeToken } from "../../token";
@@ -33,35 +34,35 @@ export class ProviderStyleSheet {
   };
 
   borderRadius = (token: ThemeToken) => {
-    this.updateSheet("borderRadius", this.cssRule(token));
+    this.updateSheet("borderRadius", cssRule(`.${this.providerKey}`, token));
   };
 
   borderWidth = (token: ThemeToken) => {
-    this.updateSheet("borderWidth", this.cssRule(token));
+    this.updateSheet("borderWidth", cssRule(`.${this.providerKey}`, token));
   };
 
   boxShadow = (token: ThemeToken) => {
-    this.updateSheet("boxShadow", this.cssRule(token));
+    this.updateSheet("boxShadow", cssRule(`.${this.providerKey}`, token));
   };
 
   color = (token: ThemeToken) => {
-    this.updateSheet("color", this.cssRule(token));
+    this.updateSheet("color", cssRule(`.${this.providerKey}`, token));
   };
 
   opacity = (token: ThemeToken) => {
-    this.updateSheet("opacity", this.cssRule(token));
+    this.updateSheet("opacity", cssRule(`.${this.providerKey}`, token));
   };
 
   sizing = (token: ThemeToken) => {
-    this.updateSheet("sizing", this.cssRule(token));
+    this.updateSheet("sizing", cssRule(`.${this.providerKey}`, token));
   };
 
   spacing = (token: ThemeToken) => {
-    this.updateSheet("spacing", this.cssRule(token));
+    this.updateSheet("spacing", cssRule(`.${this.providerKey}`, token));
   };
 
   zIndex = (token: ThemeToken) => {
-    this.updateSheet("zIndex", this.cssRule(token));
+    this.updateSheet("zIndex", cssRule(`.${this.providerKey}`, token));
   };
 
   rootUnit = (rootUnit: RootUnit) => {
@@ -102,20 +103,5 @@ export class ProviderStyleSheet {
   private updateSheet = (providerKey: string, styles: string) => {
     this.sheets.get(`${this.providerKey}-${providerKey}`)?.flush();
     this.sheets.get(`${this.providerKey}-${providerKey}`)?.insert(styles);
-  };
-
-  private cssRule = (token: ThemeToken) => {
-    let styles = "";
-
-    Object.keys(token).forEach((key) => {
-      const tokenProp = token[key as keyof ThemeToken];
-      if (tokenProp) {
-        styles += `--${kebabCase(
-          tokenProp?.type as unknown as string,
-        )}-${kebabCase(key)}: ${tokenProp?.value};`;
-      }
-    });
-
-    return `.${this.providerKey} {${styles}}`;
   };
 }
