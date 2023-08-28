@@ -40,6 +40,7 @@ describe("Signposting discovery", function () {
 
     // Switch to widget pane
     agHelper.AssertElementVisibility(onboarding.locators.explorer_widget_tab);
+    agHelper.Sleep();
     agHelper.AssertElementVisibility(locators._walkthrough_overlay);
     agHelper.GetNClick(onboarding.locators.explorer_widget_tab);
     agHelper.Sleep();
