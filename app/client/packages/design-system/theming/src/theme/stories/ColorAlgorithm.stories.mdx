@@ -18,41 +18,45 @@ export const Background = () => {
   const { color } = theme;
 
 return (
-<ThemeProvider theme={theme}>
-<Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
-<Flex direction="column" gap="spacing-2">
-<Text>Accent Color</Text>
-<ColorControl
-id="accent-color"
-name="accent-color"
-label="Accent Color"
-defaultValue={defaultTokens.seedColor}
-value={seedColor}
-onChange={(value)=> setSeedColor(value)}
-/>
-</Flex>
-<Flex direction="column" gap="spacing-2">
-<Text>Dark mode</Text>
-<BooleanControl
-name="colorScheme"
-value={isDarkMode}
-onChange={(checked) => setDarkMode(checked)}
-/>
-</Flex>
-</Flex>
 
-        <Flex padding="spacing-6" style={{background: "var(--color-bg)"}} direction="column">
-          <TokenTable prefix="color" tokens={color}>
-            {(cssVar) => (
-              <StyledSquarePreview
-                style={{
-                  background: cssVar,
-                }}
-              />
-            )}
-          </TokenTable>
-        </Flex>
-      </ThemeProvider>
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text>Accent Color</Text>
+      <ColorControl
+        id="accent-color"
+        name="accent-color"
+        label="Accent Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text>Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+  <Flex
+    padding="spacing-6"
+    style={{ background: "var(--color-bg)" }}
+    direction="column"
+  >
+    <TokenTable prefix="color" tokens={color}>
+      {(cssVar) => (
+        <StyledSquarePreview
+          style={{
+            background: cssVar,
+          }}
+        />
+      )}
+    </TokenTable>
+  </Flex>
+</ThemeProvider>
 
 );
 };
