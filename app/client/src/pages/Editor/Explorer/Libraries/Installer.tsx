@@ -27,7 +27,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
   selectInstalledLibraries,
-  selectIsInstallerOpen,
   selectIsLibraryInstalled,
   selectQueuedLibraries,
   selectStatusForURL,
@@ -35,11 +34,7 @@ import {
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { AppState } from "@appsmith/reducers";
-import {
-  clearInstalls,
-  installLibraryInit,
-  toggleInstaller,
-} from "actions/JSLibraryActions";
+import { installLibraryInit } from "actions/JSLibraryActions";
 import classNames from "classnames";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -51,28 +46,12 @@ const openDoc = (e: React.MouseEvent, url: string) => {
   window.open(url, "_blank");
 };
 
-const Wrapper = styled.div<{ left: number }>`
+const Wrapper = styled.div`
   display: flex;
-  height: auto;
-  width: 400px;
-  max-height: 80vh;
   flex-direction: column;
-  padding: 0 20px 4px 22px;
-  position: absolute;
-  background: white;
-  z-index: 25;
-  left: ${(props) => props.left}px;
-  bottom: 15px;
-  border-radius: var(--ads-v2-border-radius);
-  border-color: var(--ads-v2-color-border);
-  box-shadow: var(--ads-v2-shadow-popovers);
-  .installation-header {
-    padding: 20px 0 0;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
+  overflow-y: scroll;
+  max-height: calc(var(--popover-max-height) - 69px);
+
   .search-body {
     display: flex;
     padding-right: 4px;
@@ -92,9 +71,6 @@ const Wrapper = styled.div<{ left: number }>`
           cursor: initial;
         }
       }
-      .bp3-label {
-        font-size: 12px;
-      }
       display: flex;
       flex-direction: column;
       .search-bar {
@@ -110,7 +86,6 @@ const Wrapper = styled.div<{ left: number }>`
         > span {
           font-size: inherit;
         }
-        /* font-size: 12px; */
       }
     }
     .search-results {
@@ -141,9 +116,6 @@ const Wrapper = styled.div<{ left: number }>`
     }
     .divider {
       margin: 0 0 16px 0;
-    }
-    .download {
-      cursor: pointer;
     }
     .library-name {
       /* font-family: var(--font-family); */
@@ -233,7 +205,7 @@ function StatusIcon(props: {
   return (
     <Tooltip content="Install" trigger="hover">
       <Button
-        className="t--download download"
+        className="t--download"
         isIconButton
         kind="tertiary"
         {...actionProps}
@@ -322,43 +294,17 @@ const EXT_LINK = {
   jsDelivr: "https://www.jsdelivr.com/",
 };
 
-export function Installer(props: { left: number }) {
-  const { left } = props;
+export function Installer() {
   const [URL, setURL] = useState("");
   const [isValid, setIsValid] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
   const installedLibraries = useSelector(selectInstalledLibraries);
   const queuedLibraries = useSelector(selectQueuedLibraries);
-  const isOpen = useSelector(selectIsInstallerOpen);
   const installerRef = useRef<HTMLDivElement>(null);
-
-  const closeInstaller = useCallback(() => {
-    setURL("");
-    dispatch(clearInstalls());
-    dispatch(toggleInstaller(false));
-  }, []);
-
-  const handleOutsideClick = useCallback((e: MouseEvent) => {
-    const paths = e.composedPath();
-    if (
-      installerRef &&
-      installerRef.current &&
-      !paths?.includes(installerRef.current)
-    )
-      closeInstaller();
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
-  }, [isOpen]);
 
   const updateURL = useCallback((value: string) => {
     setURL(value);
-
     setErrorMessage(validate(value).message);
   }, []);
 
@@ -406,26 +352,12 @@ export function Installer(props: { left: number }) {
     [URL, installedLibraries, queuedLibraries],
   );
 
-  return !isOpen ? null : (
+  return (
     <Wrapper
-      className={`bp3-popover ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
-      left={left}
+      className={`${EntityClassNames.CONTEXT_MENU_CONTENT}`}
       ref={installerRef}
     >
-      <div className="installation-header">
-        <Text kind="heading-m">
-          {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
-        </Text>
-        <Button
-          className="t--close-installer"
-          isIconButton
-          kind="tertiary"
-          onClick={closeInstaller}
-          size="md"
-          startIcon="close-line"
-        />
-      </div>
-      <div className="search-body overflow-auto">
+      <div className="search-body overflow-y-scroll">
         <div className="search-area t--library-container">
           <div className="flex flex-row gap-2 justify-between items-end">
             <div className="w-full h-[83px]">
@@ -442,7 +374,6 @@ export function Installer(props: { left: number }) {
                 type="text"
               />
             </div>
-
             <Button
               className="mb-[22px]"
               data-testid="install-library-btn"

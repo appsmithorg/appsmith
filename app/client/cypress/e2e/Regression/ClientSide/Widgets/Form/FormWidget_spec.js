@@ -114,6 +114,7 @@ describe("Form Widget Functionality", function () {
     cy.get(publish.formWidget).should("be.visible");
     _.deployMode.NavigateBacktoEditor();
   });
+
   it("5. Toggle JS - Form-Unckeck Visible field Validation", function () {
     cy.openPropertyPane("formwidget");
     //Uncheck the disabled checkbox using JS and validate
@@ -130,12 +131,13 @@ describe("Form Widget Functionality", function () {
     cy.testJsontext("visible", "true");
     _.deployMode.DeployApp();
     cy.get(publish.formWidget).should("be.visible");
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it.skip("6. Form-Copy Verification", function () {
+  it("6. Form-Copy Verification", function () {
     cy.openPropertyPane("formwidget");
     //Copy Form and verify all properties
-    cy.copyWidget("formwidget", widgetsPage.formWidget); //to improve
+    cy.copyWidget("formwidget", widgetsPage.formWidget);
     _.deployMode.DeployApp();
   });
 
