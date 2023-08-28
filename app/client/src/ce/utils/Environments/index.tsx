@@ -12,11 +12,6 @@ export const getCurrentEnvironment = () => {
   return "unused_env";
 };
 
-// function to get the current environment from the URL
-export const getCurrentEnvName = () => {
-  return "";
-};
-
 // function to check if the datasource is created for the current environment
 export const isStorageEnvironmentCreated = (
   datasource: Datasource | null,
