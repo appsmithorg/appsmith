@@ -1,5 +1,10 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
+import { useCallback, useEffect, useState } from "react";
+import * as Sentry from "@sentry/react";
+import UserApi from "@appsmith/api/UserApi";
+import { toast } from "design-system";
+import type { ApiResponse } from "../../api/ApiResponses";
 
 export type LoginFormValues = {
   username?: string;
@@ -105,4 +110,48 @@ export const forgotPasswordSubmitHandler = (
     error.email = "";
     throw new SubmissionError(error);
   });
+};
+
+export const useResendEmailVerification = (
+  email: string | null,
+): [() => void, boolean, number] => {
+  const [clicks, setClicks] = useState(0);
+  const [linkEnabled, setLinkEnabled] = useState(true);
+
+  // Disable the link for 30 seconds when clicked
+  useEffect(() => {
+    if (linkEnabled === false) {
+      setTimeout(() => {
+        setLinkEnabled(true);
+      }, 30000);
+    }
+  }, [linkEnabled]);
+
+  const resendVerificationLink = useCallback(() => {
+    // Track clicks
+    setClicks(clicks + 1);
+    setLinkEnabled(false);
+    if (!email) {
+      const errorMessage = "Email not found for retry verification";
+      Sentry.captureMessage(errorMessage);
+      toast.show(errorMessage, { kind: "error" });
+      return;
+    }
+    UserApi.resendEmailVerification(email)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      .then((response: ApiResponse) => {
+        if (!response.responseMeta.success && response.responseMeta.error) {
+          const { code, message } = response.responseMeta.error;
+          const errorMessage = `${code}: ${message}`;
+          toast.show(errorMessage, { kind: "error" });
+          return;
+        }
+        toast.show("Verification email sent!", { kind: "success" });
+      })
+      .catch((error) => {
+        toast.show(error.message, { kind: "error" });
+      });
+  }, [email, clicks]);
+  return [resendVerificationLink, linkEnabled, clicks];
 };

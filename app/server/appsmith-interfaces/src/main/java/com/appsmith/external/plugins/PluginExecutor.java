@@ -8,6 +8,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.TriggerRequestDTO;
@@ -324,5 +325,13 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     default Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(
             List<ActionConfiguration> actionConfigurationList, Object... args) {
         return Mono.empty();
+    }
+
+    /*
+     * This method returns ActionConfiguration required in order to fetch preview data,
+     * that needs to be shown on datasource review page.
+     */
+    default ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate) {
+        return null;
     }
 }
