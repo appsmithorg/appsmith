@@ -52,52 +52,54 @@ export type PageProps = RouteComponentProps<{
 export const MembersWrapper = styled.div<{
   isMobile?: boolean;
 }>`
-  ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
-  table {
-    table-layout: fixed;
+  &.members-wrapper {
+    ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
+    table {
+      table-layout: fixed;
 
-    thead {
-      z-index: 1;
-      tr {
-        border-bottom: 1px solid var(--ads-v2-color-border);
-        th {
-          font-size: 14px;
-          font-weight: 500;
-          line-height: 1.5;
-          color: var(--ads-v2-color-fg);
-          padding: 8px 20px;
+      thead {
+        z-index: 1;
+        tr {
+          border-bottom: 1px solid var(--ads-v2-color-border);
+          th {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            color: var(--ads-v2-color-fg);
+            padding: 8px 20px;
 
-          &:last-child {
-            width: 120px;
-          }
+            &:last-child {
+              width: 120px;
+            }
 
-          svg {
-            margin: auto 8px;
-            display: initial;
+            svg {
+              margin: auto 8px;
+              display: initial;
+            }
           }
         }
       }
-    }
 
-    tbody {
-      tr {
-        td {
-          word-break: break-word;
-          padding: 0 var(--ads-spaces-9);
-          border-bottom: none;
-          height: 40px;
+      tbody {
+        tr {
+          td {
+            word-break: break-word;
+            padding: 0 var(--ads-spaces-9);
+            border-bottom: none;
+            height: 40px;
 
-          &:first-child {
-            text-align: left;
-          }
+            &:first-child {
+              text-align: left;
+            }
 
-          .ads-v2-select {
-            width: fit-content;
-            > .rc-select-selector {
-              border: none;
+            .ads-v2-select {
+              width: fit-content;
+              > .rc-select-selector {
+                border: none;
 
-              > .rc-select-selection-item {
-                padding-left: 0;
+                > .rc-select-selection-item {
+                  padding-left: 0;
+                }
               }
             }
           }
@@ -472,7 +474,11 @@ export default function MemberSettings(props: PageProps) {
   };
 
   return (
-    <MembersWrapper data-testid="t--members-wrapper" isMobile={isMobile}>
+    <MembersWrapper
+      className="members-wrapper"
+      data-testid="t--members-wrapper"
+      isMobile={isMobile}
+    >
       <>
         {!isMobile && (
           <Table

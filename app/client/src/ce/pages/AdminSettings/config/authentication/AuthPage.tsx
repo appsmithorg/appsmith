@@ -90,7 +90,6 @@ export type AuthMethodType = {
   label: string;
   subText?: string;
   image?: any;
-  needsUpgrade?: boolean;
   isConnected?: boolean;
   calloutBanner?: banner;
   icon?: string;
