@@ -9,3 +9,8 @@ export const getCurrentEnvironmentId = (state: AppState) => "unused_env";
 export const getCurrentEnvironmentName = (state: AppState) => "";
 
 export const getCurrentEditingEnvironmentId = (state: AppState) => "unused_env";
+
+export const getCurrentEnvironmentDetails = (state: AppState) => ({
+  name: "",
+  editingId: "unused_env",
+});
