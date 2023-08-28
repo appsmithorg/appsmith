@@ -5,19 +5,13 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-const cloudHosting = process.env.REACT_APP_CLOUD_HOSTING
-  ? process.env.REACT_APP_CLOUD_HOSTING.length > 0
-  : false;
-
 const communityForm = communityTemplates.locators._communityForm;
 describe("excludeForAirgap", "Publish app to Community flow", () => {
   afterEach(() => {
-    if (!cloudHosting) return;
     agHelper.RefreshPage();
   });
 
   beforeEach(() => {
-    if (!cloudHosting) return;
     agHelper.GetNClick(inviteModal.locators._shareButton);
     agHelper.GetNClick(inviteModal.locators._publishTab);
   });
@@ -43,14 +37,12 @@ describe("excludeForAirgap", "Publish app to Community flow", () => {
   }
 
   it("1. Clicking close on modal header in template form should hide the share modal", () => {
-    if (!cloudHosting) return;
     agHelper.GetNClick(communityTemplates.locators._publishInitiateButton);
     agHelper.GetNClick(locators._dialogCloseButton);
     agHelper.AssertElementAbsence(communityTemplates.locators._dialogBox);
   });
 
   it("2. Form Validation", () => {
-    if (!cloudHosting) return;
     agHelper.GetNClick(communityTemplates.locators._publishInitiateButton);
     // Initial name check
     communityTemplates.AssertInputValueToEqualPreviewValue(
@@ -103,7 +95,6 @@ describe("excludeForAirgap", "Publish app to Community flow", () => {
   });
 
   it("3. Publish template happy scenario", () => {
-    if (!cloudHosting) return;
     prepareTemplateFormForSubmission();
 
     // TODO: Make an API request here and intercept it to happy submission
@@ -111,7 +102,6 @@ describe("excludeForAirgap", "Publish app to Community flow", () => {
     agHelper.GetElement("Template published to community").should("be.visible");
   });
   it("4. Publish template unhappy scenario", () => {
-    if (!cloudHosting) return;
     prepareTemplateFormForSubmission();
 
     // TODO: Make an API request here and intercept it to unhappy submission
