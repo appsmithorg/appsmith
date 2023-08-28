@@ -6,7 +6,7 @@ import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
 import { HighlightText } from "design-system-old";
 import { PageHeader } from "./PageHeader";
-import { BottomSpace } from "pages/Settings/components";
+import { BottomSpace, LoaderContainer } from "pages/AdminSettings/components";
 import { UserEdit } from "./UserEdit";
 import {
   AclWrapper,
@@ -47,7 +47,6 @@ import { ListingType } from "./types";
 import { getCurrentUser } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import { LoaderContainer } from "pages/Settings/components";
 import {
   Modal,
   ModalBody,

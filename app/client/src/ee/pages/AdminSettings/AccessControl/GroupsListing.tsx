@@ -8,7 +8,7 @@ import { Listing } from "./Listing";
 import { HighlightText } from "design-system-old";
 import { Icon, Spinner } from "design-system";
 import { PageHeader } from "./PageHeader";
-import { BottomSpace } from "pages/Settings/components";
+import { BottomSpace, LoaderContainer } from "pages/AdminSettings/components";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { AclWrapper, EmptyDataState, EmptySearchResult } from "./components";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
@@ -39,7 +39,6 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { LoaderContainer } from "pages/Settings/components";
 
 const CellContainer = styled.div`
   display: flex;

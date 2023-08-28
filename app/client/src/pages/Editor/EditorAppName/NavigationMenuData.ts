@@ -23,6 +23,7 @@ import { redoShortCut, undoShortCut } from "utils/helpers";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { toast } from "design-system";
 import type { ThemeProp } from "widgets/constants";
+import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -151,7 +152,7 @@ export const GetNavigationMenuData = ({
         },
         {
           text: "Discord channel",
-          onClick: () => openExternalLink("https://discord.gg/rBTTVJp"),
+          onClick: () => openExternalLink(DISCORD_URL),
           type: MenuTypes.MENU,
           isVisible: true,
           isOpensNewWindow: true,
@@ -166,7 +167,7 @@ export const GetNavigationMenuData = ({
         },
         {
           text: "Documentation",
-          onClick: () => openExternalLink("https://docs.appsmith.com/"),
+          onClick: () => openExternalLink(DOCS_BASE_URL),
           type: MenuTypes.MENU,
           isVisible: true,
           isOpensNewWindow: true,

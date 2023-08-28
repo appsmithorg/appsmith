@@ -275,4 +275,7 @@ export const RECONFIGURE_API_KEY_MODAL_CONTENT = () =>
   "Regenerating your API key will invalidate the current key, leading to API failures. Please proceed with key regeneration only if you intend to replace your existing key on your IdP. Exercise caution to avoid disruption of services relying on the current API key.";
 export const RECONFIGURE_API_KEY_MODAL_CANCEL_BUTTON = () => "Cancel";
 export const RECONFIGURE_API_KEY_MODAL_SUBMIT_BUTTON = () => "Re-configure";
+export const LOGO_DIFFERENT_TOOLTIP = () =>
+  "Logo is different from the brand logo set.";
+export const RESET_LOGO_TOOLTIP = () => "Reset logo";
 // Provisioning end

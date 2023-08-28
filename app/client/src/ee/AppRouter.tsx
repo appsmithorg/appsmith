@@ -25,7 +25,7 @@ import {
   isTenantLoading,
   isValidLicense,
 } from "@appsmith/selectors/tenantSelectors";
-import LicenseCheckPage from "./pages/setup/LicenseCheckPage";
+import LicenseCheckPage from "./pages/LicenseSetup/LicenseCheckPage";
 import { LICENSE_CHECK_PATH } from "constants/routes";
 import { requiresLicenseCheck } from "./requiresLicenseCheck";
 import { initCurrentPage } from "actions/initActions";

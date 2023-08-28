@@ -93,7 +93,10 @@ import {
   toast,
 } from "design-system";
 import { importSvg } from "design-system-old";
-import { getRampLink, showProductRamps } from "selectors/rampSelectors";
+import {
+  getRampLink,
+  showProductRamps,
+} from "@appsmith/selectors/rampSelectors";
 import {
   RAMP_NAME,
   RampFeature,
