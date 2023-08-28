@@ -34,4 +34,6 @@ export default {
   brandingSubmitButton: ".t--settings-branding-submit-button",
   businessTag: "[data-testid='t--business-tag']",
   enterpriseTag: "[data-testid='t--enterprise-tag']",
+  enableEmailVerificationInput: "[data-testid='emailVerificationEnabled']",
+  adminSettingsCallout: "[data-testid='admin-settings-group-link']",
 };

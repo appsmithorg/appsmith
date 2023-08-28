@@ -16,6 +16,7 @@ import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import BusinessTag from "components/BusinessTag";
+import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -69,10 +70,9 @@ const MethodTitle = styled(Text)`
   align-items: center;
   margin: 0 0 4px;
   color: var(--ads-v2-color-fg);
+  gap: var(--ads-v2-spaces-2);
 
   svg {
-    width: 14px;
-    height: 14px;
     cursor: pointer;
   }
 `;
@@ -90,7 +90,6 @@ export type AuthMethodType = {
   label: string;
   subText?: string;
   image?: any;
-  needsUpgrade?: boolean;
   isConnected?: boolean;
   calloutBanner?: banner;
   icon?: string;
@@ -107,6 +106,8 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD",
     logEventData: { method: method.label },
+    featureName: RampFeature.Sso,
+    sectionName: RampSection.AdminSettings,
   });
 
   const onClickHandler = (method: AuthMethodType) => {
@@ -203,6 +204,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                             className={`${method.category}-green-check`}
                             color="var(--ads-v2-color-fg-success)"
                             name="oval-check-fill"
+                            size="md"
                           />
                         </Tooltip>
                       )}
