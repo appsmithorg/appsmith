@@ -936,6 +936,18 @@ export class AggregateHelper extends ReusableHelper {
       .eq(index)
       .should("have.attr", attribName, attribValue);
   }
+
+  public AssertProperty(
+    selector: string,
+    propName: string,
+    propValue: boolean,
+    index = 0,
+  ) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should("have.prop", propName, propValue);
+  }
+
   public AssertCSS(
     selector: string,
     cssName: string,

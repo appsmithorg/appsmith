@@ -9,7 +9,7 @@ import {
 
 describe("Video Widget Functionality", function () {
   before(() => {
-    agHelper.AddDsl("videoWidgetDsl");
+    entityExplorer.DragNDropWidget(draggableWidgets.VIDEO);
   });
 
   it("1. Video Widget play functionality validation", function () {
@@ -72,12 +72,12 @@ describe("Video Widget Functionality", function () {
 
   it("4. Checks if video widget is reset on button click", function () {
     propPane.UpdatePropertyFieldValue("URL", testdata.videoUrl2);
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 400);
 
     cy.selectResetWidget("onClick");
     cy.selectWidgetForReset("Video1");
 
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 300);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 600);
     propPane.UpdatePropertyFieldValue("Text", "{{Video1.playState}}");
     agHelper.Sleep(1500); // Wait time added for the widget to load current video state
 
