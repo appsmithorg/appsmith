@@ -28,6 +28,7 @@ export class CommunityTemplates {
           "[data-testid='t--community-template-app-settting-forkable-switch']",
       },
       submitBtn: "[data-testid='t--community-template-publish-submit-btn']",
+      tnCCheckbox: "[data-testid='t--community-template-tnc-checkbox']",
     },
   };
 

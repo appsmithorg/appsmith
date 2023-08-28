@@ -116,7 +116,11 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
         </PublishPageTemplateDetailsInputContainer>
       </PublishPageBodyContainer>
       <PublishPageFooterContainer>
-        <Checkbox isSelected={tnCCheck} onChange={setTnCCheck}>
+        <Checkbox
+          data-testid="t--community-template-tnc-checkbox"
+          isSelected={tnCCheck}
+          onChange={setTnCCheck}
+        >
           {createMessage(COMMUNITY_TEMPLATES.publishFormPage.footer.tnCText)}
         </Checkbox>
         <Button

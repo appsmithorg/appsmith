@@ -24,7 +24,7 @@ function* publishCommunityTemplateSaga(action: ReduxAction<string>) {
     const isValid = !!action;
 
     if (isValid) {
-      toast.show(`Templates published to community`, {
+      toast.show(`Template published to community`, {
         kind: "success",
       });
       yield put({
