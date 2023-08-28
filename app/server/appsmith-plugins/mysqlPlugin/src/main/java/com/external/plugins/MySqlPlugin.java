@@ -301,7 +301,8 @@ public class MySqlPlugin extends BasePlugin {
                                         .onErrorMap(
                                                 TimeoutException.class,
                                                 error -> new StaleConnectionException(error.getMessage()))
-                                        .map(isConnectionValid -> isConnectionValid && isSSHTunnelConnected(sshTunnelContext))
+                                        .map(isConnectionValid ->
+                                                isConnectionValid && isSSHTunnelConnected(sshTunnelContext))
                                         .flatMapMany(isValid -> {
                                             if (isValid) {
                                                 return createAndExecuteQueryFromConnection(
@@ -608,20 +609,20 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ConnectionContext<ConnectionPool>> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.just(datasourceConfiguration)
-                    .flatMap(ignore -> {
-                        ConnectionContext<ConnectionPool> connectionContext;
-                        try {
-                            connectionContext = getConnectionContext(datasourceConfiguration, CONNECTION_METHOD_INDEX
-                                    , ConnectionPool.class);
-                            ConnectionPool pool = getNewConnectionPool(datasourceConfiguration, connectionContext);
-                            connectionContext.setConnection(pool);
-                            return Mono.just(connectionContext);
-                        } catch (AppsmithPluginException e) {
-                            return Mono.error(e);
-                        }
-                    });
+        public Mono<ConnectionContext<ConnectionPool>> datasourceCreate(
+                DatasourceConfiguration datasourceConfiguration) {
+            return Mono.just(datasourceConfiguration).flatMap(ignore -> {
+                ConnectionContext<ConnectionPool> connectionContext;
+                try {
+                    connectionContext = getConnectionContext(
+                            datasourceConfiguration, CONNECTION_METHOD_INDEX, ConnectionPool.class);
+                    ConnectionPool pool = getNewConnectionPool(datasourceConfiguration, connectionContext);
+                    connectionContext.setConnection(pool);
+                    return Mono.just(connectionContext);
+                } catch (AppsmithPluginException e) {
+                    return Mono.error(e);
+                }
+            });
         }
 
         @Override
@@ -685,9 +686,10 @@ public class MySqlPlugin extends BasePlugin {
                             connection -> Mono.from(connection.validate(ValidationDepth.LOCAL))
                                     .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
                                     .onErrorMap(
-                                        TimeoutException.class,
-                                        error -> new StaleConnectionException(error.getMessage()))
-                                    .map(isConnectionValid -> isConnectionValid && isSSHTunnelConnected(sshTunnelContext))
+                                            TimeoutException.class,
+                                            error -> new StaleConnectionException(error.getMessage()))
+                                    .map(isConnectionValid ->
+                                            isConnectionValid && isSSHTunnelConnected(sshTunnelContext))
                                     .flatMapMany(isValid -> {
                                         if (isValid) {
                                             return connection

@@ -79,7 +79,7 @@ public class MySqlDatasourceUtils {
             urlBuilder.append("r2dbc:pool:mariadb://");
             final List<String> hosts = new ArrayList<>();
 
-            if (connectionContext.getSshTunnelContext() == null) {
+            if (!isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
                 for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                     hosts.add(endpoint.getHost() + ":" + defaultIfNull(endpoint.getPort(), 3306L));
                 }
@@ -215,10 +215,10 @@ public class MySqlDatasourceUtils {
         }
 
         if (isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
-            if (datasourceConfiguration.getSshProxy() == null || isBlank(datasourceConfiguration.getSshProxy().getHost())) {
+            if (datasourceConfiguration.getSshProxy() == null
+                    || isBlank(datasourceConfiguration.getSshProxy().getHost())) {
                 invalids.add(DS_MISSING_SSH_HOSTNAME_ERROR_MSG);
-            }
-            else {
+            } else {
                 String sshHost = datasourceConfiguration.getSshProxy().getHost();
                 if (sshHost.contains("/") || sshHost.contains(":")) {
                     invalids.add(DS_INVALID_SSH_HOSTNAME_ERROR_MSG);
@@ -229,8 +229,13 @@ public class MySqlDatasourceUtils {
                 invalids.add(DS_MISSING_SSH_USERNAME_ERROR_MSG);
             }
 
-            if (datasourceConfiguration.getSshProxy().getPrivateKey() == null || datasourceConfiguration.getSshProxy().getPrivateKey().getKeyFile() == null ||
-                    isBlank(datasourceConfiguration.getSshProxy().getPrivateKey().getKeyFile().getBase64Content())) {
+            if (datasourceConfiguration.getSshProxy().getPrivateKey() == null
+                    || datasourceConfiguration.getSshProxy().getPrivateKey().getKeyFile() == null
+                    || isBlank(datasourceConfiguration
+                            .getSshProxy()
+                            .getPrivateKey()
+                            .getKeyFile()
+                            .getBase64Content())) {
                 invalids.add(DS_MISSING_SSH_KEY_ERROR_MSG);
             }
         }

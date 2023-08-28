@@ -125,7 +125,8 @@ public class SSHUtils {
      *                                        toggle data is placed.
      */
     public static <C> ConnectionContext getConnectionContext(
-            DatasourceConfiguration datasourceConfiguration, int connectionMethodPropertiesIndex,
+            DatasourceConfiguration datasourceConfiguration,
+            int connectionMethodPropertiesIndex,
             Class<C> connectionType) {
 
         /* Return empty ConnectionContext if SSH tunnel is not enabled */
@@ -138,14 +139,14 @@ public class SSHUtils {
         String sshUsername = datasourceConfiguration.getSshProxy().getUsername();
         UploadedFile key = datasourceConfiguration.getSshProxy().getPrivateKey().getKeyFile();
         String dbHost = datasourceConfiguration.getEndpoints().get(0).getHost();
-        int dbPort = toIntExact(defaultIfNull(datasourceConfiguration.getEndpoints().get(0).getPort(), DEFAULT_SSH_PORT));
+        int dbPort = toIntExact(
+                defaultIfNull(datasourceConfiguration.getEndpoints().get(0).getPort(), DEFAULT_SSH_PORT));
         SSHTunnelContext sshTunnelContext = null;
         try {
             sshTunnelContext = createSSHTunnel(sshHost, sshPort, sshUsername, key, dbHost, dbPort);
         } catch (IOException e) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    SSH_CONNECTION_FAILED_ERROR_MSG);
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, SSH_CONNECTION_FAILED_ERROR_MSG);
         }
         return new ConnectionContext<C>(null, sshTunnelContext);
     }
