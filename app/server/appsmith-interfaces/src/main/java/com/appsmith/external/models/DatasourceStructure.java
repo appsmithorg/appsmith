@@ -155,6 +155,9 @@ public class DatasourceStructure {
         public Template(String title, String body, boolean isSuggested) {
             this.title = title;
             this.body = body;
+            // the reason we are adding this in an if-block is because this field should only be set for suggested
+            // templates only.
+            // for non suggested templates, this field should be null or non-existent
             if (isSuggested) {
                 this.isSuggested = isSuggested;
             }
