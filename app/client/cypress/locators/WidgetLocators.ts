@@ -92,7 +92,8 @@ export const switchlocators = {
 
 export const checkboxlocators = {
   // read Blue here
-  checkBoxLabel: (value: string) => `//*[contains(@class,'t--checkbox-widget-label') and text()='${value}']`,
+  checkBoxLabel: (value: string) =>
+    `//*[contains(@class,'t--checkbox-widget-label') and text()='${value}']`,
 }
 
 export const buttongroupwidgetlocators = {
