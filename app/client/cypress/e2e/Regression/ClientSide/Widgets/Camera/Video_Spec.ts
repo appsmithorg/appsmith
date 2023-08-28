@@ -155,107 +155,107 @@ describe("Camera widget - Video test", () => {
   });
 
   //Skipping below tests due to issue - https://github.com/appsmithorg/appsmith/issues/26166
-  it.skip("7. Video Recording test - Disabled Camera but Enabled Microphone", () => {
-    deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1");
-    agHelper.GetNClick(propPane._mode("Video"), 1);
-    entityExplorer.DragNDropWidget(draggableWidgets.VIDEO);
-    propPane.TypeTextIntoField("URL", "{{Camera1.videoBlobURL}}");
+  // it("7. Video Recording test - Disabled Camera but Enabled Microphone", () => {
+  //   deployMode.NavigateBacktoEditor();
+  //   entityExplorer.SelectEntityByName("Camera1");
+  //   agHelper.GetNClick(propPane._mode("Video"), 1);
+  //   entityExplorer.DragNDropWidget(draggableWidgets.VIDEO);
+  //   propPane.TypeTextIntoField("URL", "{{Camera1.videoBlobURL}}");
 
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
-    agHelper.GetNClick(widgetLocators.cameraVideoOnOffBtn);
-    agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
-    agHelper.Sleep(3000);
-    agHelper.GetNClick(widgetLocators.cameraStopRecordingBtn);
-    agHelper.GetNClick(widgetLocators.cameraSaveBtn);
-    agHelper.GetNClick(draggableWidgets.VIDEO);
-    agHelper.Sleep(5000);
-    agHelper
-      .GetElement(widgetLocators.cameraVideo)
-      .eq(1)
-      .should(($el) => {
-        const attrValue = $el[0].webkitAudioDecodedByteCount;
+  //   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
+  //   agHelper.GetNClick(widgetLocators.cameraVideoOnOffBtn);
+  //   agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
+  //   agHelper.Sleep(3000);
+  //   agHelper.GetNClick(widgetLocators.cameraStopRecordingBtn);
+  //   agHelper.GetNClick(widgetLocators.cameraSaveBtn);
+  //   agHelper.GetNClick(draggableWidgets.VIDEO);
+  //   agHelper.Sleep(5000);
+  //   agHelper
+  //     .GetElement(widgetLocators.cameraVideo)
+  //     .eq(1)
+  //     .should(($el) => {
+  //       const attrValue = $el[0].webkitAudioDecodedByteCount;
 
-        //Threshold greater than 30000 shows that the audio is playing
-        expect(attrValue).be.greaterThan(30000);
-      });
-    agHelper
-      .GetElement(widgetLocators.cameraVideo)
-      .eq(1)
-      .should(($el) => {
-        const attrValue = $el[0].webkitVideoDecodedByteCount;
+  //       //Threshold greater than 30000 shows that the audio is playing
+  //       expect(attrValue).be.greaterThan(30000);
+  //     });
+  //   agHelper
+  //     .GetElement(widgetLocators.cameraVideo)
+  //     .eq(1)
+  //     .should(($el) => {
+  //       const attrValue = $el[0].webkitVideoDecodedByteCount;
 
-        //Threshold less than 10000 shows that the video is not playing
-        expect(attrValue).be.lessThan(10000);
-      });
-  });
+  //       //Threshold less than 10000 shows that the video is not playing
+  //       expect(attrValue).be.lessThan(10000);
+  //     });
+  // });
 
-  it.skip("8. Video Recording test - Enabled Camera but Disabled Microphone", () => {
-    entityExplorer.SelectEntityByName("Camera1");
-    agHelper.GetNClick(propPane._mode("Video"), 1);
-    entityExplorer.DragNDropWidget(draggableWidgets.VIDEO);
-    propPane.TypeTextIntoField("URL", "{{Camera1.videoBlobURL}}");
+  // it("8. Video Recording test - Enabled Camera but Disabled Microphone", () => {
+  //   entityExplorer.SelectEntityByName("Camera1");
+  //   agHelper.GetNClick(propPane._mode("Video"), 1);
+  //   entityExplorer.DragNDropWidget(draggableWidgets.VIDEO);
+  //   propPane.TypeTextIntoField("URL", "{{Camera1.videoBlobURL}}");
 
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
-    agHelper.GetNClick(widgetLocators.cameraVideoOnOffBtn);
-    agHelper.GetNClick(widgetLocators.cameraMicrophoneBtn);
-    agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
-    agHelper.Sleep(3000);
-    agHelper.GetNClick(widgetLocators.cameraStopRecordingBtn);
-    agHelper.GetNClick(widgetLocators.cameraSaveBtn);
-    agHelper.GetNClick(draggableWidgets.VIDEO);
-    agHelper.Sleep(5000);
-    agHelper
-      .GetElement(widgetLocators.cameraVideo)
-      .eq(1)
-      .should(($el) => {
-        const attrValue = $el[0].webkitAudioDecodedByteCount;
+  //   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
+  //   agHelper.GetNClick(widgetLocators.cameraVideoOnOffBtn);
+  //   agHelper.GetNClick(widgetLocators.cameraMicrophoneBtn);
+  //   agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
+  //   agHelper.Sleep(3000);
+  //   agHelper.GetNClick(widgetLocators.cameraStopRecordingBtn);
+  //   agHelper.GetNClick(widgetLocators.cameraSaveBtn);
+  //   agHelper.GetNClick(draggableWidgets.VIDEO);
+  //   agHelper.Sleep(5000);
+  //   agHelper
+  //     .GetElement(widgetLocators.cameraVideo)
+  //     .eq(1)
+  //     .should(($el) => {
+  //       const attrValue = $el[0].webkitAudioDecodedByteCount;
 
-        //Threshold less than 1000 shows that the audio is not playing
-        expect(attrValue).be.lessThan(1000);
-      });
-    agHelper
-      .GetElement(widgetLocators.cameraVideo)
-      .eq(1)
-      .should(($el) => {
-        const attrValue = $el[0].webkitVideoDecodedByteCount;
+  //       //Threshold less than 1000 shows that the audio is not playing
+  //       expect(attrValue).be.lessThan(1000);
+  //     });
+  //   agHelper
+  //     .GetElement(widgetLocators.cameraVideo)
+  //     .eq(1)
+  //     .should(($el) => {
+  //       const attrValue = $el[0].webkitVideoDecodedByteCount;
 
-        //Threshold greater than 30000 shows that the video is playing
-        expect(attrValue).be.greaterThan(30000);
-      });
-  });
+  //       //Threshold greater than 30000 shows that the video is playing
+  //       expect(attrValue).be.greaterThan(30000);
+  //     });
+  // });
 
-  it.skip("9. Video Recording test - Enabled Camera but Enabled Microphone", () => {
-    entityExplorer.SelectEntityByName("Camera1");
-    agHelper.GetNClick(propPane._mode("Video"), 1);
-    entityExplorer.DragNDropWidget(draggableWidgets.VIDEO);
-    propPane.TypeTextIntoField("URL", "{{Camera1.videoBlobURL}}");
+  // it("9. Video Recording test - Enabled Camera but Enabled Microphone", () => {
+  //   entityExplorer.SelectEntityByName("Camera1");
+  //   agHelper.GetNClick(propPane._mode("Video"), 1);
+  //   entityExplorer.DragNDropWidget(draggableWidgets.VIDEO);
+  //   propPane.TypeTextIntoField("URL", "{{Camera1.videoBlobURL}}");
 
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
-    agHelper.GetNClick(widgetLocators.cameraMicrophoneBtn);
-    agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
-    agHelper.Sleep(3000);
-    agHelper.GetNClick(widgetLocators.cameraStopRecordingBtn);
-    agHelper.GetNClick(widgetLocators.cameraSaveBtn);
-    agHelper.GetNClick(draggableWidgets.VIDEO);
-    agHelper.Sleep(5000);
-    agHelper
-      .GetElement(widgetLocators.cameraVideo)
-      .eq(1)
-      .should(($el) => {
-        const attrValue = $el[0].webkitAudioDecodedByteCount;
+  //   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
+  //   agHelper.GetNClick(widgetLocators.cameraMicrophoneBtn);
+  //   agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
+  //   agHelper.Sleep(3000);
+  //   agHelper.GetNClick(widgetLocators.cameraStopRecordingBtn);
+  //   agHelper.GetNClick(widgetLocators.cameraSaveBtn);
+  //   agHelper.GetNClick(draggableWidgets.VIDEO);
+  //   agHelper.Sleep(5000);
+  //   agHelper
+  //     .GetElement(widgetLocators.cameraVideo)
+  //     .eq(1)
+  //     .should(($el) => {
+  //       const attrValue = $el[0].webkitAudioDecodedByteCount;
 
-        //Threshold less than 30000 shows that the audio is playing
-        expect(attrValue).be.greaterThan(30000);
-      });
-    agHelper
-      .GetElement(widgetLocators.cameraVideo)
-      .eq(1)
-      .should(($el) => {
-        const attrValue = $el[0].webkitVideoDecodedByteCount;
+  //       //Threshold greater than 30000 shows that the audio is playing
+  //       expect(attrValue).be.greaterThan(30000);
+  //     });
+  //   agHelper
+  //     .GetElement(widgetLocators.cameraVideo)
+  //     .eq(1)
+  //     .should(($el) => {
+  //       const attrValue = $el[0].webkitVideoDecodedByteCount;
 
-        //Threshold less than 30000 shows that the video is playing
-        expect(attrValue).be.greaterThan(30000);
-      });
-  });
+  //       //Threshold greater than 30000 shows that the video is playing
+  //       expect(attrValue).be.greaterThan(30000);
+  //     });
+  // });
 });
