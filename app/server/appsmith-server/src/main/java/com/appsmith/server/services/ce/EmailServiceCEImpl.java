@@ -50,7 +50,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                         URLEncoder.encode(invitedUser.getUsername().toLowerCase(), StandardCharsets.UTF_8))
                 : originHeader;
         String emailSubject = String.format(WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER, workspaceInvitedTo.getName());
-        Map<String, String> params = getEmailParams(
+        Map<String, String> params = getInviteToWorkspaceEmailParams(
                 workspaceInvitedTo, invitingUser, inviteUrl, assignedPermissionGroup.getName(), isNewUser);
         return this.enrichParams(params)
                 .flatMap(updatedParams -> emailSender.sendMail(
@@ -65,7 +65,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         });
     }
 
-    private Map<String, String> getEmailParams(
+    private Map<String, String> getInviteToWorkspaceEmailParams(
             Workspace workspace, User inviter, String inviteUrl, String roleType, boolean isNewUser) {
         Map<String, String> params = new HashMap<>();
         if (workspace != null) {
