@@ -8,21 +8,21 @@ import { AddLibraries } from "./AddLibararies";
 
 const Container = styled.div`
   display: flex;
-  justify-content: center;
   flex-direction: column;
   p {
     font-size: 30px;
     color: #4c5664;
   }
+  height: calc(100vh - 50px - ${(props) => props.theme.bottomBarHeight});
 `;
 
 const PanelSubTitle = styled.div`
-  background-color: #fbe6dc;
-  flex: 1;
-  padding: 4px 8px;
+  background-color: #fff8f8;
+  padding: 4px 12px;
   justify-content: space-between;
   display: flex;
   align-items: center;
+  border-bottom: 1px solid #fbe6dc;
 `;
 
 export interface LibLeftPaneContent {
@@ -32,18 +32,23 @@ export interface LibLeftPaneContent {
 const LibLeftPane = () => {
   const [addlib, setAddLib] = useState(false);
 
-  if (addlib) {
-    return <AddLibraries onStateChange={() => setAddLib(false)} />;
-  }
-  return <InstalledLibraries onStateChange={() => setAddLib(true)} />;
+  return (
+    <Container>
+      {addlib ? (
+        <AddLibraries onStateChange={() => setAddLib(false)} />
+      ) : (
+        <InstalledLibraries onStateChange={() => setAddLib(true)} />
+      )}
+    </Container>
+  );
 };
 
 const InstalledLibraries = (props: LibLeftPaneContent) => {
   const libraries = useSelector(selectLibrariesForExplorer);
   return (
-    <Container>
+    <div className="flex flex-col h-full">
       <PanelSubTitle>
-        <Text>Installed Libraries</Text>
+        <Text kind="heading-xs">Installed Libraries</Text>
         <Button
           isIconButton
           kind="tertiary"
@@ -51,12 +56,12 @@ const InstalledLibraries = (props: LibLeftPaneContent) => {
           startIcon="plus"
         />
       </PanelSubTitle>
-      <div className="flex flex-col">
+      <div className="flex flex-col flex-auto overflow-auto">
         {libraries.map((lib) => {
           return <LibraryEntity key={lib.name} lib={lib} />;
         })}
       </div>
-    </Container>
+    </div>
   );
 };
 

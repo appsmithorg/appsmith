@@ -38,7 +38,6 @@ import { clearInstalls, installLibraryInit } from "actions/JSLibraryActions";
 import classNames from "classnames";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import type { LibLeftPaneContent } from ".";
 
 const openDoc = (e: React.MouseEvent, url: string) => {
@@ -49,18 +48,10 @@ const openDoc = (e: React.MouseEvent, url: string) => {
 
 const Wrapper = styled.div`
   display: flex;
-  height: auto;
-  width: 400px;
-  max-height: 80vh;
   flex-direction: column;
   padding: 0 20px 4px 22px;
-  position: absolute;
+  height: 100%;
   background: white;
-  z-index: 25;
-  bottom: 15px;
-  border-radius: var(--ads-v2-border-radius);
-  border-color: var(--ads-v2-color-border);
-  box-shadow: var(--ads-v2-shadow-popovers);
   .installation-header {
     padding: 20px 0 0;
     display: flex;
@@ -74,6 +65,9 @@ const Wrapper = styled.div`
     padding-left: 2px;
     flex-direction: column;
     .search-area {
+      .ads-v2-input__input-section > div {
+        min-width: 150px;
+      }
       margin-bottom: 16px;
       .left-icon {
         margin-left: 14px;
@@ -383,10 +377,7 @@ export function AddLibraries(props: LibLeftPaneContent) {
   );
 
   return (
-    <Wrapper
-      className={`bp3-popover ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
-      ref={installerRef}
-    >
+    <Wrapper ref={installerRef}>
       <div className="installation-header">
         <Text kind="heading-m">
           {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
