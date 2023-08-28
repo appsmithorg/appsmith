@@ -103,11 +103,10 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
     }
     let module = null;
     try {
-      // Dynamic import the blob, which in turn loads all the import statements
-      module = await import(/* webpackIgnore: true */ url);
+      self.importScripts(url);
     } catch (e) {
       try {
-        self.importScripts(url);
+        module = await import(/* webpackIgnore: true */ url);
       } catch (e) {
         throw new ImportError(url);
       }
@@ -118,23 +117,27 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
       Object.keys(self),
       currentEnvKeys,
     ) as Array<string>;
+
+    // If no keys were added to the global scope, check if the module is a ESM module.
     if (accessors.length === 0) {
       if (module && typeof module === "object") {
-        const accessor = generateUniqueAccessor(
+        const uniqAccessor = generateUniqueAccessor(
           url,
           takenAccessors,
           takenNamesMap,
         );
         // @ts-expect-error no types
-        self[accessor] = module;
-        accessors.push(accessor);
+        self[uniqAccessor] = flattenModule(module);
+        accessors.push(uniqAccessor);
       }
     }
 
-    checkForNameCollision(accessors, takenNamesMap);
     addTempStoredDataTreeToContext(tempDataTreeStore);
+    checkForNameCollision(accessors, takenNamesMap);
     checkIfUninstalledEarlier(accessors, unsetKeys);
     checkForOverrides(url, accessors, takenAccessors, existingLibraries);
+    if (accessors.length === 0)
+      return { status: false, defs, accessor: accessors };
 
     //Reserves accessor names.
     const name = accessors[accessors.length - 1];
@@ -202,14 +205,19 @@ export async function loadLibraries(request: EvalWorkerASyncRequest) {
       const keysBefore = Object.keys(self);
       let module = null;
       try {
-        module = await import(/* webpackIgnore: true */ url);
-      } catch (e) {
         self.importScripts(url);
+      } catch (e) {
+        message = (e as Error).message;
+        try {
+          module = await import(/* webpackIgnore: true */ url);
+        } catch (e) {
+          message = (e as Error).message;
+        }
       }
       const keysAfter = Object.keys(self);
       const newKeys = difference(keysAfter, keysBefore);
-      if (newKeys.length === 0) {
-        self[accessor[0]] = module;
+      if (newKeys.length === 0 && module && typeof module === "object") {
+        self[accessor[0]] = flattenModule(module);
         newKeys.push(accessor[0]);
       }
       for (const key of newKeys) {
@@ -275,9 +283,12 @@ function generateUniqueAccessor(
 ) {
   // extract file name from url
   const urlObject = new URL(url);
-  const fileName = urlObject.pathname.split("/").pop();
+  const urlPathParts = urlObject.pathname.split("/");
+  let fileName = urlPathParts.pop();
+  fileName = fileName?.includes("esm") ? urlPathParts.pop() : fileName;
   if (fileName) {
-    const validVar = fileName.replace(/[^0-9a-zA-Z]/g, "_");
+    // Replace all non-alphabetic characters with underscores and remove trailing underscores
+    const validVar = fileName.replace(/[^a-zA-Z]/g, "_").replace(/_+$/, "");
     if (
       !takenAccessors.includes(validVar) &&
       !takenNamesMap.hasOwnProperty(validVar)
@@ -293,4 +304,18 @@ function generateUniqueAccessor(
     }
   }
   throw new Error("Unable to generate a unique accessor");
+}
+
+function flattenModule(module: Record<string, any>) {
+  const keys = Object.keys(module);
+  // If there are no keys other than default, return default.
+  if (keys.length === 1 && keys[0] === "default") return module.default;
+  // If there are keys other than default, return a new object with all the keys
+  // and set its prototype of default export.
+  const libModule = Object.create(module.default);
+  for (const key of Object.keys(module)) {
+    if (key === "default") continue;
+    libModule[key] = module[key];
+  }
+  return libModule;
 }
