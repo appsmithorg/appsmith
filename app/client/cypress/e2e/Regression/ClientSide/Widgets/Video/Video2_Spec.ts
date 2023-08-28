@@ -51,27 +51,16 @@ describe("Video widget tests", function () {
     agHelper.GetElement(widgetLocators.iFrame).then(($iframe) => {
       const doc = $iframe.contents();
       const video = doc.find(widgetLocators.video);
-      const videoScreen = cy.wrap(video);
-      const startBtn = cy.wrap(
-        doc.find(widgetLocators.videoWidgetYoutubeLargePlayBtn),
-      );
-      const muteBtn = cy.wrap(
-        doc.find(widgetLocators.videoWidgetYoutubeMuteBtn),
-      );
-      const volume = cy.wrap(
-        doc.find(widgetLocators.videoWidgetYoutubeVolumeBtn),
-      );
-      const playBtn = cy.wrap(
-        doc.find(widgetLocators.videoWidgetYoutubePlayBtn),
-      );
       //Check play, mute & unmute, volume buttons
-      startBtn.click();
-      videoScreen.click();
+      cy.wrap(doc.find(widgetLocators.videoWidgetYoutubeLargePlayBtn)).click();
+      cy.wrap(video).click();
       agHelper.Sleep(1000);
-      muteBtn.click();
+      cy.wrap(doc.find(widgetLocators.videoWidgetYoutubeMuteBtn)).click();
       agHelper.AssertProperty(video, "muted", true);
       agHelper.AssertProperty(video, "paused", true);
-      volume.type("{rightarrow}{rightarrow}");
+      cy.wrap(doc.find(widgetLocators.videoWidgetYoutubeVolumeBtn)).type(
+        "{rightarrow}{rightarrow}",
+      );
       agHelper.AssertProperty(video, "muted", false);
     });
   });
