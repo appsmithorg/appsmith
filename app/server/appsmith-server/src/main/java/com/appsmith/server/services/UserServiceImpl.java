@@ -48,7 +48,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
             PermissionGroupService permissionGroupService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
-            RedirectHelper redirectHelper) {
+            RedirectHelper redirectHelper,
+            EmailService emailService) {
 
         super(
                 scheduler,
@@ -73,6 +74,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                 permissionGroupService,
                 userUtils,
                 emailVerificationTokenRepository,
-                redirectHelper);
+                redirectHelper,
+                emailService);
     }
 }

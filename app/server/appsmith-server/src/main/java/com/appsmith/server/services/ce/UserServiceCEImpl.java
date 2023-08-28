@@ -36,6 +36,7 @@ import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -116,14 +117,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final PermissionGroupService permissionGroupService;
     private final UserUtils userUtils;
     private final RedirectHelper redirectHelper;
-
+    private final EmailService emailService;
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
-    private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
-    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
-    public static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
 
     private static final String EMAIL_VERIFICATION_CLIENT_URL_FORMAT =
@@ -159,7 +157,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             PermissionGroupService permissionGroupService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
-            RedirectHelper redirectHelper) {
+            RedirectHelper redirectHelper,
+            EmailService emailService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -178,6 +177,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.userUtils = userUtils;
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
         this.redirectHelper = redirectHelper;
+        this.emailService = emailService;
     }
 
     @Override
@@ -297,12 +297,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                     log.debug("Password reset url for email: {}: {}", passwordResetToken.getEmail(), resetUrl);
 
-                    Map<String, String> params = new HashMap<>();
-                    params.put("resetUrl", resetUrl);
-
-                    return updateTenantLogoInParams(params, resetUserPasswordDTO.getBaseUrl())
-                            .flatMap(updatedParams -> emailSender.sendMail(
-                                    email, "Appsmith Password Reset", FORGOT_PASSWORD_EMAIL_TEMPLATE, updatedParams));
+                    return emailService.sendForgotPasswordEmail(email, resetUrl, resetUserPasswordDTO.getBaseUrl());
                 })
                 .thenReturn(true);
     }
@@ -709,22 +704,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         // Call user service's userCreate function so that the default workspace, etc are also created along with
         // assigning basic permissions.
-        return userCreate(newUser, isAdminUser).flatMap(createdUser -> {
-            log.debug("Going to send email for invite user to {}", createdUser.getEmail());
-            String inviteUrl = String.format(
-                    INVITE_USER_CLIENT_URL_FORMAT,
-                    originHeader,
-                    URLEncoder.encode(createdUser.getEmail(), StandardCharsets.UTF_8));
-
-            // Email template parameters initialization below.
-            Map<String, String> params = getEmailParams(workspace, inviter, inviteUrl, true);
-
-            // We have sent out the emails. Just send back the saved user.
-            return updateTenantLogoInParams(params, originHeader)
-                    .flatMap(updatedParams -> emailSender.sendMail(
-                            createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, updatedParams))
-                    .thenReturn(createdUser);
-        });
+        return userCreate(newUser, isAdminUser);
     }
 
     @Override

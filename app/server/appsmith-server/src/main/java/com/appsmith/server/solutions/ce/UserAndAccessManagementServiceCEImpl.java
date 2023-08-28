@@ -8,9 +8,9 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.services.ce.UserServiceCEImpl.INVITE_USER_EMAIL_TEMPLATE;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -40,8 +39,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final UserRepository userRepository;
     private final AnalyticsService analyticsService;
     private final UserService userService;
-    private final EmailSender emailSender;
     private final PermissionGroupPermission permissionGroupPermission;
+    private final EmailService emailService;
 
     public UserAndAccessManagementServiceCEImpl(
             SessionUserService sessionUserService,
@@ -50,8 +49,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
             UserRepository userRepository,
             AnalyticsService analyticsService,
             UserService userService,
-            EmailSender emailSender,
-            PermissionGroupPermission permissionGroupPermission) {
+            PermissionGroupPermission permissionGroupPermission,
+            EmailService emailService) {
 
         this.sessionUserService = sessionUserService;
         this.permissionGroupService = permissionGroupService;
@@ -59,7 +58,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         this.userRepository = userRepository;
         this.analyticsService = analyticsService;
         this.userService = userService;
-        this.emailSender = emailSender;
+        this.emailService = emailService;
         this.permissionGroupPermission = permissionGroupPermission;
     }
 
@@ -149,29 +148,22 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                             });
 
                     return getUserFromDbAndCheckIfUserExists
-                            .flatMap(existingUser -> {
-                                // The user already existed, just send an email informing that the user has been added
-                                // to a new workspace
-                                log.debug(
-                                        "Going to send email to user {} informing that the user has been added to new workspace {}",
-                                        existingUser.getEmail(),
-                                        workspace.getName());
-
-                                // Email template parameters initialization below.
-                                Map<String, String> params =
-                                        userService.getEmailParams(workspace, currentUser, originHeader, false);
-
-                                return userService
-                                        .updateTenantLogoInParams(params, originHeader)
-                                        .flatMap(updatedParams -> emailSender.sendMail(
-                                                existingUser.getEmail(),
-                                                "Appsmith: You have been added to a new workspace",
-                                                INVITE_USER_EMAIL_TEMPLATE,
-                                                updatedParams))
-                                        .thenReturn(existingUser);
-                            })
-                            .switchIfEmpty(userService.createNewUserAndSendInviteEmail(
-                                    username, originHeader, workspace, currentUser, permissionGroup.getName()));
+                            .flatMap(existingUser -> emailService
+                                    .sendInviteUserToWorkspaceEmail(
+                                            currentUser, existingUser, workspace, permissionGroup, originHeader, false)
+                                    .thenReturn(existingUser))
+                            .switchIfEmpty(userService
+                                    .createNewUserAndSendInviteEmail(
+                                            username, originHeader, workspace, currentUser, permissionGroup.getName())
+                                    .flatMap(newUser -> emailService
+                                            .sendInviteUserToWorkspaceEmail(
+                                                    currentUser,
+                                                    newUser,
+                                                    workspace,
+                                                    permissionGroup,
+                                                    originHeader,
+                                                    true)
+                                            .thenReturn(newUser)));
                 })
                 .collectList()
                 .cache();
