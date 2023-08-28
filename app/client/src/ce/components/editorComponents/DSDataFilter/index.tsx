@@ -51,7 +51,6 @@ const TooltipLink = styled(Link)`
 `;
 
 type DSDataFilterProps = {
-  datasourceId: string;
   updateFilter: (
     id: string,
     name: string,
