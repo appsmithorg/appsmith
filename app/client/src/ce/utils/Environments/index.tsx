@@ -7,11 +7,6 @@ export const getUserPreferenceFromStorage = () => {
   return "true";
 };
 
-export const getCurrentEditingEnvID = () => {
-  // Get the values of environment ID being edited
-  return getCurrentEnvironment();
-};
-
 // function to get the current environment from the URL
 export const getCurrentEnvironment = () => {
   return "unused_env";
