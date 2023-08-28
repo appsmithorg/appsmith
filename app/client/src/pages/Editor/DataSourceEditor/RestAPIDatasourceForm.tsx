@@ -205,7 +205,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   getSanitizedFormData = () =>
-    formValuesToDatasource(this.props.datasource, this.props.formData);
+    formValuesToDatasource(
+      this.props.datasource,
+      this.props.formData,
+      this.props.currentEnvironment,
+    );
 
   save = (onSuccess?: ReduxAction<unknown>) => {
     this.props.toggleSaveActionFlag(true);
@@ -1037,11 +1041,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState, props: any) => {
-  const { datasource, formName } = props;
+  const { currentEnvironment, datasource, formName } = props;
   const hintMessages = datasource && datasource.messages;
 
   return {
-    initialValues: datasourceToFormValues(datasource),
+    initialValues: datasourceToFormValues(datasource, currentEnvironment),
     formMeta: getFormMeta(formName)(state),
     messages: hintMessages,
     datasourceName: datasource?.name ?? "",
