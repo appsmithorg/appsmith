@@ -450,7 +450,7 @@ export class Table {
   }
 
   public SearchTable(searchTxt: string, index = 0) {
-    cy.get(this._searchText).eq(index).type(searchTxt);
+    this.agHelper.TypeText(this._searchText, searchTxt, index);
   }
 
   public ResetSearch() {
