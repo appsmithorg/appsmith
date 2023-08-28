@@ -7,7 +7,7 @@ import {
   iconNamesForEachRowValidation,
   iconPositionForEachRowValidation,
   textForEachRowValidation,
-} from "widgets/MenuButtonWidget/validations";
+} from "widgets/TableWidgetV2/widget/propertyUtils";
 import { getSourceDataAndCaluclateKeysForEventAutoComplete } from "widgets/TableWidgetV2/widget/utilities";
 
 export default {
