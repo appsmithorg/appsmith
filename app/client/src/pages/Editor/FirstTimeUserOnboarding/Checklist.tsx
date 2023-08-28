@@ -455,10 +455,17 @@ export default function OnboardingChecklist() {
     );
 
     // Adding walkthrough tutorial
-    if (!isFeatureWalkthroughShown && adapativeSignposting) {
+    if (!isFeatureWalkthroughShown) {
       dispatch(setExplorerSwitchIndex(0));
       pushFeature &&
         pushFeature(SignpostingWalkthroughConfig.CONNECT_A_DATASOURCE);
+    } else {
+      history.push(
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
+      );
     }
   };
 
