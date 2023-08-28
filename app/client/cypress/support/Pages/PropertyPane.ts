@@ -113,8 +113,9 @@ export class PropertyPane {
   private _createModalButton = ".t--create-modal-btn";
   _pageName = (option: string) => "//a/div[text()='" + option + "']";
   private isMac = Cypress.platform === "darwin";
-  private selectAllJSObjectContentShortcut = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
-    }`;
+  private selectAllJSObjectContentShortcut = `${
+    this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
+  }`;
   private _propPaneSelectedItem = (option: string) =>
     `.t--property-control-${option} span.rc-select-selection-item span`;
   _propertyDateFormat = ".t--property-control-dateformat";
