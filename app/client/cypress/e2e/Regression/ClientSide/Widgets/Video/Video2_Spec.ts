@@ -205,50 +205,50 @@ describe("Video widget tests", function () {
   });
 
   //Skipping below test due to issue - https://github.com/appsmithorg/appsmith/issues/26166
-  it.skip("7. Verify Camera Binding", function () {
-    deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1", "Widgets");
-    propPane.AssertPropertiesDropDownCurrentValue(
-      "Default mobile camera",
-      "Back (Rear)",
-    );
-    entityExplorer.SelectEntityByName("Video1", "Widgets");
-    propPane.TypeTextIntoField("URL", "{{Camera1.videoBlobURL}}");
-    propPane.TogglePropertyState("Autoplay", "On");
-    agHelper.AssertExistingToggleState("Visible", "true");
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
-    agHelper.AssertElementVisibility(
-      locators._widgetInDeployed(draggableWidgets.VIDEO) +
-        " " +
-        widgetLocators.video,
-    );
-    agHelper.AssertProperty(widgetLocators.video, "paused", false);
-    agHelper.ValidateToastMessage("Video is playing!");
-    agHelper.GetElement(widgetLocators.video).then(($video) => {
-      $video[0].pause();
-      agHelper.ValidateToastMessage("Video paused!");
-    });
+  // it("7. Verify Camera Binding", function () {
+  //   deployMode.NavigateBacktoEditor();
+  //   entityExplorer.SelectEntityByName("Camera1", "Widgets");
+  //   propPane.AssertPropertiesDropDownCurrentValue(
+  //     "Default mobile camera",
+  //     "Back (Rear)",
+  //   );
+  //   entityExplorer.SelectEntityByName("Video1", "Widgets");
+  //   propPane.TypeTextIntoField("URL", "{{Camera1.videoBlobURL}}");
+  //   propPane.TogglePropertyState("Autoplay", "On");
+  //   agHelper.AssertExistingToggleState("Visible", "true");
+  //   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
+  //   agHelper.AssertElementVisibility(
+  //     locators._widgetInDeployed(draggableWidgets.VIDEO) +
+  //       " " +
+  //       widgetLocators.video,
+  //   );
+  //   agHelper.AssertProperty(widgetLocators.video, "paused", false);
+  //   agHelper.ValidateToastMessage("Video is playing!");
+  //   agHelper.GetElement(widgetLocators.video).then(($video) => {
+  //     $video[0].pause();
+  //     agHelper.ValidateToastMessage("Video paused!");
+  //   });
 
-    deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1", "Widgets");
-    propPane.SelectPropertiesDropDown(
-      "Default mobile camera",
-      "Front (Selfie)",
-    );
-    entityExplorer.SelectEntityByName("Video1", "Widgets");
-    propPane.TogglePropertyState("Autoplay", "On");
-    agHelper.AssertExistingToggleState("Visible", "true");
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
-    agHelper.AssertElementVisibility(
-      locators._widgetInDeployed(draggableWidgets.VIDEO) +
-        " " +
-        widgetLocators.video,
-    );
-    agHelper.AssertProperty(widgetLocators.video, "paused", false);
-    agHelper.ValidateToastMessage("Video is playing!");
-    agHelper.GetElement(widgetLocators.video).then(($video) => {
-      $video[0].pause();
-      agHelper.ValidateToastMessage("Video paused!");
-    });
-  });
+  //   deployMode.NavigateBacktoEditor();
+  //   entityExplorer.SelectEntityByName("Camera1", "Widgets");
+  //   propPane.SelectPropertiesDropDown(
+  //     "Default mobile camera",
+  //     "Front (Selfie)",
+  //   );
+  //   entityExplorer.SelectEntityByName("Video1", "Widgets");
+  //   propPane.TogglePropertyState("Autoplay", "On");
+  //   agHelper.AssertExistingToggleState("Visible", "true");
+  //   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
+  //   agHelper.AssertElementVisibility(
+  //     locators._widgetInDeployed(draggableWidgets.VIDEO) +
+  //       " " +
+  //       widgetLocators.video,
+  //   );
+  //   agHelper.AssertProperty(widgetLocators.video, "paused", false);
+  //   agHelper.ValidateToastMessage("Video is playing!");
+  //   agHelper.GetElement(widgetLocators.video).then(($video) => {
+  //     $video[0].pause();
+  //     agHelper.ValidateToastMessage("Video paused!");
+  //   });
+  // });
 });
