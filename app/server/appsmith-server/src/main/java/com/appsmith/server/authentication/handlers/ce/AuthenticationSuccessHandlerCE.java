@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.UserRepository;
@@ -19,8 +20,10 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserIdentifierService;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -39,10 +42,17 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -62,9 +72,65 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final ConfigService configService;
     private final FeatureFlagService featureFlagService;
     private final CommonConfig commonConfig;
-
     private final UserIdentifierService userIdentifierService;
     private final RateLimitService rateLimitService;
+    private final TenantService tenantService;
+    private final UserService userService;
+
+    private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
+        Mono<Boolean> emailVerificationEnabledMono = tenantService
+                .getTenantConfiguration()
+                .map(tenant -> tenant.getTenantConfiguration().getEmailVerificationEnabled())
+                .cache();
+
+        Mono<User> userMono = userRepository.findByEmail(userEmail).cache();
+        Mono<Boolean> verificationRequiredMono = null;
+
+        if (method == "signup") {
+            verificationRequiredMono = emailVerificationEnabledMono.flatMap(emailVerificationEnabled -> {
+                // email verification is not enabled at the tenant, so verification not required
+                if (!TRUE.equals(emailVerificationEnabled)) {
+                    return userMono.flatMap(user -> {
+                        user.setEmailVerificationRequired(FALSE);
+                        return userRepository.save(user).then(Mono.just(FALSE));
+                    });
+                } else {
+                    return userMono.flatMap(user -> {
+                        user.setEmailVerificationRequired(TRUE);
+                        return userRepository.save(user).then(Mono.just(TRUE));
+                    });
+                }
+            });
+        } else if (method == "login") {
+            verificationRequiredMono = userMono.flatMap(user -> {
+                Boolean emailVerified = user.getEmailVerified();
+                // email already verified
+                if (TRUE.equals(emailVerified)) {
+                    return Mono.just(FALSE);
+                } else {
+                    return emailVerificationEnabledMono.flatMap(emailVerificationEnabled -> {
+                        // email verification not enabled at the tenant
+                        if (!TRUE.equals(emailVerificationEnabled)) {
+                            user.setEmailVerificationRequired(FALSE);
+                            return userRepository.save(user).then(Mono.just(FALSE));
+                        } else {
+                            // scenario when at the time of signup, the email verification was disabled at the tenant
+                            // but later on turned on, now when this user logs in, it will not be prompted to verify
+                            // as the configuration at time of signup is considered for any user.
+                            // for old users, the login works as expected, without the need to verify
+                            if (!TRUE.equals(user.getEmailVerificationRequired())) {
+                                return Mono.just(FALSE);
+                            } else {
+                                user.setEmailVerificationRequired(TRUE);
+                                return userRepository.save(user).then(Mono.just(TRUE));
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        return verificationRequiredMono;
+    }
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -80,6 +146,117 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         return onAuthenticationSuccess(webFilterExchange, authentication, false, false, null);
     }
 
+    private Mono<String> extractRedirectUrlAndSendVerificationMail(
+            WebFilterExchange webFilterExchange, User user, String redirectUrl) {
+        String baseUrl =
+                webFilterExchange.getExchange().getRequest().getHeaders().getOrigin();
+        ResendEmailVerificationDTO resendEmailVerificationDTO = new ResendEmailVerificationDTO();
+        resendEmailVerificationDTO.setEmail(user.getEmail());
+        resendEmailVerificationDTO.setBaseUrl(baseUrl);
+        // This is the case post signup when the url is /signup-success?redirectUrl=<>
+        // After verification we redirect the user to /signup-success always and use the redirect url
+        // to navigate to next page after signup-success
+        try {
+            redirectUrl = redirectUrl.split("redirectUrl=")[1];
+        } catch (Exception e) {
+            log.error(String.valueOf(e));
+        }
+        redirectUrl = URLDecoder.decode(redirectUrl, StandardCharsets.UTF_8);
+        return userService
+                .resendEmailVerification(resendEmailVerificationDTO, redirectUrl)
+                .then(Mono.just(redirectUrl));
+    }
+
+    private Mono<Void> postVerificationRequiredHandler(
+            WebFilterExchange webFilterExchange, User user, Application defaultApplication, Boolean isFromSignup) {
+        /**
+         * This function:
+         * Removes the user session as only post verification login is allowed
+         * Extracts the redirect url post signup/login
+         * Send email verification mail with the redirect url
+         * Redirects the user to verificationPending screen
+         */
+        return webFilterExchange.getExchange().getSession().flatMap(webSession -> {
+            webSession.getAttributes().remove(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
+            return redirectHelper
+                    .getAuthSuccessRedirectUrl(webFilterExchange, defaultApplication, true)
+                    .flatMap(redirectUrl -> extractRedirectUrlAndSendVerificationMail(
+                                    webFilterExchange, user, redirectUrl)
+                            .map(url -> String.format(
+                                    "/user/verificationPending?email=%s",
+                                    URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
+                            .flatMap(redirectUri -> redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(redirectUri))));
+        });
+    }
+
+    /**
+     * This function handles the redirection in case of form type signup/login.
+     * It constructs the redirect uri based on user's request, and if email verification is required
+     * then redirects the user to /verificationPending and sends the magic link with the user's redirectUrl
+     * in the email.
+     * @param webFilterExchange
+     * @param defaultWorkspaceId
+     * @param authentication
+     * @param isFromSignup
+     * @param createDefaultApplication
+     * @return
+     */
+    private Mono<Void> formEmailVerificationRedirectionHandler(
+            WebFilterExchange webFilterExchange,
+            String defaultWorkspaceId,
+            Authentication authentication,
+            Boolean isFromSignup,
+            Boolean createDefaultApplication,
+            String originHeader) {
+        Mono<Void> redirectionMono = null;
+        User user = (User) authentication.getPrincipal();
+        Mono<Boolean> isVerificationRequiredMono = Mono.just(FALSE);
+
+        if (isFromSignup) {
+            isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "signup");
+            if (createDefaultApplication) {
+                Mono<Boolean> finalIsVerificationRequiredMono = isVerificationRequiredMono;
+                redirectionMono = finalIsVerificationRequiredMono.flatMap(isVerificationRequired -> {
+                    if (TRUE.equals(isVerificationRequired)) {
+                        return createDefaultApplication(defaultWorkspaceId, authentication)
+                                .flatMap(defaultApplication -> postVerificationRequiredHandler(
+                                        webFilterExchange, user, defaultApplication, TRUE));
+                    } else {
+                        return Mono.zip(
+                                        userService.sendWelcomeEmail(user, originHeader),
+                                        createDefaultApplication(defaultWorkspaceId, authentication))
+                                .flatMap(obj -> redirectHelper.handleRedirect(webFilterExchange, obj.getT2(), true));
+                    }
+                });
+            } else {
+                Mono<Boolean> finalIsVerificationRequiredMono1 = isVerificationRequiredMono;
+                redirectionMono = finalIsVerificationRequiredMono1.flatMap(isVerificationRequired -> {
+                    if (TRUE.equals(isVerificationRequired)) {
+                        return postVerificationRequiredHandler(webFilterExchange, user, null, TRUE);
+                    } else {
+                        return userService
+                                .sendWelcomeEmail(user, originHeader)
+                                .then(redirectHelper.handleRedirect(webFilterExchange, null, true));
+                    }
+                });
+            }
+        } else {
+            isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "login");
+            Mono<Boolean> finalIsVerificationRequiredMono2 = isVerificationRequiredMono;
+            redirectionMono = finalIsVerificationRequiredMono2.flatMap(isVerificationRequired -> {
+                if (TRUE.equals(isVerificationRequired)) {
+                    return postVerificationRequiredHandler(webFilterExchange, user, null, FALSE);
+                } else {
+                    return userService
+                            .sendWelcomeEmail(user, originHeader)
+                            .then(redirectHelper.handleRedirect(webFilterExchange, null, false));
+                }
+            });
+        }
+        return redirectionMono;
+    }
+
     public Mono<Void> onAuthenticationSuccess(
             WebFilterExchange webFilterExchange,
             Authentication authentication,
@@ -87,24 +264,31 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             boolean isFromSignup,
             String defaultWorkspaceId) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
-        Mono<Void> redirectionMono;
+        Mono<Void> redirectionMono = null;
         User user = (User) authentication.getPrincipal();
         rateLimitService.resetCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, user.getEmail());
+        String originHeader =
+                webFilterExchange.getExchange().getRequest().getHeaders().getOrigin();
 
         if (authentication instanceof OAuth2AuthenticationToken) {
+            // for oauth type signups, we don't need to verify email
+            user.setEmailVerificationRequired(FALSE);
+
             // In case of OAuth2 based authentication, there is no way to identify if this was a user signup (new user
             // creation) or if this was a login (existing user). What we do here to identify this, is an approximation.
             // If and when we find a better way to do identify this, let's please move away from this approximation.
             // If the user object was created within the last 5 seconds, we treat it as a new user.
             isFromSignup = user.getCreatedAt().isAfter(Instant.now().minusSeconds(5));
-            // If user has previously signed up using password and now using OAuth as a sign in method we are removing
-            // form login method henceforth. This step is taken to avoid any security vulnerability in the login flow
-            // as we are not verifying the user emails at first sign up. In future if we implement the email
-            // verification this can be eliminated safely
-            if (user.getPassword() != null) {
+
+            // Check the existing login source with the authentication source and then update the login source,
+            // if they are not the same.
+            // Also, since this is OAuth2 authentication, we remove the password from user resource object, in order to
+            // invalidate any password which may have been set during a form login.
+            LoginSource authenticationLoginSource = LoginSource.fromString(
+                    ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId());
+            if (!authenticationLoginSource.equals(user.getSource())) {
                 user.setPassword(null);
-                user.setSource(LoginSource.fromString(
-                        ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId()));
+                user.setSource(authenticationLoginSource);
                 // Update the user in separate thread
                 userRepository
                         .save(user)
@@ -114,51 +298,39 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             if (isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;
                 redirectionMono = workspaceService
-                        .isCreateWorkspaceAllowed(Boolean.TRUE)
-                        .elapsed()
-                        .map(pair -> {
-                            log.debug(
-                                    "AuthenticationSuccessHandlerCE::Time taken to check if workspace creation allowed: {} ms",
-                                    pair.getT1());
-                            return pair.getT2();
-                        })
+                        .isCreateWorkspaceAllowed(TRUE)
                         .flatMap(isCreateWorkspaceAllowed -> {
                             if (isCreateWorkspaceAllowed) {
-                                return createDefaultApplication(defaultWorkspaceId, authentication)
-                                        .elapsed()
-                                        .map(pair -> {
-                                            log.debug(
-                                                    "AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms",
-                                                    pair.getT1());
-                                            return pair.getT2();
-                                        })
-                                        .flatMap(defaultApplication -> handleOAuth2Redirect(
-                                                webFilterExchange, defaultApplication, finalIsFromSignup));
+
+                                return Mono.zip(
+                                                userService.sendWelcomeEmail(user, originHeader),
+                                                createDefaultApplication(defaultWorkspaceId, authentication))
+                                        .flatMap(objects -> handleOAuth2Redirect(
+                                                webFilterExchange, objects.getT2(), finalIsFromSignup));
                             }
-                            return handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup);
+                            return userService
+                                    .sendWelcomeEmail(user, originHeader)
+                                    .then(handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup));
                         });
             } else {
-                redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
+                redirectionMono = userService
+                        .sendWelcomeEmail(user, originHeader)
+                        .then(handleOAuth2Redirect(webFilterExchange, null, isFromSignup));
             }
         } else {
-            boolean finalIsFromSignup = isFromSignup;
-            if (createDefaultApplication && isFromSignup) {
-                redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication)
-                        .elapsed()
-                        .map(pair -> {
-                            log.debug(
-                                    "AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms",
-                                    pair.getT1());
-                            return pair.getT2();
-                        })
-                        .flatMap(defaultApplication ->
-                                redirectHelper.handleRedirect(webFilterExchange, defaultApplication, true));
-            } else {
-                redirectionMono = redirectHelper.handleRedirect(webFilterExchange, null, finalIsFromSignup);
-            }
+            // form type signup/login handler
+            redirectionMono = formEmailVerificationRedirectionHandler(
+                    webFilterExchange,
+                    defaultWorkspaceId,
+                    authentication,
+                    isFromSignup,
+                    createDefaultApplication,
+                    originHeader);
         }
 
         final boolean isFromSignupFinal = isFromSignup;
+
+        Mono<Void> finalRedirectionMono = redirectionMono;
         return sessionUserService
                 .getCurrentUser()
                 .flatMap(currentUser -> {
@@ -202,7 +374,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
                     return Mono.whenDelayError(monos);
                 })
-                .then(redirectionMono);
+                .then(finalRedirectionMono);
     }
 
     protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {

@@ -11,8 +11,10 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserIdentifierService;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -38,7 +40,9 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
             FeatureFlagService featureFlagService,
             CommonConfig commonConfig,
             UserIdentifierService userIdentifierService,
-            RateLimitService rateLimitService) {
+            RateLimitService rateLimitService,
+            TenantService tenantService,
+            UserService userService) {
 
         super(
                 examplesWorkspaceCloner,
@@ -55,6 +59,8 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                 featureFlagService,
                 commonConfig,
                 userIdentifierService,
-                rateLimitService);
+                rateLimitService,
+                tenantService,
+                userService);
     }
 }

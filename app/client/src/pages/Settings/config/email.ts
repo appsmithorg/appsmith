@@ -11,6 +11,10 @@ import {
   SettingSubtype,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
+import {
+  ADMIN_SETTINGS_EMAIL_WARNING,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export const config: AdminConfigType = {
   icon: "mail-line",
@@ -26,6 +30,13 @@ export const config: AdminConfigType = {
       controlType: SettingTypes.LINK,
       label: "How to configure?",
       url: EMAIL_SETUP_DOC,
+    },
+    {
+      id: "APPSMITH_MAIL_WARNING",
+      category: SettingCategories.EMAIL,
+      controlType: SettingTypes.LINK,
+      calloutType: "warning",
+      label: createMessage(ADMIN_SETTINGS_EMAIL_WARNING),
     },
     {
       id: "APPSMITH_MAIL_HOST",
@@ -121,7 +132,7 @@ export const config: AdminConfigType = {
           });
       },
       controlType: SettingTypes.BUTTON,
-      isDisabled: (settings: Record<string, any>) => {
+      isDisabled: (settings?: Record<string, any>) => {
         return (
           !settings ||
           !settings["APPSMITH_MAIL_HOST"] ||
