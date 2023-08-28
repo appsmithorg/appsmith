@@ -27,9 +27,9 @@ import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import {
-  getCurrentEnvironment,
-  getCurrentEditingEnvID,
-} from "@appsmith/utils/Environments";
+  getCurrentEditingEnvironmentId,
+  getCurrentEnvironmentId,
+} from "@appsmith/selectors/environmentSelectors";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -96,14 +96,13 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   }
 
   // Add header for environment name
-  const activeEnv = getCurrentEnvironment();
+  let activeEnv = getCurrentEnvironmentId(store.getState());
+  if (config.url?.indexOf("/code") !== -1) {
+    activeEnv = getCurrentEditingEnvironmentId(store.getState());
+  }
 
   if (activeEnv && config.headers) {
-    if (config.url?.indexOf("/code") !== -1) {
-      config.headers.environmentId = getCurrentEditingEnvID();
-    } else {
-      config.headers.environmentId = activeEnv;
-    }
+    config.headers.environmentId = activeEnv;
   }
 
   const anonymousId = AnalyticsUtil.getAnonymousId();
