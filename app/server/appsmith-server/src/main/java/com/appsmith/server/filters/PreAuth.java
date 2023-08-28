@@ -1,5 +1,6 @@
 package com.appsmith.server.filters;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,6 @@ public class PreAuth implements WebFilter {
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
     private final RateLimitService rateLimitService;
-    private final String USERNAME = "username";
 
     public PreAuth(RateLimitService rateLimitService) {
         this.rateLimitService = rateLimitService;
@@ -49,7 +49,7 @@ public class PreAuth implements WebFilter {
 
     private Mono<String> getUsername(ServerWebExchange exchange) {
         return exchange.getFormData().flatMap(formData -> {
-            String username = formData.getFirst(USERNAME);
+            String username = formData.getFirst(FieldName.USERNAME.toString());
             if (username != null && !username.isEmpty()) {
                 return Mono.just(URLDecoder.decode(username, StandardCharsets.UTF_8));
             }
