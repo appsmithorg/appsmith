@@ -82,7 +82,11 @@ function Steps({
           <Fragment key={step.key}>
             {index > 0 && <StepLine />}
             <StepContainer
-              onClick={() => onActiveKeyChange(step.key)}
+              onClick={() => {
+                if (index < activeIndex) {
+                  onActiveKeyChange(step.key);
+                }
+              }}
               role="button"
               style={{ opacity: index > activeIndex ? 0.6 : 1 }}
             >
