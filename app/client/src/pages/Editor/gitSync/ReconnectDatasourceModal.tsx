@@ -63,18 +63,17 @@ import {
   Button,
   Text,
 } from "design-system";
-import {
-  isEnvironmentConfigured,
-  getCurrentEnvironment,
-  getCurrentEnvName,
-} from "@appsmith/utils/Environments";
+import { isEnvironmentConfigured } from "@appsmith/utils/Environments";
 import { keyBy } from "lodash";
 import type { Plugin } from "api/PluginApi";
 import {
   isDatasourceAuthorizedForQueryCreation,
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
-import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
+import {
+  areEnvironmentsFetched,
+  getCurrentEnvironmentDetails,
+} from "@appsmith/selectors/environmentSelectors";
 import type { AppState } from "@appsmith/reducers";
 
 const Section = styled.div`
@@ -271,6 +270,7 @@ function ReconnectDatasourceModal() {
   );
   // getting query from redirection url
   const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
+  const currentEnvDetails = useSelector(getCurrentEnvironmentDetails);
   const queryParams = useQuery();
   const queryAppId =
     queryParams.get("appId") || (pendingApp ? pendingApp.appId : null);
@@ -301,7 +301,7 @@ function ReconnectDatasourceModal() {
     const output = isGoogleSheetPluginDS(plugin?.packageName)
       ? isDatasourceAuthorizedForQueryCreation(ds, plugin as Plugin)
       : ds.datasourceStorages
-      ? isEnvironmentConfigured(ds, getCurrentEnvironment())
+      ? isEnvironmentConfigured(ds, currentEnvDetails.id)
       : false;
     return output;
   };
@@ -320,8 +320,8 @@ function ReconnectDatasourceModal() {
       AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
         applicationId: queryAppId,
         datasourceId: queryDatasourceId,
-        environmentId: getCurrentEnvironment(),
-        environmentName: getCurrentEnvName(),
+        environmentId: currentEnvDetails.id,
+        environmentName: currentEnvDetails.name,
         pageId: queryPageId,
         oAuthPassOrFailVerdict: status,
         workspaceId: orgId,
