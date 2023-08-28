@@ -124,12 +124,13 @@ public class SSHUtils {
      * @param connectionMethodPropertiesIndex : index in datasourceConfiguration.properties list where the SSH config
      *                                        toggle data is placed.
      */
-    public static ConnectionContext getConnectionContext(
-            DatasourceConfiguration datasourceConfiguration, int connectionMethodPropertiesIndex) {
+    public static <C> ConnectionContext getConnectionContext(
+            DatasourceConfiguration datasourceConfiguration, int connectionMethodPropertiesIndex,
+            Class<C> connectionType) {
 
         /* Return empty ConnectionContext if SSH tunnel is not enabled */
         if (!isSSHEnabled(datasourceConfiguration, connectionMethodPropertiesIndex)) {
-            return new ConnectionContext(null, null);
+            return new ConnectionContext<C>(null, null);
         }
 
         String sshHost = datasourceConfiguration.getSshProxy().getHost();
@@ -146,7 +147,7 @@ public class SSHUtils {
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                     SSH_CONNECTION_FAILED_ERROR_MSG);
         }
-        return new ConnectionContext(null, sshTunnelContext);
+        return new ConnectionContext<C>(null, sshTunnelContext);
     }
 
     public static Boolean isSSHTunnelConnected(SSHTunnelContext sshTunnelContext) {

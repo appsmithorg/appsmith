@@ -11,7 +11,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -76,8 +75,6 @@ public interface DatasourceServiceCE {
             String id, Datasource datasource, String activeEnvironmentId, Boolean isUserRefreshedUpdate);
 
     Mono<Datasource> archiveById(String id);
-
-    Map<String, Object> getAnalyticsProperties(Datasource datasource);
 
     /**
      * If we are trying to get environment id with respect to a particular plugin,

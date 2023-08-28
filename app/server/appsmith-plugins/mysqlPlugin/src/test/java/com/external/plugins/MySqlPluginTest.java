@@ -194,7 +194,7 @@ public class MySqlPluginTest {
     @Test
     public void testConnectMySQLContainer() {
 
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(connectionContextMono)
                 .assertNext(Assertions::assertNotNull)
@@ -207,7 +207,7 @@ public class MySqlPluginTest {
         dsConfig = createDatasourceConfiguration();
         ((DBAuth) dsConfig.getAuthentication()).setPassword("");
 
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         Mono<DatasourceTestResult> datasourceTestResultMono =
                 connectionContextMono.flatMap(connectionPool -> pluginExecutor.testDatasource(connectionPool));
@@ -231,7 +231,7 @@ public class MySqlPluginTest {
         final DatasourceConfiguration dsConfig = createDatasourceConfigForContainerWithInvalidTZ();
         dsConfig.setProperties(List.of(new Property("serverTimezone", "UTC")));
 
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(connectionContextMono)
                 .assertNext(Assertions::assertNotNull)
@@ -317,7 +317,7 @@ public class MySqlPluginTest {
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertTrue(output.isEmpty());
         // test connect
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(connectionContextMono)
                 .assertNext(Assertions::assertNotNull)
@@ -343,7 +343,7 @@ public class MySqlPluginTest {
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertTrue(output.isEmpty());
         // test connect
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(connectionContextMono)
                 .assertNext(Assertions::assertNotNull)
@@ -358,7 +358,7 @@ public class MySqlPluginTest {
 
     @Test
     public void testExecute() {
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show databases");
@@ -378,7 +378,7 @@ public class MySqlPluginTest {
     @Test
     public void testExecuteWithFormattingWithShowCmd() {
         dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show\n\tdatabases");
@@ -400,7 +400,7 @@ public class MySqlPluginTest {
     @Test
     public void testExecuteWithFormattingWithSelectCmd() {
         dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("select\n\t*\nfrom\nusers where id=1");
@@ -439,7 +439,7 @@ public class MySqlPluginTest {
 
     @Test
     public void testExecuteWithLongRunningQuery() {
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT SLEEP(20);");
@@ -460,10 +460,9 @@ public class MySqlPluginTest {
     public void testStaleConnectionCheck() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show databases");
-        ConnectionContext connectionContext =
+        ConnectionContext<ConnectionPool> connectionContext =
                 pluginExecutor.datasourceCreate(dsConfig).block();
-        Flux<ActionExecutionResult> resultFlux = Mono.from(
-                        ((ConnectionPool) connectionContext.getConnection()).disposeLater())
+        Flux<ActionExecutionResult> resultFlux = Mono.from((connectionContext.getConnection()).disposeLater())
                 .thenMany(pluginExecutor.executeParameterized(
                         connectionContext, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -521,7 +520,7 @@ public class MySqlPluginTest {
     @Test
     public void testAliasColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
@@ -547,7 +546,7 @@ public class MySqlPluginTest {
     @Test
     public void testPreparedStatementErrorWithIsKeyword() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         /**
@@ -597,7 +596,7 @@ public class MySqlPluginTest {
                 .blockLast(); // wait until completion of all the queries
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         /**
@@ -673,7 +672,7 @@ public class MySqlPluginTest {
                 .blockLast(); // wait until completion of all the queries
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id FROM test_boolean_type WHERE c_boolean={{binding1}};");
@@ -713,7 +712,7 @@ public class MySqlPluginTest {
     @Test
     public void testExecuteWithPreparedStatement() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id FROM users WHERE id = {{binding1}} limit 1 offset {{binding2}};");
@@ -794,7 +793,7 @@ public class MySqlPluginTest {
     @Test
     public void testExecuteDataTypes() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
@@ -933,7 +932,7 @@ public class MySqlPluginTest {
     }
 
     private void testExecute(String query, String expectedResult) {
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(query);
         Mono<Object> executeMono = connectionContextMono.flatMap(conn ->
@@ -1092,7 +1091,8 @@ public class MySqlPluginTest {
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLED);
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono =
+                pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<Object> executeMono = connectionContextMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1114,7 +1114,8 @@ public class MySqlPluginTest {
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.REQUIRED);
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono =
+                pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<Object> executeMono = connectionContextMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1138,7 +1139,8 @@ public class MySqlPluginTest {
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono =
+                pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<Object> executeMono = connectionContextMono.flatMap(conn ->
                 pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1156,7 +1158,7 @@ public class MySqlPluginTest {
     @Test
     public void testDuplicateColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id, username as id, password, email as password FROM users WHERE id = 1");
@@ -1193,7 +1195,7 @@ public class MySqlPluginTest {
     @Test
     public void testExecuteDescribeTableCmd() {
         dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("describe users");
@@ -1216,7 +1218,7 @@ public class MySqlPluginTest {
     @Test
     public void testExecuteDescTableCmd() {
         dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("desc users");
@@ -1241,7 +1243,7 @@ public class MySqlPluginTest {
         pluginExecutor = spy(new MySqlPlugin.MySqlPluginExecutor());
         doReturn(false).when(pluginExecutor).isIsOperatorUsed(any());
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * from (\n" + "\tselect 'Appsmith' as company_name, true as open_source\n"
@@ -1288,7 +1290,7 @@ public class MySqlPluginTest {
     @Test
     public void testNullAsStringWithPreparedStatement() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * from (\n" + "\tselect 'Appsmith' as company_name, true as open_source\n"
@@ -1336,7 +1338,7 @@ public class MySqlPluginTest {
     @Test
     public void testNumericValuesHavingLeadingZeroWithPreparedStatement() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT {{binding1}} as numeric_string;");
@@ -1378,7 +1380,7 @@ public class MySqlPluginTest {
     @Test
     public void testLongValueWithPreparedStatement() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("select id from users LIMIT {{binding1}}");
@@ -1419,18 +1421,18 @@ public class MySqlPluginTest {
     @Test
     public void testDatasourceDestroy() {
         dsConfig = createDatasourceConfiguration();
-        Mono<ConnectionContext> connectionContextMonoCache =
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMonoCache =
                 pluginExecutor.datasourceCreate(dsConfig).cache();
         Mono<DatasourceTestResult> testConnResultMono =
                 connectionContextMonoCache.flatMap(conn -> pluginExecutor.testDatasource(conn));
-        Mono<Tuple2<ConnectionContext, DatasourceTestResult>> zipMono =
+        Mono<Tuple2<ConnectionContext<ConnectionPool>, DatasourceTestResult>> zipMono =
                 zip(connectionContextMonoCache, testConnResultMono);
         StepVerifier.create(zipMono)
                 .assertNext(tuple2 -> {
                     DatasourceTestResult testDsResult = tuple2.getT2();
                     assertEquals(0, testDsResult.getInvalids().size());
 
-                    ConnectionContext connectionContext = tuple2.getT1();
+                    ConnectionContext<ConnectionPool> connectionContext = tuple2.getT1();
                     pluginExecutor.datasourceDestroy(connectionContext);
                     try {
                         /**
@@ -1443,7 +1445,7 @@ public class MySqlPluginTest {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                    assertTrue(((ConnectionPool) connectionContext.getConnection()).isDisposed());
+                    assertTrue((connectionContext.getConnection()).isDisposed());
                 })
                 .verifyComplete();
     }
@@ -1453,7 +1455,7 @@ public class MySqlPluginTest {
         MySqlPlugin.MySqlPluginExecutor spyPlugin = spy(pluginExecutor);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        ConnectionContext connectionContextMono =
+        ConnectionContext<ConnectionPool> connectionContextMono =
                 pluginExecutor.datasourceCreate(dsConfig).block();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id FROM users WHERE -- IS operator\nid = 1 limit 1;");

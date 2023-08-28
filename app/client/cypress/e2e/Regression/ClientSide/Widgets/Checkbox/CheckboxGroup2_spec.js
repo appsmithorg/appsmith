@@ -2,26 +2,19 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  propPane,
+  deployMode,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Checkbox Group Widget Functionality", function () {
   before(() => {
-    _.agHelper.AddDsl("checkboxgroupDsl");
+    agHelper.AddDsl("checkboxgroupDsl");
   });
 
   it("1. Checkbox Group Widget Functionality", function () {
-    cy.openPropertyPane("checkboxgroupwidget");
-    /**
-     * @param{Text} Random Text
-     * @param{RadioWidget}Mouseover
-     * @param{RadioPre Css} Assertion
-     */
-    cy.widgetText(
-      "checkboxgrouptest",
-      formWidgetsPage.checkboxGroupWidget,
-      widgetsPage.widgetNameSpan,
-    );
+    propPane.RenameWidget("CheckboxGroup1", "CBGTest");
     /**
      * @param{IndexValue} Provide Input Index Value
      * @param{Text} Index Text Value.
@@ -37,7 +30,7 @@ describe("Checkbox Group Widget Functionality", function () {
       .eq(2)
       .should("have.text", this.dataSet.radio2);
     cy.radioInput(3, "2");
-    cy.get(formWidgetsPage.radioAddButton).click({ force: true });
+    agHelper.ClickButton("Add option");
     cy.radioInput(4, this.dataSet.radio4);
     cy.get(formWidgetsPage.deleteradiovalue).eq(2).click({ force: true });
     cy.wait(200);
@@ -59,46 +52,35 @@ describe("Checkbox Group Widget Functionality", function () {
     //   .get(commonlocators.dropdownSelectButton)
     //   .click({ force: true })
     //   .type("2");
-    _.deployMode.DeployApp();
   });
 
-  it("2. Checkbox Group Functionality To Unchecked Visible Widget", function () {
-    _.deployMode.NavigateBacktoEditor();
-    cy.openPropertyPane("checkboxgroupwidget");
-    cy.togglebarDisable(commonlocators.visibleCheckbox);
-    _.deployMode.DeployApp();
+  it("2. Checkbox Group Functionality To Unchecked/Check Visible Widget", function () {
+    propPane.TogglePropertyState("Visible", "Off");
+    deployMode.DeployApp();
     cy.get(publish.checkboxGroupWidget + " " + "input").should("not.exist");
-    _.deployMode.NavigateBacktoEditor();
-  });
-
-  it("3. Checkbox Group Functionality To Check Visible Widget", function () {
+    deployMode.NavigateBacktoEditor();
+    //Checkbox Group Functionality To Check Visible Widget
     cy.openPropertyPane("checkboxgroupwidget");
-    cy.togglebar(commonlocators.visibleCheckbox);
-    _.deployMode.DeployApp();
+    propPane.TogglePropertyState("Visible", "On");
+    deployMode.DeployApp();
     cy.wait(500);
     cy.get(publish.checkboxGroupWidget + " " + "input")
       .eq(0)
       .should("exist");
-  });
-
-  it("4. Checkbox Group Functionality To Button Text", function () {
     cy.get(publish.checkboxGroupWidget + " " + "label")
       .eq(2)
       .should("have.text", "test2");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("handleSelectAllChange: unchecked", function () {
+  it("3. handleSelectAllChange: unchecked", function () {
     const selectAllSelector = formWidgetsPage.selectAllCheckboxControl;
     const uncheckedOptionInputs = `${formWidgetsPage.checkboxGroupOptionInputs} input:not(:checked)`;
     // Deselect all
     cy.get(selectAllSelector).click();
     // Should get 2 unchecked option inputs
     cy.get(uncheckedOptionInputs).should("have.length", 2);
-  });
-
-  it("handleSelectAllChange: checked", function () {
-    const selectAllSelector = formWidgetsPage.selectAllCheckboxControl;
+    //handleSelectAllChange: checked", function () {
     const checkedOptionInputs = `${formWidgetsPage.checkboxGroupOptionInputs} input:checked`;
     // Select all
     cy.get(selectAllSelector).click();
@@ -106,7 +88,7 @@ describe("Checkbox Group Widget Functionality", function () {
     cy.get(checkedOptionInputs).should("have.length", 2);
   });
 
-  it("Checkbox Group Functionality To alignment options", function () {
+  it("4. Checkbox Group Functionality To alignment options", function () {
     cy.openPropertyPane("checkboxgroupwidget");
     cy.moveToStyleTab();
     // check default value
@@ -132,18 +114,16 @@ describe("Checkbox Group Widget Functionality", function () {
     ).should("have.css", "justify-content", "flex-start");
   });
 
-  it("Check isDirty meta property", function () {
+  it("5. Check isDirty meta property", function () {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
     cy.openPropertyPane("textwidget");
-    cy.updateCodeInput(
-      ".t--property-control-text",
-      `{{checkboxgrouptest.isDirty}}`,
-    );
+    propPane.UpdatePropertyFieldValue("Text", "{{CBGTest.isDirty}}");
     // Change defaultSelectedValues
     cy.openPropertyPane("checkboxgroupwidget");
     cy.moveToContentTab();
-    cy.updateCodeInput(".t--property-control-defaultselectedvalues", "GREEN");
+    propPane.UpdatePropertyFieldValue("Default selected values", "GREEN");
+
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
@@ -151,7 +131,4 @@ describe("Checkbox Group Widget Functionality", function () {
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
   });
-});
-afterEach(() => {
-  // put your clean up code if any
 });

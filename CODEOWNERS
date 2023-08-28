@@ -199,3 +199,15 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Envir
 # Data Platform server - Misc
 app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/**/Datasource* @nidhi-nair @sondermanish @tkappsmith
 app/server/appsmith-server/src/main/java/com/appsmith/server/exceptions/AppsmithError* @nidhi-nair @sondermanish @tkappsmith
+
+# Team Managers pod
+app/client/src/ce/**/* @ankitakinger
+app/client/src/ee/**/* @ankitakinger
+app/client/src/pages/Settings/**/* @ankitakinger
+app/client/cypress/e2e/Regression/Enterprise/**/* @ankitakinger
+app/client/cypress/e2e/Regression/EE/Enterprise/**/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/AdminSettings/**/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/Google/**/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/Github/**/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/FormLogin/**/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/Auditlogs/**/* @ankitakinger

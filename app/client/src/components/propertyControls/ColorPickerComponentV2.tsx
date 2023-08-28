@@ -21,7 +21,11 @@ import {
   getThemePropertyBinding,
 } from "constants/ThemeConstants";
 import { getWidgets } from "sagas/selectors";
-import { extractColorsFromString, isValidColor } from "utils/helpers";
+import {
+  extractColorsFromString,
+  isEmptyOrNill,
+  isValidColor,
+} from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
@@ -327,7 +331,7 @@ interface LeftIconProps {
 }
 
 function LeftIcon(props: LeftIconProps) {
-  return isValidColor(props.color) ? (
+  return isValidColor(props.color) && !isEmptyOrNill(props.color) ? (
     <ColorIcon
       className="rounded-full cursor-pointer"
       color={props.color}

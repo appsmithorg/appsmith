@@ -259,7 +259,7 @@ export default class AppEditorEngine extends AppEngine {
     // add branch query to path and fetch status
     if (branchInStore) {
       history.replace(addBranchParam(branchInStore));
-      yield put(fetchGitStatusInit());
+      yield put(fetchGitStatusInit({ compareRemote: false }));
     }
     yield put(resetPullMergeStatus());
   }

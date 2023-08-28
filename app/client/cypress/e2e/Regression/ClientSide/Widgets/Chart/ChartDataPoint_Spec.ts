@@ -5,6 +5,7 @@ import {
   deployMode,
   locators,
   entityExplorer,
+  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const widgetLocators = require("../../../../../locators/Widgets.json");
@@ -12,7 +13,7 @@ const widgetLocators = require("../../../../../locators/Widgets.json");
 let dataSet: any, dsl: any;
 
 describe("Input widget test with default value from chart datapoint", () => {
-  //beforeEach - becasuse to enable re-attempt passing!
+  //beforeEach - to enable re-attempt passing!
   beforeEach(() => {
     agHelper.AddDsl("ChartDsl");
     cy.fixture("ChartDsl").then((val: any) => {
@@ -31,6 +32,7 @@ describe("Input widget test with default value from chart datapoint", () => {
     );
     assertHelper.AssertNetworkStatus("@updateLayout");
     entityExplorer.SelectEntityByName("Chart1");
+    propPane.TogglePropertyState("Show Labels", "On");
     propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
     agHelper.EnterActionValue("Message", dataSet.bindingDataPoint);
     entityExplorer.SelectEntityByName("Input2");
@@ -38,9 +40,9 @@ describe("Input widget test with default value from chart datapoint", () => {
       "Default value",
       dataSet.bindingSeriesTitle + "}}",
     );
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CHART));
     agHelper.Sleep(1500); //waiting for chart to load!
-    agHelper.GetNClick(widgetLocators.chartDataPoint);
+    agHelper.GetNClickByContains(widgetLocators.chartDataPoint, "36000");
     cy.get(locators._widgetInputSelector("inputwidgetv2"))
       .first()
       .invoke("val")
@@ -52,10 +54,26 @@ describe("Input widget test with default value from chart datapoint", () => {
     cy.get(locators._widgetInputSelector("inputwidgetv2"))
       .last()
       .should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
+
+    deployMode.NavigateBacktoEditor();
   });
 
-  afterEach(() => {
-    //this is to enable re-attempt passing!
-    deployMode.NavigateBacktoEditor();
+  it("2. onDataPointClick should work and respond with x, y, seriesTitle, and rawEventData (in case of custom fusion chart).", () => {
+    agHelper.AddDsl("chartCustomSankeyDataDsl");
+    assertHelper.AssertNetworkStatus("@updateLayout");
+    entityExplorer.SelectEntityByName("Chart1");
+    agHelper.Sleep(1500); //waiting for chart to load!
+    propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
+    agHelper.EnterActionValue("Message", dataSet.bindingDataPoint);
+
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CHART));
+    agHelper.Sleep(1500); //waiting for chart to load!
+    agHelper.GetNClickByContains(
+      widgetLocators.chartDataPoint,
+      "European Union",
+    );
+    agHelper.ValidateToastMessage(
+      '{"x":-1,"y":-1,"seriesTitle":"","rawEventData":{"color":"#FFC533","alpha":100,"labelFill":"#666","labelAlpha":100,"value":4747591,"label":"European Union","sourceLinks":["France","United States","United Kingdom","Switzerland","Austria","Sweden"],"targetLinks":["Netherlands","Germany","Belgium","China","Italy","Russia","Spain"]}}',
+    );
   });
 });

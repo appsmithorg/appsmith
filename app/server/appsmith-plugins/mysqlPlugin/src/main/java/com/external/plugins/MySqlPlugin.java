@@ -14,6 +14,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ConnectionContext;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
@@ -54,6 +55,7 @@ import reactor.pool.PoolShutdownException;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -155,7 +157,8 @@ public class MySqlPlugin extends BasePlugin {
     }
 
     @Extension
-    public static class MySqlPluginExecutor implements PluginExecutor<ConnectionContext>, SmartSubstitutionInterface {
+    public static class MySqlPluginExecutor
+            implements PluginExecutor<ConnectionContext<ConnectionPool>>, SmartSubstitutionInterface {
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
         private final Scheduler scheduler = Schedulers.boundedElastic();
@@ -176,7 +179,7 @@ public class MySqlPlugin extends BasePlugin {
          */
         @Override
         public Mono<ActionExecutionResult> executeParameterized(
-                ConnectionContext connectionContext,
+                ConnectionContext<ConnectionPool> connectionContext,
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
@@ -237,14 +240,30 @@ public class MySqlPlugin extends BasePlugin {
                     connectionContext, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO, requestData);
         }
 
+        @Override
+        public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate) {
+            ActionConfiguration actionConfig = new ActionConfiguration();
+            // Sets query body
+            actionConfig.setBody(queryTemplate.getBody());
+
+            // Sets prepared statement to false
+            Property preparedStatement = new Property();
+            preparedStatement.setValue(false);
+            List<Property> pluginSpecifiedTemplates = new ArrayList<Property>();
+            pluginSpecifiedTemplates.add(preparedStatement);
+            actionConfig.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            return actionConfig;
+        }
+
         public Mono<ActionExecutionResult> executeCommon(
-                ConnectionContext connectionContext,
+                ConnectionContext<ConnectionPool> connectionContext,
                 ActionConfiguration actionConfiguration,
                 Boolean preparedStatement,
                 List<MustacheBindingToken> mustacheValuesInOrder,
                 ExecuteActionDTO executeActionDTO,
                 Map<String, Object> requestData) {
-            ConnectionPool connectionPool = (ConnectionPool) connectionContext.getConnection();
+            ConnectionPool connectionPool = connectionContext.getConnection();
+            SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
             String query = actionConfiguration.getBody();
 
             /**
@@ -270,6 +289,7 @@ public class MySqlPlugin extends BasePlugin {
             String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(finalQuery) : finalQuery;
             List<RequestParamDTO> requestParams =
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, transformedQuery, null, null, psParams));
+            Instant requestedAt = Instant.now();
 
             return Mono.usingWhen(
                             connectionPool.create(),
@@ -281,6 +301,7 @@ public class MySqlPlugin extends BasePlugin {
                                         .onErrorMap(
                                                 TimeoutException.class,
                                                 error -> new StaleConnectionException(error.getMessage()))
+                                        .map(isConnectionValid -> isConnectionValid && isSSHTunnelConnected(sshTunnelContext))
                                         .flatMapMany(isValid -> {
                                             if (isValid) {
                                                 return createAndExecuteQueryFromConnection(
@@ -374,6 +395,9 @@ public class MySqlPlugin extends BasePlugin {
                                             request.setQuery(finalQuery);
                                             request.setProperties(requestData);
                                             request.setRequestParams(requestParams);
+                                            if (request.getRequestedAt() == null) {
+                                                request.setRequestedAt(requestedAt);
+                                            }
                                             ActionExecutionResult result = actionExecutionResult;
                                             result.setRequest(request);
 
@@ -433,8 +457,8 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(ConnectionContext connectionContext) {
-            ConnectionPool pool = (ConnectionPool) connectionContext.getConnection();
+        public Mono<DatasourceTestResult> testDatasource(ConnectionContext<ConnectionPool> connectionContext) {
+            ConnectionPool pool = connectionContext.getConnection();
             return Mono.just(pool)
                     .flatMap(p -> p.create())
                     .flatMap(conn -> Mono.from(conn.close()))
@@ -584,12 +608,13 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ConnectionContext> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<ConnectionContext<ConnectionPool>> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.just(datasourceConfiguration)
                     .flatMap(ignore -> {
-                        ConnectionContext connectionContext;
+                        ConnectionContext<ConnectionPool> connectionContext;
                         try {
-                            connectionContext = getConnectionContext(datasourceConfiguration, CONNECTION_METHOD_INDEX);
+                            connectionContext = getConnectionContext(datasourceConfiguration, CONNECTION_METHOD_INDEX
+                                    , ConnectionPool.class);
                             ConnectionPool pool = getNewConnectionPool(datasourceConfiguration, connectionContext);
                             connectionContext.setConnection(pool);
                             return Mono.just(connectionContext);
@@ -600,7 +625,7 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public void datasourceDestroy(ConnectionContext connectionContext) {
+        public void datasourceDestroy(ConnectionContext<ConnectionPool> connectionContext) {
             Mono.just(connectionContext)
                     .flatMap(ignore -> {
                         SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
@@ -628,12 +653,12 @@ public class MySqlPlugin extends BasePlugin {
              * This database connection destroy can be scheduled independently of the previous SSH tunnel destroy
              * because they are not related to each other. They operate as independent units.
              */
-            ConnectionPool connectionPool = (ConnectionPool) connectionContext.getConnection();
+            ConnectionPool connectionPool = connectionContext.getConnection();
             if (connectionPool != null) {
                 connectionPool
                         .disposeLater()
                         .onErrorResume(exception -> {
-                            log.debug("In datasourceDestroy function error mode.", exception);
+                            log.debug("Could not destroy MySQL connection pool", exception);
                             return Mono.empty();
                         })
                         .subscribeOn(scheduler)
@@ -648,16 +673,16 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStructure> getStructure(
-                ConnectionContext connectionContext, DatasourceConfiguration datasourceConfiguration) {
+                ConnectionContext<ConnectionPool> connectionContext, DatasourceConfiguration datasourceConfiguration) {
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
-            ConnectionPool connectionPool = (ConnectionPool) connectionContext.getConnection();
+            ConnectionPool connectionPool = connectionContext.getConnection();
             SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
             return Mono.usingWhen(
                             connectionPool.create(),
-                            connection -> Mono.from(connection.validate(ValidationDepth.REMOTE))
+                            connection -> Mono.from(connection.validate(ValidationDepth.LOCAL))
                                     .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
                                     .onErrorMap(
                                         TimeoutException.class,

@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ConnectionContext {
-    Object connection;
+public class ConnectionContext<C> {
+    C connection;
     SSHTunnelContext sshTunnelContext;
 }
