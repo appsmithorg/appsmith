@@ -404,7 +404,6 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
-          RUNID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
           REPOSITORY: ${{ github.repository }}
           COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
@@ -497,7 +496,6 @@ jobs:
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
-          RUNID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
           REPOSITORY: ${{ github.repository }}
           COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
