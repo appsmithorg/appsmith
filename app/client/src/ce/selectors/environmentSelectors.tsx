@@ -11,6 +11,7 @@ export const getCurrentEnvironmentName = (state: AppState) => "";
 export const getCurrentEditingEnvironmentId = (state: AppState) => "unused_env";
 
 export const getCurrentEnvironmentDetails = (state: AppState) => ({
+  id: "unused_env",
   name: "",
   editingId: "unused_env",
 });
