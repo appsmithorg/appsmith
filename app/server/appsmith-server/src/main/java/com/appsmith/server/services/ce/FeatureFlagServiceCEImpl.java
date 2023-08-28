@@ -21,6 +21,7 @@ import reactor.util.function.Tuple2;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -53,7 +54,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         Boolean check = check(featureName, user);
 
         if (Boolean.TRUE.equals(check)) {
-            return Mono.just(check);
+            return Mono.just(true);
         }
 
         return getAllFeatureFlagsForUser()
@@ -79,6 +80,12 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         return ff4j.check(featureName, new FlippingExecutionContext(Map.of(FieldName.USER, user)));
     }
 
+    /**
+     * Retrieves a map of feature flags along with their corresponding boolean values for the current user.
+     * This takes into account for both user-level and tenant-level feature flags
+     *
+     * @return A Mono emitting a Map where keys are feature names and values are corresponding boolean flags.
+     */
     @Override
     public Mono<Map<String, Boolean>> getAllFeatureFlagsForUser() {
         Mono<User> currentUser = sessionUserService.getCurrentUser().cache();
@@ -86,15 +93,20 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                         ff4j.getFeatures().keySet())
                 .flatMap(featureName -> Mono.just(featureName).zipWith(currentUser));
 
+        // Filter out anonymous users, then collect feature flags into a Map
         Mono<Map<String, Boolean>> localFlagsForUser = featureUserTuple
                 .filter(objects -> !objects.getT2().isAnonymous())
                 .collectMap(Tuple2::getT1, tuple -> check(tuple.getT1(), tuple.getT2()));
 
-        return Mono.zip(localFlagsForUser, this.getAllRemoteFeatureFlagsForUser())
-                .map(tuple -> {
-                    tuple.getT1().putAll(tuple.getT2());
-                    return tuple.getT1();
-                });
+        // Combine local flags, remote flags, and tenant features, and merge them into a single map
+        return localFlagsForUser.flatMap(localFlags -> this.getAllRemoteFeatureFlagsForUser()
+                .zipWith(this.getCurrentTenantFeatures())
+                .map(remoteAndTenantFlags -> {
+                    Map<String, Boolean> combinedFlags = new HashMap<>(localFlags);
+                    combinedFlags.putAll(remoteAndTenantFlags.getT1());
+                    combinedFlags.putAll(remoteAndTenantFlags.getT2());
+                    return combinedFlags;
+                }));
     }
 
     /**

@@ -56,7 +56,7 @@ export function* handleStoreOperations(triggers: StoreOperation[]) {
       text,
       severity: Severity.INFO,
       category: LOG_CATEGORY.USER_GENERATED,
-      timestamp: moment().format("hh:mm:ss"),
+      timestamp: moment().format("HH:mm:ss"),
       isExpanded: false,
     })),
   );
