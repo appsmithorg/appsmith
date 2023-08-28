@@ -8,11 +8,14 @@ import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.TenantService;
+import com.appsmith.server.solutions.EnvManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -23,7 +26,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +39,9 @@ class TenantServiceCETest {
 
     @Autowired
     TenantService tenantService;
+
+    @MockBean
+    EnvManager envManager;
 
     @Autowired
     UserRepository userRepository;
@@ -127,6 +135,77 @@ class TenantServiceCETest {
                     assertThat(tenant.getTenantConfiguration().getLicense()).isNotNull();
                     assertThat(tenant.getTenantConfiguration().getLicense().getPlan())
                             .isEqualTo(LicensePlan.FREE);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    void setEmailVerificationEnabled_WithInvalidSMTPHost_ReturnsError() {
+        final TenantConfiguration changes = new TenantConfiguration();
+        changes.setEmailVerificationEnabled(Boolean.TRUE);
+
+        Map<String, String> envVars = new HashMap<>();
+        // adding invalid mail host
+        envVars.put("APPSMITH_MAIL_HOST", "");
+
+        // mocking env vars file
+        Mockito.when(envManager.getAllNonEmpty()).thenReturn(Mono.just(envVars));
+
+        final Mono<TenantConfiguration> resultMono = tenantService
+                .updateDefaultTenantConfiguration(changes)
+                .then(tenantService.getTenantConfiguration())
+                .map(Tenant::getTenantConfiguration);
+
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(error -> {
+                    assertThat(error.getMessage()).startsWith("Your SMTP configuration is invalid");
+                    return true;
+                })
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    void setEmailVerificationEnabled_WithValidSMTPHost_Success() {
+        final TenantConfiguration changes = new TenantConfiguration();
+        changes.setEmailVerificationEnabled(Boolean.TRUE);
+
+        Map<String, String> envVars = new HashMap<>();
+        // adding valid mail host
+        envVars.put("APPSMITH_MAIL_HOST", "smtp.sendgrid.net");
+
+        // mocking env vars file
+        Mockito.when(envManager.getAllNonEmpty()).thenReturn(Mono.just(envVars));
+
+        final Mono<TenantConfiguration> resultMono = tenantService
+                .updateDefaultTenantConfiguration(changes)
+                .then(tenantService.getTenantConfiguration())
+                .map(Tenant::getTenantConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(tenantConfiguration -> {
+                    assertThat(tenantConfiguration.getEmailVerificationEnabled())
+                            .isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    void setEmailVerificationEnabledFalseAndGetItBack() {
+        final TenantConfiguration changes = new TenantConfiguration();
+        changes.setEmailVerificationEnabled(Boolean.FALSE);
+
+        final Mono<TenantConfiguration> resultMono = tenantService
+                .updateDefaultTenantConfiguration(changes)
+                .then(tenantService.getTenantConfiguration())
+                .map(Tenant::getTenantConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(tenantConfiguration -> {
+                    assertThat(tenantConfiguration.getEmailVerificationEnabled())
+                            .isFalse();
                 })
                 .verifyComplete();
     }
