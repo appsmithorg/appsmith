@@ -10,6 +10,8 @@ import lombok.ToString;
 
 import java.util.List;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 @Getter
 @Setter
 @ToString
@@ -31,8 +33,11 @@ public class SSHConnection implements AppsmithDomain {
 
     public void setEndpoints(List<Endpoint> endpoints) {
         this.endpoints = endpoints;
-        this.host = endpoints.get(0).getHost();
-        this.port = endpoints.get(0).getPort();
+
+        if (!isEmpty(endpoints)) {
+            this.host = endpoints.get(0).getHost();
+            this.port = endpoints.get(0).getPort();
+        }
     }
 
     String username;
