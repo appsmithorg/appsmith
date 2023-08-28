@@ -80,10 +80,10 @@
       // The gapi script is getting loaded even before the last script of index.html
       // Hence defining this function before loading gapi
       // For more info: https://github.com/appsmithorg/appsmith/issues/21033
-      gapiLoaded = () => {
+      const gapiLoaded = () => {
         window.googleAPIsLoaded = true;
       };
-      onError = () => {
+      const onError = () => {
         window.googleAPIsLoaded = false;
       };
 
