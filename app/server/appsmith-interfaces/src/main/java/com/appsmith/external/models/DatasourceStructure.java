@@ -122,6 +122,9 @@ public class DatasourceStructure {
             this.title = title;
             this.body = body;
             this.configuration = configuration;
+            // the reason we are adding this in an if-block is because this field should only be set for suggested
+            // templates only.
+            // for non suggested templates, this field should be null or non-existent
             if (isSuggested) {
                 this.isSuggested = isSuggested;
             }
@@ -133,6 +136,9 @@ public class DatasourceStructure {
             this.title = title;
             this.body = body;
             this.configuration = configuration;
+            // the reason we are adding this in an if-block is because this field should only be set for suggested
+            // templates only.
+            // for non suggested templates, this field should be null or non-existent
             if (isSuggested) {
                 this.isSuggested = isSuggested;
             }
@@ -146,6 +152,9 @@ public class DatasourceStructure {
         public Template(String title, Map<String, ?> configuration, boolean isSuggested) {
             this.title = title;
             this.configuration = configuration;
+            // the reason we are adding this in an if-block is because this field should only be set for suggested
+            // templates only.
+            // for non suggested templates, this field should be null or non-existent
             if (isSuggested) {
                 this.isSuggested = isSuggested;
             }
