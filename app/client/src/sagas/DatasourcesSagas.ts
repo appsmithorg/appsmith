@@ -1478,6 +1478,9 @@ function* executeDatasourceQuerySaga(
   action: executeDatasourceQueryReduxAction<any>,
 ) {
   try {
+    // isGeneratePage value is because we are reusing the same action which calls this saga for both generating the page and fetching preview data
+    // We use it to choose the appropriate API to call and the appropriate payload to pass to the API.
+    // We are reusing this saga because of its similar flow, and since we do not persist the data to redux state but instead trigger callbacks.
     const response: ApiResponse = action.payload.isGeneratePage
       ? yield DatasourcesApi.executeGoogleSheetsDatasourceQuery(action.payload)
       : yield DatasourcesApi.executeDatasourceQuery({
