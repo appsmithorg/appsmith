@@ -45,4 +45,7 @@ export class WidgetEntity implements IEntity {
   computeDifference(oldEntity?: IEntity): Diff<unknown>[] | undefined {
     return this.diffGenerator.generate(oldEntity, this);
   }
+  isEqual(entity: TWidgetEntity, config: TWidgetEntityConfig): boolean {
+    return false;
+  }
 }

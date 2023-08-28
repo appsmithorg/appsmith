@@ -12,11 +12,11 @@ export interface EntityParser {
   parse<T extends DataTreeEntity, K extends DataTreeEntityConfig>(
     entity: T,
     entityConfig: K,
-  ): ParsedEntity<T>;
+  ): ParsedEntity<T, K>;
   parse<T extends TJSActionEntity, K extends JSActionEntityConfig>(
     entity: T,
     entityConfig: K,
-  ): ParsedEntity<T>;
+  ): ParsedEntity<T, K>;
 }
 
 export type TParsedJSEntity = Record<string, string> & {
@@ -26,13 +26,13 @@ export type TParsedJSEntity = Record<string, string> & {
 type TParsedJSEntityConfig = Record<string, TParsedJSProperty>;
 
 export type ParsedJSCache = {
-  parsedEntity: ParsedEntity<TJSActionEntity>;
+  parsedEntity: ParsedEntity<TJSActionEntity, TParsedJSEntityConfig>;
   parsedEntityConfig: TParsedJSEntityConfig;
 };
 
-export type ParsedEntity<T> = {
-  parsedEntity: Partial<T>;
-  parsedEntityConfig: Record<string, unknown>;
+export type ParsedEntity<T, K> = {
+  parsedEntity: T & { [x: string]: unknown };
+  parsedEntityConfig: K & { [x: string]: unknown };
 };
 
 export class DefaultEntityParser implements EntityParser {

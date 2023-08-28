@@ -5,7 +5,7 @@ import {
   getEntityNameAndPropertyPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
-import { PathUtils } from "plugins/Linting/utils/pathUtils";
+import { PathUtils } from "plugins/Common/utils/pathUtils";
 import { extractReferencesFromPath } from "plugins/Linting/utils/getEntityDependencies";
 import { groupDifferencesByType } from "plugins/Linting/utils/groupDifferencesByType";
 import type {

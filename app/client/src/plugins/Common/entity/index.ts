@@ -29,6 +29,7 @@ export interface IEntity {
   getRawEntity(): unknown;
   getConfig(): unknown;
   computeDifference(entity?: IEntity): Diff<unknown>[] | undefined;
+  isEqual(entity: DataTreeEntity, config: DataTreeEntityConfig): boolean;
 }
 
 export default class EntityFactory {

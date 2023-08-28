@@ -19,6 +19,7 @@ export interface JSCollection {
   variables: Array<Variable>;
   userPermissions?: string[];
   errorReports?: Array<LayoutOnLoadActionErrors>;
+  url?: string;
 }
 
 export interface JSActionConfig {

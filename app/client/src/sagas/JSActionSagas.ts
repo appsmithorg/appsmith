@@ -73,7 +73,15 @@ export function* fetchJSCollectionsSaga(
       yield JSActionAPI.fetchJSCollections(applicationId);
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
-      payload: response.data || [],
+      payload: (response.data || []).map((val) => {
+        const url = URL.createObjectURL(
+          new Blob([val.body], { type: "text/javascript" }),
+        );
+        return {
+          ...val,
+          url,
+        };
+      }),
     });
   } catch (error) {
     yield put({
@@ -398,7 +406,19 @@ export function* fetchJSCollectionsForPageSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(fetchJSCollectionsForPageSuccess(response.data));
+      yield put(
+        fetchJSCollectionsForPageSuccess(
+          response.data.map((val) => {
+            const url = URL.createObjectURL(
+              new Blob([val.body], { type: "text/javascript" }),
+            );
+            return {
+              ...val,
+              url,
+            };
+          }),
+        ),
+      );
     }
   } catch (error) {
     yield put({

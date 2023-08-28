@@ -28,4 +28,7 @@ export class PagelistEntity implements IEntity {
   computeDifference(): Diff<unknown>[] | undefined {
     return;
   }
+  isEqual(_: TPageListEntity): boolean {
+    return false;
+  }
 }

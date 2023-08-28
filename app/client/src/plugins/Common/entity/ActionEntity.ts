@@ -44,4 +44,7 @@ export class ActionEntity implements IEntity {
   computeDifference(oldEntity?: IEntity): Diff<unknown>[] | undefined {
     return this.diffGenerator.generate(oldEntity, this);
   }
+  isEqual(entity: TActionEntity, config: TActionEntityConfig): boolean {
+    return false;
+  }
 }

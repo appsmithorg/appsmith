@@ -11,7 +11,7 @@ import indirectEval from "workers/Evaluation/indirectEval";
 export class ExecutionContext {
   #entitiesNames: Array<string> = [];
   constructor() {}
-  addEntity(name: string, value: unknown) {
+  addValue(name: string, value: unknown) {
     this.#entitiesNames.push(name);
     //@ts-expect-error adding to self
     self[name] = value;
@@ -32,11 +32,6 @@ export class ScriptExecutor {
   }
   getExecutionContext() {
     return this.#executionContext;
-  }
-  computeValue(entity: IEntity, propertyPath: string) {
-    const value = entity.getPropertyValue(propertyPath);
-    const { errors, result } = this.execute(entity, propertyPath);
-    return { errors, result };
   }
   execute(userScript: string) {
     const errors: EvaluationError[] = [];

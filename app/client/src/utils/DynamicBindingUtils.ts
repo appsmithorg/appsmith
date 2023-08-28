@@ -86,22 +86,17 @@ export const getDynamicBindings = (
   }
   const sanitisedString = dynamicString.trim();
   let stringSegments, paths: any;
-  if (entity && isJSAction(entity)) {
-    stringSegments = [sanitisedString];
-    paths = [sanitisedString];
-  } else {
-    // Get the {{binding}} bound values
-    stringSegments = getDynamicStringSegments(sanitisedString);
-    // Get the "binding" path values
-    paths = stringSegments.map((segment) => {
-      const length = segment.length;
-      const matches = isDynamicValue(segment);
-      if (matches) {
-        return segment.substring(2, length - 2);
-      }
-      return "";
-    });
-  }
+  // Get the {{binding}} bound values
+  stringSegments = getDynamicStringSegments(sanitisedString);
+  // Get the "binding" path values
+  paths = stringSegments.map((segment) => {
+    const length = segment.length;
+    const matches = isDynamicValue(segment);
+    if (matches) {
+      return segment.substring(2, length - 2);
+    }
+    return "";
+  });
   return { stringSegments: stringSegments, jsSnippets: paths };
 };
 

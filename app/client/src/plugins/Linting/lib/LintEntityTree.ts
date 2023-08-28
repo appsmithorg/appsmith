@@ -1,4 +1,5 @@
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type { IEntity } from "../../Common/entity";
 import EntityFactory from "../../Common/entity";
 import { LintEntityClassLoader } from "plugins/Common/entityClassLoader/LintEntityClassLoader";
 import { EvalEntityClassLoader } from "plugins/Common/entityClassLoader/EvalEntityClassLoader";
@@ -23,19 +24,34 @@ export class LintEntityTree extends EntityTree {
 }
 
 export class EvaluationEntityTree extends EntityTree {
-  constructor(unEvalTree: DataTree, configTree: ConfigTree) {
+  #evaluatedTree: Record<string, unknown>;
+  constructor(
+    unEvalTree: DataTree,
+    configTree: ConfigTree,
+    cachedEntityTree: EvaluationEntityTree | null,
+  ) {
     super(unEvalTree, configTree);
-    this.buildTree(unEvalTree, configTree);
+    this.buildTree(unEvalTree, configTree, cachedEntityTree);
+    this.#evaluatedTree = cachedEntityTree?.getEvaluatedTree() || unEvalTree;
   }
-  buildTree(unEvalTree: DataTree, configTree: ConfigTree): void {
+  getEvaluatedTree(): Record<string, unknown> {
+    return this.#evaluatedTree;
+  }
+  buildTree(
+    unEvalTree: DataTree,
+    configTree: ConfigTree,
+    cachedEntityTree: EvaluationEntityTree | null,
+  ): void {
     const entities = Object.entries(unEvalTree);
     const entityClassLoader = new EvalEntityClassLoader();
-    for (const [name, entity] of entities) {
+    for (const [name, rawEntity] of entities) {
+      const cachedEntity = cachedEntityTree?.getEntityByName(name);
       const config = configTree[name];
-      this.tree.set(
-        name,
-        EntityFactory.getEntity(entity, config, entityClassLoader),
-      );
+      const isEqual = cachedEntity?.isEqual(rawEntity, config);
+      const newEntity = isEqual
+        ? (cachedEntity as IEntity)
+        : EntityFactory.getEntity(rawEntity, config, entityClassLoader);
+      this.tree.set(name, newEntity);
     }
   }
 }

@@ -5,7 +5,7 @@ import type {
 } from "entities/DataTree/dataTreeFactory";
 import type { IEntity } from "plugins/Common/entity";
 import type { Diff } from "deep-diff";
-import { PathUtils } from "plugins/Linting/utils/pathUtils";
+import { PathUtils } from "plugins/Common/utils/pathUtils";
 import { union } from "lodash";
 
 export abstract class EntityTree {
@@ -16,7 +16,11 @@ export abstract class EntityTree {
     this.unEvalTree = unEvalTree;
     this.configTree = configTree;
   }
-  abstract buildTree(unEvalTree: DataTree, configTree: ConfigTree): void;
+  abstract buildTree(
+    unEvalTree: DataTree,
+    configTree: ConfigTree,
+    cachedTree: EntityTree | null,
+  ): void;
   computeDifferences(newTree: EntityTree) {
     const differences: Diff<unknown>[] = [];
     if (!newTree) return differences;

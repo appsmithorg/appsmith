@@ -70,6 +70,7 @@ export interface JSActionEntityConfig extends EntityConfig {
   name: string;
   ENTITY_TYPE: ENTITY_TYPE.JSACTION;
   actionId: string;
+  url: string;
 }
 
 export interface JSActionEntity {

@@ -39,4 +39,7 @@ export class AppsmithEntity implements IEntity {
   computeDifference(oldEntity?: IEntity): Diff<unknown>[] | undefined {
     return this.diffGenerator.generate(oldEntity, this);
   }
+  isEqual(_: TAppsmithEntity): boolean {
+    return false;
+  }
 }

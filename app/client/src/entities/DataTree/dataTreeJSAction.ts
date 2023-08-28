@@ -65,6 +65,7 @@ export const generateDataTreeJSAction = (js: JSCollectionData): any => {
       dynamicBindingPathList: dynamicBindingPathList,
       variables: listVariables,
       dependencyMap: dependencyMap,
+      url: js.config.url,
     },
   };
 };

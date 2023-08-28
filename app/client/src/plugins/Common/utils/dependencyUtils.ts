@@ -9,6 +9,7 @@ export class DependencyUtils {
     if (!EntityUtils.isDynamicEntity(entity)) return [];
     const rawEntity = entity.getRawEntity();
     const unevalPropValue = get(rawEntity, propertyPath, "").toString();
+    if (EntityUtils.isJSAction(entity)) return [unevalPropValue];
     const { jsSnippets } = getDynamicBindings(
       unevalPropValue,
       rawEntity as DataTreeEntity,

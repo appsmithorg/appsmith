@@ -6,13 +6,12 @@ import type {
 } from "entities/DataTree/types";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { parseJSObject } from "@shared/ast";
-import { set } from "lodash";
 
 export class JSEvalEntityParser implements EntityParser {
   parse(entity: TJSActionEntity, entityConfig: JSActionEntityConfig) {
     const unsuccessfullyParsedObject = {
       parsedEntity: entity,
-      parsedEntityConfig: {},
+      parsedEntityConfig: entityConfig,
     };
     const body = entity.body;
     const entityName = entity.name;
@@ -40,7 +39,7 @@ export class JSEvalEntityParser implements EntityParser {
       }
       return {
         parsedEntity: parsedJSEntity,
-        parsedEntityConfig: {},
+        parsedEntityConfig: entityConfig,
       };
     } catch (e) {
       const error = {

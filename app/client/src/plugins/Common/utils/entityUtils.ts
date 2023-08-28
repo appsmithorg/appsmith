@@ -2,13 +2,15 @@ import type { IEntity } from "../entity";
 import type { WidgetEntity } from "../entity/WidgetEntity";
 import type { JSEntity } from "../entity/JSEntity";
 import type { ActionEntity } from "../entity/ActionEntity";
-import { union } from "lodash";
-import { PathUtils } from "plugins/Linting/utils/pathUtils";
+import { find, union } from "lodash";
+import { PathUtils } from "plugins/Common/utils/pathUtils";
 import { DependencyUtils } from "./dependencyUtils";
 import { logPerformance } from "./logPerformance";
 
 export class EntityUtils {
-  static isDynamicEntity(entity: IEntity) {
+  static isDynamicEntity(
+    entity: IEntity,
+  ): entity is JSEntity | WidgetEntity | ActionEntity {
     return (
       EntityUtils.isWidget(entity) ||
       EntityUtils.isAction(entity) ||
@@ -43,10 +45,16 @@ export class EntityUtils {
   }
 
   @logPerformance
-  static getEntityDependencies(entity: IEntity, allKeys: Record<string, true>) {
+  static getEntityDependency(
+    entity: IEntity,
+    allKeys: Record<string, true>,
+    propertyPath?: string,
+  ) {
+    const name = entity.getName();
+    if (propertyPath)
+      return EntityUtils.getEntityPathDependency(entity, allKeys, propertyPath);
     let dependencies: Record<string, string[]> = {};
     if (!EntityUtils.isDynamicEntity(entity)) return dependencies;
-    const name = entity.getName();
     const dynamicBindingPathList = PathUtils.getDynamicBindingPaths(entity);
     const dynamicTriggerPathList = PathUtils.getDynamicTriggerPaths(entity);
     const reactivePaths = PathUtils.getReactivePaths(entity, false);
@@ -90,5 +98,55 @@ export class EntityUtils {
       dependencies = { ...dependencies, [fullPath]: newDeps };
     }
     return dependencies;
+  }
+
+  private static getEntityPathDependency(
+    entity: IEntity,
+    allKeys: Record<string, true>,
+    propertyPath: string,
+  ) {
+    const dependencies: Array<string> = [];
+    const name = entity.getName();
+    if (!EntityUtils.isDynamicEntity(entity))
+      return { [`${name}.${propertyPath}`]: dependencies };
+    const dynamicBindingPathList = PathUtils.getDynamicBindingPaths(entity);
+    const reactivePaths = PathUtils.getReactivePaths(entity, false);
+    const bindingPaths = PathUtils.getBindingPaths(entity, false);
+    const internalDependencyMap = PathUtils.getInternalDependencyMap(entity);
+    const widgetInternalDependencies =
+      DependencyUtils.getDependencyFromInternalProperties(entity);
+    const widgetInternalDependenciesForPath =
+      widgetInternalDependencies[`${name}.${propertyPath}`] || [];
+    dependencies.push(...widgetInternalDependenciesForPath);
+
+    const internalDependenciesForPath =
+      internalDependencyMap[propertyPath]
+        ?.map((dep) => `${name}.${dep}`)
+        .filter((path) => allKeys.hasOwnProperty(path)) || [];
+    dependencies.push(...internalDependenciesForPath);
+
+    const isPathADynamicPath =
+      bindingPaths.includes(propertyPath) ||
+      find(dynamicBindingPathList, { key: propertyPath }) ||
+      reactivePaths.includes(propertyPath);
+
+    if (!isPathADynamicPath)
+      return { [`${name}.${propertyPath}`]: dependencies };
+
+    dependencies.push(
+      ...DependencyUtils.getDependenciesFromPath(entity, propertyPath),
+    );
+    return { [`${name}.${propertyPath}`]: dependencies };
+  }
+
+  static isDynamicLeaf(entity: IEntity, propertyPath: string) {
+    if (!EntityUtils.isDynamicEntity(entity)) return false;
+    if (!propertyPath) return false;
+    const reactivePaths = PathUtils.getReactivePaths(entity, false);
+    const triggerPaths = PathUtils.getTriggerPaths(entity, false);
+    return (
+      reactivePaths.includes(propertyPath) ||
+      triggerPaths.includes(propertyPath)
+    );
   }
 }

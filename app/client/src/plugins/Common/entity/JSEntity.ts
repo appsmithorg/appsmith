@@ -25,10 +25,13 @@ export class JSEntity implements IEntity {
     entityParser: EntityParser,
     diffGenerator: EntityDiffGenerator,
   ) {
-    entityParser.parse(entity, config);
-    this.entity = entity;
-    this.config = config;
+    const { parsedEntity, parsedEntityConfig } = entityParser.parse(
+      entity,
+      config,
+    );
     this.entityParser = entityParser;
+    this.entity = parsedEntity;
+    this.config = parsedEntityConfig;
     this.diffGenerator = diffGenerator;
   }
   getType() {
@@ -45,9 +48,6 @@ export class JSEntity implements IEntity {
   }
   getId() {
     return this.config.actionId;
-  }
-  isEqual(body: string) {
-    return body === this.getRawEntity().body;
   }
   computeDifference(oldEntity?: IEntity): Diff<unknown>[] | undefined {
     return this.diffGenerator.generate(oldEntity, this);
@@ -71,5 +71,8 @@ export class JSEntity implements IEntity {
       });
     }
     return jsFunctions;
+  }
+  isEqual(_: TJSActionEntity, config: TJSActionEntityConfig) {
+    return this.config.url === config.url;
   }
 }

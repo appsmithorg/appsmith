@@ -11,7 +11,7 @@ import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import { mergeMaps } from "./mergeMaps";
 import { flatten, get, has, isString, toPath, union, uniq } from "lodash";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
-import { PathUtils } from "./pathUtils";
+import { PathUtils } from "../../Common/utils/pathUtils";
 import type { WidgetEntity } from "../../Common/entity/WidgetEntity";
 import type { ActionEntity } from "../../Common/entity/ActionEntity";
 import type { IEntity } from "../../Common/entity";
