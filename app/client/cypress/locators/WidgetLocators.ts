@@ -122,4 +122,4 @@ export const buttongroupwidgetlocators = {
   buttonMenuOptions: (text: string) => `//*[contains(@class,'bp3-menu-item')]//*[text()='${text}']`,
   button:"//*[contains(@class,'t--widget-buttongroupwidget')]//button"
 }
-};
+
