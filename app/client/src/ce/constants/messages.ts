@@ -754,6 +754,7 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
   `Git features will no more be shown for this application`;
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 
+export const CONFIGURE_GIT = () => "Configure git";
 export const GIT_CONNECTION = () => "Git connection";
 export const GIT_IMPORT = () => "Git import";
 export const MERGE = () => "Merge";

@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
 import Menu from "./Menu";
-import { MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
 import Merge from "./Tabs/Merge";
 import GitConnection from "./Tabs/GitConnection";
@@ -17,23 +16,43 @@ import GitErrorPopup from "./components/GitErrorPopup";
 import styled from "styled-components";
 import { GitSyncModalTab } from "entities/GitSync";
 import {
+  CONFIGURE_GIT,
+  CONNECT_TO_GIT,
   createMessage,
+  DEPLOY,
+  DEPLOY_YOUR_APPLICATION,
+  GIT_CONNECTION,
   GIT_IMPORT,
   IMPORT_FROM_GIT_REPOSITORY,
+  MERGE,
+  MERGE_CHANGES,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useGitConnect } from "./hooks";
 import { Modal, ModalContent, ModalHeader } from "design-system";
 import { EnvInfoHeader } from "@appsmith/components/EnvInfoHeader";
+import GitConnectionV2 from "./Tabs/GitConnectionV2";
 
 const ModalContentContainer = styled(ModalContent)`
   min-height: 650px;
 `;
 
-const ComponentsByTab = {
-  [GitSyncModalTab.GIT_CONNECTION]: GitConnection,
+const ComponentsByTab: Record<string, any> = {
   [GitSyncModalTab.DEPLOY]: Deploy,
   [GitSyncModalTab.MERGE]: Merge,
+};
+
+export const MENU_ITEMS_MAP: Record<string, any> = {
+  [GitSyncModalTab.DEPLOY]: {
+    key: GitSyncModalTab.DEPLOY,
+    title: createMessage(DEPLOY),
+    modalTitle: createMessage(DEPLOY_YOUR_APPLICATION),
+  },
+  [GitSyncModalTab.MERGE]: {
+    key: GitSyncModalTab.MERGE,
+    title: createMessage(MERGE),
+    modalTitle: createMessage(MERGE_CHANGES),
+  },
 };
 
 const allMenuOptions = Object.values(MENU_ITEMS_MAP);
@@ -44,6 +63,20 @@ function GitSyncModal(props: { isImport?: boolean }) {
   const isGitConnected = useSelector(getIsGitConnected);
   const activeTabKey = useSelector(getActiveGitSyncModalTab);
   const { onGitConnectFailure: resetGitConnectStatus } = useGitConnect();
+
+  const isGitConnectV2Enabled = true;
+  ComponentsByTab[GitSyncModalTab.GIT_CONNECTION] = isGitConnectV2Enabled
+    ? GitConnectionV2
+    : GitConnection;
+  MENU_ITEMS_MAP[GitSyncModalTab.GIT_CONNECTION] = {
+    key: GitSyncModalTab.GIT_CONNECTION,
+    title: createMessage(
+      isGitConnectV2Enabled ? CONFIGURE_GIT : GIT_CONNECTION,
+    ),
+    modalTitle: createMessage(
+      isGitConnectV2Enabled ? CONFIGURE_GIT : CONNECT_TO_GIT,
+    ),
+  };
 
   const handleClose = useCallback(() => {
     resetGitConnectStatus();
@@ -126,13 +159,18 @@ function GitSyncModal(props: { isImport?: boolean }) {
             {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
           </ModalHeader>
           <EnvInfoHeader />
-          <Menu
-            activeTabKey={activeTabKey}
-            onSelect={(tabKey: string) =>
-              setActiveTabKey(tabKey as GitSyncModalTab)
-            }
-            options={menuOptions}
-          />
+          {!(
+            isGitConnectV2Enabled &&
+            activeTabKey === GitSyncModalTab.GIT_CONNECTION
+          ) ? (
+            <Menu
+              activeTabKey={activeTabKey}
+              onSelect={(tabKey: string) =>
+                setActiveTabKey(tabKey as GitSyncModalTab)
+              }
+              options={menuOptions}
+            />
+          ) : null}
           {activeTabKey === GitSyncModalTab.GIT_CONNECTION && (
             <BodyComponent isImport={props.isImport} />
           )}
