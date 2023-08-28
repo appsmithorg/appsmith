@@ -28,6 +28,9 @@ export const getOnSelectAction = (
         history.push(payload.path);
       }
       break;
+    case DropdownOnSelectActions.DOCUMENT:
+      location.href = "/api/v1/logout";
+      break;
     default:
       log.error("No such action registered", type);
   }

@@ -229,6 +229,7 @@ public class SecurityConfig {
                         .authorizedClientRepository(new ClientUserRepository(userService, commonConfig)))
                 .logout()
                 .logoutUrl(Url.LOGOUT_URL)
+                .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGOUT_URL))
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
                 .and()
                 .build();

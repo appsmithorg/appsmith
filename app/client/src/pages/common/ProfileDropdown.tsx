@@ -117,7 +117,7 @@ export default function ProfileDropdown(props: TagProps) {
         <MenuItem
           className="t--sign-out"
           onClick={() =>
-            getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
+            getOnSelectAction(DropdownOnSelectActions.DOCUMENT, {
               type: ReduxActionTypes.LOGOUT_USER_INIT,
             })
           }
