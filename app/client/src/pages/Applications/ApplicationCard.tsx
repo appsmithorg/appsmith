@@ -107,6 +107,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   );
   let initials = initialsAndColorCode[0];
   const [showOverlay, setShowOverlay] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<
     ModifiedMenuItemProps[]
   >([]);
@@ -122,9 +123,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
     props.application?.gitApplicationMetadata?.branchName,
   );
 
-  const selectedColor =
-    props.application.color ||
-    getRandomPaletteColor(theme.colors.appCardColors);
+  useEffect(() => {
+    let colorCode;
+    if (props.application.color) {
+      colorCode = props.application.color;
+    } else {
+      colorCode = getRandomPaletteColor(theme.colors.appCardColors);
+    }
+    setSelectedColor(colorCode);
+  }, [props.application.color]);
 
   useEffect(() => {
     if (props.share) {

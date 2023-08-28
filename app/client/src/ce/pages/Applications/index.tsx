@@ -43,7 +43,7 @@ import {
   Text,
   TextType,
 } from "design-system-old";
-import { Divider, Icon } from "design-system";
+import { Icon } from "design-system";
 import {
   setShowAppInviteUsersDialog,
   updateApplication,
@@ -104,6 +104,11 @@ import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
 export const { cloudHosting } = getAppsmithConfigs();
 
 export const CONTAINER_WRAPPER_PADDING = "var(--ads-v2-spaces-7)";
+
+const WorkspaceSectionWrapper = styled.div<{ isLast: boolean }>`
+  border-bottom: ${({ isLast }) =>
+    !isLast && "1px solid var(--ads-v2-color-border);"};
+`;
 
 export const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -628,7 +633,7 @@ export function ApplicationsSection(props: any) {
         };
 
         return (
-          <>
+          <WorkspaceSectionWrapper isLast={isLastWorkspace} key={workspace.id}>
             <WorkspaceSection
               className="t--workspace-section"
               isMobile={isMobile}
@@ -731,8 +736,7 @@ export function ApplicationsSection(props: any) {
                 />
               )}
             </WorkspaceSection>
-            {!isLastWorkspace && <Divider />}
-          </>
+          </WorkspaceSectionWrapper>
         );
       },
     );

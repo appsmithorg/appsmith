@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Text } from "design-system-old";
-import { TextType } from "design-system-old";
+import { Text } from "design-system";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 
 type ResourceHeadingProps = React.PropsWithChildren<{
@@ -9,8 +8,7 @@ type ResourceHeadingProps = React.PropsWithChildren<{
 }>;
 
 export const CardListContainer = styled.div<{ isMobile?: boolean }>`
-  padding: ${({ isMobile }) => isMobile && `0 16px`};
-  padding-bottom: ${({ isMobile }) => !isMobile && `24px`};
+  ${({ isMobile }) => (isMobile ? `padding: 0 16px` : `padding-bottom: 24px;`)};
 `;
 
 export const CardListWrapper = styled.div<{ isMobile?: boolean }>`
@@ -104,7 +102,7 @@ export function ResourceHeading({
   return (
     <StyledResourceHeadingText
       className={isLoading ? BlueprintClasses.SKELETON : ""}
-      type={TextType.H4}
+      kind="heading-s"
     >
       {children}
     </StyledResourceHeadingText>
