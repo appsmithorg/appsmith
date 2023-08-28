@@ -3,6 +3,22 @@ name: Appsmith CI run limited Tests Workflow
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+        default: 0
+      previous-workflow-run-id:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+        default: 0
+      matrix:
+        description: "This is the matrix job number"
+        required: false
+        type: string
+        default: "[0, 1, 2, 3, 4]"
   workflow_call:
     inputs:
       pr:
@@ -348,6 +364,18 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+          REPOSITORY: ${{ github.repository }}
+          COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
+          TAG: ${{ github.event_name }}
+          BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
+          THIS_RUNNER: ${{ strategy.job-index }}
+          CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
+          CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
           browser: ${{ env.BROWSER_PATH }}
           record: true
@@ -410,6 +438,18 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+          REPOSITORY: ${{ github.repository }}
+          COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
+          TAG: ${{ github.event_name }}
+          BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
+          THIS_RUNNER: ${{ strategy.job-index }}
+          CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
+          CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
           browser: ${{ env.BROWSER_PATH }}
           record: true

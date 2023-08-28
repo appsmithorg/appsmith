@@ -58,7 +58,10 @@ import {
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
-import { getRampLink, showProductRamps } from "selectors/rampSelectors";
+import {
+  getRampLink,
+  showProductRamps,
+} from "@appsmith/selectors/rampSelectors";
 import {
   RAMP_NAME,
   RampFeature,

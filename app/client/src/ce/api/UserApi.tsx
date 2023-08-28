@@ -87,6 +87,7 @@ export class UserApi extends Api {
   static forgotPasswordURL = `${UserApi.usersURL}/forgotPassword`;
   static verifyResetPasswordTokenURL = `${UserApi.usersURL}/verifyPasswordResetToken`;
   static resetPasswordURL = `${UserApi.usersURL}/resetPassword`;
+  static resendEmailVerificationURL = `${UserApi.usersURL}/resendEmailVerification`;
   static inviteUserURL = "v1/users/invite";
   static verifyInviteTokenURL = `${UserApi.inviteUserURL}/verify`;
   static confirmUserInviteURL = `${UserApi.inviteUserURL}/confirm`;
@@ -222,6 +223,10 @@ export class UserApi extends Api {
 
   static getProductAlert(): AxiosPromise<ApiResponse<ProductAlert>> {
     return Api.get(UserApi.productAlertURL);
+  }
+
+  static resendEmailVerification(email: string) {
+    return Api.post(UserApi.resendEmailVerificationURL, { email });
   }
 }
 

@@ -57,8 +57,11 @@ const PopoverStyles = createGlobalStyle<{
       margin-top: 8px !important;
       border-radius: ${({ borderRadius }) =>
         borderRadius >= `1.5rem` ? `0.375rem` : borderRadius};
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
+      max-height: 400px;
     }
+
     & .${BlueprintClasses.MENU_ITEM} {
       padding: 9px 12px;
       border-radius: 0;
