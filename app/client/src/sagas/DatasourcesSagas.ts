@@ -147,7 +147,6 @@ import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentRoot } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
 import {
-  getCurrentEditingEnvID,
   getCurrentEnvName,
   getCurrentEnvironment,
 } from "@appsmith/utils/Environments";
@@ -160,6 +159,7 @@ import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 import { klona } from "klona/lite";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -596,7 +596,8 @@ function* redirectAuthorizationCodeSaga(
   const isImport: string = yield select(getWorkspaceIdForImport);
 
   if (pluginType === PluginType.API) {
-    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${getCurrentEditingEnvID()}`;
+    const currentEnvironment: string = yield select(getCurrentEnvironmentId);
+    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${currentEnvironment}`;
   } else {
     try {
       // Get an "appsmith token" from the server
@@ -743,7 +744,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     yield select(getDatasource, actionPayload.payload.id),
     `Datasource not found for id - ${actionPayload.payload.id}`,
   );
-  const currentEnvironment = getCurrentEditingEnvID();
+  const currentEnvironment: string = yield select(getCurrentEnvironmentId);
   const payload = {
     ...actionPayload.payload,
     id: actionPayload.payload.id as any,
@@ -962,7 +963,7 @@ function* createDatasourceFromFormSaga(
       getPluginForm,
       actionPayload.payload.pluginId,
     );
-    const currentEnvironment = getCurrentEditingEnvID();
+    const currentEnvironment: string = yield select(getCurrentEnvironmentId);
 
     const initialValues: unknown = yield call(
       getConfigInitialValues,
@@ -1847,7 +1848,7 @@ function* updateDatasourceAuthStateSaga(
 ) {
   try {
     const { authStatus, datasource } = actionPayload.payload;
-    const currentEnvironment = getCurrentEditingEnvID();
+    const currentEnvironment: string = yield select(getCurrentEnvironmentId);
     set(
       datasource,
       `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
@@ -2003,6 +2004,14 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       handleFetchDatasourceStructureOnLoad,
+    ),
+    takeEvery(
+      ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
+      handleFetchDatasourceStructureOnLoad,
+    ),
+    takeEvery(
+      ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
+      setDatasourceViewModeSaga,
     ),
     takeEvery(
       ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
