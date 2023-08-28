@@ -28,13 +28,13 @@ import {
 import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
 import memo from "micro-memoize";
 // import { WIDGETS_COUNT } from "widgets";
-import type { AnyFn } from "micro-memoize/src/types";
+import type { SetterConfig } from "entities/AppTheming";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
 export type WidgetType = (typeof WidgetFactory.widgetTypes)[number];
 
-function memoize(fn: AnyFn) {
+function memoize<T>(fn: (...arg: any[]) => T) {
   return memo(fn, {
     maxSize: 100,
   });
@@ -406,10 +406,10 @@ class WidgetFactory {
   );
 
   static getWidgetSetterConfig = memoize(
-    (type: WidgetType): Record<string, any> | null => {
+    (type: WidgetType): Partial<SetterConfig> | undefined => {
       const widget = WidgetFactory.widgetsMap.get(type);
 
-      const setterConfig = widget?.getSetterConfig() || null;
+      const setterConfig = widget?.getSetterConfig() || {};
 
       return setterConfig;
     },
