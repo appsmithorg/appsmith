@@ -35,6 +35,23 @@ export const Wrapper = styled.div`
   width: 100%;
   margin-top: auto;
   border-top: 1px solid var(--ads-v2-color-border);
+
+  .business-plan-menu-option {
+    .cs-text {
+      color: var(--appsmith-color-orange-500);
+    }
+    svg path {
+      fill: var(--appsmith-color-orange-500);
+    }
+    &:hover {
+      .cs-text {
+        color: var(--appsmith-color-orange-800);
+      }
+      svg path {
+        fill: var(--appsmith-color-orange-800);
+      }
+    }
+  }
 `;
 
 export const MenuWrapper = styled.div`
