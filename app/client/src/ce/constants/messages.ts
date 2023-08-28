@@ -1915,13 +1915,18 @@ export const COMMUNITY_TEMPLATES = {
   },
   publishFormPage: {
     title: () => "Publish to community",
-    footerPublishButton: () => "Publish to community",
+    footer: {
+      publishButton: () => "Publish to community",
+      tnCText: () =>
+        "I understand publishing this app will allow users outside my workspace to fork it to their workspace.",
+    },
     preview: {
       thumbnail: () => "Thumbnail will be generated automatically",
     },
     templateForm: {
       titleInputLabel: () => "Title",
       titleInputPlaceholder: () => "Title of the template",
+      titleRequiredError: () => `Please provide title`,
 
       excerptInputLabel: () => "Headline",
       excerptInputPlaceholder: () => "One line excerpt",
@@ -1936,6 +1941,8 @@ export const COMMUNITY_TEMPLATES = {
       title: () => "Author details",
       displayNameLabel: () => "Display name",
       displayNamePlaceholder: () => "Display name",
+      nameRequiredError: () => `Please provide name`,
+
       emailLabel: () => "Email",
       emailPlaceholder: () => "Email",
     },
@@ -1971,11 +1978,6 @@ export const COMMUNITY_TEMPLATES = {
       description: () =>
         "This application is live on community as a template for users to fork and remix.",
       viewTemplate: () => "View Template",
-    },
-    confirmModal: {
-      title: (name: string) => `Publish ${name} to community?`,
-      description: () =>
-        `You are publishing this app to community.appsmth.com. Users outside your workspace will be able to fork this app to their workspace. Are you sure?`,
     },
   },
 };

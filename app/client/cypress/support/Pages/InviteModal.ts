@@ -11,6 +11,7 @@ export class InviteModal {
   public locators = {
     _inviteTab: "[data-testid='t--tab-INVITE']",
     _embedTab: "[data-testid='t--tab-EMBED']",
+    _publishTab: "[data-testid='t--tab-PUBLISH']",
     _shareButton: ".t--application-share-btn",
     _closeButton: ".ads-v2-modal__content-header-close-button",
     _previewEmbed: "[data-testid='preview-embed']",

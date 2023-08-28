@@ -32,16 +32,18 @@ const PublishedAppInstructions = () => {
   return (
     <>
       <InfoContainer>
-        <Text kind="heading-s" renderAs="h2">
-          <Icon name="checkbox-circle-line" size="md" />{" "}
-          {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.title)}
-        </Text>
+        <VerticalCenterContainer>
+          <Icon color="green" name="oval-check" size="md" />{" "}
+          <Text kind="heading-s" renderAs="h2">
+            {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.title)}
+          </Text>
+        </VerticalCenterContainer>
         <Text kind="body-m" renderAs="p">
           {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.description)}
         </Text>
       </InfoContainer>
       <InfoFooter>
-        <Button endIcon="external-link-line" size="md">
+        <Button endIcon="link" size="md">
           {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.viewTemplate)}
         </Button>
       </InfoFooter>
@@ -70,10 +72,14 @@ const UnPublishedAppInstructions = ({
         </Text>
       </InfoContainer>
       <InfoFooter>
-        <Button endIcon="external-link-line" kind="tertiary" size="md">
+        <Button endIcon="link" kind="tertiary" size="md">
           {createMessage(LEARN_MORE)}
         </Button>
-        <Button onClick={takeUserToPublishFormPage} size="md">
+        <Button
+          data-testid="t--Publish-Initiate"
+          onClick={takeUserToPublishFormPage}
+          size="md"
+        >
           {createMessage(COMMUNITY_TEMPLATES.publish)}
         </Button>
       </InfoFooter>
@@ -93,4 +99,9 @@ const InfoFooter = styled.footer`
   justify-content: flex-end;
   gap: 1rem;
   align-items: center;
+`;
+const VerticalCenterContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;

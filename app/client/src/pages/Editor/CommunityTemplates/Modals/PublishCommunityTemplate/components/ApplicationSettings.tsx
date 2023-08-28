@@ -26,12 +26,20 @@ const ApplicationSettings = ({
           COMMUNITY_TEMPLATES.publishFormPage.applicationSettings.title,
         )}
       </Text>
-      <Switch isSelected={isPublic} onChange={setIsPublic}>
+      <Switch
+        data-testid="t--community-template-app-settting-public-switch"
+        isSelected={isPublic}
+        onChange={setIsPublic}
+      >
         {createMessage(
           COMMUNITY_TEMPLATES.publishFormPage.applicationSettings.publicSetting,
         )}
       </Switch>
-      <Switch isSelected={isForkable} onChange={setIsForkable}>
+      <Switch
+        data-testid="t--community-template-app-settting-forkable-switch"
+        isSelected={isForkable}
+        onChange={setIsForkable}
+      >
         {createMessage(
           COMMUNITY_TEMPLATES.publishFormPage.applicationSettings
             .forkableSetting,

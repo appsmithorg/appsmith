@@ -28,6 +28,7 @@ import { AssertHelper } from "../Pages/AssertHelper";
 import { ReusableHelper } from "./ReusableHelper";
 import { Tabs } from "../Pages/Tabs";
 import { GsheetHelper } from "../Pages/GSheetHelper";
+import { CommunityTemplates } from "../Pages/CommunityTemplates";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -268,6 +269,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.gsheetHelper__ = new GsheetHelper();
     }
     return ObjectsRegistry.gsheetHelper__;
+  }
+
+  private static communityTemplates__: CommunityTemplates;
+  static get CommunityTemplates(): CommunityTemplates {
+    if (ObjectsRegistry.communityTemplates__ === undefined) {
+      ObjectsRegistry.communityTemplates__ = new CommunityTemplates();
+    }
+    return ObjectsRegistry.communityTemplates__;
   }
 }
 

@@ -10,7 +10,10 @@ const PublishedInfo = () => {
   const getItem = useCallback(
     (text: () => string, index: number, correct: boolean) => (
       <ItemWrapper key={index}>
-        <Icon name={correct ? "check-line" : "close-fill"} />
+        <Icon
+          color={correct ? "green" : "red"}
+          name={correct ? "check-line" : "close"}
+        />
         <Text kind="body-m" renderAs="p">
           {createMessage(text)}
         </Text>

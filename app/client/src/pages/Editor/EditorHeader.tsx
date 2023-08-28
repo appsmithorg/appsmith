@@ -95,8 +95,8 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
 import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import CommunityTemplatesPublishInfo from "pages/Templates/CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
-import PublishCommunityTemplateModal from "pages/Templates/CommunityTemplates/Modals/PublishCommunityTemplate";
+import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
+import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -498,12 +498,14 @@ export function EditorHeader() {
                       <Tab data-testid="t--tab-INVITE" value="invite">
                         {createMessage(INVITE_TAB)}
                       </Tab>
-                      <Tab data-tesid="t--tab-EMBED" value="embed">
+                      <Tab data-testid="t--tab-EMBED" value="embed">
                         {createMessage(IN_APP_EMBED_SETTING.embed)}
                       </Tab>
-                      <Tab data-tesid="t--tab-Publish" value="publish">
-                        {createMessage(COMMUNITY_TEMPLATES.publish)}
-                      </Tab>
+                      {cloudHosting && (
+                        <Tab data-testid="t--tab-PUBLISH" value="publish">
+                          {createMessage(COMMUNITY_TEMPLATES.publish)}
+                        </Tab>
+                      )}
                     </TabsList>
                     <TabPanel value="invite">
                       <AppInviteUsersForm
@@ -520,14 +522,16 @@ export function EditorHeader() {
                         changeTab={() => setActiveTab("invite")}
                       />
                     </TabPanel>
-                    <TabPanel value="publish">
-                      <CommunityTemplatesPublishInfo
-                        onPublishClick={() =>
-                          setShowPublishCommunityTemplateModal(true)
-                        }
-                        setShowHostModal={setShowModal}
-                      />
-                    </TabPanel>
+                    {cloudHosting && (
+                      <TabPanel value="publish">
+                        <CommunityTemplatesPublishInfo
+                          onPublishClick={() =>
+                            setShowPublishCommunityTemplateModal(true)
+                          }
+                          setShowHostModal={setShowModal}
+                        />
+                      </TabPanel>
+                    )}
                   </Tabs>
                 </ModalBody>
               </ModalContent>

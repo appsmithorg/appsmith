@@ -1,6 +1,6 @@
 import { COMMUNITY_TEMPLATES } from "@appsmith/constants/messages";
 import { publishCommunityTemplate } from "actions/communityTemplateActions";
-import { Button } from "design-system";
+import { Button, Checkbox } from "design-system";
 import { createMessage } from "design-system-old/build/constants/messages";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,7 +19,6 @@ import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import PublishedInfo from "./components/PublishedInfo";
 import TemplateCardPreview from "./components/TemplateCardPreview";
 import TemplateInfoForm from "./components/TemplateInfoForm";
-import ConfirmCommunityTemplatePublish from "../ConfirmCommunityTemplatePublish";
 
 type Props = {
   onPublishSuccess: () => void;
@@ -41,7 +40,8 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
 
   const [isPublicSetting, setIsPublicSetting] = useState(true);
   const [isForkableSetting, setIsForkableSetting] = useState(true);
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
+  const [tnCCheck, setTnCCheck] = useState(false);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_INTENTION", {
@@ -49,19 +49,25 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
     });
   }, []);
 
+  useEffect(() => {
+    if (!currentApplication?.name) return;
+    setTemplateName(currentApplication.name);
+  }, [currentApplication?.name]);
+
   const isFormValid = useMemo(() => {
     const requiredFields = [templateName, authorName, authorEmail];
     const areRequiredFieldsPresent = requiredFields.every(
       (field) => field.length > 0,
     );
     const areSettingsTurnedON = isPublicSetting && isForkableSetting;
-    return areRequiredFieldsPresent && areSettingsTurnedON;
+    return areRequiredFieldsPresent && areSettingsTurnedON && tnCCheck;
   }, [
     templateName,
     authorName,
     authorEmail,
     isPublicSetting,
     isForkableSetting,
+    tnCCheck,
   ]);
 
   const handleConfirmationClick = () => {
@@ -69,7 +75,6 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_CLICK", {
       id: currentApplication?.id,
     });
-    setShowConfirmationModal(false);
     onPublishSuccess();
   };
   return (
@@ -78,7 +83,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
         <TemplateCardPreview
           excerpt={templateExcerpt}
           templateName={templateName}
-          useCases={["Operations", "DevOps"]}
+          useCases={templateUseCases}
         />
         <PublishPageTemplateDetailsInputContainer>
           <TemplateInfoForm
@@ -111,23 +116,25 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
         </PublishPageTemplateDetailsInputContainer>
       </PublishPageBodyContainer>
       <PublishPageFooterContainer>
+        <Checkbox
+          data-testid="t--community-template-tnc-checkbox"
+          isSelected={tnCCheck}
+          onChange={setTnCCheck}
+        >
+          {createMessage(COMMUNITY_TEMPLATES.publishFormPage.footer.tnCText)}
+        </Checkbox>
         <Button
+          data-testid="t--community-template-publish-submit-btn"
           isDisabled={!isFormValid}
           isLoading={isPublishing}
-          onClick={() => setShowConfirmationModal(true)}
+          onClick={handleConfirmationClick}
           size="md"
         >
           {createMessage(
-            COMMUNITY_TEMPLATES.publishFormPage.footerPublishButton,
+            COMMUNITY_TEMPLATES.publishFormPage.footer.publishButton,
           )}
         </Button>
       </PublishPageFooterContainer>
-      <ConfirmCommunityTemplatePublish
-        onCancelClick={() => setShowConfirmationModal(false)}
-        onConfirmClick={handleConfirmationClick}
-        showModal={showConfirmationModal}
-        templateName={templateName}
-      />
     </>
   );
 };

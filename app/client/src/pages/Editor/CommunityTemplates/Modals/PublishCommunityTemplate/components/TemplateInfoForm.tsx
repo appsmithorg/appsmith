@@ -37,6 +37,15 @@ const TemplateInfoForm = ({
     <TemplateInfoFormWrapper>
       <TemplateInfoFormFieldWrapper>
         <Input
+          data-testid="t--community-template-name-input"
+          errorMessage={
+            templateName.length > 0
+              ? ""
+              : createMessage(
+                  COMMUNITY_TEMPLATES.publishFormPage.templateForm
+                    .titleRequiredError,
+                )
+          }
           isRequired
           label={createMessage(
             COMMUNITY_TEMPLATES.publishFormPage.templateForm.titleInputLabel,
@@ -55,6 +64,7 @@ const TemplateInfoForm = ({
       </TemplateInfoFormFieldWrapper>
       <TemplateInfoFormFieldWrapper>
         <Input
+          data-testid="t--community-template-excerpt-input"
           label={createMessage(
             COMMUNITY_TEMPLATES.publishFormPage.templateForm.excerptInputLabel,
           )}
@@ -117,6 +127,7 @@ const UseCasesSelect = ({
   const useCases = filters.useCases;
   return (
     <Select
+      data-testid="t--community-template-usecases-input"
       isMultiSelect
       onChange={setTemplateUseCases}
       value={templateUseCases}
