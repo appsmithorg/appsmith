@@ -88,7 +88,7 @@ export const SettingName = styled(Text)<{ active?: boolean }>`
   font-weight: 400;
 `;
 
-export function getSettingsCategory(type: string) {
+export function getSettingsCategory(type: string): Category[] {
   return Array.from(
     AdminConfig.categories.filter((cat: any) => cat.categoryType === type),
   );

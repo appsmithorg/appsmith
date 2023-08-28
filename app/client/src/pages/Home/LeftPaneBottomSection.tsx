@@ -28,6 +28,7 @@ import {
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { ShowUpgradeMenuItem } from "@appsmith/utils/licenseHelpers";
+import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
 export const Wrapper = styled.div`
   background-color: var(--ads-v2-color-bg);
@@ -91,14 +92,14 @@ function LeftPaneBottomSection() {
             <MenuItem
               icon="discord"
               onSelect={() => {
-                window.open("https://discord.gg/rBTTVJp", "_blank");
+                window.open(DISCORD_URL, "_blank");
               }}
               text={"Join our discord"}
             />
             <MenuItem
               icon="book"
               onSelect={() => {
-                window.open("https://docs.appsmith.com/", "_blank");
+                window.open(DOCS_BASE_URL, "_blank");
               }}
               text={createMessage(DOCUMENTATION)}
             />

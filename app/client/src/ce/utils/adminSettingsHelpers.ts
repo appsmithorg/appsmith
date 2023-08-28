@@ -62,34 +62,34 @@ export const getWrapperCategory = (
   return categories[subCategory || category];
 };
 
-export const getFilteredGeneralCategories = (categories: any) => {
+export const getFilteredGeneralCategories = (categories: Category[]) => {
   return categories
-    ?.map((category: any) => {
+    ?.map((category: Category) => {
       return category;
     })
-    .filter(Boolean) as Category[];
+    .filter(Boolean);
 };
 
 export const getFilteredAclCategories = (
-  categories: any,
+  categories: Category[],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isSuperUser?: boolean,
 ) => {
   return categories
-    ?.map((category: any) => {
+    ?.map((category: Category) => {
       return category;
     })
-    .filter(Boolean) as Category[];
+    .filter(Boolean);
 };
 
 export const getFilteredOtherCategories = (
-  categories: any,
+  categories: Category[],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isSuperUser?: boolean,
 ) => {
   return categories
-    ?.map((category: any) => {
+    ?.map((category: Category) => {
       return category;
     })
-    .filter(Boolean) as Category[];
+    .filter(Boolean);
 };

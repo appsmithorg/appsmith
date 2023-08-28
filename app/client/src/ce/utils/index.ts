@@ -27,6 +27,7 @@ export const getPageTitle = (
   return `${displayName ? `${displayName} | ` : ""}Appsmith`;
 };
 
+// TODO: Remove this function once we have a better way to handle this
 // get only the part of the url after the domain name
 export const to = (url: string) => {
   const path = _.drop(
