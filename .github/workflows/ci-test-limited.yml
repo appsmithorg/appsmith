@@ -3,6 +3,22 @@ name: Appsmith CI run limited Tests Workflow
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+        default: 0
+      previous-workflow-run-id:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+        default: 0
+      matrix:
+        description: "This is the matrix job number"
+        required: false
+        type: string
+        default: "[0, 1, 2, 3, 4]"
   workflow_call:
     inputs:
       pr:
@@ -113,20 +129,14 @@ jobs:
         if: steps.run_result.outputs.run_result == 'failedtest'
         working-directory: app/client
         run: |
-          failed_spec_env=""
-          while IFS= read -r line || [ -n "$line" ]; do
-              file_path=$(echo "$line" | awk -F'/' '{print $(NF-1)"/"$NF}')
-              spec_name=$(echo "$file_path" | awk -F'/' '{print $NF}')
-              failed_spec=$(find . -name "$spec_name" | sed 's|./||')
-              for file in $failed_spec; do
-                  new_file_path=$(echo "$file" | awk -F'/' '{print $(NF-1)"/"$NF}')
-                  if [ "$new_file_path" == "$file_path" ]; then
-                      failed_spec_env="$failed_spec_env,$file"
-                  fi
-              done
-          done < ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
-          failed_spec_env=${failed_spec_env#,}
-          echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV
+          echo "failed_spec_env<<EOF" >> $GITHUB_ENV
+          while IFS= read -r line
+          do
+            spec_name=$(echo $line | awk -F'/' '{print $NF}')
+            failed_spec_env=$(find . -name $spec_name | sed 's|./||')
+            echo "$failed_spec_env" >> $GITHUB_ENV
+          done < ~/combined_failed_spec_ci/combined_failed_spec_ci
+          echo "EOF" >> $GITHUB_ENV
 
       # Get specs to run
       - name: Get specs to run
