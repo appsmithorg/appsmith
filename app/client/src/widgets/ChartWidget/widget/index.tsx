@@ -112,7 +112,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   static editorCallouts(props: WidgetProps): WidgetCallout[] {
     const callouts: WidgetCallout[] = [];
     if (
-      this.showCustomFusionChartDeprecationMessages() &&
+      ChartWidget.showCustomFusionChartDeprecationMessages() &&
       props.chartType == "CUSTOM_FUSION_CHART"
     ) {
       callouts.push({
