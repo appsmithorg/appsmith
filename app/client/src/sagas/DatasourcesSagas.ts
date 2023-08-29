@@ -156,8 +156,8 @@ import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasourc
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 import { klona } from "klona/lite";
 import {
+  getCurrentEditingEnvironmentId,
   getCurrentEnvironmentDetails,
-  getCurrentEnvironmentId,
 } from "@appsmith/selectors/environmentSelectors";
 
 function* fetchDatasourcesSaga(
@@ -598,7 +598,9 @@ function* redirectAuthorizationCodeSaga(
   const isImport: string = yield select(getWorkspaceIdForImport);
 
   if (pluginType === PluginType.API) {
-    const currentEnvironment: string = yield select(getCurrentEnvironmentId);
+    const currentEnvironment: string = yield select(
+      getCurrentEditingEnvironmentId,
+    );
     window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${currentEnvironment}`;
   } else {
     try {
@@ -749,7 +751,9 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     yield select(getDatasource, actionPayload.payload.id),
     `Datasource not found for id - ${actionPayload.payload.id}`,
   );
-  const currentEnvironment: string = yield select(getCurrentEnvironmentId);
+  const currentEnvironment: string = yield select(
+    getCurrentEditingEnvironmentId,
+  );
   const payload = {
     ...actionPayload.payload,
     id: actionPayload.payload.id as any,
@@ -971,7 +975,9 @@ function* createDatasourceFromFormSaga(
       getPluginForm,
       actionPayload.payload.pluginId,
     );
-    const currentEnvironment: string = yield select(getCurrentEnvironmentId);
+    const currentEnvironment: string = yield select(
+      getCurrentEditingEnvironmentId,
+    );
 
     const initialValues: unknown = yield call(
       getConfigInitialValues,
@@ -1871,7 +1877,9 @@ function* updateDatasourceAuthStateSaga(
 ) {
   try {
     const { authStatus, datasource } = actionPayload.payload;
-    const currentEnvironment: string = yield select(getCurrentEnvironmentId);
+    const currentEnvironment: string = yield select(
+      getCurrentEditingEnvironmentId,
+    );
     set(
       datasource,
       `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
