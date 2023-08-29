@@ -33,7 +33,7 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import type { AppState } from "@appsmith/reducers";
-import { CanvasResizer } from "layoutSystems/autoLayout/common/canvasresizer/CanvasResizer";
+import { CanvasResizer } from "widgets/CanvasResizer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 

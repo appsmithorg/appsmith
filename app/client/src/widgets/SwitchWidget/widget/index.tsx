@@ -17,7 +17,7 @@ import {
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "layoutSystems/autoLayout/utils/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {

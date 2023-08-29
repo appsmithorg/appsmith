@@ -11,7 +11,7 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "layoutSystems/autoLayout/utils/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
 
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {

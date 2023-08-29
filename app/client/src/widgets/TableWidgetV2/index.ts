@@ -1,6 +1,6 @@
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autoLayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import {
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,

@@ -4,7 +4,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type {
   FlexLayer,
   LayerChild,
-} from "layoutSystems/autoLayout/utils/autoLayoutTypes";
+} from "layoutSystems/AutoLayout/utils/autoLayoutTypes";
 import { checkForOnClick } from "widgets/WidgetUtils";
 
 export const extractTillNestedListWidget = (

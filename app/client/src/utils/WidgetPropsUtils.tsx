@@ -22,7 +22,7 @@ import type { BlockSpace, GridProps } from "reflow/reflowTypes";
 import type { Rect } from "./boxHelpers";
 import { areIntersecting } from "./boxHelpers";
 import convertDSLtoAutoAndUpdatePositions from "./DSLConversions/fixedToAutoLayout";
-import { checkIsDSLAutoLayout } from "../layoutSystems/autoLayout/utils/AutoLayoutUtils";
+import { checkIsDSLAutoLayout } from "../layoutSystems/AutoLayout/utils/AutoLayoutUtils";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;

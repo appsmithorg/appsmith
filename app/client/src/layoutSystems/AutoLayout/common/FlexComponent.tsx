@@ -15,7 +15,7 @@ import type {
   FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
-} from "layoutSystems/autoLayout/utils/constants";
+} from "layoutSystems/AutoLayout/utils/constants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";

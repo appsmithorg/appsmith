@@ -2,7 +2,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   LayoutDirection,
   Positioning,
-} from "layoutSystems/autoLayout/utils/constants";
+} from "layoutSystems/AutoLayout/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";

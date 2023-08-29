@@ -4,7 +4,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getIsAutoLayout } from "selectors/editorSelectors";
-import type { LayoutDirection } from "layoutSystems/autoLayout/utils/constants";
+import type { LayoutDirection } from "layoutSystems/AutoLayout/utils/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
 import { StickyCanvasArena } from "./StickyCanvasArena";

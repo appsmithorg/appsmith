@@ -1,7 +1,7 @@
 import {
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/autoLayout/utils/constants";
+} from "layoutSystems/AutoLayout/utils/constants";
 import type { DSLWidget } from "widgets/constants";
 import {
   fitChildWidgetsIntoLayers,

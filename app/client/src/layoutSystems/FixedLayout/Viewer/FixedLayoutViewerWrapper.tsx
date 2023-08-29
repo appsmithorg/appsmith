@@ -2,13 +2,15 @@ import React, { useMemo } from "react";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { FixedLayoutViewerWidgetOnion } from "./FixedLayoutViewerWidgetOnion";
 import { FixedLayoutViewerModalOnion } from "./FixedLayoutViewerModalOnion";
-import { getFixedLayoutSystemProps } from "../FixedLayoutSystemWrapper";
+import { getFixedLayoutComponentDimensions } from "../common/utils";
 
 export const FixedLayoutViewerWrapper = (props: WidgetProps) => {
-  const { componentDimensions } = getFixedLayoutSystemProps(props);
+  const { componentHeight, componentWidth } =
+    getFixedLayoutComponentDimensions(props);
   const widgetViewerProps = {
     ...props,
-    ...componentDimensions,
+    componentHeight,
+    componentWidth,
   };
   //Widget Onion
   const WidgetOnion = useMemo(() => {

@@ -7,7 +7,7 @@ import {
   LayoutDirection,
   MOBILE_ROW_GAP,
   ROW_GAP,
-} from "layoutSystems/autoLayout/utils/constants";
+} from "layoutSystems/AutoLayout/utils/constants";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
 import { getAppMode } from "selectors/entitiesSelector";
@@ -17,9 +17,9 @@ import type {
   AlignmentColumnInfo,
   FlexBoxAlignmentColumnInfo,
   FlexLayer,
-} from "layoutSystems/autoLayout/utils/autoLayoutTypes";
+} from "layoutSystems/AutoLayout/utils/autoLayoutTypes";
 import { getColumnsForAllLayers } from "selectors/autoLayoutSelectors";
-import { WidgetNameComponentHeight } from "layoutSystems/common/widgetname";
+import { WidgetNameComponentHeight } from "layoutSystems/common/WidgetNameComponent";
 
 export interface FlexBoxProps {
   direction: LayoutDirection;

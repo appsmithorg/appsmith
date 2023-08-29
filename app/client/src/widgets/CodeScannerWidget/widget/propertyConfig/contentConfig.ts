@@ -1,6 +1,6 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { isAutoLayout } from "layoutSystems/autoLayout/utils/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
 import { DefaultMobileCameraTypes } from "widgets/constants";
 import type { CodeScannerWidgetProps } from "widgets/CodeScannerWidget/constants";
 import { ScannerLayout } from "widgets/CodeScannerWidget/constants";

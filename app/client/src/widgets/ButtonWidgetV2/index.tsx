@@ -3,7 +3,7 @@ import IconSVG from "./icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autoLayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
 import { BUTTON_COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
 
 export const CONFIG = {

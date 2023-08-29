@@ -1,4 +1,4 @@
-import WidgetNameComponent from "layoutSystems/common/widgetname";
+import WidgetNameComponent from "layoutSystems/common/WidgetNameComponent";
 import { memoize } from "lodash";
 import React from "react";
 import type { EvaluationError } from "utils/DynamicBindingUtils";

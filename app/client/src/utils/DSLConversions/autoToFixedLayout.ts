@@ -10,14 +10,14 @@ import { HORIZONTAL_RESIZE_MIN_LIMIT } from "reflow/reflowTypes";
 import {
   alterLayoutForDesktop,
   alterLayoutForMobile,
-} from "layoutSystems/autoLayout/utils/AutoLayoutUtils";
-import { Positioning } from "layoutSystems/autoLayout/utils/constants";
+} from "layoutSystems/AutoLayout/utils/AutoLayoutUtils";
+import { Positioning } from "layoutSystems/AutoLayout/utils/constants";
 import {
   getTopRow,
   getBottomRow,
   getLeftColumn,
   getRightColumn,
-} from "layoutSystems/autoLayout/utils/flexWidgetUtils";
+} from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
 import type { DSLWidget } from "widgets/constants";
 
 const deletedResponsiveProperties = [

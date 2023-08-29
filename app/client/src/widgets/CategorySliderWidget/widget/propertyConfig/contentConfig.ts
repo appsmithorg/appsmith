@@ -3,7 +3,7 @@ import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { isAutoLayout } from "layoutSystems/autoLayout/utils/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
 import type { CategorySliderWidgetProps } from "..";
 import {
   defaultOptionValidation,
