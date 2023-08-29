@@ -26,7 +26,7 @@ let applicationId = null;
 let applicationName = null;
 
 let repoName;
-describe.skip("Git sync:", function () {
+describe("Git sync:", function () {
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();
@@ -40,19 +40,13 @@ describe.skip("Git sync:", function () {
         );
       });
     });
-
-    // cy.generateUUID().then((uid) => {
-    //   repoName = uid;
     _.gitSync.CreateNConnectToGit(repoName);
-    // cy.createTestGithubRepo(repoName);
-    // cy.connectToGitRepo(repoName);
-    //});
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
   });
 
-  it("1. Shows remote is ahead warning and conflict error during commit and push", function () {
+  it.skip("1. Shows remote is ahead warning and conflict error during commit and push", function () {
     _.gitSync.CreateGitBranch(tempBranch, false);
     cy.get("@gitbranchName").then((branName) => {
       tempBranch = branName;
@@ -104,7 +98,7 @@ describe.skip("Git sync:", function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
-  it("2. Detect conflicts when merging head to base branch", function () {
+  it.skip("2. Detect conflicts when merging head to base branch", function () {
     cy.switchGitBranch(mainBranch);
     _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.wait(2000); // wait for transition
@@ -137,7 +131,7 @@ describe.skip("Git sync:", function () {
   });
 
   it("3. Supports merging head to base branch", function () {
-    cy.switchGitBranch(mainBranch);
+    //cy.switchGitBranch(mainBranch);
     cy.createGitBranch(tempBranch2);
     _.entityExplorer.NavigateToSwitcher("Explorer");
     cy.CheckAndUnfoldEntityItem("Pages");
@@ -151,7 +145,7 @@ describe.skip("Git sync:", function () {
     cy.contains("NewPage");
   });
 
-  it("4. Enables pulling remote changes from bottom bar", function () {
+  it.skip("4. Enables pulling remote changes from bottom bar", function () {
     _.gitSync.CreateGitBranch(tempBranch3, false);
     _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.wait(2000); // wait for transition
@@ -234,7 +228,6 @@ describe.skip("Git sync:", function () {
       req.continue();
     }).as("appAndPages");
     cy.reload();
-    //cy.pause();
     cy.wait("@appAndPages").then((intercept2) => {
       const { application, pages } = intercept2.response.body.data;
       const defaultPage = pages.find((p) => p.isDefault);
@@ -250,7 +243,7 @@ describe.skip("Git sync:", function () {
       applicationVersion: 1,
     });
 
-    _.gitSync.CreateGitBranch(cleanUrlBranch, false);
+    _.gitSync.CreateGitBranch(cleanUrlBranch, true);
 
     cy.location().should((location) => {
       expect(location.pathname).includes(legacyPathname);

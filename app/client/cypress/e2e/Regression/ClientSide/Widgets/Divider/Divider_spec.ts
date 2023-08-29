@@ -15,6 +15,7 @@ describe("Audio Widget functionality tests", () => {
 
   it("1. Divider widget property verification", () => {
     propPane.TogglePropertyState("Visible", "Off");
+    // verify in deploy mode
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(
       locators._widgetInCanvas(draggableWidgets.DIVIDER),
@@ -31,6 +32,7 @@ describe("Audio Widget functionality tests", () => {
   });
   it("2. Divider widget style section verification", () => {
     entityExplorer.SelectEntityByName("Divider1", "Widgets");
+    propPane.TogglePropertyState("Visible", "On");
     propPane.MoveToTab("Style");
     propPane.EnterJSContext("Color", "Purple");
     //propPane.SelectColorFromColorPicker("iconcolor", -15);
@@ -56,7 +58,7 @@ describe("Audio Widget functionality tests", () => {
     agHelper.AssertElementAbsence(widgetLocators.dividerHorizontal);
     agHelper.Sleep(1000);
   });
-  it("3. Bind style property to radio widget and verify ", () => {
+  it("3. Bind style properties of divider to radio widget and verify ", () => {
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.RADIO_GROUP,
       400,
@@ -81,14 +83,15 @@ describe("Audio Widget functionality tests", () => {
       "{{RadioGroup1.selectedOptionValue==='Y'?'nc':'dot'}}",
     );
     agHelper.AssertExistingCheckedState(locators._checkboxTypeByOption("Yes"));
+    agHelper.AssertElementAbsence(widgetLocators.dividerVertical);
     entityExplorer.SelectEntityByName("Divider1", "Widgets");
     agHelper.AssertCSS(
-      "[data-testid=dividerHorizontal]",
+      widgetLocators.dividerHorizontal,
       "border-top-color",
       "rgb(35, 31, 32)",
     );
     agHelper.AssertCSS(
-      "[data-testid=dividerHorizontal]",
+      widgetLocators.dividerHorizontal,
       "border-top-style",
       "solid",
     );
@@ -96,14 +99,45 @@ describe("Audio Widget functionality tests", () => {
     agHelper.CheckUncheck(locators._checkboxTypeByOption("No"));
     agHelper.AssertElementAbsence(widgetLocators.dividerHorizontal);
     agHelper.AssertCSS(
-      "[data-testid=dividerVertical]",
+      widgetLocators.dividerVertical,
       "border-right-color",
       "rgb(185, 28, 28)",
     );
     agHelper.AssertCSS(
-      "[data-testid=dividerVertical]",
+      widgetLocators.dividerVertical,
       "border-right-style",
       "dotted",
     );
+  });
+  it("4. Verify bindings in preview and deploy mode", () => {
+    // verify in preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    agHelper.AssertElementAbsence(widgetLocators.dividerHorizontal);
+    agHelper.AssertCSS(
+      widgetLocators.dividerVertical,
+      "border-right-color",
+      "rgb(185, 28, 28)",
+    );
+    agHelper.AssertCSS(
+      widgetLocators.dividerVertical,
+      "border-right-style",
+      "dotted",
+    );
+    //Exit preview mode
+    agHelper.GetNClick(locators._exitPreviewMode);
+    // Enter view mode
+    deployMode.DeployApp();
+    agHelper.AssertElementAbsence(widgetLocators.dividerVertical);
+    agHelper.AssertCSS(
+      widgetLocators.dividerHorizontal,
+      "border-top-color",
+      "rgb(35, 31, 32)",
+    );
+    agHelper.AssertCSS(
+      widgetLocators.dividerHorizontal,
+      "border-top-style",
+      "solid",
+    );
+    deployMode.NavigateBacktoEditor();
   });
 });
