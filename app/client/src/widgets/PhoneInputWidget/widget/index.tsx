@@ -276,13 +276,13 @@ class PhoneInputWidget extends BaseInputWidget<
     ) {
       const formattedValue = this.getFormattedPhoneNumber(this.props.text);
 
-      formattedValue &&
+      if (formattedValue) {
         this.props.updateWidgetMetaProperty(
           "value",
           parseIncompletePhoneNumber(formattedValue),
         );
-      formattedValue &&
         this.props.updateWidgetMetaProperty("text", formattedValue);
+      }
     }
 
     // If defaultText property has changed, reset isDirty to false
