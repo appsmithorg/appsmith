@@ -7,5 +7,5 @@ public interface DatasourcePermissionCE {
 
     AclPermission getExecutePermission();
 
-    AclPermission getCreateActionPermission();
+    AclPermission getActionCreatePermission();
 }
