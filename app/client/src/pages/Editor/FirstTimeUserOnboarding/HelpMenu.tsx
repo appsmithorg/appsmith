@@ -13,6 +13,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { IntercomConsent } from "../HelpButton";
 import classNames from "classnames";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 type HelpItem = {
@@ -25,7 +26,7 @@ const HELP_MENU_ITEMS: HelpItem[] = [
   {
     icon: "book-line",
     label: "Documentation",
-    link: "https://docs.appsmith.com/",
+    link: DOCS_BASE_URL,
   },
   {
     icon: "bug-line",

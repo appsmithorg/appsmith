@@ -244,7 +244,8 @@ const CardFooter = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 4px;
+  margin: 4px auto 0;
+  width: ${(props) => props.theme.card.minWidth - 8}px;
 `;
 
 const ModifiedDataComponent = styled.div`
