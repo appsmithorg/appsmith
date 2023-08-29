@@ -2,8 +2,7 @@ import {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
-} from "utils/autoLayout/constants";
-import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+} from "layoutSystems/AutoLayout/utils/constants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
@@ -24,6 +23,7 @@ import type { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import FlexBoxComponent from "../layoutSystems/AutoLayout/common/FlexBoxComponent";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {

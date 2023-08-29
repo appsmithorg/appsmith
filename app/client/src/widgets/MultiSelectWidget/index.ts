@@ -1,7 +1,7 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";

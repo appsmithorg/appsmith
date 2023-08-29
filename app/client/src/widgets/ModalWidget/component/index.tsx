@@ -7,7 +7,6 @@ import { closeTableFilterPane } from "actions/widgetActions";
 import { Colors } from "constants/Colors";
 import { getCanvasClassName } from "utils/generators";
 import { scrollCSS } from "widgets/WidgetUtils";
-import type { UIElementSize } from "components/editorComponents/ResizableUtils";
 
 const Content = styled.div<{ $scroll: boolean }>`
   overflow-x: hidden;
@@ -33,31 +32,12 @@ export type ModalComponentProps = {
   onClose: (e: any) => void;
   onModalClose?: () => void;
   children: ReactNode;
-  width?: number;
   className?: string;
-  portalContainer?: HTMLElement;
-  canOutsideClickClose: boolean;
   canEscapeKeyClose: boolean;
-  overlayClassName?: string;
   scrollContents: boolean;
-  height?: number;
-  top?: number;
-  left?: number;
-  bottom?: number;
-  right?: number;
-  zIndex?: number;
-  enableResize?: boolean;
-  isEditMode?: boolean;
-  resizeModal?: (dimensions: UIElementSize) => void;
-  maxWidth?: number;
-  minSize?: number;
   widgetId: string;
-  widgetName: string;
-  isDynamicHeightEnabled: boolean;
   background?: string;
   borderRadius?: string;
-  settingsComponent?: ReactNode;
-  isAutoLayout: boolean;
 };
 
 /* eslint-disable react/display-name */

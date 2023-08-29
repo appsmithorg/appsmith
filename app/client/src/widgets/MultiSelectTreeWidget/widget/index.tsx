@@ -13,7 +13,7 @@ import type { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import type { ReactNode } from "react";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";

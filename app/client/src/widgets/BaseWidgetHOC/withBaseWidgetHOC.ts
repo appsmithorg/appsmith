@@ -4,7 +4,7 @@ import { withLazyRender } from "widgets/withLazyRender";
 import type BaseWidget from "widgets/BaseWidget";
 import withWidgetProps from "widgets/withWidgetProps";
 import * as Sentry from "@sentry/react";
-import { withLayoutSystemHOC } from "./render/layoutSystems/withLayoutSystemHOC";
+import { withLayoutSystemHOC } from "../../layoutSystems/withLayoutSystemHOC";
 
 export interface BaseWidgetProps extends WidgetProps, WidgetState {}
 

@@ -7,7 +7,7 @@ import DividerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
 import type { SetterConfig } from "entities/AppTheming";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {

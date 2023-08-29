@@ -3,7 +3,7 @@ import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import type { SpaceMap } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
-import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/AutoLayout/utils/autoLayoutTypes";
 import { getAbsolutePixels } from "utils/helpers";
 import { modifyDrawingRectangles } from "./canvasDraggingUtils";
 import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";

@@ -47,7 +47,7 @@ import {
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { updateFlexLayersOnDelete } from "../utils/autoLayout/AutoLayoutUtils";
+import { updateFlexLayersOnDelete } from "../layoutSystems/AutoLayout/utils/AutoLayoutUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

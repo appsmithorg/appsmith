@@ -1,5 +1,5 @@
 import { LabelPosition } from "components/constants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
 import {
   AlignWidgetTypes,
   type SnipingModeProperty,

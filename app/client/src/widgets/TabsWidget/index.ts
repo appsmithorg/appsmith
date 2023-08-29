@@ -1,4 +1,7 @@
-import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  Positioning,
+  ResponsiveBehavior,
+} from "layoutSystems/AutoLayout/utils/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {

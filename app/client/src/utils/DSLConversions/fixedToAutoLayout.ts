@@ -5,14 +5,14 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { get, partition } from "lodash";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
-import { alterLayoutForDesktop } from "utils/autoLayout/AutoLayoutUtils";
+import type { FlexLayer } from "layoutSystems/AutoLayout/utils/autoLayoutTypes";
+import { alterLayoutForDesktop } from "layoutSystems/AutoLayout/utils/AutoLayoutUtils";
 import {
   FlexLayerAlignment,
   FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/AutoLayout/utils/constants";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
   isDynamicValue,

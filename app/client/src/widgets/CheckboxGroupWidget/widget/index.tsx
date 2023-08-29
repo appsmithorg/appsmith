@@ -24,7 +24,7 @@ import CheckboxGroupComponent from "../component";
 import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
 
 export function defaultSelectedValuesValidation(
   value: unknown,

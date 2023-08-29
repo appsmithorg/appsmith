@@ -11,7 +11,7 @@ import type {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/AutoLayout/utils/constants";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "./BaseWidget";

@@ -15,10 +15,9 @@ export type AutoHeightWrapperProps = {
   children: ReactNode;
 };
 
-function AutoHeightContainerWrapper(props: WidgetProps) {
+export function AutoHeightContainerWrapper(props: WidgetProps) {
   const isCanvas = useWidgetConfig(props.type, "isCanvas");
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  if (isCanvas) return <>{props.children}</>;
+  if (isCanvas) return props.children;
 
   const maxDynamicHeight = getWidgetMaxAutoHeight(props);
   const minDynamicHeight = getWidgetMinAutoHeight(props);
@@ -40,5 +39,3 @@ function AutoHeightContainerWrapper(props: WidgetProps) {
     </AutoHeightContainer>
   );
 }
-
-export default AutoHeightContainerWrapper;

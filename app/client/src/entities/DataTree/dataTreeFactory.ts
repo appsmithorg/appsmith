@@ -24,7 +24,7 @@ import type {
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { Positioning } from "utils/autoLayout/constants";
+import { Positioning } from "layoutSystems/AutoLayout/utils/constants";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity

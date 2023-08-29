@@ -1,4 +1,4 @@
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
 import { BarType } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
