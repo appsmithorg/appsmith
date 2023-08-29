@@ -5,7 +5,7 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import DraggableComponent from "../../common/DraggableComponent";
 import SnipeableComponent from "../../common/SnipeableComponent";
 import { WidgetNameLayer } from "../../common/WidgetNameLayer";
-import { AutoHeightOverlayLayer } from "../common/AutoHeightOverlayLayer";
+import { AutoHeightOverlayLayer } from "../common/autoHeight/AutoHeightOverlayLayer";
 import { FixedLayoutWigdetComponent } from "../common/FixedLayoutWidgetComponent";
 import { FixedResizableLayer } from "../common/FixedResizableLayer";
 import { PositionedComponentLayer } from "../PositionedComponentLayer";

@@ -19,7 +19,7 @@ import type {
   FlexLayer,
 } from "layoutSystems/AutoLayout/utils/autoLayoutTypes";
 import { getColumnsForAllLayers } from "selectors/autoLayoutSelectors";
-import { WidgetNameComponentHeight } from "components/editorComponents/WidgetNameComponent";
+import { WidgetNameComponentHeight } from "layoutSystems/common/WidgetNameComponent";
 
 export interface FlexBoxProps {
   direction: LayoutDirection;
