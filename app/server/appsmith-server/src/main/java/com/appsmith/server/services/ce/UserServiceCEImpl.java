@@ -67,7 +67,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -621,6 +620,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return pair.getT2();
         });
     }
+
     @Override
     public Mono<User> update(String id, User userUpdate) {
         Mono<User> userFromRepository = repository
@@ -1018,9 +1018,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         user.setEmailVerified(TRUE);
                         Mono<Void> redirectionMono = redirectStrategy.sendRedirect(
                                 webFilterExchange.getExchange(), URI.create(postVerificationRedirectUrl));
-                        return repository
-                                .save(user)
-                                .then(redirectionMono);
+                        return repository.save(user).then(redirectionMono);
                     });
         });
     }

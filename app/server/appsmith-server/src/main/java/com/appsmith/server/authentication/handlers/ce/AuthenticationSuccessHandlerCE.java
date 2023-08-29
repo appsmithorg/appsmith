@@ -179,7 +179,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             return redirectHelper
                     .getAuthSuccessRedirectUrl(webFilterExchange, defaultApplication, true)
                     .flatMap(redirectUrl -> extractRedirectUrlAndSendVerificationMail(
-                            webFilterExchange, user, redirectUrl)
+                                    webFilterExchange, user, redirectUrl)
                             .map(url -> String.format(
                                     "/user/verificationPending?email=%s",
                                     URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
@@ -222,7 +222,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                         webFilterExchange, user, defaultApplication, TRUE));
                     } else {
                         return createDefaultApplication(defaultWorkspaceId, authentication)
-                                .flatMap(application -> redirectHelper.handleRedirect(webFilterExchange, application, true));
+                                .flatMap(application ->
+                                        redirectHelper.handleRedirect(webFilterExchange, application, true));
                     }
                 });
             } else {
@@ -293,7 +294,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         .flatMap(isCreateWorkspaceAllowed -> {
                             if (isCreateWorkspaceAllowed.equals(Boolean.TRUE)) {
                                 return createDefaultApplication(defaultWorkspaceId, authentication)
-                                        .flatMap(application -> handleOAuth2Redirect(webFilterExchange, application, finalIsFromSignup));
+                                        .flatMap(application -> handleOAuth2Redirect(
+                                                webFilterExchange, application, finalIsFromSignup));
                             }
                             return handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup);
                         });
