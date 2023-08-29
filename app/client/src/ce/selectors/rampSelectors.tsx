@@ -31,7 +31,8 @@ export const getRampLink = ({
     return `${RAMP_LINK_TO}&feature=${feature}&section=${section}`;
   });
 
-export const showProductRamps = (rampName: string) =>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const showProductRamps = (rampName: string, useCESelector = false) =>
   createSelector(uiState, (ui) => {
     function getUserRoleInWorkspace() {
       const { currentUser } = ui?.users;
