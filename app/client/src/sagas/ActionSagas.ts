@@ -1005,6 +1005,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
           type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
           payload: {
             value: currentValue,
+            mode: context.mode,
           },
         });
       }
