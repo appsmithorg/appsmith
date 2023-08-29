@@ -179,7 +179,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             return redirectHelper
                     .getAuthSuccessRedirectUrl(webFilterExchange, defaultApplication, true)
                     .flatMap(redirectUrl -> extractRedirectUrlAndSendVerificationMail(
-                                    webFilterExchange, user, redirectUrl)
+                            webFilterExchange, user, redirectUrl)
                             .map(url -> String.format(
                                     "/user/verificationPending?email=%s",
                                     URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
@@ -221,10 +221,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                 .flatMap(defaultApplication -> postVerificationRequiredHandler(
                                         webFilterExchange, user, defaultApplication, TRUE));
                     } else {
-                        return Mono.zip(
-                                        userService.sendWelcomeEmail(user, originHeader),
-                                        createDefaultApplication(defaultWorkspaceId, authentication))
-                                .flatMap(obj -> redirectHelper.handleRedirect(webFilterExchange, obj.getT2(), true));
+                        return createDefaultApplication(defaultWorkspaceId, authentication)
+                                .flatMap(application -> redirectHelper.handleRedirect(webFilterExchange, application, true));
                     }
                 });
             } else {
@@ -233,9 +231,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     if (TRUE.equals(isVerificationRequired)) {
                         return postVerificationRequiredHandler(webFilterExchange, user, null, TRUE);
                     } else {
-                        return userService
-                                .sendWelcomeEmail(user, originHeader)
-                                .then(redirectHelper.handleRedirect(webFilterExchange, null, true));
+                        return redirectHelper.handleRedirect(webFilterExchange, null, true);
                     }
                 });
             }
@@ -246,9 +242,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 if (TRUE.equals(isVerificationRequired)) {
                     return postVerificationRequiredHandler(webFilterExchange, user, null, FALSE);
                 } else {
-                    return userService
-                            .sendWelcomeEmail(user, originHeader)
-                            .then(redirectHelper.handleRedirect(webFilterExchange, null, false));
+                    return redirectHelper.handleRedirect(webFilterExchange, null, false);
                 }
             });
         }
@@ -297,22 +291,14 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 redirectionMono = workspaceService
                         .isCreateWorkspaceAllowed(TRUE)
                         .flatMap(isCreateWorkspaceAllowed -> {
-                            if (isCreateWorkspaceAllowed) {
-
-                                return Mono.zip(
-                                                userService.sendWelcomeEmail(user, originHeader),
-                                                createDefaultApplication(defaultWorkspaceId, authentication))
-                                        .flatMap(objects -> handleOAuth2Redirect(
-                                                webFilterExchange, objects.getT2(), finalIsFromSignup));
+                            if (isCreateWorkspaceAllowed.equals(Boolean.TRUE)) {
+                                return createDefaultApplication(defaultWorkspaceId, authentication)
+                                        .flatMap(application -> handleOAuth2Redirect(webFilterExchange, application, finalIsFromSignup));
                             }
-                            return userService
-                                    .sendWelcomeEmail(user, originHeader)
-                                    .then(handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup));
+                            return handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup);
                         });
             } else {
-                redirectionMono = userService
-                        .sendWelcomeEmail(user, originHeader)
-                        .then(handleOAuth2Redirect(webFilterExchange, null, isFromSignup));
+                redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
             }
         } else {
             // form type signup/login handler

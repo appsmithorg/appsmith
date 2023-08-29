@@ -119,8 +119,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final RedirectHelper redirectHelper;
     private final EmailService emailService;
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
-
-    private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
 
@@ -586,9 +584,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     public Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader) {
         return createUser(user, originHeader).flatMap(userSignupDTO -> {
             User savedUser = userSignupDTO.getUser();
-            Mono<User> userMono = emailConfig.isWelcomeEmailEnabled()
-                    ? sendWelcomeEmail(savedUser, originHeader)
-                    : Mono.just(savedUser);
+            Mono<User> userMono = Mono.just(savedUser);
             return userMono.thenReturn(userSignupDTO);
         });
     }
@@ -626,31 +622,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return pair.getT2();
         });
     }
-
-    @Override
-    public Mono<User> sendWelcomeEmail(User user, String originHeader) {
-        Map<String, String> params = new HashMap<>();
-        params.put("primaryLinkUrl", originHeader);
-
-        return updateTenantLogoInParams(params, originHeader)
-                .flatMap(updatedParams -> emailSender.sendMail(
-                        user.getEmail(), "Welcome to Appsmith", WELCOME_USER_EMAIL_TEMPLATE, updatedParams))
-                .elapsed()
-                .map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to send email: {} ms", pair.getT1());
-                    return pair.getT2();
-                })
-                .onErrorResume(error -> {
-                    // Swallowing this exception because we don't want this to affect the rest of the flow.
-                    log.error(
-                            "Ignoring error: Unable to send welcome email to the user {}. Cause: ",
-                            user.getEmail(),
-                            Exceptions.unwrap(error));
-                    return Mono.just(TRUE);
-                })
-                .thenReturn(user);
-    }
-
     @Override
     public Mono<User> update(String id, User userUpdate) {
         Mono<User> userFromRepository = repository
@@ -1062,11 +1033,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         user.setEmailVerified(TRUE);
                         Mono<Void> redirectionMono = redirectStrategy.sendRedirect(
                                 webFilterExchange.getExchange(), URI.create(postVerificationRedirectUrl));
-                        Mono<User> welcomeEmailMono = sendWelcomeEmail(user, baseUrl);
                         return repository
                                 .save(user)
-                                .then(Mono.zip(welcomeEmailMono, redirectionMono))
-                                .flatMap(objects -> Mono.just(objects.getT2()));
+                                .then(redirectionMono);
                     });
         });
     }

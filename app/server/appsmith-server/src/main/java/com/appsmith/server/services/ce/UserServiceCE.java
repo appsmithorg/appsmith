@@ -51,8 +51,6 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin);
 
-    Mono<User> sendWelcomeEmail(User user, String originHeader);
-
     Mono<User> updateWithoutPermission(String id, User update);
 
     Mono<Boolean> resendEmailVerification(ResendEmailVerificationDTO resendEmailVerificationDTO, String redirectUrl);
