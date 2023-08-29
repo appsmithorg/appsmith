@@ -327,7 +327,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.ClickButton("Confirm");
     agHelper.AssertElementAbsence(locators._toastMsg); //Making sure internal api doesnt throw error
     agHelper.Sleep(3000);
-    table.SearchTable("Suggestion", 2);
+    table.SearchTable("Suggestion");
     table.WaitUntilTableLoad(0, 0, "v2");
 
     table.ReadTableRowColumnData(0, 0, "v2", 4000).then((cellData) => {
