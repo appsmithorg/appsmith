@@ -140,7 +140,7 @@ describe("AForce - Community Issues page validations", function () {
     //propPane.EnterJSContext("Default search text", "Bug", false);
     propPane.TypeTextIntoField("Default search text", "Bug");
     deployMode.DeployApp();
-    table.AssertSearchText("Bug", 2);
+    table.AssertSearchText("Bug");
     table.WaitUntilTableLoad(0, 0, "v2");
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
@@ -150,7 +150,7 @@ describe("AForce - Community Issues page validations", function () {
     propPane.TypeTextIntoField("Default search text", "Quest", true, false);
 
     deployMode.DeployApp();
-    table.AssertSearchText("Quest", 2);
+    table.AssertSearchText("Quest");
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
@@ -176,11 +176,11 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 1, "v2");
 
-    table.SearchTable("Best", 2);
+    table.SearchTable("Best");
     table.WaitUntilTableLoad(0, 1, "v2");
     table.ResetSearch();
 
-    table.SearchTable("Quest", 2);
+    table.SearchTable("Quest");
     table.WaitUntilTableLoad(0, 1, "v2");
     table.ResetSearch();
 
@@ -193,11 +193,11 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 1, "v2");
 
-    table.SearchTable("Bug", 2);
+    table.SearchTable("Bug");
     table.WaitUntilTableLoad(0, 1, "v2"); //Since onSearchTextChanged is set , Search is queried for Search text with Client side search On or Off
     table.ResetSearch();
 
-    table.SearchTable("Quest", 2);
+    table.SearchTable("Quest");
     table.WaitUntilTableLoad(0, 1, "v2");
     table.ResetSearch();
 
@@ -212,11 +212,11 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 1, "v2");
 
-    table.SearchTable("Xano", 2);
+    table.SearchTable("Xano");
     table.WaitForTableEmpty("v2"); //Since Xano is present in 2nd page & Client side search is On
     table.ResetSearch();
 
-    table.SearchTable("SSL", 2);
+    table.SearchTable("SSL");
     table.WaitUntilTableLoad(0, 1, "v2"); //as 1st page has SSL entries
     table.ResetSearch();
 
@@ -229,11 +229,11 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 1, "v2");
 
-    table.SearchTable("Xano", 2);
+    table.SearchTable("Xano");
     table.WaitForTableEmpty("v2"); //Since Xano is present in 2nd page & Client side search is Off
     table.ResetSearch();
 
-    table.SearchTable("SSL", 2);
+    table.SearchTable("SSL");
     table.WaitUntilTableLoad(0, 1, "v2"); //as 1st page has SSL entries
     table.ResetSearch();
 
