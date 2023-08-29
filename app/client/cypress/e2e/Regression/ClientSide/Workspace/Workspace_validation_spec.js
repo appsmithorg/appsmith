@@ -9,13 +9,15 @@ describe("Workspace name validation spec", function () {
   it("1. create workspace with leading space validation", function () {
     _.homePage.NavigateToHome();
     cy.createWorkspace();
-
+    cy.wait(4000);
+    cy.get("#root").matchImageSnapshot("HomePage");
     cy.wait("@createWorkspace").then((interception) => {
       newWorkspaceName = interception.response.body.data.name;
       _.homePage.OpenWorkspaceOptions(newWorkspaceName);
       cy.get(homePage.renameWorkspaceInput).should("be.visible").type(" ");
       cy.get(".error-message").should("be.visible");
       _.agHelper.ClickOutside();
+      cy.wait(3000);
     });
   });
 

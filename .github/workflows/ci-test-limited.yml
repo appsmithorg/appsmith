@@ -546,6 +546,12 @@ jobs:
           name: failed-spec-ci-${{github.run_attempt}}
           path: ~/failed_spec_ci-${{github.run_attempt}}
 
+       # Upload the snapshots as artifacts for layout validation
+      - uses: actions/upload-artifact@v3
+        with:
+          name: cypress-snapshots-visualRegression
+          path: app/client/cypress/snapshots/
+
       # Force store previous run result to cache
       - name: Store the previous run result
         if: failure()

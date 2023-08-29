@@ -62,5 +62,6 @@ describe("Audit logs", () => {
         .children()
         .should("have.length", 1);
     }
+    cy.get("#root").matchImageSnapshot("AuditLogs");
   });
 });

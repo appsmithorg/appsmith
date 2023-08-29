@@ -37,7 +37,8 @@ describe("Git sync:", function () {
   it("1. create branch input", function () {
     entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(gitSyncLocators.branchButton).click();
-
+    cy.wait(5000);
+    cy.get("#root").matchImageSnapshot("Branchlist");
     // validate of the branch name
     const hypenBranchName = "hypen-branch-name";
     cy.get(gitSyncLocators.branchSearchInput).type(

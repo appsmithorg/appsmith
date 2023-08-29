@@ -11,6 +11,7 @@ import {
 describe("excludeForAirgap", "Api pane navigation", () => {
   it("1. Navigation to Grapql pagination field", () => {
     apiPage.CreateGraphqlApi("Api1");
+    cy.get("#root").matchImageSnapshot("GraphQL");
     apiPage.SelectPaneTab("Pagination");
     apiPage.SelectPaginationTypeViaIndex(2);
     agHelper.EnterValue("{{test}}", {

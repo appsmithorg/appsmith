@@ -11,6 +11,8 @@ describe("Table Widget property pane feature validation", function () {
 
   it("1. Table widget with with modal popup", function () {
     cy.openPropertyPane("tablewidget");
+    cy.wait(4000);
+    cy.get("#root").matchImageSnapshot("PropertyPane");
     //update Table name with _
     cy.widgetText(
       "Table_1",

@@ -34,7 +34,7 @@ describe("Git sync modal: connect tab", function () {
     // open gitSync modal
     cy.get(homePage.deployPopupOptionTrigger).click({ force: true });
     cy.get(homePage.connectToGitBtn).click({ force: true });
-
+    cy.get("#root").matchImageSnapshot("GitSyncModal");
     cy.get(gitSyncLocators.gitRepoInput).type(`{selectAll}${httpsRepoURL}`);
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO());
     cy.get(gitSyncLocators.generateDeployKeyBtn).should("not.exist");

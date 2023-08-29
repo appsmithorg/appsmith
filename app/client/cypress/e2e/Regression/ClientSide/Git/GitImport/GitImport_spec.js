@@ -94,6 +94,7 @@ describe("Git import flow ", function () {
     cy.importAppFromGit(repoName);
     cy.wait(5000);
     cy.get(reconnectDatasourceModal.Modal).should("be.visible");
+    cy.get("#root").matchImageSnapshot("ReconnectModal");
     cy.ReconnectDatasource("TEDPostgres");
     cy.wait(500);
     cy.fillPostgresDatasourceForm();

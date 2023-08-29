@@ -30,7 +30,6 @@ describe("Visual regression tests", () => {
       .check({ force: true })
       .wait(2000)
       .should("be.checked");
-
     cy.get("[data-testid=switchgroup-container]").matchImageSnapshot(
       "inlineEnabled",
     );

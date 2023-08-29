@@ -18,6 +18,7 @@ describe("Check for product updates button and modal", function () {
           //eslint-disable-next-line cypress/no-unnecessary-waiting
           cy.wait(500); // modal transition
           cy.get("div[role='dialog']").contains("Product updates");
+          cy.get("#root").matchImageSnapshot("ProductUpdates");
           cy.get("div[role=dialog] button[aria-label='Close']").click();
           //eslint-disable-next-line cypress/no-unnecessary-waiting
           cy.wait(500); // modal transition

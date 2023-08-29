@@ -22,7 +22,7 @@ describe("Git sync modal: deploy tab", function () {
     // last deployed preview
     // The deploy preview Link should be displayed only after the first commit done
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
-
+    cy.get("#root").matchImageSnapshot("CommitModal");
     // comment text input should not empty
     cy.get(gitSyncLocators.commitCommentInput)
       .should("be.disabled")

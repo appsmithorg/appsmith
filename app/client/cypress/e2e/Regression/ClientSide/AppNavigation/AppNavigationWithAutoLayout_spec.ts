@@ -15,6 +15,7 @@ describe("Validating multiple widgets in auto layout mode with App navigation se
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 10, 20);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 10, 20);
     propPane.NavigateToPage("Page1", "onClick");
+    cy.get("#root").matchImageSnapshot("AutoLayout");
   });
 
   it("2. Change App navigation settings and valdiate the layout settings", () => {

@@ -53,6 +53,8 @@ describe("Omnibar functionality test cases", () => {
       "createNewJSCollection",
     );
     cy.get(omnibar.globalSearch).click({ force: true });
+    cy.wait(2000);
+    cy.get("#root").matchImageSnapshot("Omnibar");
     cy.get(omnibar.categoryTitle).contains("Create new").click();
 
     // create new api, js object and cURL import from omnibar

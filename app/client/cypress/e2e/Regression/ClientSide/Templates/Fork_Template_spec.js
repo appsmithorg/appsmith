@@ -6,6 +6,8 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("excludeForAirgap", "Fork a template to an workspace", () => {
   it("1. Fork a template to an workspace", () => {
     _.templates.SwitchToTemplatesTab();
+    cy.wait(5000);
+    cy.get("#root").matchImageSnapshot("Templates");
     cy.xpath(
       "//h1[text()='Customer Support Dashboard']/parent::div//button[contains(@class, 't--fork-template')]",
     )

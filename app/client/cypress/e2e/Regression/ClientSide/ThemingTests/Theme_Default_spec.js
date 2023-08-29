@@ -17,6 +17,8 @@ describe.skip("Theme validation for default data", function () {
     agHelper.GetNClick(locators._canvas);
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
+    cy.wait(2000);
+    cy.get("#root").matchImageSnapshot("Theming");
     //Border validation
     //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");

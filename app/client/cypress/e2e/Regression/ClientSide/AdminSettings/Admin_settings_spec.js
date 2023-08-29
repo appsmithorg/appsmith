@@ -26,6 +26,7 @@ describe("Admin settings page", function () {
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
     cy.wait("@getEnvVariables");
+    cy.get("#root").matchImageSnapshot("AdminPage");
     cy.LogOut();
   });
 

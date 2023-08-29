@@ -29,7 +29,7 @@ describe("Git sync modal: merge tab", function () {
     cy.get("[data-testid=t--tab-MERGE]")
       .invoke("attr", "aria-selected")
       .should("eq", "true");
-
+    cy.get("#root").matchImageSnapshot("MergeTab");
     cy.get(gitSyncLocators.mergeButton).should("be.disabled");
     cy.wait(3000);
     cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();

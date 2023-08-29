@@ -3,7 +3,6 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Update a user's display picture", function () {
   beforeEach(() => {
     _.homePage.GotoEditProfile();
-
     _.agHelper.GetText(_.locators._ds_imageSelector_label).then((text) => {
       text === "Remove" &&
         _.agHelper.GetNClick(_.locators._ds_imageSelector_label);

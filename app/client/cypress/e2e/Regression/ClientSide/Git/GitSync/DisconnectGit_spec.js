@@ -26,7 +26,7 @@ describe("Git disconnect modal:", function () {
     cy.get(gitSyncLocators.disconnectIcon).click();
     cy.get(gitSyncLocators.gitSyncModal).should("not.exist");
     cy.get(gitSyncLocators.disconnectGitModal).should("exist");
-
+    cy.get("#root").matchImageSnapshot("DisconnectGitModal");
     cy.get(gitSyncLocators.disconnectGitModal).contains(
       Cypress.env("MESSAGES").NONE_REVERSIBLE_MESSAGE(),
     );
@@ -72,6 +72,7 @@ describe("Git disconnect modal:", function () {
       `{selectAll}${repoName}`,
     );
     cy.get(gitSyncLocators.disconnectButton).should("be.disabled");
+    cy.get("#root").matchImageSnapshot("DisconnectCTA");
 
     cy.window()
       .its("store")

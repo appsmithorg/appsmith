@@ -31,6 +31,7 @@ describe("excludeForAirgap", "Query pane navigation", () => {
 
   it("1. Switching between S3 query and firestore query from the debugger", () => {
     entityExplorer.CreateNewDsQuery(ds1Name);
+    cy.get("#root").matchImageSnapshot("QueryPane");
     agHelper.EnterValue("{{test}}", {
       propFieldName:
         ".t--actionConfiguration\\.formData\\.list\\.sortBy\\.data\\[0\\]\\.column",

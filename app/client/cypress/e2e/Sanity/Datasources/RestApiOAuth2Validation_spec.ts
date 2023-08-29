@@ -36,6 +36,7 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
     });
     // since we are moving to different, it will show unsaved changes dialog
     // save datasource and then proceed
+    cy.get("#root").matchImageSnapshot("Oauth");
     dataSources.SaveDatasource();
     agHelper.ValidateToastMessage("datasource created"); //verifying there is no error toast, Bug 14566
     entityExplorer.SelectEntityByName("TestOAuth", "Queries/JS");

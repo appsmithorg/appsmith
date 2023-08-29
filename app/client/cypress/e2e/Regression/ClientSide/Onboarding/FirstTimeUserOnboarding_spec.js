@@ -20,6 +20,7 @@ describe("FirstTimeUserOnboarding", function () {
 
   it("1. onboarding flow - should check page entity selection in explorer", function () {
     cy.get(OnboardingLocator.introModal).should("be.visible");
+    cy.get("#root").matchImageSnapshot("Onboarding");
     cy.get(OnboardingLocator.checklistDatasourceBtn).click();
     cy.get(OnboardingLocator.introModal).should("not.exist");
     cy.get(".t--entity-name:contains(Page1)")

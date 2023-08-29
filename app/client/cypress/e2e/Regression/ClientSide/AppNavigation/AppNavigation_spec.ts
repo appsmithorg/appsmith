@@ -46,6 +46,7 @@ describe("General checks for app navigation", function () {
     // Import an application
     homePage.NavigateToHome();
     homePage.ImportApp("appNavigationTestingApp.json");
+    cy.get("#root").matchImageSnapshot("Importmodal");
     assertHelper
       .WaitForNetworkCall("@importNewApplication")
       .then((interception) => {
@@ -66,6 +67,7 @@ describe("General checks for app navigation", function () {
           appSettings.locators._navigationMenuItem,
           10,
         );
+        cy.get("#root").matchImageSnapshot("AppNavigation");
         // Switch page
         agHelper.GetNClickByContains(
           appSettings.locators._navigationMenuItem,

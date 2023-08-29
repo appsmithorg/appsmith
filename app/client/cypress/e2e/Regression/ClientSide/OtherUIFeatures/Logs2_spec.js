@@ -56,6 +56,8 @@ describe("Debugger logs", function () {
     );
     _.agHelper.GetNClick(_.jsEditor._logsTab);
     _.debuggerHelper.DoesConsoleLogExist(logString);
+    cy.wait(1000);
+    cy.get("#root").matchImageSnapshot("ConsoleLogs");
   });
 
   it("3. Console log in async function", function () {

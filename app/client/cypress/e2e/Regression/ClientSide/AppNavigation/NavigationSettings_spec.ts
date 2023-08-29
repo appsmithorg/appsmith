@@ -9,6 +9,7 @@ import {
 describe("Test app's navigation settings", function () {
   it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
     agHelper.GetNClick(appSettings.locators._appSettings);
+    cy.get("#root").matchImageSnapshot("AppSettings");
     agHelper.AssertElementVisibility(
       appSettings.locators._navigationSettingsTab,
     );
@@ -19,6 +20,7 @@ describe("Test app's navigation settings", function () {
 
     // Should exist when the tab is selected
     agHelper.AssertElementVisibility(appSettings.locators._navigationPreview);
+    cy.get("#root").matchImageSnapshot("NavSettings");
   });
 
   it("2. Toggle 'Show navbar' to off, the app header and navigation should not appear when deployed", () => {

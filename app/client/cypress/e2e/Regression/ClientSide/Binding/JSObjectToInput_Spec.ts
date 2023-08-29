@@ -33,6 +33,7 @@ describe("Validate JSObjects binding to Input widget", () => {
         shouldCreateNewJSObj: true,
       },
     );
+    cy.get("#root").matchImageSnapshot("JSEditor");
     ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.ExpandCollapseEntity("Form1");
     ee.SelectEntityByName("Input2");

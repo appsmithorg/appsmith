@@ -22,7 +22,7 @@ describe(
         );
         _.homePage.NavigateToHome();
       });
-
+      cy.get("#root").matchImageSnapshot("WelcomeTour");
       cy.get(guidedTourLocators.welcomeTour).click();
       cy.get(guidedTourLocators.startBuilding).should("be.visible");
       // Go back to applications page
