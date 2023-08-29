@@ -38,7 +38,7 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getInitials } from "utils/AppsmithUtils";
 import { CustomRolesRamp } from "./WorkspaceInviteUsersForm";
-import { showProductRamps } from "selectors/rampSelectors";
+import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 
 const { cloudHosting } = getAppsmithConfigs();

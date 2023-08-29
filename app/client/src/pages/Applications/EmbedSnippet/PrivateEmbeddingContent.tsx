@@ -14,7 +14,10 @@ import {
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
 import { useSelector } from "react-redux";
-import { getRampLink, showProductRamps } from "selectors/rampSelectors";
+import {
+  getRampLink,
+  showProductRamps,
+} from "@appsmith/selectors/rampSelectors";
 import BusinessTag from "components/BusinessTag";
 
 function PrivateEmbeddingContent(props: {
