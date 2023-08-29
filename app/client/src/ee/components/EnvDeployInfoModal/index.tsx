@@ -1,3 +1,1 @@
-export function EnvDeployInfoModal() {
-  return null;
-}
+export * from "ce/components/EnvDeployInfoModal";
