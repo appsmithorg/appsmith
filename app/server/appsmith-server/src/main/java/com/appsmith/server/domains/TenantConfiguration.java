@@ -48,6 +48,12 @@ public class TenantConfiguration extends TenantConfigurationCE {
 
     public static final String ASSET_PREFIX = "asset:";
 
+    // The user journey begins with the choice between the community and business versions, as we now offer both options
+    // for single image shipping to CE and BE customers. Upon selecting one of these versions, the client grants access
+    // to the respective tenant. This variable acts as an indication for client to block the access if the selection is
+    // pending.
+    Boolean isActivated = Boolean.FALSE;
+
     public String getBrandLogoUrl() {
         return assetToUrl(whiteLabelLogo, DEFAULT_APPSMITH_LOGO);
     }
@@ -83,6 +89,7 @@ public class TenantConfiguration extends TenantConfigurationCE {
         this.brandColors = tenantConfiguration.getBrandColors();
         this.showRolesAndGroups = tenantConfiguration.getShowRolesAndGroups();
         this.singleSessionPerUserEnabled = tenantConfiguration.getSingleSessionPerUserEnabled();
+        this.isActivated = tenantConfiguration.getIsActivated();
 
         boolean isLicenseExist = null != tenantConfiguration.getLicense()
                 && !StringUtils.isEmpty(tenantConfiguration.getLicense().getKey());
