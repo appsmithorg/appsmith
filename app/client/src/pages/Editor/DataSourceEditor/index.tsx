@@ -65,7 +65,15 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 
-import { toast, Callout } from "design-system";
+import {
+  toast,
+  Callout,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "design-system";
 import styled from "styled-components";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
@@ -96,6 +104,7 @@ import {
 } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import DatasourceView from "./DatasourceView";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -158,7 +167,7 @@ export const DSEditorWrapper = styled.div`
 export const CalloutContainer = styled.div<{
   isSideBarPresent: boolean;
 }>`
-  width: 30vw; 
+  width: 30vw;
   margin-top: 24px;
   margin-left ${(props) => (props.isSideBarPresent ? "24px" : "0px")}
 `;
@@ -698,6 +707,47 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     return null;
   }
 
+  renderFormCTA() {
+    const {
+      datasource,
+      datasourceButtonConfiguration,
+      formData,
+      formName,
+      isInsideReconnectModal,
+      isSaving,
+      isTesting,
+      pluginName,
+      pluginPackageName,
+      pluginType,
+      triggerSave,
+      viewMode,
+    } = this.props;
+    if (!datasource) return null;
+    return (
+      <DatasourceAuth
+        currentEnvironment={this.getEnvironmentId()}
+        datasource={datasource as Datasource}
+        datasourceButtonConfiguration={datasourceButtonConfiguration}
+        formData={formData}
+        formName={formName}
+        getSanitizedFormData={memoize(this.getSanitizedData)}
+        isFormDirty={this.props.isFormDirty}
+        isInsideReconnectModal={isInsideReconnectModal}
+        isInvalid={this.validateForm()}
+        isSaving={isSaving}
+        isTesting={isTesting}
+        onCancel={() => this.onCancel()}
+        pluginName={pluginName}
+        pluginPackageName={pluginPackageName}
+        pluginType={pluginType as PluginType}
+        setDatasourceViewMode={setDatasourceViewMode}
+        showFilterComponent={this.state.filterParams.showFilterPane}
+        triggerSave={triggerSave}
+        viewMode={viewMode}
+      />
+    );
+  }
+
   renderForm() {
     const {
       datasource,
@@ -717,55 +767,66 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       viewMode,
     } = this.props;
 
-    const shouldViewMode = viewMode && !isInsideReconnectModal;
-    // Check for specific form types first
-    if (
-      pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm &&
-      !shouldViewMode
-    ) {
-      return (
-        <>
-          <RestAPIDatasourceForm
-            applicationId={this.props.applicationId}
-            currentEnvironment={this.state.filterParams.id}
-            datasource={datasource}
-            datasourceId={datasourceId}
-            formData={formData}
-            formName={formName}
-            hiddenHeader={isInsideReconnectModal}
-            isFormDirty={isFormDirty}
-            isSaving={isSaving}
-            location={location}
-            pageId={pageId}
-            pluginName={pluginName}
-            pluginPackageName={pluginPackageName}
-            showFilterComponent={this.state.filterParams.showFilterPane}
-          />
-          {this.renderSaveDisacardModal()}
-        </>
-      );
-    }
-
-    // Default to DB Editor Form
     return (
-      <>
-        <DataSourceEditorForm
-          applicationId={this.props.applicationId}
-          currentEnvironment={this.getEnvironmentId()}
-          datasourceId={datasourceId}
-          formConfig={formConfig}
-          formData={formData}
-          formName={DATASOURCE_DB_FORM}
-          hiddenHeader={isInsideReconnectModal}
-          isSaving={isSaving}
-          pageId={pageId}
-          pluginType={pluginType}
-          setupConfig={this.setupConfig}
-          showFilterComponent={this.state.filterParams.showFilterPane}
-          viewMode={viewMode && !isInsideReconnectModal}
-        />
-        {this.renderSaveDisacardModal()}
-      </>
+      <Modal open={!viewMode}>
+        <ModalContent>
+          <ModalHeader isCloseButtonVisible={false}>
+            {datasource?.name}
+          </ModalHeader>
+          <ModalBody>
+            <div className="flex">
+              <DSDataFilter
+                datasourceId={datasourceId}
+                filterId={this.state.filterParams.id}
+                isInsideReconnectModal={!!isInsideReconnectModal}
+                pluginName={pluginName}
+                pluginType={pluginType}
+                updateFilter={this.updateFilter}
+                viewMode={viewMode}
+              />
+              {pluginDatasourceForm ===
+              DatasourceComponentTypes.RestAPIDatasourceForm ? (
+                // Check for specific form types first
+                <RestAPIDatasourceForm
+                  applicationId={this.props.applicationId}
+                  currentEnvironment={this.state.filterParams.id}
+                  datasource={datasource}
+                  datasourceId={datasourceId}
+                  formData={formData}
+                  formName={formName}
+                  hiddenHeader={isInsideReconnectModal}
+                  isFormDirty={isFormDirty}
+                  isSaving={isSaving}
+                  location={location}
+                  pageId={pageId}
+                  pluginName={pluginName}
+                  pluginPackageName={pluginPackageName}
+                  showFilterComponent={this.state.filterParams.showFilterPane}
+                />
+              ) : (
+                // Default to DB Editor Form
+                <DataSourceEditorForm
+                  applicationId={this.props.applicationId}
+                  currentEnvironment={this.getEnvironmentId()}
+                  datasourceId={datasourceId}
+                  formConfig={formConfig}
+                  formData={formData}
+                  formName={DATASOURCE_DB_FORM}
+                  hiddenHeader={isInsideReconnectModal}
+                  isSaving={isSaving}
+                  pageId={pageId}
+                  pluginType={pluginType}
+                  setupConfig={this.setupConfig}
+                  showFilterComponent={this.state.filterParams.showFilterPane}
+                  viewMode={false}
+                />
+              )}
+            </div>
+            {this.renderSaveDisacardModal()}
+          </ModalBody>
+          <ModalFooter>{this.renderFormCTA()}</ModalFooter>
+        </ModalContent>
+      </Modal>
     );
   }
 
@@ -795,16 +856,13 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       canDeleteDatasource,
       canManageDatasource,
       datasource,
-      datasourceButtonConfiguration,
       datasourceId,
-      formData,
+      formConfig,
       history,
       isDeleting,
       isInsideReconnectModal,
       isNewDatasource,
       isPluginAuthorized,
-      isSaving,
-      isTesting,
       pageId,
       pluginId,
       pluginImage,
@@ -813,7 +871,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       pluginType,
       setDatasourceViewMode,
       showDebugger,
-      triggerSave,
       viewMode,
     } = this.props;
 
@@ -873,43 +930,15 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         <ResizerMainContainer>
           <ResizerContentContainer className="db-form-resizer-content">
             <DSEditorWrapper>
-              <DSDataFilter
-                datasourceId={datasourceId}
-                filterId={this.state.filterParams.id}
-                isInsideReconnectModal={!!isInsideReconnectModal}
-                pluginName={pluginName}
-                pluginType={pluginType}
-                updateFilter={this.updateFilter}
-                viewMode={viewMode}
-              />
               <div className="db-form-content-container">
                 {this.renderToast()}
-                {this.renderForm()}
-                {/* Render datasource form call-to-actions */}
-                {datasource && (
-                  <DatasourceAuth
-                    currentEnvironment={this.getEnvironmentId()}
-                    datasource={datasource as Datasource}
-                    datasourceButtonConfiguration={
-                      datasourceButtonConfiguration
-                    }
-                    formData={formData}
-                    formName={this.props.formName}
-                    getSanitizedFormData={memoize(this.getSanitizedData)}
-                    isFormDirty={this.props.isFormDirty}
-                    isInsideReconnectModal={isInsideReconnectModal}
-                    isInvalid={this.validateForm()}
-                    isSaving={isSaving}
-                    isTesting={isTesting}
-                    onCancel={() => this.onCancel()}
-                    pluginName={pluginName}
-                    pluginPackageName={pluginPackageName}
-                    pluginType={pluginType as PluginType}
-                    setDatasourceViewMode={setDatasourceViewMode}
-                    showFilterComponent={this.state.filterParams.showFilterPane}
-                    triggerSave={triggerSave}
-                    viewMode={viewMode}
+                {viewMode ? (
+                  <DatasourceView
+                    datasource={datasource}
+                    formConfig={formConfig}
                   />
+                ) : (
+                  this.renderForm()
                 )}
               </div>
             </DSEditorWrapper>

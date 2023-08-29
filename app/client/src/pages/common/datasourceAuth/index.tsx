@@ -391,7 +391,7 @@ function DatasourceAuth({
   };
 
   return (
-    <>
+    <div className="w-full">
       {authType === AuthType.OAUTH2 &&
         !isAuthorized &&
         shouldDisplayAuthMessage && (
@@ -404,7 +404,7 @@ function DatasourceAuth({
           )}
         </SaveButtonContainer>
       )}
-    </>
+    </div>
   );
 }
 
