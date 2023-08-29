@@ -91,7 +91,11 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   let configInitialValues = {};
   const applicationId: string = yield select(getCurrentApplicationId);
-  const pageId: string = yield select(getCurrentPageId);
+  let pageId: string = yield select(getCurrentPageId);
+  if (!pageId) {
+    yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
+    pageId = yield select(getCurrentPageId);
+  }
   if (!applicationId || !pageId) {
     history.push(APPLICATIONS_URL);
     return;

@@ -42,7 +42,6 @@ import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   checkIfSectionCanRender,
@@ -70,9 +69,6 @@ import type { AppState } from "@appsmith/reducers";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { thinScrollbar } from "constants/DefaultTheme";
-import ActionRightPane, {
-  useEntityDependencies,
-} from "components/editorComponents/ActionRightPane";
 import type {
   ActionApiResponseReq,
   PluginErrorDetails,
@@ -134,12 +130,7 @@ import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs
 import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
 import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
-import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
-import {
-  selectFeatureFlagCheck,
-  selectFeatureFlags,
-} from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -316,17 +307,6 @@ const DocumentationButton = styled(Button)`
   z-index: 6;
 `;
 
-const SidebarWrapper = styled.div<{ show: boolean }>`
-  border-left: 1px solid var(--ads-v2-color-border);
-  padding: 0 var(--ads-v2-spaces-4) var(--ads-v2-spaces-4);
-  overflow: hidden;
-  border-bottom: 0;
-  display: ${(props) => (props.show ? "flex" : "none")};
-  width: ${(props) => props.theme.actionSidePane.width}px;
-  margin-top: 10px;
-  /* margin-left: var(--ads-v2-spaces-7); */
-`;
-
 export const SegmentedControlContainer = styled.div`
   padding: 0 var(--ads-v2-spaces-7);
   display: flex;
@@ -354,9 +334,6 @@ type QueryFormProps = {
     request?: ActionApiResponseReq;
   };
   runErrorMessage: string | undefined;
-  location: {
-    state: any;
-  };
   editorConfig?: any;
   formName: string;
   settingConfig: any;
@@ -409,7 +386,7 @@ export function EditorJSONtoForm(props: Props) {
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
 
-  const params = useParams<{ apiId?: string; queryId?: string }>();
+  const params = useParams<{ actionId: string }>();
 
   // fetch the error count from the store.
   const errorCount = useSelector(getErrorCount);
@@ -419,7 +396,7 @@ export function EditorJSONtoForm(props: Props) {
   );
   const guidedTourEnabled = useSelector(inGuidedTour);
   const currentActionConfig: Action | undefined = actions.find(
-    (action) => action.id === params.apiId || action.id === params.queryId,
+    (action) => action.id === params.actionId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
   const isChangePermitted = hasManageActionPermission(
@@ -838,10 +815,6 @@ export function EditorJSONtoForm(props: Props) {
     },
   ];
 
-  const { entityDependencies, hasDependencies } = useEntityDependencies(
-    props.actionName,
-  );
-
   const pluginImages = useSelector(getPluginImages);
 
   type DATASOURCES_OPTIONS_TYPE = {
@@ -894,23 +867,6 @@ export function EditorJSONtoForm(props: Props) {
   //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
 
-  // A/B feature flag for datasource structure.
-  const isEnabledForDSSchema = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema_enabled),
-  );
-
-  // A/B feature flag for query binding.
-  const isEnabledForQueryBinding = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
-  );
-
-  // here we check for normal conditions for opening action pane
-  // or if any of the flags are true, We should open the actionpane by default.
-  const shouldOpenActionPaneByDefault =
-    ((hasDependencies || !!output) && !guidedTourEnabled) ||
-    ((isEnabledForDSSchema || isEnabledForQueryBinding) &&
-      currentActionPluginName !== PluginName.SMTP);
-
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -919,7 +875,6 @@ export function EditorJSONtoForm(props: Props) {
 
   return (
     <>
-      {!guidedTourEnabled && <CloseEditor />}
       {guidedTourEnabled && <Guide className="query-page" />}
       <QueryFormContainer onSubmit={handleSubmit(noop)}>
         <StyledFormRow>
@@ -1116,18 +1071,6 @@ export function EditorJSONtoForm(props: Props) {
                 )}
             </SecondaryWrapper>
           </div>
-          <SidebarWrapper show={shouldOpenActionPaneByDefault}>
-            <ActionRightPane
-              actionName={actionName}
-              context={DatasourceStructureContext.QUERY_EDITOR}
-              datasourceId={props.datasourceId}
-              entityDependencies={entityDependencies}
-              hasConnections={hasDependencies}
-              hasResponse={!!output}
-              pluginId={props.pluginId}
-              suggestedWidgets={executedQueryData?.suggestedWidgets}
-            />
-          </SidebarWrapper>
         </Wrapper>
       </QueryFormContainer>
     </>

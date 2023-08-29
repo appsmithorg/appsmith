@@ -5,6 +5,8 @@ import { matchPath, Switch } from "react-router";
 import {
   IDE_PAGE_NAV_PATH,
   IDE_PAGE_PATH,
+  IDE_PAGE_QUERIES_DETAIL_PATH,
+  IDE_PAGE_QUERIES_PATH,
   IDE_PAGE_UI_DETAIL_PATH,
   IDE_PAGE_UI_PATH,
 } from "../../../constants/routes";
@@ -35,6 +37,7 @@ import { IDEAppState } from "../ideReducer";
 import { SentryRoute } from "@appsmith/AppRouter";
 import PropertyPaneContainer from "../../Editor/WidgetsEditor/PropertyPaneContainer";
 import WidgetSidebar from "./components/WidgetSidebar";
+import QuerySidebar from "./components/QuerySidebar";
 
 const Container = styled.div`
   background-color: #f1f5f9;
@@ -233,6 +236,16 @@ const PageLeftPane = () => {
                 component={WidgetSidebar}
                 exact
                 path={IDE_PAGE_UI_PATH}
+              />
+              <SentryRoute
+                component={QuerySidebar}
+                exact
+                path={IDE_PAGE_QUERIES_PATH}
+              />
+              <SentryRoute
+                component={QuerySidebar}
+                exact
+                path={IDE_PAGE_QUERIES_DETAIL_PATH}
               />
             </Switch>
           </TabContainer>
