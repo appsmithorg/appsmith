@@ -153,7 +153,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
       transform: rotate(5deg);
     }
     50% {
-      transform: rotate(0eg);
+      transform: rotate(0deg);
     }
     75% {
       transform: rotate(-5deg);
@@ -170,7 +170,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
       transform: rotate(5deg);
     }
     50% {
-      transform: rotate(0eg);
+      transform: rotate(0deg);
     }
     75% {
       transform: rotate(-5deg);
