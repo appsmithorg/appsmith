@@ -8,7 +8,7 @@ import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,
 } from "@appsmith/selectors/applicationSelectors";
-import { ContentBox } from "pages/Settings/components";
+import { ContentBox } from "pages/AdminSettings/components";
 
 type ImageInputProps = {
   value?: any;
