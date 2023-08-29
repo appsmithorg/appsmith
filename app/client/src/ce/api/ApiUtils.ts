@@ -26,10 +26,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import {
-  getCurrentEditingEnvironmentId,
-  getCurrentEnvironmentId,
-} from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -86,8 +83,8 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
     config.headers["X-Requested-By"] = "Appsmith";
   }
 
-  const branch =
-    getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
+  const state = store.getState();
+  const branch = getCurrentGitBranch(state) || getQueryParamsObject().branch;
   if (branch && config.headers) {
     config.headers.branchName = branch;
   }
@@ -96,9 +93,10 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   }
 
   // Add header for environment name
-  let activeEnv = getCurrentEnvironmentId(store.getState());
+  const envDetails = getCurrentEnvironmentDetails(state);
+  let activeEnv = envDetails.id;
   if (config.url?.indexOf("/code") !== -1) {
-    activeEnv = getCurrentEditingEnvironmentId(store.getState());
+    activeEnv = envDetails.editingId;
   }
 
   if (activeEnv && config.headers) {
