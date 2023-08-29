@@ -25,9 +25,7 @@ function configureDbClient() {
     database: getEnvValue("CYPRESS_DB_NAME", { required: true }),
     password: getEnvValue("CYPRESS_DB_PWD", { required: true }),
     port: 5432,
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 60000,
     ssl: true,
     keepalives: 0,
   };
