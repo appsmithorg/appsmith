@@ -1,20 +1,15 @@
 import React, { useMemo } from "react";
-import {
-  getAutoLayoutComponentDimensions,
-  getAutoLayoutDimensionsConfig,
-} from "../common/utils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { AutoLayoutEditorWidgetOnion } from "./AutoLayoutEditorWidgetOnion";
 import { AutoLayoutEditorModalOnion } from "./AutoLayoutEditorModalOnion";
+import { getAutoLayoutSystemProps } from "../AutoLayoutSystemWrapper";
 
 export const AutoLayoutEditorWraper = (props: WidgetProps) => {
-  const autoDimensionConfig = getAutoLayoutDimensionsConfig(props);
-  const { componentHeight, componentWidth } =
-    getAutoLayoutComponentDimensions(props);
+  const { autoDimensionConfig, componentDimensions } =
+    getAutoLayoutSystemProps(props);
   const widgetEditorProps = {
     ...props,
-    componentHeight,
-    componentWidth,
+    ...componentDimensions,
     autoDimensionConfig,
   };
   //Widget Onion

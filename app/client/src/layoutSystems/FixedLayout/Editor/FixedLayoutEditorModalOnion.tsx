@@ -2,9 +2,9 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import React from "react";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import { ModalResizableLayer } from "../../common/resizer/ModalResizableLayer";
-import { ModalOverlayLayer } from "../../common/ModalOverlayLayer";
-import { FixedLayoutWigdetComponent } from "../common/FixedLayoutWidgetComponent";
-import { WidgetNameLayer } from "../../common/WidgetNameLayer";
+import { ModalOverlayLayer } from "../../common/overlay/ModalOverlayLayer";
+import { FixedLayoutWigdetComponent } from "../common/widgetcomponent/FixedLayoutWidgetComponent";
+import { WidgetNameLayer } from "../../common/widgetname/WidgetNameLayer";
 import { get } from "lodash";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 

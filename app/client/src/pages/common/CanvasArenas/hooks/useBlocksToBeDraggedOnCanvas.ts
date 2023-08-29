@@ -35,8 +35,8 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
   AlignItems,
   LayoutDirection,
-} from "layoutSystems/AutoLayout/utils/constants";
-import type { HighlightInfo } from "layoutSystems/AutoLayout/utils/autoLayoutTypes";
+} from "layoutSystems/autoLayout/utils/constants";
+import type { HighlightInfo } from "layoutSystems/autoLayout/utils/autoLayoutTypes";
 import { useContext, useEffect, useRef } from "react";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {

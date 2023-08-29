@@ -6,7 +6,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import React from "react";
-import { isAutoLayout } from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autoLayout/utils/flexWidgetUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";

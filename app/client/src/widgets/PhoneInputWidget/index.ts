@@ -1,6 +1,6 @@
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/autoLayout/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { getDefaultISDCode } from "./component/ISDCodeDropdown";

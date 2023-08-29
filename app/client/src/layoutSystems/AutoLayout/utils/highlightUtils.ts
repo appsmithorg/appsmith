@@ -2,7 +2,7 @@ import {
   FlexLayerAlignment,
   MOBILE_ROW_GAP,
   ROW_GAP,
-} from "layoutSystems/AutoLayout/utils/constants";
+} from "layoutSystems/autoLayout/utils/constants";
 import {
   FLEXBOX_PADDING,
   GridDefaults,
@@ -29,7 +29,7 @@ import type {
   LayerChild,
 } from "./autoLayoutTypes";
 import { getTotalRowsOfAllChildren } from "./heightUpdateUtils";
-import { DEFAULT_HIGHLIGHT_SIZE } from "../common/FlexBoxComponent";
+import { DEFAULT_HIGHLIGHT_SIZE } from "../common/flexCanvas/FlexBoxComponent";
 
 /**
  * @param allWidgets : CanvasWidgetsReduxState

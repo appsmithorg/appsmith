@@ -19,7 +19,7 @@ import type {
   Alignment,
   Positioning,
   Spacing,
-} from "layoutSystems/AutoLayout/utils/constants";
+} from "layoutSystems/autoLayout/utils/constants";
 import { generateClassName } from "utils/generators";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";

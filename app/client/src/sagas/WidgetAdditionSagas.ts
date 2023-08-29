@@ -40,14 +40,14 @@ import { klona as clone } from "klona/full";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { toast } from "design-system";
-import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
-import { isStack } from "../layoutSystems/AutoLayout/utils/AutoLayoutUtils";
+import { ResponsiveBehavior } from "layoutSystems/autoLayout/utils/constants";
+import { isStack } from "../layoutSystems/autoLayout/utils/AutoLayoutUtils";
 import {
   getCanvasWidth,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
-import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
+import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autoLayout/utils/flexWidgetUtils";
 import { isFunction } from "lodash";
 
 const WidgetTypes = WidgetFactory.widgetTypes;

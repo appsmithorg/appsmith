@@ -1,7 +1,7 @@
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/autoLayout/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import {
   BlueprintOperationTypes,

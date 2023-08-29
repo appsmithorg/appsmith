@@ -9,7 +9,7 @@ import equal from "fast-deep-equal/es6";
 import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { isAutoLayout } from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autoLayout/utils/flexWidgetUtils";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,

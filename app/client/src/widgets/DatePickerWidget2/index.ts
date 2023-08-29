@@ -2,7 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import moment from "moment";
-import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/autoLayout/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { TimePrecision } from "./constants";
 import IconSVG from "./icon.svg";

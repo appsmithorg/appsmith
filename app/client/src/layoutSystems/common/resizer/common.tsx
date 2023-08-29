@@ -11,7 +11,7 @@ import styled from "styled-components";
 import type {
   LayoutDirection,
   ResponsiveBehavior,
-} from "layoutSystems/AutoLayout/utils/constants";
+} from "layoutSystems/autoLayout/utils/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import memoize from "micro-memoize";
 

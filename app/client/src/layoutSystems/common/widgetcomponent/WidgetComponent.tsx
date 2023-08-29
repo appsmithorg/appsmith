@@ -1,7 +1,7 @@
-import WidgetComponentBoundary from "layoutSystems/common/WidgetComponentBoundary";
 import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import Skeleton from "widgets/Skeleton";
+import WidgetComponentBoundary from "./WidgetComponentBoundary";
 
 export const WidgetComponent = (props: BaseWidgetProps) => {
   const { deferRender, detachFromLayout, isFlexChild, type } = props;
