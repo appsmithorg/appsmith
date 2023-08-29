@@ -15,4 +15,6 @@ public interface EmailServiceCE {
             PermissionGroup assignedPermissionGroup,
             String originHeader,
             boolean isNewUser);
+
+    Mono<Boolean> sendEmailVerificationEmail(User user, String verificationUrl);
 }

@@ -126,7 +126,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             "%s/user/verify?token=%s&email=%s&redirectUrl=%s";
 
     private static final String EMAIL_VERIFICATION_ERROR_URL_FORMAT = "/user/verify-error?code=%s&message=%s&email=%s";
-    private static final String USER_EMAIL_VERIFICATION_EMAIL_TEMPLATE = "email/emailVerificationTemplate.html";
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
@@ -912,21 +911,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             URLEncoder.encode(emailVerificationToken.getEmail(), StandardCharsets.UTF_8),
                             redirectUrlCopy);
 
-                    log.debug(
-                            "Email Verification url for email: {}: {}",
-                            emailVerificationToken.getEmail(),
-                            verificationUrl);
-
-                    Map<String, String> params = new HashMap<>();
-
-                    params.put("verificationUrl", verificationUrl);
-
-                    return updateTenantLogoInParams(params, resendEmailVerificationDTO.getBaseUrl())
-                            .flatMap(updatedParams -> emailSender.sendMail(
-                                    email,
-                                    "Verify your account",
-                                    USER_EMAIL_VERIFICATION_EMAIL_TEMPLATE,
-                                    updatedParams));
+                    return emailService.sendEmailVerificationEmail(user, verificationUrl);
                 })
                 .thenReturn(true);
     }

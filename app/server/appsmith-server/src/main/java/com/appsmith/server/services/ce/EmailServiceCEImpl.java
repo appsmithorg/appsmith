@@ -57,6 +57,18 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                         invitedUser.getEmail(), emailSubject, INVITE_WORKSPACE_TEMPLATE_CE, updatedParams));
     }
 
+    @Override
+    public Mono<Boolean> sendEmailVerificationEmail(User user, String verificationURL) {
+        Map<String, String> params = new HashMap<>();
+        params.put(EMAIL_VERIFICATION_URL, verificationURL);
+        return this.enrichParams(params)
+                .flatMap(updatedParams -> emailSender.sendMail(
+                        user.getEmail(),
+                        EMAIL_VERIFICATION_EMAIL_SUBJECT,
+                        EMAIL_VERIFICATION_EMAIL_TEMPLATE,
+                        updatedParams));
+    }
+
     private Mono<Map<String, String>> enrichParams(Map<String, String> params) {
         return tenantService.getDefaultTenant().map(tenant -> {
             final TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();

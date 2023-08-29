@@ -19,7 +19,10 @@ public class EmailConstantsCE {
     public static final String FORGOT_PASSWORD_EMAIL_SUBJECT = "Reset your %s password.";
     public static final String INVITE_WORKSPACE_TEMPLATE_CE = "email/ce/inviteUserTemplate.html";
     public static final String FORGOT_PASSWORD_TEMPLATE_CE = "email/ce/forgotPasswordTemplate.html";
+    public static final String EMAIL_VERIFICATION_EMAIL_TEMPLATE = "email/emailVerificationTemplate.html";
     public static final String WORKSPACE_URL = "%s/applications#%s";
     public static final String INVITER_FIRST_NAME = "inviterFirstName";
     public static final String INVITER_WORKSPACE_NAME = "inviterWorkspaceName";
+    public static final String EMAIL_VERIFICATION_URL = "verificationUrl";
+    public static final String EMAIL_VERIFICATION_EMAIL_SUBJECT = "Verify your account";
 }
