@@ -111,7 +111,7 @@ function AppViewer(props: Props) {
   });
   const focusRef = useWidgetFocus();
 
-  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
+  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
   const canShowRamp = useSelector(showRampSelector);
 
   const workspaceId = currentApplicationDetails?.workspaceId || "";

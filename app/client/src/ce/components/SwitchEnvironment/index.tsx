@@ -76,7 +76,7 @@ const TooltipLink = styled(Link)`
 export default function SwitchEnvironment({}: Props) {
   const [diableSwitchEnvironment, setDiableSwitchEnvironment] = useState(false);
   // Fetching feature flags from the store and checking if the feature is enabled
-  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
+  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
   const canShowRamp = useSelector(showRampSelector);
   const rampLinkSelector = getRampLink({
     section: RampSection.BottomBarEnvSwitcher,

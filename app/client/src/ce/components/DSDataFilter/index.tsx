@@ -89,7 +89,7 @@ const environments: Array<EnvironmentType> = [
 
 function DSDataFilter({ isInsideReconnectModal, viewMode }: DSDataFilterProps) {
   const [showFilterPane, setShowFilterPane] = useState(false);
-  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
+  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
   const canShowRamp = useSelector(showRampSelector);
 
   const rampLinkSelector = getRampLink({
