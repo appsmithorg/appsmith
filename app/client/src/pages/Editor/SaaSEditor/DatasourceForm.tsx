@@ -514,7 +514,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       if we want to extend this functionality for other plugins, we should be able
       to extend this function for other plugins
     */
-    const authErrorMessage = getDatasourceErrorMessage(formData, plugin);
+    const authErrorMessage = getDatasourceErrorMessage(
+      formData,
+      plugin,
+      this.state.filterParams.id,
+    );
 
     const googleSheetsInfoMessage = createMessage(
       GOOGLE_SHEETS_INFO_BANNER_MESSAGE,

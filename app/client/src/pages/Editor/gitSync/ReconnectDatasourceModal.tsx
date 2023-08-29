@@ -299,7 +299,11 @@ function ReconnectDatasourceModal() {
     if (!ds || pluginsArray.length === 0) return false;
     const plugin = plugins[ds.pluginId];
     const output = isGoogleSheetPluginDS(plugin?.packageName)
-      ? isDatasourceAuthorizedForQueryCreation(ds, plugin as Plugin)
+      ? isDatasourceAuthorizedForQueryCreation(
+          ds,
+          plugin as Plugin,
+          currentEnvDetails.id,
+        )
       : ds.datasourceStorages
       ? isEnvironmentConfigured(ds, currentEnvDetails.id)
       : false;
@@ -524,6 +528,7 @@ function ReconnectDatasourceModal() {
   const mappedDataSources = datasources.map((ds: Datasource) => {
     return (
       <ListItemWrapper
+        currentEnvironment={currentEnvDetails.id}
         ds={ds}
         key={ds.id}
         onClick={() => {

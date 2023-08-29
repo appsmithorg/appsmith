@@ -14,7 +14,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { noop } from "utils/AppsmithUtils";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 type NewActionButtonProps = {
   datasource?: Datasource;
@@ -33,7 +33,7 @@ function NewActionButton(props: NewActionButtonProps) {
   const dispatch = useDispatch();
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
-  const currentEnvironment = getCurrentEnvironment();
+  const currentEnvironment = useSelector(getCurrentEnvironmentId);
 
   const createQueryAction = useCallback(
     (e) => {

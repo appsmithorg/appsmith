@@ -94,7 +94,7 @@ import { isStorageEnvironmentCreated } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { setCurrentEditingEnvironmentID } from "@appsmith/actions/environmentAction";
-import { getCurrentEditingEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -974,13 +974,13 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const isNewDatasource = datasourcePane.newDatasource === TEMP_DATASOURCE_ID;
   const pluginDatasourceForm =
     plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm;
-  const currentEditingEnvId = getCurrentEditingEnvironmentId(state);
+  const currentEnvDetails = getCurrentEnvironmentDetails(state);
   const isFormDirty = getIsFormDirty(
     isDirty(formName)(state),
     formData,
     isNewDatasource,
     pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm,
-    currentEditingEnvId,
+    currentEnvDetails.editingId,
   );
   const initialValue = getFormInitialValues(formName)(state) as
     | Datasource
@@ -1010,7 +1010,11 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const isPluginAuthorized =
     pluginPackageName === PluginPackageName.GOOGLE_SHEETS
       ? plugin &&
-        isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin)
+        isDatasourceAuthorizedForQueryCreation(
+          formData as Datasource,
+          plugin,
+          currentEnvDetails.id,
+        )
       : true;
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(

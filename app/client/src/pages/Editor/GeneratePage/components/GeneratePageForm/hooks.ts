@@ -6,9 +6,9 @@ import { CONNECT_NEW_DATASOURCE_OPTION_ID } from "../DataSourceOption";
 import type { executeDatasourceQuerySuccessPayload } from "actions/datasourceActions";
 import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { DropdownOption } from "design-system-old";
-import { useDispatch } from "react-redux";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { useDispatch, useSelector } from "react-redux";
 import { PluginPackageName } from "entities/Action";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
@@ -33,7 +33,7 @@ export const useDatasourceOptions = ({
   const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(
     [],
   );
-  const currentEnvironment = getCurrentEnvironment();
+  const currentEnvironment = useSelector(getCurrentEnvironmentId);
 
   useEffect(() => {
     // On mount of component and on change of datasources, Update the list.
