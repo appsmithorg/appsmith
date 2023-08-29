@@ -41,15 +41,11 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> updateCurrentUser(UserUpdateDTO updates, ServerWebExchange exchange);
 
-    Map<String, String> getEmailParams(Workspace workspace, User inviterUser, String inviteUrl, boolean isNewUser);
-
     Mono<Boolean> isUsersEmpty();
 
     Mono<UserProfileDTO> buildUserProfileDTO(User user);
 
     Flux<User> getAllByEmails(Set<String> emails, AclPermission permission);
-
-    Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin);
 
     Mono<User> updateWithoutPermission(String id, User update);
 

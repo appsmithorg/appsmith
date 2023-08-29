@@ -757,30 +757,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     @Override
-    public Map<String, String> getEmailParams(Workspace workspace, User inviter, String inviteUrl, boolean isNewUser) {
-        Map<String, String> params = new HashMap<>();
-
-        if (inviter != null) {
-            params.put(
-                    "inviterFirstName",
-                    org.apache.commons.lang3.StringUtils.defaultIfEmpty(inviter.getName(), inviter.getEmail()));
-        }
-        if (workspace != null) {
-            params.put("inviterWorkspaceName", workspace.getName());
-        }
-        if (isNewUser) {
-            params.put("primaryLinkUrl", inviteUrl);
-            params.put("primaryLinkText", "Sign up now");
-        } else {
-            if (workspace != null) {
-                params.put("primaryLinkUrl", inviteUrl + "/applications#" + workspace.getId());
-            }
-            params.put("primaryLinkText", "Go to workspace");
-        }
-        return params;
-    }
-
-    @Override
     public Mono<Boolean> isUsersEmpty() {
         return repository.isUsersEmpty();
     }
@@ -840,11 +816,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Flux<User> getAllByEmails(Set<String> emails, AclPermission permission) {
         return repository.findAllByEmails(emails);
-    }
-
-    @Override
-    public Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin) {
-        return Mono.just(params);
     }
 
     @Override

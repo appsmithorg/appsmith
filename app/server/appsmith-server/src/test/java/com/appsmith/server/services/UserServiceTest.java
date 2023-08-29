@@ -125,43 +125,6 @@ public class UserServiceTest {
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
     }
-
-    // Test if email params are updating correctly
-    @Test
-    public void checkEmailParamsForExistingUser() {
-        Workspace workspace = new Workspace();
-        workspace.setName("UserServiceTest Update Org");
-        workspace.setId(UUID.randomUUID().toString());
-
-        User inviter = new User();
-        inviter.setName("inviterUserToApplication");
-
-        String inviteUrl = "http://localhost:8080";
-        String expectedUrl = inviteUrl + "/applications#" + workspace.getId();
-
-        Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, false);
-        assertEquals(expectedUrl, params.get("primaryLinkUrl"));
-        assertEquals("inviterUserToApplication", params.get("inviterFirstName"));
-        assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));
-    }
-
-    @Test
-    public void checkEmailParamsForNewUser() {
-        Workspace workspace = new Workspace();
-        workspace.setId(UUID.randomUUID().toString());
-        workspace.setName("UserServiceTest Update Org");
-
-        User inviter = new User();
-        inviter.setName("inviterUserToApplication");
-
-        String inviteUrl = "http://localhost:8080";
-
-        Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, true);
-        assertEquals(inviteUrl, params.get("primaryLinkUrl"));
-        assertEquals("inviterUserToApplication", params.get("inviterFirstName"));
-        assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));
-    }
-
     // Test the update workspace flow.
     @Test
     public void updateInvalidUserWithAnything() {
