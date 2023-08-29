@@ -29,7 +29,7 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import PageWrapper from "@appsmith/pages/common/PageWrapper";
+import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "pages/Applications/ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
@@ -95,7 +95,7 @@ import { Indices } from "constants/Layers";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import LeftPaneBottomSection from "@appsmith/pages/Home/LeftPaneBottomSection";
+import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
@@ -373,7 +373,9 @@ export function WorkspaceMenuItem({
       containerClassName={
         isFetchingApplications ? BlueprintClasses.SKELETON : ""
       }
-      ellipsize={19}
+      ellipsize={
+        isFetchingApplications ? 100 : 19
+      } /* this is to avoid showing tooltip for loaders */
       href={`${window.location.pathname}#${workspace.workspace.id}`}
       icon="workspace"
       key={workspace.workspace.id}
