@@ -27,7 +27,7 @@ import type { IconNames } from "design-system";
 import type { NavigationSetting } from "constants/AppConstants";
 import { defaultNavigationSetting } from "constants/AppConstants";
 import produce from "immer";
-import { groupBy, map } from "lodash";
+import { groupBy } from "lodash";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -135,10 +135,10 @@ export const handlers = {
     );
     const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
       if (workspacesWithDeletedApps[workspace.workspace.id]) {
-        const deletedApplicationIds = map(
-          workspacesWithDeletedApps[workspace.workspace.id],
-          "id",
-        );
+        const deletedApplicationIds = workspacesWithDeletedApps[
+          workspace.workspace.id
+        ].map((e) => e.id);
+
         let applications = workspace.applications;
         applications = applications.filter(
           (application: ApplicationPayload) => {
