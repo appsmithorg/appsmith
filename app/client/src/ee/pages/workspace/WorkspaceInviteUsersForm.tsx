@@ -5,6 +5,7 @@ import {
   ErrorTextContainer,
   MailConfigContainer,
   ManageUsersContainer,
+  OptionLabel,
   StyledCheckbox,
   StyledForm,
   StyledInviteFieldGroup,
@@ -571,12 +572,12 @@ function WorkspaceInviteUsersForm(props: any) {
                     <div className="flex flex-col gap-1">
                       <div className="flex gap-1">
                         {role.icon && <Icon name={role.icon} size="md" />}
-                        <Text
+                        <OptionLabel
                           color="var(--ads-v2-color-fg-emphasis)"
                           kind={role.description && "heading-xs"}
                         >
                           {role.value}
-                        </Text>
+                        </OptionLabel>
                       </div>
                       {role.description && (
                         <Text kind="body-s">{role.description}</Text>
