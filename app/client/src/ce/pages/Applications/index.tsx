@@ -20,6 +20,7 @@ import {
   getApplicationList,
   getApplicationSearchKeyword,
   getCreateApplicationError,
+  getDeletingMultipleApps,
   getIsCreatingApplication,
   getIsDeletingApplication,
   getIsFetchingApplications,
@@ -232,7 +233,6 @@ export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
   padding: 0 16px;
 `;
 export const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
-  padding-top: 16px;
   ${({ isMobile }) =>
     isMobile &&
     `
@@ -506,7 +506,11 @@ export const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
   margin-left: ${(props) => props.theme.homePage.leftPane.width}px;
   width: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   scroll-behavior: smooth;
-  padding: var(--ads-v2-spaces-7);
+  ${({ isMobile }) =>
+    isMobile
+      ? "padding: var(--ads-v2-spaces-7);"
+      : "padding:  0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);"}
+
   ${({ isMobile }) =>
     isMobile &&
     `
@@ -526,6 +530,9 @@ export function ApplicationsSection(props: any) {
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
+  const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
+  const isEnabledMultipleSelection =
+    !!deleteMultipleApplicationObject.list?.length;
   const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
@@ -733,7 +740,7 @@ export function ApplicationsSection(props: any) {
                   workspaceId={selectedWorkspaceIdForImportApplication}
                 />
               )}
-              {!isFetchingApplications && (
+              {!isFetchingApplications && !isEnabledMultipleSelection && (
                 <WorkspaceShareUsers>
                   <SharedUserList workspaceId={workspace.id} />
                   {canInviteToWorkspace && !isMobile && (

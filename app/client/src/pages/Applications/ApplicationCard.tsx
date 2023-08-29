@@ -10,6 +10,7 @@ import styled, { ThemeContext } from "styled-components";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
 import { Card, Classes } from "@blueprintjs/core";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   hasDeleteApplicationPermission,
   isPermitted,
@@ -20,7 +21,7 @@ import {
   getApplicationIcon,
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
-import { noop, omit } from "lodash";
+import { omit } from "lodash";
 import type { AppIconName } from "design-system-old";
 import {
   AppIcon,
@@ -53,6 +54,7 @@ import {
   getIsFetchingApplications,
   getIsSavingAppName,
   getIsErroredSavingAppName,
+  getDeletingMultipleApps,
 } from "@appsmith/selectors/applicationSelectors";
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
@@ -138,6 +140,45 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
       }
    `}
   overflow: hidden;
+
+  &.t--selected-application {
+    animation: deleteshake 0.5s linear infinite;
+    filter: grayscale(1);
+  }
+  @-webkit-keyframes deleteshake {
+    0% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(5deg);
+    }
+    50% {
+      transform: rotate(0eg);
+    }
+    75% {
+      transform: rotate(-5deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+  @keyframes deleteshake {
+    0% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(5deg);
+    }
+    50% {
+      transform: rotate(0eg);
+    }
+    75% {
+      transform: rotate(-5deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
 `;
 
 const Wrapper = styled(
@@ -376,6 +417,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
+
+  const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
+  const isApplicationSelected =
+    deleteMultipleApplicationObject.list?.includes(applicationId);
+  const isEnabledMultipleSelection =
+    !!deleteMultipleApplicationObject.list?.length;
 
   useEffect(() => {
     let colorCode;
@@ -750,13 +797,24 @@ export function ApplicationCard(props: ApplicationCardProps) {
     [props.application.defaultPageId],
   );
 
+  const handleMultipleSelection = (event: any) => {
+    if ((event as MouseEvent).ctrlKey || (event as MouseEvent).metaKey) {
+      dispatch({
+        type: ReduxActionTypes.DELETE_MULTIPLE_APPS_TOGGLE,
+        payload: { id: applicationId },
+      });
+    }
+  };
+
   return (
     <Container
       isMobile={props.isMobile}
-      onClick={props.isMobile ? launchApp : noop}
+      onClick={props.isMobile ? launchApp : handleMultipleSelection}
     >
       <NameWrapper
-        className="t--application-card"
+        className={`t--application-card ${
+          isApplicationSelected ? "t--selected-application" : ""
+        }`}
         hasReadPermission={hasReadPermission}
         isMenuOpen={isMenuOpen}
         onMouseEnter={() => {
@@ -788,7 +846,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           >
             {appNameText}
           </AppNameWrapper>
-          {showOverlay && !props.isMobile && (
+          {showOverlay && !props.isMobile && !isEnabledMultipleSelection && (
             <div className="overlay">
               <div className="overlay-blur" />
               <ApplicationImage className="image-container">
@@ -823,7 +881,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
         </Wrapper>
         <CardFooter>
           <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
-          {!!moreActionItems.length && !props.isMobile && ContextMenu}
+          {!!moreActionItems.length &&
+            !props.isMobile &&
+            !isEnabledMultipleSelection &&
+            ContextMenu}
         </CardFooter>
       </NameWrapper>
       {showGitBadge && <GitConnectedBadge />}
