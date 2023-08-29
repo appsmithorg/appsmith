@@ -323,6 +323,15 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             })}
           </FormInputContainer>
         )}
+        <FormInputContainer data-location-id={btoa("ssl")}>
+          {this.renderCheckboxViaFormControl(
+            "connection.ssl.authTypeControl",
+            "Use Self-Signed Certificate",
+            "",
+            true,
+          )}
+        </FormInputContainer>
+        {this.renderSelfSignedCertificateFields()}
         <Collapsible title="Headers">
           <FormInputContainer
             className="t--headers-array"
@@ -536,15 +545,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
     return (
       <>
-        <FormInputContainer data-location-id={btoa("ssl")}>
-          {this.renderCheckboxViaFormControl(
-            "connection.ssl.authTypeControl",
-            "Use Self-Signed Certificate",
-            "",
-            true,
-          )}
-        </FormInputContainer>
-        {this.renderSelfSignedCertificateFields()}
         <FormInputContainer data-location-id={btoa("authentication.grantType")}>
           {this.renderDropdownControlViaFormControl(
             "authentication.grantType",
