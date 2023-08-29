@@ -46,6 +46,16 @@ export const BLOCKED_ROUTES_REGEX = new RegExp(
   `^(${BLOCKED_ROUTES.join("|")})($|/)`,
 );
 
+export const ENV_ENABLED_ROUTES = [
+  "v1/datasources/[a-z0-9]+/structure",
+  "/v1/datasources/[a-z0-9]+/trigger",
+  "v1/actions/execute",
+];
+
+export const ENV_ENABLED_ROUTES_REGEX = new RegExp(
+  `^(${ENV_ENABLED_ROUTES.join("|")})($|/)`,
+);
+
 const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
   ...response.data,
   clientMeta: {
@@ -92,15 +102,17 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
   }
 
-  // Add header for environment name
-  const envDetails = getCurrentEnvironmentDetails(state);
-  let activeEnv = envDetails.id;
-  if (config.url?.indexOf("/code") !== -1) {
-    activeEnv = envDetails.editingId;
-  }
+  if (ENV_ENABLED_ROUTES_REGEX.test(config.url?.split("?")[0] || "")) {
+    // Add header for environment name
+    const envDetails = getCurrentEnvironmentDetails(state);
+    let activeEnv = envDetails.id;
+    if (config.url?.indexOf("/code") !== -1) {
+      activeEnv = envDetails.editingId;
+    }
 
-  if (activeEnv && config.headers) {
-    config.headers.environmentId = activeEnv;
+    if (activeEnv && config.headers) {
+      config.headers.environmentId = activeEnv;
+    }
   }
 
   const anonymousId = AnalyticsUtil.getAnonymousId();
