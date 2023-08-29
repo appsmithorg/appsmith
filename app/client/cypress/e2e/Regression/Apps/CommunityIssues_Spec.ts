@@ -179,7 +179,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad(0, 1, "v2");
     table.ResetSearch();
 
-    table.SearchTable("Quest");
+    table.SearchTable("Quest", 2);
     table.WaitUntilTableLoad(0, 1, "v2");
     table.ResetSearch();
 
@@ -196,7 +196,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad(0, 1, "v2"); //Since onSearchTextChanged is set , Search is queried for Search text with Client side search On or Off
     table.ResetSearch();
 
-    table.SearchTable("Quest");
+    table.SearchTable("Quest", 2);
     table.WaitUntilTableLoad(0, 1, "v2");
     table.ResetSearch();
 
