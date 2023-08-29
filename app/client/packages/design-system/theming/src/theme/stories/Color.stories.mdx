@@ -1,28 +1,66 @@
+import React from "react";
+import { useState } from "react";
 import {
   TokenTable,
   StyledTable,
   StyledSquarePreview,
 } from "@design-system/storybook";
 import { Meta } from "@storybook/addon-docs";
+import { ColorControl, BooleanControl } from "@storybook/blocks";
 import { useTheme, ThemeProvider } from "@design-system/theming";
+import { Flex, Text } from "@design-system/widgets";
+import { defaultTokens } from "../../token";
 
 <Meta title="Design-system/Theme/Tokens/Color" />
 
 # Color
 
-Color is a crucial element in any design system. It communicates
-information, creates hierarchy, and evokes emotions. Therefore, it is
-essential to establish a consistent and meaningful color palette for
-your design system.
+export const ColorPicker = () => {
+  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor)
+  const [isDarkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme({seedColor, colorMode: isDarkMode ? "dark" : "light"});
+  const { color } = theme;
 
-## Semantic Color Naming Strategy
+return (
 
-This naming schema is for the most part inspired by the one shown in The
-hardest part about building dark mode is that people think it’s easy
-talk by [Hassan and Jacob Miller at Figma Config 2022](https://www.youtube.com/watch?v=1DTnojio89Y&t=454s).
-This enables flexibility and focuses on deriving these tokens from a
-starting seed rather than assuming those can be hand-picked by a
-designer.
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Seed</Text>
+      <ColorControl
+        id="seed-color"
+        name="seed-color"
+        label="Seed Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+</ThemeProvider>
+
+);
+};
+
+<ColorPicker />
+
+WDS generates a full harmonious color scheme used in Widgets from a single color input (`seed`) and a set of additional props (currently only `colorMode` that can be `dark` or `light`).
+
+Colors are generated in [OkLCh](https://bottosson.github.io/posts/oklab/) color space using [color.js](https://colorjs.io/docs/spaces#oklch) to ensure perceptual uniformity when producing colors from the seed. This achieves monochromatic color harmony between UI elements.
+
+To ensure visibility of critical UI elements we're checking key colors' conformance to [APCA](https://github.com/Myndex/SAPC-APCA).
+
+## Color token naming
+
+Tokens are named using four-part schema. Every part of the name except `type` is optional. Suffixes describe visual function of the color in the UI.
 
 <StyledTable>
   <thead>
@@ -37,36 +75,24 @@ designer.
     <tr>
       <td>bg</td>
       <td>accent</td>
-      <td>regular (default)</td>
-      <td>resting (default)</td>
+      <td>subtle</td>
+      <td>hover</td>
     </tr>
     <tr>
       <td>fg</td>
       <td>neutral</td>
-      <td>strong</td>
-      <td>hover</td>
-    </tr>
-    <tr>
-      <td>bd</td>
-      <td>content</td>
-      <td>subtle</td>
+      <td></td>
       <td>active</td>
     </tr>
     <tr>
-      <td></td>
-      <td>assistive</td>
-      <td></td>
-      <td>disabled</td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>negative</td>
+      <td>bd</td>
+      <td>positive</td>
       <td></td>
       <td>focus</td>
     </tr>
     <tr>
       <td></td>
-      <td>positive</td>
+      <td>negative</td>
       <td></td>
       <td></td>
     </tr>
@@ -82,10 +108,561 @@ designer.
       <td></td>
       <td></td>
     </tr>
+    <tr>
+      <td></td>
+      <td>assistive</td>
+      <td></td>
+      <td></td>
+    </tr>
   </tbody>
 </StyledTable>
 
-## Background Tokens Table
+### Type
+
+Type defines how the color is going to be applied to UI elements.
+
+`bg` (backgrounds) are surfaces of color.
+
+`fg` (foregrounds) are content elements (text and icons) on top of colored surfaces. Minimal APCA contrast of `60` to satisfy accessibility requirement.
+
+`bd` (borders) are separators. Borders can be subtle with lower contrast requirement of `25`.
+
+export const ColorTypes = () => {
+  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor)
+  const [isDarkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme({seedColor, colorMode: isDarkMode ? "dark" : "light"});
+  const { color } = theme;
+
+return (
+
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Seed</Text>
+      <ColorControl
+        id="seed-color"
+        name="seed-color"
+        label="Seed Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+  <Flex
+    padding="spacing-6"
+    style={{ background: "var(--color-bg)" }}
+    direction="column"
+  >
+    Tokens table with bg-neutral, fg-neutral and bd-neutral
+  </Flex>
+</ThemeProvider>
+
+);
+};
+
+<ColorTypes />
+
+### Role
+
+#### No role
+
+Absence of role suffix signifies default application.
+
+Main background color (`bg`) is applied to the canvas. In dark mode it is extremely dark shade of user-set seed color. In light mode it is extremely light tint of user-set seed color. This ensures harmonious combination with main accents and neutrals.
+
+Default content color (`fg`) is applied to text and icons. In light mode it is dark shade of user-set seed color. In dark mode it is light tint of user-set seed color.
+
+Focus outline (`bd-focus`) is applied as an outline around interactive elements when they receive keyboard-focus.
+
+export const NoRole = () => {
+  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor)
+  const [isDarkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme({seedColor, colorMode: isDarkMode ? "dark" : "light"});
+  const { color } = theme;
+
+return (
+
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Seed</Text>
+      <ColorControl
+        id="seed-color"
+        name="seed-color"
+        label="Seed Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+  <Flex
+    padding="spacing-6"
+    style={{ background: "var(--color-bg)" }}
+    direction="column"
+  >
+    Tokens table with bg, fg and bd-focus
+  </Flex>
+</ThemeProvider>
+
+);
+};
+
+<NoRole />
+
+#### Accent
+
+Accent colors indicate high prominence. They are as close to the seed as possible given accessibility requirements for their type and a requirement for `bgAccent` to be visible on top of `bg`.
+
+export const AccentRole = () => {
+  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor)
+  const [isDarkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme({seedColor, colorMode: isDarkMode ? "dark" : "light"});
+  const { color } = theme;
+
+return (
+
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Seed</Text>
+      <ColorControl
+        id="seed-color"
+        name="seed-color"
+        label="Seed Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+  <Flex
+    padding="spacing-6"
+    style={{ background: "var(--color-bg)" }}
+    direction="column"
+  >
+    Tokens table with bg-accent, fg-accent and bd-accent
+  </Flex>
+</ThemeProvider>
+
+);
+};
+
+<AccentRole />
+
+#### Neutral
+
+Neutral colors have less prominence than accent. Unless the seed is completely achromatic they contain small amounts of chroma to produce harmony with accents.
+
+export const NeutralRole = () => {
+  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor)
+  const [isDarkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme({seedColor, colorMode: isDarkMode ? "dark" : "light"});
+  const { color } = theme;
+
+return (
+
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Seed</Text>
+      <ColorControl
+        id="seed-color"
+        name="seed-color"
+        label="Seed Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+  <Flex
+    padding="spacing-6"
+    style={{ background: "var(--color-bg)" }}
+    direction="column"
+  >
+    Tokens table with bg-neutral, fg-neutral and bd-neutral
+  </Flex>
+</ThemeProvider>
+
+);
+};
+
+<NeutralRole />
+
+#### Semaphore (positive, negative, warning)
+
+Three roles to use for color-coding conventional types of highlights in the UI. They start from preselected values and are checked for being too similar to seed and accent. In case of a clash they are adjusted to less resemble accent colors.
+
+export const Semaphore = () => {
+  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor)
+  const [isDarkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme({seedColor, colorMode: isDarkMode ? "dark" : "light"});
+  const { color } = theme;
+
+return (
+
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Seed</Text>
+      <ColorControl
+        id="seed-color"
+        name="seed-color"
+        label="Seed Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+  <Flex
+    padding="spacing-6"
+    style={{ background: "var(--color-bg)" }}
+    direction="column"
+  >
+    Tokens table with bg-accent, bg-positive, bg-negative, bg-warning
+  </Flex>
+</ThemeProvider>
+
+);
+};
+
+<Semaphore />
+
+#### on\*
+
+Used for naming foreground and border colors that are intended to be displayed on top of specific backgrounds, e.g. `onPositive`, `onAccent`.
+
+export const OnColors = () => {
+  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor)
+  const [isDarkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme({seedColor, colorMode: isDarkMode ? "dark" : "light"});
+  const { color } = theme;
+
+return (
+
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Seed</Text>
+      <ColorControl
+        id="seed-color"
+        name="seed-color"
+        label="Seed Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+  <Flex
+    padding="spacing-6"
+    style={{ background: "var(--color-bg)" }}
+    direction="column"
+  >
+    Tokens table with fg-onaccent, fg-onpositive, fg-onnegative, fg-onwarning,
+    fg-onassistive, fg-onneutral, fg-onassistive
+  </Flex>
+</ThemeProvider>
+
+);
+};
+
+<Semaphore />
+
+#### Assistive
+
+Used for high-contrast assistive elements, e.g. a tooltip.
+
+export const AssistiveRole = () => {
+  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor)
+  const [isDarkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme({seedColor, colorMode: isDarkMode ? "dark" : "light"});
+  const { color } = theme;
+
+return (
+
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Seed</Text>
+      <ColorControl
+        id="seed-color"
+        name="seed-color"
+        label="Seed Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+  <Flex
+    padding="spacing-6"
+    style={{ background: "var(--color-bg)" }}
+    direction="column"
+  >
+    Tokens table with bg-assistive
+  </Flex>
+</ThemeProvider>
+
+);
+};
+
+<AssistiveRole />
+
+### Prominence
+
+If no prominence is specified the default looks of the color are assumed. If subtle prominence is specified less saturated and contrasting variation of color is produced.
+
+export const Prominence = () => {
+  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor)
+  const [isDarkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme({seedColor, colorMode: isDarkMode ? "dark" : "light"});
+  const { color } = theme;
+
+return (
+
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Seed</Text>
+      <ColorControl
+        id="seed-color"
+        name="seed-color"
+        label="Seed Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+  <Flex
+    padding="spacing-6"
+    style={{ background: "var(--color-bg)" }}
+    direction="column"
+  >
+    Tokens table with bg-accent, bg-accent-subtle, bg-neutral, bg-neutral-subtle
+  </Flex>
+</ThemeProvider>
+
+);
+};
+
+<Prominence />
+
+### State
+
+#### No state
+
+If no state is specified, a resting state of UI element is assumed.
+
+export const RestingState = () => {
+  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor)
+  const [isDarkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme({seedColor, colorMode: isDarkMode ? "dark" : "light"});
+  const { color } = theme;
+
+return (
+
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Seed</Text>
+      <ColorControl
+        id="seed-color"
+        name="seed-color"
+        label="Seed Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+  <Flex
+    padding="spacing-6"
+    style={{ background: "var(--color-bg)" }}
+    direction="column"
+  >
+    Tokens table with bg-accent, bg-neutral, bg-positive
+  </Flex>
+</ThemeProvider>
+
+);
+};
+
+<RestingState />
+
+#### Hover
+
+Slightly lighter than the resting state to produce the effect of moving closer to the viewer / inspection.
+
+export const HoverState = () => {
+  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor)
+  const [isDarkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme({seedColor, colorMode: isDarkMode ? "dark" : "light"});
+  const { color } = theme;
+
+return (
+
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Seed</Text>
+      <ColorControl
+        id="seed-color"
+        name="seed-color"
+        label="Seed Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+  <Flex
+    padding="spacing-6"
+    style={{ background: "var(--color-bg)" }}
+    direction="column"
+  >
+    Tokens table with bg-accent-hover, bg-neutral-hover, bg-positive-hover
+  </Flex>
+</ThemeProvider>
+
+);
+};
+
+<HoverState />
+
+#### Active
+
+Slightly darker than the resting state to produce the effect of moving further from the viewer / being pushed down.
+
+export const ActiveState = () => {
+  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor)
+  const [isDarkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme({seedColor, colorMode: isDarkMode ? "dark" : "light"});
+  const { color } = theme;
+
+return (
+
+<ThemeProvider theme={theme}>
+  <Flex gap="spacing-6" marginTop="spacing-4" marginBottom="spacing-4">
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Seed</Text>
+      <ColorControl
+        id="seed-color"
+        name="seed-color"
+        label="Seed Color"
+        defaultValue={defaultTokens.seedColor}
+        value={seedColor}
+        onChange={(value) => setSeedColor(value)}
+      />
+    </Flex>
+    <Flex direction="column" gap="spacing-2">
+      <Text variant="caption">Dark mode</Text>
+      <BooleanControl
+        name="colorScheme"
+        value={isDarkMode}
+        onChange={(checked) => setDarkMode(checked)}
+      />
+    </Flex>
+  </Flex>
+  <Flex
+    padding="spacing-6"
+    style={{ background: "var(--color-bg)" }}
+    direction="column"
+  >
+    Tokens table with bg-accent-active, bg-neutral-active, bg-positive-active
+  </Flex>
+</ThemeProvider>
+
+);
+};
+
+<ActiveState />
+
+## Background Tokens
 
 export const Background = () => {
   const { theme } = useTheme();
@@ -107,7 +684,7 @@ export const Background = () => {
 
 <Background />
 
-## Foreground Tokens Table
+## Foreground Tokens
 
 export const Foreground = () => {
   const { theme } = useTheme();
@@ -129,7 +706,7 @@ export const Foreground = () => {
 
 <Foreground />
 
-### Border Tokens Table
+### Border Tokens
 
 export const Border = () => {
   const { theme } = useTheme();
