@@ -25,8 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Set;
@@ -127,16 +125,13 @@ public class CacheableRepositoryEETest {
                 .findFirst()
                 .get();
 
-        Mono<Set<String>> permissionGroupsOfUserMono = cacheableRepositoryHelper.getPermissionGroupsOfUser(api_user);
+        Set<String> permissionGroupsOfUser =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(api_user).block();
 
         // Assert that the user has the ADMINISTRATOR permission group of the workspace and the custom permission group
         // via the user group
-        StepVerifier.create(permissionGroupsOfUserMono)
-                .assertNext(permissionGroupsOfUser -> {
-                    assertThat(permissionGroupsOfUser).contains(adminPg.getId());
-                    assertThat(permissionGroupsOfUser).contains(createdRole.getId());
-                })
-                .verifyComplete();
+        assertThat(permissionGroupsOfUser).contains(adminPg.getId());
+        assertThat(permissionGroupsOfUser).contains(createdRole.getId());
 
         // Now delete the workspace and assert that user permission groups does not contain the admin pg
         workspaceService.archiveById(createdWorkspace.getId()).block();
@@ -150,6 +145,9 @@ public class CacheableRepositoryEETest {
         userPermissionGroupsPostWorkspaceDelete =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(api_user).block();
         assertThat(userPermissionGroupsPostWorkspaceDelete).doesNotContain(createdRole.getId());
+
+        // Cleanup
+        userGroupService.archiveById(createdGroup.getId()).block();
     }
 
     @Test
