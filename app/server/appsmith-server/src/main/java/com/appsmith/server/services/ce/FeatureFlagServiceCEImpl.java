@@ -133,8 +133,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                                     .evictUserCachedFlags(userIdentifier)
                                     .then(cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier, user))
                                     .flatMap(cachedFlagsUpdated -> {
-                                        // If the call to CS to fetch the latest flags fails for some reason previous
-                                        // flags will act as a fallback value
+                                        // In case the retrieval of the latest flags from CS encounters an error, the
+                                        // previous flags will serve as a fallback value.
                                         if (cachedFlagsUpdated == null
                                                 || CollectionUtils.isNullOrEmpty(cachedFlagsUpdated.getFlags())) {
                                             return cacheableFeatureFlagHelper
@@ -177,7 +177,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      */
     @Override
     public Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId) {
-        // If the call to CS to fetch the latest flags fails for some reason previous flags will act as a fallback value
+        // In case the retrieval of the latest flags from CS encounters an error, the previous flags will serve as a
+        // fallback value.
         return cacheableFeatureFlagHelper
                 .fetchCachedTenantFeatures(tenantId)
                 .flatMap(cachedFeatures -> cacheableFeatureFlagHelper
