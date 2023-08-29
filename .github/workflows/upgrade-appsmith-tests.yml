@@ -117,16 +117,16 @@ jobs:
         working-directory: app/client
         run: |
           failed_spec_env=""
-          while IFS= read -r line || [ -n "$line" ]
-          do
+          while IFS= read -r line || [ -n "$line" ]; do
               file_path=$(echo "$line" | awk -F'/' '{print $(NF-1)"/"$NF}')
               spec_name=$(echo "$file_path" | awk -F'/' '{print $NF}')
               failed_spec=$(find . -name "$spec_name" | sed 's|./||')
               for file in $failed_spec; do
-              new_file_path=$(echo "$file" | awk -F'/' '{print $(NF-1)"/"$NF}')
-              if [ "$new_file_path" == "$file_path" ]; then
-                  failed_spec_env="$failed_spec_env,$file"
-              fi
+                  new_file_path=$(echo "$file" | awk -F'/' '{print $(NF-1)"/"$NF}')
+                  if [ "$new_file_path" == "$file_path" ]; then
+                      failed_spec_env="$failed_spec_env,$file"
+                  fi
+              done
           done < ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
           failed_spec_env=${failed_spec_env#,}
           echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV
