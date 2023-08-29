@@ -148,13 +148,11 @@ describe("emptyChartData", () => {
       .fn()
       .mockReturnValue(true);
 
-    const calloutsFunc = ChartWidget.editorCallouts();
-
     it("returns custom fusion chart deprecation notice when chart type is custom fusion chart", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "CUSTOM_FUSION_CHART";
 
-      const messages = calloutsFunc(props);
+      const messages = ChartWidget.editorCallouts(props);
       expect(messages.length).toEqual(1);
 
       const deprecationMessage = messages[0];
@@ -173,13 +171,13 @@ describe("emptyChartData", () => {
       let props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "LINE_CHART";
 
-      let messages = calloutsFunc(props);
+      let messages = ChartWidget.editorCallouts(props);
       expect(messages.length).toEqual(0);
 
       props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "CUSTOM_ECHART";
 
-      messages = calloutsFunc(props);
+      messages = ChartWidget.editorCallouts(props);
       expect(messages.length).toEqual(0);
     });
   });

@@ -101,7 +101,7 @@ export function updateConfigPaths(
   });
 }
 
-export function editorCallouts(props: WidgetProps): JSX.Element[] {
+export function renderWidgetCallouts(props: WidgetProps): JSX.Element[] {
   const { getEditorCallouts } = WidgetFactory.getWidgetMethods(props.type);
   if (getEditorCallouts) {
     const callouts: WidgetCallout[] = getEditorCallouts(props);

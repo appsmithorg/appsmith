@@ -109,28 +109,22 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
-  static editorCallouts() {
-    const callouts = (props: WidgetProps): WidgetCallout[] => {
-      if (!this.showCustomFusionChartDeprecationMessages()) {
-        return [];
-      }
-
-      if (props.chartType == "CUSTOM_FUSION_CHART") {
-        return [
+  static editorCallouts(props: WidgetProps): WidgetCallout[] {
+    const callouts: WidgetCallout[] = [];
+    if (
+      this.showCustomFusionChartDeprecationMessages() &&
+      props.chartType == "CUSTOM_FUSION_CHART"
+    ) {
+      callouts.push({
+        message: messages.customFusionChartDeprecationMessage,
+        links: [
           {
-            message: messages.customFusionChartDeprecationMessage,
-            links: [
-              {
-                text: "Learn More",
-                url: "https://docs.appsmith.com",
-              },
-            ],
+            text: "Learn More",
+            url: "https://docs.appsmith.com",
           },
-        ];
-      } else {
-        return [];
-      }
-    };
+        ],
+      });
+    }
     return callouts;
   }
 
