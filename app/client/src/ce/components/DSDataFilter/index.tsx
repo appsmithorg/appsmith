@@ -87,11 +87,7 @@ const environments: Array<EnvironmentType> = [
   },
 ];
 
-function DSDataFilter({
-  isInsideReconnectModal,
-  updateFilter,
-  viewMode,
-}: DSDataFilterProps) {
+function DSDataFilter({ isInsideReconnectModal, viewMode }: DSDataFilterProps) {
   const [showFilterPane, setShowFilterPane] = useState(false);
   const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
   const canShowRamp = useSelector(showRampSelector);
@@ -113,15 +109,6 @@ function DSDataFilter({
     if (showFilterPane !== isRenderAllowed) setShowFilterPane(isRenderAllowed);
     // If there are no environments, do nothing
     if (!environments.length) return;
-    const defaultSelectedEnvironment = environments[0];
-
-    const updateSuccess = updateFilter(
-      defaultSelectedEnvironment.id,
-      defaultSelectedEnvironment.name,
-      defaultSelectedEnvironment?.userPermissions || [],
-    );
-
-    if (!updateSuccess) return;
   }, [environments.length, viewMode, isInsideReconnectModal]);
 
   if (!showFilterPane) return null;
