@@ -21,6 +21,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { DISCORD_URL } from "constants/ThirdPartyConstants";
 
 type MobileSideBarProps = {
   name: string;
@@ -133,7 +134,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
         <StyledMenuItem
           icon="discord"
           onSelect={() => {
-            window.open("https://discord.gg/rBTTVJp", "_blank");
+            window.open(DISCORD_URL, "_blank");
           }}
           text={"Join our discord"}
         />

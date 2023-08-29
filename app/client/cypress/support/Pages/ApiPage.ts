@@ -79,6 +79,7 @@ export class ApiPage {
   _addMore = ".t--addApiHeader";
   public _editorDS = ".t--datasource-editor";
   public _addMoreHeaderFieldButton = ".t--addApiHeader";
+  public jsonBody = `.t--apiFormPostBody`;
 
   CreateApi(
     apiName = "",
@@ -218,7 +219,7 @@ export class ApiPage {
   ) {
     this.agHelper.GetNClick(this._apiRunBtn, 0, true, waitTimeInterval);
     toValidateResponse &&
-      this.agHelper.AssertNetworkExecutionSuccess("@postExecute");
+      this.assertHelper.AssertNetworkExecutionSuccess("@postExecute");
 
     // Asserting Network result
     validateNetworkAssertOptions?.expectedPath &&

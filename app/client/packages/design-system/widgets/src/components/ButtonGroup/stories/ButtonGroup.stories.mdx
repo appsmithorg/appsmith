@@ -1,0 +1,123 @@
+import { Flex, Button, ButtonGroup } from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
+<Meta title="Design-system/Widgets/Button Group" />
+
+# Button Group
+
+A button group is a group of buttons that are visually connected together.
+
+<Canvas>
+  <Story name="Button Group">
+    <ButtonGroup>
+      <Button>Option 1</Button>
+      <Button>Option 2</Button>
+      <Button>Option 3</Button>
+    </ButtonGroup>
+  </Story>
+</Canvas>
+
+<ArgsTable story="Button Group" of={ButtonGroup} />
+
+## Semantic
+
+`Button` component has 3 visual style variants and 5 semantic color options
+
+### Filled variant
+
+<Story name="Filled variant">
+  <Flex direction="column" gap="spacing-4">
+    {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
+      <ButtonGroup>
+        <Button variant="filled" color={color} children={`filled-${color}`} />
+        <Button variant="filled" color={color} children={`filled-${color}`} />
+        <Button variant="filled" color={color} children={`filled-${color}`} />
+      </ButtonGroup>
+    ))}
+  </Flex>
+</Story>
+
+### Outlined variant
+
+<Story name="Outlined variant">
+  <Flex direction="column" gap="spacing-4">
+    {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
+      <ButtonGroup>
+        <Button variant="outlined" color={color} children={`filled-${color}`} />
+        <Button variant="outlined" color={color} children={`filled-${color}`} />
+        <Button variant="outlined" color={color} children={`filled-${color}`} />
+      </ButtonGroup>
+    ))}
+  </Flex>
+</Story>
+
+### Ghost variant
+
+<Story name="Ghost variant">
+  <Flex direction="column" gap="spacing-4">
+    {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
+      <ButtonGroup>
+        <Button variant="ghost" color={color} children={`filled-${color}`} />
+        <Button variant="ghost" color={color} children={`filled-${color}`} />
+        <Button variant="ghost" color={color} children={`filled-${color}`} />
+      </ButtonGroup>
+    ))}
+  </Flex>
+</Story>
+
+## Orientation
+
+<Story name="Button Group - Vertical Filled">
+  <ButtonGroup orientation="vertical">
+    <Button variant="filled">Option 2</Button>
+    <Button variant="filled">Option 2</Button>
+    <Button variant="filled">Option 3</Button>
+  </ButtonGroup>
+</Story>
+<Story name="Button Group - Vertical Outlined">
+  <ButtonGroup orientation="vertical">
+    <Button variant="outlined">Option 2</Button>
+    <Button variant="outlined">Option 2</Button>
+    <Button variant="outlined">Option 3</Button>
+  </ButtonGroup>
+</Story>
+<Story name="Button Group - Vertical Ghost">
+  <ButtonGroup orientation="vertical">
+    <Button variant="ghost">Option 2</Button>
+    <Button variant="ghost">Option 2</Button>
+    <Button variant="ghost">Option 3</Button>
+  </ButtonGroup>
+</Story>
+
+## Disabled
+
+<Story name="Button Group Filled Disabled">
+  <ButtonGroup>
+    {/* prettier-ignore */}
+    <Button variant="filled" isDisabled>Option 2</Button>
+    {/* prettier-ignore */}
+    <Button variant="filled" isDisabled>Option 2</Button>
+    {/* prettier-ignore */}
+    <Button variant="filled" isDisabled>Option 3</Button>
+  </ButtonGroup>
+</Story>
+<Story name="Button Group Outlined Disabled">
+  <ButtonGroup>
+    {/* prettier-ignore */}
+    <Button variant="outlined" isDisabled>Option 2</Button>
+    {/* prettier-ignore */}
+    <Button variant="outlined" isDisabled>Option 2</Button>
+    {/* prettier-ignore */}
+    <Button variant="outlined" isDisabled>Option 3</Button>
+  </ButtonGroup>
+</Story>
+<Story name="Button Group Ghost Disabled">
+  <ButtonGroup>
+    {/* prettier-ignore */}
+    <Button variant="ghost" isDisabled>Option 2</Button>
+    {/* prettier-ignore */}
+    <Button variant="ghost" isDisabled>Option 2</Button>
+    {/* prettier-ignore */}
+    <Button variant="ghost" isDisabled>Option 3</Button>
+  </ButtonGroup>
+</Story>

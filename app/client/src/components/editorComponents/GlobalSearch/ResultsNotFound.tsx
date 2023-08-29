@@ -6,6 +6,7 @@ import { getTypographyByKey } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
+import { DISCORD_URL } from "constants/ThirdPartyConstants";
 
 const DiscordIcon = importSvg(() => import("assets/icons/help/discord.svg"));
 
@@ -57,7 +58,7 @@ function ResultsNotFound() {
           <span
             className="discord-link"
             onClick={() => {
-              window.open("https://discord.gg/rBTTVJp", "_blank");
+              window.open(DISCORD_URL, "_blank");
               AnalyticsUtil.logEvent("DISCORD_LINK_CLICK");
             }}
           >
@@ -71,4 +72,4 @@ function ResultsNotFound() {
   );
 }
 
-export default ResultsNotFound;
+export default React.memo(ResultsNotFound);
