@@ -291,9 +291,19 @@ init_keycloak() {
 
   # Migrate Keycloak v16 data to Keycloak v20.
   if [[ -f /appsmith-stacks/data/keycloak/keycloak.mv.db ]]; then
-    if ! keycloak_migrate_h2; then
-      echo "WARNING: Failed to migrate Keycloak data. Will attempt again at next restart."
+    if ! keycloak_migrate_h2_to_v2; then
+      echo "WARNING: Failed to migrate Keycloak data to v2 format. Will attempt again at next restart."
     fi
+  fi
+  if [[ -f /appsmith-stacks/data/keycloak/keycloakdb.mv.db ]]; then
+    java -classpath /opt/keycloak/lib/lib/main/com.h2database.h2-*.jar org.h2.tools.Shell \
+      -url jdbc:h2:/appsmith-stacks/data/keycloak/keycloakdb \
+      -user sa \
+      -password password \
+      -sql 'SELECT H2VERSION() FROM DUAL' \
+      &> /dev/null \
+      || keycloak_migrate_h2_to_v3 \
+      || echo "WARNING: Failed to migrate Keycloak data to v3 format. Will attempt again at next restart."
   fi
 
   # Following is to remove any duplicate Keycloak credentials added to the `docker.env` file, preserving only the first
@@ -305,15 +315,16 @@ init_keycloak() {
   echo "$out" > /appsmith-stacks/configuration/docker.env
 }
 
-keycloak_migrate_h2() {
+keycloak_migrate_h2_to_v2() {
   # Start Appsmith v1.9.5, configure SAML, login using SAML, then upgrade to a version that contains Keycloak v20, and
   # this block should migrate the Keycloak data accurately. SAML should work on that Appsmith, out-of-the-box.
   echo "Migrating Keycloak H2 v1 data to H2 v2."
-  test -f h2-1.4.197.jar \
-    || curl --location --output h2-1.4.197.jar 'https://search.maven.org/remotecontent?filepath=com/h2database/h2/1.4.197/h2-1.4.197.jar'
+  local old_h2_jar=/tmp/h2-1.4.197.jar
+  test -f "$old_h2_jar" \
+    || curl --location --output "$old_h2_jar" 'https://search.maven.org/remotecontent?filepath=com/h2database/h2/1.4.197/h2-1.4.197.jar'
   export_file=/appsmith-stacks/data/kc-export.sql
   # Export the Keycloak data from the old H2 database.
-  java -classpath h2-1.4.197.jar \
+  java -classpath "$old_h2_jar" \
     org.h2.tools.Script \
     -url jdbc:h2:/appsmith-stacks/data/keycloak/keycloak \
     -user sa \
@@ -336,7 +347,33 @@ keycloak_migrate_h2() {
     -script "$export_file"
   rm -vf \
     /appsmith-stacks/data/keycloak/keycloak.{mv,trace}.db \
-    h2-1.4.197.jar
+    "$old_h2_jar"
+}
+
+keycloak_migrate_h2_to_v3() {
+  # Start Appsmith v1.9.34, configure SAML, login using SAML, then upgrade to a version that contains Keycloak v22, and
+  # this block should migrate the Keycloak data accurately. SAML should work on that Appsmith, out-of-the-box.
+  # Ref: <https://theappsmith.slack.com/archives/C02K2MZERSL/p1693216606776449>.
+  echo "Migrating Keycloak H2 v2 data to H2 v3."
+  local old_h2_jar=/opt/h2-2.1.214.jar
+  local export_file=/appsmith-stacks/data/kc-export-v2.sql
+  local db_loc=/appsmith-stacks/data/keycloak/keycloakdb
+  # Export the Keycloak data from the old H2 database.
+  java -classpath "$old_h2_jar" \
+    org.h2.tools.Script \
+    -url "jdbc:h2:$db_loc" \
+    -user sa \
+    -password password \
+    -script "$export_file"
+  # Delete the old H2 database and the old H2 jar.
+  rm -vf "$db_loc".{mv,trace}.db
+  # Import the Keycloak data into the new H2 database.
+  java -classpath /opt/keycloak/lib/lib/main/com.h2database.h2-2.2.*.jar \
+    org.h2.tools.RunScript \
+    -url "jdbc:h2:$db_loc" \
+    -user sa \
+    -password password \
+    -script "$export_file"
 }
 
 # Keep Let's Encrypt directory persistent
