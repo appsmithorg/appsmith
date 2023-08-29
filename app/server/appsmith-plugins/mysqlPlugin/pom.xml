@@ -121,15 +121,7 @@
                     <filters>
                         <filter>
                             <excludes>
-                                <exclude>META-INF/*.MF</exclude>
-                                <exclude>META-INF/DEPENDENCIES</exclude>
-                                <exclude>META-INF/CHANGELOG</exclude>
-                                <exclude>META-INF/LICENSE</exclude>
-                                <exclude>META-INF/LICENSE.txt</exclude>
-                                <exclude>META-INF/license.txt</exclude>
-                                <exclude>META-INF/NOTICE</exclude>
-                                <exclude>META-INF/NOTICE.txt</exclude>
-                                <exclude>META-INF/notice.txt</exclude>
+                                <exclude>META-INF/*</exclude>
                                 <exclude>META-INF/versions/9/module-info.class</exclude>
                             </excludes>
                         </filter>
