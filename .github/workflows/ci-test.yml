@@ -352,7 +352,11 @@ jobs:
           elif [[ ${{ inputs.pr }} -ne 0 ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
-            echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
+            if [[ '${{env.EVENT_COMMITS}}' == 'null' ]]; then 
+              echo "COMMIT_INFO_MESSAGE=${{ github.event_name }} by ${{ env.COMMIT_INFO_AUTHOR }}" >> $GITHUB_ENV
+            else
+              echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
+            fi
           fi
 
       - name: Run the cypress test
