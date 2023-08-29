@@ -7,17 +7,11 @@ export const getUserPreferenceFromStorage = () => {
   return "true";
 };
 
-// function to get the current environment from the URL
-export const getCurrentEnvironment = () => {
-  return "unused_env";
-};
-
 // function to check if the datasource is created for the current environment
 export const isStorageEnvironmentCreated = (
   datasource: Datasource | null,
-  environment?: string,
+  environment: string,
 ) => {
-  !environment && (environment = getCurrentEnvironment());
   return (
     !!datasource &&
     datasource.hasOwnProperty("datasourceStorages") &&
@@ -33,9 +27,8 @@ export const isStorageEnvironmentCreated = (
 // function to check if the datasource is configured for the current environment
 export const isEnvironmentConfigured = (
   datasource: Datasource | null,
-  environment?: string,
+  environment: string,
 ) => {
-  !environment && (environment = getCurrentEnvironment());
   const isConfigured =
     !!datasource &&
     !!datasource.datasourceStorages &&
@@ -44,11 +37,7 @@ export const isEnvironmentConfigured = (
 };
 
 // function to check if the datasource is configured for any environment
-export const doesAnyDsConfigExist = (
-  datasource: Datasource | null,
-  environment?: string,
-) => {
-  !environment && (environment = getCurrentEnvironment());
+export const doesAnyDsConfigExist = (datasource: Datasource | null) => {
   let isConfigured = false;
   if (!!datasource && !!datasource.datasourceStorages) {
     const envsList = Object.keys(datasource.datasourceStorages);
@@ -66,9 +55,8 @@ export const doesAnyDsConfigExist = (
 // function to check if the datasource is valid for the current environment
 export const isEnvironmentValid = (
   datasource: Datasource | null,
-  environment?: string,
+  environment: string,
 ) => {
-  !environment && (environment = getCurrentEnvironment());
   const isValid =
     datasource &&
     datasource.datasourceStorages &&
@@ -81,7 +69,7 @@ export const isEnvironmentValid = (
  */
 export const getEnvironmentConfiguration = (
   datasource: Datasource | null,
-  environment = getCurrentEnvironment(),
+  environment: string,
 ) => {
   return datasource?.datasourceStorages?.[environment]?.datasourceConfiguration;
 };
