@@ -236,5 +236,4 @@ public class MigrationHelperMethods {
                 mongoTemplate.find(query(where(fieldName(path)).is(id)), type);
         return domainObject;
     }
-
 }
