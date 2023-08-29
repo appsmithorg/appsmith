@@ -1,4 +1,4 @@
-const { Client } = require("pg");
+const { Pool } = require("pg");
 const os = require("os");
 const AWS = require("aws-sdk");
 const fs = require("fs");
@@ -25,12 +25,14 @@ function configureDbClient() {
     database: getEnvValue("CYPRESS_DB_NAME", { required: true }),
     password: getEnvValue("CYPRESS_DB_PWD", { required: true }),
     port: 5432,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
     ssl: true,
     keepalives: 0,
   };
 
-  const dbClient = new Client(dbConfig);
-  dbClient.connect();
+  const dbClient = new Pool(dbConfig);
 
   return dbClient;
 }
@@ -61,7 +63,6 @@ function uploadToS3(s3Client, filePath, key) {
 
 async function cypressHooks(on, config) {
   const s3 = configureS3();
-  const dbClient = configureDbClient();
   const runData = {
     commitMsg: getEnvValue("COMMIT_INFO_MESSAGE", { required: false }),
     workflowId: getEnvValue("RUNID", { required: true }),
@@ -81,6 +82,7 @@ async function cypressHooks(on, config) {
 
   await on("before:run", async (runDetails) => {
     runData.browser = runDetails.browser.name;
+    const dbClient = await configureDbClient().connect();
     try {
       const runResponse = await dbClient.query(
         `INSERT INTO public.attempt ("workflowId", "attempt", "browser", "os", "repo", "committer", "type", "commitMsg", "branch")
@@ -125,12 +127,15 @@ async function cypressHooks(on, config) {
       matrix.id = matrixResponse.rows[0].id; // Save the inserted matrix ID for later updates
     } catch (err) {
       console.log(err);
+    } finally {
+      await dbClient.release();
     }
   });
 
   await on("before:spec", async (spec) => {
     specData.name = spec.relative;
     specData.matrixId = matrix.id;
+    const dbClient = await configureDbClient().connect();
     try {
       const specResponse = await dbClient.query(
         'INSERT INTO public.specs ("name", "matrixId") VALUES ($1, $2) RETURNING id',
@@ -139,6 +144,8 @@ async function cypressHooks(on, config) {
       specData.specId = specResponse.rows[0].id; // Save the inserted spec ID for later updates
     } catch (err) {
       console.log(err);
+    } finally {
+      await dbClient.release();
     }
   });
 
@@ -150,6 +157,7 @@ async function cypressHooks(on, config) {
     specData.skipped = results.stats.skipped;
     specData.status = results.stats.failures > 0 ? "fail" : "pass";
 
+    const dbClient = await configureDbClient().connect();
     try {
       await dbClient.query(
         'UPDATE public.specs SET "testCount" = $1, "passes" = $2, "failed" = $3, "skipped" = $4, "pending" = $5, "status" = $6 WHERE id = $7',
@@ -207,10 +215,13 @@ async function cypressHooks(on, config) {
       }
     } catch (err) {
       console.log(err);
+    } finally {
+      await dbClient.release();
     }
   });
 
   on("after:run", async (runDetails) => {
+    const dbClient = await configureDbClient().connect();
     try {
       await dbClient.query(
         `UPDATE public.matrix SET "status" = $1 WHERE id = $2`,
@@ -220,9 +231,10 @@ async function cypressHooks(on, config) {
         `UPDATE public.attempt SET "endTime" = $1 WHERE "id" = $2`,
         [new Date(), runData.attemptId],
       );
-      await dbClient.end();
     } catch (err) {
       console.log(err);
+    } finally {
+      await dbClient.end();
     }
   });
 }
