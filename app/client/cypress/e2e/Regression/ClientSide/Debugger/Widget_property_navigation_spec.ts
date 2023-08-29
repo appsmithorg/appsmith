@@ -143,7 +143,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.agHelper.Sleep(3000); //for tables to populate for CI runs
     _.agHelper.GetNClick(OneClickBindingLocator.tableOrSpreadsheetDropdown);
     _.agHelper.GetNClick(
-      OneClickBindingLocator.tableOrSpreadsheetDropdownOption(),
+      OneClickBindingLocator.tableOrSpreadsheetDropdownOption("movies"),
     );
     _.agHelper.GetNClick(OneClickBindingLocator.searchableColumn);
     _.agHelper.GetNClick(
