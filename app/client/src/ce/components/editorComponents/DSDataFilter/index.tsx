@@ -10,7 +10,10 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { capitalizeFirstLetter } from "utils/helpers";
-import { getRampLink, showProductRamps } from "selectors/rampSelectors";
+import {
+  getRampLink,
+  showProductRamps,
+} from "@appsmith/selectors/rampSelectors";
 import {
   RAMP_NAME,
   RampFeature,
