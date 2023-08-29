@@ -25,7 +25,7 @@ export const STORAGE_KEYS: {
   FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
   SIGNPOSTING_APP_STATE: "SIGNPOSTING_APP_STATE",
-  AI_TRIGGERED: "AI_TRIGGERED",
+  AI_TRIGGERED_FOR_PROPERTY_PANE: "AI_TRIGGERED",
   AI_TRIGGERED_FOR_QUERY: "AI_TRIGGERED_FOR_QUERY",
   FEATURE_WALKTHROUGH: "FEATURE_WALKTHROUGH",
   USER_SIGN_UP: "USER_SIGN_UP",
@@ -436,7 +436,7 @@ export const setAIPromptTriggered = async (mode: string) => {
 
     const storageKey =
       mode === EditorModes.TEXT_WITH_BINDING
-        ? STORAGE_KEYS.AI_TRIGGERED
+        ? STORAGE_KEYS.AI_TRIGGERED_FOR_PROPERTY_PANE
         : STORAGE_KEYS.AI_TRIGGERED_FOR_QUERY;
 
     noOfTimesAITriggered += 1;
@@ -455,7 +455,7 @@ export const getAIPromptTriggered = async (mode: string) => {
   try {
     const storageKey =
       mode === EditorModes.TEXT_WITH_BINDING
-        ? STORAGE_KEYS.AI_TRIGGERED
+        ? STORAGE_KEYS.AI_TRIGGERED_FOR_PROPERTY_PANE
         : STORAGE_KEYS.AI_TRIGGERED_FOR_QUERY;
 
     const flag: number | null = await store.getItem(storageKey);
