@@ -9,6 +9,7 @@ import {
   entityExplorer,
   locators,
   assertHelper,
+  draggableWidgets,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("AForce - Community Issues page validations", function () {
@@ -172,7 +173,7 @@ describe("AForce - Community Issues page validations", function () {
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertExistingToggleState("Client side search", "true");
 
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 1, "v2");
 
     table.SearchTable("Best", 2);
@@ -189,7 +190,7 @@ describe("AForce - Community Issues page validations", function () {
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     propPane.TogglePropertyState("Client side search", "Off");
 
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 1, "v2");
 
     table.SearchTable("Bug", 2);
@@ -208,9 +209,8 @@ describe("AForce - Community Issues page validations", function () {
     propPane.EnterJSContext("onSearchTextChanged", "");
     propPane.ToggleJSMode("onSearchTextChanged", false);
 
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 1, "v2");
-    agHelper.Sleep(5000); //for table to load
 
     table.SearchTable("Xano", 2);
     table.WaitForTableEmpty("v2"); //Since Xano is present in 2nd page & Client side search is On
@@ -226,7 +226,7 @@ describe("AForce - Community Issues page validations", function () {
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     propPane.TogglePropertyState("Client side search", "Off");
 
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 1, "v2");
 
     table.SearchTable("Xano", 2);
