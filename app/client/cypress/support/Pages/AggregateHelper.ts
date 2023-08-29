@@ -814,17 +814,20 @@ export class AggregateHelper extends ReusableHelper {
           index: number;
           parseSpecialCharSeq: boolean;
           shouldFocus: boolean;
+          delay: number;
         }> = 0,
   ) {
     let index: number;
     let shouldFocus = true;
     let parseSpecialCharSeq = false;
+    let delay = 5;
 
     if (typeof indexOrOptions === "number") {
       index = indexOrOptions;
     } else {
       index = indexOrOptions.index || 0;
       parseSpecialCharSeq = indexOrOptions.parseSpecialCharSeq || false;
+      delay = indexOrOptions.delay || 5;
       shouldFocus =
         indexOrOptions.shouldFocus !== undefined
           ? indexOrOptions.shouldFocus
@@ -839,7 +842,7 @@ export class AggregateHelper extends ReusableHelper {
 
     return element.wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
-      delay: 5,
+      delay: delay,
       force: true,
     });
   }
@@ -941,6 +944,18 @@ export class AggregateHelper extends ReusableHelper {
       .eq(index)
       .should("have.attr", attribName, attribValue);
   }
+
+  public AssertProperty(
+    selector: string,
+    propName: string,
+    propValue: boolean,
+    index = 0,
+  ) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should("have.prop", propName, propValue);
+  }
+
   public AssertCSS(
     selector: string,
     cssName: string,

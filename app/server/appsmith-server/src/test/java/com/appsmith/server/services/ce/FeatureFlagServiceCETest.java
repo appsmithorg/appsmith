@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.featureflags.CachedFeatures;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.conf.XmlParser;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(SpringExtension.class)
@@ -48,6 +51,19 @@ public class FeatureFlagServiceCETest {
 
     @Autowired
     ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
+
+    @SpyBean
+    CacheManager cacheManager;
+
+    @BeforeEach
+    void setup() {
+        // Mock response to avoid any third party calls
+        doReturn(Mono.just(new FeaturesResponseDTO()))
+                .when(cacheableFeatureFlagHelper)
+                .getRemoteFeaturesForTenant(any());
+
+        doReturn(Mono.empty()).when(cacheManager).get(anyString(), anyString());
+    }
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -98,6 +114,32 @@ public class FeatureFlagServiceCETest {
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.containsKey(FeatureFlagEnum.TEST_FEATURE_3.toString()));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetFeaturesForUser_overrideWithTenantFeature() {
+
+        // Assert feature flag is false before the tenant level flag overrides the existing flag
+        StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertFalse(result.get(FeatureFlagEnum.TEST_FEATURE_3.toString()));
+                })
+                .verifyComplete();
+
+        Map<String, Boolean> tenantFeatures = new HashMap<>();
+        tenantFeatures.put(FeatureFlagEnum.TEST_FEATURE_3.toString(), true);
+        FeaturesResponseDTO responseDTO = new FeaturesResponseDTO();
+        responseDTO.setFeatures(tenantFeatures);
+        doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
+        // Assert true for same feature flag after tenant level flag overrides the existing flag
+        StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.get(FeatureFlagEnum.TEST_FEATURE_3.toString()));
                 })
                 .verifyComplete();
     }

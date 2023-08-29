@@ -15,6 +15,7 @@ export const DataSourceKVP = {
   Redis: "Redis",
   Oracle: "Oracle",
   S3: "S3",
+  Twilio: "Twilio",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -215,6 +216,7 @@ export class DataSources {
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
   public _urlInputControl = "input[name='url']";
+  public _headerKey = "input[name='headers[0].key']";
   public _mongoCollectionPath = "t--actionConfiguration.formData.collection";
   _getJSONswitchLocator = (fieldName: string) =>
     "//p[contains(text(),'" +
@@ -732,6 +734,18 @@ export class DataSources {
     );
   }
 
+  public fillTwilioDSForm(environment = this.dataManager.defaultEnviorment) {
+    this.ValidateNSelectDropdown("Authentication type", "", "Basic auth");
+    this.agHelper.UpdateInputValue(
+      this._username,
+      this.dataManager.dsValues[environment].twilio_username.toString(),
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      this.dataManager.dsValues[environment].twilio_password.toString(),
+    );
+  }
+
   public TestSaveDatasource(expectedRes = true, isForkModal = false) {
     this.TestDatasource(expectedRes);
     this.SaveDatasource(isForkModal);
@@ -1200,7 +1214,8 @@ export class DataSources {
       | "Elasticsearch"
       | "Redis"
       | "Oracle"
-      | "S3",
+      | "S3"
+      | "Twilio",
     navigateToCreateNewDs = true,
     testNSave = true,
     environment = this.dataManager.defaultEnviorment,
@@ -1249,6 +1264,7 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "Redis")
           this.FillRedisDSForm(environment);
         else if (DataSourceKVP[dsType] == "S3") this.FillS3DSForm();
+        else if (DataSourceKVP[dsType] == "Twilio") this.fillTwilioDSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
