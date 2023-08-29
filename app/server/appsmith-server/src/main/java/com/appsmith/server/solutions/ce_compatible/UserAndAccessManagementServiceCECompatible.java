@@ -1,3 +1,5 @@
 package com.appsmith.server.solutions.ce_compatible;
 
-public interface UserAndAccessManagementServiceCECompatible {}
+import com.appsmith.server.solutions.ce.UserAndAccessManagementServiceCE;
+
+public interface UserAndAccessManagementServiceCECompatible extends UserAndAccessManagementServiceCE {}
