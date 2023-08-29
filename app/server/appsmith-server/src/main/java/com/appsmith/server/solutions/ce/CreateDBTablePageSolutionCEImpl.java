@@ -495,7 +495,10 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         }
 
         return applicationService
-                .findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
+                .findBranchedApplicationId(
+                        branchName, defaultApplicationId, applicationPermission.getPageCreatePermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)))
                 .flatMapMany(childApplicationId -> newPageService.findByApplicationId(
                         childApplicationId, pagePermission.getEditPermission(), false))
                 .collectList()
