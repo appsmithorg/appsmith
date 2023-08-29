@@ -26,7 +26,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -50,6 +50,7 @@ export const ENV_ENABLED_ROUTES = [
   "v1/datasources/[a-z0-9]+/structure",
   "/v1/datasources/[a-z0-9]+/trigger",
   "v1/actions/execute",
+  "v1/saas",
 ];
 
 export const ENV_ENABLED_ROUTES_REGEX = new RegExp(
@@ -104,11 +105,7 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
 
   if (ENV_ENABLED_ROUTES_REGEX.test(config.url?.split("?")[0] || "")) {
     // Add header for environment name
-    const envDetails = getCurrentEnvironmentDetails(state);
-    let activeEnv = envDetails.id;
-    if (config.url?.indexOf("/code") !== -1) {
-      activeEnv = envDetails.editingId;
-    }
+    const activeEnv = getCurrentEnvironmentId(state);
 
     if (activeEnv && config.headers) {
       config.headers.environmentId = activeEnv;
