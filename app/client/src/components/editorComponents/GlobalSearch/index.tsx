@@ -449,8 +449,8 @@ function GlobalSearch() {
   };
 
   const showDescription = useMemo(() => {
-    return isMenu(category) && query;
-  }, [category, query]);
+    return false;
+  }, []);
 
   const activeItemType = useMemo(() => {
     return activeItem ? getItemType(activeItem) : undefined;

@@ -11,6 +11,7 @@ const {
   addMatchImageSnapshotPlugin,
 } = require("cypress-image-snapshot/plugin");
 const { tagify } = require("cypress-tags");
+const { cypressHooks } = require("../scripts/cypress-hooks");
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -44,6 +45,9 @@ module.exports = (on, config) => {
 
   on("file:preprocessor", tagify(config));
   addMatchImageSnapshotPlugin(on, config);
+  if (process.env["RUNID"]) {
+    cypressHooks(on, config);
+  }
 
   on("before:browser:launch", (browser = {}, launchOptions) => {
     /*
