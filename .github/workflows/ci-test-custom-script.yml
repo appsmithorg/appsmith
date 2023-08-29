@@ -328,7 +328,6 @@ jobs:
           CYPRESS_CONFIG_FILE: cypress_ci_custom.config.ts
           CYPRESS_HEADLESS: "true"
           CYPRESS_BROWSER: ${{ env.BROWSER_PATH }}
-          RUNID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
           REPOSITORY: ${{ github.repository }}
           COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
@@ -395,7 +394,6 @@ jobs:
           CYPRESS_CONFIG_FILE: cypress_ci.config.ts
           CYPRESS_HEADLESS: "true"
           CYPRESS_BROWSER: ${{ env.BROWSER_PATH }}
-          RUNID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
           REPOSITORY: ${{ github.repository }}
           COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}

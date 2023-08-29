@@ -9,7 +9,10 @@ import {
   SWITCH_ENV_DISABLED_TOOLTIP_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getRampLink, showProductRamps } from "selectors/rampSelectors";
+import {
+  getRampLink,
+  showProductRamps,
+} from "@appsmith/selectors/rampSelectors";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { matchDatasourcePath, matchSAASGsheetsPath } from "constants/routes";
 import { useLocation } from "react-router";
