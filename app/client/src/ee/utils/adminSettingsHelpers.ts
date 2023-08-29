@@ -16,6 +16,11 @@ import {
   GoogleOAuthURL,
   GithubOAuthURL,
 } from "@appsmith/constants/ApiConstants";
+import type {
+  AdminConfigType,
+  Category,
+} from "@appsmith/pages/AdminSettings/config/types";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export const saveAllowed = (
   settings: any,
@@ -86,4 +91,62 @@ export const getLoginUrl = (method: string): string => {
   };
 
   return urls[method];
+};
+
+export const getWrapperCategory = (
+  categories: Record<string, AdminConfigType>,
+  subCategory: string,
+  category: string,
+) => {
+  return categories[
+    ["users", "groups", "roles"].includes(category)
+      ? category
+      : subCategory ?? category
+  ];
+};
+
+export const getFilteredGeneralCategories = (categories: Category[]) => {
+  const isAirgappedInstance = isAirgapped();
+  return categories
+    ?.map((category: Category) => {
+      if (isAirgappedInstance && category.slug === "google-maps") {
+        return null;
+      }
+      return category;
+    })
+    .filter(Boolean) as Category[];
+};
+
+export const getFilteredAclCategories = (
+  categories: Category[],
+  isSuperUser?: boolean,
+) => {
+  return categories
+    ?.map((category: Category) => {
+      if (
+        (!isSuperUser && ["groups", "roles"].includes(category.slug)) ||
+        isSuperUser
+      ) {
+        return category;
+      }
+      return null;
+    })
+    .filter(Boolean) as Category[];
+};
+
+export const getFilteredOtherCategories = (
+  categories: Category[],
+  isSuperUser?: boolean,
+) => {
+  return categories
+    ?.map((category: Category) => {
+      if (
+        (!isSuperUser && ["audit-logs"].includes(category.slug)) ||
+        isSuperUser
+      ) {
+        return category;
+      }
+      return null;
+    })
+    .filter(Boolean) as Category[];
 };

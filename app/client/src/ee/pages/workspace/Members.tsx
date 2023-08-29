@@ -56,7 +56,7 @@ import type { SelectOptionProps } from "design-system";
 import { Avatar, Button, Icon, Option, Select, Text } from "design-system";
 import { getInitials } from "utils/AppsmithUtils";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
-import { showProductRamps } from "selectors/rampSelectors";
+import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { CustomRolesRamp } from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 
 const { cloudHosting } = getAppsmithConfigs();

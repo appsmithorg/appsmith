@@ -18,11 +18,11 @@ public interface TenantService extends TenantServiceCE {
 
     /**
      * To add a license key to the default tenant and return redirect URL
-     * @param licenseKey License key
-     * @param exchange ServerWebExchange
+     * @param updateLicenseKeyDTO   DTO for updating the license key
+     * @param exchange              ServerWebExchange
      * @return Mono of String
      */
-    Mono<String> addLicenseKeyAndGetRedirectUrl(String licenseKey, ServerWebExchange exchange);
+    Mono<String> activateTenantAndGetRedirectUrl(UpdateLicenseKeyDTO updateLicenseKeyDTO, ServerWebExchange exchange);
 
     Mono<Tenant> removeLicenseKey();
 

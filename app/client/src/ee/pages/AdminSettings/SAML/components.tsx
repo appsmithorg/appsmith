@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import FormTextField from "components/utils/ReduxFormTextField";
-import FormTextAreaField from "pages/Settings/FormGroup/TextAreaField";
+import FormTextAreaField from "pages/AdminSettings/FormGroup/TextAreaField";
 import { createMessage } from "@appsmith/constants/messages";
 
-import { SettingsFormWrapper } from "pages/Settings/components";
+import { SettingsFormWrapper } from "pages/AdminSettings/components";
 import { Icon, Text, Tooltip } from "design-system";
 import { SettingTypes } from "../config/types";
 import KeyValueArrayControl from "components/formControls/KeyValueArrayControl";

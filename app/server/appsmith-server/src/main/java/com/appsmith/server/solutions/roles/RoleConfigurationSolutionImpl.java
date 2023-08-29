@@ -20,7 +20,6 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -33,13 +32,13 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
+import com.appsmith.server.solutions.roles.helpers.RoleConfigurationHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
@@ -98,8 +97,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final AnalyticsService analyticsService;
     private final NewPageRepository newPageRepository;
     private final DatasourceRepository datasourceRepository;
-    private final FeatureFlagService featureFlagService;
     private final EnvironmentRepository environmentRepository;
+    private final RoleConfigurationHelper roleConfigurationHelper;
 
     public RoleConfigurationSolutionImpl(
             WorkspaceResources workspaceResources,
@@ -115,8 +114,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             AnalyticsService analyticsService,
             NewPageRepository newPageRepository,
             DatasourceRepository datasourceRepository,
-            FeatureFlagService featureFlagService,
-            EnvironmentRepository environmentRepository) {
+            EnvironmentRepository environmentRepository,
+            RoleConfigurationHelper roleConfigurationHelper) {
 
         this.workspaceResources = workspaceResources;
         this.tenantResources = tenantResources;
@@ -131,8 +130,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         this.analyticsService = analyticsService;
         this.newPageRepository = newPageRepository;
         this.datasourceRepository = datasourceRepository;
-        this.featureFlagService = featureFlagService;
         this.environmentRepository = environmentRepository;
+        this.roleConfigurationHelper = roleConfigurationHelper;
     }
 
     @Override
@@ -571,24 +570,12 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
             ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
-        Flux<String> envIdFlux = datasourceRepository
-                .findById(datasourceId)
-                .map(Datasource::getWorkspaceId)
-                .flatMapMany(workspaceId ->
-                        environmentRepository.findByWorkspaceId(workspaceId).map(Environment::getId));
-
         // Since cloud hosted tenants won't have access to environments,
         // we maintain this flow for them
-        Flux<String> featureFlaggedEnvironmentFlux = featureFlagService
-                .check(FeatureFlagEnum.release_datasource_environments_enabled)
-                .flatMapMany(isFeatureFlag -> {
-                    if (Boolean.TRUE.equals(isFeatureFlag)) {
-                        return Mono.empty();
-                    }
-
-                    // This method will be used only for executing environments
-                    return envIdFlux;
-                });
+        Flux<String> featureFlaggedEnvironmentFlux = datasourceRepository
+                .findById(datasourceId)
+                .map(Datasource::getWorkspaceId)
+                .flatMapMany(roleConfigurationHelper::getEnvironmentIdFlux);
 
         boolean executeDatasourceAdded = added.stream()
                 .anyMatch(permission ->

@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { AUDIT_LOGS_FILTER_WIDTH } from "../config/audit-logs-config";
+import { Checkbox, Text } from "design-system";
 
 export const StyledAuditLogsRightPaneContainer = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -99,4 +100,21 @@ export const StyledFilterContainer = styled.div`
   & .audit-logs-filter {
     width: ${AUDIT_LOGS_FILTER_WIDTH};
   }
+`;
+
+export const StyledCheckbox = styled(Checkbox)`
+  height: 16px;
+
+  .ads-v2-checkbox {
+    padding: 0;
+  }
+`;
+
+export const OptionLabel = styled(Text)`
+  overflow: hidden;
+  word-break: break-all;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 `;

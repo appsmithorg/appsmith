@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -16,6 +17,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserIdentifierService;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -48,7 +50,9 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
             FeatureFlagService featureFlagService,
             CommonConfig commonConfig,
             UserIdentifierService userIdentifierService,
-            TenantService tenantService) {
+            RateLimitService rateLimitService,
+            TenantService tenantService,
+            UserService userService) {
 
         super(
                 forkExamplesWorkspace,
@@ -64,7 +68,10 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                 configService,
                 featureFlagService,
                 commonConfig,
-                userIdentifierService);
+                userIdentifierService,
+                rateLimitService,
+                tenantService,
+                userService);
         this.tenantService = tenantService;
         this.sessionUserService = sessionUserService;
     }

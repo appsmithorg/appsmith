@@ -10,11 +10,11 @@ import {
   SettingsHeader,
   SettingsSubHeader,
   SettingsFormWrapper,
-} from "pages/Settings/components";
+} from "pages/AdminSettings/components";
 import { BackButton } from "components/utils/helperComponents";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import RestartBanner from "pages/Settings/RestartBanner";
-import { DisconnectService } from "pages/Settings/DisconnectService";
+import RestartBanner from "pages/AdminSettings/RestartBanner";
+import { DisconnectService } from "pages/AdminSettings/DisconnectService";
 import { fetchSamlMetadata } from "@appsmith/actions/settingsAction";
 import {
   createMessage,

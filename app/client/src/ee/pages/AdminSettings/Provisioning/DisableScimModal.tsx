@@ -29,7 +29,7 @@ import {
 import type { DisableScimModalProps } from "./types";
 import { disconnectProvisioning } from "@appsmith/actions/provisioningActions";
 import { useDispatch } from "react-redux";
-import { StyledAsterisk } from "pages/Settings/FormGroup/Common";
+import { StyledAsterisk } from "pages/AdminSettings/FormGroup/Common";
 import { useHistory } from "react-router";
 import ResourceLinks from "./ResourceLinks";
 import AnalyticsUtil from "utils/AnalyticsUtil";

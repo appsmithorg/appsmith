@@ -58,7 +58,10 @@ import {
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
-import { getRampLink, showProductRamps } from "selectors/rampSelectors";
+import {
+  getRampLink,
+  showProductRamps,
+} from "@appsmith/selectors/rampSelectors";
 import {
   RAMP_NAME,
   RampFeature,
@@ -196,6 +199,15 @@ export const StyledCheckbox = styled(Checkbox)`
   .ads-v2-checkbox {
     padding: 0;
   }
+`;
+
+export const OptionLabel = styled(Text)`
+  overflow: hidden;
+  word-break: break-all;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 `;
 
 const validateFormValues = (values: {
@@ -545,12 +557,12 @@ function WorkspaceInviteUsersForm(props: any) {
                       />
                     )}
                     <div className="flex flex-col gap-1">
-                      <Text
+                      <OptionLabel
                         color="var(--ads-v2-color-fg-emphasis)"
                         kind={role.description && "heading-xs"}
                       >
                         {role.value}
-                      </Text>
+                      </OptionLabel>
                       {role.description && (
                         <Text kind="body-s">{role.description}</Text>
                       )}

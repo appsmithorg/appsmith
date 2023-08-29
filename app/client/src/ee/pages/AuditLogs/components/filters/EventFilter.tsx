@@ -11,7 +11,11 @@ import {
 } from "@appsmith/actions/auditLogsAction";
 import { toEvent } from "../../utils/toDropdownOption";
 import { useGoToTop } from "../../hooks/useGoToTop";
-import { StyledFilterContainer as Container } from "../../styled-components/container";
+import {
+  OptionLabel,
+  StyledFilterContainer as Container,
+  StyledCheckbox as Checkbox,
+} from "../../styled-components/container";
 import { StyledLabel as Label } from "../../styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -19,7 +23,7 @@ import {
   EVENTS_LABEL,
   EVENTS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
-import { Checkbox, Option, Select } from "design-system";
+import { Option, Select } from "design-system";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 
 export default function EventFilter() {
@@ -88,13 +92,14 @@ export default function EventFilter() {
         {events.length > 0 &&
           events.map((obj) => (
             <Option key={obj.key} label={obj.label} value={obj.value}>
-              <Checkbox
-                isSelected={Boolean(
-                  selectedEvents.find((v) => v.value == obj.value),
-                )}
-              >
-                {obj.label}
-              </Checkbox>
+              <div className="flex gap-1 items-center">
+                <Checkbox
+                  isSelected={Boolean(
+                    selectedEvents.find((v) => v.value == obj.value),
+                  )}
+                />
+                <OptionLabel>{obj.label}</OptionLabel>
+              </div>
             </Option>
           ))}
       </Select>

@@ -29,7 +29,7 @@ import {
   getExpiry,
   getLicenseOrigin,
 } from "@appsmith/selectors/tenantSelectors";
-import { LicenseForm } from "../setup/LicenseForm";
+import { LicenseForm } from "../LicenseSetup/LicenseForm";
 import { showLicenseModal } from "@appsmith/actions/tenantActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import {

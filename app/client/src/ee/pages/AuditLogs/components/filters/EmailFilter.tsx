@@ -10,7 +10,11 @@ import {
   setEmailJsonFilter,
 } from "@appsmith/actions/auditLogsAction";
 import { toUserEmail } from "@appsmith/pages/AuditLogs/utils/toDropdownOption";
-import { StyledFilterContainer as Container } from "@appsmith/pages/AuditLogs/styled-components/container";
+import {
+  OptionLabel,
+  StyledFilterContainer as Container,
+  StyledCheckbox as Checkbox,
+} from "@appsmith/pages/AuditLogs/styled-components/container";
 import { useGoToTop } from "@appsmith/pages/AuditLogs/hooks/useGoToTop";
 import { StyledLabel as Label } from "@appsmith/pages/AuditLogs/styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -19,7 +23,7 @@ import {
   USERS_LABEL,
   USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
-import { Select, Option, Checkbox } from "design-system";
+import { Select, Option } from "design-system";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 
 /**
@@ -100,13 +104,14 @@ export default function EmailFilter(): JSX.Element {
         {emails.length > 0 &&
           emails.map((obj) => (
             <Option key={obj.key} label={obj.label} value={obj.value}>
-              <Checkbox
-                isSelected={Boolean(
-                  selectedEmails?.find((e) => e.value == obj.value),
-                )}
-              >
-                {obj.label}
-              </Checkbox>
+              <div className="flex gap-1 items-center">
+                <Checkbox
+                  isSelected={Boolean(
+                    selectedEmails?.find((e) => e.value == obj.value),
+                  )}
+                />
+                <OptionLabel>{obj.label}</OptionLabel>
+              </div>
             </Option>
           ))}
       </Select>

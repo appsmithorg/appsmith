@@ -12,11 +12,11 @@ import {
   getSettings,
   getSettingsSavingState,
 } from "selectors/settingsSelectors";
-import Group from "pages/Settings/FormGroup/group";
-import { DisconnectService } from "pages/Settings/DisconnectService";
-import RestartBanner from "pages/Settings/RestartBanner";
+import Group from "pages/AdminSettings/FormGroup/group";
+import { DisconnectService } from "pages/AdminSettings/DisconnectService";
+import RestartBanner from "pages/AdminSettings/RestartBanner";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import SaveAdminSettings from "pages/Settings/SaveSettings";
+import SaveAdminSettings from "pages/AdminSettings/SaveSettings";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import {
   SettingCategories,
@@ -39,7 +39,7 @@ import {
   SettingsHeader,
   SettingsSubHeader,
   SettingsFormWrapper,
-} from "pages/Settings/components";
+} from "pages/AdminSettings/components";
 import { BackButton } from "components/utils/helperComponents";
 import {
   getIsFormLoginEnabled,
