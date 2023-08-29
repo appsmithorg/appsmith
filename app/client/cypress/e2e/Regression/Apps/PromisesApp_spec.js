@@ -5,6 +5,7 @@ import {
   apiPage,
   dataManager,
   locators,
+  assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../locators/commonlocators.json");
 
@@ -96,21 +97,17 @@ describe("JSEditor tests", function () {
     agHelper.GetElement("audio").then(($audio) => {
       $audio[0].play();
     });
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.wait(1000);
+    assertHelper.AssertNetworkStatus("@postExecute");
+    agHelper.Sleep(1000);
     // verify text is visible
     agHelper.AssertContains(
       "Step 4: Value is Green and will default to GREEN",
       "be.visible",
       ".t--draggable-textwidget span",
     );
-    cy.get(commonlocators.tableNextPage).click();
-    cy.get(".t--table-widget-page-input").within(() => {
-      cy.get("input.bp3-input").should("have.value", "2");
+    agHelper.GetNClick(commonlocators.tableNextPage);
+    agHelper.GetElement(".t--table-widget-page-input").within(() => {
+      agHelper.ValidateFieldInputValue("input.bp3-input", "2");
     });
     agHelper.ValidateToastMessage("Success running API query");
     agHelper.ValidateToastMessage("GREEN");
