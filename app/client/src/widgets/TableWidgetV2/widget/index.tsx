@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { lazy, Suspense } from "react";
 import log from "loglevel";
 import memoizeOne from "memoize-one";
@@ -344,6 +345,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap() {
+    console.log("#### derivedProperties", {
+      derivedProperties,
+    });
     return {
       selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
       triggeredRow: `{{(()=>{${derivedProperties.getTriggeredRow}})()}}`,
@@ -1085,7 +1089,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.isAddRowInProgress,
       this.props.newRowContent,
     );
-
+    console.log("####", { pageSize: this.props.pageSize });
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent

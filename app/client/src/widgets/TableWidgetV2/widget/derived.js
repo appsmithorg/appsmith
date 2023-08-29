@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedRow: (props, moment, _) => {
@@ -178,6 +179,7 @@ export default {
       },
     };
     const compactMode = props.compactMode || "DEFAULT";
+    console.log("#### table props", { props });
     const componentHeight =
       (props.appPositioningType === "AUTO" && props.isMobile
         ? props.mobileBottomRow - props.mobileTopRow
