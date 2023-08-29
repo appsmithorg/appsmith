@@ -1899,10 +1899,10 @@ export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
 
 //Datasource environment
 export const START_SWITCH_ENVIRONMENT = (environment: string) =>
-  `Switching your environment to ${environment}, and running all associated pageload actions`;
+  `Switching your environment to ${environment.toLowerCase()}, and running all associated pageload actions`;
 export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
-  `Environment switched to ${environment} successfully`;
-export const SWITCH_ENV_DISABLED_TOOLTIP_TEXT = () =>
+  `Environment switched to ${environment.toLowerCase()} successfully`;
+export const SWITCH_ENV_DISABLED_TOOLTIP_TEXT = (): string =>
   "To access environments for datasources, try out our ";
 
 export const TEST_DATASOURCE_SUCCESS = (
@@ -1910,7 +1910,7 @@ export const TEST_DATASOURCE_SUCCESS = (
   environmentName: string,
 ) => {
   return environmentName
-    ? `Test was successful, ${datasourceName} ${environmentName} environment is correctly configured.`
+    ? `Test was successful, ${datasourceName} ${environmentName.toLowerCase()} environment is correctly configured.`
     : `Test was successful, ${datasourceName} is correctly configured.`;
 };
 
