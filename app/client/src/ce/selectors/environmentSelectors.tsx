@@ -4,6 +4,8 @@ import type { AppState } from "@appsmith/reducers";
 export const areEnvironmentsFetched = (state: AppState, workspaceId: string) =>
   true;
 
+export const getDefaultEnvironmentId = (state: AppState) => "unused_env";
+
 export const getCurrentEnvironmentId = (state: AppState) => "unused_env";
 
 export const getCurrentEnvironmentName = (state: AppState) => "";

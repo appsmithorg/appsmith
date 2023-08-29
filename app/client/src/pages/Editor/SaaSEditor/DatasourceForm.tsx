@@ -87,10 +87,7 @@ import GoogleSheetSchema from "./GoogleSheetSchema";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  getCurrentEditingEnvironmentId,
-  getCurrentEnvironmentId,
-} from "@appsmith/selectors/environmentSelectors";
+import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -175,7 +172,7 @@ type State = {
 type SaasEditorWrappperProps = RouteProps & {
   hiddenHeader?: boolean; // for reconnect modal
   isInsideReconnectModal?: boolean; // for reconnect modal
-  currentEditingEnvironment: string;
+  currentEnvironment: string;
 };
 type RouteProps = {
   datasourceId: string;
@@ -227,7 +224,6 @@ class SaasEditorWrapper extends React.Component<
       <SaaSEditor
         {...this.props}
         configDetails={this.state.configDetails}
-        currentEnvironment={this.props.currentEditingEnvironment} // this is for JSONtoForm wrapper
         requiredFields={this.state.requiredFields}
         setupConfig={this.setupConfig}
       />
@@ -759,7 +755,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     viewMode = viewModeFromURLParams === "true";
   }
 
-  const currentEnvironment = getCurrentEnvironmentId(state);
+  const { currentEnvironment } = props;
 
   // Returning false to isPluginAuthorized if there exists no plugin or formdata.
   const isPluginAuthorized =
@@ -867,5 +863,5 @@ const SaaSEditor = connect(
 );
 
 export default connect((state) => ({
-  currentEditingEnvironment: getCurrentEditingEnvironmentId(state),
+  currentEnvironment: getDefaultEnvironmentId(state),
 }))(SaasEditorWrapper);
