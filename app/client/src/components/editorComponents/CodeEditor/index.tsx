@@ -1523,7 +1523,7 @@ class CodeEditor extends Component<Props, State> {
       evaluated = evaluatedValue;
 
     if (dataTreePath) {
-      evaluated = pathEvaluatedValue;
+      evaluated = pathEvaluatedValue || evaluated;
     }
     const entityInformation = this.getEntityInformation();
 
