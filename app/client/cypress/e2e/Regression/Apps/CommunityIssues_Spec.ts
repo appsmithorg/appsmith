@@ -216,7 +216,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitForTableEmpty("v2"); //Since Xano is present in 2nd page & Client side search is On
     table.ResetSearch();
 
-    table.SearchTable("SSL");
+    table.SearchTable("SSL", 2);
     table.WaitUntilTableLoad(0, 1, "v2"); //as 1st page has SSL entries
     table.ResetSearch();
 
@@ -233,7 +233,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitForTableEmpty("v2"); //Since Xano is present in 2nd page & Client side search is Off
     table.ResetSearch();
 
-    table.SearchTable("SSL");
+    table.SearchTable("SSL", 2);
     table.WaitUntilTableLoad(0, 1, "v2"); //as 1st page has SSL entries
     table.ResetSearch();
 
