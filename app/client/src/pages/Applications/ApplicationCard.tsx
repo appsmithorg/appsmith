@@ -119,9 +119,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const dispatch = useDispatch();
 
   const applicationId = props.application?.id;
-  const showGitBadge = Boolean(
-    props.application?.gitApplicationMetadata?.branchName,
-  );
+  const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
 
   useEffect(() => {
     let colorCode;
@@ -488,7 +486,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       moreActionItems={moreActionItems}
       primaryAction={launchApp}
       setShowOverlay={setShowOverlay}
-      showGitBadge={showGitBadge}
+      showGitBadge={Boolean(showGitBadge)}
       showOverlay={showOverlay}
       testId="t--application-card"
       title={props.application.name}
