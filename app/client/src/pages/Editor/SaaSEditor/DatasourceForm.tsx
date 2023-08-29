@@ -87,7 +87,10 @@ import GoogleSheetSchema from "./GoogleSheetSchema";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import {
+  getCurrentEditingEnvironmentId,
+  getCurrentEnvironmentId,
+} from "@appsmith/selectors/environmentSelectors";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -172,6 +175,7 @@ type State = {
 type SaasEditorWrappperProps = RouteProps & {
   hiddenHeader?: boolean; // for reconnect modal
   isInsideReconnectModal?: boolean; // for reconnect modal
+  currentEditingEnvironment: string;
 };
 type RouteProps = {
   datasourceId: string;
@@ -223,6 +227,7 @@ class SaasEditorWrapper extends React.Component<
       <SaaSEditor
         {...this.props}
         configDetails={this.state.configDetails}
+        currentEnvironment={this.props.currentEditingEnvironment} // this is for JSONtoForm wrapper
         requiredFields={this.state.requiredFields}
         setupConfig={this.setupConfig}
       />
@@ -861,4 +866,6 @@ const SaaSEditor = connect(
   })(DatasourceSaaSEditor),
 );
 
-export default SaasEditorWrapper;
+export default connect((state) => ({
+  currentEditingEnvironment: getCurrentEditingEnvironmentId(state),
+}))(SaasEditorWrapper);
