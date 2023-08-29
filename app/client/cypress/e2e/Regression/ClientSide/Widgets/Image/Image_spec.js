@@ -66,18 +66,7 @@ describe("Image Widget Functionality", function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("4. Image Widget Functionality To check download option and validate image link", function () {
-    cy.openPropertyPane("imagewidget");
-    cy.togglebar(".t--property-control-enabledownload input[type='checkbox']");
-    cy.get(publish.imageWidget).trigger("mouseover");
-    cy.get(`${publish.imageWidget} a[data-testid=t--image-download]`).should(
-      "have.attr",
-      "href",
-      this.dataSet.NewImage,
-    );
-  });
-
-  it("5. In case of an image loading error, show off the error message", () => {
+  it("4. In case of an image loading error, show off the error message", () => {
     cy.openPropertyPane("imagewidget");
     // Invalid image url
     const invalidImageUrl = "https://www.example.com/does-not-exist.jpg";

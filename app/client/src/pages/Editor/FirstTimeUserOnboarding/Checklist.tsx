@@ -59,6 +59,7 @@ import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
 import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 const { intercomAppID } = getAppsmithConfigs();
 
 const StyledDivider = styled(Divider)`
@@ -334,10 +335,7 @@ function CheckListItem(props: {
                 AnalyticsUtil.logEvent("SIGNPOSTING_INFO_CLICK", {
                   step: props.step,
                 });
-                window.open(
-                  props.docLink ?? "https://docs.appsmith.com/",
-                  "_blank",
-                );
+                window.open(props.docLink ?? DOCS_BASE_URL, "_blank");
                 e.stopPropagation();
               }}
               startIcon="book-line"
