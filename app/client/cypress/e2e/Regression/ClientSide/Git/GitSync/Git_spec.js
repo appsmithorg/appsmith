@@ -26,7 +26,7 @@ let applicationId = null;
 let applicationName = null;
 
 let repoName;
-describe("Git sync:", function () {
+describe("Git sync: Merge changes via remote", function () {
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();
