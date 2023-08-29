@@ -19,6 +19,11 @@ import {
 import { Indices } from "constants/Layers";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  DELETING_MULTIPLE_APPLICATION_MODAL_DESC,
+  DELETING_MULTIPLE_APPLICATION_MODAL_TITLE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const SubHeaderWrapper = styled.div<{
   isMobile?: boolean;
@@ -90,6 +95,12 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
       type: ReduxActionTypes.DELETE_MULTIPLE_APPLICATION_CANCEL,
     });
   };
+  const handleClose = (isOpen: boolean) => {
+    if (!isOpen) {
+      setShowConfirmationModal(false);
+      handleCancelMultipleDelete();
+    }
+  };
 
   return (
     <SubHeaderWrapper
@@ -125,22 +136,21 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
           >
             Cancel
           </Button>
-          <Modal open={showConfirmationModal}>
+          <Modal onOpenChange={handleClose} open={showConfirmationModal}>
             <ModalContent
               data-testid="t--query-run-confirmation-modal"
               style={{ width: "600px" }}
             >
-              <ModalHeader>Confirmation dialog</ModalHeader>
+              <ModalHeader>
+                {createMessage(DELETING_MULTIPLE_APPLICATION_MODAL_TITLE)}
+              </ModalHeader>
               <ModalBody>
-                Are you sure you want to delete selected applications?
+                {createMessage(DELETING_MULTIPLE_APPLICATION_MODAL_DESC)}
               </ModalBody>
               <ModalFooter>
                 <Button
                   kind="secondary"
-                  onClick={() => {
-                    setShowConfirmationModal(false);
-                    handleCancelMultipleDelete();
-                  }}
+                  onClick={() => handleClose(false)}
                   size="md"
                 >
                   No

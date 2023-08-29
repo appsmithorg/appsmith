@@ -392,6 +392,10 @@ type ModifiedMenuItemProps = MenuItemProps & {
   "data-testid"?: string;
 };
 
+const ContextMenuTrigger = styled(Button)<{ isHidden?: boolean }>`
+  ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
+`;
+
 export function ApplicationCard(props: ApplicationCardProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const theme = useContext(ThemeContext);
@@ -612,9 +616,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
     <>
       <Menu className="more" onOpenChange={handleMenuOnClose} open={isMenuOpen}>
         <MenuTrigger>
-          <Button
+          <ContextMenuTrigger
             className="m-0.5"
             data-testid="t--application-card-context-menu"
+            isHidden={isEnabledMultipleSelection}
             isIconButton
             kind="tertiary"
             size="sm"
@@ -881,10 +886,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         </Wrapper>
         <CardFooter>
           <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
-          {!!moreActionItems.length &&
-            !props.isMobile &&
-            !isEnabledMultipleSelection &&
-            ContextMenu}
+          {!!moreActionItems.length && !props.isMobile && ContextMenu}
         </CardFooter>
       </NameWrapper>
       {showGitBadge && <GitConnectedBadge />}

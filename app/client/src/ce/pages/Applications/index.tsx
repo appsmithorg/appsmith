@@ -248,9 +248,10 @@ export const ItemWrapper = styled.div`
 export const StyledIcon = styled(Icon)`
   margin-right: 11px;
 `;
-export const WorkspaceShareUsers = styled.div`
+export const WorkspaceShareUsers = styled.div<{ isHidden?: boolean }>`
   display: flex;
   align-items: center;
+  ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
 
   & .t--options-icon {
     margin-left: 8px;
@@ -740,8 +741,8 @@ export function ApplicationsSection(props: any) {
                   workspaceId={selectedWorkspaceIdForImportApplication}
                 />
               )}
-              {!isFetchingApplications && !isEnabledMultipleSelection && (
-                <WorkspaceShareUsers>
+              {!isFetchingApplications && (
+                <WorkspaceShareUsers isHidden={isEnabledMultipleSelection}>
                   <SharedUserList workspaceId={workspace.id} />
                   {canInviteToWorkspace && !isMobile && (
                     <FormDialogComponent
@@ -951,7 +952,7 @@ export function ApplicationsSection(props: any) {
                       size="md"
                       startIcon={"plus"}
                     >
-                      New
+                      New Application
                     </Button>
                   )}
                 </NoAppsFound>
