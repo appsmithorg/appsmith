@@ -151,7 +151,7 @@ export class ContainerWidget extends BaseWidget<
     };
   }
 
-  static getSetterConfig(): SetterConfig {
+  static getSetterConfig(): SetterConfig | null {
     return {
       __setters: {
         setVisibility: {

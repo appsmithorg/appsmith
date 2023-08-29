@@ -62,10 +62,8 @@ class CanvasWidget extends ContainerWidget {
     return {};
   }
 
-  static getSetterConfig(): SetterConfig {
-    return {
-      __setters: {},
-    };
+  static getSetterConfig(): SetterConfig | null {
+    return null;
   }
 
   getCanvasProps(): DSLWidget & { minHeight: number } {
