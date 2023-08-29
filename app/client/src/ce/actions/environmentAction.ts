@@ -3,5 +3,6 @@ export const showEnvironmentDeployInfoModal = () => ({});
 
 // Redux action to update the current editing environment ID
 export const setCurrentEditingEnvironmentID = (currentEditingId: string) => ({
-  currentEditingId,
+  type: "",
+  payload: { currentEditingId },
 });

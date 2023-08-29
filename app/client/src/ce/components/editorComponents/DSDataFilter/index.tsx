@@ -121,8 +121,8 @@ function DSDataFilter({
 
     const updateSuccess = updateFilter(
       defaultSelectedEnvironment.id,
-      defaultSelectedEnvironment.name,
-      defaultSelectedEnvironment?.userPermissions || [],
+      "",
+      [],
       isRenderAllowed,
     );
 
