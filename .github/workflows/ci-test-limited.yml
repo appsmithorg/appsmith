@@ -179,7 +179,7 @@ jobs:
         run: |
           mkdir -p cicontainerlocal/stacks/configuration/
 
-      - name: Run Appsmith & TED docker image
+      - name: Run Appsmith &  docker image
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
@@ -223,7 +223,7 @@ jobs:
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
-            cicontainer
+            appsmith/appsmith-ce:release
 
       - name: Use Node.js
         uses: actions/setup-node@v3
