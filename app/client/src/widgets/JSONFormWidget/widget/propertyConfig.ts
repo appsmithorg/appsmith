@@ -141,7 +141,6 @@ export const contentConfig = [
           allowFieldConfigurations: true,
           ctaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
           excludePrimaryColumn: true,
-          widgetBindPath: "",
           otherFields: [
             {
               label: "Form Type",
@@ -150,6 +149,7 @@ export const contentConfig = [
               optionType: FieldOptionsType.CUSTOM,
               isRequired: true,
               defaultValue: "create",
+              allowClear: false,
               options: [
                 {
                   label: "Create records",
@@ -163,7 +163,7 @@ export const contentConfig = [
                 },
               ],
               isVisible: (config: Record<string, any>) => {
-                return config.tableName !== "";
+                return config?.tableName !== "";
               },
             },
             {
@@ -173,17 +173,18 @@ export const contentConfig = [
               optionType: FieldOptionsType.WIDGETS,
               isRequired: true,
               isVisible: (config: Record<string, any>) => {
-                return config.otherFields.formType === "edit";
+                return config?.otherFields?.formType === "edit";
               },
             },
             {
               label: "Data Identifier",
               name: "dataIdentifier",
+              isDataIdentifier: true,
               fieldType: FieldType.SELECT,
               optionType: FieldOptionsType.COLUMNS,
               isRequired: true,
               isVisible: (config: Record<string, any>) => {
-                return config.otherFields.formType === "edit";
+                return config?.otherFields?.formType === "edit";
               },
             },
           ],

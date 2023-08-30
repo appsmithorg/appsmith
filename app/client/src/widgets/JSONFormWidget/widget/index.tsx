@@ -146,7 +146,7 @@ class JSONFormWidget extends BaseWidget<
       return {
         update: {
           value: `${widget.widgetName}.formData`,
-          where: formConfig?.widgetBindPath,
+          where: formConfig?.otherFields?.defaultValues,
         },
       };
     }
@@ -166,13 +166,15 @@ class JSONFormWidget extends BaseWidget<
     }
 
     if (queryConfig.update) {
+      const primaryKey = formConfig?.primaryColumn;
       const selectedColumnNames = formConfig.columns.map(
         (column) => `${column.name}`,
       );
       modify = {
         sourceData: `{{_.pick(${
-          formConfig?.widgetBindPath
-        },${selectedColumnNames.map((name) => `'${name}'`).join(", ")})}}`,
+          formConfig?.otherFields?.defaultValues
+        },${selectedColumnNames.map((name) => `'${name}'`).join(",")})}}`,
+        title: `Update Row ${primaryKey} {{${formConfig?.otherFields?.defaultValues}.${primaryKey}}}`,
         onSubmit: queryConfig.update.run,
       };
     }

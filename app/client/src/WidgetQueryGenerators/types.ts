@@ -15,7 +15,6 @@ export type WidgetQueryGenerationFormConfig = {
   primaryColumn: string;
   connectionMode: string;
   otherFields?: Record<string, unknown>;
-  widgetBindPath?: string;
 } & GsheetConfig;
 
 export type WidgetQueryGenerationConfig = {

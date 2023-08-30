@@ -19,6 +19,8 @@ export type OneClickDropdownFieldProps = {
   optionType: string;
   id: string;
   defaultValue?: string;
+  isDataIdentifier?: boolean;
+  allowClear?: boolean;
 };
 
 export function useDropdown(props: OneClickDropdownFieldProps) {
@@ -37,29 +39,23 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
 
   const configName = `otherFields.${name}`;
 
-  type WidgetOptionsType =
-    | DropdownOptionType & {
-        widgetBindPath?: string;
-      };
-
-  const widgetOptions: WidgetOptionsType[] = Object.entries(currentPageWidgets)
+  const widgetOptions: DropdownOptionType[] = Object.entries(currentPageWidgets)
     .map(([widgetId, widget]) => {
-      const { getOneClickBindingConfigs } = WidgetFactory.getWidgetMethods(
-        widget.type,
-      );
-      if (getOneClickBindingConfigs) {
-        const widgetBindPath = getOneClickBindingConfigs(widget);
+      const { getOneClickBindingConnectableWidgetConfig } =
+        WidgetFactory.getWidgetMethods(widget.type);
+      if (getOneClickBindingConnectableWidgetConfig) {
+        const widgetBindPath =
+          getOneClickBindingConnectableWidgetConfig(widget);
         return {
           id: widgetId,
-          value: widget.widgetName,
+          value: widgetBindPath,
           label: widget.widgetName,
           icon: <StyledImage alt="widget-icon" src={widget.iconSVG} />,
-          widgetBindPath,
         };
       }
       return null;
     })
-    .filter(Boolean) as WidgetOptionsType[];
+    .filter(Boolean) as DropdownOptionType[];
 
   const options = useMemo(() => {
     switch (optionType) {
@@ -74,15 +70,8 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
     }
   }, [fieldOptions, columns]);
 
-  const onSelect = (value: string, widgetBindPath?: string) => {
-    if (configName === "otherFields.defaultValues") {
-      updateConfig({
-        [configName]: value,
-        widgetBindPath,
-      });
-    } else {
-      updateConfig(configName, value);
-    }
+  const onSelect = (value: string) => {
+    updateConfig(configName, value);
   };
 
   const handleClear = useCallback(() => {
@@ -90,11 +79,11 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
   }, [updateConfig]);
 
   const handleSelect = (value: string, selectedOption: DefaultOptionType) => {
-    const option = (options as WidgetOptionsType[]).find(
+    const option = (options as DropdownOptionType[]).find(
       (d: any) => d.id === selectedOption.key,
     );
     if (option) {
-      onSelect(value, option.widgetBindPath);
+      onSelect(value);
     }
   };
 
@@ -120,12 +109,11 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
 
   const renderOptions = () => {
     if (options && options.length > 0) {
-      return (options as WidgetOptionsType[])?.map((option) => (
+      return (options as DropdownOptionType[])?.map((option) => (
         <Option
           data-testId={`t--one-click-binding-column-${props.id}--column`}
           key={option.id}
           value={option.value}
-          widgetBindPath={option.widgetBindPath}
         >
           <DropdownOption label={option.label} leftIcon={option.icon} />
         </Option>

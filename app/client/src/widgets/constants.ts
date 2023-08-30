@@ -91,7 +91,7 @@ export type WidgetMethods =
   | GetQueryGenerationConfig
   | GetPropertyUpdatesForQueryBinding
   | getSnipingModeUpdates
-  | getOneClickBindingConfigs;
+  | getOneClickBindingConnectableWidgetConfig;
 
 type GetQueryGenerationConfig = (
   widgetProps: WidgetProps,
@@ -107,7 +107,9 @@ type getSnipingModeUpdates = (
   propValueMap: Record<"data" | "run", string>,
 ) => Array<PropertyUpdates>;
 
-type getOneClickBindingConfigs = (widget: WidgetProps) => string;
+type getOneClickBindingConnectableWidgetConfig = (
+  widget: WidgetProps,
+) => string;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 

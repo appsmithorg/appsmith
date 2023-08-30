@@ -25,4 +25,6 @@ export interface OtherField {
   isVisible?: (config: any) => boolean;
   onSelect?: (value: string, option: DefaultOptionType) => void;
   defaultValue?: string;
+  allowClear?: boolean;
+  isDataIdentifier?: boolean;
 }

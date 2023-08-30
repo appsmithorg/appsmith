@@ -17,6 +17,7 @@ export function OneClickDropdownFieldControl(
     optionType: props.optionType,
     id: props.id,
     defaultValue: props.defaultValue,
+    allowClear: props.allowClear,
   };
 
   const {
@@ -34,7 +35,7 @@ export function OneClickDropdownFieldControl(
     <SelectWrapper className="space-y-2">
       <Label>{label}</Label>
       <Select
-        allowClear
+        allowClear={dropdownProps.allowClear}
         data-testid={`t--one-click-binding-column-${props.id}`}
         defaultValue={defaultValue}
         dropdownStyle={{

@@ -93,7 +93,7 @@ export const CONFIG = {
         },
       ];
     },
-    getOneClickBindingConfigs: (widget: WidgetProps) => {
+    getOneClickBindingConnectableWidgetConfig: (widget: WidgetProps) => {
       return `${widget.widgetName}.selectedRow`;
     },
   },

@@ -37,7 +37,6 @@ type WidgetQueryGeneratorFormContextType = {
     selectedColumns?: Array<Record<string, unknown>>;
     excludePrimaryColumn?: boolean;
     otherFields?: Record<string, unknown>;
-    widgetBindPath?: string;
   };
   updateConfig: (
     property: string | Record<string, unknown>,
@@ -65,7 +64,6 @@ const DEFAULT_CONFIG_VALUE = {
   datasourceConnectionMode: "",
   excludePrimaryColumn: false,
   otherFields: {},
-  widgetBindPath: "",
 };
 
 const DEFAULT_CONTEXT_VALUE = {
