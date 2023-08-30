@@ -16,24 +16,26 @@ describe("Bug 26726: Datasource selected from entity explorer should be correctl
       // Select Users
       entityExplorer.SelectEntityByName("Users", "Datasources");
       agHelper.Sleep(200);
-      cy.get("[data-testid='t--entity-item-Users']").should(
-        "have.class",
+      agHelper.AssertClassExists(
+        dataSources._entityExplorerID("Users"),
         "active",
       );
 
       // Switch to Movies
       entityExplorer.SelectEntityByName("Movies", "Datasources");
       agHelper.Sleep(200);
-      cy.get("[data-testid='t--entity-item-Movies']").should(
-        "have.class",
+      agHelper.AssertClassExists(
+        dataSources._entityExplorerID("Movies"),
         "active",
       );
 
       // Switch to custom DS
       entityExplorer.SelectEntityByName(dsName, "Datasources");
       agHelper.Sleep(200);
-      const testId = "t--entity-item-" + dsName;
-      cy.get(`[data-testid='${testId}']`).should("have.class", "active");
+      agHelper.AssertClassExists(
+        dataSources._entityExplorerID(dsName),
+        "active",
+      );
 
       // Delete all datasources
       dataSources.DeleteDatasouceFromActiveTab("Users");
