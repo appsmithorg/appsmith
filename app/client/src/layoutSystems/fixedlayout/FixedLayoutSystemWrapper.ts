@@ -1,6 +1,6 @@
 import { RenderModes } from "constants/WidgetConstants";
-import { FixedLayoutEditorWrapper } from "./Editor/FixedLayoutEditorWrapper";
-import { FixedLayoutViewerWrapper } from "./Viewer/FixedLayoutViewerWrapper";
+import { FixedLayoutEditorWrapper } from "./editor/FixedLayoutEditorWrapper";
+import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
 
 export const getFixedLayoutSystemWrapper = (renderMode: RenderModes) => {
   if (renderMode === RenderModes.CANVAS) {

@@ -16,7 +16,7 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import type { OptionProps } from "../component";
 import SwitchGroupComponent from "../component";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,

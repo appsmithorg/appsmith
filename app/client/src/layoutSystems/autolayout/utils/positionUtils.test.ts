@@ -2,7 +2,7 @@ import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/AutoLayout/utils/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import type { AlignmentInfo, FlexLayer, Row } from "./autoLayoutTypes";
 import { RenderModes } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";

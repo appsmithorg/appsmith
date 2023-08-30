@@ -13,7 +13,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {

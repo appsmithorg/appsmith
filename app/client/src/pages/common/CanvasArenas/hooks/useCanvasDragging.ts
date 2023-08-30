@@ -15,7 +15,7 @@ import type {
 } from "reflow/reflowTypes";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getTotalTopOffset } from "selectors/autoLayoutSelectors";
-import type { HighlightInfo } from "layoutSystems/AutoLayout/utils/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type { ReflowInterface } from "utils/hooks/useReflow";

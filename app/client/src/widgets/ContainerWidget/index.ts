@@ -9,7 +9,7 @@ import {
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
-} from "layoutSystems/AutoLayout/utils/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import IconSVG from "./icon.svg";
 import type { ContainerWidgetProps } from "./widget";
