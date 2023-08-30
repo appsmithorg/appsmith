@@ -23,6 +23,7 @@ import { redoShortCut, undoShortCut } from "utils/helpers";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { toast } from "design-system";
 import type { ThemeProp } from "widgets/constants";
+import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -54,6 +55,25 @@ export const GetNavigationMenuData = ({
       window.open(link, "_blank");
     }
   }, []);
+
+  const exportAppAsJSON = () => {
+    const id = `t--export-app-link`;
+    const existingLink = document.getElementById(id);
+    existingLink && existingLink.remove();
+    const link = document.createElement("a");
+
+    const branchName = currentApplication?.gitApplicationMetadata?.branchName;
+    link.href = getExportAppAPIRoute(applicationId, branchName);
+    link.id = id;
+    document.body.appendChild(link);
+    // @ts-expect-error: Types are not available
+    if (!window.Cypress) {
+      link.click();
+    }
+    toast.show(`Successfully exported ${currentApplication?.name}`, {
+      kind: "success",
+    });
+  };
 
   const openAppSettingsPane = () => dispatch(openAppSettingsPaneAction());
 
@@ -132,7 +152,7 @@ export const GetNavigationMenuData = ({
         },
         {
           text: "Discord channel",
-          onClick: () => openExternalLink("https://discord.gg/rBTTVJp"),
+          onClick: () => openExternalLink(DISCORD_URL),
           type: MenuTypes.MENU,
           isVisible: true,
           isOpensNewWindow: true,
@@ -147,7 +167,7 @@ export const GetNavigationMenuData = ({
         },
         {
           text: "Documentation",
-          onClick: () => openExternalLink("https://docs.appsmith.com/"),
+          onClick: () => openExternalLink(DOCS_BASE_URL),
           type: MenuTypes.MENU,
           isVisible: true,
           isOpensNewWindow: true,
@@ -162,8 +182,7 @@ export const GetNavigationMenuData = ({
     },
     {
       text: "Export application",
-      onClick: () =>
-        applicationId && openExternalLink(getExportAppAPIRoute(applicationId)),
+      onClick: exportAppAsJSON,
       type: MenuTypes.MENU,
       isVisible: isApplicationIdPresent && hasExportPermission,
     },

@@ -58,8 +58,15 @@ import {
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
-import { getRampLink, showProductRamps } from "utils/ProductRamps";
-import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import {
+  getRampLink,
+  showProductRamps,
+} from "@appsmith/selectors/rampSelectors";
+import {
+  RAMP_NAME,
+  RampFeature,
+  RampSection,
+} from "utils/ProductRamps/RampsControlList";
 import BusinessTag from "components/BusinessTag";
 
 const NoEmailConfigImage = importSvg(
@@ -194,6 +201,15 @@ export const StyledCheckbox = styled(Checkbox)`
   }
 `;
 
+export const OptionLabel = styled(Text)`
+  overflow: hidden;
+  word-break: break-all;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+`;
+
 const validateFormValues = (values: {
   users: string;
   role?: string;
@@ -255,16 +271,23 @@ function InviteUserText({
 }: {
   isApplicationInvite: boolean;
 }) {
+  const rampLinkSelector = getRampLink({
+    section: RampSection.AppShare,
+    feature: RampFeature.Gac,
+  });
+  const rampLink = useSelector(rampLinkSelector);
+  const showRampSelector = showProductRamps(RAMP_NAME.INVITE_USER_TO_APP);
+  const canShowRamp = useSelector(showRampSelector);
   return (
     <Text
       color="var(--ads-v2-color-fg)"
       data-testid="helper-message"
       kind="action-m"
     >
-      {showProductRamps(RAMP_NAME.INVITE_USER_TO_APP) && isApplicationInvite ? (
+      {canShowRamp && isApplicationInvite ? (
         <>
           {createMessage(INVITE_USER_RAMP_TEXT)}
-          <Link kind="primary" target="_blank" to={getRampLink("app_share")}>
+          <Link kind="primary" target="_blank" to={rampLink}>
             {createMessage(BUSINESS_EDITION_TEXT)}
           </Link>
         </>
@@ -277,6 +300,11 @@ function InviteUserText({
 
 export function CustomRolesRamp() {
   const [dynamicProps, setDynamicProps] = useState<any>({});
+  const rampLinkSelector = getRampLink({
+    section: RampSection.WorkspaceShare,
+    feature: RampFeature.Gac,
+  });
+  const rampLink = useSelector(rampLinkSelector);
   const rampText = (
     <Text color="var(--ads-v2-color-white)" kind="action-m">
       {createMessage(CUSTOM_ROLES_RAMP_TEXT)}{" "}
@@ -285,7 +313,7 @@ export function CustomRolesRamp() {
         kind="primary"
         onClick={() => {
           setDynamicProps({ visible: false });
-          window.open(getRampLink("workspace_share"), "_blank");
+          window.open(rampLink, "_blank");
           // This reset of prop is required because, else the tooltip will be controlled by the state
           setTimeout(() => {
             setDynamicProps({});
@@ -323,6 +351,9 @@ function WorkspaceInviteUsersForm(props: any) {
   const userRef = React.createRef<HTMLDivElement>();
   // const history = useHistory();
   const selectedId = props?.selected?.id;
+
+  const showRampSelector = showProductRamps(RAMP_NAME.CUSTOM_ROLES);
+  const canShowRamp = useSelector(showRampSelector);
 
   const selected = useMemo(
     () =>
@@ -526,12 +557,12 @@ function WorkspaceInviteUsersForm(props: any) {
                       />
                     )}
                     <div className="flex flex-col gap-1">
-                      <Text
+                      <OptionLabel
                         color="var(--ads-v2-color-fg-emphasis)"
                         kind={role.description && "heading-xs"}
                       >
                         {role.value}
-                      </Text>
+                      </OptionLabel>
                       {role.description && (
                         <Text kind="body-s">{role.description}</Text>
                       )}
@@ -539,7 +570,7 @@ function WorkspaceInviteUsersForm(props: any) {
                   </div>
                 </Option>
               ))}
-              {showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+              {canShowRamp && (
                 <Option disabled>
                   <CustomRolesRamp />
                 </Option>

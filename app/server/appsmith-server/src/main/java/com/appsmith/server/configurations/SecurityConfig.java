@@ -7,14 +7,15 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.filters.CSRFFilter;
+import com.appsmith.server.filters.ConditionalFilter;
+import com.appsmith.server.filters.PreAuth;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -26,6 +27,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
@@ -44,6 +46,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.List;
 
 import static com.appsmith.server.constants.Url.ACTION_COLLECTION_URL;
 import static com.appsmith.server.constants.Url.ACTION_URL;
@@ -93,8 +96,13 @@ public class SecurityConfig {
     @Autowired
     private RedirectHelper redirectHelper;
 
+    @Autowired
+    private RateLimitService rateLimitService;
+
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
+
+    private static final String INTERNAL = "INTERNAL";
 
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
@@ -121,23 +129,25 @@ public class SecurityConfig {
 
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @Bean
-    @ConditionalOnExpression(value = "'${appsmith.internal.password}'.length() > 0")
     public SecurityWebFilterChain internalWebFilterChain(ServerHttpSecurity http) {
         return http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
-                .authorizeExchange(authorizeExchangeSpec ->
-                        authorizeExchangeSpec.anyExchange().authenticated())
-                .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationManager(authentication -> {
-                    if (isAuthorizedToAccessInternal(
-                            authentication.getCredentials().toString())) {
+                .httpBasic()
+                .authenticationManager(authentication -> {
+                    if (INTERNAL_PASSWORD.equals(authentication.getCredentials().toString())) {
                         return Mono.just(UsernamePasswordAuthenticationToken.authenticated(
                                 authentication.getPrincipal(),
                                 authentication.getCredentials(),
-                                authentication.getAuthorities()));
+                                List.of(new SimpleGrantedAuthority(INTERNAL))));
                     } else {
                         return Mono.just(UsernamePasswordAuthenticationToken.unauthenticated(
                                 authentication.getPrincipal(), authentication.getCredentials()));
                     }
-                }))
+                })
+                .and()
+                .authorizeExchange()
+                .anyExchange()
+                .hasAnyAuthority(INTERNAL)
+                .and()
                 .build();
     }
 
@@ -194,13 +204,20 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/resendEmailVerification"),
+                        ServerWebExchangeMatchers.pathMatchers(
+                                HttpMethod.POST, USER_URL + "/verifyEmailVerificationToken"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PRODUCT_ALERT + "/alert"))
                 .permitAll()
-                .pathMatchers("/public/**", "/oauth2/**", "/actuator/**")
+                .pathMatchers("/public/**", "/oauth2/**")
                 .permitAll()
                 .anyExchange()
                 .authenticated()
                 .and()
+                // Add Pre Auth rate limit filter before authentication filter
+                .addFilterBefore(
+                        new ConditionalFilter(new PreAuth(rateLimitService), Url.LOGIN_URL),
+                        SecurityWebFiltersOrder.FORM_LOGIN)
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
                 .formLogin(formLoginSpec -> formLoginSpec
                         .authenticationFailureHandler(failureHandler)
@@ -210,7 +227,6 @@ public class SecurityConfig {
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler))
-
                 // For Github SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 // For Google SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 .oauth2Login(oAuth2LoginSpec -> oAuth2LoginSpec
@@ -225,11 +241,6 @@ public class SecurityConfig {
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
                 .and()
                 .build();
-    }
-
-    private boolean isAuthorizedToAccessInternal(String password) {
-        // Either configured password is empty, or it's equal to what we received.
-        return StringUtils.isEmpty(INTERNAL_PASSWORD) || INTERNAL_PASSWORD.equals(password);
     }
 
     /**

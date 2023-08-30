@@ -265,7 +265,7 @@ export class AggregateHelper extends ReusableHelper {
     index = 0,
   ) {
     if (index >= 0)
-      this.GetElement(selector).eq(index).should(textPresence, text);
+      this.ScrollIntoView(selector, index).should(textPresence, text);
     else this.GetElement(selector).should(textPresence, text);
   }
 
@@ -323,22 +323,53 @@ export class AggregateHelper extends ReusableHelper {
 
   public ClickButton(
     btnVisibleText: string,
-    index = 0,
-    shouldSleep = true,
-    force = true,
+    indexOrOptions:
+      | number
+      | Partial<{
+          index: number;
+          force: boolean;
+          waitAfterClick: boolean;
+          sleepTime: number;
+        }> = 0,
   ) {
-    this.ScrollIntoView(this.locator._spanButton(btnVisibleText), index).click({
-      force: force,
-    });
-    shouldSleep && this.Sleep();
+    const button = this.locator._buttonByText(btnVisibleText);
+    let index: number,
+      force = true,
+      waitAfterClick = true,
+      waitTime = 1000;
+
+    if (typeof indexOrOptions === "number") {
+      index = indexOrOptions;
+    } else {
+      index = indexOrOptions.index || 0;
+      force =
+        typeof indexOrOptions.force !== "undefined"
+          ? indexOrOptions.force
+          : true;
+      // waitAfterClick = indexOrOptions.waitAfterClick || false;
+      // Check if waitAfterClick is explicitly set, otherwise default to true
+      waitAfterClick =
+        typeof indexOrOptions.waitAfterClick !== "undefined"
+          ? indexOrOptions.waitAfterClick
+          : true;
+      waitTime = indexOrOptions.sleepTime || 1000;
+    }
+
+    return this.ScrollIntoView(button, index)
+      .click({ force })
+      .then(() => {
+        if (waitAfterClick) {
+          return this.Sleep(waitTime);
+        }
+      });
   }
 
-  public clickMultipleButtons(btnVisibleText: string, shouldSleep = true) {
-    cy.xpath(this.locator._spanButton(btnVisibleText)).each(($el) => {
+  public clickMultipleButtons(btnVisibleText: string, waitAfterClick = true) {
+    cy.xpath(this.locator._buttonByText(btnVisibleText)).each(($el) => {
       $el.trigger("click", { force: true });
       cy.wait(200);
     });
-    shouldSleep && this.Sleep();
+    waitAfterClick && this.Sleep();
   }
 
   public Paste(selector: any, pastePayload: string) {
@@ -422,13 +453,6 @@ export class AggregateHelper extends ReusableHelper {
     // cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0)
     //or
     // cy.waitUntil(()) => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector))).then(($ele) => { cy.wrap($ele).eq(0).should("be.visible");});
-  }
-
-  public AssertNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
-    cy.wait(1000).wait(aliasName); //Wait a bit for call to finish!
-    cy.get(aliasName)
-      .its("response.body.data.isExecutionSuccess")
-      .should("eq", expectedRes);
   }
 
   public AssertNetworkDataSuccess(aliasName: string, expectedRes = true) {
@@ -748,27 +772,37 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(selector).type(this.selectAll + "{del}");
   }
 
-  public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
+  public RemoveCharsNType(
+    selector: string,
+    charCount = 0,
+    totype: string,
+    index = 0,
+  ) {
     if (charCount > 0)
       this.GetElement(selector)
+        .eq(index)
         .focus()
         .type("{backspace}".repeat(charCount), { timeout: 2, force: true })
         .wait(50)
         .type(totype);
     else {
-      if (charCount == -1) this.GetElement(selector).clear();
-      this.TypeText(selector, totype);
+      if (charCount == -1) this.GetElement(selector).eq(index).clear();
+      this.TypeText(selector, totype, index);
     }
   }
-
-  public ClearTextField(selector: string, force = false) {
-    this.GetElement(selector).clear({ force });
+  public ClearTextField(selector: string, force = false, index = 0) {
+    this.GetElement(selector).eq(index).clear({ force });
     this.Sleep(500); //for text to clear for CI runs
   }
 
-  public ClearNType(selector: string, totype: string) {
-    this.ClearTextField(selector);
-    this.TypeText(selector, totype);
+  public ClearNType(
+    selector: string,
+    totype: string,
+    index = 0,
+    force = false,
+  ) {
+    this.ClearTextField(selector, force, index);
+    this.TypeText(selector, totype, index);
   }
 
   public TypeText(
@@ -780,17 +814,20 @@ export class AggregateHelper extends ReusableHelper {
           index: number;
           parseSpecialCharSeq: boolean;
           shouldFocus: boolean;
+          delay: number;
         }> = 0,
   ) {
     let index: number;
     let shouldFocus = true;
     let parseSpecialCharSeq = false;
+    let delay = 5;
 
     if (typeof indexOrOptions === "number") {
       index = indexOrOptions;
     } else {
       index = indexOrOptions.index || 0;
       parseSpecialCharSeq = indexOrOptions.parseSpecialCharSeq || false;
+      delay = indexOrOptions.delay || 5;
       shouldFocus =
         indexOrOptions.shouldFocus !== undefined
           ? indexOrOptions.shouldFocus
@@ -805,7 +842,7 @@ export class AggregateHelper extends ReusableHelper {
 
     return element.wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
-      delay: 5,
+      delay: delay,
       force: true,
     });
   }
@@ -868,12 +905,22 @@ export class AggregateHelper extends ReusableHelper {
     }
   }
 
-  public AssertExistingCheckedState(selector: string, toggle: string) {
-    this.GetElement(selector).should(
-      "have.attr",
-      "data-selected-value",
-      toggle,
-    );
+  public AssertExistingCheckedState(selector: string, toggle = "true") {
+    this.GetElement(selector)
+      .invoke("attr", "data-selected-value")
+      .then((dataSelectedValue) => {
+        cy.log("dataSelectedValue:" + dataSelectedValue);
+        if (dataSelectedValue !== undefined) {
+          this.GetElement(selector).should(
+            "have.attr",
+            "data-selected-value",
+            toggle,
+          );
+        } else
+          this.GetElement(selector).should(
+            toggle == "true" ? "be.checked" : "not.be.checked",
+          );
+      });
   }
 
   public AssertSelectedTab(propertyName: string, value: "true" | "false") {
@@ -897,6 +944,18 @@ export class AggregateHelper extends ReusableHelper {
       .eq(index)
       .should("have.attr", attribName, attribValue);
   }
+
+  public AssertProperty(
+    selector: string,
+    propName: string,
+    propValue: boolean,
+    index = 0,
+  ) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should("have.prop", propName, propValue);
+  }
+
   public AssertCSS(
     selector: string,
     cssName: string,
@@ -970,7 +1029,8 @@ export class AggregateHelper extends ReusableHelper {
     });
     this.assertHelper.AssertDocumentReady();
     this.Sleep(2000);
-    this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
+    networkCallAlias &&
+      this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
 
   public ActionContextMenuWithInPane({
@@ -998,7 +1058,7 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     if (entityType != EntityItems.Widget)
       this.GetNClick(this.locator._contextMenuItem("Are you sure?"));
-    this.Sleep(1000);
+    this.Sleep();
     toAssertAction && this.assertHelper.AssertDelete(entityType);
   }
 
@@ -1135,23 +1195,6 @@ export class AggregateHelper extends ReusableHelper {
         }
       });
     this.Sleep(500); //for value set to settle
-  }
-
-  public UpdateInput(selector: string, value: string, force = false) {
-    this.GetElement(selector)
-      .find("input")
-      .clear({ force: force })
-      //.type(this.selectAll)
-      .type(value, { delay: 1, parseSpecialCharSequences: false });
-    // .type(selectAllJSObjectContentShortcut)
-    // .then((ins: any) => {
-    //   //const input = ins[0].input;
-    //   ins.clear();
-    //   this.Sleep(200);
-    //   //ins.setValue(value);
-    //   ins.val(value).trigger('change');
-    //   this.Sleep(200);
-    // });
   }
 
   public UpdateFieldInput(selector: string, value: string) {
@@ -1332,10 +1375,10 @@ export class AggregateHelper extends ReusableHelper {
       });
   }
 
-  public UploadFile(fixtureName: string, toClickUpload = true) {
+  public UploadFile(fixtureName: string, toClickUpload = true, index = 0) {
     //cy.fixture(fixtureName).as("selectFileFixture");//giving issue, hence using directly as below
     cy.get(this.locator._uploadFiles)
-      .eq(0)
+      .eq(index)
       .selectFile("cypress/fixtures/" + fixtureName, { force: true })
       .wait(3000);
     toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false);
@@ -1449,16 +1492,8 @@ export class AggregateHelper extends ReusableHelper {
     selector: ElementType,
     text: string | number | RegExp,
     exists: "exist" | "not.exist" = "exist",
-    index?: number,
-    timeout?: number,
   ) {
-    if (index)
-      return this.GetElement(selector, timeout)
-        .eq(index)
-        .contains(text)
-        .should(exists);
-    else
-      return this.GetElement(selector, timeout).contains(text).should(exists);
+    return this.GetElement(selector).contains(text).should(exists);
   }
 
   public AssertURL(url: string) {
@@ -1532,11 +1567,9 @@ export class AggregateHelper extends ReusableHelper {
     index = 0,
     disabled = true,
   ) {
-    if (disabled) {
-      return this.GetElement(selector).eq(index).should("be.disabled");
-    } else {
-      return this.GetElement(selector).eq(index).should("not.be.disabled");
-    }
+    return this.GetElement(selector)
+      .eq(index)
+      .should(disabled ? "have.attr" : "not.have.attr", "disabled");
   }
 
   // Waits until all LazyCodeEditor wrappers finished loading the actual code editor.
@@ -1587,6 +1620,23 @@ export class AggregateHelper extends ReusableHelper {
     //passing 1 works as browser back
     //passing -1 works as browser forward
     cy.go(direction);
+  }
+
+  public AssertCursorInput($selector: string, cursor = { ch: 0, line: 0 }) {
+    this.EnableAllCodeEditors();
+    cy.get($selector)
+      .first()
+      .find(".CodeMirror")
+      .first()
+      .then((ins) => {
+        const input = (ins[0] as any).CodeMirror;
+        // The input gets focused with a slight delay so we need to wait for it
+        cy.waitUntil(() => input.hasFocus()).then(() => {
+          const editorCursor = input.getCursor();
+          expect(editorCursor.ch).to.equal(cursor.ch);
+          expect(editorCursor.line).to.equal(cursor.line);
+        });
+      });
   }
 
   //Not used:

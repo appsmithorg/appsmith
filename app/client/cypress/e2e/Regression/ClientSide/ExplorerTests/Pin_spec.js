@@ -10,8 +10,8 @@ import {
 const ExplorerMenu = {
   ADD_PAGE: "ADD_PAGE",
   ENTITY: "ENTITY",
-  ADD_QUERY_JS: "ADD_QUERY_JS",
   ADD_LIBRARY: "ADD_LIBRARY",
+  ADD_QUERY_JS: "ADD_QUERY_JS",
 };
 
 const OpenExplorerMenu = (menu) => {

@@ -8,7 +8,7 @@ import {
   draggableWidgets,
   entityExplorer,
   table,
-  tedTestConfig,
+  dataManager,
   locators,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
@@ -125,6 +125,9 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       "IS_NULLABLE",
       "SS_DATA_TYPE",
     ]);
+
+    runQueryNValidateResponseData("SELECT COUNT(*) FROM Amazon_Sales;", "10");
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -257,15 +260,15 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       agHelper.WaitUntilAllToastsDisappear();
       agHelper.UpdateInputValue(
         dataSources._host,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mssql_host,
+        dataManager.dsValues[dataManager.defaultEnviorment].mssql_host,
       );
       agHelper.UpdateInputValue(
         dataSources._username,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mssql_username,
+        dataManager.dsValues[dataManager.defaultEnviorment].mssql_username,
       );
       agHelper.UpdateInputValue(
         dataSources._password,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mssql_password,
+        dataManager.dsValues[dataManager.defaultEnviorment].mssql_password,
       );
       agHelper.GetNClick(locators._visibleTextSpan("Read only"));
       dataSources.ValidateNSelectDropdown(
@@ -289,5 +292,15 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(columnHeaders);
+  }
+
+  function runQueryNValidateResponseData(
+    query: string,
+    expectedResponse: string,
+    index = 0,
+  ) {
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.AssertQueryTableResponse(index, expectedResponse);
   }
 });
