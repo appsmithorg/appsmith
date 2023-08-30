@@ -32,6 +32,7 @@ import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors"
 import type { AppState } from "@appsmith/reducers";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
+import log from "loglevel";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -108,13 +109,15 @@ export function PageContextMenu(props: {
     [dispatch, props.pageId, props.name, props.isHidden],
   );
 
-  const openAppSettingsPane = () =>
+  const openAppSettingsPane = () => {
+    log.debug("openAppSettingsPaneAction - PageContextMenu");
     dispatch(
       openAppSettingsPaneAction({
         type: AppSettingsTabs.Page,
         pageId: props.pageId,
       }),
     );
+  };
 
   const pagePermissions =
     useSelector(getPageById(props.pageId))?.userPermissions || [];

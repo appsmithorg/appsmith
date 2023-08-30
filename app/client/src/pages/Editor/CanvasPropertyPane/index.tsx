@@ -11,6 +11,7 @@ import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import log from "loglevel";
 
 const Title = styled.p`
   color: var(--ads-v2-color-fg);
@@ -23,6 +24,7 @@ export function CanvasPropertyPane() {
 
   const openAppSettingsPane = () => {
     AnalyticsUtil.logEvent("APP_SETTINGS_BUTTON_CLICK");
+    log.debug("openAppSettingsPaneAction - CanvasPropertyPane");
     dispatch(openAppSettingsPaneAction());
   };
   const isAutoLayout = useSelector(getIsAutoLayout);
