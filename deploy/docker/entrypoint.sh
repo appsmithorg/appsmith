@@ -295,9 +295,7 @@ configure_supervisord() {
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
       cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
-      # Initialize Redis rdb directory
-      local redis_db_path="$stacks_path/data/redis"
-      mkdir -p "$redis_db_path"
+      mkdir -p "$stacks_path/data/redis"
     fi
     if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
       cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
