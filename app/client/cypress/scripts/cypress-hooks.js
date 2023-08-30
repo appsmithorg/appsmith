@@ -90,7 +90,7 @@ async function cypressHooks(on, config) {
         {
           owner: "appsmithorg",
           repo: "appsmith",
-          run_id: getEnvValue("RUNID"),
+          run_id: getEnvValue("RUNID", { required: true }),
           headers: {
             "X-GitHub-Api-Version": "2022-11-28",
           },
