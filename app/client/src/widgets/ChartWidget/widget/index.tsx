@@ -8,6 +8,9 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { contentConfig, styleConfig } from "./propertyConfig";
 import {
   CUSTOM_ECHART_FEATURE_FLAG,
+  DefaultEChartConfig,
+  DefaultEChartsBasicChartsData,
+  DefaultFusionChartConfig,
   FUSION_CHART_DEPRECATION_FLAG,
   messages,
 } from "../constants";
