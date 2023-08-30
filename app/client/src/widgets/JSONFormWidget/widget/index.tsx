@@ -146,7 +146,7 @@ class JSONFormWidget extends BaseWidget<
       return {
         update: {
           value: `${widget.widgetName}.formData`,
-          where: formConfig?.otherFields?.defaultValues,
+          where: formConfig?.otherFields?.defaultValues as string,
         },
       };
     }
