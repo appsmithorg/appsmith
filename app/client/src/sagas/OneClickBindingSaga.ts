@@ -112,7 +112,10 @@ function* BindWidgetToDatasource(
       widget.type,
     );
 
-    const widgetQueryGenerationConfig = getQueryGenerationConfig(widget);
+    const widgetQueryGenerationConfig = getQueryGenerationConfig(
+      widget,
+      action.payload,
+    );
 
     const widgetQueryGenerator = WidgetQueryGeneratorRegistry.get(
       plugin.packageName,

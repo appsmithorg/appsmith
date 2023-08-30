@@ -27,12 +27,13 @@ export function useFormConfig() {
     tableHeaderIndex: config.tableHeaderIndex,
     searchableColumn,
     columns: columns.filter((column) => column.isSelected),
-    primaryColumn,
+    primaryColumn: config.otherFields?.dataIdentifier || primaryColumn,
     connectionMode: config.datasourceConnectionMode,
     aliases: Object.entries(config.alias).map(([key, value]) => ({
       name: key,
       alias: value,
     })),
     otherFields: config.otherFields,
+    widgetBindPath: config.widgetBindPath,
   };
 }

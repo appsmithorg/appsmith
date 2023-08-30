@@ -100,6 +100,7 @@ class JSONFormWidget extends BaseWidget<
     this.isWidgetMounting = true;
     this.actionQueue = [];
   }
+
   formRef = React.createRef<HTMLDivElement>();
 
   state = {
@@ -131,12 +132,24 @@ class JSONFormWidget extends BaseWidget<
     };
   }
 
-  static getQueryGenerationConfig(widget: WidgetProps) {
-    return {
-      create: {
-        value: `(${widget.widgetName}.formData || {})`,
-      },
-    };
+  static getQueryGenerationConfig(
+    widget: WidgetProps,
+    formConfig?: WidgetQueryGenerationFormConfig,
+  ) {
+    if (formConfig?.otherFields.formType === "create") {
+      return {
+        create: {
+          value: `(${widget.widgetName}.formData || {})`,
+        },
+      };
+    } else {
+      return {
+        update: {
+          value: `${widget.widgetName}.formData`,
+          where: formConfig?.widgetBindPath,
+        },
+      };
+    }
   }
 
   static getPropertyUpdatesForQueryBinding(
@@ -149,6 +162,18 @@ class JSONFormWidget extends BaseWidget<
       modify = {
         sourceData: getDefaultValues(formConfig),
         onSubmit: queryConfig.create.run,
+      };
+    }
+
+    if (queryConfig.update) {
+      const selectedColumnNames = formConfig.columns.map(
+        (column) => `${column.name}`,
+      );
+      modify = {
+        sourceData: `{{_.pick(${
+          formConfig?.widgetBindPath
+        },${selectedColumnNames.map((name) => `'${name}'`).join(", ")})}}`,
+        onSubmit: queryConfig.update.run,
       };
     }
 

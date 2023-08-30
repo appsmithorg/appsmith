@@ -141,6 +141,7 @@ export const contentConfig = [
           allowFieldConfigurations: true,
           ctaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
           excludePrimaryColumn: true,
+          widgetBindPath: "",
           otherFields: [
             {
               label: "Form Type",

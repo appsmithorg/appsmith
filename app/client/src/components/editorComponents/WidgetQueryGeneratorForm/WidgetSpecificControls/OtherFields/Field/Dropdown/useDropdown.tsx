@@ -6,10 +6,11 @@ import { useColumns } from "../../../ColumnDropdown/useColumns";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
-import { getAllPageWidgets } from "../../../../../../../selectors/entitiesSelector";
+import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import { StyledImage } from "./styles";
 import { FieldOptionsType } from "./types";
 import type { DropdownOptionType } from "../../../../types";
+import WidgetFactory from "utils/WidgetFactory";
 
 export type OneClickDropdownFieldProps = {
   label: string;
@@ -29,31 +30,36 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
     optionType,
   } = props;
 
-  const canvasWidgets = useSelector(getAllPageWidgets);
+  const currentPageWidgets = useSelector(getCurrentPageWidgets);
+
   const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
   const { disabled, options: columns } = useColumns("", false);
 
   const configName = `otherFields.${name}`;
 
-  const allowedWidgetsToBind = [
-    "TABLE_WIDGET_V2",
-    "LIST_WIDGET_V2",
-    "TABLE_WIDGET",
-    "LIST_WIDGET",
-  ];
-
-  const widgetOptions = canvasWidgets
-    ?.filter((widget) => {
-      return allowedWidgetsToBind.includes(widget.type);
-    })
-    .map((widget) => {
-      return {
-        id: widget.widgetId,
-        value: widget.widgetName,
-        label: widget.widgetName,
-        icon: <StyledImage alt="widget-icon" src={widget.iconSVG} />,
+  type WidgetOptionsType =
+    | DropdownOptionType & {
+        widgetBindPath?: string;
       };
-    });
+
+  const widgetOptions: WidgetOptionsType[] = Object.entries(currentPageWidgets)
+    .map(([widgetId, widget]) => {
+      const { getOneClickBindingConfigs } = WidgetFactory.getWidgetMethods(
+        widget.type,
+      );
+      if (getOneClickBindingConfigs) {
+        const widgetBindPath = getOneClickBindingConfigs(widget);
+        return {
+          id: widgetId,
+          value: widget.widgetName,
+          label: widget.widgetName,
+          icon: <StyledImage alt="widget-icon" src={widget.iconSVG} />,
+          widgetBindPath,
+        };
+      }
+      return null;
+    })
+    .filter(Boolean) as WidgetOptionsType[];
 
   const options = useMemo(() => {
     switch (optionType) {
@@ -68,8 +74,15 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
     }
   }, [fieldOptions, columns]);
 
-  const onSelect = (value: string) => {
-    updateConfig(configName, value);
+  const onSelect = (value: string, widgetBindPath?: string) => {
+    if (configName === "otherFields.defaultValues") {
+      updateConfig({
+        [configName]: value,
+        widgetBindPath,
+      });
+    } else {
+      updateConfig(configName, value);
+    }
   };
 
   const handleClear = useCallback(() => {
@@ -77,12 +90,11 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
   }, [updateConfig]);
 
   const handleSelect = (value: string, selectedOption: DefaultOptionType) => {
-    const option = (options as DropdownOptionType[]).find(
+    const option = (options as WidgetOptionsType[]).find(
       (d: any) => d.id === selectedOption.key,
     );
-
     if (option) {
-      onSelect(value);
+      onSelect(value, option.widgetBindPath);
     }
   };
 
@@ -107,15 +119,20 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
   }, [selectedValue, options]);
 
   const renderOptions = () => {
-    return options?.map((option) => (
-      <Option
-        data-testId={`t--one-click-binding-column-${props.id}--column`}
-        key={option.id}
-        value={option.value}
-      >
-        <DropdownOption label={option.label} leftIcon={option.icon} />
-      </Option>
-    ));
+    if (options && options.length > 0) {
+      return (options as WidgetOptionsType[])?.map((option) => (
+        <Option
+          data-testId={`t--one-click-binding-column-${props.id}--column`}
+          key={option.id}
+          value={option.value}
+          widgetBindPath={option.widgetBindPath}
+        >
+          <DropdownOption label={option.label} leftIcon={option.icon} />
+        </Option>
+      ));
+    } else {
+      return null;
+    }
   };
 
   return {

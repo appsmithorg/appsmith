@@ -90,7 +90,8 @@ export type PropertyUpdates = {
 export type WidgetMethods =
   | GetQueryGenerationConfig
   | GetPropertyUpdatesForQueryBinding
-  | getSnipingModeUpdates;
+  | getSnipingModeUpdates
+  | getOneClickBindingConfigs;
 
 type GetQueryGenerationConfig = (
   widgetProps: WidgetProps,
@@ -105,6 +106,8 @@ type GetPropertyUpdatesForQueryBinding = (
 type getSnipingModeUpdates = (
   propValueMap: Record<"data" | "run", string>,
 ) => Array<PropertyUpdates>;
+
+type getOneClickBindingConfigs = (widget: WidgetProps) => string;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 
@@ -169,6 +172,7 @@ export enum FileDataTypes {
 }
 
 export type AlignWidget = "LEFT" | "RIGHT";
+
 export enum AlignWidgetTypes {
   LEFT = "LEFT",
   RIGHT = "RIGHT",

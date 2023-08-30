@@ -93,6 +93,9 @@ export const CONFIG = {
         },
       ];
     },
+    getOneClickBindingConfigs: (widget: WidgetProps) => {
+      return `${widget.widgetName}.selectedRow`;
+    },
   },
   autoLayout: {
     widgetSize: [
