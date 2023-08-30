@@ -9,7 +9,7 @@ type PositionCalculator = {
 };
 
 export function getPosition({ offset, targetId }: PositionCalculator) {
-  const target = document.querySelector(`#${targetId}`);
+  const target = document.querySelector(targetId);
   const bodyCoordinates = document.body.getBoundingClientRect();
   if (!target) return null;
   let coordinates;
@@ -89,4 +89,8 @@ export function getPosition({ offset, targetId }: PositionCalculator) {
         ...extraStyles,
       };
   }
+}
+
+export function isElementVisible(el: HTMLElement) {
+  return !!(el?.offsetWidth || el?.offsetHeight || el.getClientRects().length);
 }
