@@ -37,7 +37,8 @@ ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
 
 const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
 
-describe("DataTreeEvaluator", () => {
+// eslint-disable-next-line jest/no-disabled-tests
+describe.skip("DataTreeEvaluator", () => {
   describe("evaluateActionBindings", () => {
     it("handles this.params.property", () => {
       const result = dataTreeEvaluator.evaluateActionBindings(

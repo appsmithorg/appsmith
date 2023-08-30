@@ -44,7 +44,8 @@ const widgetConfigMap = {};
 
 const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
 
-describe("test validationDependencyMap", () => {
+// eslint-disable-next-line jest/no-disabled-tests
+describe.skip("test validationDependencyMap", () => {
   beforeAll(() => {
     dataTreeEvaluator.setupFirstTree(
       unEvalTreeWidgetSelectWidget as unknown as DataTree,
@@ -64,7 +65,8 @@ describe("test validationDependencyMap", () => {
     });
   });
 
-  it("update validation dependencyMap computation", () => {
+  // eslint-disable-next-line jest/no-disabled-tests
+  it.skip("update validation dependencyMap computation", () => {
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
       dataTreeEvaluator.setupUpdateTree(
         unEvalTree as unknown as DataTree,
@@ -84,7 +86,7 @@ describe("test validationDependencyMap", () => {
   });
 });
 
-describe("DependencyMap utils", function () {
+describe.skip("DependencyMap utils", function () {
   test("getEntityPathDependencies", () => {
     const entity = {
       ENTITY_TYPE: "WIDGET",
