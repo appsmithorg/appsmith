@@ -12,13 +12,9 @@ import OnboardingChecklist from "./Checklist";
 import { getStore, initialState } from "./testUtils";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import "@testing-library/jest-dom";
+import * as onboardingSelectors from "selectors/onboardingSelectors";
 
 let container: any = null;
-
-let useIsWidgetActionConnectionPresent = false;
-jest.mock("pages/Editor/utils", () => ({
-  useIsWidgetActionConnectionPresent: () => useIsWidgetActionConnectionPresent,
-}));
 
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
@@ -168,7 +164,14 @@ describe("Checklist", () => {
   });
 
   it("with `connect your data` task checked off", () => {
-    useIsWidgetActionConnectionPresent = true;
+    const isWidgetActionConnectionPresentSelector = jest.spyOn(
+      onboardingSelectors,
+      "isWidgetActionConnectionPresent",
+    );
+    isWidgetActionConnectionPresentSelector.mockImplementation(() => {
+      return true;
+    });
+
     renderComponent(getStore(4));
     const connectionButton = screen.queryAllByTestId("checklist-connection");
     expect(connectionButton[0]).toHaveStyle("cursor: auto");
