@@ -1,6 +1,5 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import log from "loglevel";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import { createReducer } from "utils/ReducerUtils";
 
@@ -16,8 +15,6 @@ const appSettingsPaneReducer = createReducer(initialState, {
     state: AppSettingsPaneReduxState,
     action: ReduxAction<AppSettingsPaneContext>,
   ): AppSettingsPaneReduxState => {
-    log.debug("OPEN_APP_SETTINGS_PANE - reducer");
-
     return {
       ...state,
       isOpen: true,

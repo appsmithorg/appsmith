@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import { setIdeSidebarWidth } from "../ideActions";
 
 const Container = styled.div`
   padding: 10px;
@@ -13,6 +15,10 @@ const Container = styled.div`
 `;
 
 const AddLeftPane = () => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(setIdeSidebarWidth(300));
+  }, []);
   return (
     <Container>
       <p>Add</p>

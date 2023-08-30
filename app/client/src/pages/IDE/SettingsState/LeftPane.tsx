@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { setIdeSidebarWidth } from "../ideActions";
+import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 
 const Container = styled.div`
   width: ${APP_SETTINGS_PANE_WIDTH}px;
@@ -14,6 +15,10 @@ const SettingsLeftPane = () => {
 
   useEffect(() => {
     dispatch(setIdeSidebarWidth(APP_SETTINGS_PANE_WIDTH));
+
+    return () => {
+      dispatch(closeAppSettingsPaneAction());
+    };
   }, []);
 
   return (

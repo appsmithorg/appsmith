@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import { matchPath, Switch } from "react-router";
@@ -35,6 +35,7 @@ import { IDEAppState } from "../ideReducer";
 import { SentryRoute } from "@appsmith/AppRouter";
 import PropertyPaneContainer from "../../Editor/WidgetsEditor/PropertyPaneContainer";
 import WidgetSidebar from "./components/WidgetSidebar";
+import { setIdeSidebarWidth } from "../ideActions";
 
 const Container = styled.div`
   background-color: #f1f5f9;
@@ -108,6 +109,10 @@ const PageLeftPane = () => {
     },
   );
   const currentPageId = useSelector(getCurrentPageId);
+
+  useEffect(() => {
+    dispatch(setIdeSidebarWidth(300));
+  }, []);
 
   const navigatePageEntity = useCallback(
     (location: string) => {
