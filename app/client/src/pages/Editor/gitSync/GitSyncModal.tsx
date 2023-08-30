@@ -26,12 +26,14 @@ import {
   IMPORT_FROM_GIT_REPOSITORY,
   MERGE,
   MERGE_CHANGES,
+  SETTINGS_GIT,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useGitConnect } from "./hooks";
 import { Modal, ModalContent, ModalHeader } from "design-system";
 import { EnvInfoHeader } from "@appsmith/components/EnvInfoHeader";
 import GitConnectionV2 from "./Tabs/GitConnectionV2";
+import GitSettings from "./Tabs/GitSettings";
 
 const ModalContentContainer = styled(ModalContent)`
   min-height: 650px;
@@ -40,6 +42,7 @@ const ModalContentContainer = styled(ModalContent)`
 const ComponentsByTab: Record<string, any> = {
   [GitSyncModalTab.DEPLOY]: Deploy,
   [GitSyncModalTab.MERGE]: Merge,
+  [GitSyncModalTab.SETTINGS]: GitSettings,
 };
 
 export const MENU_ITEMS_MAP: Record<string, any> = {
@@ -53,6 +56,11 @@ export const MENU_ITEMS_MAP: Record<string, any> = {
     title: createMessage(MERGE),
     modalTitle: createMessage(MERGE_CHANGES),
   },
+  [GitSyncModalTab.SETTINGS]: {
+    key: GitSyncModalTab.SETTINGS,
+    title: createMessage(SETTINGS_GIT),
+    modalTitle: createMessage(SETTINGS_GIT),
+  },
 };
 
 const allMenuOptions = Object.values(MENU_ITEMS_MAP);
@@ -64,7 +72,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
   const activeTabKey = useSelector(getActiveGitSyncModalTab);
   const { onGitConnectFailure: resetGitConnectStatus } = useGitConnect();
 
-  const isGitConnectV2Enabled = true;
+  const isGitConnectV2Enabled = false;
   ComponentsByTab[GitSyncModalTab.GIT_CONNECTION] = isGitConnectV2Enabled
     ? GitConnectionV2
     : GitConnection;
@@ -92,6 +100,10 @@ function GitSyncModal(props: { isImport?: boolean }) {
         });
       } else if (tabKey === GitSyncModalTab.MERGE) {
         AnalyticsUtil.logEvent("GS_MERGE_GIT_MODAL_TRIGGERED", {
+          source: `${activeTabKey}_TAB`,
+        });
+      } else if (tabKey === GitSyncModalTab.SETTINGS) {
+        AnalyticsUtil.logEvent("GS_SETTINGS_GIT_MODAL_TRIGGERED", {
           source: `${activeTabKey}_TAB`,
         });
       }

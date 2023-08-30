@@ -56,7 +56,7 @@ export const getIsGlobalConfigDefined = createSelector(
 );
 
 export const getIsFetchingGlobalGitConfig = (state: AppState) =>
-  state.ui.gitSync.isFetchingGitConfig;
+  state.ui.gitSync.isFetchingGlobalGitConfig;
 
 export const getIsFetchingLocalGitConfig = (state: AppState) =>
   state.ui.gitSync.isFetchingLocalGitConfig;

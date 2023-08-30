@@ -755,6 +755,8 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 
 export const CONFIGURE_GIT = () => "Configure git";
+export const SETTINGS_GIT = () => "Settings";
+
 export const GIT_CONNECTION = () => "Git connection";
 export const GIT_IMPORT = () => "Git import";
 export const MERGE = () => "Merge";
@@ -769,6 +771,7 @@ export const IMPORT_URL_INFO = () => `Paste the remote URL here:`;
 export const REMOTE_URL_VIA = () => "Remote URL via";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
+export const GIT_USER_SETTINGS_TITLE = () => "Git author";
 
 export const USE_DEFAULT_CONFIGURATION = () => "Use default configuration";
 export const AUTHOR_NAME = () => "Author name";
