@@ -13,7 +13,7 @@ type Props = RouteComponentProps<{
   actionId?: string;
 }>;
 
-const Container = styled.div`
+const EmptyStateContainer = styled.div`
   height: 100%;
   display: flex;
   align-items: center;
@@ -25,9 +25,9 @@ const QuerySidebar = (props: Props) => {
   const actions = useSelector(getActions);
   if (!actionId) {
     return (
-      <Container>
+      <EmptyStateContainer>
         <h2>Select a query</h2>
-      </Container>
+      </EmptyStateContainer>
     );
   }
   const action = find(actions, (action) => action.config.id === actionId);
@@ -36,9 +36,9 @@ const QuerySidebar = (props: Props) => {
     [PluginType.DB, PluginType.SAAS].includes(action.config.pluginType)
   ) {
     return (
-      <Container>
+      <div className="h-full">
         <QueryEditor actionId={actionId} pageId={pageId} />
-      </Container>
+      </div>
     );
   }
   return <div />;
