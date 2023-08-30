@@ -80,6 +80,7 @@ async function cypressHooks(on, config) {
   const specData = {};
 
   await on("before:run", async (runDetails) => {
+    console.log(getEnvValue("GITHUB_TOKEN"));
     const octokit = new Octokit();
     octokit.authenticate({
       type: "token",
