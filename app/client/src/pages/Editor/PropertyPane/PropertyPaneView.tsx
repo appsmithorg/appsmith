@@ -94,7 +94,7 @@ function PropertyPaneView(
 
     if (widgetId && pushFeature && isTableWidget) {
       pushFeature({
-        targetId: PROPERTY_PANE_ID,
+        targetId: `#${PROPERTY_PANE_ID}`,
         onDismiss: async () => {
           await localStorage.removeItem(WIDGET_ID_SHOW_WALKTHROUGH);
           await setFeatureWalkthroughShown(
@@ -119,7 +119,7 @@ function PropertyPaneView(
             FEATURE_WALKTHROUGH_KEYS.binding_widget,
           [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: true,
         },
-        multipleHighlights: [widgetId, PROPERTY_PANE_ID],
+        multipleHighlights: [`#${widgetId}`, `#${PROPERTY_PANE_ID}`],
         delay: 5000,
       });
     }

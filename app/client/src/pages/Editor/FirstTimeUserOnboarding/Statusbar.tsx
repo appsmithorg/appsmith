@@ -1,7 +1,5 @@
-import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
   getApplicationLastDeployedAt,
   getCurrentPageId,
@@ -12,7 +10,10 @@ import {
   getSavedDatasources,
 } from "selectors/entitiesSelector";
 import { SIGNPOSTING_STEP } from "./Utils";
-import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
+import {
+  getFirstTimeUserOnboardingComplete,
+  isWidgetActionConnectionPresent,
+} from "selectors/onboardingSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { signpostingStepUpdateInit } from "actions/onboardingActions";
 
@@ -21,12 +22,7 @@ const useStatusListener = () => {
   const pageId = useSelector(getCurrentPageId);
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
-  const deps = useSelector(getEvaluationInverseDependencyMap);
-  const isConnectionPresent = useIsWidgetActionConnectionPresent(
-    widgets,
-    actions,
-    deps,
-  );
+  const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
