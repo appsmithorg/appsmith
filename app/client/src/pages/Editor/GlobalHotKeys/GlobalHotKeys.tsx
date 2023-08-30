@@ -48,6 +48,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -118,6 +119,10 @@ class GlobalHotKeys extends React.Component<Props> {
   }
 
   public renderHotkeys() {
+    const { isOpened: isWalkthroughOpened } = this.context ?? {};
+    // If walkthrough is open disable shortcuts
+    if (isWalkthroughOpened) return <Hotkeys />;
+
     return (
       <Hotkeys>
         <Hotkey
@@ -401,5 +406,7 @@ const mapDispatchToProps = (dispatch: any) => {
     hideInstaller: () => dispatch(toggleInstaller(false)),
   };
 };
+
+GlobalHotKeys.contextType = WalkthroughContext;
 
 export default connect(mapStateToProps, mapDispatchToProps)(GlobalHotKeys);
