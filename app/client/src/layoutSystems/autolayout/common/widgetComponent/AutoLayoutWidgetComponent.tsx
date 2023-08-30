@@ -1,5 +1,5 @@
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import WidgetComponentBoundary from "layoutSystems/common/WidgetComponentBoundary";
+import WidgetComponentBoundary from "layoutSystems/common/widgetComponent/WidgetComponentBoundary";
 import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import Skeleton from "widgets/Skeleton";
