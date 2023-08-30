@@ -123,7 +123,13 @@ import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import DependencyMap from "entities/DependencyMap";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
-import produce, { current, isDraft, setAutoFreeze } from "immer";
+import produce, {
+  createDraft,
+  current,
+  finishDraft,
+  isDraft,
+  setAutoFreeze,
+} from "immer";
 setAutoFreeze(false);
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -800,11 +806,15 @@ export default class DataTreeEvaluator {
       ...evaluationOrder,
       ...nonDynamicFieldValidationOrder,
     ]);
+
+    const draft = createDraft(newEvalTree);
     const reValidatedPaths = this.reValidateTree(
       [...validationOrder],
-      newEvalTree,
+      draft as any,
       configTree,
     );
+    const updatedState = finishDraft(draft);
+    this.setEvalTree(updatedState as any);
     const reValidateEndTime = performance.now();
 
     const timeTakenForEvalAndValidateSubTree = {

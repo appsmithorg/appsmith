@@ -102,8 +102,10 @@ export function validateAndParseWidgetProperty({
     const evalErrors: EvaluationError[] =
       messages?.map((message) => {
         return {
-          raw: unEvalPropertyValue,
-          errorMessage: message || "",
+          raw: isDraft(unEvalPropertyValue)
+            ? current(unEvalPropertyValue)
+            : unEvalPropertyValue,
+          errorMessage: isDraft(message) ? current(message) : message || "",
           errorType: PropertyEvaluationErrorType.VALIDATION,
           severity: Severity.ERROR,
         };
@@ -217,9 +219,9 @@ export function getValidatedTree(
             const evalErrors: EvaluationError[] =
               messages?.map((message) => ({
                 errorType: PropertyEvaluationErrorType.VALIDATION,
-                errorMessage: message,
+                errorMessage: isDraft(message) ? current(message) : message,
                 severity: Severity.ERROR,
-                raw: value,
+                raw: isDraft(value) ? current(value) : value,
               })) ?? [];
 
             addErrorToEntityProperty({
