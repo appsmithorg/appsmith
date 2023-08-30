@@ -48,6 +48,7 @@ describe("Video widget tests", function () {
     propPane.TypeTextIntoField("URL", testdata.videoUrl);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.VIDEO));
+    agHelper.Sleep(2000);
     agHelper.GetElement(widgetLocators.iFrame).then(($iframe) => {
       const doc = $iframe.contents();
       const video = doc.find(widgetLocators.video);
