@@ -1,6 +1,8 @@
 # To run only limited tests - give the spec names in below format:
 
+
 # For running all specs - uncomment below:
 cypress/e2e/**/**/*
+
 
 #ci-test-limit uses this file to run minimum of specs. Do not run entire suite with this command.
