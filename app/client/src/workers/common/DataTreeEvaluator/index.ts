@@ -1189,8 +1189,11 @@ export default class DataTreeEvaluator {
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
       });
-      throw new Error(error.message);
-      // return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds: [] };
+      return {
+        evaluatedTree: oldUnevalTree,
+        evalMetaUpdates,
+        staleMetaIds: [],
+      };
     }
   }
 

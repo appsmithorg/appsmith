@@ -22,7 +22,7 @@ import {
 import { validate } from "workers/Evaluation/validations";
 import type { EvalProps } from ".";
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { current, isDraft } from "immer";
+import produce, { current, isDraft } from "immer";
 
 const LARGE_COLLECTION_SIZE = 100;
 
@@ -170,67 +170,68 @@ export function getValidatedTree(
   configTree: ConfigTree,
 ) {
   const { evalPathsIdenticalToState, evalProps } = option;
-  return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const entity = tree[entityKey];
-    if (!isWidget(entity)) {
-      return tree;
-    }
-    const entityConfig = configTree[entityKey] as WidgetEntityConfig;
+  return produce(tree, (tree) => {
+    Object.keys(tree).forEach((entityKey: string) => {
+      const entity = tree[entityKey];
+      if (!isWidget(entity)) {
+        return;
+      }
+      const entityConfig = configTree[entityKey] as WidgetEntityConfig;
 
-    Object.entries(entityConfig.validationPaths).forEach(
-      ([property, validation]) => {
-        const value = get(entity, property);
-        // const value = get(parsedEntity, property);
-        // Pass it through parse
-        const { isValid, messages, parsed, transformed } =
-          validateWidgetProperty(validation, value, entity, property);
-        set(entity, property, parsed);
-        const evaluatedValue = isValid
-          ? parsed
-          : isUndefined(transformed)
-          ? value
-          : transformed;
+      Object.entries(entityConfig.validationPaths).forEach(
+        ([property, validation]) => {
+          const value = get(entity, property);
+          // const value = get(parsedEntity, property);
+          // Pass it through parse
+          const { isValid, messages, parsed, transformed } =
+            validateWidgetProperty(validation, value, entity, property);
+          set(entity, property, parsed);
+          const evaluatedValue = isValid
+            ? parsed
+            : isUndefined(transformed)
+            ? value
+            : transformed;
 
-        const isParsedValueTheSame = parsed === evaluatedValue;
-        const fullPropertyPath = `${entityKey}.${property}`;
-        const evalPath = getEvalValuePath(fullPropertyPath, {
-          isPopulated: false,
-          fullPath: true,
-        });
+          const isParsedValueTheSame = parsed === evaluatedValue;
+          const fullPropertyPath = `${entityKey}.${property}`;
+          const evalPath = getEvalValuePath(fullPropertyPath, {
+            isPopulated: false,
+            fullPath: true,
+          });
 
-        setToEvalPathsIdenticalToState({
-          evalPath,
-          evalPathsIdenticalToState,
-          evalProps,
-          isParsedValueTheSame,
-          statePath: fullPropertyPath,
-          value: evaluatedValue,
-        });
+          setToEvalPathsIdenticalToState({
+            evalPath,
+            evalPathsIdenticalToState,
+            evalProps,
+            isParsedValueTheSame,
+            statePath: fullPropertyPath,
+            value: evaluatedValue,
+          });
 
-        resetValidationErrorsForEntityProperty({
-          evalProps,
-          fullPropertyPath,
-        });
-
-        if (!isValid) {
-          const evalErrors: EvaluationError[] =
-            messages?.map((message) => ({
-              errorType: PropertyEvaluationErrorType.VALIDATION,
-              errorMessage: message,
-              severity: Severity.ERROR,
-              raw: value,
-            })) ?? [];
-
-          addErrorToEntityProperty({
-            errors: evalErrors,
+          resetValidationErrorsForEntityProperty({
             evalProps,
             fullPropertyPath,
-            dataTree: tree,
-            configTree,
           });
-        }
-      },
-    );
-    return { ...tree, [entityKey]: entity };
-  }, tree);
+
+          if (!isValid) {
+            const evalErrors: EvaluationError[] =
+              messages?.map((message) => ({
+                errorType: PropertyEvaluationErrorType.VALIDATION,
+                errorMessage: message,
+                severity: Severity.ERROR,
+                raw: value,
+              })) ?? [];
+
+            addErrorToEntityProperty({
+              errors: evalErrors,
+              evalProps,
+              fullPropertyPath,
+              dataTree: tree as any,
+              configTree,
+            });
+          }
+        },
+      );
+    });
+  });
 }
