@@ -35,19 +35,21 @@ type TabProp = {
   panelComponent?: JSX.Element;
 };
 
-type Props = {
+export type WorkspaceSettingsTabsProps = {
   currentTab: string | undefined;
   isMemberofTheWorkspace: boolean;
   searchValue: string;
   setTabArrLen: (tabArrLen: number) => void;
+  addTabComponent?: () => TabProp;
 };
 
 export const WorkspaceSettingsTabs = ({
+  addTabComponent,
   currentTab,
   isMemberofTheWorkspace,
   searchValue,
   setTabArrLen,
-}: Props) => {
+}: WorkspaceSettingsTabsProps) => {
   const { path } = useRouteMatch();
   const location = useLocation();
   const history = useHistory();
@@ -84,6 +86,7 @@ export const WorkspaceSettingsTabs = ({
       title: "General Settings",
       panelComponent: GeneralSettingsComponent,
     },
+    addTabComponent && addTabComponent(),
   ].filter(Boolean) as TabProp[];
 
   useEffect(() => {
