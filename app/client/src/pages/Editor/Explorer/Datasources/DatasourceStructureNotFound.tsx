@@ -11,11 +11,14 @@ import { getQueryParams } from "utils/URLUtils";
 import { datasourcesEditorIdURL } from "RouteBuilder";
 import { omit } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 
 export type Props = {
   error: APIResponseError | { message: string } | undefined;
   datasourceId: string;
   pluginName?: string;
+  customEditDatasourceFn?: () => void;
+  context: DatasourceStructureContext;
 };
 
 const NotFoundContainer = styled.div`
@@ -40,11 +43,22 @@ const DatasourceStructureNotFound = (props: Props) => {
   const pageId = useSelector(getCurrentPageId);
 
   const editDatasource = () => {
+    let entryPoint = DatasourceEditEntryPoints.QUERY_EDITOR_DATASOURCE_SCHEMA;
+
+    if (props.context === DatasourceStructureContext.DATASOURCE_VIEW_MODE) {
+      entryPoint = DatasourceEditEntryPoints.DATASOURCE_VIEW_MODE_EDIT;
+    }
+
     AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
       datasourceId: datasourceId,
       pluginName: pluginName,
-      entryPoint: DatasourceEditEntryPoints.QUERY_EDITOR_DATASOURCE_SCHEMA,
+      entryPoint: entryPoint,
     });
+
+    if (props.context === DatasourceStructureContext.DATASOURCE_VIEW_MODE) {
+      props?.customEditDatasourceFn && props?.customEditDatasourceFn();
+      return;
+    }
 
     const url = datasourcesEditorIdURL({
       pageId,

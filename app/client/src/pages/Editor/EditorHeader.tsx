@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  lazy,
+  Suspense,
+  useContext,
+} from "react";
 import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
 import { APPLICATIONS_URL } from "constants/routes";
@@ -7,6 +14,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 import { Link } from "react-router-dom";
 import {
+  getApplicationLastDeployedAt,
   getCurrentApplicationId,
   getCurrentPageId,
   getIsPublishingApplication,
@@ -56,7 +64,10 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  adaptiveSignpostingEnabled,
+  datasourceEnvEnabled,
+} from "@appsmith/selectors/featureFlagsSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
 
@@ -93,7 +104,14 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import type { NavigationSetting } from "constants/AppConstants";
 import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
 import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import {
+  getIsFirstTimeUserOnboardingEnabled,
+  isWidgetActionConnectionPresent,
+} from "selectors/onboardingSelectors";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { getFeatureWalkthroughShown } from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -297,6 +315,8 @@ export function EditorHeader() {
           dispatch(showEnvironmentDeployInfoModal());
         }
       }
+
+      closeWalkthrough();
     },
     [dispatch, handlePublish],
   );
@@ -324,6 +344,43 @@ export function EditorHeader() {
   const filteredSharedUserList = sharedUserList.filter(
     (user) => user.username !== currentUser?.username,
   );
+
+  const {
+    isOpened: isWalkthroughOpened,
+    popFeature,
+    pushFeature,
+  } = useContext(WalkthroughContext) || {};
+  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
+  const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
+  const isDeployed = !!useSelector(getApplicationLastDeployedAt);
+  useEffect(() => {
+    if (
+      signpostingEnabled &&
+      isConnectionPresent &&
+      adaptiveSignposting &&
+      !isDeployed
+    ) {
+      checkAndShowWalkthrough();
+    }
+  }, [
+    signpostingEnabled,
+    isConnectionPresent,
+    adaptiveSignposting,
+    isDeployed,
+  ]);
+  const closeWalkthrough = () => {
+    if (popFeature && isWalkthroughOpened) {
+      popFeature();
+    }
+  };
+  const checkAndShowWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.deploy,
+    );
+    !isFeatureWalkthroughShown &&
+      pushFeature &&
+      pushFeature(SignpostingWalkthroughConfig.DEPLOY_APP, true);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -522,6 +579,7 @@ export function EditorHeader() {
                 <Button
                   className="t--application-publish-btn"
                   data-guided-tour-iid="deploy"
+                  id={"application-publish-btn"}
                   isLoading={isPublishing}
                   kind="tertiary"
                   onClick={() => handleClickDeploy(true)}

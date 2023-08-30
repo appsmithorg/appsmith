@@ -3,8 +3,6 @@ const testdata = require("../../../../fixtures/testdata.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../../../../fixtures/datasources.json");
-const queryLocators = require("../../../../locators/QueryEditor.json");
-
 import {
   agHelper,
   jsEditor,
@@ -146,25 +144,21 @@ describe("Undo/Redo functionality", function () {
     // cy.get(".function-name").should("not.contain.text", "test");
   });
 
-  //Skipping this since its failing in CI
-  it.skip("5. Checks undo/redo for Authenticated APIs", () => {
+  it("5. Checks undo/redo for Authenticated APIs", () => {
     cy.NavigateToAPI_Panel();
     cy.get(apiwidget.createAuthApiDatasource).click({ force: true });
     cy.wait(2000);
-    cy.get("input[name='url']").type(testdata.baseUrl);
-    cy.get("input[name='headers[0].key']").type(testdata.headerKey);
+    agHelper.TypeText(dataSources._headerKey, testdata.headerKey);
+    agHelper.TypeText(dataSources._urlInputControl, testdata.baseUrl);
+    agHelper.Sleep(1000);
     cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}z`);
-    cy.get("body").type(`{${modifierKey}}z`);
-    cy.wait(2000);
     cy.get("input[name='url']").should("have.value", "");
     cy.get("input[name='headers[0].key']").should("have.value", "");
+    cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.get("body").type(`{${modifierKey}}{shift}z`);
-    cy.get("input[name='url']").should(
-      "have.value",
-      "https://mock-api.appsmith.com/",
-    );
+    cy.get("input[name='url']").should("have.value", testdata.baseUrl);
     cy.get("input[name='headers[0].key']").should("have.value", "Content-Type");
   });
 });

@@ -278,8 +278,11 @@ export class CommonLocators {
     `[data-testid="t--ds-data-filter-${envName}"]`;
   _textWidgetContaioner = ".t--text-widget-container span";
   _label = ".bp3-label";
+  _input = ".bp3-input";
+  _tooltipIcon = ".bp3-popover-target svg";
   _checkboxHelpIcon = ".bp3-popover-target svg";
   _checkboxWidgetLabel = ".t--checkbox-widget-label";
   _buttonWidgetInForm =
     "//*[contains(@class,'t--widget-buttonwidget')]//button[contains(@class,'bp3-button')]";
+  _walkthrough_overlay = `.t--walkthrough-overlay`;
 }

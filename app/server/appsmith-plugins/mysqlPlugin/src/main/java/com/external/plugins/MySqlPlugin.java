@@ -10,6 +10,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ConnectionContext;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Template;
@@ -151,7 +152,8 @@ public class MySqlPlugin extends BasePlugin {
     }
 
     @Extension
-    public static class MySqlPluginExecutor implements PluginExecutor<ConnectionPool>, SmartSubstitutionInterface {
+    public static class MySqlPluginExecutor
+            implements PluginExecutor<ConnectionContext<ConnectionPool>>, SmartSubstitutionInterface {
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
         private final Scheduler scheduler = Schedulers.boundedElastic();
@@ -162,7 +164,7 @@ public class MySqlPlugin extends BasePlugin {
          * supported by PreparedStatement. In case of PreparedStatement turned off, the action and datasource configurations are
          * prepared (binding replacement) using PluginExecutor.variableSubstitution
          *
-         * @param connection              : This is the connection that is established to the data source. This connection is according
+         * @param connectionContext              : This is the connection that is established to the data source. This connection is according
          *                                to the parameters in Datasource Configuration
          * @param executeActionDTO        : This is the data structure sent by the client during execute. This contains the params
          *                                which would be used for substitution
@@ -172,7 +174,7 @@ public class MySqlPlugin extends BasePlugin {
          */
         @Override
         public Mono<ActionExecutionResult> executeParameterized(
-                ConnectionPool connection,
+                ConnectionContext<ConnectionPool> connectionContext,
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
@@ -219,7 +221,7 @@ public class MySqlPlugin extends BasePlugin {
             // In case of non prepared statement, simply do binding replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
-                return executeCommon(connection, actionConfiguration, FALSE, null, null, requestData);
+                return executeCommon(connectionContext, actionConfiguration, FALSE, null, null, requestData);
             }
 
             // This has to be executed as Prepared Statement
@@ -230,7 +232,7 @@ public class MySqlPlugin extends BasePlugin {
             // Set the query with bindings extracted and replaced with '?' back in config
             actionConfiguration.setBody(updatedQuery);
             return executeCommon(
-                    connection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO, requestData);
+                    connectionContext, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO, requestData);
         }
 
         @Override
@@ -249,12 +251,13 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         public Mono<ActionExecutionResult> executeCommon(
-                ConnectionPool connectionPool,
+                ConnectionContext<ConnectionPool> connectionContext,
                 ActionConfiguration actionConfiguration,
                 Boolean preparedStatement,
                 List<MustacheBindingToken> mustacheValuesInOrder,
                 ExecuteActionDTO executeActionDTO,
                 Map<String, Object> requestData) {
+            ConnectionPool connectionPool = connectionContext.getConnection();
             String query = actionConfiguration.getBody();
 
             /**
@@ -447,7 +450,8 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(ConnectionPool pool) {
+        public Mono<DatasourceTestResult> testDatasource(ConnectionContext<ConnectionPool> connectionContext) {
+            ConnectionPool pool = connectionContext.getConnection();
             return Mono.just(pool)
                     .flatMap(p -> p.create())
                     .flatMap(conn -> Mono.from(conn.close()))
@@ -586,7 +590,7 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<ActionExecutionResult> execute(
-                ConnectionPool connection,
+                ConnectionContext connectionContext,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
             // Unused function
@@ -597,18 +601,21 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ConnectionPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<ConnectionContext<ConnectionPool>> datasourceCreate(
+                DatasourceConfiguration datasourceConfiguration) {
             ConnectionPool pool = null;
             try {
                 pool = getNewConnectionPool(datasourceConfiguration);
             } catch (AppsmithPluginException e) {
                 return Mono.error(e);
             }
-            return Mono.just(pool);
+
+            return Mono.just(new ConnectionContext(pool, null));
         }
 
         @Override
-        public void datasourceDestroy(ConnectionPool connectionPool) {
+        public void datasourceDestroy(ConnectionContext<ConnectionPool> connectionContext) {
+            ConnectionPool connectionPool = connectionContext.getConnection();
             if (connectionPool != null) {
                 connectionPool
                         .disposeLater()
@@ -628,11 +635,12 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStructure> getStructure(
-                ConnectionPool connectionPool, DatasourceConfiguration datasourceConfiguration) {
+                ConnectionContext<ConnectionPool> connectionContext, DatasourceConfiguration datasourceConfiguration) {
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
+            ConnectionPool connectionPool = connectionContext.getConnection();
             return Mono.usingWhen(
                             connectionPool.create(),
                             connection -> Mono.from(connection.validate(ValidationDepth.REMOTE))

@@ -27,7 +27,7 @@ export class PropertyPane {
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
     "']/ancestor::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
-  private _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
+  public _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
   private _copyWidget = "[data-testid='t--copy-widget']";
   _deleteWidget = "[data-testid='t--delete-widget']";
   private _styleTabBtn = (tab: string) =>
@@ -135,7 +135,7 @@ export class PropertyPane {
   _addOptionProperty = ".t--property-control-options-add";
   _optionContent = ".rc-select-item-option-content";
   _dropdownOptionSpan = ".t--dropdown-option span";
-  _propertyControlColorPicker = (property: string) =>
+  public _propertyControlColorPicker = (property: string) =>
     `.t--property-control-${property} .bp3-input-group input`;
   _propertyText = ".bp3-ui-text span";
   _paneTitle = ".t--property-pane-title";
@@ -157,6 +157,9 @@ export class PropertyPane {
   _themeColor =
     "//h3[text()='Theme Colors']//..//div[contains(@class, 't--colorpicker-v2-color')]";
   _fillColor = ".t--colorpicker-v2-popover .rounded-full";
+  _multiSelect = ".rc-select-multiple";
+  _currencyChangeDropdownIcon =
+    ".currency-change-dropdown-trigger .remixicon-icon";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));

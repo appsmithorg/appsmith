@@ -217,6 +217,7 @@ export class DataSources {
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
   public _urlInputControl = "input[name='url']";
+  public _headerKey = "input[name='headers[0].key']";
   public _mongoCollectionPath = "t--actionConfiguration.formData.collection";
   _getJSONswitchLocator = (fieldName: string) =>
     "//p[contains(text(),'" +
