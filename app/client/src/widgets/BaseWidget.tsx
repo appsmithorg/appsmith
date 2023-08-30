@@ -46,7 +46,7 @@ import type {
   FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
-} from "layoutSystems/AutoLayout/utils/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 import store from "store";

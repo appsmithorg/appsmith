@@ -14,7 +14,7 @@ import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { Positioning } from "layoutSystems/AutoLayout/utils/constants";
+import { Positioning } from "layoutSystems/autolayout/utils/constants";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {

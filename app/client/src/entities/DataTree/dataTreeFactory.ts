@@ -23,7 +23,7 @@ import type {
 } from "./types";
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { Positioning } from "layoutSystems/AutoLayout/utils/constants";
+import { Positioning } from "layoutSystems/autolayout/utils/constants";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity
@@ -146,30 +146,11 @@ export class DataTreeFactory {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
+        isAutoLayout,
+        isMobile,
       );
 
       dataTree[widget.widgetName] = unEvalEntity;
-
-      const widgetData = { ...dataTree[widget.widgetName] };
-      // TODO: use positions reducer when available
-      widgetData.derivedHeight =
-        widgetData.height ||
-        (isAutoLayout &&
-        isMobile &&
-        widget.mobileBottomRow &&
-        widget.mobileTopRow
-          ? widget.mobileBottomRow - widget.mobileTopRow
-          : widget.bottomRow - widget.topRow) * widget.parentRowSpace;
-      widgetData.derivedWidth =
-        widgetData.width ||
-        (isAutoLayout &&
-        isMobile &&
-        widget.mobileRightColumn &&
-        widget.mobileLeftColumn
-          ? widget.mobileRightColumn - widget.mobileLeftColumn
-          : widget.rightColumn - widget.leftColumn) * widget.parentColumnSpace;
-
-      dataTree[widget.widgetName] = widgetData;
 
       configTree[widget.widgetName] = configEntity;
     });

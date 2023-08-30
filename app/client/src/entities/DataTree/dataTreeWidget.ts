@@ -343,6 +343,8 @@ const generateDataTreeWidgetWithoutMetaMemoized = memoize(
 export const generateDataTreeWidget = (
   widget: FlattenedWidgetProps,
   widgetMetaProps: Record<string, unknown> = {},
+  isAutoLayout = false,
+  isMobile = false,
 ) => {
   const {
     dataTreeWidgetWithoutMetaProps: dataTreeWidget,
@@ -377,8 +379,46 @@ export const generateDataTreeWidget = (
 
   dataTreeWidget["meta"] = meta;
 
+  const {
+    bottomRow,
+    height,
+    leftColumn,
+    mobileBottomRow,
+    mobileLeftColumn,
+    mobileRightColumn,
+    mobileTopRow,
+    parentColumnSpace,
+    parentRowSpace,
+    rightColumn,
+    topRow,
+    width,
+  } = dataTreeWidget;
+  // TODO: Use positions reducer when available.
+  const derivedWidth =
+    width ||
+    (isAutoLayout &&
+    isMobile &&
+    mobileLeftColumn !== undefined &&
+    mobileRightColumn !== undefined
+      ? mobileRightColumn - mobileLeftColumn
+      : rightColumn - leftColumn) * parentColumnSpace;
+
+  const derivedHeight =
+    height ||
+    (isAutoLayout &&
+    isMobile &&
+    mobileBottomRow !== undefined &&
+    mobileTopRow !== undefined
+      ? mobileBottomRow - mobileTopRow
+      : bottomRow - topRow) * parentRowSpace;
+
   return {
-    unEvalEntity: { ...dataTreeWidget, type: widget.type },
+    unEvalEntity: {
+      ...dataTreeWidget,
+      derivedHeight,
+      derivedWidth,
+      type: widget.type,
+    },
     configEntity: { ...entityConfig, widgetId: dataTreeWidget.widgetId },
   };
 };
