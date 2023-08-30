@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import { WORKSPACE_INVITE_USERS_PAGE_URL } from "constants/routes";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import Button from "components/editorComponents/Button";
-import PageWrapper from "@appsmith/pages/common/PageWrapper";
+import PageWrapper from "pages/common/PageWrapper";
 
 export function WorkspaceMembers() {
   const history = useHistory();

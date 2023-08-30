@@ -33,6 +33,7 @@ type TreeDropdownProps = {
   toggle?: React.ReactNode;
   optionTree: TreeDropdownOption[];
   className?: string;
+  triggerId?: string;
   setConfirmDelete?: (val: boolean) => void;
 };
 
@@ -129,6 +130,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
           >
             <Button
               className={props.className}
+              id={props.triggerId}
               isIconButton
               kind="tertiary"
               startIcon="more-vertical-control"
