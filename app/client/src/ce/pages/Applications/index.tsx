@@ -630,7 +630,7 @@ export function ApplicationsSection(props: any) {
         };
 
         return (
-          <>
+          <React.Fragment key={workspace.id}>
             <WorkspaceSection
               className="t--workspace-section"
               isMobile={isMobile}
@@ -734,7 +734,7 @@ export function ApplicationsSection(props: any) {
               )}
             </WorkspaceSection>
             {!isLastWorkspace && <Divider />}
-          </>
+          </React.Fragment>
         );
       },
     );
