@@ -12,7 +12,7 @@ import { navigateToTab } from "@appsmith/pages/workspace/helpers";
 import styled from "styled-components";
 
 import * as Sentry from "@sentry/react";
-const SentryRoute = Sentry.withSentryRouting(Route);
+export const SentryRoute = Sentry.withSentryRouting(Route);
 
 export const TabsWrapper = styled.div`
   padding-top: var(--ads-v2-spaces-4);
