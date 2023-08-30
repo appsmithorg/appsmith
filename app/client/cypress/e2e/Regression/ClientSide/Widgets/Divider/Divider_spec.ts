@@ -13,7 +13,7 @@ describe("Divider Widget functionality tests", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.DIVIDER, 200, 200);
   });
 
-  it("1. Divider widget property verification", () => {
+  it("1. Divider widget Visiblity property verification", () => {
     propPane.TogglePropertyState("Visible", "Off");
     // verify in deploy mode
     deployMode.DeployApp();
@@ -30,6 +30,7 @@ describe("Divider Widget functionality tests", () => {
     //Exit preview mode
     agHelper.GetNClick(locators._exitPreviewMode);
   });
+
   it("2. Divider widget style section verification", () => {
     entityExplorer.SelectEntityByName("Divider1", "Widgets");
     propPane.TogglePropertyState("Visible", "On");
@@ -37,19 +38,19 @@ describe("Divider Widget functionality tests", () => {
     propPane.EnterJSContext("Color", "Purple");
     //propPane.SelectColorFromColorPicker("iconcolor", -15);
     agHelper.AssertCSS(
-      "[data-testid=dividerHorizontal]",
+      widgetLocators.dividerHorizontal,
       "border-top-color",
       "rgb(128, 0, 128)",
     );
     propPane.EnterJSContext("Style", "Dotted");
     agHelper.AssertCSS(
-      "[data-testid=dividerHorizontal]",
+      widgetLocators.dividerHorizontal,
       "border-top-style",
       "dotted",
     );
     propPane.UpdatePropertyFieldValue("Thickness", "4");
     agHelper.AssertCSS(
-      "[data-testid=dividerHorizontal]",
+      widgetLocators.dividerHorizontal,
       "border-top-width",
       "4px",
     );
@@ -58,6 +59,7 @@ describe("Divider Widget functionality tests", () => {
     agHelper.AssertElementAbsence(widgetLocators.dividerHorizontal);
     agHelper.Sleep(1000);
   });
+
   it("3. Bind style properties of divider to radio widget and verify ", () => {
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.RADIO_GROUP,
@@ -138,6 +140,5 @@ describe("Divider Widget functionality tests", () => {
       "border-top-style",
       "solid",
     );
-    deployMode.NavigateBacktoEditor();
   });
 });
