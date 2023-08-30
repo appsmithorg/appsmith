@@ -803,6 +803,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
   );
 
   const handleMultipleSelection = (event: any) => {
+    if (!hasDeletePermission) {
+      toast.show("You don't have permission to delete this application", {
+        kind: "error",
+      });
+      return;
+    }
     if ((event as MouseEvent).ctrlKey || (event as MouseEvent).metaKey) {
       dispatch({
         type: ReduxActionTypes.DELETE_MULTIPLE_APPS_TOGGLE,
