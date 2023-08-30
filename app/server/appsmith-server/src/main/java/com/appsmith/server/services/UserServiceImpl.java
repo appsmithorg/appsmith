@@ -3,9 +3,12 @@ package com.appsmith.server.services;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
@@ -44,8 +47,10 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
             UserDataService userDataService,
             TenantService tenantService,
             PermissionGroupService permissionGroupService,
-            UserUtils userUtils) {
-
+            UserUtils userUtils,
+            EmailVerificationTokenRepository emailVerificationTokenRepository,
+            RedirectHelper redirectHelper,
+            RateLimitService rateLimitService) {
         super(
                 scheduler,
                 validator,
@@ -67,6 +72,9 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                 userDataService,
                 tenantService,
                 permissionGroupService,
-                userUtils);
+                userUtils,
+                emailVerificationTokenRepository,
+                redirectHelper,
+                rateLimitService);
     }
 }

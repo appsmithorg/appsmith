@@ -112,7 +112,7 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Decimalid", "865456.987654567");
     agHelper.EnterInputText("Numericid", "2147483647.2147484"); //2147483647.2147483647
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
@@ -134,7 +134,7 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Decimalid", "232143455655456.34"); //232143455655456.3434456565
     agHelper.EnterInputText("Numericid", "9877700000.143423"); //9877700000.14342340008876
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
@@ -156,7 +156,7 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Decimalid", "877675655441232.1"); //877675655441232.00998765 , 877675655441232.111
     agHelper.EnterInputText("Numericid", "86542300099.1"); //86542300099.1000099999876
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -179,7 +179,7 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Decimalid", "777675655441232.1", true); //777675655441232.00998765 , 777675655441232.111
     agHelper.EnterInputText("Numericid", "76542300099.10988", true); //76542300099.109876788
     agHelper.ClickButton("Update");
-    agHelper.AssertElementVisibility(locators._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -216,7 +216,7 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Decimalid", "777575655441232.1", true); //777575655441232.716716716716 , 777575655441232.1115
     agHelper.EnterInputText("Numericid", "66542300099.00088", true); //66542300099.0008767675
     agHelper.ClickButton("Update");
-    agHelper.AssertElementVisibility(locators._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -238,7 +238,7 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Decimalid", "8765456.987654345"); //8765456.98765434567
     agHelper.EnterInputText("Numericid", "87654356.98765436"); // 87654356.987654356
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
@@ -256,7 +256,7 @@ describe("Numeric Datatype tests", function () {
   it("11. Deleting records - numerictypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 3rd record is deleted
     });
@@ -267,7 +267,7 @@ describe("Numeric Datatype tests", function () {
 
   it("12. Deleting all records from table - numerictypes", () => {
     agHelper.GetNClick(locators._deleteIcon);
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
@@ -279,7 +279,7 @@ describe("Numeric Datatype tests", function () {
     agHelper.EnterInputText("Decimalid", "8765456.987654345");
     agHelper.EnterInputText("Numericid", "87654356.98765436"); // 87654356.9876543567
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("5"); //asserting serial column is inserting fine in sequence
     });

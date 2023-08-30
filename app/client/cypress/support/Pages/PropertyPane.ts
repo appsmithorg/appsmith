@@ -27,7 +27,7 @@ export class PropertyPane {
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
     "']/ancestor::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
-  private _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
+  public _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
   private _copyWidget = "[data-testid='t--copy-widget']";
   _deleteWidget = "[data-testid='t--delete-widget']";
   private _styleTabBtn = (tab: string) =>
@@ -107,7 +107,9 @@ export class PropertyPane {
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span//span | //div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
-    "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span";
+    "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span | //div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//div[@class='selected-item']/div";
   private _createModalButton = ".t--create-modal-btn";
   _pageName = (option: string) => "//a/div[text()='" + option + "']";
   private isMac = Cypress.platform === "darwin";
@@ -133,7 +135,7 @@ export class PropertyPane {
   _addOptionProperty = ".t--property-control-options-add";
   _optionContent = ".rc-select-item-option-content";
   _dropdownOptionSpan = ".t--dropdown-option span";
-  private _propertyControlColorPicker = (property: string) =>
+  public _propertyControlColorPicker = (property: string) =>
     `.t--property-control-${property} .bp3-input-group input`;
   _propertyText = ".bp3-ui-text span";
   _paneTitle = ".t--property-pane-title";
@@ -145,12 +147,19 @@ export class PropertyPane {
     `${this.locator._widgetByName(widgetName)} ${this._propertyText}`;
   _placeholderName = "[placeholder='Name']";
   _placeholderValue = "[placeholder='Value']";
-  _sliderMark = ".slider-mark";
   _optionsDeleteButton = "[orientation='HORIZONTAL'] .ads-v2-button";
+  _colorPickerInput = "[data-testid='t--color-picker-input']";
+  _emphasisSelector = (value: string) => `.t--button-group-${value}`;
+  _checkbox = ".bp3-checkbox";
+  _roundCursorPointer = ".rounded-full.cursor-pointer";
+  _sliderMark = ".slider-mark";
   _styleSize = (size: string) => `.ads-v2-segmented-control-value-${size}`;
   _themeColor =
     "//h3[text()='Theme Colors']//..//div[contains(@class, 't--colorpicker-v2-color')]";
   _fillColor = ".t--colorpicker-v2-popover .rounded-full";
+  _multiSelect = ".rc-select-multiple";
+  _currencyChangeDropdownIcon =
+    ".currency-change-dropdown-trigger .remixicon-icon";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -189,9 +198,13 @@ export class PropertyPane {
     this.entityExplorer.AssertEntityPresenceInExplorer(widgetName + "Copy");
   }
 
+  public DeleteWidgetDirectlyFromPropertyPane() {
+    this.agHelper.GetNClick(this._deleteWidget);
+  }
+
   public DeleteWidgetFromPropertyPane(widgetName: string) {
     this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
-    this.agHelper.GetNClick(this._deleteWidget);
+    this.DeleteWidgetDirectlyFromPropertyPane();
     this.agHelper.Sleep(500);
     this.entityExplorer.AssertEntityAbsenceInExplorer(widgetName);
   }
@@ -235,6 +248,7 @@ export class PropertyPane {
     propertyName: string,
     toggle: "On" | "Off" = "On",
     networkCall = "updateLayout",
+    toValidateNetworkCall = true,
   ) {
     if (toggle == "On") {
       this.agHelper
@@ -248,7 +262,9 @@ export class PropertyPane {
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
-    networkCall && this.assertHelper.AssertNetworkStatus(networkCall);
+    if (toValidateNetworkCall) {
+      networkCall && this.assertHelper.AssertNetworkStatus(networkCall);
+    }
   }
 
   public MoveToTab(tab: "Content" | "Style") {
@@ -485,19 +501,7 @@ export class PropertyPane {
     toToggleOnJS = true,
     paste = true,
   ) {
-    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-      .invoke("attr", "class")
-      .then((classes: any) => {
-        if (toToggleOnJS && !classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else if (!toToggleOnJS && classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else this.agHelper.Sleep(500);
-      });
+    this.ToggleJSMode(endp, toToggleOnJS);
 
     if (paste) this.UpdatePropertyFieldValue(endp, value);
     else this.TypeTextIntoField(endp, value);

@@ -93,8 +93,6 @@ export class CommonLocators {
   _responseTab = "[data-testid=t--tab-response]";
   _modal = ".t--modal-widget";
   _closeModal = "button:contains('Close')";
-  _buttonText = (btnText: string) =>
-    "//*[contains(@class, 'bp3-button-text') and text()='" + btnText + "']";
   _entityProperties = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
@@ -105,8 +103,8 @@ export class CommonLocators {
     "']/parent::div[contains(@class, 't--entity-name editing')]/input";
   _jsToggle = (controlToToggle: string) =>
     ".t--property-control-" + controlToToggle + " .t--js-toggle";
-  _spanButton = (btnVisibleText: string) =>
-    `//span[text()="${btnVisibleText}"]/ancestor::button`;
+  _buttonByText = (btnVisibleText: string) =>
+    `//span[text()="${btnVisibleText}"]/ancestor::button | //button[text()="${btnVisibleText}" or @title="${btnVisibleText}"]`;
   _selectPropPageDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
@@ -159,8 +157,12 @@ export class CommonLocators {
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _evalPopup = ".evaluated-value-popup";
-  _checkboxGroupOptions = (option: string) =>
-    "//div[contains(text(),'" + option + "')]/parent::label/input";
+  _checkboxTypeByOption = (option: string) =>
+    "//div[contains(text(),'" +
+    option +
+    "')]/parent::label/input | //label[contains(text(),'" +
+    option +
+    "')]/input";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
@@ -275,4 +277,11 @@ export class CommonLocators {
   public ds_editor_env_filter = (envName: string) =>
     `[data-testid="t--ds-data-filter-${envName}"]`;
   _textWidgetContaioner = ".t--text-widget-container span";
+  _label = ".bp3-label";
+  _input = ".bp3-input";
+  _tooltipIcon = ".bp3-popover-target svg";
+  _checkboxHelpIcon = ".bp3-popover-target svg";
+  _checkboxWidgetLabel = ".t--checkbox-widget-label";
+  _buttonWidgetInForm =
+    "//*[contains(@class,'t--widget-buttonwidget')]//button[contains(@class,'bp3-button')]";
 }

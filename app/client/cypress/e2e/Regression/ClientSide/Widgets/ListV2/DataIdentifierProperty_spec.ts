@@ -125,6 +125,9 @@ describe("List v2 - Data Identifier property", () => {
       "https://api.punkapi.com/v2/beers?page={{List1.pageNo}}&per_page={{List1.pageSize}}",
       "",
     );
+    agHelper.VerifyEvaluatedValue(
+      "https://api.punkapi.com/v2/beers?page=1&per_page=2",
+    );
     apiPage.RunAPI(false);
     entityExplorer.ExpandCollapseEntity("List1");
     entityExplorer.SelectEntityByName("Text2", "Container1");

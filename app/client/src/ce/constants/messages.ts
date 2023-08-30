@@ -120,6 +120,25 @@ export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
 export const FORGOT_PASSWORD_SUCCESS_TEXT = (email: string) =>
   `A password reset link has been sent to your email address ${email} registered with Appsmith.`;
 
+export const VERIFICATION_PENDING_TITLE = () => `Check your inbox`;
+export const VERIFICATION_PENDING_BODY = () =>
+  `To finish your account setup click on the verification link we have sent in an email to `;
+
+export const VERIFICATION_PENDING_NOT_YOU = () => `(not you?)`;
+
+export const VERIFICATION_PENDING_NO_EMAIL = () =>
+  `No email in your inbox or spam folder?`;
+
+export const VERIFICATION_PENDING_RESEND_LINK = () => `Resend the link`;
+
+export const VERIFY_ERROR_ALREADY_VERIFIED_TITLE = () =>
+  `Email already verified`;
+
+export const VERIFY_ERROR_EXPIRED_TITLE = () => "Oops, this link has expired";
+
+export const VERIFY_ERROR_MISMATCH_TITLE = () =>
+  "This link seems damaged. Please request a new link";
+
 export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
 export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;
 
@@ -832,7 +851,7 @@ export const DISCONNECT_SERVICE_SUBHEADER = () =>
 export const DISCONNECT_SERVICE_WARNING = () =>
   "will be removed as primary method of authentication";
 export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
-  ${methodName} authentication method is enabled
+  ${methodName} authentication is enabled
 `;
 
 export const REVOKE_EXISTING_REPOSITORIES = () =>
@@ -1228,6 +1247,9 @@ export const TEST_EMAIL_SUCCESS = (email: string) => () =>
   `Test email sent, please check the inbox of ${email}`;
 export const TEST_EMAIL_SUCCESS_TROUBLESHOOT = () => "Troubleshoot";
 export const TEST_EMAIL_FAILURE = () => "Sending test email failed";
+
+export const ADMIN_SETTINGS_EMAIL_WARNING = () =>
+  "Please ensure that the SMTP server is correctly configured. This will be used to send emails about forgot password and email verification.";
 export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
@@ -1754,7 +1776,7 @@ export const DATASOURCE_INTERCOM_TEXT = () =>
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
-export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate page";
+export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate new page";
 export const GSHEETS_ERR_FETCHING_PREVIEW_DATA = () =>
   "Some problem occured while fetching data";
 export const GSHEETS_FETCHING_PREVIEW_DATA = () => "Loading data";

@@ -2,10 +2,11 @@ import React from "react";
 import { Icon as BIcon } from "@blueprintjs/core";
 import { TextInput } from "@design-system/widgets";
 import { Icon, TextArea } from "@design-system/widgets";
-import { INPUT_TYPES } from "widgets/BaseInputWidgetV2/constants";
-import type { BaseInputComponentProps } from "widgets/BaseInputWidgetV2/component/types";
 
-function InputComponent(props: BaseInputComponentProps) {
+import { INPUT_TYPES } from "../constants";
+import type { InputComponentProps } from "./types";
+
+function InputComponent(props: InputComponentProps) {
   const startIcon = (() => {
     if (props.iconName && props.iconAlign === "left") {
       return (

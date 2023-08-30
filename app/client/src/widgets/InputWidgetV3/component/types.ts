@@ -1,6 +1,7 @@
 import type { BaseInputComponentProps } from "widgets/BaseInputWidgetV2";
 
 import type { INPUT_TYPES } from "../constants";
+import type { IconName } from "@blueprintjs/icons";
 
 export type InputType = (typeof INPUT_TYPES)[keyof typeof INPUT_TYPES];
 
@@ -11,4 +12,6 @@ export interface InputComponentProps extends BaseInputComponentProps {
   maxNum?: number;
   minNum?: number;
   autoComplete?: string;
+  iconAlign?: "left" | "right";
+  iconName?: IconName;
 }
