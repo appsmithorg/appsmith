@@ -126,14 +126,10 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
       
-      - name: Install mongosh
+      - name: Setup mongodb-tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg
-          wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-          sudo apt-get update
-          sudo apt-get install -y mongodb-mongosh
+          wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.6.1.deb
+          sudo apt install ./mongodb-database-tools-*-100.6.1.deb
       
       - name: Download mongodb archive
         run: |
@@ -184,7 +180,9 @@ jobs:
           hash=$(echo -n "$timestamp" | sha1sum | awk '{print $1}')
           current_date=$(date -d "@$timestamp" +"%d-%m")
           DB_NAME="ci${hash:1:3}-${current_date}"
-          mongorestore --uri="${APPSMITH_MONGODB_URI}${DB_NAME}?retryWrites=false&replicaSet=rs0&directConnection=true" --archive=data.gz --gzip --drop --nsInclude=*
+          MONGO_CREDS=$(echo $APPSMITH_MONGODB_URI | sed 's/@.*//')
+          URI="${MONGO_CREDS}@localhost:27010/${DB_NAME}?retryWrites=false&replicaSet=rs0&directConnection=true" 
+          mongorestore --uri="${URI}" --archive=data.gz --gzip --drop --nsInclude=*
           sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos
