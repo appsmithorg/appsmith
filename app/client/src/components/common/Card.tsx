@@ -244,8 +244,35 @@ const CardFooter = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 4px auto 0;
-  width: ${(props) => props.theme.card.minWidth - 8}px;
+  margin: 4px 0;
+  width: ${(props) => props.theme.card.minWidth}px;
+
+  @media screen and (min-width: 1500px) {
+    width: ${(props) => props.theme.card.minWidth}px;
+  }
+
+  @media screen and (min-width: 1500px) and (max-width: 1512px) {
+    width: ${(props) => props.theme.card.minWidth - 5}px;
+  }
+  @media screen and (min-width: 1478px) and (max-width: 1500px) {
+    width: ${(props) => props.theme.card.minWidth - 8}px;
+  }
+
+  @media screen and (min-width: 1447px) and (max-width: 1477px) {
+    width: ${(props) => props.theme.card.minWidth - 8}px;
+  }
+
+  @media screen and (min-width: 1417px) and (max-width: 1446px) {
+    width: ${(props) => props.theme.card.minWidth - 11}px;
+  }
+
+  @media screen and (min-width: 1400px) and (max-width: 1417px) {
+    width: ${(props) => props.theme.card.minWidth - 15}px;
+  }
+
+  @media screen and (max-width: 1400px) {
+    width: ${(props) => props.theme.card.minWidth - 15}px;
+  }
 `;
 
 const ModifiedDataComponent = styled.div`
