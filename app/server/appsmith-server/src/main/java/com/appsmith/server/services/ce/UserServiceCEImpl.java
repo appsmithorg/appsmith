@@ -588,14 +588,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * @param user User object representing the user to be created/enabled.
      * @return Publishes the user object, after having been saved.
      */
-    @Override
-    public Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader) {
-        return createUser(user, originHeader).flatMap(userSignupDTO -> {
-            User savedUser = userSignupDTO.getUser();
-            Mono<User> userMono = Mono.just(savedUser);
-            return userMono.thenReturn(userSignupDTO);
-        });
-    }
 
     private Mono<User> signupIfAllowed(User user) {
         boolean isAdminUser = false;

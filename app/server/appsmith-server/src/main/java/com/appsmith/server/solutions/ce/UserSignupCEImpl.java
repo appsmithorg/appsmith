@@ -126,7 +126,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         }
 
         // only creating user, welcome email will be sent post user email verification
-        Mono<UserSignupDTO> createUserAndSendEmailMono = userService
+        Mono<UserSignupDTO> createUserMono = userService
                 .createUser(user, exchange.getRequest().getHeaders().getOrigin())
                 .elapsed()
                 .map(pair -> {
@@ -134,7 +134,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     return pair.getT2();
                 });
 
-        return Mono.zip(createUserAndSendEmailMono, exchange.getSession(), ReactiveSecurityContextHolder.getContext())
+        return Mono.zip(createUserMono, exchange.getSession(), ReactiveSecurityContextHolder.getContext())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
                 .flatMap(tuple -> {
                     final User savedUser = tuple.getT1().getUser();

@@ -352,7 +352,7 @@ public class UserServiceTest {
         signUpUser.setPassword("123456");
 
         Mono<User> invitedUserSignUpMono = userService
-                .createUserAndSendEmail(signUpUser, "http://localhost:8080")
+                .createUser(signUpUser, "http://localhost:8080")
                 .map(UserSignupDTO::getUser);
 
         StepVerifier.create(invitedUserSignUpMono)
@@ -524,24 +524,6 @@ public class UserServiceTest {
                     assertEquals("New use case", userData.getUseCase());
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void createUserAndSendEmail_WhenUserExistsWithEmailInOtherCase_ThrowsException() {
-        User existingUser = new User();
-        existingUser.setEmail("abcd@gmail.com");
-        userRepository.save(existingUser).block();
-
-        User newUser = new User();
-        newUser.setEmail("abCd@gmail.com"); // same as above except c in uppercase
-        newUser.setSource(LoginSource.FORM);
-        newUser.setPassword("abcdefgh");
-        Mono<User> userAndSendEmail =
-                userService.createUserAndSendEmail(newUser, null).map(UserSignupDTO::getUser);
-
-        StepVerifier.create(userAndSendEmail)
-                .expectErrorMessage(AppsmithError.USER_ALREADY_EXISTS_SIGNUP.getMessage(existingUser.getEmail()))
-                .verify();
     }
 
     @Test
