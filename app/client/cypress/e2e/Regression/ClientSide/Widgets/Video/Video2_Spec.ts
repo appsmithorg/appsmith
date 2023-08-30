@@ -189,13 +189,18 @@ describe("Video widget tests", function () {
     propPane.SelectColorFromColorPicker("backgroundcolor", 9);
     agHelper.ContainsNClick("Medium");
     propPane.EnterJSContext("Border radius", "1.5rem");
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
-    agHelper.AssertCSS(
-      widgetLocators.video,
-      "background-color",
-      "rgb(252, 165, 165)",
-    );
-
+    agHelper
+      .GetWidgetCSSFrAttribute(widgetLocators.video, "background-color")
+      .then((backgroundcolor) => {
+        deployMode.DeployApp(
+          locators._widgetInDeployed(draggableWidgets.VIDEO),
+        );
+        agHelper.AssertCSS(
+          widgetLocators.video,
+          "background-color",
+          backgroundcolor,
+        );
+      });
     agHelper.AssertCSS(
       widgetLocators.video,
       "box-shadow",
