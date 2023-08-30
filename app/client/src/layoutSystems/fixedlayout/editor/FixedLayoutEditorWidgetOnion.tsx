@@ -1,8 +1,8 @@
+import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 import { get } from "lodash";
 import React from "react";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import DraggableComponent from "../../common/DraggableComponent";
 import SnipeableComponent from "../../common/SnipeableComponent";
 import { WidgetNameLayer } from "../../common/WidgetNameLayer";
 import { AutoHeightOverlayLayer } from "../common/autoHeight/AutoHeightOverlayLayer";

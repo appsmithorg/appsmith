@@ -3,12 +3,12 @@ import { get } from "lodash";
 import React from "react";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import DraggableComponent from "../../common/DraggableComponent";
 import { WidgetNameLayer } from "../../common/WidgetNameLayer";
 import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 import FlexComponent from "../common/FlexComponent";
 import { FlexVerticalAlignment, LayoutDirection } from "../utils/constants";
 import { AutoResizableLayer } from "../common/resizer/AutoResizableLayer";
+import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 
 export const AutoLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
