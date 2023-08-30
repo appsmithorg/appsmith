@@ -890,19 +890,11 @@ export class AggregateHelper extends ReusableHelper {
     propertyName: string,
     toggle: "true" | "false",
   ) {
-    let locator;
-    if (propertyName.startsWith("//")) {
-      locator = cy.xpath(propertyName);
-      locator.should("have.attr", toggle);
-    } else if (propertyName.includes(" ")) {
-      locator = cy.get(propertyName);
-      locator.should("have.attr", toggle);
-    } else {
-      locator = cy.xpath(this.locator._propertyToggleValue(propertyName));
-      locator.invoke("attr", "data-checked").then((classes) => {
+    this.GetElement(this.locator._propertyToggleValue(propertyName))
+      .invoke("attr", "data-checked")
+      .then((classes) => {
         expect(classes).includes(toggle);
       });
-    }
   }
 
   public AssertExistingCheckedState(selector: string, toggle = "true") {

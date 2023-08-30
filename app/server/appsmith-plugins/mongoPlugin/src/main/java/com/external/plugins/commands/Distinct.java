@@ -129,6 +129,6 @@ public class Distinct extends MongoCommand {
                 + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return Collections.singletonList(new DatasourceStructure.Template("Distinct", null, configMap));
+        return Collections.singletonList(new DatasourceStructure.Template("Distinct", null, configMap, false));
     }
 }

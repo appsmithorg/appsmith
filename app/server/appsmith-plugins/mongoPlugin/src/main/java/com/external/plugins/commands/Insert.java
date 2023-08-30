@@ -122,7 +122,7 @@ public class Insert extends MongoCommand {
                 + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return Collections.singletonList(new DatasourceStructure.Template("Insert", null, configMap));
+        return Collections.singletonList(new DatasourceStructure.Template("Insert", null, configMap, false));
     }
 
     /**
