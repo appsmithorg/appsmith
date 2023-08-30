@@ -22,4 +22,9 @@ public class DatasourcePermissionCEImpl implements DatasourcePermissionCE, Domai
     public AclPermission getExecutePermission() {
         return AclPermission.EXECUTE_DATASOURCES;
     }
+
+    @Override
+    public AclPermission getActionCreatePermission() {
+        return AclPermission.MANAGE_DATASOURCES;
+    }
 }
