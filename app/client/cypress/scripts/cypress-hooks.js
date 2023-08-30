@@ -90,7 +90,7 @@ async function cypressHooks(on, config) {
     });
     try {
       const response = await octokit.request(
-        "GET /repos/{owner}/{repo}/actions/runs/{run_id}",
+        "GET /repos/{owner}/{repo}/actions/runs/{run_id}/jobs",
         {
           owner: "appsmithorg",
           repo: "appsmith",
@@ -101,6 +101,11 @@ async function cypressHooks(on, config) {
         },
       );
       console.log("Workflow Run Details:", response.data);
+      let active_runners = response.jobs.filter(
+        (job) => job.status == "in_progress",
+      );
+      console.log("ACTIVE RUNNERS", active_runners);
+      console.log("ACTIVE RUNNERS COUNT", active_runners.length);
     } catch (error) {
       console.error("Error:", error);
     }
