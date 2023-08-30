@@ -6,6 +6,11 @@ import type {
 import { debounce } from "lodash";
 import { useCallback, useState } from "react";
 import { appPositioningBasedPropertyFilter } from "sagas/WidgetEnhancementHelpers";
+import WidgetFactory from "utils/WidgetFactory";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetCallout } from "widgets/constants";
+import { Callout } from "design-system";
+import React from "react";
 
 export function useSearchText(initialVal: string) {
   const [searchText, setSearchText] = useState(initialVal);
@@ -94,4 +99,31 @@ export function updateConfigPaths(
     }
     return childConfig;
   });
+}
+
+export function renderWidgetCallouts(props: WidgetProps): JSX.Element[] {
+  const { getEditorCallouts } = WidgetFactory.getWidgetMethods(props.type);
+  if (getEditorCallouts) {
+    const callouts: WidgetCallout[] = getEditorCallouts(props);
+    return callouts.map((callout, index) => {
+      const links = callout.links.map((link) => {
+        return {
+          children: link.text,
+          to: link.url,
+        };
+      });
+      return (
+        <Callout
+          data-testid="t--deprecation-warning"
+          key={index}
+          kind="warning"
+          links={links}
+        >
+          {callout.message}
+        </Callout>
+      );
+    });
+  } else {
+    return [];
+  }
 }
