@@ -1,29 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  useRouteMatch,
-  useLocation,
-  useParams,
-  Route,
-  useHistory,
-} from "react-router-dom";
+import { useLocation, useParams, useHistory } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
-
-import { Tabs, Tab, TabsList, TabPanel } from "design-system";
-import MemberSettings from "@appsmith/pages/workspace/Members";
-import { GeneralSettings } from "./General";
-import * as Sentry from "@sentry/react";
 import {
   getAllApplications,
   setShowAppInviteUsersDialog,
 } from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
-import { debounce } from "lodash";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
-import { navigateToTab } from "@appsmith/pages/workspace/helpers";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -36,17 +23,10 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { APPLICATIONS_URL } from "constants/routes";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import { debounce } from "lodash";
+import { WorkspaceSettingsTabs } from "@appsmith/components/WorkspaceSettingsTabs";
 
 const { cloudHosting } = getAppsmithConfigs();
-
-const SentryRoute = Sentry.withSentryRouting(Route);
-
-type TabProp = {
-  key: string;
-  title: string;
-  count?: number;
-  panelComponent?: JSX.Element;
-};
 
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
@@ -81,19 +61,6 @@ const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
   width: 954px;
   `}
 `;
-export const TabsWrapper = styled.div`
-  padding-top: var(--ads-v2-spaces-4);
-
-  .ads-v2-tabs {
-    height: 100%;
-    overflow: hidden;
-
-    .tab-panel {
-      overflow: auto;
-      height: calc(100% - 46px);
-    }
-  }
-`;
 
 enum TABS {
   GENERAL = "general",
@@ -105,7 +72,6 @@ export default function Settings() {
   const currentWorkspace = useSelector(getCurrentWorkspace).filter(
     (el) => el.id === workspaceId,
   )[0];
-  const { path } = useRouteMatch();
   const location = useLocation();
   const dispatch = useDispatch();
 
@@ -113,6 +79,7 @@ export default function Settings() {
   const [searchValue, setSearchValue] = useState("");
 
   const [pageTitle, setPageTitle] = useState<string>("");
+  const [tabArrLen, setTabArrLen] = useState<number>(0);
 
   const history = useHistory();
 
@@ -163,48 +130,6 @@ export default function Settings() {
     dispatch(setShowAppInviteUsersDialog(isOpen));
   }, []);
 
-  const GeneralSettingsComponent = (
-    <SentryRoute
-      component={GeneralSettings}
-      location={location}
-      path={`${path}/general`}
-    />
-  );
-
-  const MemberSettingsComponent = (
-    <SentryRoute
-      component={useCallback(
-        (props: any) => (
-          <MemberSettings {...props} searchValue={searchValue} />
-        ),
-        [location, searchValue],
-      )}
-      location={location}
-      path={`${path}/members`}
-    />
-  );
-
-  const onSearch = debounce((search: string) => {
-    if (search.trim().length > 0) {
-      setSearchValue(search);
-    } else {
-      setSearchValue("");
-    }
-  }, 300);
-
-  const tabArr: TabProp[] = [
-    isMemberofTheWorkspace && {
-      key: "members",
-      title: "Members",
-      panelComponent: MemberSettingsComponent,
-    },
-    {
-      key: "general",
-      title: "General Settings",
-      panelComponent: GeneralSettingsComponent,
-    },
-  ].filter(Boolean) as TabProp[];
-
   const pageMenuItems: any[] = [
     {
       icon: "book-line",
@@ -216,8 +141,16 @@ export default function Settings() {
     },
   ];
 
-  const isMembersPage = tabArr.length > 1 && currentTab === TABS.MEMBERS;
-  // const isGeneralPage = tabArr.length === 1 && currentTab === TABS.GENERAL;
+  const isMembersPage = tabArrLen > 1 && currentTab === TABS.MEMBERS;
+  // const isGeneralPage = tabArrLen === 1 && currentTab === TABS.GENERAL;
+
+  const onSearch = debounce((search: string) => {
+    if (search.trim().length > 0) {
+      setSearchValue(search);
+    } else {
+      setSearchValue("");
+    }
+  }, 300);
 
   const isMobile: boolean = useMediaQuery({ maxWidth: 767 });
   return (
@@ -236,39 +169,12 @@ export default function Settings() {
             title={pageTitle}
           />
         </StyledStickyHeader>
-        <TabsWrapper
-          className="tabs-wrapper"
-          data-testid="t--user-edit-tabs-wrapper"
-        >
-          <Tabs
-            defaultValue={currentTab}
-            onValueChange={(key: string) =>
-              navigateToTab(key, location, history)
-            }
-            value={currentTab}
-          >
-            <TabsList>
-              {tabArr.map((tab) => {
-                return (
-                  <Tab
-                    data-testid={`t--tab-${tab.key}`}
-                    key={tab.key}
-                    value={tab.key}
-                  >
-                    <div className="tab-item">{tab.title}</div>
-                  </Tab>
-                );
-              })}
-            </TabsList>
-            {tabArr.map((tab) => {
-              return (
-                <TabPanel className="tab-panel" key={tab.key} value={tab.key}>
-                  {tab.panelComponent}
-                </TabPanel>
-              );
-            })}
-          </Tabs>
-        </TabsWrapper>
+        <WorkspaceSettingsTabs
+          currentTab={currentTab}
+          isMemberofTheWorkspace={isMemberofTheWorkspace}
+          searchValue={searchValue}
+          setTabArrLen={setTabArrLen}
+        />
       </SettingsWrapper>
       {currentWorkspace && (
         <FormDialogComponent
