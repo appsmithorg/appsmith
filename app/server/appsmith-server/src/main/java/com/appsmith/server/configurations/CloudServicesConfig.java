@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.server.configurations.ce.CloudServicesConfigCE;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Getter
-public class CloudServicesConfig {
+public class CloudServicesConfig extends CloudServicesConfigCE {
     private String baseUrl;
 
     @Value("${appsmith.cloud_services.username}")

@@ -111,7 +111,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
      */
     private Mono<Map<String, Map<String, Boolean>>> getRemoteFeatureFlagsByIdentity(
             FeatureFlagIdentityTraits featureFlagIdentityTraits) {
-        return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
+        return WebClientUtils.create(cloudServicesConfig.getBaseUrlWithSignatureVerification())
                 .post()
                 .uri("/api/v1/feature-flags")
                 .body(BodyInserters.fromValue(featureFlagIdentityTraits))
@@ -217,7 +217,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
      * @return Mono of Map
      */
     public Mono<FeaturesResponseDTO> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO) {
-        return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
+        return WebClientUtils.create(cloudServicesConfig.getBaseUrlWithSignatureVerification())
                 .post()
                 .uri("/api/v1/business-features")
                 .body(BodyInserters.fromValue(featuresRequestDTO))
