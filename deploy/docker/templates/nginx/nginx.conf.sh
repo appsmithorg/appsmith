@@ -73,6 +73,7 @@ http {
   }
 
   server_tokens off;
+  more_set_headers 'Server: ';
 
   server {
 
