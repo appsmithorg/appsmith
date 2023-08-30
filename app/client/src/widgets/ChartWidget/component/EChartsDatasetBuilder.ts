@@ -1,14 +1,17 @@
-import type { ChartComponentProps } from ".";
-import type { AllChartData } from "../constants";
+import type { AllChartData, ChartType } from "../constants";
 import { XAxisCategory } from "../constants";
 
 export class EChartsDatasetBuilder {
-  static chartData(props: ChartComponentProps): AllChartData {
-    if (props.chartType == "PIE_CHART") {
-      const firstKey = Object.keys(props.chartData)[0];
-      return { [firstKey]: props.chartData[firstKey] };
+  static chartData(
+    chartType: ChartType,
+    chartData: AllChartData,
+  ): AllChartData {
+    if (chartType == "PIE_CHART") {
+      // return only first series data
+      const firstSeriesKey = Object.keys(chartData)[0];
+      return { [firstSeriesKey]: chartData[firstSeriesKey] };
     } else {
-      return props.chartData;
+      return chartData;
     }
   }
 
