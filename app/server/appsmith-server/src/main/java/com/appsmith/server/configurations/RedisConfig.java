@@ -5,6 +5,7 @@ import com.appsmith.server.dtos.OAuth2AuthorizedClientDTO;
 import com.appsmith.server.dtos.UserSessionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import io.lettuce.core.RedisClient;
 import io.lettuce.core.resource.ClientResources;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.data.redis.connection.RedisConfiguration;
 import org.springframework.data.redis.connection.RedisNode;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.observability.MicrometerTracingAdapter;
@@ -76,6 +78,15 @@ public class RedisConfig {
                 return new LettuceConnectionFactory(config);
             }
 
+            case "rediss" -> {
+                final RedisStandaloneConfiguration config =
+                        new RedisStandaloneConfiguration(redisUri.getHost(), redisUri.getPort());
+                fillAuthentication(redisUri, config);
+                final LettuceClientConfiguration clientConfig =
+                        LettucePoolingClientConfiguration.builder().useSsl().build();
+                return new LettuceConnectionFactory(config, clientConfig);
+            }
+
             case "redis-cluster" -> {
                 // For ElastiCache Redis with cluster mode enabled, with the configuration endpoint.
                 final RedisClusterConfiguration clusterConfig = new RedisClusterConfiguration();
@@ -88,6 +99,12 @@ public class RedisConfig {
 
             default -> throw new InvalidRedisURIException("Invalid redis scheme: " + scheme);
         }
+    }
+
+    @Bean
+    public RedisClient redisClient() {
+        final URI redisUri = URI.create(redisURL);
+        return RedisClient.create(redisUri.getScheme() + "://" + redisUri.getHost() + ":" + redisUri.getPort());
     }
 
     private void fillAuthentication(URI redisUri, RedisConfiguration.WithAuthentication config) {
