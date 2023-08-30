@@ -222,7 +222,8 @@ describe("Checkbox Tests", function () {
     entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
   });
 
-  it.skip("7. Verify Full color picker and font size", () => {
+  it("7. Verify Full color picker and font size", () => {
+    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
     // Verify font color picker opens up
     propPane.MoveToTab("Style");
     agHelper.GetNClick(propPane._propertyControlColorPicker("fontcolor"));
@@ -258,12 +259,13 @@ describe("Checkbox Tests", function () {
 
     entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
     propPane.MoveToTab("Style");
+    cy.wait(1000);
     // Verify Accent color
-    propPane.UpdatePropertyFieldValue("Accent color", "#b91c1c");
+    propPane.SelectColorFromColorPicker("accentcolor", -15);
     agHelper.AssertAttribute(
       `${locators._propertyControl}accentcolor ${propPane._roundCursorPointer}`,
       "color",
-      "#b91c1c",
+      "#dbeafe",
     );
     propPane.ToggleJSMode("accentcolor", true);
     propPane.UpdatePropertyFieldValue(
@@ -276,7 +278,6 @@ describe("Checkbox Tests", function () {
       "color",
       "#553DE9",
     );
-
     // Verify full color picker for accent color
     agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 1);
     propPane.TogglePropertyState("accentcolor", "On", "updateLayout", false);
