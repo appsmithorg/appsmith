@@ -36,10 +36,6 @@ const HeadContainer = styled.div`
   justify-content: space-between;
 `;
 
-const HeadTitle = styled(Text)``;
-
-const HeadAction = styled.div``;
-
 const InputContainer = styled.div`
   display: flex;
   align-items: center;
@@ -133,10 +129,8 @@ const GitUserSettings = () => {
     <Container>
       <form onSubmit={handleSubmit(onSubmit)}>
         <HeadContainer>
-          <HeadTitle kind="heading-s">
-            {createMessage(GIT_USER_SETTINGS_TITLE)}
-          </HeadTitle>
-          <HeadAction>
+          <Text kind="heading-s">{createMessage(GIT_USER_SETTINGS_TITLE)}</Text>
+          <div>
             <Controller
               control={control}
               name="useGlobalProfile"
@@ -155,7 +149,7 @@ const GitUserSettings = () => {
                 );
               }}
             />
-          </HeadAction>
+          </div>
         </HeadContainer>
 
         <Space size={5} />
