@@ -1,16 +1,14 @@
-import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/autoLayout/utils/constants";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import WidgetFactory from "utils/WidgetFactory";
+import type { HighlightInfo } from "layoutSystems/autoLayout/utils/autoLayoutTypes";
 import { useRef } from "react";
 import { getIsAutoLayoutMobileBreakPoint } from "selectors/editorSelectors";
-import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
-import type { HighlightInfo } from "layoutSystems/AutoLayout/utils/autoLayoutTypes";
-import {
-  type Point,
-  getHighlightPayload,
-} from "layoutSystems/AutoLayout/utils/highlightSelectionUtils";
-import { deriveHighlightsFromLayers } from "layoutSystems/AutoLayout/utils/highlightUtils";
+import type { WidgetDraggingBlock } from "layoutSystems/common/CanvasArenas/ArenaTypes";
+import { deriveHighlightsFromLayers } from "layoutSystems/autoLayout/utils/highlightUtils";
+import type { Point } from "layoutSystems/autoLayout/utils/highlightSelectionUtils";
+import { getHighlightPayload } from "layoutSystems/autoLayout/utils/highlightSelectionUtils";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];

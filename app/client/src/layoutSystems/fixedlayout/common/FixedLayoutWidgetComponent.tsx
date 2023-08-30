@@ -1,4 +1,4 @@
-import { AutoHeightContainerWrapper } from "layoutSystems/FixedLayout/common/autoHeight/AutoHeightContainerWrapper";
+import { AutoHeightContainerWrapper } from "layoutSystems/fixedlayout/common/autoHeight/AutoHeightContainerWrapper";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import WidgetComponentBoundary from "layoutSystems/common/WidgetComponentBoundary";
 import React from "react";

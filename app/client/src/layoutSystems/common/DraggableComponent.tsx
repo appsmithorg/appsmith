@@ -143,8 +143,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       focusWidget(props.widgetId);
     e.stopPropagation();
   };
-  const shouldRenderComponent =
-    props.isFlexChild || !(isSelected && isDragging);
+
   // Display this draggable based on the current drag state
   const dragWrapperStyle: CSSProperties = {
     display: !props.isFlexChild && isCurrentWidgetDragging ? "none" : "block",
@@ -215,7 +214,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       ref={draggableRef}
       style={dragWrapperStyle}
     >
-      {shouldRenderComponent && props.children}
+      {props.children}
       {showBoundary && (
         <WidgetBoundaries
           className={`widget-boundary-${props.widgetId}`}

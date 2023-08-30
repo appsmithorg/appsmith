@@ -3,7 +3,7 @@ import {
   FlexLayerAlignment,
   ResponsiveBehavior,
   ROW_GAP,
-} from "layoutSystems/AutoLayout/utils/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import type { HighlightInfo } from "./autoLayoutTypes";
 import { getWidgetHeight } from "./flexWidgetUtils";
 import type { VerticalHighlightsPayload } from "./highlightUtils";

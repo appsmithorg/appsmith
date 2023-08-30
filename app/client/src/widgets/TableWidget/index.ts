@@ -1,6 +1,6 @@
 import { Colors } from "constants/Colors";
 import { cloneDeep, set } from "lodash";
-import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import {
   combineDynamicBindings,
   getDynamicBindings,

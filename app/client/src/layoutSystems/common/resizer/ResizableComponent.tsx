@@ -11,8 +11,8 @@ import {
 import { get, omit } from "lodash";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AutoLayoutResizable } from "layoutSystems/AutoLayout/common/AutoLayoutResizable";
-import { FixedLayoutResizable } from "layoutSystems/FixedLayout/common/FixedLayoutResizable";
+import { AutoLayoutResizable } from "layoutSystems/autolayout/common/AutoLayoutResizable";
+import { FixedLayoutResizable } from "layoutSystems/fixedlayout/common/FixedLayoutResizable";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
@@ -28,11 +28,11 @@ import {
   isWidgetSelected,
 } from "selectors/widgetSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import {
   getWidgetHeight,
   getWidgetWidth,
-} from "layoutSystems/AutoLayout/utils/flexWidgetUtils";
+} from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import {
   useShowPropertyPane,
   useShowTableFilterPane,

@@ -34,11 +34,11 @@ import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import {
   getFillWidgetLengthForLayer,
   getLayerIndexOfWidget,
-} from "layoutSystems/AutoLayout/utils/AutoLayoutUtils";
+} from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
-} from "layoutSystems/AutoLayout/utils/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import { useReflow } from "utils/hooks/useReflow";
 import PerformanceTracker, {
   PerformanceTransactionName,

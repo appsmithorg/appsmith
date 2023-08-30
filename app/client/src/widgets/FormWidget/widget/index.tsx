@@ -7,7 +7,7 @@ import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ContainerWidget } from "widgets/ContainerWidget/widget";
 import type { ContainerComponentProps } from "widgets/ContainerWidget/component";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { Positioning } from "layoutSystems/AutoLayout/utils/constants";
+import { Positioning } from "layoutSystems/autolayout/utils/constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";

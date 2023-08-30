@@ -2,7 +2,7 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { ProgressType } from "./constants";
 import { Colors } from "constants/Colors";
-import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
