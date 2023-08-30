@@ -3,7 +3,7 @@ import { get } from "lodash";
 import React from "react";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { WidgetNameLayer } from "../../common/WidgetNameLayer";
+import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
 import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 import FlexComponent from "../common/FlexComponent";
 import { FlexVerticalAlignment, LayoutDirection } from "../utils/constants";
