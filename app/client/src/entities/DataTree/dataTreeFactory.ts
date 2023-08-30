@@ -139,6 +139,9 @@ export class DataTreeFactory {
 
     const startWidgets = performance.now();
 
+    const isAutoLayout =
+      widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Vertical;
+
     Object.values(widgets).forEach((widget) => {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
@@ -147,22 +150,26 @@ export class DataTreeFactory {
 
       dataTree[widget.widgetName] = unEvalEntity;
 
-      const isAutoLayout =
-        widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Vertical;
-      dataTree[widget.widgetName].componentHeight =
+      const widgetData = { ...dataTree[widget.widgetName] };
+      // TODO: use positions reducer when available
+      widgetData.derivedHeight =
+        widgetData.height ||
         (isAutoLayout &&
         isMobile &&
         widget.mobileBottomRow &&
         widget.mobileTopRow
           ? widget.mobileBottomRow - widget.mobileTopRow
           : widget.bottomRow - widget.topRow) * widget.parentRowSpace;
-      dataTree[widget.widgetName].componentWidth =
+      widgetData.derivedWidth =
+        widgetData.width ||
         (isAutoLayout &&
         isMobile &&
         widget.mobileRightColumn &&
         widget.mobileLeftColumn
           ? widget.mobileRightColumn - widget.mobileLeftColumn
           : widget.rightColumn - widget.leftColumn) * widget.parentColumnSpace;
+
+      dataTree[widget.widgetName] = widgetData;
 
       configTree[widget.widgetName] = configEntity;
     });
