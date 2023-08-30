@@ -125,6 +125,15 @@ jobs:
 
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
+      
+      - name: Setup mongodb-tools
+        run: |
+          wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.6.1.deb
+          sudo apt install ./mongodb-database-tools-*-100.6.1.deb
+      
+      - name: Download mongodb archive
+        run: |
+          curl -o data.gz https://appsmithctl-backup-restore-test.s3.ap-south-1.amazonaws.com/docdb-data.gz
 
       - name: Download Docker image artifact
         uses: actions/download-artifact@v3
@@ -154,6 +163,7 @@ jobs:
           chmod 400 ssh_key.pem 
           ssh -4 -o StrictHostKeyChecking=no -o ServerAliveInterval=180 -o ServerAliveCountMax=5 -i "ssh_key.pem" -L 0.0.0.0:27010:docdb-ansible-test-cluster.cluster-cz8diybf9wdj.ap-south-1.docdb.amazonaws.com:27017 ubuntu@65.1.106.35 -N -f
       
+
       - name: Run Appsmith, CS & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
@@ -165,6 +175,9 @@ jobs:
           hash=$(echo -n "$timestamp" | sha1sum | awk '{print $1}')
           current_date=$(date -d "@$timestamp" +"%d-%m")
           DB_NAME="ci${hash:1:3}-${current_date}"
+          MONGO_CREDS=$(echo $APPSMITH_MONGODB_URI | sed 's/@.*//')
+          URI="${MONGO_CREDS}@localhost:27010/${DB_NAME}?retryWrites=false&replicaSet=rs0&directConnection=true" 
+          mongorestore --uri="${URI}" --archive=data.gz --gzip --drop --nsInclude=*
           sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos

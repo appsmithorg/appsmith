@@ -9,6 +9,16 @@ export class Onboarding {
   private _datasources = ObjectsRegistry.DataSources;
   private _debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
+  public readonly locators = {
+    back_to_canvas: "#back-to-canvas",
+    deploy: "#application-publish-btn",
+    table_widget_card: "#widget-card-draggable-tablewidgetv2",
+    create_query: "#create-query",
+    explorer_widget_tab: `#explorer-tab-options [data-value*="widgets"]`,
+    add_datasources: "#add_datasources",
+    connect_data_overlay: "#table-overlay-connectdata",
+  };
+
   completeSignposting() {
     cy.get(OnboardingLocator.checklistStatus).should("be.visible");
     cy.get(OnboardingLocator.checklistStatus).should("contain", "0 of 5");
