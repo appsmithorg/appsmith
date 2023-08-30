@@ -183,22 +183,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     };
   }
 
-  static getAutoLayoutConfig() {
-    return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "280px",
-              minHeight: "300px",
-            };
-          },
-        },
-      ],
-    };
-  }
-
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     const definitions = {
       "!doc":

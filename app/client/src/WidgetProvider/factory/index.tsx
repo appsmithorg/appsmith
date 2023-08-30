@@ -26,19 +26,13 @@ import {
   WidgetFeatureProps,
 } from "../../utils/WidgetFeatures";
 import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
-import memo from "micro-memoize";
 // import { WIDGETS_COUNT } from "widgets";
 import type { SetterConfig } from "entities/AppTheming";
+import { freeze, memoize } from "./decorators";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
 export type WidgetType = (typeof WidgetFactory.widgetTypes)[number];
-
-function memoize<T>(fn: (...arg: any[]) => T) {
-  return memo(fn, {
-    maxSize: 100,
-  });
-}
 
 class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
@@ -130,9 +124,9 @@ class WidgetFactory {
     }
   }
 
-  static getConfigs = memoize(() => {
+  static getConfigs = () => {
     return Object.fromEntries(WidgetFactory.widgetConfigMap);
-  });
+  };
 
   static createWidget(
     widgetData: CanvasWidgetStructure,
@@ -161,222 +155,238 @@ class WidgetFactory {
     }
   }
 
-  static getWidgetTypes = memoize((): WidgetType[] => {
+  @memoize
+  @freeze
+  static getWidgetTypes(): WidgetType[] {
     return Array.from(WidgetFactory.widgetsMap.keys());
-  });
+  }
 
-  static getWidgetDerivedPropertiesMap = memoize(
-    (widgetType: WidgetType): DerivedPropertiesMap => {
-      const widget = WidgetFactory.widgetsMap.get(widgetType);
+  @memoize
+  @freeze
+  static getWidgetDerivedPropertiesMap(
+    widgetType: WidgetType,
+  ): DerivedPropertiesMap {
+    const widget = WidgetFactory.widgetsMap.get(widgetType);
 
-      const derivedProperties = widget?.getDerivedPropertiesMap();
+    const derivedProperties = widget?.getDerivedPropertiesMap();
 
-      if (derivedProperties) {
-        return derivedProperties;
-      } else {
-        log.error(
-          `Derived properties are not defined for widget type: ${widgetType}`,
-        );
-
-        return {};
-      }
-    },
-  );
-
-  static getWidgetDefaultPropertiesMap = memoize(
-    (widgetType: WidgetType): Record<string, string> => {
-      const widget = WidgetFactory.widgetsMap.get(widgetType);
-
-      const defaultProperties = widget?.getDefaultPropertiesMap();
-
-      if (defaultProperties) {
-        return defaultProperties;
-      } else {
-        log.error(
-          `Default properties are not defined for widget type: ${widgetType}`,
-        );
-        return {};
-      }
-    },
-  );
-
-  static getWidgetMetaPropertiesMap = memoize(
-    (widgetType: WidgetType): Record<string, unknown> => {
-      const widget = WidgetFactory.widgetsMap.get(widgetType);
-
-      const metaProperties = widget?.getMetaPropertiesMap();
-
-      if (metaProperties) {
-        return metaProperties;
-      } else {
-        log.error(
-          `Meta properties are not defined for widget type: ${widgetType}`,
-        );
-        return {};
-      }
-    },
-  );
-
-  static getWidgetPropertyPaneCombinedConfig = memoize(
-    (type: WidgetType): readonly PropertyPaneConfig[] => {
-      const contentConfig =
-        WidgetFactory.getWidgetPropertyPaneContentConfig(type);
-      const styleConfig = WidgetFactory.getWidgetPropertyPaneStyleConfig(type);
-      return [...contentConfig, ...styleConfig];
-    },
-  );
-
-  static getWidgetPropertyPaneConfig = memoize(
-    (type: WidgetType): readonly PropertyPaneConfig[] => {
-      const widget = WidgetFactory.widgetsMap.get(type);
-
-      const propertyPaneConfig = widget?.getPropertyPaneConfig();
-
-      const features = widget?.getFeatures();
-
-      if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
-        const enhance = flow([
-          enhancePropertyPaneConfig,
-          convertFunctionsToString,
-          addPropertyConfigIds,
-          Object.freeze,
-        ]);
-        const enhancedPropertyPaneConfig = enhance(
-          propertyPaneConfig,
-          features,
-        );
-
-        return enhancedPropertyPaneConfig;
-      } else {
-        const config = WidgetFactory.getWidgetPropertyPaneCombinedConfig(type);
-
-        if (config === undefined) {
-          log.error("Widget property pane config not defined", type);
-          return [];
-        } else {
-          return config;
-        }
-      }
-    },
-  );
-
-  static getWidgetPropertyPaneContentConfig = memoize(
-    (type: WidgetType): readonly PropertyPaneConfig[] => {
-      const widget = WidgetFactory.widgetsMap.get(type);
-
-      const propertyPaneContentConfig = widget?.getPropertyPaneContentConfig();
-
-      const features = widget?.getFeatures();
-
-      if (propertyPaneContentConfig) {
-        const enhance = flow([
-          enhancePropertyPaneConfig,
-          convertFunctionsToString,
-          addPropertyConfigIds,
-          addSearchConfigToPanelConfig,
-          Object.freeze,
-        ]);
-
-        const enhancedPropertyPaneContentConfig = enhance(
-          propertyPaneContentConfig,
-          features,
-          PropertyPaneConfigTypes.CONTENT,
-          type,
-        );
-
-        return enhancedPropertyPaneContentConfig;
-      } else {
-        return [];
-      }
-    },
-  );
-
-  static getWidgetPropertyPaneStyleConfig = memoize(
-    (type: WidgetType): readonly PropertyPaneConfig[] => {
-      const widget = WidgetFactory.widgetsMap.get(type);
-
-      const propertyPaneStyleConfig = widget?.getPropertyPaneStyleConfig();
-
-      const features = widget?.getFeatures();
-
-      if (propertyPaneStyleConfig) {
-        const enhance = flow([
-          enhancePropertyPaneConfig,
-          convertFunctionsToString,
-          addPropertyConfigIds,
-          addSearchConfigToPanelConfig,
-          Object.freeze,
-        ]);
-
-        const enhancedPropertyPaneConfig = enhance(
-          propertyPaneStyleConfig,
-          features,
-          PropertyPaneConfigTypes.STYLE,
-        );
-
-        return enhancedPropertyPaneConfig;
-      } else {
-        return [];
-      }
-    },
-  );
-
-  static getWidgetPropertyPaneSearchConfig = memoize(
-    (type: WidgetType): readonly PropertyPaneConfig[] => {
-      const config = generatePropertyPaneSearchConfig(
-        WidgetFactory.getWidgetPropertyPaneContentConfig(type),
-        WidgetFactory.getWidgetPropertyPaneStyleConfig(type),
+    if (derivedProperties) {
+      return derivedProperties;
+    } else {
+      log.error(
+        `Derived properties are not defined for widget type: ${widgetType}`,
       );
 
-      if (config) {
-        return config;
-      } else {
+      return {};
+    }
+  }
+
+  @memoize
+  @freeze
+  static getWidgetDefaultPropertiesMap(
+    widgetType: WidgetType,
+  ): Record<string, string> {
+    const widget = WidgetFactory.widgetsMap.get(widgetType);
+
+    const defaultProperties = widget?.getDefaultPropertiesMap();
+
+    if (defaultProperties) {
+      return defaultProperties;
+    } else {
+      log.error(
+        `Default properties are not defined for widget type: ${widgetType}`,
+      );
+      return {};
+    }
+  }
+
+  @memoize
+  @freeze
+  static getWidgetMetaPropertiesMap(
+    widgetType: WidgetType,
+  ): Record<string, unknown> {
+    const widget = WidgetFactory.widgetsMap.get(widgetType);
+
+    const metaProperties = widget?.getMetaPropertiesMap();
+
+    if (metaProperties) {
+      return metaProperties;
+    } else {
+      log.error(
+        `Meta properties are not defined for widget type: ${widgetType}`,
+      );
+      return {};
+    }
+  }
+
+  @memoize
+  @freeze
+  static getWidgetPropertyPaneCombinedConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const contentConfig =
+      WidgetFactory.getWidgetPropertyPaneContentConfig(type);
+    const styleConfig = WidgetFactory.getWidgetPropertyPaneStyleConfig(type);
+    return [...contentConfig, ...styleConfig];
+  }
+
+  @memoize
+  @freeze
+  static getWidgetPropertyPaneConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const widget = WidgetFactory.widgetsMap.get(type);
+
+    const propertyPaneConfig = widget?.getPropertyPaneConfig();
+
+    const features = widget?.getFeatures();
+
+    if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
+      const enhance = flow([
+        enhancePropertyPaneConfig,
+        convertFunctionsToString,
+        addPropertyConfigIds,
+        Object.freeze,
+      ]);
+      const enhancedPropertyPaneConfig = enhance(propertyPaneConfig, features);
+
+      return enhancedPropertyPaneConfig;
+    } else {
+      const config = WidgetFactory.getWidgetPropertyPaneCombinedConfig(type);
+
+      if (config === undefined) {
+        log.error("Widget property pane config not defined", type);
         return [];
-      }
-    },
-  );
-
-  static getWidgetAutoLayoutConfig = memoize(
-    (type: WidgetType): AutoLayoutConfig => {
-      const widget = WidgetFactory.widgetsMap.get(type);
-
-      const baseAutoLayoutConfig = widget?.getAutoLayoutConfig();
-
-      if (baseAutoLayoutConfig) {
-        return {
-          ...baseAutoLayoutConfig,
-          widgetSize:
-            baseAutoLayoutConfig.widgetSize?.map((sizeConfig) => ({
-              ...sizeConfig,
-              configuration: (props: WidgetProps) => {
-                if (!props)
-                  return {
-                    minWidth:
-                      WidgetFactory.widgetConfigMap.get(type)?.minWidth ||
-                      FILL_WIDGET_MIN_WIDTH,
-                    minHeight:
-                      WidgetFactory.widgetConfigMap.get(type)?.minHeight || 80,
-                  };
-                return sizeConfig.configuration(props);
-              },
-            })) || [],
-          autoDimension: baseAutoLayoutConfig.autoDimension ?? {},
-          disabledPropsDefaults:
-            baseAutoLayoutConfig.disabledPropsDefaults ?? {},
-        };
       } else {
-        log.error(`Auto layout config is not defined for widget type: ${type}`);
-        return {
-          autoDimension: {},
-          widgetSize: [],
-          disableResizeHandles: {},
-          disabledPropsDefaults: {},
-        };
+        return config;
       }
-    },
-  );
+    }
+  }
 
-  static getWidgetTypeConfigMap = memoize((): WidgetTypeConfigMap => {
+  @memoize
+  @freeze
+  static getWidgetPropertyPaneContentConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const widget = WidgetFactory.widgetsMap.get(type);
+
+    const propertyPaneContentConfig = widget?.getPropertyPaneContentConfig();
+
+    const features = widget?.getFeatures();
+
+    if (propertyPaneContentConfig) {
+      const enhance = flow([
+        enhancePropertyPaneConfig,
+        convertFunctionsToString,
+        addPropertyConfigIds,
+        addSearchConfigToPanelConfig,
+        Object.freeze,
+      ]);
+
+      const enhancedPropertyPaneContentConfig = enhance(
+        propertyPaneContentConfig,
+        features,
+        PropertyPaneConfigTypes.CONTENT,
+        type,
+      );
+
+      return enhancedPropertyPaneContentConfig;
+    } else {
+      return [];
+    }
+  }
+
+  @memoize
+  @freeze
+  static getWidgetPropertyPaneStyleConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const widget = WidgetFactory.widgetsMap.get(type);
+
+    const propertyPaneStyleConfig = widget?.getPropertyPaneStyleConfig();
+
+    const features = widget?.getFeatures();
+
+    if (propertyPaneStyleConfig) {
+      const enhance = flow([
+        enhancePropertyPaneConfig,
+        convertFunctionsToString,
+        addPropertyConfigIds,
+        addSearchConfigToPanelConfig,
+        Object.freeze,
+      ]);
+
+      const enhancedPropertyPaneConfig = enhance(
+        propertyPaneStyleConfig,
+        features,
+        PropertyPaneConfigTypes.STYLE,
+      );
+
+      return enhancedPropertyPaneConfig;
+    } else {
+      return [];
+    }
+  }
+
+  @memoize
+  @freeze
+  static getWidgetPropertyPaneSearchConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const config = generatePropertyPaneSearchConfig(
+      WidgetFactory.getWidgetPropertyPaneContentConfig(type),
+      WidgetFactory.getWidgetPropertyPaneStyleConfig(type),
+    );
+
+    if (config) {
+      return config;
+    } else {
+      return [];
+    }
+  }
+
+  @memoize
+  @freeze
+  static getWidgetAutoLayoutConfig(type: WidgetType): AutoLayoutConfig {
+    const widget = WidgetFactory.widgetsMap.get(type);
+
+    const baseAutoLayoutConfig = widget?.getAutoLayoutConfig();
+
+    if (baseAutoLayoutConfig) {
+      return {
+        ...baseAutoLayoutConfig,
+        widgetSize:
+          baseAutoLayoutConfig.widgetSize?.map((sizeConfig) => ({
+            ...sizeConfig,
+            configuration: (props: WidgetProps) => {
+              if (!props)
+                return {
+                  minWidth:
+                    WidgetFactory.widgetConfigMap.get(type)?.minWidth ||
+                    FILL_WIDGET_MIN_WIDTH,
+                  minHeight:
+                    WidgetFactory.widgetConfigMap.get(type)?.minHeight || 80,
+                };
+              return sizeConfig.configuration(props);
+            },
+          })) || [],
+        autoDimension: baseAutoLayoutConfig.autoDimension ?? {},
+        disabledPropsDefaults: baseAutoLayoutConfig.disabledPropsDefaults ?? {},
+      };
+    } else {
+      log.error(`Auto layout config is not defined for widget type: ${type}`);
+      return {
+        autoDimension: {},
+        widgetSize: [],
+        disableResizeHandles: {},
+        disabledPropsDefaults: {},
+      };
+    }
+  }
+
+  @memoize
+  @freeze
+  static getWidgetTypeConfigMap(): WidgetTypeConfigMap {
     const typeConfigMap: WidgetTypeConfigMap = {};
     WidgetFactory.getWidgetTypes().forEach((type) => {
       typeConfigMap[type] = {
@@ -386,44 +396,48 @@ class WidgetFactory {
       };
     });
     return typeConfigMap;
-  });
+  }
 
-  static getAutocompleteDefinitions = memoize(
-    (type: WidgetType): AutocompletionDefinitions => {
-      const widget = WidgetFactory.widgetsMap.get(type);
+  @memoize
+  @freeze
+  static getAutocompleteDefinitions(
+    type: WidgetType,
+  ): AutocompletionDefinitions {
+    const widget = WidgetFactory.widgetsMap.get(type);
 
-      const autocompleteDefinition = widget?.getAutocompleteDefinitions();
+    const autocompleteDefinition = widget?.getAutocompleteDefinitions();
 
-      if (autocompleteDefinition) {
-        return autocompleteDefinition;
-      } else {
-        log.error(
-          `Auto complete definitions are not defined for widget type: ${type}`,
-        );
-        return {};
-      }
-    },
-  );
+    if (autocompleteDefinition) {
+      return autocompleteDefinition;
+    } else {
+      log.error(
+        `Auto complete definitions are not defined for widget type: ${type}`,
+      );
+      return {};
+    }
+  }
 
-  static getWidgetSetterConfig = memoize(
-    (type: WidgetType): Partial<SetterConfig> => {
-      const widget = WidgetFactory.widgetsMap.get(type);
+  @memoize
+  @freeze
+  static getWidgetSetterConfig(type: WidgetType): Partial<SetterConfig> {
+    const widget = WidgetFactory.widgetsMap.get(type);
 
-      const setterConfig = widget?.getSetterConfig() || {};
+    const setterConfig = widget?.getSetterConfig() || {};
 
-      return setterConfig;
-    },
-  );
+    return setterConfig;
+  }
 
-  static getLoadingProperties = memoize(
-    (type: WidgetType): Array<RegExp> | undefined => {
-      const widget = WidgetFactory.widgetsMap.get(type);
+  @memoize
+  @freeze
+  static getLoadingProperties(type: WidgetType): Array<RegExp> | undefined {
+    const widget = WidgetFactory.widgetsMap.get(type);
 
-      return widget?.getLoadingProperties();
-    },
-  );
+    return widget?.getLoadingProperties();
+  }
 
-  static getWidgetStylesheetConfigMap = memoize((widgetType: WidgetType) => {
+  @memoize
+  @freeze
+  static getWidgetStylesheetConfigMap(widgetType: WidgetType) {
     const widget = WidgetFactory.widgetsMap.get(widgetType);
 
     const stylesheet = widget?.getStylesheetConfig();
@@ -436,9 +450,11 @@ class WidgetFactory {
       );
       return undefined;
     }
-  });
+  }
 
-  static getWidgetMethods = memoize((type: WidgetType): WidgetMethods => {
+  @memoize
+  @freeze
+  static getWidgetMethods(type: WidgetType): WidgetMethods {
     const widget = WidgetFactory.widgetsMap.get(type);
 
     const methods = widget?.getMethods();
@@ -448,7 +464,7 @@ class WidgetFactory {
     } else {
       return {};
     }
-  });
+  }
 }
 
 export type WidgetTypeConfigMap = Record<
