@@ -1,6 +1,6 @@
 import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { AutoLayoutWidgetComponent } from "../common/AutoLayoutWidgetNameComponent";
+import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 import FlexComponent from "../common/FlexComponent";
 import { FlexVerticalAlignment, LayoutDirection } from "../utils/constants";
 
