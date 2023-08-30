@@ -500,7 +500,7 @@ function GeneratePageForm() {
     // selected datasource with the updated datasourceOptions
     for (let i = 0; i < dataSourceOptions.length; i++) {
       if (dataSourceOptions[i].id === selectedDatasource.id) {
-        if (equal(dataSourceOptions[i], selectedDatasource))
+        if (!equal(dataSourceOptions[i], selectedDatasource))
           selectDataSource(dataSourceOptions[i]);
         break;
       }
