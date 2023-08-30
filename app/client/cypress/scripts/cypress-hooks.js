@@ -81,17 +81,21 @@ async function cypressHooks(on, config) {
 
   await on("before:run", async (runDetails) => {
     console.log("GITHUB TOKEN", process.env["GITHUB_TOKEN"]);
-    const octokit = new Octokit();
-    octokit.authenticate({
-      type: "token",
-      token: process.env["GITHUB_TOKEN"],
+    const octokit = new Octokit({
+      auth: process.env["GITHUB_TOKEN"],
     });
     try {
-      const response = await octokit.actions.getWorkflowRun({
-        owner: "appsmithorg",
-        repo: "appsmith",
-        run_id: getEnvValue("RUNID"),
-      });
+      const response = await octokit.request(
+        "GET /repos/{owner}/{repo}/actions/runs/{run_id}",
+        {
+          owner: "appsmithorg",
+          repo: "appsmith",
+          run_id: getEnvValue("RUNID"),
+          headers: {
+            "X-GitHub-Api-Version": "2022-11-28",
+          },
+        },
+      );
       console.log("Workflow Run Details:", response.data);
     } catch (error) {
       console.error("Error:", error);
