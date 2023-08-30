@@ -134,7 +134,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           !viewMode && (
             <Callout
               className="mt-4"
-              kind="warning"
+              kind="info"
               links={[
                 {
                   children: "Learn more",
