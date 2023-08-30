@@ -133,6 +133,7 @@ public class SecurityConfig {
     @Autowired
     private ObservationRegistry observationRegistry;
 
+    @Autowired
     private RateLimitService rateLimitService;
 
     @Value("${appsmith.internal.password}")
