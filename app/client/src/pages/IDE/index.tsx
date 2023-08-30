@@ -11,6 +11,8 @@ import MainPane from "./MainPane";
 import { getIdeSidebarWidth } from "./ideSelector";
 
 const Body = styled.div<{ leftPaneWidth: number }>`
+  height: calc(100vh - 40px);
+  padding-top: 4px;
   background: #f1f5f9;
   display: grid;
   grid-template-columns: 50px ${(props) => props.leftPaneWidth || 300}px auto;

@@ -26,8 +26,9 @@ import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 
 const Container = styled.div`
   background-color: white;
-  margin-top: 4px;
   border-radius: 4px;
+  height: 100%;
+  position: relative;
 `;
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
@@ -75,7 +76,7 @@ const LeftPane = () => {
     <Container ref={sidebarRef} style={{ width: leftPaneWidth }}>
       {!disableResize && (
         <StyledResizer
-          className={`absolute w-2 h-full -mr-1 ${tailwindLayers.resizer} group cursor-ew-resize`}
+          className={`absolute w-2 -mr-1 ${tailwindLayers.resizer} group cursor-ew-resize`}
           onMouseDown={resizer.onMouseDown}
           onMouseEnter={onHoverResizer}
           onMouseLeave={onHoverEndResizer}
