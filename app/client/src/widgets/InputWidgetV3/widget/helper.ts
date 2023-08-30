@@ -12,8 +12,9 @@ import { InputTypes } from "components/constants";
 import type { InputType } from "../component/types";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
+
+import { INPUT_TYPES } from "../constants";
 import type { InputWidgetProps, Validation } from "./types";
-import { INPUT_TYPES } from "widgets/BaseInputWidgetV2/constants";
 
 /**
  * parses text to number if inputType is number

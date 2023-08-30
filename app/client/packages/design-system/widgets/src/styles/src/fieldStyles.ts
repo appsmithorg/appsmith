@@ -9,7 +9,7 @@ export const fieldStyles = css<FieldStylesProps>`
   &[data-field] {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-1);
+    gap: var(--spacing-2);
 
     &[data-position="side"] {
       flex-direction: row;
@@ -93,8 +93,8 @@ export const fieldStyles = css<FieldStylesProps>`
   * FIELD WRAPPER
   *-----------------------------------------------------------------------------
   */
-  & [data-field-wrapper] {
-    gap: var(--spacing-1);
+  & [data-field-input-wrapper] {
+    gap: var(--spacing-2);
     display: flex;
     flex-direction: column;
   }

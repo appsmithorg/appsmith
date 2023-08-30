@@ -2,6 +2,7 @@ import type { BaseInputComponentProps } from "widgets/BaseInputWidgetV2";
 
 import type { INPUT_TYPES } from "../constants";
 import type { IconName } from "@blueprintjs/icons";
+import type { KeyDownEvent } from "../widget/types";
 
 export type InputType = (typeof INPUT_TYPES)[keyof typeof INPUT_TYPES];
 
@@ -14,4 +15,5 @@ export interface InputComponentProps extends BaseInputComponentProps {
   autoComplete?: string;
   iconAlign?: "left" | "right";
   iconName?: IconName;
+  onKeyDown?: (e: KeyDownEvent) => void;
 }

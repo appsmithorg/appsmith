@@ -99,7 +99,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     <div
       aria-busy={isLoading ? true : undefined}
       data-disabled={isDisabled ? "" : undefined}
-      data-field-input-wrapper=""
+      data-field-input=""
       data-focused={isFocusVisible || isFocussed ? "" : undefined}
       data-hovered={isHovered ? "" : undefined}
       data-invalid={isInvalid ? "" : undefined}
@@ -111,7 +111,6 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
       <ElementType
         {...mergeProps(inputProps, hoverProps, focusProps, focusableProps)}
         className={inputClassName}
-        data-field-input=""
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ref={inputRef as any}
         rows={multiLine ? 1 : undefined}

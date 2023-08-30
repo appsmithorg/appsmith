@@ -3,17 +3,17 @@ import type { TextInputProps as HeadlessTextInputProps } from "@design-system/he
 
 // NOTE: these input styles are used in text area and text input
 export const textInputStyles = css<HeadlessTextInputProps>`
-  & [data-field-input-wrapper] {
+  & [data-field-input] {
     display: flex;
     align-items: center;
     gap: var(--spacing-1);
     border-radius: var(--border-radius-1);
     box-shadow: 0 0 0 1px var(--color-bd-neutral);
-    padding-inline: var(--spacing-1);
+    padding-inline: var(--spacing-2);
     block-size: var(--sizing-8);
   }
 
-  & [data-field-input] {
+  & [data-field-input] :is(input, textarea) {
     border: 0;
     background-color: transparent;
     font-family: inherit;
@@ -37,11 +37,11 @@ export const textInputStyles = css<HeadlessTextInputProps>`
 * FOCUSSED
 *-----------------------------------------------------------------------------
 */
-  & [data-field-input-wrapper][data-focused] {
+  & [data-field-input][data-focused] {
     box-shadow: 0 0 0 2px var(--color-bd-focus);
   }
 
-  & [data-field-input-wrapper][data-disabled] {
+  & [data-field-input][data-disabled] {
     opacity: var(--opacity-disabled);
     cursor: default;
     user-select: none;
@@ -52,11 +52,11 @@ export const textInputStyles = css<HeadlessTextInputProps>`
 * ERROR
 *-----------------------------------------------------------------------------
 */
-  & [data-field-input-wrapper][data-invalid] {
+  & [data-field-input][data-invalid] {
     box-shadow: 0 0 0 1px var(--color-bd-negative);
   }
 
-  & [data-field-input-wrapper][data-invalid][data-focused] {
+  & [data-field-input][data-invalid][data-focused] {
     box-shadow: 0 0 0 2px var(--color-bd-negative);
   }
 
@@ -83,11 +83,11 @@ export const textInputStyles = css<HeadlessTextInputProps>`
 * PLACEHOLDER
 *-----------------------------------------------------------------------------
 */
-  & [data-field-input]::placeholder {
+  & [data-field-input] :is(input, textarea)::placeholder {
     color: var(--color-fg-neutral-subtle);
   }
 
-  & [data-field-input]:placeholder-shown {
+  & [data-field-input] :is(input, textarea):placeholder-shown {
     text-overflow: ellipsis;
   }
 
