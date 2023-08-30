@@ -8,7 +8,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Audio Widget functionality tests", () => {
+describe("Divider Widget functionality tests", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.DIVIDER, 200, 200);
   });
