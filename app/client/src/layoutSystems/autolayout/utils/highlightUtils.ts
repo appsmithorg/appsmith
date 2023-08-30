@@ -29,7 +29,7 @@ import type {
   LayerChild,
 } from "./autoLayoutTypes";
 import { getTotalRowsOfAllChildren } from "./heightUpdateUtils";
-import { DEFAULT_HIGHLIGHT_SIZE } from "../common/FlexBoxComponent";
+import { DEFAULT_HIGHLIGHT_SIZE } from "../common/canvas/FlexBoxComponent";
 
 /**
  * @param allWidgets : CanvasWidgetsReduxState

@@ -23,7 +23,7 @@ import type { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import FlexBoxComponent from "../layoutSystems/autolayout/common/FlexBoxComponent";
+import FlexBoxComponent from "../layoutSystems/autolayout/common/canvas/FlexBoxComponent";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
