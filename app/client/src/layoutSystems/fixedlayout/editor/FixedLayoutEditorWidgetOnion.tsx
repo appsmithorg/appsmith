@@ -7,7 +7,7 @@ import SnipeableComponent from "../../common/snipeable/SnipeableComponent";
 import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
 import { AutoHeightOverlayLayer } from "../common/autoHeight/AutoHeightOverlayLayer";
 import { FixedLayoutWigdetComponent } from "../common/FixedLayoutWidgetComponent";
-import { FixedResizableLayer } from "../common/FixedResizableLayer";
+import { FixedResizableLayer } from "../common/resizer/FixedResizableLayer";
 import { PositionedComponentLayer } from "../common/PositionedComponentLayer";
 
 export const FixedLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {

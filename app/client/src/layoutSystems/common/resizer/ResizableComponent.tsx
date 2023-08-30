@@ -13,7 +13,7 @@ import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCa
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AutoLayoutResizable } from "layoutSystems/autolayout/common/resizer/AutoLayoutResizable";
-import { FixedLayoutResizable } from "layoutSystems/fixedlayout/common/FixedLayoutResizable";
+import { FixedLayoutResizable } from "layoutSystems/fixedlayout/common/resizer/FixedLayoutResizable";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
