@@ -230,7 +230,7 @@ describe("Checkbox Tests", function () {
     agHelper.AssertElementVisibility(propPane._colorPickerV2Color);
     // Verify full color picker
     agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 0);
-    propPane.TogglePropertyState("fontcolor", "On", "updateLayout", false);
+    propPane.TogglePropertyState("fontcolor", "On", "");
     agHelper.AssertAttribute(propPane._colorPickerInput, "type", "color", 0);
     // Font size
     propPane.SelectPropertiesDropDown("fontsize", "L");
@@ -280,7 +280,7 @@ describe("Checkbox Tests", function () {
     );
     // Verify full color picker for accent color
     agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 1);
-    propPane.TogglePropertyState("accentcolor", "On", "updateLayout", false);
+    propPane.TogglePropertyState("accentcolor", "On", "");
     agHelper.AssertAttribute(propPane._colorPickerInput, "type", "color", 1);
 
     // Verify border
