@@ -80,11 +80,10 @@ class BaseInputWidget<
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
 
     if (
-      isEnterKey &&
       typeof onSubmit === "string" &&
       onSubmit &&
       ((isMultiLine && (e.metaKey || e.ctrlKey)) ||
-        (typeof onSubmit === "string" && onSubmit && isValid))
+        (!isMultiLine && isEnterKey && isValid))
     ) {
       // Originally super.executeAction was used to trigger the ON_SUBMIT action and updateMetaProperty
       // to update the text. Since executeAction is not queued and updateMetaProperty is, the user

@@ -6,8 +6,6 @@ import type { InputWidgetProps } from "widgets/InputWidgetV2/widget";
 import { isInputTypeEmailOrPassword } from "widgets/InputWidgetV2/widget/Utilities";
 
 import type { BaseInputWidgetProps } from "./types";
-import { checkInputTypeTextByProps } from "../utils";
-import { INPUT_TYPES } from "../constants";
 
 export const propertyPaneContentConfig = [
   {
@@ -122,21 +120,6 @@ export const propertyPaneContentConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
-      {
-        propertyName: "isSpellCheck",
-        label: "Spellcheck",
-        helpText:
-          "Defines whether the text input may be checked for spelling errors",
-        controlType: "SWITCH",
-        isJSConvertible: false,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-        hidden: (props: BaseInputWidgetProps) => {
-          return !checkInputTypeTextByProps(props);
-        },
-        dependencies: ["inputType"],
-      },
     ],
   },
   {
@@ -161,28 +144,6 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        helpText: "Show arrows to increase or decrease values",
-        propertyName: "showStepArrows",
-        label: "Show step arrows",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-          params: {
-            default: false,
-          },
-        },
-        hidden: (props: BaseInputWidgetProps) => {
-          return (
-            props.type !== "CURRENCY_INPUT_WIDGET" &&
-            props.inputType !== INPUT_TYPES.NUMBER
-          );
-        },
-        dependencies: ["inputType"],
       },
       {
         helpText: "Controls the visibility of the widget",

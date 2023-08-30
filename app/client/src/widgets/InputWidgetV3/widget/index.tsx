@@ -12,11 +12,12 @@ import type { WidgetState } from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
 import BaseInputWidget from "widgets/BaseInputWidgetV2";
 import derivedProperties from "./parsedDerivedProperties";
-import type { InputWidgetProps, KeyDownEvent } from "../types";
+import type { InputWidgetProps, KeyDownEvent } from "./types";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { INPUT_TYPES } from "../constants";
 
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -124,7 +125,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   onKeyDown = (e: KeyDownEvent) => {
-    super.onKeyDown(e, this.props.inputType === "MULTI_LINE_TEXT");
+    super.onKeyDown(e, this.props.inputType === INPUT_TYPES.MULTI_LINE_TEXT);
   };
 
   componentDidUpdate = (prevProps: InputWidgetProps) => {
@@ -209,6 +210,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         maxNum={this.props.maxNum}
         minNum={this.props.minNum}
         onFocusChange={this.onFocusChange}
+        onKeyDown={this.onKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         spellCheck={this.props.isSpellCheck}

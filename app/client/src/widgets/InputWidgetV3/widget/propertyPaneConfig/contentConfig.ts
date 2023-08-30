@@ -1,10 +1,12 @@
 import { InputTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 import * as validations from "./validations";
-import { inputTypeUpdateHook } from "../helper";
+import {
+  inputTypeUpdateHook,
+  isInputTypeSingleLineOrMultiLine,
+} from "../helper";
 import type { InputWidgetProps } from "../types";
 
 export const propertyPaneContentConfig = [
@@ -97,7 +99,7 @@ export const propertyPaneContentConfig = [
           params: { min: 1, natural: true, passThroughOnZero: false },
         },
         hidden: (props: InputWidgetProps) => {
-          return !checkInputTypeTextByProps(props);
+          return !isInputTypeSingleLineOrMultiLine(props.inputType);
         },
         dependencies: ["inputType"],
       },
@@ -146,6 +148,21 @@ export const propertyPaneContentConfig = [
         },
         hidden: (props: InputWidgetProps) => {
           return props.inputType !== InputTypes.NUMBER;
+        },
+        dependencies: ["inputType"],
+      },
+      {
+        propertyName: "isSpellCheck",
+        label: "Spellcheck",
+        helpText:
+          "Defines whether the text input may be checked for spelling errors",
+        controlType: "SWITCH",
+        isJSConvertible: false,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (props: InputWidgetProps) => {
+          return !isInputTypeSingleLineOrMultiLine(props.inputType);
         },
         dependencies: ["inputType"],
       },

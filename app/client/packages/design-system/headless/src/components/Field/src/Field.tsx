@@ -80,7 +80,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
       ref={ref}
     >
       {labelAndContextualHelp}
-      <div data-field-wrapper="">
+      <div data-field-input-wrapper="">
         {children}
         {hasHelpText && renderHelpText()}
       </div>
