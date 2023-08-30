@@ -6,4 +6,6 @@ public interface DatasourcePermissionCE {
     AclPermission getDeletePermission();
 
     AclPermission getExecutePermission();
+
+    AclPermission getActionCreatePermission();
 }
