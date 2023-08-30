@@ -46,8 +46,19 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
     _.agHelper.AssertContains("data:application/pdf;filename=generated.pdf");
   });
 
-  it("4. ESM build should pass installation", () => {
+  it("4. ESM build should pass installation, uninstallation and reinstallation", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
+    _.installer.OpenInstaller();
+    _.installer.installLibraryViaURL(
+      "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
+      "fast_xml_parser",
+    );
+    _.agHelper.Sleep(2000);
+    // Uninstallation should succeed
+    _.installer.uninstallLibrary("fast_xml_parser");
+    _.installer.assertUnInstall("fast_xml_parser");
+
+    // Reinstallation should succeed with the same accessor
     _.installer.OpenInstaller();
     _.installer.installLibraryViaURL(
       "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
