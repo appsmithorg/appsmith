@@ -8,7 +8,7 @@ import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
 import { AutoHeightOverlayLayer } from "../common/autoHeight/AutoHeightOverlayLayer";
 import { FixedLayoutWigdetComponent } from "../common/FixedLayoutWidgetComponent";
 import { FixedResizableLayer } from "../common/FixedResizableLayer";
-import { PositionedComponentLayer } from "../PositionedComponentLayer";
+import { PositionedComponentLayer } from "../common/PositionedComponentLayer";
 
 export const FixedLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
