@@ -855,6 +855,8 @@ export function ApplicationsSection(props: any) {
                                 Import
                               </MenuItem>
                             )}
+                          {props.renderManageEnvironmentMenu &&
+                            props.renderManageEnvironmentMenu(workspace.id)}
                           {hasManageWorkspacePermissions &&
                             canInviteToWorkspace && (
                               <MenuItem
