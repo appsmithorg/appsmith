@@ -133,7 +133,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
           <ModalHeader>
             {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
           </ModalHeader>
-          {!isDeploying && <EnvInfoHeader />}
+          {isDeploying && <EnvInfoHeader />}
           <Menu
             activeTabKey={activeTabKey}
             onSelect={(tabKey: string) =>
