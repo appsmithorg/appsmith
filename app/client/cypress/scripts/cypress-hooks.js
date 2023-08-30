@@ -3,6 +3,7 @@ const os = require("os");
 const AWS = require("aws-sdk");
 const fs = require("fs");
 const { Octokit } = require("@octokit/rest");
+import fetch from "node-fetch";
 
 exports.cypressHooks = cypressHooks;
 
@@ -83,6 +84,9 @@ async function cypressHooks(on, config) {
     console.log("GITHUB TOKEN", process.env["GITHUB_TOKEN"]);
     const octokit = new Octokit({
       auth: process.env["GITHUB_TOKEN"],
+      request: {
+        fetch: fetch,
+      },
     });
     try {
       const response = await octokit.request(
