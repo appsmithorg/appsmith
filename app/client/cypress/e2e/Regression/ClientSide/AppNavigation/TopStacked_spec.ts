@@ -102,16 +102,16 @@ describe("Test Top + Stacked navigation style", function () {
     agHelper
       .GetElement(appSettings.locators._scrollArrows)
       .first()
-      .trigger("mousedown");
+      .trigger("mousedown", { force: true });
     agHelper.Sleep(1500);
     agHelper
       .GetElement(appSettings.locators._scrollArrows)
       .first()
       .trigger("mouseup", { force: true });
-    agHelper
-      .GetElement(appSettings.locators._navigationMenuItem)
-      .contains(pageName)
-      .should("be.visible");
+    agHelper.GetNAssertContains(
+      `${appSettings.locators._navigationMenuItem} span`,
+      pageName,
+    );
   });
 
   it("4. Navigation's background should be default to white, and should change when background color is set to theme", () => {

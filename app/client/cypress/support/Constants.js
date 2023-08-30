@@ -116,3 +116,5 @@ export const TABLE_DATA_STATIC = `
   }
 ]
 `;
+
+export const DEFAULT_COLUMN_NAME = "Table Column";

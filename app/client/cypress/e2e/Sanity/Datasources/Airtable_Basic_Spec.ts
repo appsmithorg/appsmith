@@ -3,7 +3,7 @@ import {
   entityExplorer,
   entityItems,
   dataSources,
-  tedTestConfig,
+  dataManager,
   assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 
@@ -28,7 +28,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     );
 
     agHelper.EnterValue(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].AirtableBase,
+      dataManager.dsValues[dataManager.defaultEnviorment].AirtableBase,
       {
         propFieldName: "",
         directInput: false,
@@ -36,7 +36,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       },
     );
     agHelper.EnterValue(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].AirtableTable,
+      dataManager.dsValues[dataManager.defaultEnviorment].AirtableTable,
       {
         propFieldName: "",
         directInput: false,

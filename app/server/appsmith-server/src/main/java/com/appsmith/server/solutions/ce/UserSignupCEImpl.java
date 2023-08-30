@@ -8,7 +8,6 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserState;
-import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -126,8 +125,9 @@ public class UserSignupCEImpl implements UserSignupCE {
                     AppsmithError.INVALID_PASSWORD_LENGTH, LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH));
         }
 
+        // only creating user, welcome email will be sent post user email verification
         Mono<UserSignupDTO> createUserAndSendEmailMono = userService
-                .createUserAndSendEmail(user, exchange.getRequest().getHeaders().getOrigin())
+                .createUser(user, exchange.getRequest().getHeaders().getOrigin())
                 .elapsed()
                 .map(pair -> {
                     log.debug("UserSignupCEImpl::Time taken for create user and send email: {} ms", pair.getT1());
@@ -279,17 +279,20 @@ public class UserSignupCEImpl implements UserSignupCE {
                                 return pair.getT2();
                             });
 
-                    Mono<EnvChangesResponseDTO> applyEnvManagerChangesMono = envManager
+                    Mono<Void> applyEnvManagerChangesMono = envManager
                             .applyChanges(Map.of(
                                     APPSMITH_DISABLE_TELEMETRY.name(),
                                     String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
                                     APPSMITH_ADMIN_EMAILS.name(),
                                     user.getEmail()))
+                            // We need a non-empty value for `.elapsed` to work.
+                            .thenReturn(true)
                             .elapsed()
                             .map(pair -> {
                                 log.debug("UserSignupCEImpl::Time taken to apply env changes: {} ms", pair.getT1());
                                 return pair.getT2();
-                            });
+                            })
+                            .then();
 
                     /*
                      * Here, we have decided to move these 2 analytics events to a separate thread.

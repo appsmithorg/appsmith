@@ -294,7 +294,8 @@ const CardFooter = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 4px;
+  margin: 4px auto 0;
+  width: ${(props) => props.theme.card.minWidth - 8}px;
 `;
 
 const IconScrollWrapper = styled.div`
@@ -473,7 +474,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
     existingLink && existingLink.remove();
     const link = document.createElement("a");
 
-    link.href = getExportAppAPIRoute(applicationId);
+    const branchName = props.application.gitApplicationMetadata?.branchName;
+    link.href = getExportAppAPIRoute(applicationId, branchName);
     link.id = id;
     document.body.appendChild(link);
     // @ts-expect-error: Types are not available

@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.external.models.QBranchAwareDomain;
@@ -611,5 +612,32 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Aggregation aggregation = newAggregation(filterStates, countByPluginType, projectionOperation);
         return mongoOperations.aggregate(
                 aggregation, mongoOperations.getCollectionName(NewAction.class), PluginTypeAndCountDTO.class);
+    }
+
+    /**
+     * Sets the datasource.name and updatedAt fields of newAction as per the provided datasource. The actions which
+     * have unpublishedAction.datasource.id same as the provided datasource.id will be updated.
+     * @param datasource The datasource object
+     * @return result of the multi update query
+     */
+    @Override
+    public Mono<UpdateResult> updateDatasourceNameInActions(Datasource datasource) {
+        String unpublishedActionDatasourceIdFieldPath = String.format(
+                "%s.%s.%s",
+                fieldName(QNewAction.newAction.unpublishedAction),
+                fieldName(QNewAction.newAction.unpublishedAction.datasource),
+                fieldName(QNewAction.newAction.unpublishedAction.datasource.id));
+
+        String unpublishedActionDatasourceNameFieldPath = String.format(
+                "%s.%s.%s",
+                fieldName(QNewAction.newAction.unpublishedAction),
+                fieldName(QNewAction.newAction.unpublishedAction.datasource),
+                fieldName(QNewAction.newAction.unpublishedAction.datasource.name));
+
+        Criteria criteria = where(unpublishedActionDatasourceIdFieldPath).is(datasource.getId());
+        Update update = new Update();
+        update.set(FieldName.UPDATED_AT, datasource.getUpdatedAt());
+        update.set(unpublishedActionDatasourceNameFieldPath, datasource.getName());
+        return updateByCriteria(List.of(criteria), update, null);
     }
 }
