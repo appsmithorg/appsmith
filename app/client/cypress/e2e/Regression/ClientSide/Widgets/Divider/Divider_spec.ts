@@ -111,6 +111,7 @@ describe("Divider Widget functionality tests", () => {
       "dotted",
     );
   });
+
   it("4. Verify bindings in preview and deploy mode", () => {
     // verify in preview mode
     agHelper.GetNClick(locators._enterPreviewMode);
