@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 import { Switch } from "react-router";
@@ -105,14 +106,14 @@ const LeftPane = () => {
       <div>
         <Switch>
           <SentryRoute component={DataLeftPane} path={IDE_DATA_PATH} />
-          <SentryRoute component={PageLeftPane} path={IDE_PAGE_PATH} />
+          {/* <SentryRoute component={PageLeftPane} path={IDE_PAGE_PATH} />
           <SentryRoute component={AddLeftPane} exact path={IDE_ADD_PATH} />
           <SentryRoute component={LibLeftPane} exact path={IDE_LIB_PATH} />
           <SentryRoute
             component={SettingsLeftPane}
             exact
             path={IDE_SETTINGS_PATH}
-          />
+          /> */}
         </Switch>
       </div>
     </Container>

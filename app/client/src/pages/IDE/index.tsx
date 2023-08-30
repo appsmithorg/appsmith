@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
@@ -11,7 +12,6 @@ import { getIdeSidebarWidth } from "./ideSelector";
 
 const Body = styled.div<{ leftPaneWidth: number }>`
   background: #f1f5f9;
-  height: calc(100vh - 40px);
   display: grid;
   grid-template-columns: 50px ${(props) => props.leftPaneWidth || 300}px auto;
   grid-template-rows: 1fr 37px;
@@ -37,3 +37,8 @@ const IDE = function () {
 };
 
 export default IDE;
+{
+  /* <LeftPane />
+      <MainPane />
+      <DebugBar /> */
+}

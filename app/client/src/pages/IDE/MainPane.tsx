@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import styled from "styled-components";
 import { Switch } from "react-router";
@@ -19,21 +20,15 @@ import DataMainEmptyState from "./DataState/EmptyState";
 
 const Container = styled.div`
   background-color: white;
-  margin-top: 4px;
   border-radius: 4px;
   margin-right: 5px;
 `;
 
 const MainPane = () => {
   return (
-    <Container>
-      <Switch>
-        <SentryRoute
-          component={DataMainEmptyState}
-          exact
-          path={IDE_DATA_PATH}
-        />
-        <SentryRoute
+    <Switch>
+      {/* <SentryRoute component={DataMainEmptyState} exact path={IDE_DATA_PATH} /> */}
+      {/* <SentryRoute
           component={DataMainPane}
           exact
           path={IDE_DATA_DETAIL_PATH}
@@ -45,9 +40,8 @@ const MainPane = () => {
           component={SettingsMainPane}
           exact
           path={IDE_SETTINGS_PATH}
-        />
-      </Switch>
-    </Container>
+        /> */}
+    </Switch>
   );
 };
 
