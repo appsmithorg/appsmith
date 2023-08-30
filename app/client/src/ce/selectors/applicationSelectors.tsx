@@ -12,7 +12,7 @@ import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
-import type { Package } from "@appsmith/constants/PackageConstants";
+import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name", "packages.name"],
@@ -41,7 +41,7 @@ const fuzzySearchOptions = {
  */
 const injectPackagesToWorkspacesList = (
   workspacesList: Workspaces[] = [],
-  packages: Package[] = [],
+  packages: PackageMetadata[] = [],
 ) => {
   const packagesGroupByWorkspaceId = groupBy(packages, (p) => p.workspaceId);
 
@@ -119,7 +119,7 @@ export const getUserApplicationsWorkspacesList = createSelector(
   (
     applicationsWorkspaces?: Workspaces[],
     keyword?: string,
-    packages?: Package[],
+    packages?: PackageMetadata[],
   ) => {
     const workspacesList = injectPackagesToWorkspacesList(
       applicationsWorkspaces,
