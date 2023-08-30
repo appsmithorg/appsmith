@@ -71,7 +71,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     };
   }
 
-  static getAutoLayoutconfig() {
+  static getAutoLayoutConfig() {
     return {
       defaults: {
         rows: 4,

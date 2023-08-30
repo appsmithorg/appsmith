@@ -107,7 +107,7 @@ class CheckboxGroupWidget extends BaseWidget<
     };
   }
 
-  static getAutolayoutConfif() {
+  static getAutolayoutConfig() {
     return {
       defaults: {
         columns: 14,
