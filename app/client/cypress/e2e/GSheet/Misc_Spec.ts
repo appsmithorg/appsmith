@@ -119,7 +119,7 @@ describe("GSheet Miscellaneous Tests", function () {
     assertHelper.AssertNetworkStatus("@getActions", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     //deploy the app and verify the table data
@@ -176,7 +176,7 @@ describe("GSheet Miscellaneous Tests", function () {
     assertHelper.AssertNetworkStatus("@getActions", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     //deploy the app and verify the table data
