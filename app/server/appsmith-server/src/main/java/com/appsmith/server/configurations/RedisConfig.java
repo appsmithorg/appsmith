@@ -6,7 +6,12 @@ import com.appsmith.server.dtos.UserSessionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisCredentialsProvider;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.StaticCredentialsProvider;
+import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.resource.ClientResources;
+import io.lettuce.core.AbstractRedisClient;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -102,9 +107,52 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisClient redisClient() {
+    public AbstractRedisClient redisClient() {
         final URI redisUri = URI.create(redisURL);
-        return RedisClient.create(redisUri.getScheme() + "://" + redisUri.getHost() + ":" + redisUri.getPort());
+        final String scheme = redisUri.getScheme();
+
+        switch (scheme) {
+            case "redis":
+                return createRedisClient(redisUri);
+            case "rediss":
+                return createRedisClientWithSsl(redisUri);
+            case "redis-cluster":
+                return createRedisClusterClient(redisUri);
+            default:
+                throw new InvalidRedisURIException("Invalid redis scheme: " + scheme);
+        }
+    }
+
+    private RedisClient createRedisClient(URI redisUri) {
+        RedisURI redisURI = RedisURI.create(redisUri);
+        redisURI.setCredentialsProvider(getCredentialsProvider(redisUri));
+        return RedisClient.create(redisURI);
+    }
+
+    private RedisClient createRedisClientWithSsl(URI redisUri) {
+        RedisURI redisURI = RedisURI.create(redisUri);
+        redisURI.setCredentialsProvider(getCredentialsProvider(redisUri));
+        redisURI.applySsl(redisURI);
+        redisURI.applyAuthentication(redisURI);
+        return RedisClient.create(redisURI);
+    }
+
+    private RedisClusterClient createRedisClusterClient(URI redisUri) {
+        RedisURI redisURI = RedisURI.create(redisUri);
+        redisURI.setCredentialsProvider(getCredentialsProvider(redisUri));
+        redisURI.applyAuthentication(redisURI);
+        return RedisClusterClient.create(redisURI);
+    }
+
+    private RedisCredentialsProvider getCredentialsProvider(URI redisUri) {
+        final String userInfo = redisUri.getUserInfo();
+        if (StringUtils.isNotEmpty(userInfo)) {
+            final String[] parts = userInfo.split(":", 2);
+            final char[] password = parts.length > 1 ? parts[1].toCharArray() : new char[0];
+            return new StaticCredentialsProvider(parts[0], password);
+        }
+
+        return new StaticCredentialsProvider("", new char[0]);
     }
 
     private void fillAuthentication(URI redisUri, RedisConfiguration.WithAuthentication config) {

@@ -7,7 +7,9 @@ import io.github.bucket4j.Refill;
 import io.github.bucket4j.distributed.BucketProxy;
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
+import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.cluster.RedisClusterClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,9 +24,9 @@ public class RateLimitConfig {
     private static final Map<String, BucketConfiguration> apiConfigurations = new HashMap<>();
 
     @Autowired
-    private final RedisClient redisClient;
+    private final AbstractRedisClient redisClient;
 
-    public RateLimitConfig(RedisClient redisClient) {
+    public RateLimitConfig(AbstractRedisClient redisClient) {
         this.redisClient = redisClient;
     }
 
@@ -42,7 +44,14 @@ public class RateLimitConfig {
          the proxyManager expires and renews the buckets with their initial configuration
         */
         Duration longExpiration = Duration.ofDays(3650); // 10 years
-        return LettuceBasedProxyManager.builderFor(redisClient)
+
+        if (redisClient instanceof RedisClusterClient) {
+            return LettuceBasedProxyManager.builderFor((RedisClusterClient) redisClient)
+                    .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(longExpiration))
+                    .build();
+        }
+
+        return LettuceBasedProxyManager.builderFor((RedisClient) redisClient)
                 .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(longExpiration))
                 .build();
     }
