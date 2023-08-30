@@ -59,13 +59,23 @@ describe("Admin settings page", function () {
       cy.url().should("contain", "/settings/general");
       cy.get(adminsSettings.advancedTab).click();
       cy.url().should("contain", "/settings/advanced");
+      cy.wait(2000);
+      cy.get("#root").matchImageSnapshot("AdminSettingsAdvancedTab");
       cy.get(adminsSettings.authenticationTab).click();
+      cy.wait(2000);
+      cy.get("#root").matchImageSnapshot("AdminSettingsAuthenticationTab");
       cy.url().should("contain", "/settings/authentication");
       cy.get(adminsSettings.emailTab).click();
+      cy.wait(2000);
+      cy.get("#root").matchImageSnapshot("AdminSettingsEmailTab");
       cy.url().should("contain", "/settings/email");
       cy.get(adminsSettings.googleMapsTab).click();
+      cy.wait(2000);
+      cy.get("#root").matchImageSnapshot("AdminSettingsMapsTab");
       cy.url().should("contain", "/settings/google-maps");
       cy.get(adminsSettings.versionTab).click();
+      cy.wait(2000);
+      cy.get("#root").matchImageSnapshot("AdminSettingsVersionTab");
       cy.url().should("contain", "/settings/version");
     },
   );

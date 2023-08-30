@@ -23,6 +23,7 @@ describe("Embed settings options", function () {
     _.deployMode.NavigateBacktoEditor();
     _.embedSettings.OpenEmbedSettings();
     _.agHelper.Sleep();
+    cy.get("#root").matchImageSnapshot("EmbedSettings");
     _.agHelper.GetNAssertElementText(
       _.embedSettings.locators._frameAncestorsSetting,
       setting,

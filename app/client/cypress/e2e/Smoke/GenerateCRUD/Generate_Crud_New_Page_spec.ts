@@ -10,6 +10,7 @@ describe("Validate generate CRUD operation by creating a datasource from generat
       _.entityExplorer.AddNewPage();
       _.apiPage.CreateApi();
       _.dataSources.GeneratePageWithMockDB();
+      cy.matchImageSnapshot("crudpage");
     },
   );
   it(

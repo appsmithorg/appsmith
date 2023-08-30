@@ -29,6 +29,7 @@ describe("GSheet-Functional Tests With All Access", function () {
       spreadSheetName,
       JSON.stringify([GSHEET_DATA[0]]),
     );
+    cy.matchImageSnapshot("Gsheet");
     cy.get("@postExecute").then((interception: any) => {
       expect(
         interception.response.body.data.body.properties.title,

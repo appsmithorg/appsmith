@@ -13,7 +13,9 @@ let currentUrl: string;
 describe("Page orientation and navigation related usecases ", function () {
   it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
     agHelper.GetNClick(appSettings.locators._appSettings);
+    cy.get("#root").matchImageSnapshot("AppSettings");
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
+    cy.get("#root").matchImageSnapshot("AppNavigation");
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,
     );

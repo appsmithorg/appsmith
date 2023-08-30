@@ -5,7 +5,6 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.OpenInstaller();
-    cy.get("#root").matchImageSnapshot("CustomJSLibrary");
     _.installer.installLibrary("uuidjs", "UUID");
     _.installer.uninstallLibrary("uuidjs");
     _.installer.assertUnInstall("uuidjs");

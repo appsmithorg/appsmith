@@ -21,6 +21,7 @@ describe("Add widget - Postgress DataSource", function () {
     cy.get(queryEditor.suggestedTableWidget).click();
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("Table1");
+    cy.matchImageSnapshot("PropertyPane");
     cy.isSelectRow(1);
     cy.readTableV2dataPublish("1", "0").then((tabData) => {
       cy.log("the value is " + tabData);

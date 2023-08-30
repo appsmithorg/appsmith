@@ -4,6 +4,7 @@ describe("Page Settings", () => {
   it("1. Page name change updates URL", () => {
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page1");
+    cy.get("#root").matchImageSnapshot("PageSettings");
     _.pageSettings.UpdatePageNameAndVerifyUrl("Page2", undefined, false);
     _.homePage.GetAppName().then((appName) => {
       _.deployMode.DeployApp();

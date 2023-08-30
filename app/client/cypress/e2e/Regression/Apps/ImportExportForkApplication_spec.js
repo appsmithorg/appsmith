@@ -74,6 +74,7 @@ describe("Import, Export and Fork application and validate data binding", functi
     // cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePageLocatores.appMoreIcon).first().click({ force: true });
     cy.get(homePageLocatores.forkAppFromMenu).click({ force: true });
+    cy.matchImageSnapshot("ForkAppModal");
     cy.get(homePageLocatores.forkAppWorkspaceButton).click({ force: true });
     cy.wait(4000);
     // validating data binding for the forked application

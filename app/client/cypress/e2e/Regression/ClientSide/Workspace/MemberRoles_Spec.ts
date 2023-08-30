@@ -175,6 +175,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     );
     _.homePage.FilterApplication(appid, workspaceId);
     _.homePage.OpenMembersPageForWorkspace(workspaceId);
+    cy.get("#root").matchImageSnapshot("MembersPage");
     cy.get(_.homePage._usersEmailList).then(function ($list) {
       expect($list).to.have.length(3);
       expect($list.eq(0)).to.contain(Cypress.env("USERNAME"));

@@ -24,6 +24,8 @@ describe("excludeForAirgap", "Tests JS Library with Git", () => {
   it("1. Install JS Library and commit changes, create branch and verify JS library changes are present on new branch ", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.OpenInstaller();
+    cy.wait(2000);
+    cy.get("#root").matchImageSnapshot("CustomJSLib");
     _.installer.installLibrary("uuidjs", "UUID");
     cy.commitAndPush();
     // create new branch
