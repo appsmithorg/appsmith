@@ -1,5 +1,5 @@
 import type { AppState } from "@appsmith/reducers";
-import { find, get, pick, set } from "lodash";
+import { find, get, set } from "lodash";
 import { createSelector } from "reselect";
 import type {
   DataTree,
@@ -97,24 +97,6 @@ export const getWidgetPropsForPropertyPane = createSelector(
     }
     return widgetProperties;
   },
-);
-
-type WidgetPropertiesForPropertyPaneView = {
-  type: string;
-  widgetId: string;
-  widgetName: string;
-  displayName: string;
-};
-
-export const getWidgetPropsForPropertyPaneView = createSelector(
-  getWidgetPropsForPropertyPane,
-  (props) =>
-    pick(props, [
-      "type",
-      "widgetId",
-      "widgetName",
-      "displayName",
-    ]) as WidgetPropertiesForPropertyPaneView,
 );
 
 export const selectedWidgetsPresentInCanvas = createSelector(

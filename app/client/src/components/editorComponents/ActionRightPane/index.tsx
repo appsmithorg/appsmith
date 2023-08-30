@@ -41,7 +41,10 @@ import {
   SCHEMALESS_PLUGINS,
 } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  adaptiveSignpostingEnabled,
+  selectFeatureFlagCheck,
+} from "@appsmith/selectors/featureFlagsSelectors";
 import {
   AB_TESTING_EVENT_KEYS,
   FEATURE_FLAG,
@@ -64,6 +67,10 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { Tooltip } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import history from "utils/history";
+import { SignpostingWalkthroughConfig } from "pages/Editor/FirstTimeUserOnboarding/Utils";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
 
@@ -318,7 +325,11 @@ function ActionSidebar({
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const user = useSelector(getCurrentUser);
-  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const {
+    isOpened: isWalkthroughOpened,
+    popFeature,
+    pushFeature,
+  } = useContext(WalkthroughContext) || {};
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -361,6 +372,8 @@ function ActionSidebar({
     getDatasourceStructureById(state, datasourceId),
   );
 
+  const hasWidgets = Object.keys(widgets).length > 1;
+
   useEffect(() => {
     if (
       datasourceId &&
@@ -388,7 +401,7 @@ function ActionSidebar({
       !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
-        targetId: SCHEMA_SECTION_ID,
+        targetId: `#${SCHEMA_SECTION_ID}`,
         onDismiss: async () => {
           await setFeatureWalkthroughShown(
             FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
@@ -398,7 +411,7 @@ function ActionSidebar({
         details: {
           title: createMessage(SCHEMA_WALKTHROUGH_TITLE),
           description: createMessage(SCHEMA_WALKTHROUGH_DESC),
-          imageURL: SCHEMA_GUIDE_GIF,
+          imageURL: getAssetUrl(SCHEMA_GUIDE_GIF),
         },
         offset: {
           position: "left",
@@ -418,6 +431,22 @@ function ActionSidebar({
       });
   };
 
+  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
+  const checkAndShowBackToCanvasWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.back_to_canvas,
+    );
+    !isFeatureWalkthroughShown &&
+      pushFeature &&
+      pushFeature(SignpostingWalkthroughConfig.BACK_TO_CANVAS);
+  };
+  useEffect(() => {
+    if (!hasWidgets && adaptiveSignposting && signpostingEnabled) {
+      checkAndShowBackToCanvasWalkthrough();
+    }
+  }, [hasWidgets, adaptiveSignposting, signpostingEnabled]);
+
   const showSchema =
     isEnabledForDSSchema &&
     pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm &&
@@ -428,8 +457,6 @@ function ActionSidebar({
       checkAndShowWalkthrough();
     }
   }, [showSchema]);
-
-  const hasWidgets = Object.keys(widgets).length > 1;
 
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -449,13 +476,23 @@ function ActionSidebar({
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
+  const handleCloseWalkthrough = () => {
+    if (isWalkthroughOpened && popFeature) {
+      popFeature();
+    }
+  };
+
   return (
     <SideBar>
       <BackToCanvasLink
+        id="back-to-canvas"
         kind="secondary"
+        onClick={() => {
+          history.push(builderURL({ pageId }));
+
+          handleCloseWalkthrough();
+        }}
         startIcon="arrow-left-line"
-        target="_self"
-        to={builderURL({ pageId })}
       >
         {createMessage(BACK_TO_CANVAS)}
       </BackToCanvasLink>
