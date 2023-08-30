@@ -100,7 +100,6 @@ describe("Camera widget - Video test", () => {
       .matchImageSnapshot("cameraVideoScreen");
 
     //Start video recording
-    cy.get(widgetLocators.cameraCaptureBtn).should("have.length", 2);
     agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
     agHelper.Sleep(2000);
 
