@@ -86,6 +86,7 @@ describe.skip("test validationDependencyMap", () => {
   });
 });
 
+// eslint-disable-next-line jest/no-disabled-tests
 describe.skip("DependencyMap utils", function () {
   test("getEntityPathDependencies", () => {
     const entity = {
