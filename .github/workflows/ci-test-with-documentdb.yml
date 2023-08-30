@@ -157,12 +157,7 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > ssh_key.pem
           chmod 400 ssh_key.pem
-      
-      ##### Start tmate session for tunnelling --- DELETE THIS LATER!!!##########
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-      ###########################################################################
-      
+       
       - name: Setup SSH tunnel to AWS DocumentDB instance
         run: |
           chmod 400 ssh_key.pem 
