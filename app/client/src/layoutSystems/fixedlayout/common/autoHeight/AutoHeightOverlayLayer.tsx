@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import AutoHeightOverlayContainer from "components/autoHeightOverlay";
+import AutoHeightOverlayContainer from "layoutSystems/fixedlayout/common/autoHeightOverlay";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { GridDefaults } from "constants/WidgetConstants";
 import React, { useContext } from "react";

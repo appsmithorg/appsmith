@@ -1,8 +1,11 @@
 import { isFunction } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import { RenderModes } from "../../constants/WidgetConstants";
+import { AutoLayoutEditorWraper } from "./Editor/AutoLayoutEditorWraper";
+import { AutoLayoutViewerWrapper } from "./viewer/AutoLayoutViewerWrapper";
 
-export const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
+const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
   let autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
     props.type,
   ).autoDimension;
@@ -15,7 +18,7 @@ export const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
   return autoDimensionConfig;
 };
 
-export const getAutoLayoutComponentDimensions = ({
+const getAutoLayoutComponentDimensions = ({
   bottomRow,
   isFlexChild,
   isMobile,
@@ -52,4 +55,22 @@ export const getAutoLayoutComponentDimensions = ({
     componentWidth: (right - left) * parentColumnSpace,
     componentHeight: (bottom - top) * parentRowSpace,
   };
+};
+
+export const getAutoLayoutSystemProps = (props: BaseWidgetProps) => {
+  const autoDimensionConfig = getAutoLayoutDimensionsConfig(props);
+  const { componentHeight, componentWidth } =
+    getAutoLayoutComponentDimensions(props);
+  return {
+    autoDimensionConfig,
+    componentDimensions: { componentHeight, componentWidth },
+  };
+};
+
+export const getAutoLayoutSystemWrapper = (renderMode: RenderModes) => {
+  if (renderMode === RenderModes.CANVAS) {
+    return AutoLayoutEditorWraper;
+  } else {
+    return AutoLayoutViewerWrapper;
+  }
 };

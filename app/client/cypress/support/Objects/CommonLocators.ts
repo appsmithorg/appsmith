@@ -284,4 +284,5 @@ export class CommonLocators {
   _checkboxWidgetLabel = ".t--checkbox-widget-label";
   _buttonWidgetInForm =
     "//*[contains(@class,'t--widget-buttonwidget')]//button[contains(@class,'bp3-button')]";
+  _walkthrough_overlay = `.t--walkthrough-overlay`;
 }

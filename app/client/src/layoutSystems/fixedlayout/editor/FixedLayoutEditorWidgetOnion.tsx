@@ -1,14 +1,14 @@
+import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 import { get } from "lodash";
 import React from "react";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import DraggableComponent from "../../common/DraggableComponent";
-import SnipeableComponent from "../../common/SnipeableComponent";
-import { WidgetNameLayer } from "../../common/WidgetNameLayer";
+import SnipeableComponent from "../../common/snipeable/SnipeableComponent";
+import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
 import { AutoHeightOverlayLayer } from "../common/autoHeight/AutoHeightOverlayLayer";
-import { FixedLayoutWigdetComponent } from "../common/FixedLayoutWidgetComponent";
-import { FixedResizableLayer } from "../common/FixedResizableLayer";
-import { PositionedComponentLayer } from "../PositionedComponentLayer";
+import { FixedLayoutWigdetComponent } from "../common/widgetComponent/FixedLayoutWidgetComponent";
+import { FixedResizableLayer } from "../common/resizer/FixedResizableLayer";
+import { PositionedComponentLayer } from "../common/PositionedComponentLayer";
 
 export const FixedLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (

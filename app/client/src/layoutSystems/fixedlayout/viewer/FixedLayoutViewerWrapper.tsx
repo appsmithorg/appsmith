@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { FixedLayoutViewerWidgetOnion } from "./FixedLayoutViewerWidgetOnion";
 import { FixedLayoutViewerModalOnion } from "./FixedLayoutViewerModalOnion";
-import { getFixedLayoutComponentDimensions } from "../common/utils";
+import { getFixedLayoutComponentDimensions } from "..";
 
 export const FixedLayoutViewerWrapper = (props: WidgetProps) => {
   const { componentHeight, componentWidth } =

@@ -201,6 +201,15 @@ export const StyledCheckbox = styled(Checkbox)`
   }
 `;
 
+export const OptionLabel = styled(Text)`
+  overflow: hidden;
+  word-break: break-all;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+`;
+
 const validateFormValues = (values: {
   users: string;
   role?: string;
@@ -548,12 +557,12 @@ function WorkspaceInviteUsersForm(props: any) {
                       />
                     )}
                     <div className="flex flex-col gap-1">
-                      <Text
+                      <OptionLabel
                         color="var(--ads-v2-color-fg-emphasis)"
                         kind={role.description && "heading-xs"}
                       >
                         {role.value}
-                      </Text>
+                      </OptionLabel>
                       {role.description && (
                         <Text kind="body-s">{role.description}</Text>
                       )}

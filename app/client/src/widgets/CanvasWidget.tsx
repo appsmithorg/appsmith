@@ -21,10 +21,10 @@ import type { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import FlexBoxComponent from "../layoutSystems/autolayout/common/FlexBoxComponent";
 import { FixedCanvasDraggingArena } from "layoutSystems/fixedlayout/Editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
 import { AutoCanvasDraggingArena } from "layoutSystems/autolayout/Editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
 import { CanvasSelectionArena } from "layoutSystems/fixedlayout/Editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
+import FlexBoxComponent from "../layoutSystems/autolayout/common/flexCanvas/FlexBoxComponent";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {

@@ -1,4 +1,4 @@
-import AutoLayoutDimensionObserver from "layoutSystems/autolayout/common/AutoLayoutDimensionObeserver";
+import AutoLayoutDimensionObserver from "layoutSystems/autolayout/common/autoDimensionObserver/AutoLayoutDimensionObeserver";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import { isFunction } from "lodash";

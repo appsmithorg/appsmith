@@ -73,7 +73,7 @@ describe("Input widget test with default value from chart datapoint", () => {
       "European Union",
     );
     agHelper.ValidateToastMessage(
-      '{"x":-1,"y":-1,"seriesTitle":"","rawEventData":{"color":"#FFC533","alpha":100,"labelFill":"#666","labelAlpha":100,"value":4747591,"label":"European Union","sourceLinks":["France","United States","United Kingdom","Switzerland","Austria","Sweden"],"targetLinks":["Netherlands","Germany","Belgium","China","Italy","Russia","Spain"]}}',
+      '{"rawEventData":{"color":"#FFC533","alpha":100,"labelFill":"#666","labelAlpha":100,"value":4747591,"label":"European Union","sourceLinks":["France","United States","United Kingdom","Switzerland","Austria","Sweden"],"targetLinks":["Netherlands","Germany","Belgium","China","Italy","Russia","Spain"]}}',
     );
   });
 });

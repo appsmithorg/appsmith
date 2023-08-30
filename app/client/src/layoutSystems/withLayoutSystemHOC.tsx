@@ -7,8 +7,8 @@ import {
   getRenderMode,
 } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getAutoLayoutSystemWrapper } from "./autolayout/AutoLayoutSystemWrapper";
-import { getFixedLayoutSystemWrapper } from "./fixedlayout/FixedLayoutSystemWrapper";
+import { getAutoLayoutSystemWrapper } from "./autolayout";
+import { getFixedLayoutSystemWrapper } from "./fixedlayout";
 
 const getLayoutSystem = (
   renderMode: RenderModes,

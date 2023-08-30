@@ -1,14 +1,14 @@
-import SnipeableComponent from "layoutSystems/common/SnipeableComponent";
+import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponent";
 import { get } from "lodash";
 import React from "react";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import DraggableComponent from "../../common/DraggableComponent";
-import { WidgetNameLayer } from "../../common/WidgetNameLayer";
-import { AutoLayoutWidgetComponent } from "../common/AutoLayoutWidgetNameComponent";
+import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
+import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 import FlexComponent from "../common/FlexComponent";
 import { FlexVerticalAlignment, LayoutDirection } from "../utils/constants";
-import { AutoResizableLayer } from "./AutoResizableLayer";
+import { AutoResizableLayer } from "../common/resizer/AutoResizableLayer";
+import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 
 export const AutoLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
