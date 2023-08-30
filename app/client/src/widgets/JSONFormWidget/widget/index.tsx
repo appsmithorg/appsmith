@@ -136,7 +136,7 @@ class JSONFormWidget extends BaseWidget<
     widget: WidgetProps,
     formConfig?: WidgetQueryGenerationFormConfig,
   ) {
-    if (formConfig?.otherFields.formType === "create") {
+    if (formConfig?.otherFields?.formType === "create") {
       return {
         create: {
           value: `(${widget.widgetName}.formData || {})`,

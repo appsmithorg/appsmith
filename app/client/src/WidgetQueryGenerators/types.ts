@@ -14,8 +14,8 @@ export type WidgetQueryGenerationFormConfig = {
   columns: any[];
   primaryColumn: string;
   connectionMode: string;
-  otherFields: Record<string, unknown>;
-  widgetBindPath: string;
+  otherFields?: Record<string, unknown>;
+  widgetBindPath?: string;
 } & GsheetConfig;
 
 export type WidgetQueryGenerationConfig = {
