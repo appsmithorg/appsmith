@@ -26,7 +26,7 @@ import {
   Callout,
   Text,
 } from "design-system";
-import { getReadableSnapShotDetails } from "../../../layoutSystems/autolayout/utils/AutoLayoutUtils";
+import { getReadableSnapShotDetails } from "../../../layoutSystems/autoLayout/utils/AutoLayoutUtils";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 
 export function SnapShotBannerCTA() {

@@ -21,7 +21,7 @@ import {
   alterLayoutForDesktop,
   alterLayoutForMobile,
   getCanvasDimensions,
-} from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+} from "layoutSystems/autoLayout/utils/AutoLayoutUtils";
 import {
   getCanvasAndMetaWidgets,
   getWidgets,
@@ -43,7 +43,7 @@ import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
 import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
-import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUtils";
+import { updateWidgetPositions } from "layoutSystems/autoLayout/utils/positionUtils";
 import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
 import {
   getLeftColumn,
@@ -51,7 +51,7 @@ import {
   getWidgetMinMaxDimensionsInPixel,
   setBottomRow,
   setRightColumn,
-} from "layoutSystems/autolayout/utils/flexWidgetUtils";
+} from "layoutSystems/autoLayout/utils/flexWidgetUtils";
 import {
   updateMultipleMetaWidgetPropertiesAction,
   updateMultipleWidgetPropertiesAction,

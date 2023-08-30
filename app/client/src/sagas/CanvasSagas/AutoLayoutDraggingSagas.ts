@@ -5,8 +5,8 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { FlexLayerAlignment } from "layoutSystems/autolayout/utils/constants";
-import { LayoutDirection } from "layoutSystems/autolayout/utils/constants";
+import type { FlexLayerAlignment } from "layoutSystems/autoLayout/utils/constants";
+import { LayoutDirection } from "layoutSystems/autoLayout/utils/constants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -22,12 +22,12 @@ import {
   removeWidgetsFromCurrentLayers,
   updateExistingLayer,
   updateRelationships,
-} from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
+} from "layoutSystems/autoLayout/utils/autoLayoutDraggingUtils";
 import type {
   HighlightInfo,
   FlexLayer,
-} from "layoutSystems/autolayout/utils/autoLayoutTypes";
-import { updatePositionsOfParentAndSiblings } from "layoutSystems/autolayout/utils/positionUtils";
+} from "layoutSystems/autoLayout/utils/autoLayoutTypes";
+import { updatePositionsOfParentAndSiblings } from "layoutSystems/autoLayout/utils/positionUtils";
 import {
   getCanvasWidth,
   getIsAutoLayoutMobileBreakPoint,

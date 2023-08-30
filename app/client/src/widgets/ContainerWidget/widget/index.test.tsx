@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
 import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
 
-import * as useCanvasDraggingHook from "layoutSystems/FixedLayout/Editor/FixedLayoutCanvasArenas/hooks/useCanvasDragging";
+import * as useCanvasDraggingHook from "layoutSystems/fixedLayout/Editor/FixedLayoutCanvasArenas/hooks/useCanvasDragging";
 import store from "store";
 import {
   buildChildren,

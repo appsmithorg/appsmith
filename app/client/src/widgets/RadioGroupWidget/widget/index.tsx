@@ -20,7 +20,7 @@ import BaseWidget from "../../BaseWidget";
 import RadioGroupComponent from "../component";
 import type { RadioOption } from "../constants";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autoLayout/utils/flexWidgetUtils";
 
 /**
  * Validation rules:

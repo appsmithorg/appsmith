@@ -1,5 +1,5 @@
 import { RenderModes } from "constants/WidgetConstants";
-import { FixedLayoutEditorWrapper } from "./editor/FixedLayoutEditorWrapper";
+import { FixedLayoutEditorWrapper } from "./Editor/FixedLayoutEditorWrapper";
 import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
 
 export const getFixedLayoutSystemWrapper = (renderMode: RenderModes) => {

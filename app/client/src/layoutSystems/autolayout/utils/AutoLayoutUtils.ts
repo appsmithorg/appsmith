@@ -24,11 +24,11 @@ import {
   Positioning,
   ResponsiveBehavior,
   SNAPSHOT_EXPIRY_IN_DAYS,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/autoLayout/utils/constants";
 import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,
-} from "layoutSystems/autolayout/utils/positionUtils";
+} from "layoutSystems/autoLayout/utils/positionUtils";
 import type { AlignmentColumnInfo } from "./autoLayoutTypes";
 import { getWidgetWidth } from "./flexWidgetUtils";
 import type { DSLWidget } from "widgets/constants";

@@ -10,7 +10,7 @@ import { useAutoLayoutHighlights } from "./useAutoLayoutHighlights";
 import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
 import { useBlocksToBeDraggedOnCanvas } from "./useBlocksToBeDraggedOnCanvas";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
-import type { HighlightInfo } from "layoutSystems/AutoLayout/utils/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/autoLayout/utils/autoLayoutTypes";
 import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
 import { useCanvasDragToScroll } from "layoutSystems/common/CanvasArenas/useCanvasDragToScroll";
 import { modifyBlockDimension } from "layoutSystems/common/utils/canvasDraggingUtils";

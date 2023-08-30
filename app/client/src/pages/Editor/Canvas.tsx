@@ -11,7 +11,7 @@ import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+import { getViewportClassName } from "layoutSystems/autoLayout/utils/AutoLayoutUtils";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,

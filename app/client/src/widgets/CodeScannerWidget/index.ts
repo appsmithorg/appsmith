@@ -2,7 +2,7 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { ButtonPlacementTypes } from "components/constants";
 import { ScannerLayout } from "./constants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/autoLayout/utils/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
