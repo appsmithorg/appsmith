@@ -148,7 +148,6 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   * LOADING AND LOADER
   *-----------------------------------------------------------------------------
   */
-
   &[data-loading] {
     cursor: default;
     /** adding opacity 1 here because we are lowering opacity for aria-disabled and when loading is true, aria-disabled is also true  */
@@ -171,6 +170,17 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     justify-content: center;
     align-items: center;
     border-radius: inherit;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * ICON BUTTON
+  *-----------------------------------------------------------------------------
+  */
+  &:is([data-icon-button]) {
+    min-inline-size: initial;
+    text-align: center;
+    padding: var(--spacing-1);
   }
 `;
 

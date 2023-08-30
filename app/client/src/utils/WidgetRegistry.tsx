@@ -168,6 +168,10 @@ import {
   ButtonWidget as ButtonWidgetV2,
   CONFIG as BUTTON_WIDGET_CONFIG_V2,
 } from "widgets/ButtonWidgetV2";
+import {
+  InputWidget as InputWidgetV3,
+  CONFIG as INPUT_WIDGET_CONFIG_V3,
+} from "widgets/InputWidgetV3";
 
 export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
@@ -220,6 +224,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [CodeScannerWidget, CODE_SCANNER_WIDGET_CONFIG],
   [ListWidgetV2, LIST_WIDGET_CONFIG_V2],
   [ButtonWidgetV2, BUTTON_WIDGET_CONFIG_V2],
+  [InputWidgetV3, INPUT_WIDGET_CONFIG_V3],
 
   //Deprecated Widgets
   [InputWidget, INPUT_WIDGET_CONFIG],

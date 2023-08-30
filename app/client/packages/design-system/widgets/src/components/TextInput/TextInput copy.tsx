@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef } from "react";
 
 import type {
   TextInputRef as HeadlessTextInputRef,
@@ -8,13 +8,8 @@ import type {
 import { Text } from "../Text";
 import { Spinner } from "../Spinner";
 import { StyledTextInput } from "./index.styled";
-import { IconButton } from "../Button";
-import { EyeOffIcon } from "./icons/EyeOffIcon";
-import { EyeIcon } from "./icons/EyeIcon";
 
 // type MyOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-
-const ICON_SIZE = 16;
 
 export interface TextInputProps extends HeadlessTextInputProps {
   /** position for the laoding icon */
@@ -39,10 +34,8 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     loaderPosition = "auto",
     necessityIndicator = "icon",
     startIcon,
-    type,
     ...rest
   } = props;
-  const [showPassword, togglePassword] = useState(false);
   const necessityLabel = isRequired ? "(required)" : "(optional)";
   const icon = (
     <span
@@ -85,10 +78,6 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     <Text variant="footnote">{errorMessage}</Text>
   );
 
-  const onPressEyeIcon = () => {
-    togglePassword((prev) => !prev);
-  };
-
   const renderStartIcon = () => {
     const showLoadingIndicator =
       props.isLoading &&
@@ -101,16 +90,6 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
   };
 
   const renderEndIcon = () => {
-    if (type === "password") {
-      const Icon = showPassword ? EyeOffIcon : EyeIcon;
-
-      return (
-        <IconButton color="neutral" onPress={onPressEyeIcon} variant="ghost">
-          <Icon size={ICON_SIZE} />
-        </IconButton>
-      );
-    }
-
     const showLoadingIndicator =
       props.isLoading &&
       (loaderPosition === "end" ||
@@ -131,7 +110,6 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
       label={wrappedLabel}
       ref={ref}
       startIcon={renderStartIcon()}
-      type={showPassword ? "text" : type}
       {...rest}
     />
   );
