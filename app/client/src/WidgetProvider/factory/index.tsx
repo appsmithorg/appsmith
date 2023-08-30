@@ -404,7 +404,6 @@ class WidgetFactory {
   }
 
   @memoize
-  @freeze
   static getAutocompleteDefinitions(
     type: WidgetType,
   ): AutocompletionDefinitions {
@@ -458,7 +457,6 @@ class WidgetFactory {
   }
 
   @memoize
-  @freeze
   static getWidgetMethods(type: WidgetType): WidgetMethods {
     const widget = WidgetFactory.widgetsMap.get(type);
 
