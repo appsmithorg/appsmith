@@ -1,9 +1,9 @@
 import styled from "styled-components";
-import { TextInput as HeadlessTextInput } from "@design-system/headless";
+import { TextArea as HeadlessTextArea } from "@design-system/headless";
 
 import { fieldStyles } from "../../styles/fieldStyles";
 
-export const StyledTextInput = styled(HeadlessTextInput)`
+export const StyledTextArea = styled(HeadlessTextArea)`
   ${fieldStyles}
 
   & [data-field-input-wrapper] {
@@ -13,7 +13,7 @@ export const StyledTextInput = styled(HeadlessTextInput)`
     border-radius: var(--border-radius-1);
     box-shadow: 0 0 0 1px var(--color-bd-neutral);
     padding-inline: var(--spacing-1);
-    block-size: var(--sizing-8);
+    min-block-size: var(--sizing-8);
   }
 
   & [data-field-input] {
@@ -92,14 +92,5 @@ export const StyledTextInput = styled(HeadlessTextInput)`
 
   & [data-field-input]:placeholder-shown {
     text-overflow: ellipsis;
-  }
-
-  /**
-  * ----------------------------------------------------------------------------
-  * ICON BUTTON ( used in password input type )
-  *-----------------------------------------------------------------------------
-  */
-  & [data-icon-button] {
-    block-size: calc(100% - var(--spacing-1));
   }
 `;

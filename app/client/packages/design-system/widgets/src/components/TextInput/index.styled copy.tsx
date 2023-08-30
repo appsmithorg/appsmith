@@ -93,13 +93,4 @@ export const StyledTextInput = styled(HeadlessTextInput)`
   & [data-field-input]:placeholder-shown {
     text-overflow: ellipsis;
   }
-
-  /**
-  * ----------------------------------------------------------------------------
-  * ICON BUTTON ( used in password input type )
-  *-----------------------------------------------------------------------------
-  */
-  & [data-icon-button] {
-    block-size: calc(100% - var(--spacing-1));
-  }
 `;

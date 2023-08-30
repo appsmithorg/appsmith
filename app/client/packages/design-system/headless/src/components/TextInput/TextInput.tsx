@@ -1,22 +1,30 @@
 import type { Ref } from "react";
 import React, { forwardRef, useRef } from "react";
 import { useTextField } from "@react-aria/textfield";
-import type { TextInputBaseProps } from "./TextInputBase";
+import type { StyleProps } from "@react-types/shared";
+import type { SpectrumTextFieldProps } from "@react-types/textfield";
 
 import { TextInputBase } from "./TextInputBase";
+import type { TextInputBaseProps } from "./TextInputBase";
 
-// type MyOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+type MyOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
-export type TextInputProps = Omit<
-  TextInputBaseProps,
-  "isQuiet" | "necessityIndicator"
->;
+export interface TextInputProps
+  extends MyOmit<
+      SpectrumTextFieldProps,
+      keyof StyleProps | "icon" | "isQuiet" | "necessityIndicator"
+    >,
+    Pick<TextInputBaseProps, "startIcon" | "endIcon" | "inputClassName"> {
+  spellCheck?: boolean;
+}
+
 export type TextInputRef = Ref<HTMLDivElement>;
 
-function TextInput(props: TextInputProps, ref: Ref<HTMLDivElement>) {
+function TextInput(props: TextInputProps, ref: TextInputRef) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const { spellCheck, ...rest } = props;
   const { descriptionProps, errorMessageProps, inputProps, labelProps } =
-    useTextField(props, inputRef);
+    useTextField(rest, inputRef);
 
   if (props.placeholder) {
     // eslint-disable-next-line no-console
@@ -30,7 +38,10 @@ function TextInput(props: TextInputProps, ref: Ref<HTMLDivElement>) {
       {...props}
       descriptionProps={descriptionProps}
       errorMessageProps={errorMessageProps}
-      inputProps={inputProps}
+      inputProps={{
+        ...inputProps,
+        spellCheck,
+      }}
       inputRef={inputRef}
       labelProps={labelProps}
       ref={ref}
