@@ -229,6 +229,7 @@
     "@babel/helper-string-parser": "^7.19.4",
     "@craco/craco": "^7.0.0",
     "@faker-js/faker": "^7.4.0",
+    "@octokit/rest": "^20.0.1",
     "@peculiar/webcrypto": "^1.4.3",
     "@redux-saga/testing-utils": "^1.1.5",
     "@sentry/webpack-plugin": "^1.18.9",
