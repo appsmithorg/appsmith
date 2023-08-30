@@ -26,9 +26,9 @@ export interface EmbeddedRestDatasourceRequest {
 // type executeQueryData = Array<{ key?: string; value?: string }>;
 type executeQueryData = Record<string, any>;
 
-export interface executeDatasourceQueryRequest {
+interface executeDatasourceQueryRequest {
   datasourceId: string;
-  data: executeQueryData;
+  data?: executeQueryData;
 }
 
 class DatasourcesApi extends API {
@@ -113,8 +113,8 @@ class DatasourcesApi extends API {
     data,
     datasourceId,
   }: executeDatasourceQueryRequest) {
-    return API.put(
-      DatasourcesApi.url + `/datasource-query` + `/${datasourceId}`,
+    return API.post(
+      DatasourcesApi.url + `/${datasourceId}` + `/schema-preview`,
       data,
     );
   }

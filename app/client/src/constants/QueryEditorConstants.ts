@@ -15,6 +15,11 @@ export const SQL_DATASOURCES: Array<string> = [
   PluginName.REDSHIFT,
 ];
 
+export const DATASOURCES_ALLOWED_FOR_PREVIEW_MODE: Array<string> = [
+  PluginName.POSTGRES,
+  PluginName.MY_SQL,
+];
+
 export const PLUGIN_PACKAGE_DBS = [
   PluginPackageName.POSTGRES,
   PluginPackageName.MONGO,
