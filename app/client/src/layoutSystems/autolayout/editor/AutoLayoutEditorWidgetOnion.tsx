@@ -1,4 +1,4 @@
-import SnipeableComponent from "layoutSystems/common/SnipeableComponent";
+import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponent";
 import { get } from "lodash";
 import React from "react";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
