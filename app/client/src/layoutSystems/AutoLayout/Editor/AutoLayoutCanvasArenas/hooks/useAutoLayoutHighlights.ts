@@ -1,21 +1,22 @@
 import { ResponsiveBehavior } from "layoutSystems/AutoLayout/utils/constants";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
-import { deriveHighlightsFromLayers } from "layoutSystems/AutoLayout/utils/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
-import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
-import type { Point } from "layoutSystems/AutoLayout/utils/highlightSelectionUtils";
-import { getHighlightPayload } from "layoutSystems/AutoLayout/utils/highlightSelectionUtils";
-import type { HighlightInfo } from "layoutSystems/AutoLayout/utils/autoLayoutTypes";
 import { useRef } from "react";
 import { getIsAutoLayoutMobileBreakPoint } from "selectors/editorSelectors";
+import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
+import type { HighlightInfo } from "layoutSystems/AutoLayout/utils/autoLayoutTypes";
+import {
+  type Point,
+  getHighlightPayload,
+} from "layoutSystems/AutoLayout/utils/highlightSelectionUtils";
+import { deriveHighlightsFromLayers } from "layoutSystems/AutoLayout/utils/highlightUtils";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
   canvasId: string;
   isCurrentDraggedCanvas: boolean;
   isDragging: boolean;
-  useAutoLayout?: boolean;
 }
 
 export interface HighlightSelectionPayload {
@@ -29,7 +30,6 @@ export const useAutoLayoutHighlights = ({
   canvasId,
   isCurrentDraggedCanvas,
   isDragging,
-  useAutoLayout,
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
   const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
@@ -72,7 +72,7 @@ export const useAutoLayoutHighlights = ({
 
   const calculateHighlights = (snapColumnSpace: number): HighlightInfo[] => {
     cleanUpTempStyles();
-    if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
+    if (isDragging && isCurrentDraggedCanvas) {
       if (!blocksToDraw || !blocksToDraw.length) return [];
       isFillWidget = checkForFillWidget();
       highlights.current = deriveHighlightsFromLayers(

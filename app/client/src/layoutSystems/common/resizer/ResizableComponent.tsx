@@ -9,7 +9,6 @@ import {
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import { get, omit } from "lodash";
-import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AutoLayoutResizable } from "layoutSystems/AutoLayout/common/AutoLayoutResizable";
@@ -65,6 +64,7 @@ import {
   computeFinalRowCols,
   computeFinalAutoLayoutRowCols,
 } from "layoutSystems/common/resizer/ResizableUtils";
+import type { XYCord } from "layoutSystems/common/CanvasArenas/ArenaTypes";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;

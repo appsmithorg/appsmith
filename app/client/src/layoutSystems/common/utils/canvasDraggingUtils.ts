@@ -15,7 +15,7 @@ import {
   getDropZoneOffsets,
   noCollision,
 } from "utils/WidgetPropsUtils";
-import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
+import type { WidgetDraggingBlock } from "../CanvasArenas/ArenaTypes";
 
 /**
  * Method to get the Direction appropriate to closest edge of the canvas

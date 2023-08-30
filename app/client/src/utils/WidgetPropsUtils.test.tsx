@@ -18,8 +18,8 @@ import {
   getDraggingSpacesFromBlocks,
   getMousePositionsOnCanvas,
 } from "./WidgetPropsUtils";
-import type { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import type { WidgetDraggingBlock } from "layoutSystems/common/CanvasArenas/ArenaTypes";
 
 describe("WidgetProps tests", () => {
   it("should convert WidgetDraggingBlocks to occupied Spaces", () => {

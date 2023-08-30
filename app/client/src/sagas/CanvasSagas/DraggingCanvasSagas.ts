@@ -15,7 +15,6 @@ import {
 } from "constants/WidgetConstants";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
-import type { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -42,6 +41,7 @@ import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import { toast } from "design-system";
+import type { WidgetDraggingUpdateParams } from "layoutSystems/common/CanvasArenas/ArenaTypes";
 
 export type WidgetMoveParams = {
   widgetId: string;

@@ -7,8 +7,6 @@ import DropTargetComponent from "components/editorComponents/DropTargetComponent
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import type { CSSProperties } from "react";
 import React from "react";
@@ -24,6 +22,9 @@ import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import FlexBoxComponent from "../layoutSystems/AutoLayout/common/FlexBoxComponent";
+import { FixedCanvasDraggingArena } from "layoutSystems/FixedLayout/Editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
+import { AutoCanvasDraggingArena } from "layoutSystems/AutoLayout/Editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
+import { CanvasSelectionArena } from "layoutSystems/FixedLayout/Editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -105,19 +106,34 @@ class CanvasWidget extends ContainerWidget {
       <ContainerComponent {...props}>
         {props.renderMode === RenderModes.CANVAS && (
           <>
-            <CanvasDraggingArena
-              {...this.getSnapSpaces()}
-              alignItems={props.alignItems}
-              canExtend={props.canExtend}
-              direction={direction}
-              dropDisabled={!!props.dropDisabled}
-              noPad={this.props.noPad}
-              parentId={props.parentId}
-              snapRows={snapRows}
-              useAutoLayout={this.props.useAutoLayout}
-              widgetId={props.widgetId}
-              widgetName={props.widgetName}
-            />
+            {
+              //Temporary change, will have better separation logic with Canvas onion implementation
+              !this.props.useAutoLayout ? (
+                <FixedCanvasDraggingArena
+                  {...this.getSnapSpaces()}
+                  canExtend={props.canExtend}
+                  dropDisabled={!!props.dropDisabled}
+                  noPad={this.props.noPad}
+                  parentId={props.parentId}
+                  snapRows={snapRows}
+                  widgetId={props.widgetId}
+                  widgetName={props.widgetName}
+                />
+              ) : (
+                <AutoCanvasDraggingArena
+                  {...this.getSnapSpaces()}
+                  alignItems={props.alignItems}
+                  canExtend={props.canExtend}
+                  direction={direction}
+                  dropDisabled={!!props.dropDisabled}
+                  noPad={this.props.noPad}
+                  parentId={props.parentId}
+                  snapRows={snapRows}
+                  widgetId={props.widgetId}
+                  widgetName={props.widgetName}
+                />
+              )
+            }
             <CanvasSelectionArena
               {...this.getSnapSpaces()}
               canExtend={props.canExtend}
