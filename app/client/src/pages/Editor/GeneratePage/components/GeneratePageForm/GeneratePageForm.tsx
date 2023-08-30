@@ -142,7 +142,7 @@ const OptionWrapper = styled.div`
 const datasourceIcon = "layout-5-line";
 const columnIcon = "layout-column-line";
 
-const GENERATE_PAGE_MODE = {
+export const GENERATE_PAGE_MODE = {
   NEW: "NEW", // a new page is created for the template. (new pageId created)
   REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
 };

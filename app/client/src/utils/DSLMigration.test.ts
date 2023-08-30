@@ -819,6 +819,15 @@ const migrations: Migration[] = [
     ],
     version: 84,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: chartMigrations,
+        functionName: "migrateDefaultValuesForCustomEChart",
+      },
+    ],
+    version: 85,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};
