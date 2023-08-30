@@ -149,9 +149,9 @@ describe("DataTreeEvaluator", () => {
       dataTreeEvaluator.evalAndValidateFirstTree();
     });
 
-    it("initial dependencyMap computation", () => {
+    it("initial dependencyMap computation", async () => {
       const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-        dataTreeEvaluator.setupUpdateTree(
+        await dataTreeEvaluator.setupUpdateTree(
           unEvalTree as unknown as DataTree,
           configTree as unknown as ConfigTree,
         );
@@ -243,7 +243,7 @@ describe("DataTreeEvaluator", () => {
     });
     describe("array of objects", () => {
       // when Text1.text has a binding Api1.data[2].id
-      it("on consequent API failures", () => {
+      it("on consequent API failures", async () => {
         // cyclic dependency case
         for (let i = 0; i < 2; i++) {
           // success: response -> [{...}, {...}, {...}]
@@ -251,7 +251,7 @@ describe("DataTreeEvaluator", () => {
             evalOrder,
             nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder1,
             unEvalUpdates,
-          } = dataTreeEvaluator.setupUpdateTree(
+          } = await dataTreeEvaluator.setupUpdateTree(
             arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
             arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           );
@@ -279,7 +279,7 @@ describe("DataTreeEvaluator", () => {
             evalOrder: order,
             nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
             unEvalUpdates: unEvalUpdates2,
-          } = dataTreeEvaluator.setupUpdateTree(
+          } = await dataTreeEvaluator.setupUpdateTree(
             arrayAccessorCyclicDependency.apiFailureUnEvalTree,
             arrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
           );
@@ -304,13 +304,13 @@ describe("DataTreeEvaluator", () => {
       });
 
       // when Text1.text has a binding Api1.data[2].id
-      it("on API response array length change", () => {
+      it("on API response array length change", async () => {
         // success: response -> [{...}, {...}, {...}]
         const {
           evalOrder: order1,
           nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder3,
           unEvalUpdates,
-        } = dataTreeEvaluator.setupUpdateTree(
+        } = await dataTreeEvaluator.setupUpdateTree(
           arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
           arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
         );
@@ -326,7 +326,7 @@ describe("DataTreeEvaluator", () => {
           evalOrder: order2,
           nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder4,
           unEvalUpdates: unEvalUpdates2,
-        } = dataTreeEvaluator.setupUpdateTree(
+        } = await dataTreeEvaluator.setupUpdateTree(
           arrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
           arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
         );
@@ -350,7 +350,7 @@ describe("DataTreeEvaluator", () => {
 
     describe("nested array of objects", () => {
       // when Text1.text has a binding Api1.data[2][2].id
-      it("on consequent API failures", () => {
+      it("on consequent API failures", async () => {
         // cyclic dependency case
         for (let i = 0; i < 2; i++) {
           // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
@@ -358,7 +358,7 @@ describe("DataTreeEvaluator", () => {
             evalOrder: order,
             nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder5,
             unEvalUpdates,
-          } = dataTreeEvaluator.setupUpdateTree(
+          } = await dataTreeEvaluator.setupUpdateTree(
             nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
             nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           );
@@ -389,7 +389,7 @@ describe("DataTreeEvaluator", () => {
             evalOrder: order1,
             nonDynamicFieldValidationOrder,
             unEvalUpdates: unEvalUpdates2,
-          } = dataTreeEvaluator.setupUpdateTree(
+          } = await dataTreeEvaluator.setupUpdateTree(
             nestedArrayAccessorCyclicDependency.apiFailureUnEvalTree,
             nestedArrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
           );
@@ -416,13 +416,13 @@ describe("DataTreeEvaluator", () => {
       });
 
       // when Text1.text has a binding Api1.data[2][2].id
-      it("on API response array length change", () => {
+      it("on API response array length change", async () => {
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
         const {
           evalOrder: order,
           nonDynamicFieldValidationOrder,
           unEvalUpdates,
-        } = dataTreeEvaluator.setupUpdateTree(
+        } = await dataTreeEvaluator.setupUpdateTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
         );
@@ -438,7 +438,7 @@ describe("DataTreeEvaluator", () => {
           evalOrder: order1,
           nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
           unEvalUpdates: unEvalUpdates2,
-        } = dataTreeEvaluator.setupUpdateTree(
+        } = await dataTreeEvaluator.setupUpdateTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
         );
@@ -463,13 +463,13 @@ describe("DataTreeEvaluator", () => {
       });
 
       // when Text1.text has a binding Api1.data[2][2].id
-      it("on API response nested array length change", () => {
+      it("on API response nested array length change", async () => {
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
         const {
           evalOrder: order,
           nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
           unEvalUpdates,
-        } = dataTreeEvaluator.setupUpdateTree(
+        } = await dataTreeEvaluator.setupUpdateTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
         );
@@ -485,7 +485,7 @@ describe("DataTreeEvaluator", () => {
           evalOrder: order1,
           nonDynamicFieldValidationOrder,
           unEvalUpdates: unEvalUpdates2,
-        } = dataTreeEvaluator.setupUpdateTree(
+        } = await dataTreeEvaluator.setupUpdateTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree3,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree3,
         );

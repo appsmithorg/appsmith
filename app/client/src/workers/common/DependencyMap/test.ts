@@ -64,9 +64,9 @@ describe("test validationDependencyMap", () => {
     });
   });
 
-  it("update validation dependencyMap computation", () => {
+  it("update validation dependencyMap computation", async () => {
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      dataTreeEvaluator.setupUpdateTree(
+      await dataTreeEvaluator.setupUpdateTree(
         unEvalTree as unknown as DataTree,
         configTree as unknown as ConfigTree,
       );
