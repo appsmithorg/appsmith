@@ -40,14 +40,14 @@ import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors"
 import type { AppState } from "@appsmith/reducers";
 import { getDatasource } from "selectors/entitiesSelector";
 
-const MessageWrapper = styled.div`
+export const MessageWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   height: 200px;
 `;
 
-const TableWrapper = styled.div`
+export const TableWrapper = styled.div`
   overflow-x: auto;
   && > div {
     width: fit-content;
