@@ -8,7 +8,7 @@ import { WidgetNameLayer } from "../../common/WidgetNameLayer";
 import { AutoLayoutWidgetComponent } from "../common/AutoLayoutWidgetNameComponent";
 import FlexComponent from "../common/FlexComponent";
 import { FlexVerticalAlignment, LayoutDirection } from "../utils/constants";
-import { AutoResizableLayer } from "./AutoResizableLayer";
+import { AutoResizableLayer } from "../common/resizer/AutoResizableLayer";
 
 export const AutoLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (

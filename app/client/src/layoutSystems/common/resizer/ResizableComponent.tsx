@@ -12,7 +12,7 @@ import { get, omit } from "lodash";
 import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AutoLayoutResizable } from "layoutSystems/autolayout/common/AutoLayoutResizable";
+import { AutoLayoutResizable } from "layoutSystems/autolayout/common/resizer/AutoLayoutResizable";
 import { FixedLayoutResizable } from "layoutSystems/fixedlayout/common/FixedLayoutResizable";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
