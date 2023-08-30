@@ -1,6 +1,6 @@
 import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { ModalOverlayLayer } from "../../common/ModalOverlayLayer";
+import { ModalOverlayLayer } from "../../common/modalOverlay/ModalOverlayLayer";
 import { FixedLayoutWigdetComponent } from "../common/FixedLayoutWidgetComponent";
 import { Classes } from "@blueprintjs/core";
 
