@@ -6,6 +6,7 @@ import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
 } from "actions/explorerActions";
+import log from "loglevel";
 
 // data-guided-tour-id - used for the rectangular highlight
 // data-guided-tour-iid - iid(indicator id) used for the lottie animation show near an element
@@ -248,10 +249,14 @@ export function showIndicator(
   position = "right",
   offset: { top: number; left: number; zIndex?: number } = { top: 0, left: 0 },
 ) {
-  let primaryReference: Element | null = null;
+  try {
+    let primaryReference: Element | null = null;
 
-  primaryReference = document.querySelector(selector);
-  indicatorHelperInstance.show(primaryReference, position, offset);
+    primaryReference = document.querySelector(selector);
+    indicatorHelperInstance.show(primaryReference, position, offset);
+  } catch (e) {
+    log.debug(e);
+  }
 }
 
 export function hideIndicator() {
