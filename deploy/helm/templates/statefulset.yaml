@@ -105,7 +105,7 @@ spec:
               mountPath: /appsmith-stacks
           env:
             - name: APPSMITH_ENABLE_EMBEDDED_DB
-              value: {{ .Values.applicationConfig.APPSMITH_ENABLE_EMBEDDED_DB | default "0" | quote }}
+              value: "0"
           envFrom:
             - configMapRef:
                 name: {{ include "appsmith.fullname" . }}
