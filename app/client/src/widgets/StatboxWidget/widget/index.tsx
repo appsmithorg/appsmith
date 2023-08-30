@@ -4,7 +4,7 @@ import { ContainerWidget } from "widgets/ContainerWidget/widget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { Positioning } from "layoutSystems/autoLayout/utils/constants";
+import { Positioning } from "layoutSystems/autolayout/utils/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";

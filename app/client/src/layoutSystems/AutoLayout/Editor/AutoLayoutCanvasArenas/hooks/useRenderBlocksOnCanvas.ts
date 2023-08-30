@@ -2,7 +2,7 @@ import { Colors } from "constants/Colors";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { getZoomLevel } from "selectors/editorSelectors";
-import type { HighlightInfo } from "layoutSystems/autoLayout/utils/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import { getAbsolutePixels } from "utils/helpers";
 import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
 import { modifyDrawingRectangles } from "layoutSystems/common/utils/canvasDraggingUtils";

@@ -12,12 +12,12 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { get } from "lodash";
-import type { FlexLayer } from "layoutSystems/autoLayout/utils/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/autoLayout/utils/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import WidgetFactory from "utils/WidgetFactory";

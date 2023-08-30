@@ -2,7 +2,7 @@ import {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/autoLayout/utils/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
@@ -21,10 +21,10 @@ import type { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import FlexBoxComponent from "../layoutSystems/autoLayout/common/FlexBoxComponent";
-import { FixedCanvasDraggingArena } from "layoutSystems/fixedLayout/Editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
-import { AutoCanvasDraggingArena } from "layoutSystems/autoLayout/Editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
-import { CanvasSelectionArena } from "layoutSystems/fixedLayout/Editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
+import FlexBoxComponent from "../layoutSystems/autolayout/common/FlexBoxComponent";
+import { FixedCanvasDraggingArena } from "layoutSystems/fixedlayout/Editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
+import { AutoCanvasDraggingArena } from "layoutSystems/autolayout/Editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
+import { CanvasSelectionArena } from "layoutSystems/fixedlayout/Editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {

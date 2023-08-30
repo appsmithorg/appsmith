@@ -1,10 +1,10 @@
-import AutoLayoutDimensionObserver from "layoutSystems/autoLayout/common/AutoLayoutDimensionObeserver";
+import AutoLayoutDimensionObserver from "layoutSystems/autolayout/common/AutoLayoutDimensionObeserver";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import { isFunction } from "lodash";
 import React, { useContext } from "react";
-import { ResponsiveBehavior } from "layoutSystems/autoLayout/utils/constants";
-import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autoLayout/utils/flexWidgetUtils";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 export const AutoDimensionObserverLayer = (props: BaseWidgetProps) => {

@@ -17,13 +17,13 @@ import {
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
-import type { FlexLayer } from "layoutSystems/autoLayout/utils/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/autoLayout/utils/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 

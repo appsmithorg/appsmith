@@ -1,4 +1,4 @@
-import { FlexLayerAlignment } from "layoutSystems/autoLayout/utils/constants";
+import { FlexLayerAlignment } from "layoutSystems/autolayout/utils/constants";
 import type { FlexLayer, LayerChild } from "./autoLayoutTypes";
 import { isArray } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";

@@ -1,4 +1,4 @@
-import { ResponsiveBehavior } from "layoutSystems/autoLayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";

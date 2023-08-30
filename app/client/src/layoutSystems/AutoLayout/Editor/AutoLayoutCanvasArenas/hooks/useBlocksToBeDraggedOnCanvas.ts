@@ -29,11 +29,11 @@ import type {
   WidgetDraggingBlock,
   XYCord,
 } from "../../../../common/CanvasArenas/ArenaTypes";
-import type { HighlightInfo } from "layoutSystems/autoLayout/utils/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import {
   LayoutDirection,
   AlignItems,
-} from "layoutSystems/autoLayout/utils/constants";
+} from "layoutSystems/autolayout/utils/constants";
 
 export const useBlocksToBeDraggedOnCanvas = ({
   alignItems,

@@ -2,7 +2,7 @@ import {
   FlexLayerAlignment,
   MOBILE_ROW_GAP,
   ROW_GAP,
-} from "layoutSystems/autoLayout/utils/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import {
   FLEXBOX_PADDING,
   GridDefaults,

@@ -7,8 +7,8 @@ import type {
   FlexBoxAlignmentColumnInfo,
   FlexLayer,
   LayerChild,
-} from "layoutSystems/autoLayout/utils/autoLayoutTypes";
-import { getAlignmentColumnInfo } from "layoutSystems/autoLayout/utils/AutoLayoutUtils";
+} from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import { getAlignmentColumnInfo } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import { getIsAutoLayoutMobileBreakPoint } from "./editorSelectors";
 
 export const getIsCurrentlyConvertingLayout = (state: AppState) =>

@@ -19,7 +19,7 @@ import {
   Positioning,
   ResponsiveBehavior,
   ROW_GAP,
-} from "layoutSystems/autoLayout/utils/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import {
   getWidgetHeight,
   getWidgetMinMaxDimensionsInPixel,
