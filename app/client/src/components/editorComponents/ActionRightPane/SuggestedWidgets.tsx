@@ -483,7 +483,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
-        targetId: BINDING_SECTION_ID,
+        targetId: `#${BINDING_SECTION_ID}`,
         onDismiss: async () => {
           await setFeatureWalkthroughShown(
             FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
@@ -493,7 +493,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
         details: {
           title: createMessage(BINDING_WALKTHROUGH_TITLE),
           description: createMessage(BINDING_WALKTHROUGH_DESC),
-          imageURL: BINDING_GUIDE_GIF,
+          imageURL: getAssetUrl(BINDING_GUIDE_GIF),
         },
         offset: {
           position: "left",

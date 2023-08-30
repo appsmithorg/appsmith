@@ -229,8 +229,7 @@ describe("Verify various Table_Filter combinations", function () {
     table.RemoveFilterNVerify("2381224", true, false, 0, "v2");
   });
 
-  //Skipping until bug closed
-  it.skip("8. Verify Table Filter for changing from AND -> OR [Remove a filter] -> AND + Bug 12642", function () {
+  it("8. Verify Table Filter for changing from AND -> OR [Remove a filter] -> AND + Bug 12642", function () {
     table.OpenNFilterTable("id", "contains", "7");
     table.ReadTableRowColumnData(1, 4, "v2").then(($cellData) => {
       expect($cellData).to.eq("Beef steak");

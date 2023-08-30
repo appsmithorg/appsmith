@@ -51,7 +51,7 @@ describe("Code scanner widget tests", () => {
     propPane.TogglePropertyState("Disabled", "Off");
 
     //Animate loading property - JS convertible
-    agHelper.AssertExistingToggleState("animateloading", "true");
+    agHelper.AssertExistingToggleState("Animate loading", "true");
     propPane.EnterJSContext(
       "Animate loading",
       "{{(45>55)?false:true}}",
@@ -63,8 +63,8 @@ describe("Code scanner widget tests", () => {
       "{{(45>55)?false:true}}",
     );
     propPane.EnterJSContext("Animate loading", "", false);
-    propPane.ToggleJSMode("animateloading", false);
-    propPane.TogglePropertyState("animateloading", "On");
+    propPane.ToggleJSMode("Animate loading", false);
+    propPane.TogglePropertyState("Animate loading", "On");
   });
 
   it(
@@ -135,7 +135,7 @@ describe("Code scanner widget tests", () => {
     propPane.TogglePropertyState("Disabled", "Off");
 
     //Animate loading property - JS convertible
-    agHelper.AssertExistingToggleState("animateloading", "true");
+    agHelper.AssertExistingToggleState("Animate loading", "true");
     propPane.EnterJSContext(
       "Animate loading",
       "{{(45>55)?false:true}}",
@@ -147,7 +147,7 @@ describe("Code scanner widget tests", () => {
       "{{(45>55)?false:true}}",
     );
     propPane.EnterJSContext("Animate loading", "", false, true);
-    propPane.ToggleJSMode("animateloading", false);
+    propPane.ToggleJSMode("Animate loading", false);
 
     // Text & tooltip properties
     agHelper.AssertElementVisibility(widgetLocators.codeScannerScanButton);
