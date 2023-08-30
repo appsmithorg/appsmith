@@ -1,7 +1,7 @@
 import type React from "react";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { Dispatch } from "react";
-import type { RadioOptionProps } from "pages/Settings/FormGroup/Radio";
+import type { RadioOptionProps } from "pages/AdminSettings/FormGroup/Radio";
 import type { CalloutKind, SelectOptionProps } from "design-system";
 
 type ControlType = {
@@ -16,6 +16,7 @@ type ControlPropsType = {
   [SettingTypes.TEXTINPUT]: unknown;
   [SettingTypes.TOGGLE]: unknown;
   [SettingTypes.LINK]: unknown;
+  [SettingTypes.CALLOUT]: unknown;
   [SettingTypes.BUTTON]: unknown;
   [SettingTypes.GROUP]: unknown;
   [SettingTypes.TEXT]: unknown;
@@ -31,6 +32,7 @@ export enum SettingTypes {
   TEXTINPUT = "TEXTINPUT",
   TOGGLE = "TOGGLE",
   LINK = "LINK",
+  CALLOUT = "CALLOUT",
   BUTTON = "BUTTON",
   GROUP = "GROUP",
   TEXT = "TEXT",
@@ -73,16 +75,16 @@ export type Setting = ControlType & {
   sortOrder?: number;
   subText?: string;
   toggleText?: (value: boolean) => string;
-  isVisible?: (values: Record<string, any>) => boolean;
+  isVisible?: (values?: Record<string, any>) => boolean;
   isHidden?: boolean;
-  isDisabled?: (values: Record<string, any>) => boolean;
+  isDisabled?: (values?: Record<string, any>) => boolean;
   calloutType?: CalloutKind;
   advanced?: Setting[];
   isRequired?: boolean;
   formName?: string;
   fieldName?: string;
   dropdownOptions?: Partial<SelectOptionProps>[];
-  needsUpgrade?: boolean;
+  isFeatureEnabled?: boolean;
   tooltip?: string;
 };
 
@@ -95,7 +97,6 @@ export interface Category {
   children?: Category[];
   icon?: string;
   categoryType: string;
-  needsUpgrade?: boolean;
   isEnterprise?: boolean;
   isFeatureEnabled?: boolean;
 }
@@ -136,7 +137,6 @@ export type AdminConfigType = {
   isConnected?: boolean;
   needsRefresh?: boolean;
   icon?: string;
-  needsUpgrade?: boolean;
   categoryType: CategoryType;
   isEnterprise?: boolean;
   isFeatureEnabled?: boolean;
