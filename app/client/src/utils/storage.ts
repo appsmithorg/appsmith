@@ -618,6 +618,10 @@ export const setAISuggestedPromptShownForType = async (type: string) => {
       suggestedPromptsShownForType[type] = 1;
     }
 
+    if (suggestedPromptsShownForType[type] > 5) {
+      return suggestedPromptsShownForType[type];
+    }
+
     await store.setItem(
       STORAGE_KEYS.AI_SUGGESTED_PROMPTS_SHOWN,
       suggestedPromptsShownForType,
