@@ -22,6 +22,7 @@ import {
 import { validate } from "workers/Evaluation/validations";
 import type { EvalProps } from ".";
 import type { ValidationResponse } from "constants/WidgetValidation";
+import { current, isDraft } from "immer";
 
 const LARGE_COLLECTION_SIZE = 100;
 
@@ -47,8 +48,8 @@ export function setToEvalPathsIdenticalToState({
     evalPathsIdenticalToState[evalPath] = statePath;
   } else {
     delete evalPathsIdenticalToState[evalPath];
-
-    set(evalProps, evalPath, value);
+    const res = isDraft(value) ? current(value) : value;
+    set(evalProps, evalPath, res);
   }
 }
 export function validateAndParseWidgetProperty({
@@ -132,7 +133,7 @@ export function validateAndParseWidgetProperty({
     value: evaluatedValue,
   });
 
-  return parsed;
+  return isDraft(parsed) ? current(parsed) : parsed;
 }
 
 export function validateWidgetProperty(
