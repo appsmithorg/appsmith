@@ -3,7 +3,7 @@ import WidgetComponentBoundary from "layoutSystems/common/WidgetComponentBoundar
 import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import Skeleton from "widgets/Skeleton";
-import { AutoDimensionObserverLayer } from "./AutoDimensionObserverLayer";
+import { AutoDimensionObserverLayer } from "./autoDimensionObserver/AutoDimensionObserverLayer";
 
 export const AutoLayoutWidgetComponent = (props: BaseWidgetProps) => {
   const { deferRender, detachFromLayout, type } = props;
