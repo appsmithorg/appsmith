@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
@@ -12,6 +12,16 @@ import {
 import Fuse from "fuse.js";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getFeatureWalkthroughShown } from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  actionsExistInCurrentPage,
+  widgetsExistCurrentPage,
+} from "selectors/entitiesSelector";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
@@ -45,7 +55,6 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
 
   const filterCards = (keyword: string) => {
     sendWidgetSearchAnalytics(keyword);
-
     if (keyword.trim().length > 0) {
       const searchResult = fuse.search(keyword);
       setFilteredCards(searchResult as WidgetCardProps[]);
@@ -61,6 +70,46 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const search = debounce((value: string) => {
     filterCards(value.toLowerCase());
   }, 300);
+
+  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
+  const hasWidgets = useSelector(widgetsExistCurrentPage);
+  const actionsExist = useSelector(actionsExistInCurrentPage);
+  useEffect(() => {
+    async function scrollToTableWidgetCard() {
+      const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+        FEATURE_WALKTHROUGH_KEYS.add_table_widget,
+      );
+      const widgetCard = document.getElementById(
+        "widget-card-draggable-tablewidgetv2",
+      );
+
+      if (!isFeatureWalkthroughShown) {
+        widgetCard?.scrollIntoView();
+        checkAndShowTableWidgetWalkthrough();
+      }
+    }
+    if (
+      signpostingEnabled &&
+      !hasWidgets &&
+      adaptiveSignposting &&
+      isActive &&
+      actionsExist
+    ) {
+      scrollToTableWidgetCard();
+    }
+  }, [
+    isActive,
+    hasWidgets,
+    signpostingEnabled,
+    adaptiveSignposting,
+    actionsExist,
+  ]);
+  const checkAndShowTableWidgetWalkthrough = async () => {
+    pushFeature &&
+      pushFeature(SignpostingWalkthroughConfig.ADD_TABLE_WIDGET, true);
+  };
 
   return (
     <div

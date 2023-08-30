@@ -97,6 +97,19 @@ export type WidgetMethods = {
   getPropertyUpdatesForQueryBinding?: GetPropertyUpdatesForQueryBinding;
   getSnipingModeUpdates?: GetSnipingModeUpdates;
   getCanvasHeightOffset?: GetCanvasHeightOffset;
+  getEditorCallouts?: GetEditorCallouts;
+};
+
+type GetEditorCallouts = (props: WidgetProps) => WidgetCallout[];
+
+export type WidgetCallout = {
+  message: string;
+  links: [
+    {
+      text: string;
+      url: string;
+    },
+  ];
 };
 
 export type GetQueryGenerationConfig = (

@@ -6,12 +6,20 @@ import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { contentConfig, styleConfig } from "./propertyConfig";
+import {
+  CUSTOM_ECHART_FEATURE_FLAG,
+  FUSION_CHART_DEPRECATION_FLAG,
+  messages,
+} from "../constants";
 import type { ChartSelectedDataPoint } from "../constants";
 import type { ChartComponentProps } from "../component";
 import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AutocompletionDefinitions,
+  WidgetCallout,
+} from "WidgetProvider/constants";
 import { ChartErrorComponent } from "../component/ChartErrorComponent";
 import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 import { EmptyChartData } from "../component/EmptyChartData";
@@ -20,23 +28,38 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "../constants";
 import IconSVG from "../icon.svg";
-
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { ChartType } from "../constants";
+import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
 
 const ChartComponent = lazy(() =>
   retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
 );
 
+export const isBasicEChart = (type: ChartType) => {
+  const types: ChartType[] = [
+    "AREA_CHART",
+    "PIE_CHART",
+    "LINE_CHART",
+    "BAR_CHART",
+    "COLUMN_CHART",
+  ];
+  return types.includes(type);
+};
+
 export const emptyChartData = (props: ChartWidgetProps) => {
   if (props.chartType == "CUSTOM_FUSION_CHART") {
-    if (!props.customFusionChartConfig) {
-      return true;
-    } else {
-      return Object.keys(props.customFusionChartConfig).length == 0;
-    }
+    return Object.keys(props.customFusionChartConfig).length == 0;
+  } else if (props.chartType == "CUSTOM_ECHART") {
+    return Object.keys(props.customEChartConfig).length == 0;
   } else {
-    for (const seriesID in props.chartData) {
-      if (props.chartData[seriesID].data?.length > 0) {
+    const seriesData = EChartsDatasetBuilder.chartData(
+      props.chartType,
+      props.chartData,
+    );
+
+    for (const seriesID in seriesData) {
+      if (Object.keys(props.chartData[seriesID].data).length > 0) {
         return false;
       }
     }
@@ -70,81 +93,25 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       showDataPointLabel: false,
+      customEChartConfig: `{{\n${JSON.stringify(
+        DefaultEChartConfig,
+        null,
+        2,
+      )}\n}}`,
       chartData: {
-        [generateReactKey()]: {
-          seriesName: "2023",
-          data: [
-            {
-              x: "Product1",
-              y: 20000,
-            },
-            {
-              x: "Product2",
-              y: 22000,
-            },
-            {
-              x: "Product3",
-              y: 32000,
-            },
-          ],
-        },
+        [generateReactKey()]: DefaultEChartsBasicChartsData,
       },
       xAxisName: "Product Line",
       yAxisName: "Revenue($)",
       labelOrientation: LabelOrientation.AUTO,
-      customFusionChartConfig: {
-        type: "column2d",
-        dataSource: {
-          data: [
-            {
-              label: "Product1",
-              value: 20000,
-            },
-            {
-              label: "Product2",
-              value: 22000,
-            },
-            {
-              label: "Product3",
-              value: 32000,
-            },
-          ],
-          chart: {
-            caption: "Sales Report",
-            xAxisName: "Product Line",
-            yAxisName: "Revenue($)",
-            theme: "fusion",
-            alignCaptionWithCanvas: 1,
-            // Caption styling =======================
-            captionFontSize: "24",
-            captionAlignment: "center",
-            captionPadding: "20",
-            captionFontColor: Colors.THUNDER,
-            // legend position styling ==========
-            legendIconSides: "4",
-            legendIconBgAlpha: "100",
-            legendIconAlpha: "100",
-            legendPosition: "top",
-            // Canvas styles ========
-            canvasPadding: "0",
-            // Chart styling =======
-            chartLeftMargin: "20",
-            chartTopMargin: "10",
-            chartRightMargin: "40",
-            chartBottomMargin: "10",
-            // Axis name styling ======
-            xAxisNameFontSize: "14",
-            labelFontSize: "12",
-            labelFontColor: Colors.DOVE_GRAY2,
-            xAxisNameFontColor: Colors.DOVE_GRAY2,
+      customFusionChartConfig: DefaultFusionChartConfig,
 
-            yAxisNameFontSize: "14",
-            yAxisValueFontSize: "12",
-            yAxisValueFontColor: Colors.DOVE_GRAY2,
-            yAxisNameFontColor: Colors.DOVE_GRAY2,
-          },
-        },
-      },
+      /**
+       * TODO, @sbalaji92
+       * need to remove this once widget properties get added to dynamic binding path list
+       * in WidgetAdditionSagas/dynamicBindingPathList function
+       * */
+      dynamicBindingPathList: [{ key: "customEChartConfig" }],
     };
   }
 
@@ -161,6 +128,29 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           },
         },
       ],
+    };
+  }
+
+  static getMethods() {
+    return {
+      getEditorCallouts(props: WidgetProps): WidgetCallout[] {
+        const callouts: WidgetCallout[] = [];
+        if (
+          ChartWidget.showCustomFusionChartDeprecationMessages() &&
+          props.chartType == "CUSTOM_FUSION_CHART"
+        ) {
+          callouts.push({
+            message: messages.customFusionChartDeprecationMessage,
+            links: [
+              {
+                text: "Learn More",
+                url: "https://docs.appsmith.com",
+              },
+            ],
+          });
+        }
+        return callouts;
+      },
     };
   }
 
@@ -187,11 +177,18 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneContentConfig() {
-    return contentConfig;
+    return contentConfig(
+      this.getFeatureFlag(CUSTOM_ECHART_FEATURE_FLAG),
+      this.showCustomFusionChartDeprecationMessages(),
+    );
   }
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
+  }
+
+  static showCustomFusionChartDeprecationMessages() {
+    return this.getFeatureFlag(FUSION_CHART_DEPRECATION_FLAG);
   }
 
   static getStylesheetConfig(): Stylesheet {
@@ -234,6 +231,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
               chartData={this.props.chartData}
               chartName={this.props.chartName}
               chartType={this.props.chartType}
+              customEChartConfig={this.props.customEChartConfig}
               customFusionChartConfig={this.props.customFusionChartConfig}
               dimensions={this.getComponentDimensions()}
               fontFamily={this.props.fontFamily ?? "Nunito Sans"}

@@ -93,6 +93,7 @@ import {
 import {
   migrateChartWidgetLabelOrientationStaggerOption,
   migrateAddShowHideDataPointLabels,
+  migrateDefaultValuesForCustomEChart,
 } from "./migrations/ChartWidget";
 import { flattenDSL } from "@shared/dsl";
 
@@ -1221,6 +1222,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 84) {
     currentDSL = migrateSelectWidgetAddSourceDataPropertyPathList(currentDSL);
+    currentDSL.version = 85;
+  }
+
+  if (currentDSL.version === 85) {
+    currentDSL = migrateDefaultValuesForCustomEChart(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

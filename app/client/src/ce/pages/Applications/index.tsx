@@ -373,7 +373,9 @@ export function WorkspaceMenuItem({
       containerClassName={
         isFetchingApplications ? BlueprintClasses.SKELETON : ""
       }
-      ellipsize={19}
+      ellipsize={
+        isFetchingApplications ? 100 : 19
+      } /* this is to avoid showing tooltip for loaders */
       href={`${window.location.pathname}#${workspace.workspace.id}`}
       icon="workspace"
       key={workspace.workspace.id}

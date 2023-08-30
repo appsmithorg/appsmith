@@ -1,6 +1,7 @@
 import {
   migrateChartWidgetLabelOrientationStaggerOption,
   migrateAddShowHideDataPointLabels,
+  migrateDefaultValuesForCustomEChart,
 } from "./ChartWidget";
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
@@ -83,5 +84,19 @@ describe("Migrate Label show/hide property with respect to chart's allow scroll 
     expect(outputChartWidgetDSL.showDataPointLabel).not.toBeUndefined();
     expect(outputChartWidgetDSL.showDataPointLabel).not.toBeNull();
     expect(outputChartWidgetDSL.showDataPointLabel).toEqual(true);
+  });
+});
+
+describe("Migrate Default Custom EChart configuration", () => {
+  it("adds echart custom chart default configuration to existing charts", () => {
+    const inputChartWidgetDSL = inputDSL.children?.[0] as ChartWidgetProps;
+    expect(inputChartWidgetDSL.customEChartConfig).not.toBeDefined();
+
+    const outputDSL = migrateDefaultValuesForCustomEChart(inputDSL);
+    const outputChartWidgetDSL = outputDSL.children?.[0] as ChartWidgetProps;
+    expect(outputChartWidgetDSL.customEChartConfig).toBeDefined();
+    expect(
+      Object.keys(outputChartWidgetDSL.customEChartConfig).length,
+    ).toBeGreaterThan(0);
   });
 });
