@@ -10,11 +10,14 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { MinimumPopupRows } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import type { Stylesheet } from "entities/AppTheming";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import {
+  DefaultAutocompleteDefinitions,
+  isCompactMode,
+} from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
@@ -435,13 +438,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         disabled={this.props.isDisabled}
         dropDownWidth={dropDownWidth}
         hasError={isInvalid}

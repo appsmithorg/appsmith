@@ -15,10 +15,11 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupRows } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import SingleSelectTreeComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
@@ -548,20 +549,14 @@ class SingleSelectTreeWidget extends BaseWidget<
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <SingleSelectTreeComponent
         accentColor={this.props.accentColor}
         allowClear={this.props.allowClear}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         disabled={this.props.isDisabled ?? false}
         dropDownWidth={dropDownWidth}
         dropdownStyle={{

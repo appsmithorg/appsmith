@@ -121,6 +121,8 @@ type getSnipingModeUpdates = (
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 
+export const COMPACT_MODE_MIN_ROWS = 4;
+
 export enum BlueprintOperationTypes {
   MODIFY_PROPS = "MODIFY_PROPS",
   ADD_ACTION = "ADD_ACTION",

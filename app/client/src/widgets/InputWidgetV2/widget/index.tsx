@@ -15,7 +15,7 @@ import {
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
+import { ICON_NAMES } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
@@ -31,6 +31,7 @@ import { getParsedText, isInputTypeEmailOrPassword } from "./Utilities";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { DynamicHeight } from "utils/WidgetFeatures";
@@ -706,11 +707,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     } else {
       conditionalProps.buttonPosition = NumberInputStepButtonPosition.NONE;
     }
+
+    const { componentHeight } = this.getComponentDimensions();
+
     const autoFillProps =
       !this.props.shouldAllowAutofill &&
       isInputTypeEmailOrPassword(this.props.inputType)
         ? { autoComplete: "off" }
         : {};
+
     return (
       <InputComponent
         accentColor={this.props.accentColor}
@@ -719,13 +724,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         autoFocus={this.props.autoFocus}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}

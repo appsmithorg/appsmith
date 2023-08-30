@@ -14,9 +14,12 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DraftValueType } from "rc-select/lib/Select";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupRows } from "widgets/constants";
 import MultiSelectComponent from "../component";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import {
+  DefaultAutocompleteDefinitions,
+  isCompactMode,
+} from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
@@ -477,7 +480,7 @@ class MultiSelectWidget extends BaseWidget<
       ? this.props.selectedOptionValues
       : [];
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     return (
       <MultiSelectComponent
@@ -485,13 +488,7 @@ class MultiSelectWidget extends BaseWidget<
         allowSelectAll={this.props.allowSelectAll}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         disabled={this.props.isDisabled ?? false}
         dropDownWidth={dropDownWidth}
         dropdownStyle={{

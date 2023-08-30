@@ -11,8 +11,10 @@ import BaseWidget from "widgets/BaseWidget";
 import { LabelPosition } from "components/constants";
 import type { TextSize } from "constants/WidgetConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  isCompactMode,
+} from "widgets/WidgetUtils";
 import type { OptionProps } from "../component";
 import SwitchGroupComponent from "../component";
 import type { AutocompletionDefinitions } from "widgets/constants";
@@ -460,7 +462,6 @@ class SwitchGroupWidget extends BaseWidget<
     const {
       accentColor,
       alignment,
-      bottomRow,
       isDisabled,
       isInline,
       isRequired,
@@ -474,7 +475,6 @@ class SwitchGroupWidget extends BaseWidget<
       labelTooltip,
       options,
       selectedValues,
-      topRow,
       widgetId,
     } = this.props;
 
@@ -493,7 +493,7 @@ class SwitchGroupWidget extends BaseWidget<
       <SwitchGroupComponent
         accentColor={accentColor}
         alignment={alignment}
-        compactMode={!((bottomRow - topRow) / GRID_DENSITY_MIGRATION_V1 > 1)}
+        compactMode={isCompactMode(componentHeight)}
         disabled={isDisabled}
         height={componentHeight}
         inline={isInline}

@@ -10,10 +10,11 @@ import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupRows } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
@@ -676,13 +677,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         accentColor={this.props.accentColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         disabled={this.props.isDisabled}
         dropDownWidth={dropDownWidth}
         filterText={this.props.filterText}

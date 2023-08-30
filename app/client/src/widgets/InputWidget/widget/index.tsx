@@ -4,7 +4,7 @@ import BaseWidget from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type { WidgetType, TextSize } from "constants/WidgetConstants";
-import { RenderModes } from "constants/WidgetConstants";
+import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import type { InputComponentProps } from "../component";
 import InputComponent from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
@@ -19,7 +19,7 @@ import {
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { InputType } from "../constants";
 import { InputTypes } from "../constants";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { COMPACT_MODE_MIN_ROWS } from "widgets/constants";
 import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -31,7 +31,10 @@ import {
 import { LabelPosition } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import {
+  DefaultAutocompleteDefinitions,
+  isCompactMode,
+} from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function defaultValueValidation(
@@ -920,12 +923,13 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     }
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
+    const { componentHeight } = this.getComponentDimensions();
     const minInputSingleLineHeight =
       this.props.label || this.props.tooltip
         ? // adjust height for label | tooltip extra div
-          GRID_DENSITY_MIGRATION_V1 + 4
+          COMPACT_MODE_MIN_ROWS + 4
         : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
-          GRID_DENSITY_MIGRATION_V1;
+          COMPACT_MODE_MIN_ROWS;
 
     return (
       <InputComponent
@@ -936,13 +940,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         // show label and Input side by side if true
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         currencyCountryCode={currencyCountryCode}
         decimalsInCurrency={this.props.decimalsInCurrency}
         defaultValue={this.props.defaultText}
@@ -961,9 +959,9 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         labelTextSize={this.props.labelTextSize}
         labelWidth={(this.props.labelWidth || 0) * this.props.parentColumnSpace}
         multiline={
-          (this.props.bottomRow - this.props.topRow) /
-            minInputSingleLineHeight >
-            1 && this.props.inputType === "TEXT"
+          componentHeight >
+            minInputSingleLineHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT &&
+          this.props.inputType === "TEXT"
         }
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}

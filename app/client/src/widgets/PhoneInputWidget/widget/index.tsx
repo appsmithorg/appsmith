@@ -25,11 +25,11 @@ import type { CountryCode } from "libphonenumber-js";
 import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 
@@ -392,6 +392,7 @@ class PhoneInputWidget extends BaseInputWidget<
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
+    const { componentHeight } = this.getComponentDimensions();
 
     return (
       <PhoneInputComponent
@@ -400,13 +401,7 @@ class PhoneInputWidget extends BaseInputWidget<
         autoFocus={this.props.autoFocus}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         countryCode={countryCode}
         defaultValue={this.props.defaultText}
         dialCode={this.props.dialCode}

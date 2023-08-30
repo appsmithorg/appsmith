@@ -15,10 +15,10 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import CheckboxGroupComponent from "../component";
 import type { OptionProps, SelectAllState } from "../constants";
@@ -554,17 +554,12 @@ class CheckboxGroupWidget extends BaseWidget<
   }
 
   getPageView() {
+    const { componentHeight } = this.getComponentDimensions();
     return (
       <CheckboxGroupComponent
         accentColor={this.props.accentColor}
         borderRadius={this.props.borderRadius}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInline={this.props.isInline}

@@ -12,10 +12,10 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import type { DatePickerType } from "../constants";
 import { TimePrecision } from "../constants";
@@ -545,6 +545,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   }
 
   getPageView() {
+    const { componentHeight } = this.getComponentDimensions();
+
     return (
       <DatePickerComponent
         accentColor={this.props.accentColor}
@@ -552,13 +554,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         closeOnSelection={this.props.closeOnSelection}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         dateFormat={this.props.dateFormat}
         datePickerType="DATE_PICKER"
         firstDayOfWeek={this.props.firstDayOfWeek}

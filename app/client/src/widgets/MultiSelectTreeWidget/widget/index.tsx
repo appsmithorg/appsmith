@@ -16,10 +16,11 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupRows } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import MultiTreeSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
@@ -583,7 +584,7 @@ class MultiSelectTreeWidget extends BaseWidget<
   getPageView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
@@ -592,13 +593,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         allowClear={this.props.allowClear}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         disabled={this.props.isDisabled ?? false}
         dropDownWidth={dropDownWidth}
         dropdownStyle={{
