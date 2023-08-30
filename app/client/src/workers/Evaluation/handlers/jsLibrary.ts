@@ -276,6 +276,13 @@ function checkForOverrides(
   throw new LibraryOverrideError(url, overriddenAccessors);
 }
 
+/**
+ * This function is called only for ESM modules and generates a unique namespace for the module.
+ * @param url
+ * @param takenAccessors
+ * @param takenNamesMap
+ * @returns
+ */
 function generateUniqueAccessor(
   url: string,
   takenAccessors: Array<string>,
@@ -283,18 +290,21 @@ function generateUniqueAccessor(
 ) {
   // extract file name from url
   const urlObject = new URL(url);
+  // URL pattern for ESM modules from jsDelivr - https://cdn.jsdelivr.net/npm/stripe@13.3.0/+esm
+  // Assuming the file name is the last part of the path
   const urlPathParts = urlObject.pathname.split("/");
   let fileName = urlPathParts.pop();
   fileName = fileName?.includes("esm") ? urlPathParts.pop() : fileName;
-  if (fileName) {
-    // Replace all non-alphabetic characters with underscores and remove trailing underscores
-    const validVar = fileName.replace(/[^a-zA-Z]/g, "_").replace(/_+$/, "");
-    if (
-      !takenAccessors.includes(validVar) &&
-      !takenNamesMap.hasOwnProperty(validVar)
-    ) {
-      return validVar;
-    }
+
+  // This should never happen. This is just to avoid the typescript error.
+  if (!fileName) throw new Error("Unable to generate a unique accessor");
+  // Replace all non-alphabetic characters with underscores and remove trailing underscores
+  const validVar = fileName.replace(/[^a-zA-Z]/g, "_").replace(/_+$/, "");
+  if (
+    !takenAccessors.includes(validVar) &&
+    !takenNamesMap.hasOwnProperty(validVar)
+  ) {
+    return validVar;
   }
   const index = 1;
   while (true && index < 100) {
