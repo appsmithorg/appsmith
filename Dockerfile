@@ -22,7 +22,7 @@ RUN apt-get update \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && python3 -m venv --prompt certbot /opt/certbot/venv \
   && /opt/certbot/venv/bin/pip install certbot \
-  && ln -s /opt/certbot/venv/bin/certbot /usr/local/ \
+  && ln -s /opt/certbot/venv/bin/certbot /usr/local/bin \
   && apt-get remove --yes git python3-pip python3-venv
 
 # Install MongoDB v5.0.14, Redis, NodeJS - Service Layer, PostgreSQL v13
