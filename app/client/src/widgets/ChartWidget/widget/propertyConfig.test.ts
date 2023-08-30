@@ -84,6 +84,7 @@ describe("Validate Chart Widget's property config", () => {
   it("Validates that sections are hidden when chartType is CUSTOM_FUSION_CHART", () => {
     const hiddenFns = [
       get(config, "[0].children.[2].hidden"), // propertyName: "chartData"
+      get(config, "[1].children.[4].hidden"), // propertyName: "showDataPointLabel"
       get(config, "[2].children.[1].hidden"), // propertyName: "xAxisName"
       get(config, "[2].children.[2].hidden"), // propertyName: "yAxisName"
       get(config, "[2].children.[3].hidden"), // propertyName: "labelOrientation",
@@ -106,5 +107,22 @@ describe("Validate Chart Widget's property config", () => {
       const result = labelOrientationProperty?.hidden?.({ chartType }, "");
       expect(result).toBeFalsy();
     });
+  });
+
+  it("validates the datasource field is required in customFusionChartConfig", () => {
+    const customFusionChartConfig: any = get(config, "[0].children.[1]");
+    const dataSourceValidations =
+      customFusionChartConfig.validation.params.allowedKeys[1];
+
+    expect(dataSourceValidations.params.required).toEqual(true);
+    expect(dataSourceValidations.params.ignoreCase).toEqual(false);
+  });
+
+  it("validates that default value is present for chartData.data property", () => {
+    const chartDataDataConfig = get(
+      config,
+      "[0].children.[2].children.[0]",
+    ) as unknown as PropertyPaneControlConfig; // propertyName: "chartData.data"
+    expect(chartDataDataConfig.validation?.params?.default).toEqual([]);
   });
 });

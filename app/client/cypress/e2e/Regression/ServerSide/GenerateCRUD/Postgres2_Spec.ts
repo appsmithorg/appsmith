@@ -68,7 +68,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
     });
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       entityExplorer._entityNameInExplorer("public.vessels"),
     );
   });
@@ -131,7 +131,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
 
     //Validating loaded JSON form
-    cy.xpath(locators._spanButton("Update")).then((selector) => {
+    cy.xpath(locators._buttonByText("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
@@ -183,7 +183,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.Sleep(2000); //Sleep time for tab to disappear!
     agHelper.AssertElementAbsence(locators._jsonFormWidget);
     table.SelectTableRow(5, 0, true, "v2");
-    agHelper.AssertElementVisible(locators._jsonFormWidget);
+    agHelper.AssertElementVisibility(locators._jsonFormWidget);
     dataSources.AssertJSONFormHeader(5, 0, "ship_id");
     generateCallsignInfo(5);
     cy.get("@Callsign").then(($callSign) => {
@@ -194,10 +194,10 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     //Checking Required field validations
     deployMode.ClearJSONFieldValue("Shipname");
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._visibleTextDiv("This field is required"),
     );
-    cy.xpath(locators._spanButton("Update") + "/parent::div").should(
+    cy.xpath(locators._buttonByText("Update") + "/parent::div").should(
       "have.attr",
       "disabled",
     );
@@ -215,7 +215,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     deployMode.ClearJSONFieldValue("Timezone");
     deployMode.EnterJSONInputValue("Timezone", "-15");
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._visibleTextDiv("Not a valid timezone!"),
     );
     deployMode.ClearJSONFieldValue("Timezone");
@@ -336,8 +336,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     table.SelectTableRow(1, 0, true, "v2");
     dataSources.AssertJSONFormHeader(1, 0, "ship_id");
     agHelper.ClickButton("Delete", 1);
-    agHelper.AssertElementVisible(locators._modal);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.AssertElementVisibility(
       dataSources._visibleTextSpan(
         "Are you sure you want to delete this item?",
       ),
@@ -345,8 +345,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Cancel");
     dataSources.AssertJSONFormHeader(1, 0, "ship_id");
     agHelper.ClickButton("Delete", 1);
-    agHelper.AssertElementVisible(locators._modal);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.AssertElementVisibility(
       dataSources._visibleTextSpan(
         "Are you sure you want to delete this item?",
       ),
@@ -450,17 +450,17 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     agHelper.GetNClick(dataSources._addIcon);
     agHelper.Sleep();
-    //agHelper.AssertElementVisible(locators._jsonFormWidget, 1); //Insert Modal
-    agHelper.AssertElementVisible(locators._visibleTextDiv("Insert Row"));
+    //agHelper.AssertElementVisibility(locators._jsonFormWidget, 1); //Insert Modal
+    agHelper.AssertElementVisibility(locators._visibleTextDiv("Insert Row"));
 
     //Checking Required field validations
     deployMode.ClearJSONFieldValue("Shipname", 0);
-    cy.xpath(locators._spanButton("Submit") + "/parent::div").should(
+    cy.xpath(locators._buttonByText("Submit") + "/parent::div").should(
       "have.attr",
       "disabled",
     );
     deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 0);
-    cy.xpath(locators._spanButton("Submit") + "/parent::div").should(
+    cy.xpath(locators._buttonByText("Submit") + "/parent::div").should(
       "not.have.attr",
       "disabled",
     );
@@ -491,7 +491,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     deployMode.ClearJSONFieldValue("Timezone", 0);
     deployMode.EnterJSONInputValue("Timezone", "-12", 0);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._visibleTextDiv("Not a valid timezone!"),
     );
     deployMode.ClearJSONFieldValue("Timezone", 0);
@@ -528,10 +528,10 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       .should("eq", "password");
 
     deployMode.ClearJSONFieldValue("Shipname", 0);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._visibleTextDiv("This field is required"),
     );
-    cy.xpath(locators._spanButton("Submit") + "/parent::div").should(
+    cy.xpath(locators._buttonByText("Submit") + "/parent::div").should(
       "have.attr",
       "disabled",
     );
@@ -585,8 +585,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     dataSources.AssertJSONFormHeader(0, 0, "ship_id", "159180");
     agHelper.ClickButton("Delete", 0);
-    agHelper.AssertElementVisible(locators._modal);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.AssertElementVisibility(
       dataSources._visibleTextSpan(
         "Are you sure you want to delete this item?",
       ),

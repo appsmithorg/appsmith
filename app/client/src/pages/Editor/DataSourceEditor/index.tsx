@@ -95,6 +95,7 @@ import {
   onUpdateFilterSuccess,
 } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -251,13 +252,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       this.props.switchDatasource(this.props.datasourceId);
     }
 
-    const urlObject = new URL(window.location.href);
-    const pluginId = urlObject?.searchParams.get("pluginId");
     // update block state when form becomes dirty/view mode is switched on
     if (
       prevProps.viewMode !== this.props.viewMode &&
       !this.props.viewMode &&
-      !!pluginId
+      !!this.props.pluginId
     ) {
       this.blockRoutes();
     }
@@ -312,7 +311,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         pluginId,
       });
     }
-    if (!this.props.viewMode && !!pluginId) {
+    if (!this.props.viewMode && !!this.props.pluginId) {
       this.blockRoutes();
     }
 
@@ -448,7 +447,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   closeDialog() {
-    this.setState({ showDialog: false });
+    this.setState({ showDialog: false, switchFilterBlocked: false });
   }
 
   onSave() {
@@ -469,7 +468,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.state.navigation();
     this.props.datasourceDiscardAction(this.props?.pluginId);
 
-    if (!this.props.viewMode) {
+    if (!this.props.viewMode && !this.state.switchFilterBlocked) {
       this.props.setDatasourceViewMode({
         datasourceId: this.props.datasourceId,
         viewMode: true,
@@ -612,7 +611,13 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         },
       });
     }
-
+    AnalyticsUtil.logEvent("SWITCH_ENVIRONMENT", {
+      fromEnvId: this.state.filterParams.id,
+      toEnvId: id,
+      fromEnvName: this.state.filterParams.name,
+      toEnvName: name,
+      mode: "CONFIGURATION",
+    });
     // This is the event that changes the filter and updates the datasource
     this.setState({
       filterParams: {

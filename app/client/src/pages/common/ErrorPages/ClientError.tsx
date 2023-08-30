@@ -9,6 +9,7 @@ import {
   PAGE_CLIENT_ERROR_DESCRIPTION,
   PAGE_CLIENT_ERROR_TITLE,
 } from "@appsmith/constants/messages";
+import { DISCORD_URL } from "constants/ThirdPartyConstants";
 
 function ClientError() {
   const dispatch = useDispatch();
@@ -22,7 +23,7 @@ function ClientError() {
           kind="primary"
           onClick={() => {
             dispatch(flushErrors());
-            window.open("https://discord.gg/rBTTVJp", "_blank");
+            window.open(DISCORD_URL, "_blank");
           }}
           size="md"
         >

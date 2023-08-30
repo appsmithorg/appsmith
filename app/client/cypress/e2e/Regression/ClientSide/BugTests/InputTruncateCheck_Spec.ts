@@ -10,7 +10,7 @@ import {
   apiPage,
   draggableWidgets,
   fakerHelper,
-  tedTestConfig,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
 const widgetsToTest = {
@@ -81,7 +81,7 @@ const widgetsToTest = {
 
 function configureApi() {
   apiPage.CreateAndFillApi(
-    tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     "FirstAPI",
   );
   apiPage.EnterHeader("value", "{{this.params.value}}");
@@ -93,7 +93,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       if (index === 0) {
         configureApi();
       }
-      // entityExplorer.PinUnpinEntityExplorer(false);
+      entityExplorer.PinUnpinEntityExplorer(false);
       entityExplorer.DragDropWidgetNVerify(widgetSelector, 300, 200);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 400, 400);
       //entityExplorer.SelectEntityByName(draggableWidgets.BUTTONNAME("1"));
@@ -110,7 +110,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         PROPERTY_SELECTOR.TextFieldName,
         `{{appsmith.store.textPayloadOnSubmit}}`,
       );
-      // entityExplorer.PinUnpinEntityExplorer(true);
+      entityExplorer.PinUnpinEntityExplorer(true);
     });
 
     it("2. StoreValue should have complete input value", () => {

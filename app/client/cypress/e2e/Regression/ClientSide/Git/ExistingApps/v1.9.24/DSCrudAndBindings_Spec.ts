@@ -37,23 +37,43 @@ describe("Import and validate older app (app created in older versions of Appsmi
     homePage.AssertNCloseImport();
   });
 
-  it("1. Validate merge status", () => {
+  it("1. Validate merge status + Bug23822", () => {
     entityExplorer.AssertEntityPresenceInExplorer("ListingAndReviews");
     //Wait for the app to settle
     agHelper.Sleep(3000);
     homePage.RenameApplication(appName);
 
-    agHelper.AssertElementVisible(gitSync._bottomBarCommit);
+    agHelper.AssertElementVisibility(gitSync._bottomBarCommit);
     agHelper.AssertText(gitSync._gitPullCount, "text", "4");
     agHelper.GetNClick(gitSync._bottomBarCommit);
-    agHelper.AssertElementVisible(gitSync._gitSyncModal);
+    agHelper.AssertElementVisibility(gitSync._gitSyncModal);
 
     //This is expected due to Canvas Splitting PR changes in v1.9.24
+    agHelper.GetNAssertContains(
+      gitSync._gitStatusChanges,
+      /[0-9] page(|s) modified/,
+    );
     agHelper.GetNAssertElementText(
       gitSync._gitStatusChanges,
-      "4 pages modified",
-      "contain.text",
+      "Application settings modified",
+      "not.contain.text",
     );
+    agHelper.GetNAssertElementText(
+      gitSync._gitStatusChanges,
+      "Theme modified",
+      "not.contain.text",
+    );
+    agHelper.AssertContains(/[0-9] quer(y|ies) modified/, "not.exist");
+
+    // Commented out due to #25739 - to be fixed by dev later
+    // agHelper.GetNAssertElementText(
+    //   gitSync._gitStatusChanges,
+    //   "datasource modified",
+    //   "not.contain.text",
+    // );
+
+    agHelper.AssertContains(/[0-9] JS Object(|s) modified/, "not.exist");
+    agHelper.AssertContains(/[0-9] librar(y|ies) modified/, "not.exist");
     agHelper.GetNAssertElementText(
       gitSync._gitStatusChanges,
       "Some of the changes above are due to an improved file structure designed to reduce merge conflicts. You can safely commit them to your repository.",
@@ -73,7 +93,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "text",
       "listingAndReviews Data",
     );
-    agHelper.AssertElementVisible(locators._widgetByName("data_table"));
+    agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
 
     //Filter & validate table data
     table.OpenNFilterTable("_id", "is exactly", "15665837");
@@ -91,7 +111,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "text",
       "countryFlags Data",
     );
-    agHelper.AssertElementVisible(locators._widgetByName("data_table"));
+    agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
 
     //Filter & validate table data
     table.OpenNFilterTable("Country", "starts with", "Ba");
@@ -111,7 +131,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "text",
       "public_astronauts Data",
     );
-    agHelper.AssertElementVisible(locators._widgetByName("data_table"));
+    agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
 
     //Filter & validate table data
     table.OpenNFilterTable("id", "is exactly", "196");
@@ -138,16 +158,16 @@ describe("Import and validate older app (app created in older versions of Appsmi
 
   it("3. Validate widgets & bindings", () => {
     agHelper.GetNClickByContains(locators._deployedPage, "Widgets");
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._widgetInDeployed(draggableWidgets.AUDIO),
     );
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._widgetInDeployed(draggableWidgets.AUDIORECORDER),
     );
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._widgetInDeployed(draggableWidgets.DOCUMENT_VIEWER),
     );
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._widgetInDeployed(draggableWidgets.CHART),
     );
 
@@ -157,7 +177,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.WaitUntilToastDisappear("404 hit : invalidApi failed to execute");
 
     //Checkbox group
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
     );
     agHelper.GetNAssertElementText(
@@ -166,9 +186,9 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "have.text",
     );
     agHelper
-      .GetElement(locators._checkboxGroupOptions("Ulf Merbold"))
+      .GetElement(locators._checkboxTypeByOption("Ulf Merbold"))
       .should("be.checked");
-    agHelper.CheckUncheck(locators._checkboxGroupOptions("Anil Menon"));
+    agHelper.CheckUncheck(locators._checkboxTypeByOption("Anil Menon"));
 
     //Slider
     agHelper
@@ -200,7 +220,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
 
     //Add customer details - Validate Modal & JSON Form
     agHelper.ClickButton("Add customer Details");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     deployMode.EnterJSONInputValue("Customer Name", "TestUser", 0, true);
     deployMode.EnterJSONInputValue("Customer Number", "1", 0, true);
@@ -211,7 +231,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
 
     //Delete customer details
     agHelper.ClickButton("Delete customer details");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
     agHelper.ClickButton("Confirm");
     agHelper.WaitUntilToastDisappear("Delete customer successful!");
     agHelper.ClickButton("Close");
@@ -263,8 +283,8 @@ describe("Import and validate older app (app created in older versions of Appsmi
 
   after(() => {
     gitSync.DeleteDeployKey(appRepoName, keyId);
-    deployMode.NavigateToHomeDirectly();
     agHelper.WaitUntilAllToastsDisappear();
+    deployMode.NavigateToHomeDirectly();
     homePage.DeleteApplication(appName);
     homePage.DeleteWorkspace(workspaceName);
   });

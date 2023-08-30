@@ -30,11 +30,6 @@ export default defineConfig({
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
     testIsolation: false,
-    excludeSpecPattern: [
-      "cypress/e2e/**/spec_utility.ts",
-      "cypress/e2e/Regression/**/**/*",
-      "cypress/e2e/Sanity/**/**/*",
-      "cypress/e2e/Smoke/**/**/*",
-    ],
+    excludeSpecPattern: ["cypress/e2e/**/spec_utility.ts"],
   },
 });

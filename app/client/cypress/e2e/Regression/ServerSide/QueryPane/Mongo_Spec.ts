@@ -318,7 +318,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
     });
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       entityExplorer._entityNameInExplorer("AuthorNAwards"),
     );
   });
@@ -418,8 +418,8 @@ describe("Validate Mongo Query Pane Validations", () => {
         3,
       );
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -447,8 +447,8 @@ describe("Validate Mongo Query Pane Validations", () => {
         parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
       ).to.eq(0);
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -486,8 +486,8 @@ describe("Validate Mongo Query Pane Validations", () => {
         parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
       ).to.eq(2);
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -520,8 +520,8 @@ describe("Validate Mongo Query Pane Validations", () => {
         parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
       ).to.eq(1);
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -543,8 +543,8 @@ describe("Validate Mongo Query Pane Validations", () => {
         0,
       );
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -568,8 +568,8 @@ describe("Validate Mongo Query Pane Validations", () => {
         1,
       );
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -595,8 +595,8 @@ describe("Validate Mongo Query Pane Validations", () => {
     cy.get("@postExecute").then((resObj: any) => {
       expect(Number(JSON.stringify(resObj.response.body.data.body.n))).to.eq(2);
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -610,8 +610,8 @@ describe("Validate Mongo Query Pane Validations", () => {
     cy.get("@postExecute").then((resObj: any) => {
       expect(Number(JSON.stringify(resObj.response.body.data.body.n))).to.eq(7);
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -636,8 +636,8 @@ describe("Validate Mongo Query Pane Validations", () => {
         JSON.parse(JSON.stringify(resObj.response.body.data.body.values[1])),
       ).to.eql("51e062189c6ae665454e301d");
     });
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -801,7 +801,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
     });
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       entityExplorer._entityNameInExplorer("BirthNDeath"),
     );
 
@@ -873,7 +873,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
 
     //Validating loaded JSON form
-    cy.xpath(locators._spanButton("Update")).then((selector) => {
+    cy.xpath(locators._buttonByText("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {

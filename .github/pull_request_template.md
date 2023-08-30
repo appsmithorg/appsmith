@@ -36,6 +36,7 @@ Fixes # (issue number)
 > Please describe the tests that you ran to verify your changes. Also list any relevant details for your test configuration.
 > Delete anything that is not relevant
 - [ ] Manual
+- [ ] JUnit
 - [ ] Jest
 - [ ] Cypress
 >

@@ -53,7 +53,7 @@ describe("Datasource Autosave Improvements Tests", function () {
 
       // Make new changes and check state of datasource
       dataSources.FillPostgresDSForm(
-        "production",
+        "Production",
         false,
         "username",
         "password",

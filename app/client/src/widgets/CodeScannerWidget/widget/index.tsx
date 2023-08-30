@@ -77,6 +77,7 @@ class CodeScannerWidget extends BaseWidget<
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         buttonColor={this.props.buttonColor || this.props.accentColor}
+        defaultCamera={this.props.defaultCamera}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         isDisabled={this.props.isDisabled}

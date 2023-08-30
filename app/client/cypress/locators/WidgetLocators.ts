@@ -6,6 +6,7 @@ export const WIDGET = {
   CURRENCY_INPUT: "currencyinputwidget",
   BUTTON: "buttonwidget",
   BUTTONNAME: (index: string) => `Button${index}`,
+  CODESCANNER: "codescannerwidget",
   CONTAINER: "containerwidget",
   MULTISELECT: "multiselectwidgetv2",
   BUTTON_GROUP: "buttongroupwidget",
@@ -26,7 +27,6 @@ export const WIDGET = {
   CHART: "chartwidget",
   AUDIO: "audiowidget",
   AUDIORECORDER: "audiorecorderwidget",
-  PHONEINPUT: "phoneinputwidget",
   CAMERA: "camerawidget",
   FILEPICKER: "filepickerwidgetv2",
   DOCUMENT_VIEWER: "documentviewerwidget",
@@ -43,7 +43,7 @@ export const WIDGET = {
   IMAGE: "imagewidget",
   STATBOX: "statboxwidget",
   JSONFORM: "jsonformwidget",
-  MENUBUTTON: "menubuttonwidget"
+  MENUBUTTON: "menubuttonwidget",
 } as const;
 
 // property pane element selector are maintained here
@@ -59,6 +59,27 @@ export const PROPERTY_SELECTOR = {
   tableData: ".t--property-control-tabledata",
   tableColumnNames: '[data-rbd-draggable-id] input[type="text"]',
 };
+
+export const WIDGETSKIT = {
+  recorderPrompt: "//button[@status='PERMISSION_PROMPT']",
+  recorderStart: "//button[@status='DEFAULT']",
+  recorderComplete: "//button[@status='COMPLETE']",
+  recorderStop: ".bp3-minimal",
+  video: "video",
+  iFrame: "iframe",
+  videoWidgetYoutubeMuteBtn: ".ytp-mute-button",
+  videoWidgetYoutubeLargePlayBtn: ".ytp-large-play-button",
+  videoWidgetYoutubePlayBtn: ".ytp-play-button",
+  videoWidgetYoutubeVolumeBtn: ".ytp-volume-panel",
+  image: "div[data-testid=styledImage]",
+  imageDownloadBtn: "//a[@data-testid='t--image-download']",
+  imageRotateAntiClockwiseBtn:
+    "//a[@data-testid='t--image-download']//parent::div/a[1]",
+  imageRotateClockwiseBtn:
+    "//a[@data-testid='t--image-download']//parent::div/a[2]",
+  styleResetBtn: ".reset-button",
+  styleOrangeIcon: ".rounded-full",
+};
 type ValueOf<T> = T[keyof T];
 
 export const getWidgetSelector = (widget: ValueOf<typeof WIDGET>) =>
@@ -67,3 +88,38 @@ export const getWidgetInputSelector = (widget: ValueOf<typeof WIDGET>) =>
   `.t--widget-${widget} input`;
 
 export const modalWidgetSelector = ".t--modal-widget";
+
+// export data-testid with user input
+export const progressWidgetProgress = (input: any) =>
+  `[data-testid='${input}']`;
+
+//switch widget locators
+export const switchlocators = {
+  switchGroupLabel: ".switchgroup-label",
+  switchTooltip:
+    "//*[@data-testid='switchgroup-container']//*[@class='bp3-popover-target']",
+  switchWidget: "//*[@data-testid='switchgroup-container']",
+  switchWidgetHeight: (height: string) =>
+    `//*[@data-testid='switchgroup-container']//div[@height="${height}"]`,
+  switchGroupToggleChecked: (value: string) =>
+    `//*[text()='${value}']//input[@type="checkbox"]`,
+};
+
+export const checkboxlocators = {
+  // read Blue here
+  checkBoxLabel: (value: string) =>
+    `//*[contains(@class,'t--checkbox-widget-label') and text()='${value}']`,
+}
+
+export const buttongroupwidgetlocators = {
+  buttongroup: ".t--buttongroup-widget",
+  buttonSettingInPropPane: ".t--property-control-buttons .t--edit-column-btn",
+  menuSettingInPropPane:".t--edit-column-btn",
+  newButton:"//*[text()='Add new button']",
+  groupButtonValue: "//input[contains(@value,'Group Button')]",
+  buttonText: (value: string) => `//*[@class="bp3-button-text" and text()='${value}']`,
+  menu: "[data-value='MENU']",
+  buttonMenuOptions: (text: string) => `//*[contains(@class,'bp3-menu-item')]//*[text()='${text}']`,
+  button:"//*[contains(@class,'t--widget-buttongroupwidget')]//button"
+}
+

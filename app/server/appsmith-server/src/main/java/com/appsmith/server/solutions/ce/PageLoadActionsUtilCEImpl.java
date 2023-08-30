@@ -347,17 +347,13 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                                                         binding.getEntityReferenceType()))) {
                                     // Copy over some data from the identified action, this ensures that we do not have
                                     // to query the DB again later
-                                    binding.setIsAsync(
-                                            actionDTO.getActionConfiguration().getIsAsync());
                                     binding.setActionDTO(actionDTO);
                                     bindingsWithActionReference.add(binding);
-                                    // Only if this is not an async JS function action and is not a direct JS function
-                                    // call,
+                                    // Only if this is not a direct JS function call,
                                     // add it to a possible on page load action call.
                                     // This discards the following type:
-                                    // {{ JSObject1.asyncFunc() }}
-                                    if (!(TRUE.equals(binding.getIsAsync())
-                                            && TRUE.equals(binding.getIsFunctionCall()))) {
+                                    // {{ JSObject1.func() }}
+                                    if (!TRUE.equals(binding.getIsFunctionCall())) {
                                         possibleEntitiesReferences.add(binding);
                                     }
                                     // We're ignoring any reference that was identified as a widget but actually matched
@@ -430,11 +426,11 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         return Flux.fromIterable(widgetDynamicBindingsMap.entrySet())
                 .flatMap(entry -> {
                     String widgetName = entry.getKey();
-                    // For each widget in the DSL that has a dynamic binding, we define an entity dependency node
-                    // beforehand
+                    // For each widget in the DSL that has a dynamic binding,
+                    // we define an entity dependency node beforehand
                     // This will be a leaf node in the DAG that is constructed for on page load dependencies
-                    EntityDependencyNode widgetDependencyNode = new EntityDependencyNode(
-                            EntityReferenceType.WIDGET, widgetName, widgetName, null, null, null);
+                    EntityDependencyNode widgetDependencyNode =
+                            new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
                     Set<String> bindingsInWidget = entry.getValue();
                     return getPossibleEntityReferences(
                                     actionNameToActionMapMono, bindingsInWidget, evalVersion, actionBindingsInDsl)
@@ -622,7 +618,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                         entityDependencyNode.getEntityReferenceType(),
                         entityDependencyNode.getValidEntityName(),
                         entityDependencyNode.getValidEntityName() + ".actionConfiguration",
-                        entityDependencyNode.getIsAsync(),
                         entityDependencyNode.getIsFunctionCall(),
                         entityDependencyNode.getActionDTO());
                 actionDataFromConfigurationEdges.add(
@@ -790,7 +785,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                             actionDTO.getValidName(),
                             null,
                             null,
-                            false,
                             actionDTO);
                     explicitUserSetOnLoadActions.add(actionDTO.getValidName());
                     return extractAndSetActionBindingsInGraphEdges(
@@ -874,7 +868,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                             entityDependencyNode.getValidEntityName(),
                             bindingPath,
                             null,
-                            false,
                             action);
                     return getPossibleEntityReferences(
                                     actionNameToActionMapMono,
@@ -924,7 +917,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                                     widgetName = widgetPathParts[0];
                                 }
                                 EntityDependencyNode entityDependencyNode = new EntityDependencyNode(
-                                        EntityReferenceType.WIDGET, widgetName, widgetPath, null, null, null);
+                                        EntityReferenceType.WIDGET, widgetName, widgetPath, null, null);
                                 entry.getValue().stream().forEach(widgetDependencyNode -> {
                                     ActionDependencyEdge edge =
                                             new ActionDependencyEdge(widgetDependencyNode, entityDependencyNode);
@@ -1070,7 +1063,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                         entityDependencyNode.getEntityReferenceType(),
                         entityDependencyNode.getValidEntityName(),
                         parent,
-                        entityDependencyNode.getIsAsync(),
                         entityDependencyNode.getIsFunctionCall(),
                         entityDependencyNode.getActionDTO());
                 edges.add(new ActionDependencyEdge(entityDependencyNode, parentDependencyNode));
@@ -1132,10 +1124,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
                 // If the reference is to a sync JS function, discard it from the scheduling order
                 ActionDTO actionDTO = actionNameToActionMap.get(entity);
-                if (PluginType.JS.equals(actionDTO.getPluginType())
-                        && FALSE.equals(actionDTO.getActionConfiguration().getIsAsync())) {
-                    isCandidateForPageLoad = FALSE;
-                }
 
                 if (!vertex.contains(validBinding)) {
                     isCandidateForPageLoad = FALSE;

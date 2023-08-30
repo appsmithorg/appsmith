@@ -10,9 +10,9 @@ import { useVisuallyHidden } from "@react-aria/visually-hidden";
 import type { SpectrumSwitchProps } from "@react-types/switch";
 import type { FocusableRef, StyleProps, Validation } from "@react-types/shared";
 
+import { CheckboxGroupContext } from "../Checkbox";
 import type { InlineLabelProps } from "../Checkbox";
-import { CheckboxGroupContext } from "../Checkbox/context";
-import type { CheckboxGroupContextType } from "../Checkbox/context";
+import type { CheckboxGroupContextType } from "../Checkbox";
 
 export interface SwitchProps
   extends Omit<SpectrumSwitchProps, keyof StyleProps>,
@@ -24,7 +24,7 @@ export interface SwitchProps
 
 export type SwitchRef = FocusableRef<HTMLLabelElement>;
 
-export const Switch = forwardRef((props: SwitchProps, ref: SwitchRef) => {
+const _Switch = (props: SwitchProps, ref: SwitchRef) => {
   const {
     autoFocus,
     children,
@@ -87,4 +87,6 @@ export const Switch = forwardRef((props: SwitchProps, ref: SwitchRef) => {
       {children}
     </label>
   );
-});
+};
+
+export const Switch = forwardRef(_Switch);

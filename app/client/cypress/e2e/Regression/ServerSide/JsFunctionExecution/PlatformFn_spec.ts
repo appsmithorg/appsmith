@@ -4,14 +4,14 @@ import {
   apiPage,
   jsEditor,
   debuggerHelper,
-  tedTestConfig,
+  dataManager,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Tests functionality of platform function", () => {
   it("1. Tests access to outer variable", () => {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
       "getAllUsers",
     );
     jsEditor.CreateJSObject(

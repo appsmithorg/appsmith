@@ -41,24 +41,4 @@ public interface AuthenticationServiceCE {
     Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(String datasourceId, String environmentId, String appsmithToken);
 
     Mono<DatasourceStorage> refreshAuthentication(DatasourceStorage datasourceStorage);
-
-    // TODO: temporaray tranisition commit: will be removed when client starts to send environmentId in the headers:
-    Mono<String> getAuthorizationCodeURLForGenericOAuth2(
-            String datasourceId,
-            String environmentId,
-            String pageId,
-            ServerHttpRequest httpRequest,
-            Boolean isTrueEnvironmentIdRequired);
-
-    Mono<String> getAppsmithToken(
-            String datasourceId,
-            String environmentId,
-            String pageId,
-            String branchName,
-            ServerHttpRequest request,
-            String importForGit,
-            Boolean isTrueEnvironmentIdRequired);
-
-    Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(
-            String datasourceId, String environmentId, String appsmithToken, Boolean isTrueEnvironmentIdRequired);
 }

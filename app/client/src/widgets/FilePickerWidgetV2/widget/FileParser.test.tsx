@@ -1,7 +1,7 @@
 import FileDataTypes from "../constants";
 import parseFileData from "./FileParser";
 import fs from "fs";
-const path = require("path");
+import path from "path";
 
 describe("File parser formats differenty file types correctly", () => {
   it("parses csv file correclty", async () => {

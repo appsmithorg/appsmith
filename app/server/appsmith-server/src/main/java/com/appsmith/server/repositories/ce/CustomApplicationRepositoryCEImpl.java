@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -26,6 +27,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -323,5 +325,24 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria applicationNameCriteria =
                 where(fieldName(QApplication.application.name)).is(applicationName);
         return queryOne(List.of(workspaceIdCriteria, applicationNameCriteria), permission);
+    }
+
+    @Override
+    public Flux<String> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
+            String workspaceId, AclPermission permission, String permissionGroupId) {
+        Criteria workspaceIdCriteria =
+                Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+
+        // Check if the permission is being provided by the given permission group
+        Criteria permissionGroupCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
+                .elemMatch(Criteria.where("permissionGroups")
+                        .in(permissionGroupId)
+                        .and("permission")
+                        .is(permission.getValue()));
+
+        ArrayList<Criteria> criteria =
+                new ArrayList<>(List.of(workspaceIdCriteria, permissionGroupCriteria, notDeleted()));
+        return queryAllWithoutPermissions(criteria, List.of(fieldName(QApplication.application.id)), null, -1)
+                .map(application -> application.getId());
     }
 }

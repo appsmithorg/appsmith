@@ -869,7 +869,7 @@ public enum AppsmithError {
     GIT_FILE_IN_USE(
             500,
             AppsmithErrorCode.GIT_FILE_IN_USE.getCode(),
-            "Your Git repo is in use by another member of your team. Usually, this takes a few seconds. Please try again a little later.",
+            "We were unable to place a lock on the file system to perform #commandName command. This error can occur when another operation is in progress. Please try again later.",
             AppsmithErrorAction.DEFAULT,
             "Git repo is locked",
             ErrorType.GIT_ACTION_EXECUTION_ERROR,
@@ -905,6 +905,60 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Invalid application property configuration",
             ErrorType.INTERNAL_ERROR,
+            null),
+
+    INVALID_SMTP_CONFIGURATION(
+            400,
+            AppsmithErrorCode.INVALID_SMTP_CONFIGURATION.getCode(),
+            "Your SMTP configuration is invalid. Please configure SMTP to enable to proceed",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid SMTP configuration",
+            ErrorType.INTERNAL_ERROR,
+            null),
+
+    USER_ALREADY_VERIFIED(
+            400,
+            AppsmithErrorCode.USER_EMAIL_ALREADY_VERIFIED.getCode(),
+            "This email has already been verified",
+            AppsmithErrorAction.DEFAULT,
+            "User email already verified",
+            ErrorType.BAD_REQUEST,
+            null),
+
+    EMAIL_VERIFICATION_TOKEN_EXPIRED(
+            498,
+            AppsmithErrorCode.EMAIL_VERIFICATION_TOKEN_EXPIRED.getCode(),
+            "Your email verification link has expired. Please re-trigger email verification",
+            AppsmithErrorAction.DEFAULT,
+            "Email verification token expired",
+            ErrorType.INTERNAL_ERROR,
+            null),
+
+    TENANT_EMAIL_VERIFICATION_NOT_ENABLED(
+            400,
+            AppsmithErrorCode.TENANT_EMAIL_VERIFICATION_NOT_ENABLED.getCode(),
+            "Email verification is not enabled. Please contact your admin",
+            AppsmithErrorAction.DEFAULT,
+            "Email verification not enabled",
+            ErrorType.BAD_REQUEST,
+            null),
+
+    INVALID_EMAIL_VERIFICATION(
+            400,
+            AppsmithErrorCode.INVALID_EMAIL_VERIFICATION.getCode(),
+            "Invalid Email verification request",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid email verification request",
+            ErrorType.INTERNAL_ERROR,
+            null),
+
+    INVALID_METHOD_LEVEL_ANNOTATION_USAGE(
+            403,
+            AppsmithErrorCode.INVALID_METHOD_LEVEL_ANNOTATION_USAGE.getCode(),
+            "Invalid usage for {0} annotation from class {1} on method {2}. {3}. Please contact Appsmith support for more details!",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Invalid usage for custom annotation",
+            ErrorType.CONFIGURATION_ERROR,
             null),
     ;
 

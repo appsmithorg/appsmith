@@ -16,12 +16,12 @@ describe("Table Widget property pane feature validation", function () {
     cy.wait(500);
     cy.wait("@updateLayout");
     // Verify the text color is green
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(126, 34, 206)");
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(219, 234, 254)");
     // Change the text color and enter purple in input field
     cy.get(widgetsPage.textColor)
       .scrollIntoView()
       .clear({ force: true })
-      .type("purple", { force: true });
+      .type("purple", { force: true, delay: 0 });
     cy.wait("@updateLayout");
     // Verify the text color is purple
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
@@ -41,15 +41,17 @@ describe("Table Widget property pane feature validation", function () {
       "1",
       "1",
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     );
     _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("tablewidget");
 
     // Change the cell background color and enter purple in input field
-    cy.get(`${widgetsPage.cellBackground_tablev1} input`)
+    cy.get(
+      `${widgetsPage.cellBackground_tablev1} [data-testid='t--color-picker-input']`,
+    )
       .clear({ force: true })
-      .type("purple", { force: true });
+      .type("purple", { force: true, delay: 0 });
     cy.wait("@updateLayout");
     cy.assertPageSave();
     _.deployMode.DeployApp();

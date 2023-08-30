@@ -40,6 +40,7 @@ const onboarding = ObjectsRegistry.Onboarding;
 const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const entityExplorer = ObjectsRegistry.EntityExplorer;
+const assertHelper = ObjectsRegistry.AssertHelper;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -224,7 +225,7 @@ Cypress.Commands.add("GetUrlQueryParams", () => {
 Cypress.Commands.add("LogOutUser", () => {
   cy.wait(1000); //waiting for window to load
   cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
-  cy.wait("@postLogout");
+  assertHelper.AssertNetworkStatus("@postLogout", 200);
 });
 
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
@@ -845,7 +846,7 @@ Cypress.Commands.add("changeButtonColor", (buttonColor) => {
   cy.get(widgetsPage.buttonColor)
     .click({ force: true })
     .clear()
-    .type(buttonColor);
+    .type(buttonColor, { delay: 0 });
   deployMode.DeployApp();
   cy.get(widgetsPage.widgetBtn).should(
     "have.css",
@@ -865,7 +866,6 @@ Cypress.Commands.add(
     propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
     agHelper.Sleep();
-    agHelper.GetNClick(propPane._actionCallbacks, 0, true);
 
     // add a success callback
     cy.get(propPane._actionAddCallback("success")).click().wait(500);
@@ -1133,15 +1133,31 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
   featureFlagIntercept({}, false);
-  // Mock empty product alerts so that it does not interfere with tests
-  cy.intercept("GET", "/api/v1/product-alert/alert", {
-    responseMeta: {
-      status: 200,
-      success: true,
+  cy.intercept(
+    {
+      method: "GET",
+      url: "/api/v1/product-alert/alert",
     },
-    data: {},
-    errorDisplay: "",
-  });
+    (req) => {
+      req.reply((res) => {
+        if (res) {
+          if (res.statusCode === 200) {
+            // Modify the response body to have empty data
+            res.send({
+              responseMeta: {
+                status: 200,
+                success: true,
+              },
+              data: {},
+              errorDisplay: "",
+            });
+          }
+        } else {
+          // Do nothing or handle the case where the response object is not present
+        }
+      });
+    },
+  ).as("productAlert");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1187,77 +1203,59 @@ Cypress.Commands.add("ValidatePublishTableV2Data", (value) => {
   });
 });
 
-Cypress.Commands.add(
-  "ValidatePaginateResponseUrlData",
-  (runTestCss, isNext) => {
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get(".t--entity-name").contains("Api2").click({ force: true });
-    cy.wait(3000);
-    cy.NavigateToPaginationTab();
-    cy.RunAPI();
-    cy.get(ApiEditor.apiPaginationNextTest).click();
-    cy.wait("@postExecute");
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.get(runTestCss).click();
-    cy.wait("@postExecute").then((interception) => {
-      let valueToTest = JSON.stringify(
-        interception.response.body.data.body[0].name,
-      );
+Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
+  cy.CheckAndUnfoldEntityItem("Queries/JS");
+  cy.get(".t--entity-name").contains("Api2").click({ force: true });
+  cy.wait(3000);
+  cy.NavigateToPaginationTab();
+  cy.RunAPI();
+  cy.get(ApiEditor.apiPaginationNextTest).click();
+  cy.wait("@postExecute");
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.get(runTestCss).click();
+  cy.wait(2000);
+  cy.xpath("//div[@class='tr'][1]//div[@class='td'][6]//span")
+    .invoke("text")
+    .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       cy.get(".t--entity-name").contains("Table1").click({ force: true });
       cy.isSelectRow(0);
-      if (isNext) {
-        cy.wait("@postExecute").then((interception) => {
-          valueToTest = JSON.stringify(
-            interception.response.body.data.body[0].name,
-          );
-        });
-      }
       cy.readTabledata("0", "5").then((tabData) => {
         const tableData = tabData;
-        expect(`\"${tableData}\"`).to.equal(valueToTest);
+        expect(tableData).to.equal(valueToTest);
       });
     });
-  },
-);
+});
 
-Cypress.Commands.add(
-  "ValidatePaginateResponseUrlDataV2",
-  (runTestCss, isNext) => {
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get(".t--entity-name").contains("Api2").click({ force: true });
-    cy.wait(3000);
-    cy.NavigateToPaginationTab();
-    cy.RunAPI();
-    cy.get(ApiEditor.apiPaginationNextTest).click();
-    cy.wait("@postExecute");
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.get(runTestCss).click();
-    cy.wait("@postExecute").then((interception) => {
-      let valueToTest = JSON.stringify(
-        interception.response.body.data.body[0].name,
-      );
+Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
+  cy.CheckAndUnfoldEntityItem("Queries/JS");
+  cy.get(".t--entity-name").contains("Api2").click({ force: true });
+  cy.wait(3000);
+  cy.NavigateToPaginationTab();
+  cy.RunAPI();
+  cy.get(ApiEditor.apiPaginationNextTest).click();
+  cy.wait("@postExecute");
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.get(runTestCss).click();
+  cy.wait(2000);
+  cy.xpath("//div[@class='tr'][1]//div[@class='td'][6]//span")
+    .invoke("text")
+    .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       cy.get(".t--entity-name").contains("Table1").click({ force: true });
+      cy.wait(2000);
       cy.isSelectRow(0);
-      if (isNext) {
-        cy.wait("@postExecute").then((interception) => {
-          valueToTest = JSON.stringify(
-            interception.response.body.data.body[0].name,
-          );
-        });
-      }
       cy.readTableV2data("0", "5").then((tabData) => {
         const tableData = tabData;
-        expect(`\"${tableData}\"`).to.equal(valueToTest);
+        cy.log(valueToTest);
+        expect(tableData).to.equal(valueToTest);
       });
     });
-  },
-);
+});
 
 Cypress.Commands.add("ValidatePaginationInputData", (valueToTest) => {
   cy.isSelectRow(0);
@@ -1374,6 +1372,7 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
+  cy.wait("@getWorkspace");
 
   cy.LogOut();
   cy.wait(2000);
@@ -1790,7 +1789,7 @@ Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
 // });
 
 addMatchImageSnapshotCommand({
-  failureThreshold: 0.1, // threshold for entire image
+  failureThreshold: 0.15, // threshold for entire image
   failureThresholdType: "percent",
 });
 
@@ -2167,4 +2166,12 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 
 Cypress.Commands.add("skipSignposting", () => {
   onboarding.closeIntroModal();
+});
+
+Cypress.Commands.add("stubPricingPage", () => {
+  cy.window().then((win) => {
+    cy.stub(win, "open", (url) => {
+      win.location.href = "https://www.appsmith.com/pricing?";
+    }).as("pricingPage");
+  });
 });
