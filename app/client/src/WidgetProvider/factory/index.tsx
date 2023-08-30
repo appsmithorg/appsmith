@@ -46,7 +46,12 @@ class WidgetFactory {
 
   static widgetBuilderMap: Map<WidgetType, any> = new Map();
 
-  static initialize(widgets: (typeof BaseWidget | any)[]) {
+  static initialize(
+    widgets: [
+      typeof BaseWidget,
+      (widgetProps: CanvasWidgetStructure) => React.ReactNode,
+    ][],
+  ) {
     const start = performance.now();
 
     for (const [widget, builder] of widgets) {
