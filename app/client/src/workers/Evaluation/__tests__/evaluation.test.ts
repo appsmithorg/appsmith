@@ -548,7 +548,7 @@ describe("DataTreeEvaluator", () => {
     );
   });
 
-  it("Evaluates a value change in update run", () => {
+  it("Evaluates a value change in update run", async () => {
     const updatedUnEvalTree = {
       ...unEvalTree,
       Text1: {
@@ -563,7 +563,7 @@ describe("DataTreeEvaluator", () => {
       },
     };
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+      await evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
     evaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder,
@@ -577,7 +577,7 @@ describe("DataTreeEvaluator", () => {
     expect(dataTree).toHaveProperty("Text3.text", "Hey there");
   });
 
-  it("Evaluates a dependency change in update run", () => {
+  it("Evaluates a dependency change in update run", async () => {
     const updatedUnEvalTree = {
       ...unEvalTree,
       Text3: {
@@ -599,7 +599,7 @@ describe("DataTreeEvaluator", () => {
     };
 
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+      await evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
     evaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder,
@@ -619,7 +619,7 @@ describe("DataTreeEvaluator", () => {
     );
   });
 
-  it("Overrides with default value", () => {
+  it("Overrides with default value", async () => {
     const updatedUnEvalTree = {
       ...unEvalTree,
       Input1: input1unEvalEntity,
@@ -643,7 +643,7 @@ describe("DataTreeEvaluator", () => {
     };
 
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+      await evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
     evaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder,
@@ -657,7 +657,7 @@ describe("DataTreeEvaluator", () => {
     );
   });
 
-  it("Evaluates for value changes in nested diff paths", () => {
+  it("Evaluates for value changes in nested diff paths", async () => {
     const bindingPaths = {
       options: EvaluationSubstitutionType.TEMPLATE,
       defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
@@ -703,7 +703,7 @@ describe("DataTreeEvaluator", () => {
     } as unknown as ConfigTree;
     const expectedDependencies = { ...initialdependencies };
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+      await evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
 
     evaluator.evalAndValidateSubTree(
       evalOrder,
@@ -719,7 +719,7 @@ describe("DataTreeEvaluator", () => {
     );
   });
 
-  it("Adds an entity with a complicated binding", () => {
+  it("Adds an entity with a complicated binding", async () => {
     const updatedUnEvalTree = {
       ...unEvalTree,
       Api1: {
@@ -744,7 +744,7 @@ describe("DataTreeEvaluator", () => {
     } as unknown as ConfigTree;
 
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+      await evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
     evaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder,
@@ -771,7 +771,7 @@ describe("DataTreeEvaluator", () => {
     });
   });
 
-  it("Selects a row", () => {
+  it("Selects a row", async () => {
     const updatedUnEvalTree = {
       ...unEvalTree,
       Table1: {
@@ -806,7 +806,7 @@ describe("DataTreeEvaluator", () => {
     } as unknown as ConfigTree;
 
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+      await evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
 
     evaluator.evalAndValidateSubTree(
       evalOrder,
@@ -837,7 +837,7 @@ describe("DataTreeEvaluator", () => {
     });
   });
 
-  it("Honors predefined action dependencyMap", () => {
+  it("Honors predefined action dependencyMap", async () => {
     const updatedTree1 = {
       ...unEvalTree,
       Text1: {
@@ -879,7 +879,7 @@ describe("DataTreeEvaluator", () => {
       evalOrder,
       nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
       unEvalUpdates,
-    } = evaluator.setupUpdateTree(updatedTree1, updatedConfigTree1);
+    } = await evaluator.setupUpdateTree(updatedTree1, updatedConfigTree1);
     evaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder2,
@@ -916,7 +916,7 @@ describe("DataTreeEvaluator", () => {
       evalOrder: newEvalOrder,
       nonDynamicFieldValidationOrder,
       unEvalUpdates: unEvalUpdates2,
-    } = evaluator.setupUpdateTree(updatedTree2, updatedConfigTree2);
+    } = await evaluator.setupUpdateTree(updatedTree2, updatedConfigTree2);
     evaluator.evalAndValidateSubTree(
       newEvalOrder,
       nonDynamicFieldValidationOrder,
@@ -959,7 +959,7 @@ describe("DataTreeEvaluator", () => {
       evalOrder: newEvalOrder2,
       nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder3,
       unEvalUpdates: unEvalUpdates3,
-    } = evaluator.setupUpdateTree(updatedTree3, updatedConfigTree3);
+    } = await evaluator.setupUpdateTree(updatedTree3, updatedConfigTree3);
     evaluator.evalAndValidateSubTree(
       newEvalOrder2,
       nonDynamicFieldValidationOrder3,
