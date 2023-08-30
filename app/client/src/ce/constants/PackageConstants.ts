@@ -11,3 +11,5 @@ export type Package = {
   modifiedAt: string;
   userPermissions: string[];
 };
+
+export type PackageMetadata = Package;
