@@ -298,11 +298,6 @@ configure_supervisord() {
       # Initialize Redis rdb directory
       local redis_db_path="$stacks_path/data/redis"
       mkdir -p "$redis_db_path"
-      # Enable saving Redis session data to disk more often, so recent sessions aren't cleared on restart.
-      sed -i \
-        -e 's/^save 60 10000$/save 15 1/g' \
-        -e "s|^dir /var/lib/redis$|dir ${redis_db_path}|g" \
-        /etc/redis/redis.conf
     fi
     if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
       cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
