@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   DemoImage,
   FieldContainer,
@@ -12,12 +12,53 @@ import {
   CollapsibleContent,
   CollapsibleHeader,
   Icon,
-  Input,
   Option,
   Select,
   Text,
+  toast,
 } from "design-system";
 import styled from "styled-components";
+import { CopyButton } from "../../components/CopyButton";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { COPY_SSH_KEY, createMessage } from "@appsmith/constants/messages";
+import { useSSHKeyPair } from "../../hooks";
+
+export const DeployedKeyContainer = styled.div`
+  height: 36px;
+  border: 1px solid var(--ads-v2-color-border);
+  padding: 8px;
+  box-sizing: border-box;
+  border-radius: var(--ads-v2-border-radius);
+  background-color: #fff;
+  align-items: center;
+  display: flex;
+`;
+
+export const FlexRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  gap: 3px;
+`;
+
+export const KeyType = styled.span`
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--ads-v2-color-fg);
+  font-weight: 700;
+`;
+
+export const KeyText = styled.span`
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  flex: 1;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--ads-v2-color-fg);
+  direction: rtl;
+  margin-right: 8px;
+`;
 
 const StyledSelect = styled(Select)`
   margin-bottom: 4px;
@@ -47,7 +88,63 @@ const NOOP = () => {
 };
 
 function AddDeployKey({ onChange = NOOP, value = {} }: AddDeployKeyProps) {
-  const [sshKeyType, setSshKeyType] = useState<string>("ecdsa256");
+  const [fetched, setFetched] = useState(false);
+  const [sshKeyType, setSshKeyType] = useState<string>();
+  const {
+    // deployKeyDocUrl,
+    fetchingSSHKeyPair,
+    fetchSSHKeyPair,
+    generateSSHKey,
+    generatingSSHKey,
+    SSHKeyPair,
+  } = useSSHKeyPair();
+
+  useEffect(() => {
+    // On mount check SSHKeyPair is defined, if not fetchSSHKeyPair
+    if (!fetched) {
+      fetchSSHKeyPair({
+        onSuccessCallback: () => {
+          setFetched(true);
+        },
+        onErrorCallback: () => {
+          setFetched(true);
+        },
+      });
+    }
+  }, [fetched]);
+
+  useEffect(() => {
+    if (fetched && !fetchingSSHKeyPair) {
+      if (SSHKeyPair && SSHKeyPair.includes("rsa")) {
+        setSshKeyType("RSA");
+      } else {
+        setSshKeyType("ECDSA");
+      }
+    }
+  }, [fetched, fetchingSSHKeyPair, SSHKeyPair]);
+
+  useEffect(() => {
+    if (
+      (sshKeyType && !SSHKeyPair) ||
+      (sshKeyType && !SSHKeyPair?.includes(sshKeyType.toLowerCase()))
+    ) {
+      generateSSHKey(sshKeyType, {
+        onSuccessCallback: () => {
+          toast.show("SSH Key generated successfully", { kind: "success" });
+        },
+      });
+    }
+  }, [sshKeyType, SSHKeyPair]);
+
+  console.log({
+    fetched,
+    sshKeyType,
+    SSHKeyPair,
+    fetchingSSHKeyPair,
+    generatingSSHKey,
+  });
+
+  const loading = fetchingSSHKeyPair || generatingSSHKey;
 
   return (
     <div>
@@ -65,10 +162,30 @@ function AddDeployKey({ onChange = NOOP, value = {} }: AddDeployKeyProps) {
             size="sm"
             value={sshKeyType}
           >
-            <Option value="ecdsa256">ECDSA 256</Option>
-            <Option value="rsa4096">RSA 4096</Option>
+            <Option value="ECDSA">ECDSA 256</Option>
+            <Option value="RSA">RSA 4096</Option>
           </StyledSelect>
-          <Input isReadOnly size="md" />
+          {!loading ? (
+            <DeployedKeyContainer>
+              <Icon
+                color="var(--ads-v2-color-fg)"
+                name="key-2-line"
+                size="md"
+                style={{ marginRight: 4 }}
+              />
+              <KeyType>{sshKeyType}</KeyType>
+              <KeyText>{SSHKeyPair}</KeyText>
+              <CopyButton
+                onCopy={() => {
+                  AnalyticsUtil.logEvent("GS_COPY_SSH_KEY_BUTTON_CLICK");
+                }}
+                tooltipMessage={createMessage(COPY_SSH_KEY)}
+                value={SSHKeyPair}
+              />
+            </DeployedKeyContainer>
+          ) : (
+            <Text>Loading...</Text>
+          )}
         </FieldContainer>
         <Collapsible isOpen>
           <CollapsibleHeader arrowPosition="end">

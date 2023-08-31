@@ -6,6 +6,10 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { generateSSHKeyPair, getSSHKeyPair } from "actions/gitSyncActions";
 
+const NOOP = () => {
+  // do nothing
+};
+
 export const useSSHKeyPair = () => {
   // As SSHKeyPair fetching and generation is only done only for GitConnection part,
   // All the state are maintained here instead of redux state.
@@ -21,44 +25,58 @@ export const useSSHKeyPair = () => {
 
   const [failedGeneratingSSHKey, setFailedGeneratingSSHKey] = useState(false);
 
-  useEffect(() => {
-    // on change of sshKeyPair if it is defined, then stop the loading state.
-    if (SSHKeyPair) {
-      if (generatingSSHKey) setIsGeneratingSSHKey(false);
-      if (fetchingSSHKeyPair) setIsFetchingSSHKeyPair(false);
-    }
-  }, [SSHKeyPair]);
+  // useEffect(() => {
+  //   // on change of sshKeyPair if it is defined, then stop the loading state.
+  //   if (SSHKeyPair) {
+  //     if (generatingSSHKey) setIsGeneratingSSHKey(false);
+  //     if (fetchingSSHKeyPair) setIsFetchingSSHKeyPair(false);
+  //   }
+  // }, [SSHKeyPair]);
 
-  const fetchSSHKeyPair = useCallback(() => {
-    setIsFetchingSSHKeyPair(true);
-    dispatch(
-      getSSHKeyPair({
-        onErrorCallback: () => {
-          setIsFetchingSSHKeyPair(false);
-        },
-      }),
-    );
-  }, [setIsFetchingSSHKeyPair]);
-
-  const onGenerateSSHKeyFailure = useCallback(() => {
-    setIsGeneratingSSHKey(false);
-    setFailedGeneratingSSHKey(true);
-  }, [setIsGeneratingSSHKey]);
+  const fetchSSHKeyPair = useCallback(
+    ({ onSuccessCallback = NOOP, onErrorCallback = NOOP } = {}) => {
+      setIsFetchingSSHKeyPair(true);
+      dispatch(
+        getSSHKeyPair({
+          onErrorCallback: (e) => {
+            onErrorCallback(e);
+            setIsFetchingSSHKeyPair(false);
+          },
+          onSuccessCallback: (data) => {
+            onSuccessCallback(data);
+            setIsFetchingSSHKeyPair(false);
+          },
+        }),
+      );
+    },
+    [setIsFetchingSSHKeyPair],
+  );
 
   const generateSSHKey = useCallback(
-    (keyType = "ECDSA") => {
+    (
+      keyType = "ECDSA",
+      { onSuccessCallback = NOOP, onErrorCallback = NOOP } = {},
+    ) => {
       // if (currentApplication?.id) {
       setIsGeneratingSSHKey(true);
       setFailedGeneratingSSHKey(false);
 
       dispatch(
         generateSSHKeyPair({
-          onErrorCallback: onGenerateSSHKeyFailure,
+          onErrorCallback: (e) => {
+            onErrorCallback(e);
+            setIsGeneratingSSHKey(false);
+            setFailedGeneratingSSHKey(true);
+          },
+          onSuccessCallback: (data) => {
+            onSuccessCallback(data);
+            setIsGeneratingSSHKey(false);
+          },
           payload: { keyType },
         }),
       );
     },
-    [onGenerateSSHKeyFailure, setIsGeneratingSSHKey],
+    [setIsGeneratingSSHKey],
   );
 
   return {

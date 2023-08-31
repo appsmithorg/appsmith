@@ -19,9 +19,10 @@ import {
   PASTE_SSH_URL_INFO,
   createMessage,
 } from "@appsmith/constants/messages";
+import GitUserSettings from "../GitSettings/GitUserSettings";
 
 interface GenerateSSHState {
-  sshUrl: string;
+  remoteUrl: string;
 }
 interface GenerateSSHProps {
   onChange: (args: Partial<GenerateSSHState>) => void;
@@ -36,11 +37,12 @@ function GenerateSSH({ onChange = NOOP, value = {} }: GenerateSSHProps) {
   const [isTouched, setIsTouched] = useState(false);
   const isInvalid =
     isTouched &&
-    (typeof value?.sshUrl !== "string" || !isValidGitRemoteUrl(value?.sshUrl));
+    (typeof value?.remoteUrl !== "string" ||
+      !isValidGitRemoteUrl(value?.remoteUrl));
 
   const handleChange = (v: string) => {
     setIsTouched(true);
-    onChange({ sshUrl: v });
+    onChange({ remoteUrl: v });
   };
 
   return (
@@ -61,9 +63,10 @@ function GenerateSSH({ onChange = NOOP, value = {} }: GenerateSSHProps) {
             onChange={handleChange}
             placeholder="git@example.com:user/repository.git"
             size="md"
-            value={value?.sshUrl}
+            value={value?.remoteUrl}
           />
         </FieldContainer>
+        <GitUserSettings />
         <Collapsible isOpen>
           <CollapsibleHeader arrowPosition="end">
             <Icon name="play-circle-line" size="md" />

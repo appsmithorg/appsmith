@@ -70,7 +70,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);
   const activeTabKey = useSelector(getActiveGitSyncModalTab);
-  const { onGitConnectFailure: resetGitConnectStatus } = useGitConnect();
+  // const { onGitConnectFailure: resetGitConnectStatus } = useGitConnect();
 
   const isGitConnectV2Enabled = true;
   ComponentsByTab[GitSyncModalTab.GIT_CONNECTION] = isGitConnectV2Enabled
@@ -87,7 +87,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
   };
 
   const handleClose = useCallback(() => {
-    resetGitConnectStatus();
+    // resetGitConnectStatus();
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
     dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);

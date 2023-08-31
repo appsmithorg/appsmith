@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import { Button, ModalBody, ModalFooter } from "design-system";
+import React, { useEffect, useState } from "react";
+import { Button, ModalBody, ModalFooter, Text, toast } from "design-system";
 import Steps from "./Steps";
 import ChooseGitProvider from "./ChooseGitProvider";
 import GenerateSSH from "./GenerateSSH";
 import AddDeployKey from "./AddDeployKey";
 import styled from "styled-components";
 import { GIT_CONNECT_STEPS } from "./constants";
+import { useGitConnect, useSSHKeyPair } from "../../hooks";
+import { isValidGitRemoteUrl } from "../../utils";
 
 const StyledModalFooter = styled(ModalFooter)`
   justify-content: space-between;
@@ -33,16 +35,18 @@ const steps = [
 interface FormDataState {
   gitProvider?: string;
   gitEmptyRepoExists?: string;
-  sshUrl?: string;
+  remoteUrl?: string;
   isAddedDeployKey?: boolean;
+  sshKeyType?: "RSA" | "ECDSA";
 }
 
 function GitConnectionV2() {
   const [formData, setFormData] = useState<FormDataState>({
     gitProvider: undefined,
     gitEmptyRepoExists: undefined,
-    sshUrl: undefined,
+    remoteUrl: undefined,
     isAddedDeployKey: false,
+    sshKeyType: "ECDSA",
   });
 
   const handleChange = (partialFormData: Partial<FormDataState>) => {
@@ -56,6 +60,9 @@ function GitConnectionV2() {
     GIT_CONNECT_STEPS.CHOOSE_PROVIDER,
   );
   const currentIndex = steps.findIndex((s) => s.key === activeStep);
+
+  const [connectedToGit, setConnectedToGit] = useState(false);
+  const { connectToGit, isConnectingToGit } = useGitConnect();
 
   // const [isValid, setIsValid] = useState({
   //   [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: false,
@@ -75,7 +82,9 @@ function GitConnectionV2() {
       !formData.gitProvider ||
       !formData.gitEmptyRepoExists ||
       formData.gitEmptyRepoExists === "no",
-    [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: !formData.sshUrl,
+    [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]:
+      typeof formData?.remoteUrl !== "string" ||
+      !isValidGitRemoteUrl(formData?.remoteUrl),
     [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: !formData.isAddedDeployKey,
   };
 
@@ -86,8 +95,40 @@ function GitConnectionV2() {
   };
 
   const handleNextStep = () => {
-    if (currentIndex < steps.length - 1) {
-      setActiveStep(steps[currentIndex + 1].key);
+    console.log({ currentIndex, s: steps.length });
+    if (currentIndex < steps.length) {
+      switch (activeStep) {
+        case GIT_CONNECT_STEPS.CHOOSE_PROVIDER: {
+          setActiveStep(GIT_CONNECT_STEPS.GENERATE_SSH_KEY);
+          break;
+        }
+        case GIT_CONNECT_STEPS.GENERATE_SSH_KEY: {
+          setActiveStep(GIT_CONNECT_STEPS.ADD_DEPLOY_KEY);
+          break;
+        }
+        case GIT_CONNECT_STEPS.ADD_DEPLOY_KEY: {
+          console.log("HERE");
+          if (formData.remoteUrl) {
+            connectToGit(
+              {
+                remoteUrl: formData.remoteUrl,
+                gitProfile: {
+                  authorName: "Appsmith",
+                  authorEmail: "abc@xyz.com",
+                },
+                isDefaultProfile: true,
+              },
+              {
+                onSuccessCallback: () => {
+                  setConnectedToGit(true);
+                  console.log("HANDLE REDIRECTION HERE");
+                },
+              },
+            );
+          }
+          break;
+        }
+      }
     }
   };
 
@@ -120,16 +161,19 @@ function GitConnectionV2() {
         })} */}
       </ModalBody>
       <StyledModalFooter>
-        <Button
-          endIcon={
-            currentIndex < steps.length - 1 ? "arrow-right-s-line" : undefined
-          }
-          isDisabled={isDisabled[activeStep]}
-          onClick={handleNextStep}
-          size="md"
-        >
-          {steps[currentIndex].nextStep}
-        </Button>
+        {isConnectingToGit && <Text>Connecting ...</Text>}
+        {!connectedToGit && (
+          <Button
+            endIcon={
+              currentIndex < steps.length - 1 ? "arrow-right-s-line" : undefined
+            }
+            isDisabled={isDisabled[activeStep]}
+            onClick={handleNextStep}
+            size="md"
+          >
+            {steps[currentIndex].nextStep}
+          </Button>
+        )}
         {currentIndex > 0 && (
           <Button
             kind="secondary"

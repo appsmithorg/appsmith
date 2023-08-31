@@ -3,37 +3,41 @@ import { useCallback, useState } from "react";
 import type { ConnectToGitPayload } from "api/GitSyncAPI";
 import { connectToGitInit } from "actions/gitSyncActions";
 
+const NOOP = () => {
+  // do nothing
+};
+
 export const useGitConnect = () => {
   const dispatch = useDispatch();
 
   const [isConnectingToGit, setIsConnectingToGit] = useState(false);
 
-  const onGitConnectSuccess = useCallback(() => {
-    setIsConnectingToGit(false);
-  }, [setIsConnectingToGit]);
-
-  const onGitConnectFailure = useCallback(() => {
-    setIsConnectingToGit(false);
-  }, [setIsConnectingToGit]);
-
   const connectToGit = useCallback(
-    (payload: ConnectToGitPayload) => {
+    (
+      payload: ConnectToGitPayload,
+      { onErrorCallback = NOOP, onSuccessCallback = NOOP } = {},
+    ) => {
       setIsConnectingToGit(true);
       // Here after the ssh key pair generation, we fetch the application data again and on success of it
       dispatch(
         connectToGitInit({
           payload,
-          onSuccessCallback: onGitConnectSuccess,
-          onErrorCallback: onGitConnectFailure,
+          onSuccessCallback: (data) => {
+            onSuccessCallback(data);
+            setIsConnectingToGit(false);
+          },
+          onErrorCallback: (e) => {
+            onErrorCallback(e);
+            setIsConnectingToGit(false);
+          },
         }),
       );
     },
-    [onGitConnectSuccess, onGitConnectFailure, setIsConnectingToGit],
+    [setIsConnectingToGit],
   );
 
   return {
     isConnectingToGit,
     connectToGit,
-    onGitConnectFailure,
   };
 };
