@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import localForage from "localforage";
 
 const OnboardingLocator = require("../../locators/FirstTimeUserOnboarding.json");
 
@@ -7,6 +8,16 @@ export class Onboarding {
   private _aggregateHelper = ObjectsRegistry.AggregateHelper;
   private _datasources = ObjectsRegistry.DataSources;
   private _debuggerHelper = ObjectsRegistry.DebuggerHelper;
+
+  public readonly locators = {
+    back_to_canvas: "#back-to-canvas",
+    deploy: "#application-publish-btn",
+    table_widget_card: "#widget-card-draggable-tablewidgetv2",
+    create_query: "#create-query",
+    explorer_widget_tab: `#explorer-tab-options [data-value*="widgets"]`,
+    add_datasources: "#add_datasources",
+    connect_data_overlay: "#table-overlay-connectdata",
+  };
 
   completeSignposting() {
     cy.get(OnboardingLocator.checklistStatus).should("be.visible");
@@ -105,6 +116,22 @@ export class Onboarding {
     cy.get("body").then(($body) => {
       if ($body.find(OnboardingLocator.introModalCloseBtn).length) {
         this._aggregateHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
+      }
+    });
+  }
+
+  skipSignposting() {
+    cy.get("body").then(($body) => {
+      if ($body.find(OnboardingLocator.introModalCloseBtn).length) {
+        cy.wrap(null).then(() => {
+          localForage.config({
+            name: "Appsmith",
+          });
+          // return a promise to cy.then() that
+          // is awaited until it resolves
+          return localForage.setItem("ENABLE_START_SIGNPOSTING", false);
+        });
+        cy.reload();
       }
     });
   }

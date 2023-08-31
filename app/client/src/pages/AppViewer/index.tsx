@@ -50,7 +50,7 @@ import {
 } from "@design-system/theming";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
-import { showProductRamps } from "selectors/rampSelectors";
+import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { isCEMode } from "@appsmith/utils";
 
 const AppViewerBody = styled.section<{
