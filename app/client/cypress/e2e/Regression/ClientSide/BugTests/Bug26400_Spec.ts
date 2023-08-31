@@ -7,6 +7,8 @@ import {
   entityExplorer,
   draggableWidgets,
   propPane,
+  assertHelper,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Button widget", function () {
@@ -14998,18 +15000,16 @@ describe("Test Create Api and Bind to Button widget", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     propPane.EnterJSContext("Table data", `{{Api1.data.body}}`);
     agHelper.RefreshPage();
-    cy.wait(500);
     // Make sure onPageLoad action has run before validating the data
-    cy.wait("@postExecute");
-    cy.wait(2000);
-    table.AssertTableLoaded();
+    assertHelper.AssertNetworkStatus("postExecute");
+    agHelper.Sleep(2000);
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     //Works in the published version"
-    deployMode.DeployApp();
-    cy.wait(500);
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     // Make sure onPageLoad action has run before validating the data
-    cy.wait("@postExecute");
-    cy.wait(2000);
-    table.AssertTableLoaded();
+    assertHelper.AssertNetworkStatus("postExecute");
+    agHelper.Sleep(2000);
+    table.WaitUntilTableLoad(0, 0, "v2");
   });
 });

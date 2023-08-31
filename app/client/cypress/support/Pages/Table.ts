@@ -232,21 +232,6 @@ export class Table {
     this.agHelper.Sleep(500); //for table to settle loading!
   }
 
-  public AssertTableLoaded(
-    rowIndex = 0,
-    colIndex = 0,
-    tableVersion: "v1" | "v2" = "v1",
-  ) {
-    this.agHelper
-      .GetElement(
-        this._tableRowColumnData(rowIndex, colIndex, tableVersion),
-        30000,
-      )
-      .waitUntil(($ele) =>
-        cy.wrap($ele).children("span").should("not.be.empty"),
-      );
-  }
-
   public WaitForTableEmpty(tableVersion: "v1" | "v2" = "v1") {
     this.agHelper
       .GetElement(this._tableEmptyColumnData(tableVersion))
