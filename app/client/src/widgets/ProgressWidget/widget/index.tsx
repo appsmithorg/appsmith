@@ -214,7 +214,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
       showResult,
       steps,
     } = this.props;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     const isScaleY = componentHeight > componentWidth;
 
     return (

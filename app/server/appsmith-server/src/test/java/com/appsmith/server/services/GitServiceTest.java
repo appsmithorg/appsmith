@@ -40,6 +40,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -68,6 +69,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -103,6 +105,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -112,7 +115,6 @@ import static org.mockito.ArgumentMatchers.eq;
 @DirtiesContext
 public class GitServiceTest {
 
-    private static final String DEFAULT_GIT_PROFILE = "default";
     private static final String DEFAULT_BRANCH = "defaultBranchName";
     private static final String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     private static final String GIT_CONFIG_ERROR =
@@ -189,6 +191,9 @@ public class GitServiceTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @SpyBean
+    GitPrivateRepoHelper gitPrivateRepoHelper;
+
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
 
@@ -215,7 +220,7 @@ public class GitServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
-        if (Boolean.TRUE.equals(isSetupDone)) {
+        if (TRUE.equals(isSetupDone)) {
             return;
         }
 
@@ -843,9 +848,8 @@ public class GitServiceTest {
         String limitPrivateRepoTestWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
 
-        GitService gitService1 = Mockito.spy(gitService);
         Mockito.doReturn(Mono.just(Boolean.TRUE))
-                .when(gitService1)
+                .when(gitPrivateRepoHelper)
                 .isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
 
         Mockito.when(gitExecutor.cloneApplication(
@@ -889,7 +893,7 @@ public class GitServiceTest {
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         Mono<Application> applicationMono =
-                gitService1.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
+                gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(error -> error instanceof AppsmithException
@@ -1755,7 +1759,7 @@ public class GitServiceTest {
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
-                .thenReturn(Mono.just(Boolean.TRUE));
+                .thenReturn(Mono.just(TRUE));
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
                         Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
@@ -3438,7 +3442,7 @@ public class GitServiceTest {
         gitService.generateSSHKey(null).block();
         GitService gitService1 = Mockito.spy(gitService);
         Mockito.doReturn(Mono.just(Boolean.TRUE))
-                .when(gitService1)
+                .when(gitPrivateRepoHelper)
                 .isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
 
         Mono<ApplicationImportDTO> applicationMono = gitService1.importApplicationFromGit(workspaceId, gitConnectDTO);
@@ -4090,7 +4094,8 @@ public class GitServiceTest {
         createApplicationConnectedToGit("private_repo_2", "master", localWorkspaceId);
         createApplicationConnectedToGit("private_repo_3", "master", localWorkspaceId);
 
-        StepVerifier.create(gitService.getApplicationCountWithPrivateRepo(localWorkspaceId))
+        StepVerifier.create(applicationService.getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(
+                        localWorkspaceId))
                 .assertNext(limit -> assertThat(limit).isEqualTo(3))
                 .verifyComplete();
     }

@@ -670,7 +670,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     const selectedIndex = findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     return (
       <SelectComponent
         accentColor={this.props.accentColor}

@@ -3,7 +3,7 @@ import { FixedLayoutEditorWrapper } from "./editor/FixedLayoutEditorWrapper";
 import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
-export const getFixedLayoutComponentDimensions = ({
+const getFixedLayoutComponentDimensions = ({
   bottomRow,
   leftColumn,
   parentColumnSpace,
@@ -17,6 +17,16 @@ export const getFixedLayoutComponentDimensions = ({
   };
 };
 
+const getFixedLayoutSystemProps = (props: BaseWidgetProps) => {
+  const { componentHeight, componentWidth } =
+    getFixedLayoutComponentDimensions(props);
+  return {
+    ...props,
+    componentHeight,
+    componentWidth,
+  };
+};
+
 export const getFixedLayoutSystemWrapper = (renderMode: RenderModes) => {
   if (renderMode === RenderModes.CANVAS) {
     return FixedLayoutEditorWrapper;
@@ -24,3 +34,9 @@ export const getFixedLayoutSystemWrapper = (renderMode: RenderModes) => {
     return FixedLayoutViewerWrapper;
   }
 };
+export function getFixedLayoutSystem(renderMode: RenderModes) {
+  return {
+    LayoutSystemWrapper: getFixedLayoutSystemWrapper(renderMode),
+    propertyEnhancer: getFixedLayoutSystemProps,
+  };
+}

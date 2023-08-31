@@ -478,7 +478,7 @@ class SwitchGroupWidget extends BaseWidget<
       widgetId,
     } = this.props;
 
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     // TODO(abhinav): Not sure why we have to do this.
     // Check with the App Viewers Pod

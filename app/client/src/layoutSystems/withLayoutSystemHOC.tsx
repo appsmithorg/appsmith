@@ -7,33 +7,48 @@ import {
   getRenderMode,
 } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getAutoLayoutSystemWrapper } from "./autolayout";
-import { getFixedLayoutSystemWrapper } from "./fixedlayout";
+import { getAutoLayoutSystem } from "./autolayout";
+import { getFixedLayoutSystem } from "./fixedlayout";
+
+export type LayoutSystem = {
+  LayoutSystemWrapper: (props: WidgetProps) => any;
+  propertyEnhancer: (props: WidgetProps) => WidgetProps;
+};
 
 const getLayoutSystem = (
   renderMode: RenderModes,
   appPositioningType: AppPositioningTypes,
-) => {
+): LayoutSystem => {
   if (appPositioningType === AppPositioningTypes.AUTO) {
-    return getAutoLayoutSystemWrapper(renderMode);
+    return getAutoLayoutSystem(renderMode);
   } else {
-    return getFixedLayoutSystemWrapper(renderMode);
+    return getFixedLayoutSystem(renderMode);
   }
 };
 
-const LayoutSystemWrapper = (props: WidgetProps) => {
+const LayoutSystemWrapper = ({
+  Widget,
+  widgetProps,
+}: {
+  widgetProps: WidgetProps;
+  Widget: (props: WidgetProps) => any;
+}) => {
   const renderMode = useSelector(getRenderMode);
   const appPositioningType = useSelector(getAppPositioningType);
-  const LayoutSystem: any = getLayoutSystem(renderMode, appPositioningType);
-  return <LayoutSystem {...props} />;
+  const { LayoutSystemWrapper, propertyEnhancer } = getLayoutSystem(
+    renderMode,
+    appPositioningType,
+  );
+  const enhancedProperties = propertyEnhancer(widgetProps);
+  return (
+    <LayoutSystemWrapper {...enhancedProperties}>
+      <Widget {...enhancedProperties} />
+    </LayoutSystemWrapper>
+  );
 };
 
 export const withLayoutSystemHOC = (Widget: any) => {
   return function LayoutWrappedWidget(props: WidgetProps) {
-    return (
-      <LayoutSystemWrapper {...props}>
-        <Widget {...props} />
-      </LayoutSystemWrapper>
-    );
+    return <LayoutSystemWrapper Widget={Widget} widgetProps={props} />;
   };
 };

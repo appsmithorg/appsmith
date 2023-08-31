@@ -593,7 +593,7 @@ class ButtonGroupWidget extends BaseWidget<
   }
 
   getWidgetView() {
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
     const minPopoverWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
     return (
