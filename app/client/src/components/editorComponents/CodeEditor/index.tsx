@@ -500,7 +500,9 @@ class CodeEditor extends Component<Props, State> {
     if (command === APPSMITH_AI) {
       this.props.executeCommand({
         actionType: SlashCommand.ASK_AI,
-        args: {},
+        args: {
+          mode: this.props.mode,
+        },
       });
       this.setState({ showAIWindow: true });
     }
