@@ -183,7 +183,7 @@ export class ContainerWidget extends BaseWidget<
   }
 
   getSnapSpaces = () => {
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
     const { snapGrid } = getSnappedGrid(this.props, componentWidth);
 
     return snapGrid;
@@ -192,7 +192,7 @@ export class ContainerWidget extends BaseWidget<
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     const childWidget = { ...childWidgetData };
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
 
     childWidget.rightColumn = componentWidth;
     childWidget.bottomRow = this.props.shouldScrollContents

@@ -161,7 +161,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
               chartType={this.props.chartType}
               customEChartConfig={this.props.customEChartConfig}
               customFusionChartConfig={this.props.customFusionChartConfig}
-              dimensions={this.getComponentDimensions()}
+              dimensions={this.props}
               fontFamily={this.props.fontFamily ?? "Nunito Sans"}
               hasOnDataPointClick={Boolean(this.props.onDataPointClick)}
               isLoading={this.props.isLoading}

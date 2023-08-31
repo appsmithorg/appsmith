@@ -57,13 +57,15 @@ const getAutoLayoutComponentDimensions = ({
   };
 };
 
-export const getAutoLayoutSystemProps = (props: BaseWidgetProps) => {
+const getAutoLayoutSystemProps = (props: BaseWidgetProps) => {
   const autoDimensionConfig = getAutoLayoutDimensionsConfig(props);
   const { componentHeight, componentWidth } =
     getAutoLayoutComponentDimensions(props);
   return {
+    ...props,
     autoDimensionConfig,
-    componentDimensions: { componentHeight, componentWidth },
+    componentHeight,
+    componentWidth,
   };
 };
 
@@ -74,3 +76,10 @@ export const getAutoLayoutSystemWrapper = (renderMode: RenderModes) => {
     return AutoLayoutViewerWrapper;
   }
 };
+
+export function getAutoLayoutSystem(renderMode: RenderModes) {
+  return {
+    LayoutSystemWrapper: getAutoLayoutSystemWrapper(renderMode),
+    propertyEnhancer: getAutoLayoutSystemProps,
+  };
+}

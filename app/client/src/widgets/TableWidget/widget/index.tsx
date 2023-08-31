@@ -206,7 +206,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
     const { columnSizeMap } = this.props;
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
     let totalColumnSizes = 0;
     const defaultColumnWidth = 150;
     const allColumnProperties = this.props.tableColumns || [];
@@ -914,7 +914,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisiblePagination ||
       isVisibleSearch;
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent

@@ -130,7 +130,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   }
 
   getWidgetView() {
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
     const menuDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
     return (

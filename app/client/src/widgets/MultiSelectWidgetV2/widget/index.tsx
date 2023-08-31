@@ -690,7 +690,7 @@ class MultiSelectWidget extends BaseWidget<
   getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
     const values = this.mergeLabelAndValue();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;

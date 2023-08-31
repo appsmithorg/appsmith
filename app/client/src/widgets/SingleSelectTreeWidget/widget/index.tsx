@@ -548,7 +548,7 @@ class SingleSelectTreeWidget extends BaseWidget<
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
     return (
       <SingleSelectTreeComponent
         accentColor={this.props.accentColor}

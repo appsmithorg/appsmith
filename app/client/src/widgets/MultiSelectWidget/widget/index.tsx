@@ -477,7 +477,7 @@ class MultiSelectWidget extends BaseWidget<
       ? this.props.selectedOptionValues
       : [];
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
 
     return (
       <MultiSelectComponent

@@ -22,7 +22,6 @@ import {
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Stylesheet } from "entities/AppTheming";
-import { memoize } from "lodash";
 import type { Context, ReactNode, RefObject } from "react";
 import { Component } from "react";
 import type {
@@ -34,7 +33,6 @@ import shallowequal from "shallowequal";
 import AppsmithConsole from "utils/AppsmithConsole";
 import type {
   DataTreeEvaluationProps,
-  EvaluationError,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -322,75 +320,9 @@ abstract class BaseWidget<
     return this.props.referencedWidgetId || this.props.widgetId;
   };
 
-  getComponentDimensions = () => {
-    return this.calculateWidgetBounds(
-      this.props.rightColumn,
-      this.props.leftColumn,
-      this.props.topRow,
-      this.props.bottomRow,
-      this.props.parentColumnSpace,
-      this.props.parentRowSpace,
-      this.props.mobileLeftColumn,
-      this.props.mobileRightColumn,
-      this.props.mobileTopRow,
-      this.props.mobileBottomRow,
-      this.props.isMobile,
-      this.props.isFlexChild,
-    );
-  };
-
-  calculateWidgetBounds(
-    rightColumn: number,
-    leftColumn: number,
-    topRow: number,
-    bottomRow: number,
-    parentColumnSpace: number,
-    parentRowSpace: number,
-    mobileLeftColumn?: number,
-    mobileRightColumn?: number,
-    mobileTopRow?: number,
-    mobileBottomRow?: number,
-    isMobile?: boolean,
-    isFlexChild?: boolean,
-  ): {
-    componentWidth: number;
-    componentHeight: number;
-  } {
-    let left = leftColumn;
-    let right = rightColumn;
-    let top = topRow;
-    let bottom = bottomRow;
-    if (isFlexChild && isMobile) {
-      if (mobileLeftColumn !== undefined && parentColumnSpace !== 1) {
-        left = mobileLeftColumn;
-      }
-      if (mobileRightColumn !== undefined && parentColumnSpace !== 1) {
-        right = mobileRightColumn;
-      }
-      if (mobileTopRow !== undefined && parentRowSpace !== 1) {
-        top = mobileTopRow;
-      }
-      if (mobileBottomRow !== undefined && parentRowSpace !== 1) {
-        bottom = mobileBottomRow;
-      }
-    }
-
-    return {
-      componentWidth: (right - left) * parentColumnSpace,
-      componentHeight: (bottom - top) * parentRowSpace,
-    };
-  }
-
   getLabelWidth = () => {
     return (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace;
   };
-
-  getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
-    return Object.values(evalErrors).reduce(
-      (prev, curr) => curr.length + prev,
-      0,
-    );
-  }, JSON.stringify);
 
   render() {
     return this.getWidgetView();
