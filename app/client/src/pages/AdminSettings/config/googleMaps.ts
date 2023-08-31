@@ -10,7 +10,7 @@ import {
 export const config: AdminConfigType = {
   icon: "map-pin-2-line",
   type: SettingCategories.GOOGLE_MAPS,
-  categoryType: CategoryType.GENERAL,
+  categoryType: CategoryType.DEVELOPER_SETTINGS,
   controlType: SettingTypes.GROUP,
   title: "Google Maps",
   canSave: true,

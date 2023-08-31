@@ -186,6 +186,9 @@ export default function LeftPane() {
   const categories = getSettingsCategory(CategoryType.GENERAL);
   const aclCategories = getSettingsCategory(CategoryType.ACL);
   const othersCategories = getSettingsCategory(CategoryType.OTHER);
+  const developerSettingsCategories = getSettingsCategory(
+    CategoryType.DEVELOPER_SETTINGS,
+  );
   const { category, selected: subCategory } = useParams() as any;
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
@@ -224,6 +227,16 @@ export default function LeftPane() {
         </StyledHeader>
         <Categories
           categories={filteredAclCategories}
+          currentCategory={category}
+          currentSubCategory={subCategory}
+        />
+      </HeaderContainer>
+      <HeaderContainer>
+        <StyledHeader kind="heading-s" renderAs="p">
+          Developer Settings
+        </StyledHeader>
+        <Categories
+          categories={developerSettingsCategories}
           currentCategory={category}
           currentSubCategory={subCategory}
         />

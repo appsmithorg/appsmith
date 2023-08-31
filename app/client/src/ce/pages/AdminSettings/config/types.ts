@@ -123,6 +123,7 @@ export enum CategoryType {
   GENERAL = "general",
   ACL = "acl",
   OTHER = "other",
+  DEVELOPER_SETTINGS = "developerSetting",
 }
 
 export type AdminConfigType = {
