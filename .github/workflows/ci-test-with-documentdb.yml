@@ -35,7 +35,6 @@ jobs:
         ports:
           # Opens tcp port 6379 on the host and service container
           - 6379:6379
-
       mongo:
         image: mongo
         ports:
@@ -230,7 +229,6 @@ jobs:
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
-            -e APPSMITH_CLOUD_SERVICES_SIGNATURE_BASE_URL=http://host.docker.internal:8090 \
             -e APPSMITH_MONGODB_URI="${APPSMITH_MONGODB_URI}${DB_NAME}?retryWrites=false&replicaSet=rs0&directConnection=true" \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
@@ -321,12 +319,6 @@ jobs:
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
-      # - name: Set Pull Request Title
-      #   env:
-      #     EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
-      #   run: |
-      #     echo "${{ env.EVENT_COMMITS }}" | awk -F '\\\\n' '{print $1}'
-
       - name: Save Git values
         # pass env variables from this step to other steps
         # using GitHub Actions environment file
@@ -366,7 +358,7 @@ jobs:
               echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
             fi
           fi
-        
+
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         id: cypress_test
@@ -435,7 +427,7 @@ jobs:
         with:
           install: false
           working-directory: app/client
-          command: yarn ts-node --require esm cypress/cypress-split.tsi
+          command: yarn ts-node --require esm cypress/cypress-split.ts
 
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
@@ -504,7 +496,6 @@ jobs:
           install: false
           working-directory: app/client
           command: yarn cypress run --browser ${{ env.BROWSER_PATH }} --config-file cypress_ci_custom.config.ts --spec ${{ env.failed_spec_env }}
-
 
       - name: Collect CI container logs
         if: failure()
