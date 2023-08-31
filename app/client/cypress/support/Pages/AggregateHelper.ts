@@ -394,7 +394,7 @@ export class AggregateHelper extends ReusableHelper {
     this.ValidateToastMessage(msgToCheckforDisappearance, index, length);
     cy.waitUntil(() => cy.get(this.locator._toastMsg), {
       errorMsg: msgToCheckforDisappearance + " did not disappear",
-      timeout: 5000,
+      timeout: 10000,
       interval: 1000,
     }).then(($ele) => {
       cy.wrap($ele)

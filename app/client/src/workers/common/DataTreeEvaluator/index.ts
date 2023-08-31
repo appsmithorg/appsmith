@@ -123,14 +123,8 @@ import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import DependencyMap from "entities/DependencyMap";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
-import produce, {
-  createDraft,
-  current,
-  finishDraft,
-  isDraft,
-  setAutoFreeze,
-} from "immer";
-setAutoFreeze(false);
+import produce, { createDraft, current, finishDraft, isDraft } from "immer";
+
 type SortedDependencies = Array<string>;
 export type EvalProps = {
   [entityName: string]: DataTreeEvaluationProps;
@@ -609,6 +603,7 @@ export default class DataTreeEvaluator {
     const evaluationOrder: string[] = [];
     let nonDynamicFieldValidationOrderSet = new Set<string>();
 
+    const draft = createDraft(this.evalTree);
     for (const fullPath of subTreeSortOrder) {
       if (pathsToSkipFromEval.includes(fullPath)) continue;
 
@@ -627,13 +622,14 @@ export default class DataTreeEvaluator {
       }
 
       const unEvalPropValue = get(localUnEvalTree, fullPath);
-      const evalPropValue = get(this.evalTree, fullPath);
+      const evalPropValue = get(draft, fullPath);
       evaluationOrder.push(fullPath);
       if (isFunction(evalPropValue)) continue;
       // Set all values from unEvalTree to the evalTree to run evaluation for unevaluated values.
-      set(this.evalTree, fullPath, unEvalPropValue);
+      set(draft, fullPath, unEvalPropValue);
     }
 
+    this.setEvalTree(finishDraft(draft) as any);
     return { evaluationOrder, nonDynamicFieldValidationOrderSet };
   }
 
@@ -664,8 +660,11 @@ export default class DataTreeEvaluator {
       isNewWidgetAdded,
     } = extraParams;
 
-    updateEvalTreeWithJSCollectionState(this.evalTree, this.oldUnEvalTree);
+    const draft = createDraft(this.evalTree);
 
+    updateEvalTreeWithJSCollectionState(draft, this.oldUnEvalTree);
+
+    this.setEvalTree(finishDraft(draft));
     const calculateSortOrderStartTime = performance.now();
     const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
       updatedValuePaths,
@@ -1617,11 +1616,13 @@ export default class DataTreeEvaluator {
   }: {
     differences: Diff<any, any>[];
   }) {
+    const draft = createDraft(this.evalTree);
     for (const d of differences) {
       if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
       // Apply the changes into the evalTree so that it gets the latest changes
-      applyChange(this.evalTree, undefined, d);
+      applyChange(draft, undefined, d);
     }
+    this.setEvalTree(finishDraft(draft));
   }
 
   calculateSubTreeSortOrder(

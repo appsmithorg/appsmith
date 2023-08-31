@@ -121,8 +121,7 @@ export const entityFns = [
     name: "run",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
     fn: (entity: DataTreeEntity, entityName: string) => {
-      // @ts-expect-error: name is not defined on ActionEntity
-      entity.name = entityName;
+      // entity.name = entityName;
       return getFnWithGuards(
         run.bind(entity as ActionEntity),
         `${entityName}.run`,
