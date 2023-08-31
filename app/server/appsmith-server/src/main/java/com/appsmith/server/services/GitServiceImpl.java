@@ -2,10 +2,9 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
-import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
@@ -17,16 +16,11 @@ import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
 @Import({GitExecutorImpl.class})
 public class GitServiceImpl extends GitServiceCEImpl implements GitService {
-
-    GitCloudServicesUtils gitCloudServicesUtils;
-    CommonConfig commonConfig;
-
     public GitServiceImpl(
             UserService userService,
             UserDataService userDataService,
@@ -42,16 +36,15 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
             ResponseUtils responseUtils,
             EmailConfig emailConfig,
             AnalyticsService analyticsService,
-            GitCloudServicesUtils gitCloudServicesUtils,
             GitDeployKeysRepository gitDeployKeysRepository,
             DatasourceService datasourceService,
             PluginService pluginService,
-            CommonConfig commonConfig,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
             WorkspaceService workspaceService,
             RedisUtils redisUtils,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            GitPrivateRepoHelper gitPrivateRepoHelper) {
 
         super(
                 userService,
@@ -68,7 +61,6 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                 responseUtils,
                 emailConfig,
                 analyticsService,
-                gitCloudServicesUtils,
                 gitDeployKeysRepository,
                 datasourceService,
                 pluginService,
@@ -76,17 +68,7 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                 applicationPermission,
                 workspaceService,
                 redisUtils,
-                observationRegistry);
-        this.gitCloudServicesUtils = gitCloudServicesUtils;
-        this.commonConfig = commonConfig;
-    }
-
-    // Override the repo limit check for EE. Unlimited repos for the EE image
-    @Override
-    public Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache) {
-        if (commonConfig.isCloudHosting()) {
-            return super.isRepoLimitReached(workspaceId, isClearCache);
-        }
-        return Mono.just(Boolean.FALSE);
+                observationRegistry,
+                gitPrivateRepoHelper);
     }
 }
