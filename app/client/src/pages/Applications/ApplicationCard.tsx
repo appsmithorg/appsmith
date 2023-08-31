@@ -1,14 +1,11 @@
 import React, {
   useEffect,
   useState,
-  useRef,
   useContext,
   useCallback,
   useMemo,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
-import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
-import { Card, Classes } from "@blueprintjs/core";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   hasDeleteApplicationPermission,
@@ -20,29 +17,22 @@ import {
   getApplicationIcon,
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
-import { noop, omit } from "lodash";
 import type { AppIconName } from "design-system-old";
 import {
-  AppIcon,
   ColorSelector,
   EditableText,
   EditInteractionKind,
   IconSelector,
   SavingState,
-  Size,
-  Text,
-  TextType,
 } from "design-system-old";
 import type { MenuItemProps } from "design-system";
 import {
   Button,
-  Icon,
   Menu,
   Divider,
   MenuContent,
   MenuItem,
   MenuTrigger,
-  Tooltip,
 } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import type {
@@ -50,14 +40,11 @@ import type {
   UpdateApplicationPayload,
 } from "@appsmith/api/ApplicationApi";
 import {
-  getIsFetchingApplications,
   getIsSavingAppName,
   getIsErroredSavingAppName,
 } from "@appsmith/selectors/applicationSelectors";
-import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
-import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
@@ -65,189 +52,10 @@ import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { addItemsInContextMenu } from "@appsmith/utils";
 import { getCurrentUser } from "actions/authActions";
+import Card from "components/common/Card";
+import { generateEditedByText } from "./helpers";
 
 const { cloudHosting } = getAppsmithConfigs();
-
-type NameWrapperProps = {
-  hasReadPermission: boolean;
-  showOverlay: boolean;
-  isMenuOpen: boolean;
-};
-
-const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
-  <div {...omit(props, ["hasReadPermission", "showOverlay", "isMenuOpen"])} />
-))`
-  .bp3-card {
-    border-radius: var(--ads-v2-border-radius);
-    box-shadow: none;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  ${(props) =>
-    props.showOverlay &&
-    `
-      {
-        justify-content: center;
-        align-items: center;
-
-        .overlay {
-          position: relative;
-          border-radius: var(--ads-v2-border-radius);
-          ${
-            props.hasReadPermission &&
-            `text-decoration: none;
-             &:after {
-                left: 0;
-                top: 0;
-                content: "";
-                position: absolute;
-                height: 100%;
-                width: 100%;
-              }
-              & .control {
-                display: flex;
-                flex-direction: row;
-                z-index: 1;
-              }`
-          }
-
-          & div.overlay-blur {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: ${
-              props.hasReadPermission && !props.isMenuOpen
-                ? `rgba(255, 255, 255, 0.5)`
-                : null
-            };
-            border-radius: var(--ads-v2-border-radius);
-            @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
-              background-color: transparent;
-              backdrop-filter: ${
-                props.hasReadPermission && !props.isMenuOpen
-                  ? `blur(6px)`
-                  : null
-              };
-            }
-          }
-        }
-      }
-   `}
-  overflow: hidden;
-`;
-
-const Wrapper = styled(
-  (
-    props: ICardProps & {
-      hasReadPermission?: boolean;
-      backgroundColor: string;
-      isMobile?: boolean;
-    },
-  ) => (
-    <Card
-      {...omit(props, ["hasReadPermission", "backgroundColor", "isMobile"])}
-    />
-  ),
-)`
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: center;
-  width: ${(props) => props.theme.card.minWidth}px;
-  height: ${(props) => props.theme.card.minHeight}px;
-  position: relative;
-  background-color: ${(props) => props.backgroundColor};
-  border-radius: var(--ads-v2-border-radius);
-  .overlay {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 100%;
-    ${(props) => !props.hasReadPermission && `pointer-events: none;`}
-  }
-  .bp3-card {
-    border-radius: var(--ads-v2-border-radius);
-  }
-  }
-
-  ${({ isMobile }) =>
-    isMobile &&
-    `
-    width: 100% !important;
-    height: 126px !important;
-  `}
-`;
-
-const ApplicationImage = styled.div`
-  && {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-`;
-
-const Control = styled.div<{ fixed?: boolean }>`
-  outline: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 8px;
-  align-items: center;
-
-  .${Classes.BUTTON} {
-    margin-top: 7px;
-
-    div {
-      width: auto;
-      height: auto;
-    }
-  }
-
-  .${Classes.BUTTON_TEXT} {
-    font-size: 12px;
-    color: white;
-  }
-
-  .more {
-    position: absolute;
-    right: ${(props) => props.theme.spaces[6]}px;
-    top: ${(props) => props.theme.spaces[4]}px;
-  }
-`;
-
-const AppNameWrapper = styled.div<{ isFetching: boolean }>`
-  padding: 0;
-  padding-right: 12px;
-  ${(props) =>
-    props.isFetching
-      ? `
-    width: 119px;
-    height: 16px;
-    margin-left: 10px;
-  `
-      : null};
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 3; /* number of lines to show */
-  -webkit-box-orient: vertical;
-  word-break: break-word;
-  color: ${(props) => props.theme.colors.text.heading};
-  flex: 1;
-
-  .bp3-popover-target {
-    display: inline;
-  }
-`;
 
 type ApplicationCardProps = {
   application: ApplicationPayload;
@@ -256,6 +64,7 @@ type ApplicationCardProps = {
   update?: (id: string, data: UpdateApplicationPayload) => void;
   enableImportExport?: boolean;
   isMobile?: boolean;
+  isFetchingApplications: boolean;
   permissions?: {
     hasCreateNewApplicationPermission?: boolean;
     hasManageWorkspacePermissions?: boolean;
@@ -263,40 +72,6 @@ type ApplicationCardProps = {
   };
   workspaceId: string;
 };
-
-const CircleAppIcon = styled(AppIcon)`
-  padding: 12px;
-  background-color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.07);
-  border-radius: 50%;
-
-  svg {
-    width: 100%;
-    height: 100%;
-    path {
-      fill: var(--ads-v2-color-fg);
-    }
-  }
-`;
-
-const ModifiedDataComponent = styled.div`
-  font-size: 13px;
-  color: var(--ads-v2-color-fg-muted);
-  &::first-letter {
-    text-transform: uppercase;
-  }
-`;
-
-const CardFooter = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 4px auto 0;
-  width: ${(props) => props.theme.card.minWidth - 8}px;
-`;
 
 const IconScrollWrapper = styled.div`
   position: relative;
@@ -316,43 +91,13 @@ const IconScrollWrapper = styled.div`
   }
 `;
 
-const StyledGitConnectedBadge = styled.div`
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  top: -12px;
-  right: -12px;
-  box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.07);
-  background: var(--ads-v2-color-bg);
-`;
-
-function GitConnectedBadge() {
-  return (
-    <StyledGitConnectedBadge>
-      <Tooltip content={createMessage(CONNECTED_TO_GIT)}>
-        <Icon name="fork" size="md" />
-      </Tooltip>
-    </StyledGitConnectedBadge>
-  );
-}
-
-const Container = styled.div<{ isMobile?: boolean }>`
-  position: relative;
-  overflow: visible;
-  ${({ isMobile }) => isMobile && `width: 100%;`}
-`;
-
 type ModifiedMenuItemProps = MenuItemProps & {
   key?: string;
   "data-testid"?: string;
 };
 
 export function ApplicationCard(props: ApplicationCardProps) {
-  const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const { isFetchingApplications } = props;
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
@@ -371,7 +116,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [isForkApplicationModalopen, setForkApplicationModalOpen] =
     useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
-  const appNameWrapperRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
 
   const applicationId = props.application?.id;
@@ -451,7 +195,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
   );
 
   const updateColor = (color: string) => {
-    setSelectedColor(color);
     props.update &&
       props.update(applicationId, {
         color: color,
@@ -538,12 +281,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
     params.branch = showGitBadge;
   }
 
-  const appNameText = (
-    <Text data-testid="t--app-card-name" type={TextType.H3}>
-      {props.application.name}
-    </Text>
-  );
-
   const handleMenuOnClose = (open: boolean) => {
     if (!open && !isDeleting) {
       setIsMenuOpen(false);
@@ -561,7 +298,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     }
   };
 
-  const ContextMenu = (
+  const contextMenu = (
     <>
       <Menu className="more" onOpenChange={handleMenuOnClose} open={isMenuOpen}>
         <MenuTrigger>
@@ -663,24 +400,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
     </>
   );
 
-  const editedByText = () => {
-    let editedBy = props.application.modifiedBy
-      ? props.application.modifiedBy
-      : "";
-    let editedOn = props.application.modifiedAt
-      ? props.application.modifiedAt
-      : "";
-
-    if (editedBy === "" && editedOn === "") return "";
-
-    editedBy = editedBy.split("@")[0];
-    editedBy = truncateString(editedBy, 9);
-
-    //assuming modifiedAt will be always available
-    editedOn = howMuchTimeBeforeText(editedOn);
-    editedOn = editedOn !== "" ? editedOn + " ago" : "";
-    return editedBy + " edited " + editedOn;
-  };
+  const editedByText = generateEditedByText({
+    modifiedAt: props.application.modifiedAt,
+    modifiedBy: props.application.modifiedBy,
+  });
 
   function setURLParams() {
     const page: ApplicationPagePayload | undefined =
@@ -751,83 +474,48 @@ export function ApplicationCard(props: ApplicationCardProps) {
   );
 
   return (
-    <Container
+    <Card
+      backgroundColor={selectedColor}
+      contextMenu={contextMenu}
+      editedByText={editedByText}
+      hasReadPermission={hasReadPermission}
+      icon={appIcon}
+      isContextMenuOpen={isMenuOpen}
+      isFetching={isFetchingApplications}
       isMobile={props.isMobile}
-      onClick={props.isMobile ? launchApp : noop}
+      moreActionItems={moreActionItems}
+      primaryAction={launchApp}
+      setShowOverlay={setShowOverlay}
+      showGitBadge={Boolean(showGitBadge)}
+      showOverlay={showOverlay}
+      testId="t--application-card"
+      title={props.application.name}
+      titleTestId="t--app-card-name"
     >
-      <NameWrapper
-        className="t--application-card"
-        hasReadPermission={hasReadPermission}
-        isMenuOpen={isMenuOpen}
-        onMouseEnter={() => {
-          !isFetchingApplications && setShowOverlay(true);
-        }}
-        onMouseLeave={() => {
-          // If the menu is not open, then setOverlay false
-          // Set overlay false on outside click.
-          !isMenuOpen && setShowOverlay(false);
-        }}
-        showOverlay={showOverlay}
-      >
-        <Wrapper
-          backgroundColor={selectedColor}
-          className={
-            isFetchingApplications
-              ? Classes.SKELETON
-              : "t--application-card-background"
-          }
-          hasReadPermission={hasReadPermission}
-          isMobile={props.isMobile}
-          key={props.application.id}
+      {hasEditPermission && !isMenuOpen && (
+        <Button
+          className="t--application-edit-link"
+          href={editModeURL}
+          onClick={editApp}
+          size="md"
+          startIcon={"pencil-line"}
         >
-          <CircleAppIcon name={appIcon} size={Size.large} />
-          <AppNameWrapper
-            className={isFetchingApplications ? Classes.SKELETON : ""}
-            isFetching={isFetchingApplications}
-            ref={appNameWrapperRef}
-          >
-            {appNameText}
-          </AppNameWrapper>
-          {showOverlay && !props.isMobile && (
-            <div className="overlay">
-              <div className="overlay-blur" />
-              <ApplicationImage className="image-container">
-                <Control className="control">
-                  {hasEditPermission && !isMenuOpen && (
-                    <Button
-                      className="t--application-edit-link"
-                      href={editModeURL}
-                      onClick={editApp}
-                      size="md"
-                      startIcon={"pencil-line"}
-                    >
-                      Edit
-                    </Button>
-                  )}
-                  {!isMenuOpen && (
-                    <Button
-                      className="t--application-view-link"
-                      href={viewModeURL}
-                      kind="secondary"
-                      onClick={launchApp}
-                      size="md"
-                      startIcon={"rocket"}
-                    >
-                      Launch
-                    </Button>
-                  )}
-                </Control>
-              </ApplicationImage>
-            </div>
-          )}
-        </Wrapper>
-        <CardFooter>
-          <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
-          {!!moreActionItems.length && !props.isMobile && ContextMenu}
-        </CardFooter>
-      </NameWrapper>
-      {showGitBadge && <GitConnectedBadge />}
-    </Container>
+          Edit
+        </Button>
+      )}
+      {!isMenuOpen && (
+        <Button
+          className="t--application-view-link"
+          href={viewModeURL}
+          kind="secondary"
+          onClick={launchApp}
+          size="md"
+          startIcon={"rocket"}
+        >
+          Launch
+        </Button>
+      )}
+    </Card>
   );
 }
 
