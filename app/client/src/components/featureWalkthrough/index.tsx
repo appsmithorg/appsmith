@@ -7,6 +7,7 @@ import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { retryPromise } from "utils/AppsmithUtils";
 import { useLocation } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { isElementVisible } from "./utils";
 
 const WalkthroughRenderer = lazy(() => {
   return retryPromise(
@@ -25,13 +26,15 @@ export default function Walkthrough({ children }: any) {
   const [feature, setFeature] = useState<FeatureParams[]>([]);
   const location = useLocation();
 
-  const pushFeature = (value: FeatureParams) => {
+  const pushFeature = (value: FeatureParams, prioritize = false) => {
     const alreadyExists = feature.some((f) => f.targetId === value.targetId);
     if (!alreadyExists) {
-      if (Array.isArray(value)) {
-        setFeature((e) => [...e, ...value]);
+      const _value = Array.isArray(value) ? [...value] : [value];
+      if (prioritize) {
+        // Get ahead of the queue
+        setFeature((e) => [..._value, ...e]);
       } else {
-        setFeature((e) => [...e, value]);
+        setFeature((e) => [...e, ..._value]);
       }
     }
     updateActiveWalkthrough();
@@ -47,19 +50,25 @@ export default function Walkthrough({ children }: any) {
     if (activeWalkthrough && activeWalkthrough.onDismiss) {
       activeWalkthrough.onDismiss();
     }
+
     setFeature((e) => {
       e.shift();
       return [...e];
     });
+    setActiveWalkthrough(null);
   };
 
   const updateActiveWalkthrough = () => {
+    // If a walkthrough is active we do not want to reset it
+    if (activeWalkthrough) return;
+
     if (feature.length > 0) {
-      const highlightArea = document.getElementById(feature[0].targetId);
-      setActiveWalkthrough(null);
+      const highlightArea = document.querySelector(feature[0].targetId);
       if (highlightArea) {
         setTimeout(() => {
-          setActiveWalkthrough(feature[0]);
+          if (isElementVisible(highlightArea as HTMLElement)) {
+            setActiveWalkthrough(feature[0]);
+          }
         }, feature[0].delay || DEFAULT_DELAY);
       }
     } else {

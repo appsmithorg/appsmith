@@ -122,6 +122,7 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.getUpdatedDynami
 import static com.appsmith.server.migrations.DatabaseChangelog1.installPluginToAllWorkspaces;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
+import static com.appsmith.server.migrations.MigrationHelperMethods.fetchDomainObjectUsingId;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -2988,19 +2989,6 @@ public class DatabaseChangelog2 {
                     domainObject.setDeletedAt(Instant.now());
                     mongoTemplate.save(domainObject);
                 });
-    }
-
-    /**
-     * Here 'id' refers to the ObjectId which is used to uniquely identify each Mongo document. 'path' refers to the
-     * path in the Query DSL object that indicates which field in a document should be matched against the `id`.
-     * `type` is a POJO class type that indicates which collection we are interested in. eg. path=QNewAction
-     * .newAction.id, type=NewAction.class
-     */
-    private <T extends BaseDomain> T fetchDomainObjectUsingId(
-            String id, MongoTemplate mongoTemplate, Path path, Class<T> type) {
-        final T domainObject =
-                mongoTemplate.findOne(query(where(fieldName(path)).is(id)), type);
-        return domainObject;
     }
 
     @ChangeSet(order = "037", id = "indices-recommended-by-mongodb-cloud", author = "")
