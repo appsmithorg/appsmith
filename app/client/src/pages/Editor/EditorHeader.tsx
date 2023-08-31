@@ -112,6 +112,7 @@ import WalkthroughContext from "components/featureWalkthrough/walkthroughContext
 import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
+import { KnowledgeBaseContainer } from "@appsmith/pages/Editor/KnowledgeBase";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -533,6 +534,7 @@ export function EditorHeader() {
                 </Button>
               </Tooltip>
             )}
+            <KnowledgeBaseContainer />
             <Modal
               onOpenChange={(isOpen) => setShowModal(isOpen)}
               open={showModal}
