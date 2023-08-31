@@ -504,6 +504,7 @@ export function EditorHeader() {
           <HelpBar />
         </HeaderSection>
         <HeaderSection className="gap-x-1">
+          <KnowledgeBaseContainer />
           <Boxed
             alternative={<EndTour />}
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
@@ -534,7 +535,6 @@ export function EditorHeader() {
                 </Button>
               </Tooltip>
             )}
-            <KnowledgeBaseContainer />
             <Modal
               onOpenChange={(isOpen) => setShowModal(isOpen)}
               open={showModal}
