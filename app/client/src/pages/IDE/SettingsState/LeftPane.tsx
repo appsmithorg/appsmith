@@ -8,6 +8,8 @@ import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 
 const Container = styled.div`
   width: ${APP_SETTINGS_PANE_WIDTH}px;
+  height: calc(100vh - ${(props) => props.theme.bottomBarHeight} - 8px);
+  overflow: auto;
 `;
 
 const SettingsLeftPane = () => {

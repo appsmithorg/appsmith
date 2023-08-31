@@ -27,7 +27,8 @@ import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 const Container = styled.div`
   background-color: white;
   border-radius: 4px;
-  height: 100%;
+  // TODO: auto size based on available space
+  height: calc(100vh - 40px - 37px - 8px);
   position: relative;
 `;
 
@@ -84,7 +85,7 @@ const LeftPane = () => {
           onTouchStart={resizer.onTouchStart}
           resizing={resizer.resizing}
           style={{
-            left: leftPaneWidth + 50,
+            left: leftPaneWidth,
           }}
         >
           <div
@@ -104,7 +105,7 @@ const LeftPane = () => {
           </div>
         </StyledResizer>
       )}
-      {/* <div>
+      <div>
         <Switch>
           <SentryRoute component={DataLeftPane} path={IDE_DATA_PATH} />
           <SentryRoute component={PageLeftPane} path={IDE_PAGE_PATH} />
@@ -116,7 +117,7 @@ const LeftPane = () => {
             path={IDE_SETTINGS_PATH}
           />
         </Switch>
-      </div> */}
+      </div>
     </Container>
   );
 };

@@ -27,20 +27,16 @@ const Container = styled.div`
 const MainPane = () => {
   return (
     <Switch>
-      {/* <SentryRoute component={DataMainEmptyState} exact path={IDE_DATA_PATH} /> */}
-      {/* <SentryRoute
-          component={DataMainPane}
-          exact
-          path={IDE_DATA_DETAIL_PATH}
-        />
-        <SentryRoute component={PageMainPane} path={IDE_PAGE_PATH} />
-        <SentryRoute component={AddMainPane} exact path={IDE_ADD_PATH} />
-        <SentryRoute component={LibMainPane} exact path={IDE_LIB_PATH} />
-        <SentryRoute
-          component={SettingsMainPane}
-          exact
-          path={IDE_SETTINGS_PATH}
-        /> */}
+      <SentryRoute component={DataMainEmptyState} exact path={IDE_DATA_PATH} />
+      <SentryRoute component={DataMainPane} exact path={IDE_DATA_DETAIL_PATH} />
+      <SentryRoute component={PageMainPane} path={IDE_PAGE_PATH} />
+      <SentryRoute component={AddMainPane} exact path={IDE_ADD_PATH} />
+      <SentryRoute component={LibMainPane} exact path={IDE_LIB_PATH} />
+      <SentryRoute
+        component={SettingsMainPane}
+        exact
+        path={IDE_SETTINGS_PATH}
+      />
     </Switch>
   );
 };
