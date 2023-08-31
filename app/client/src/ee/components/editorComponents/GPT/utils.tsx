@@ -25,26 +25,42 @@ import WidgetFactory from "utils/WidgetFactory";
 import log from "loglevel";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { WidgetType } from "constants/WidgetConstants";
+import { js_beautify } from "js-beautify";
+import { apiRequestConfig } from "api/Api";
+import axios from "axios";
+import type { AxiosResponse, AxiosError } from "axios";
 
 export type TUserPrompt = {
   role: "user";
   content: string;
-  task: GPTTask;
+  taskId: GPTTask;
 };
 
 export type TAssistantPrompt = {
   role: "assistant";
-  content: string;
+  content: {
+    previewCode: string;
+    editorCode: string;
+  };
   messageId: string;
   liked?: boolean;
-  task: GPTTask;
+  taskId: GPTTask;
   query: string;
 };
 
 export type TErrorPrompt = {
   role: "error";
   content: string;
-  task: GPTTask;
+  taskId: GPTTask;
+};
+
+export type TChatGenerationResponse = {
+  data: { response: string; messageId: string };
+  errorDisplay: string;
+  responseMeta: {
+    status: number;
+    success: true;
+  };
 };
 
 export type TChatGPTPrompt = TAssistantPrompt | TUserPrompt | TErrorPrompt;
@@ -59,14 +75,66 @@ export enum GPTTask {
 
 export const GPT_JS_EXPRESSION = {
   id: GPTTask.JS_EXPRESSION,
-  desc: "Generate Javascript expression",
-  title: "Generate JS Code",
+  desc: "Generate Javascript expressions",
+  inputPlaceholder: "I can generate JavaScript code, Ask me something.",
 };
 
 export const GPT_SQL_QUERY = {
   id: GPTTask.SQL_QUERY,
-  title: "Generate SQL query",
   desc: "Generate SQL query",
+  inputPlaceholder: "I can generate SQL queries, Ask me something.",
+};
+
+export const getErrorMessage = (
+  error: AxiosError<{
+    responseMeta: {
+      status: 500;
+      success: boolean;
+      error: {
+        code: "AE-APP-5013";
+        title: "EE_FEATURE_ERROR";
+        message: string;
+        errorType: string;
+      };
+    };
+    errorDisplay: string;
+  }>,
+) => {
+  if (error?.code === "ECONNABORTED") {
+    return "Connection timed out, its taking too long to generate code for you. Can you try again.";
+  }
+
+  if (
+    error.response?.data?.responseMeta?.error?.message?.includes(
+      "Too many requests",
+    )
+  ) {
+    return "Too many requests. You have already used 50 requests today. Please try again tomorrow or contact Appsmith team.";
+  }
+
+  return "We can not generate a response for this prompt, to get accurate responses we need prompts to be more specific.";
+};
+
+export const chatGenerationApi = ({
+  context,
+  query,
+  taskId,
+}: {
+  context: TChatGPTContext;
+  query: string;
+  taskId: GPTTask;
+}) => {
+  return axios.post<
+    TChatGPTContext & { user_query: string },
+    AxiosResponse<TChatGenerationResponse>
+  >(
+    `/v1/chat/chat-generation?type=${taskId}`,
+    {
+      user_query: query,
+      ...context,
+    },
+    apiRequestConfig,
+  );
 };
 
 export const useGPTTask = () => {
@@ -79,6 +147,63 @@ export const useGPTTask = () => {
       return GPT_JS_EXPRESSION;
     }
   }, [location.pathname]);
+};
+
+const JS_BEAUTIFY_OPTIONS: js_beautify.JSBeautifyOptions = {
+  indent_size: 2,
+  indent_char: " ",
+  max_preserve_newlines: 2,
+  preserve_newlines: true,
+  keep_array_indentation: false,
+  break_chained_methods: true,
+  brace_style: "collapse",
+  space_before_conditional: true,
+  unescape_strings: false,
+  jslint_happy: true,
+  end_with_newline: false,
+  wrap_line_length: 28,
+  comma_first: false,
+  e4x: false,
+  indent_empty_lines: false,
+};
+const PREVIEW_MAX_LENGTH = 50;
+const EDITOR_MAX_LENGTH = 28;
+
+export const getFormattedCode = (
+  code: string,
+  taskId: GPTTask,
+  wrapWithBinding = false,
+) => {
+  const formattedCode = {
+    previewCode: code,
+    editorCode: code,
+  };
+
+  if (taskId === GPTTask.JS_EXPRESSION) {
+    const previewCode = js_beautify(code, {
+      ...JS_BEAUTIFY_OPTIONS,
+      wrap_line_length: PREVIEW_MAX_LENGTH,
+    });
+
+    const editorCode = js_beautify(code, {
+      ...JS_BEAUTIFY_OPTIONS,
+      wrap_line_length: EDITOR_MAX_LENGTH,
+    });
+
+    if (wrapWithBinding) {
+      const isMultiLinePreview = previewCode.split("\n").length > 1;
+      const isMultiLineEditor = editorCode.split("\n").length > 1;
+
+      formattedCode.previewCode = isMultiLinePreview
+        ? `{{\n${previewCode}\n}}`
+        : `{{${previewCode}}}`;
+      formattedCode.editorCode = isMultiLineEditor
+        ? `{{\n${editorCode}\n}}`
+        : `{{${editorCode}}}`;
+    }
+  }
+
+  return formattedCode;
 };
 
 /**

@@ -1,24 +1,24 @@
-import React, { useCallback, useEffect, useRef, useMemo } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useState } from "react";
 import styled from "styled-components";
 import classNames from "classnames";
-import type {
-  TAssistantPrompt,
-  TChatGPTContext,
-  TChatGPTPrompt,
-} from "./utils";
-import { GPTTask } from "./utils";
+import type { TAssistantPrompt, TChatGPTPrompt } from "./utils";
+import { chatGenerationApi, getErrorMessage, getFormattedCode } from "./utils";
 import { useTextAutocomplete } from "./utils";
 import { useGPTTask } from "./utils";
 import { useGPTContextGenerator } from "./utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ErrorPrompt, UserPrompt } from "./GPTPrompt";
-import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { examplePrompts } from "./GetStarted";
 import BetaCard from "components/editorComponents/BetaCard";
-import { Button } from "design-system";
+import { Button, Callout, Text } from "design-system";
 import { usePrevious } from "@mantine/hooks";
-import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import { APPSMITH_AI_LINK } from "./constants";
+import type { TAIWrapperProps } from "ce/components/editorComponents/GPT";
+import { useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getApplicationAIRecentQueriesByType,
+  setAIRecentQuery,
+} from "utils/storage";
 
 const QueryForm = styled.form`
   > div {
@@ -64,24 +64,17 @@ const resizeTextArea = (el: React.RefObject<HTMLTextAreaElement>) => {
 
 const CHARACTER_LIMIT = 500;
 
-type TAskAIProps = {
-  update?: (...args: any) => void;
-  close: () => void;
-  triggerContext?: CodeEditorExpected;
-  dataTreePath?: string;
-  isOpen?: boolean;
-  currentValue: string;
-  entity: FieldEntityInformation;
-};
+type TAskAIProps = Omit<TAIWrapperProps, "enableAIAssistance" | "children">;
 
 export function AskAI(props: TAskAIProps) {
-  const { close, currentValue, dataTreePath, triggerContext } = props;
+  const { close, currentValue, dataTreePath } = props;
   const ref = useRef<HTMLDivElement>(null);
   const contextGenerator = useGPTContextGenerator(
     props.dataTreePath,
     props.triggerContext,
   );
   const task = useGPTTask();
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
@@ -92,22 +85,16 @@ export function AskAI(props: TAskAIProps) {
   const [response, setResponse] = React.useState<TAssistantPrompt | null>(null);
   const [query, setQuery] = useState("");
   const queryContainerRef = useTextAutocomplete(query, setQuery);
+  const [recentQueries, setRecentQueries] = useState<string[]>([]);
 
   /**
    * Called when AI response is received
    * Stores the response and calls the update method
    * @param value
    */
-  const updateResponse = (
-    value: TAssistantPrompt | null,
-    wrapWithBinding = true,
-  ) => {
-    setResponse(value);
-    const responseContent =
-      wrapWithBinding && task.id === GPTTask.JS_EXPRESSION
-        ? `{{${value?.content}}}`
-        : value?.content;
-    props.update?.(responseContent || "");
+  const updateResponse = (response: TAssistantPrompt | null) => {
+    setResponse(response);
+    props.update?.(response?.content.editorCode || "");
   };
 
   const prevOpen = usePrevious(props.isOpen);
@@ -154,6 +141,21 @@ export function AskAI(props: TAskAIProps) {
     [currentValue, close, response, query, task, dataTreePath, setResponse],
   );
 
+  const fetchRecentQueries = useCallback(async () => {
+    if (!applicationId || !task) return;
+
+    const result = await getApplicationAIRecentQueriesByType(
+      applicationId,
+      task.id,
+    );
+
+    setRecentQueries(result);
+  }, [applicationId, task]);
+
+  useEffect(() => {
+    fetchRecentQueries();
+  }, [fetchRecentQueries]);
+
   useEffect(() => {
     acceptResponseRef.current = acceptResponse;
   }, [acceptResponse]);
@@ -191,24 +193,122 @@ export function AskAI(props: TAskAIProps) {
     props.update?.(defaultValue.current || "");
   };
 
+  const fireQuery = useCallback(
+    async (inputQuery: string) => {
+      if (isLoading || !inputQuery) return;
+
+      setResponse(null);
+      setError("");
+      setIsLoading(true);
+
+      const taskId = task.id;
+      const message: TChatGPTPrompt = {
+        role: "user",
+        content: inputQuery.slice(0, CHARACTER_LIMIT),
+        taskId,
+      };
+      const [context, additionalQuery, wrapWithBinding] =
+        contextGenerator(message);
+      const formattedQuery = message.content;
+      const enhancedQuery = `${formattedQuery}. ${additionalQuery}`;
+
+      AnalyticsUtil.logEvent("AI_QUERY_SENT", {
+        requestedOutputType: taskId,
+        characterCount: formattedQuery.length,
+        userQuery: formattedQuery,
+        enhancedQuery,
+        context,
+        property: props.entity.propertyPath,
+        widgetName: props.entity.entityName,
+        widgetType: props.entity.widgetType,
+      });
+
+      const start = performance.now();
+
+      try {
+        const result = await chatGenerationApi({
+          query: enhancedQuery,
+          context,
+          taskId,
+        });
+
+        const {
+          data: {
+            data: { messageId, response },
+            errorDisplay,
+            responseMeta: { success },
+          },
+        } = result;
+
+        if (!success) {
+          throw new Error(errorDisplay || "Something went wrong");
+        }
+        // If the response starts with Error: then we throw an error
+        // This is a temp hack to get around the fact that the API doesn't return
+        // a 500 when there is an error.
+        if (response.includes("Error:")) {
+          throw new Error(response);
+        }
+
+        const { editorCode, previewCode } = getFormattedCode(
+          response,
+          taskId,
+          wrapWithBinding,
+        );
+
+        const message: TChatGPTPrompt = {
+          role: "assistant",
+          content: {
+            editorCode,
+            previewCode,
+          },
+          messageId,
+          taskId,
+          query: formattedQuery,
+        };
+
+        AnalyticsUtil.logEvent("AI_RESPONSE_GENERATED", {
+          success: true,
+          requestedOutputType: taskId,
+          responseId: message.messageId,
+          generatedCode: previewCode,
+          userQuery: formattedQuery,
+          context,
+          timeTaken: performance.now() - start,
+          property: props.entity.propertyPath,
+          widgetName: props.entity.entityName,
+          widgetType: props.entity.widgetType,
+        });
+        updateResponse(message);
+
+        // Add the query to recent queries
+        await setAIRecentQuery(applicationId, formattedQuery, task.id);
+        await fetchRecentQueries();
+      } catch (e: any) {
+        const errorMessage = getErrorMessage(e);
+        setError(errorMessage);
+        AnalyticsUtil.logEvent("AI_RESPONSE_GENERATED", {
+          success: false,
+          requestedOutputType: taskId,
+          timeTaken: performance.now() - start,
+          userQuery: formattedQuery,
+          context,
+          property: props.entity.propertyPath,
+          widgetName: props.entity.entityName,
+          widgetType: props.entity.widgetType,
+          error: e,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [isLoading, contextGenerator, task, props.entity, applicationId],
+  );
+
   const sendQuery = useCallback(() => {
-    if (isLoading) return;
     if (!query) return;
-    const message: TChatGPTPrompt = {
-      role: "user",
-      content: query.slice(0, CHARACTER_LIMIT),
-      task: task.id,
-    };
-    const [context, additionalQuery, wrapWithBinding] =
-      contextGenerator(message);
-    fireQuery(
-      message.content,
-      context,
-      task.id,
-      additionalQuery,
-      wrapWithBinding,
-    );
-  }, [isLoading, query, contextGenerator, task]);
+    fireQuery(query);
+  }, [query, fireQuery]);
 
   useEffect(() => {
     resizeTextArea(queryContainerRef);
@@ -218,91 +318,6 @@ export function AskAI(props: TAskAIProps) {
     queryContainerRef.current?.focus();
   }, [isLoading]);
 
-  const fireQuery = async (
-    query: string,
-    context: TChatGPTContext,
-    task: GPTTask,
-    additionalQuery = "",
-    wrapWithBinding = true,
-  ) => {
-    setError("");
-    setIsLoading(true);
-    const enhancedQuery = `${query}. ${additionalQuery}`;
-    AnalyticsUtil.logEvent("AI_QUERY_SENT", {
-      requestedOutputType: task,
-      characterCount: query.length,
-      userQuery: query,
-      enhancedQuery,
-      context,
-      property: props.entity.propertyPath,
-      widgetName: props.entity.entityName,
-      widgetType: props.entity.widgetType,
-    });
-    const start = performance.now();
-    try {
-      const res: Response = await fetch(
-        `/api/v1/chat/chat-generation?type=${task}`,
-        {
-          method: "POST",
-          credentials: "same-origin",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_query: enhancedQuery,
-            ...context,
-          }),
-        },
-      );
-      const result: { data: any; responseMeta: any } = await res.json();
-      if (!res?.ok) {
-        throw new Error(
-          result?.responseMeta?.error?.message || "Something went wrong",
-        );
-      }
-      const content = result.data.response || "";
-      // If the response starts with Error: then we throw an error
-      // This is a temp hack to get around the fact that the API doesn't return
-      // a 500 when there is an error.
-      if (content.startsWith("Error:")) {
-        throw new Error(content);
-      }
-      const message: TChatGPTPrompt = {
-        role: "assistant",
-        content,
-        messageId: result.data.messageId,
-        task: task,
-        query,
-      };
-      AnalyticsUtil.logEvent("AI_RESPONSE_GENERATED", {
-        success: true,
-        requestedOutputType: task,
-        responseId: message.messageId,
-        generatedCode: message.content,
-        userQuery: query,
-        context,
-        timeTaken: performance.now() - start,
-        property: props.entity.propertyPath,
-        widgetName: props.entity.entityName,
-        widgetType: props.entity.widgetType,
-      });
-      updateResponse(message, wrapWithBinding);
-    } catch (e) {
-      setError((e as any).message);
-      AnalyticsUtil.logEvent("AI_RESPONSE_GENERATED", {
-        success: false,
-        requestedOutputType: task,
-        timeTaken: performance.now() - start,
-        userQuery: query,
-        context,
-        property: props.entity.propertyPath,
-        widgetName: props.entity.entityName,
-        widgetType: props.entity.widgetType,
-      });
-    }
-    setIsLoading(false);
-  };
-
   const handleEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.shiftKey || e.ctrlKey || e.metaKey) return;
     if (e.key == "Enter") {
@@ -311,64 +326,58 @@ export function AskAI(props: TAskAIProps) {
     }
   };
 
-  const placeholder = useMemo(() => {
-    let customPlaceholder = "Type your query here...";
-    if (task.id === GPTTask.JS_EXPRESSION) {
-      if (triggerContext?.autocompleteDataType) {
-        const placeholder =
-          examplePrompts[task.id][triggerContext?.autocompleteDataType];
-        if (placeholder) {
-          customPlaceholder = `${placeholder}`;
-        }
-      }
-    }
-    return customPlaceholder;
-  }, [task.id, triggerContext]);
+  const onClickHelp = () => {
+    window.open(APPSMITH_AI_LINK, "_blank", "noopener noreferrer");
+  };
+
+  const onClickRecentQuery = (query: string) => {
+    setQuery(query);
+    fireQuery(query);
+  };
+
+  if (!task) return null;
+
+  const showRecentQueries = !response && !isLoading && recentQueries.length > 0;
 
   return (
     <div
       className="flex flex-col justify-between h-full w-full overflow-hidden"
       ref={ref}
     >
-      <div
-        className={classNames(
-          "flex flex-col flex-shrink-0 p-4",
-          !task && "hidden",
-        )}
-      >
+      <div className="flex flex-col flex-shrink-0 p-4">
         <div className="flex flex-row justify-between pb-4">
           <div className="flex items-center gap-1">
-            <p className="text-sm font-medium text-[color:var(--ads-v2\-color-fg-emphasis)]">
+            <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-s">
               {task.desc}
-            </p>
+            </Text>
+            <Button
+              isIconButton
+              kind="tertiary"
+              name="help"
+              onClick={onClickHelp}
+              size="sm"
+              startIcon="question-line"
+            />
             <BetaCard />
           </div>
           <Button
             isIconButton
             kind="tertiary"
             onClick={close}
-            size="sm"
+            size="md"
             startIcon="close-line"
           />
         </div>
-        {error && (
-          <ErrorPrompt
-            prompt={{ content: error, task: task.id, role: "error" }}
-          />
-        )}
         <QueryForm
-          className={classNames(
-            "flex w-full relative items-start gap-2 justify-between",
-            response && "hidden",
-          )}
+          className={"flex w-full relative items-start gap-2 justify-between"}
         >
           <div
-            className={classNames({
-              "bg-white relative flex items-center w-full overflow-hidden":
-                true,
-              "py-[3px] px-2 pr-0": true,
-              disabled: isLoading,
-            })}
+            className={classNames(
+              "bg-white relative flex items-center w-full overflow-hidden py-[3px] px-2 pr-0",
+              {
+                disabled: isLoading,
+              },
+            )}
           >
             <div className="relative flex h-auto items-center w-full">
               <textarea
@@ -379,7 +388,7 @@ export function AskAI(props: TAskAIProps) {
                   setQuery(e.target.value);
                 }}
                 onKeyDown={handleEnter}
-                placeholder={`${placeholder}`}
+                placeholder={task.inputPlaceholder}
                 ref={queryContainerRef}
                 rows={1}
                 style={{ resize: "none" }}
@@ -398,45 +407,77 @@ export function AskAI(props: TAskAIProps) {
             startIcon="enter-line"
           />
         </QueryForm>
-        <div
-          className={classNames(
-            response && "hidden",
-            "flex items-center justify-end text-[11px] mt-[10px]",
-          )}
-        >
-          <span className="text-[color:var(--ads-v2\-color-fg-muted)]">
-            Powered by&nbsp;
-          </span>
-          <a
-            className="text-[color:var(--ads-v2\-color-fg-brand)]"
-            href="https://appsmith.notion.site/AI-features-in-Appsmith-fd22891eb9b946e4916995cecf97a9ad"
-            rel="noreferrer"
-            target="_blank"
+        {isLoading && (
+          <Text
+            className="!text-[color:var(--ads-v2\-color-fg-muted)] pt-1"
+            kind="action-s"
           >
-            Appsmith AI
-          </a>
-        </div>
-        <div className={classNames("flex flex-col", !response && "hidden")}>
-          <UserPrompt
-            prompt={{ content: query, task: task.id, role: "user" }}
-          />
-          <div className="flex flex-row justify-end items-center pb-1 gap-2">
-            <Button
-              kind="secondary"
-              onClick={() => acceptResponse()}
-              startIcon="check-line"
-            >
-              Accept
-            </Button>
-            <Button
-              kind="secondary"
-              onClick={() => rejectResponse()}
-              startIcon="close"
-            >
-              Reject
-            </Button>
+            Generating the code for you...
+          </Text>
+        )}
+        {/* Show the error prompt if there is an error */}
+        {error && (
+          <div className="pt-3">
+            <Callout kind="error">{error}</Callout>
           </div>
-        </div>
+        )}
+        {showRecentQueries && (
+          <div className="flex flex-col pt-3">
+            <Text
+              className="!mb-1"
+              color="var(--ads-v2-color-gray-600)"
+              kind="heading-xs"
+            >
+              Recent prompts
+            </Text>
+            {recentQueries.map((query, index) => (
+              <div
+                className="flex justify-between items-center py-1 cursor-pointer"
+                key={index}
+                onClick={() => onClickRecentQuery(query)}
+              >
+                <Text className="text-ellipsis" kind="body-m">
+                  {query}
+                </Text>
+              </div>
+            ))}
+          </div>
+        )}
+        {/* Show the response if it is set */}
+        {!!response && (
+          <div className="flex flex-col pt-3">
+            <Text
+              className="!mb-1"
+              color="var(--ads-v2-color-gray-600)"
+              kind="heading-xs"
+            >
+              Response
+            </Text>
+            <pre
+              className="p-2"
+              style={{
+                border: "1px solid var(--ads-v2-color-gray-300)",
+                color: "var(--ads-v2-color-gray-400)",
+                borderRadius: "4px",
+              }}
+            >
+              {response.content.previewCode}
+            </pre>
+            <div className="flex justify-between items-center pt-2">
+              <Button
+                kind="secondary"
+                onClick={() => rejectResponse()}
+                size="md"
+                startIcon="thumb-down-line"
+              >
+                Incorrect response
+              </Button>
+              <Button kind="primary" onClick={() => acceptResponse()} size="md">
+                Use this
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
