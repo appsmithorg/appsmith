@@ -268,7 +268,7 @@ export class DataSources {
     "[data-widgetname-cy='update_file_name'] div[data-testid='input-container']";
   _s3MaxFileSizeAlert = "//p[@role='alert']";
   _entityExplorerID = (dsName: string) =>
-    "[data-testid='t--entity-item-" + dsName + "]";
+    "[data-testid='t--entity-item-" + dsName + "']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
