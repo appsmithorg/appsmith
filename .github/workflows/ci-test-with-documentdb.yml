@@ -171,10 +171,11 @@ jobs:
           APPSMITH_MONGODB_URI: ${{ secrets.INTERNAL_CI_DOC_DB_URI }}
 
         run: |
-          timestamp=$(date +%s) 
-          hash=$(echo -n "$timestamp" | sha1sum | awk '{print $1}')
+          timestamp=$(date +%Y%m%d%H%M%S) 
+          hash=$(hostname)
+          random=$(shuf -i 1000-9999 -n 1)
           current_date=$(date -d "@$timestamp" +"%d-%m")
-          DB_NAME="ci${hash:1:3}-${current_date}"
+          DB_NAME="${hash}-${current_date}-${random}"
           MONGO_CREDS=$(echo $APPSMITH_MONGODB_URI | sed 's/@.*//')
           URI="${MONGO_CREDS}@localhost:27010/${DB_NAME}?retryWrites=false&replicaSet=rs0&directConnection=true" 
           mongorestore --uri="${URI}" --archive=data.gz --gzip --drop --nsInclude=*
@@ -350,7 +351,11 @@ jobs:
           if [[ ${{ inputs.pr }} -ne 0 ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
-            echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
+            if [[ '${{env.EVENT_COMMITS}}' == 'null' ]]; then 
+              echo "COMMIT_INFO_MESSAGE=${{ github.event_name }} by ${{ env.COMMIT_INFO_AUTHOR }}" >> $GITHUB_ENV
+            else
+              echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
+            fi
           fi
         
       - name: Run the cypress test
@@ -401,6 +406,19 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
+          RUNID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+          REPOSITORY: ${{ github.repository }}
+          COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
+          TAG: ${{ github.event_name }}
+          BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
+          THIS_RUNNER: ${{ strategy.job-index }}
+          CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
+          CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
           browser: ${{ env.BROWSER_PATH }}
           record: true
@@ -480,6 +498,19 @@ jobs:
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
+          RUNID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+          REPOSITORY: ${{ github.repository }}
+          COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
+          TAG: ${{ github.event_name }}
+          BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
+          THIS_RUNNER: ${{ strategy.job-index }}
+          CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
+          CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
           browser: ${{ env.BROWSER_PATH }}
           record: true
