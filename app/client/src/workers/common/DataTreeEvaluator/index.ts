@@ -1226,6 +1226,10 @@ export default class DataTreeEvaluator {
         entityType = entity.ENTITY_TYPE;
       }
       const dependencies = dependencyMap.dependencies;
+
+      // We are only interested in logging potential system-generated cyclic dependency errors to Sentry
+      // If a cyclic dependency error occurs without a user editing a dynamic field, that is a potential system-generated cyclic dependency error
+
       const logToSentry = !diffs
         ? false
         : !diffs.some((val) => val.event === DataTreeDiffEvent.EDIT);
