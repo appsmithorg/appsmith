@@ -32,7 +32,6 @@ import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors"
 import type { AppState } from "@appsmith/reducers";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
-import log from "loglevel";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -110,7 +109,6 @@ export function PageContextMenu(props: {
   );
 
   const openAppSettingsPane = () => {
-    log.debug("openAppSettingsPaneAction - PageContextMenu");
     dispatch(
       openAppSettingsPaneAction({
         type: AppSettingsTabs.Page,

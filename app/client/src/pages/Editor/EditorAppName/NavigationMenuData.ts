@@ -23,7 +23,6 @@ import { redoShortCut, undoShortCut } from "utils/helpers";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { toast } from "design-system";
 import type { ThemeProp } from "widgets/constants";
-import log from "loglevel";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -76,7 +75,6 @@ export const GetNavigationMenuData = ({
   };
 
   const openAppSettingsPane = () => {
-    log.debug("openAppSettingsPaneAction - NavigationMenuData");
     dispatch(openAppSettingsPaneAction());
   };
 

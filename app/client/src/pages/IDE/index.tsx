@@ -39,8 +39,3 @@ const IDE = function () {
 };
 
 export default IDE;
-{
-  /* <LeftPane />
-      <MainPane />
-      <DebugBar /> */
-}
