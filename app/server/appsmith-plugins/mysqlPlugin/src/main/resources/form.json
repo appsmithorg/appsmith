@@ -5,6 +5,29 @@
       "id": 1,
       "children": [
         {
+          "label": "Connection method",
+          "configProperty": "datasourceConfiguration.properties[1].key",
+          "initialValue": "Connection method",
+          "hidden": true,
+          "controlType": "INPUT_TEXT"
+        },
+        {
+          "label": "Connection method",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "SEGMENTED_CONTROL",
+          "initialValue": "STANDARD",
+          "options": [
+            {
+              "label": "Standard",
+              "value": "STANDARD"
+            },
+            {
+              "label": "SSH tunnel",
+              "value": "SSH"
+            }
+          ]
+        },
+        {
           "label": "Connection mode",
           "configProperty": "datasourceConfiguration.connection.mode",
           "controlType": "SEGMENTED_CONTROL",
@@ -24,19 +47,49 @@
           "sectionName": null,
           "children": [
             {
-              "label": "Host address",
-              "configProperty": "datasourceConfiguration.endpoints[*].host",
-              "controlType": "KEYVALUE_ARRAY",
-              "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$",
-              "placeholderText": "myapp.abcde.mysql.net"
+              "sectionName": null,
+              "children": [
+                {
+                  "label": "MySQL host address",
+                  "configProperty": "datasourceConfiguration.endpoints[*].host",
+                  "controlType": "KEYVALUE_ARRAY",
+                  "validationMessage": "Please enter a valid host",
+                  "validationRegex": "^((?![/:]).)*$",
+                  "placeholderText": "myapp.abcde.mysql.net"
+                },
+                {
+                  "label": "MySQL port",
+                  "configProperty": "datasourceConfiguration.endpoints[*].port",
+                  "dataType": "NUMBER",
+                  "controlType": "KEYVALUE_ARRAY",
+                  "placeholderText": "3306"
+                }
+              ]
             },
             {
-              "label": "Port",
-              "configProperty": "datasourceConfiguration.endpoints[*].port",
-              "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY",
-              "placeholderText": "3306"
+              "sectionName": null,
+              "children": [
+                {
+                  "label": "SSH host address",
+                  "configProperty": "datasourceConfiguration.sshProxy.endpoints[*].host",
+                  "controlType": "KEYVALUE_ARRAY",
+                  "validationMessage": "Please enter a valid host",
+                  "validationRegex": "^((?![/:]).)*$",
+                  "placeholderText": "myapp.abcde.sshHost.net"
+                },
+                {
+                  "label": "SSH port",
+                  "configProperty": "datasourceConfiguration.sshProxy.endpoints[*].port",
+                  "dataType": "NUMBER",
+                  "controlType": "KEYVALUE_ARRAY",
+                  "placeholderText": "22"
+                }
+              ],
+              "hidden": {
+                "path": "datasourceConfiguration.properties[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "SSH"
+              }
             }
           ]
         },
@@ -57,18 +110,40 @@
           "sectionName": null,
           "children": [
             {
-              "label": "Username",
+              "label": "MySQL username",
               "configProperty": "datasourceConfiguration.authentication.username",
               "controlType": "INPUT_TEXT",
               "placeholderText": "Username"
             },
             {
-              "label": "Password",
+              "label": "MySQL password",
               "configProperty": "datasourceConfiguration.authentication.password",
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
               "placeholderText": "Password",
               "encrypted": true
+            },
+            {
+              "label": "SSH username",
+              "configProperty": "datasourceConfiguration.sshProxy.username",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Username",
+              "hidden": {
+                "path": "datasourceConfiguration.properties[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "SSH"
+              }
+            },
+            {
+              "label": "SSH key",
+              "configProperty": "datasourceConfiguration.sshProxy.privateKey.keyFile",
+              "controlType": "FILE_PICKER",
+              "encrypted": true,
+              "hidden": {
+                "path": "datasourceConfiguration.properties[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "SSH"
+              }
             }
           ]
         }
