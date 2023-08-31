@@ -1,5 +1,9 @@
-import type { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type {
+  OccupiedSpace,
+  WidgetSpace,
+} from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   MovementLimitMap,
   ReflowedSpaceMap,
@@ -10,12 +14,13 @@ import {
   ReflowDirection,
   VERTICAL_RESIZE_MIN_LIMIT,
 } from "reflow/reflowTypes";
+import type { WidgetType } from "utils/WidgetFactory";
 import {
   getDraggingSpacesFromBlocks,
   getDropZoneOffsets,
   noCollision,
 } from "utils/WidgetPropsUtils";
-import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
+import type { WidgetDraggingBlock, XYCord } from "../CanvasArenas/ArenaTypes";
 
 /**
  * Method to get the Direction appropriate to closest edge of the canvas
@@ -93,6 +98,160 @@ export function getReflowedSpaces(
   }
   return draggingSpace;
 }
+
+type NewWidgetBlock = {
+  columns: number;
+  rows: number;
+  widgetId: string;
+  detachFromLayout: boolean;
+  isDynamicHeight: boolean;
+  type: WidgetType;
+};
+
+/**
+ * This method returns blocks and dragging spaces of the widgets being dragged on canvas
+ * @param newWidget
+ * @param allWidgets
+ * @param isNewWidget
+ * @param snapColumnSpace
+ * @param snapRowSpace
+ * @param childrenOccupiedSpaces
+ * @param selectedWidgets
+ * @param containerPadding
+ * @returns
+ */
+export const getBlocksToDraw = (
+  newWidget: NewWidgetBlock,
+  allWidgets: CanvasWidgetsReduxState,
+  isNewWidget: boolean,
+  snapColumnSpace: number,
+  snapRowSpace: number,
+  childrenOccupiedSpaces: WidgetSpace[],
+  selectedWidgets: string[],
+  containerPadding: number,
+): {
+  blocksToDraw: WidgetDraggingBlock[];
+  draggingSpaces: OccupiedSpace[];
+} => {
+  if (isNewWidget) {
+    return {
+      blocksToDraw: [
+        {
+          top: 0,
+          left: 0,
+          width: newWidget.columns * snapColumnSpace,
+          height: newWidget.rows * snapRowSpace,
+          columnWidth: newWidget.columns,
+          rowHeight: newWidget.rows,
+          widgetId: newWidget.widgetId,
+          detachFromLayout: newWidget.detachFromLayout,
+          isNotColliding: true,
+          fixedHeight: newWidget.isDynamicHeight
+            ? newWidget.rows * snapRowSpace
+            : undefined,
+          type: newWidget.type,
+        },
+      ],
+      draggingSpaces: [
+        {
+          top: 0,
+          left: 0,
+          right: newWidget.columns,
+          bottom: newWidget.rows,
+          id: newWidget.widgetId,
+        },
+      ],
+    };
+  } else {
+    const draggingSpaces = childrenOccupiedSpaces.filter((each) =>
+      selectedWidgets.includes(each.id),
+    );
+    return {
+      draggingSpaces,
+      blocksToDraw: draggingSpaces.map((each) => ({
+        top: each.top * snapRowSpace + containerPadding,
+        left: each.left * snapColumnSpace + containerPadding,
+        width: (each.right - each.left) * snapColumnSpace,
+        height: (each.bottom - each.top) * snapRowSpace,
+        columnWidth: each.right - each.left,
+        rowHeight: each.bottom - each.top,
+        widgetId: each.id,
+        isNotColliding: true,
+        fixedHeight: each.fixedHeight,
+        type: allWidgets[each.id].type,
+      })),
+    };
+  }
+};
+
+/**
+ * This method returns the bound updateRelativeRows method with the arguments bounded
+ * @param updateDropTargetRows
+ * @param snapColumnSpace
+ * @param snapRowSpace
+ * @returns
+ */
+export const getUpdateRelativeRowsMethod = (
+  updateDropTargetRows:
+    | ((
+        widgetIdsToExclude: string[],
+        widgetBottomRow: number,
+      ) => number | false)
+    | undefined,
+  snapColumnSpace: number,
+  snapRowSpace: number,
+) => {
+  return (drawingBlocks: WidgetDraggingBlock[], rows: number) => {
+    if (drawingBlocks.length) {
+      const sortedByTopBlocks = drawingBlocks.sort(
+        (each1, each2) => each2.top + each2.height - (each1.top + each1.height),
+      );
+      const bottomMostBlock = sortedByTopBlocks[0];
+      const [, top] = getDropZoneOffsets(
+        snapColumnSpace,
+        snapRowSpace,
+        {
+          x: bottomMostBlock.left,
+          y: bottomMostBlock.top + bottomMostBlock.height,
+        } as XYCord,
+        { x: 0, y: 0 },
+      );
+      const widgetIdsToExclude = drawingBlocks.map((a) => a.widgetId);
+      return updateBottomRow(
+        top,
+        rows,
+        widgetIdsToExclude,
+        updateDropTargetRows,
+      );
+    }
+  };
+};
+
+/**
+ * This method helps in updating rows for dropTarget/canvas by using updateDropTargetRows
+ * @param bottom
+ * @param rows
+ * @param widgetIdsToExclude
+ * @param updateDropTargetRows
+ * @returns
+ */
+export const updateBottomRow = (
+  bottom: number,
+  rows: number,
+  widgetIdsToExclude: string[],
+  updateDropTargetRows:
+    | ((
+        widgetIdsToExclude: string[],
+        widgetBottomRow: number,
+      ) => number | false)
+    | undefined,
+) => {
+  if (bottom > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
+    return (
+      updateDropTargetRows && updateDropTargetRows(widgetIdsToExclude, bottom)
+    );
+  }
+};
 
 /**
  * Modify the rectangles to draw object to match the positions of spaceMap
