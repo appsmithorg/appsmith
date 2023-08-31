@@ -108,13 +108,14 @@ export function PageContextMenu(props: {
     [dispatch, props.pageId, props.name, props.isHidden],
   );
 
-  const openAppSettingsPane = () =>
+  const openAppSettingsPane = () => {
     dispatch(
       openAppSettingsPaneAction({
         type: AppSettingsTabs.Page,
         pageId: props.pageId,
       }),
     );
+  };
 
   const pagePermissions =
     useSelector(getPageById(props.pageId))?.userPermissions || [];

@@ -19,7 +19,6 @@ import DataMainEmptyState from "./DataState/EmptyState";
 
 const Container = styled.div`
   background-color: white;
-  margin-top: 4px;
   border-radius: 4px;
   margin-right: 5px;
 `;

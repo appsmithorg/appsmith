@@ -18,13 +18,13 @@ const Container = styled.div`
   padding: 5px;
 `;
 const ListItem = styled.div`
-  height: 35px;
   padding: 8px;
   margin-bottom: 4px;
   display: grid;
   grid-template-columns: 30px 1fr;
   align-items: center;
   border-radius: 4px;
+  height: 35px;
   &:hover {
     cursor: pointer;
     background-color: #f1f5f9;

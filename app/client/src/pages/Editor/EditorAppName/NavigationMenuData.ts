@@ -74,7 +74,9 @@ export const GetNavigationMenuData = ({
     });
   };
 
-  const openAppSettingsPane = () => dispatch(openAppSettingsPaneAction());
+  const openAppSettingsPane = () => {
+    dispatch(openAppSettingsPaneAction());
+  };
 
   const deleteApplication = () => {
     if (applicationId && applicationId.length > 0) {

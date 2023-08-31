@@ -22,11 +22,14 @@ import useHorizontalResize from "../../utils/hooks/useHorizontalResize";
 import { useDispatch, useSelector } from "react-redux";
 import { getIdeSidebarWidth } from "./ideSelector";
 import { setIdeSidebarWidth } from "./ideActions";
+import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 
 const Container = styled.div`
   background-color: white;
-  margin-top: 4px;
   border-radius: 4px;
+  // TODO: auto size based on available space
+  height: calc(100vh - 40px - 37px - 8px);
+  position: relative;
 `;
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
@@ -61,6 +64,7 @@ const LeftPane = () => {
       setTooltipIsOpen(true);
     }, 250);
   }, [setTooltipIsOpen]);
+  const disableResize = useSelector(getIsAppSettingsPaneOpen);
 
   /**
    * on hover end of resizer, hide tooltip
@@ -71,34 +75,36 @@ const LeftPane = () => {
   }, [setTooltipIsOpen]);
   return (
     <Container ref={sidebarRef} style={{ width: leftPaneWidth }}>
-      <StyledResizer
-        className={`absolute w-2 h-full -mr-1 ${tailwindLayers.resizer} group cursor-ew-resize`}
-        onMouseDown={resizer.onMouseDown}
-        onMouseEnter={onHoverResizer}
-        onMouseLeave={onHoverEndResizer}
-        onTouchEnd={resizer.onMouseUp}
-        onTouchStart={resizer.onTouchStart}
-        resizing={resizer.resizing}
-        style={{
-          left: leftPaneWidth + 50,
-        }}
-      >
-        <div
-          className={classNames({
-            "w-1 h-full bg-transparent transform transition flex items-center":
-              true,
-          })}
+      {!disableResize && (
+        <StyledResizer
+          className={`absolute w-2 -mr-1 h-full ${tailwindLayers.resizer} group cursor-ew-resize`}
+          onMouseDown={resizer.onMouseDown}
+          onMouseEnter={onHoverResizer}
+          onMouseLeave={onHoverEndResizer}
+          onTouchEnd={resizer.onMouseUp}
+          onTouchStart={resizer.onTouchStart}
+          resizing={resizer.resizing}
+          style={{
+            left: leftPaneWidth,
+          }}
         >
-          <Tooltip
-            content="Drag to resize"
-            mouseEnterDelay={0.2}
-            placement="right"
-            visible={tooltipIsOpen && !resizer.resizing}
+          <div
+            className={classNames({
+              "w-1 h-full bg-transparent transform transition flex items-center":
+                true,
+            })}
           >
-            <div />
-          </Tooltip>
-        </div>
-      </StyledResizer>
+            <Tooltip
+              content="Drag to resize"
+              mouseEnterDelay={0.2}
+              placement="right"
+              visible={tooltipIsOpen && !resizer.resizing}
+            >
+              <div />
+            </Tooltip>
+          </div>
+        </StyledResizer>
+      )}
       <div>
         <Switch>
           <SentryRoute component={DataLeftPane} exact path={IDE_DATA_PATH} />
