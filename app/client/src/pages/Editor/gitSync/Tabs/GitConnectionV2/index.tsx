@@ -30,29 +30,53 @@ const steps = [
   },
 ];
 
-const StepComp = {
-  [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: ChooseGitProvider,
-  [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: GenerateSSH,
-  [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: AddDeployKey,
-};
+interface FormDataState {
+  gitProvider?: string;
+  gitEmptyRepoExists?: string;
+  sshUrl?: string;
+  isAddedDeployKey?: boolean;
+}
 
 function GitConnectionV2() {
+  const [formData, setFormData] = useState<FormDataState>({
+    gitProvider: undefined,
+    gitEmptyRepoExists: undefined,
+    sshUrl: undefined,
+    isAddedDeployKey: false,
+  });
+
+  const handleChange = (partialFormData: Partial<FormDataState>) => {
+    setFormData((s) => ({ ...s, ...partialFormData }));
+  };
+
+  // const [gitProvider, setGitProvider] = useState<string>();
+  // const [gitEmptyRepoExists, setGitEmptyRepoExists] = useState<string>();
+
   const [activeStep, setActiveStep] = useState<string>(
     GIT_CONNECT_STEPS.CHOOSE_PROVIDER,
   );
   const currentIndex = steps.findIndex((s) => s.key === activeStep);
 
-  const [isValid, setIsValid] = useState({
-    [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: false,
-    [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: false,
-    [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: false,
-  });
+  // const [isValid, setIsValid] = useState({
+  //   [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: false,
+  //   [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: false,
+  //   [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: false,
+  // });
 
-  const handleStepValidation = (step: string, isValid: boolean) => {
-    setIsValid((prev) => ({
-      ...prev,
-      [step]: isValid,
-    }));
+  // const handleStepValidation = (step: string, isValid: boolean) => {
+  //   setIsValid((prev) => ({
+  //     ...prev,
+  //     [step]: isValid,
+  //   }));
+  // };
+
+  const isDisabled = {
+    [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]:
+      !formData.gitProvider ||
+      !formData.gitEmptyRepoExists ||
+      formData.gitEmptyRepoExists === "no",
+    [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: !formData.sshUrl,
+    [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: !formData.isAddedDeployKey,
   };
 
   const handlePreviousStep = () => {
@@ -75,7 +99,16 @@ function GitConnectionV2() {
           onActiveKeyChange={setActiveStep}
           steps={steps}
         />
-        {steps.map((step) => {
+        {activeStep === GIT_CONNECT_STEPS.CHOOSE_PROVIDER && (
+          <ChooseGitProvider onChange={handleChange} value={formData} />
+        )}
+        {activeStep === GIT_CONNECT_STEPS.GENERATE_SSH_KEY && (
+          <GenerateSSH onChange={handleChange} value={formData} />
+        )}
+        {activeStep === GIT_CONNECT_STEPS.ADD_DEPLOY_KEY && (
+          <AddDeployKey onChange={handleChange} value={formData} />
+        )}
+        {/* {steps.map((step) => {
           const Comp = StepComp[step.key];
           return (
             <Comp
@@ -84,14 +117,14 @@ function GitConnectionV2() {
               show={step.key === activeStep}
             />
           );
-        })}
+        })} */}
       </ModalBody>
       <StyledModalFooter>
         <Button
           endIcon={
             currentIndex < steps.length - 1 ? "arrow-right-s-line" : undefined
           }
-          isDisabled={!isValid[activeStep]}
+          isDisabled={isDisabled[activeStep]}
           onClick={handleNextStep}
           size="md"
         >

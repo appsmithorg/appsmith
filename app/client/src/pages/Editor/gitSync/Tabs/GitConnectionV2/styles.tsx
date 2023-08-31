@@ -5,7 +5,7 @@ export const WellContainer = styled.div`
   padding: 16px;
   border-radius: 4px;
   background-color: #f1f5f9;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 `;
 
 export const WellTitle = styled.h3`
@@ -16,8 +16,7 @@ export const WellText = styled(Text)`
   margin-bottom: 16px;
 `;
 
-export const FieldContainer = styled.div<{ noPadding?: boolean }>`
-  padding-left: ${(p) => (p.noPadding ? "0px" : "16px")};
+export const FieldContainer = styled.div`
   margin-bottom: 16px;
 `;
 

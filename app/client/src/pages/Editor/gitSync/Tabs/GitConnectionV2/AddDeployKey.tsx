@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   DemoImage,
   FieldContainer,
@@ -34,29 +34,23 @@ const CheckboxTextContainer = styled.div`
   justify-content: flex-start;
 `;
 
+interface AddDeployKeyState {
+  isAddedDeployKey: boolean;
+}
 interface AddDeployKeyProps {
-  onValidate: (isValid: boolean) => void;
-  show: boolean;
+  onChange: (args: Partial<AddDeployKeyState>) => void;
+  value: Partial<AddDeployKeyState>;
 }
 
 const NOOP = () => {
   // do nothing
 };
 
-function AddDeployKey({ onValidate = NOOP, show = true }: AddDeployKeyProps) {
-  const [isAgreedAdding, setIsAgreedAdding] = useState<boolean>(false);
+function AddDeployKey({ onChange = NOOP, value = {} }: AddDeployKeyProps) {
   const [sshKeyType, setSshKeyType] = useState<string>("ecdsa256");
 
-  useEffect(() => {
-    if (isAgreedAdding) {
-      onValidate(true);
-    } else {
-      onValidate(false);
-    }
-  }, [isAgreedAdding]);
-
   return (
-    <div style={{ display: show ? "block" : "none" }}>
+    <div>
       <WellContainer>
         <WellTitle>
           <Text kind="heading-s">Add deploy key & give write access</Text>
@@ -65,7 +59,7 @@ function AddDeployKey({ onValidate = NOOP, show = true }: AddDeployKeyProps) {
           Copy below SSH key and paste it in your repository settings. Now, give
           write access to it.
         </WellText>
-        <FieldContainer noPadding>
+        <FieldContainer>
           <StyledSelect
             onChange={(v) => setSshKeyType(v)}
             size="sm"
@@ -89,7 +83,10 @@ function AddDeployKey({ onValidate = NOOP, show = true }: AddDeployKeyProps) {
           </CollapsibleContent>
         </Collapsible>
       </WellContainer>
-      <Checkbox isSelected={isAgreedAdding} onChange={setIsAgreedAdding}>
+      <Checkbox
+        isSelected={value?.isAddedDeployKey}
+        onChange={(v) => onChange({ isAddedDeployKey: v })}
+      >
         <CheckboxTextContainer>
           <Text renderAs="p">
             I&apos;ve added deploy key and gave it write access

@@ -72,7 +72,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
   const activeTabKey = useSelector(getActiveGitSyncModalTab);
   const { onGitConnectFailure: resetGitConnectStatus } = useGitConnect();
 
-  const isGitConnectV2Enabled = false;
+  const isGitConnectV2Enabled = true;
   ComponentsByTab[GitSyncModalTab.GIT_CONNECTION] = isGitConnectV2Enabled
     ? GitConnectionV2
     : GitConnection;

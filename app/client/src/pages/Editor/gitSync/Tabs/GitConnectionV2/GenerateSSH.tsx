@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   DemoImage,
   FieldContainer,
@@ -14,28 +14,37 @@ import {
   Input,
   Text,
 } from "design-system";
+import { isValidGitRemoteUrl } from "../../utils";
+import {
+  PASTE_SSH_URL_INFO,
+  createMessage,
+} from "@appsmith/constants/messages";
 
+interface GenerateSSHState {
+  sshUrl: string;
+}
 interface GenerateSSHProps {
-  onValidate: (isValid: boolean) => void;
-  show: boolean;
+  onChange: (args: Partial<GenerateSSHState>) => void;
+  value: Partial<GenerateSSHState>;
 }
 
 const NOOP = () => {
   // do nothing
 };
 
-function GenerateSSH({ onValidate = NOOP, show = true }: GenerateSSHProps) {
-  const [sshUrl, setSshUrl] = useState<string>();
-  useEffect(() => {
-    if (!!sshUrl) {
-      onValidate(true);
-    } else {
-      onValidate(false);
-    }
-  }, [sshUrl]);
+function GenerateSSH({ onChange = NOOP, value = {} }: GenerateSSHProps) {
+  const [isTouched, setIsTouched] = useState(false);
+  const isInvalid =
+    isTouched &&
+    (typeof value?.sshUrl !== "string" || !isValidGitRemoteUrl(value?.sshUrl));
+
+  const handleChange = (v: string) => {
+    setIsTouched(true);
+    onChange({ sshUrl: v });
+  };
 
   return (
-    <div style={{ display: show ? "block" : "none" }}>
+    <div>
       <WellContainer>
         <WellTitle>
           <Text kind="heading-s">Generate SSH key</Text>
@@ -44,14 +53,15 @@ function GenerateSSH({ onValidate = NOOP, show = true }: GenerateSSHProps) {
           In your empty repo, copy the SSH remote URL & paste it in the input
           field below.
         </WellText>
-        <FieldContainer noPadding>
+        <FieldContainer>
           <Input
+            errorMessage={isInvalid ? createMessage(PASTE_SSH_URL_INFO) : ""}
             isRequired
             label="SSH remote URL"
-            onChange={(v) => setSshUrl(v)}
+            onChange={handleChange}
             placeholder="git@example.com:user/repository.git"
             size="md"
-            value={sshUrl}
+            value={value?.sshUrl}
           />
         </FieldContainer>
         <Collapsible isOpen>
