@@ -40,14 +40,7 @@ describe("Json & JsonB Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.jsonbooks"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonbooks");
   });
 
   it("2. Creating SELECT query - jsonbooks + Bug 14493", () => {
@@ -362,15 +355,7 @@ describe("Json & JsonB Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
 
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    entityExplorer.ExpandCollapseEntity(dsName);
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.jsonBbooks"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonBbooks");
   });
 
   it("16. Creating SELECT query - jsonBbooks + Bug 14493", () => {

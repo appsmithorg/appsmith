@@ -158,15 +158,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       entityType: entityItems.Query,
     });
 
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("productlines"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "productlines");
   });
 
   it("5. Verify Generate CRUD for the new table & Verify Deploy mode for table - Productlines", () => {

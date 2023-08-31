@@ -209,6 +209,7 @@ const DatasourceStructure = (props: DatasourceStructureProps) => {
     <StructureWrapper ref={containerRef}>
       {containerHeight && (
         <Virtuoso
+          className="t--schema-virtuoso-container"
           itemContent={Row}
           style={{ height: `${containerHeight}px` }}
           totalCount={props.tables.length}

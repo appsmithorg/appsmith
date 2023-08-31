@@ -312,15 +312,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       entityType: entityItems.Query,
     });
 
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("AuthorNAwards"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards");
   });
 
   it("3. Validate 'Find' record from new collection & verify query response", () => {
@@ -800,15 +792,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       entityType: entityItems.Query,
     });
     //Execute a find query on this collection to see if dates are fetched properly
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("BirthNDeath"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "BirthNDeath");
 
     entityExplorer.ActionTemplateMenuByEntityName("BirthNDeath", "Find");
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");

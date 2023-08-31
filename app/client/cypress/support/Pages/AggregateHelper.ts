@@ -1509,6 +1509,14 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(selector).scrollTo(position).wait(2000);
   }
 
+  public ScrollToXY(
+    selector: ElementType,
+    x: number | string,
+    y: number | string,
+  ) {
+    return this.GetElement(selector).scrollTo(x, y).wait(2000);
+  }
+
   public GetWidth(widgetSelector: string) {
     this.GetElement(widgetSelector).then(($element) => {
       cy.wrap(Number($element.width())).as("eleWidth");

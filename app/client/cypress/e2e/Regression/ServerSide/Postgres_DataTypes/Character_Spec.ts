@@ -28,15 +28,7 @@ describe("Character Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.chartypes"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.chartypes");
   });
 
   it("2. Creating SELECT query - chartypes + Bug 14493", () => {

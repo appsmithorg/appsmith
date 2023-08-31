@@ -40,14 +40,7 @@ describe("UUID Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.uuidtype"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.uuidtype");
   });
 
   it("3. Creating SELECT query - uuidtype + Bug 14493", () => {

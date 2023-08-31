@@ -31,15 +31,7 @@ describe("DateTime Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.datetimetypes"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.datetimetypes");
   });
 
   it("2. Creating SELECT query - datetimetypes + Bug 14493", () => {

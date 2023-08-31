@@ -29,15 +29,7 @@ describe("Numeric Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.numerictypes"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes");
   });
 
   it("2. Creating SELECT query - numerictypes + Bug 14493", () => {

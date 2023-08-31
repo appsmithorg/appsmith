@@ -1843,4 +1843,48 @@ export class DataSources {
       );
     });
   }
+
+  public AssertTableInVirtuosoList(dsName: string, targetTableName: string) {
+    this.entityExplorer.ExpandCollapseEntity(dsName);
+    this.entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+    this.assertHelper
+      .WaitForNetworkCall("@getDatasourceStructure")
+      .then(async (interception) => {
+        this.agHelper.Sleep();
+
+        const tables: any[] = interception?.response?.body.data?.tables || [];
+        const indexOfTable = tables.findIndex(
+          (table) => table.name === targetTableName,
+        );
+        this.agHelper
+          .GetNClick(
+            `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`,
+          )
+          .then((containerElement) => {
+            const containerHeight = containerElement.outerHeight() || 0;
+            const elementHeight = containerElement
+              .find('[data-test-id="virtuoso-item-list"]')
+              .children()
+              .first()
+              .attr("data-known-size");
+            const offset = indexOfTable * parseInt(elementHeight || "", 10);
+            const totalScroll =
+              (containerElement
+                .find('[data-test-id="virtuoso-item-list"]')
+                .outerHeight() || 0) - containerHeight;
+            const percentScroll = (offset / (totalScroll || 1)) * 100;
+            this.agHelper.ScrollToXY(
+              ".t--schema-virtuoso-container",
+              0,
+              `${percentScroll}%`,
+            );
+            this.agHelper.AssertElementExist(
+              `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`,
+            );
+          });
+      });
+  }
 }
