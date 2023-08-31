@@ -7,6 +7,7 @@ import {
   agHelper,
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 let datasourceName;
 
 describe("Addwidget from Query and bind with other widgets", function () {
@@ -33,7 +34,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
       .invoke("text")
       .then((text) => {
         const tableRowTxt = text;
-        cy.get(queryEditor.suggestedTableWidget).click();
+        dataSources.AddSuggestedWidget(Widgets.Table);
         entityExplorer.SelectEntityByName("Table1");
         cy.isSelectRow(1);
         cy.readTableV2dataPublish("1", "0").then((tabData) => {
