@@ -353,9 +353,7 @@ export class GitSync {
       .trigger("mouseenter");
     this.agHelper.GetNClick(this._gitBranchContextMenu, 0, true);
     this.agHelper.WaitUntilEleAppear(this._deleteBranch);
-    cy.xpath("//div[@role='menu']//span[text()='Delete']")
-      .should("be.visible")
-      .click({ force: true });
+    this.agHelper.GetNClick(this._deleteBranch, 0, true);
   }
   //#region Unused methods
 
