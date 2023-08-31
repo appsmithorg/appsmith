@@ -2249,9 +2249,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cypress/request@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@cypress/request@npm:3.0.0"
+"@cypress/request@npm:2.88.12":
+  version: 2.88.12
+  resolution: "@cypress/request@npm:2.88.12"
   dependencies:
     aws-sign2: ~0.7.0
     aws4: ^1.8.0
@@ -2271,7 +2271,7 @@ __metadata:
     tough-cookie: ^4.1.3
     tunnel-agent: ^0.6.0
     uuid: ^8.3.2
-  checksum: 8ec81075b800b84df8a616dce820a194d562a35df251da234f849344022979f3675baa0b82988843f979a488e39bc1eec6204cfe660c75ace9bf4d2951edec43
+  checksum: 2c6fbf7f3127d41bffca8374beaa8cf95450495a8a077b00309ea9d94dd2a4da450a77fe038e8ad26c97cdd7c39b65c53c850f8338ce9bc2dbe23ce2e2b48329
   languageName: node
   linkType: hard
 
@@ -9962,7 +9962,7 @@ __metadata:
     craco-alias: ^2.1.1
     craco-babel-loader: ^1.0.4
     cy-verify-downloads: ^0.0.5
-    cypress: ^13.0.0
+    cypress: ^12.17.4
     cypress-file-upload: ^4.1.1
     cypress-image-snapshot: ^4.0.1
     cypress-log-to-output: ^1.1.2
@@ -13405,11 +13405,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:^13.0.0":
-  version: 13.0.0
-  resolution: "cypress@npm:13.0.0"
+"cypress@npm:^12.17.4":
+  version: 12.17.4
+  resolution: "cypress@npm:12.17.4"
   dependencies:
-    "@cypress/request": ^3.0.0
+    "@cypress/request": 2.88.12
     "@cypress/xvfb": ^1.2.4
     "@types/node": ^16.18.39
     "@types/sinonjs__fake-timers": 8.1.1
@@ -13454,7 +13454,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: 223dddfd85dbde5e3a915e87b6cb176b99a9e5bcc24baa40cd5b9ca4a93315a95cf53c5c6ac3a6984f59be55ffc8b58b93a713c0ddcb63a5f4996229cce70329
+  checksum: c9c79f5493b23e9c8cfb92d45d50ea9d0fae54210dde203bfa794a79436faf60108d826fe9007a7d67fddf7919802ad8f006b7ae56c5c198c75d5bc85bbc851b
   languageName: node
   linkType: hard
 
