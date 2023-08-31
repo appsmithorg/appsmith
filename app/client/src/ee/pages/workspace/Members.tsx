@@ -523,7 +523,11 @@ export default function MemberSettings(props: PageProps) {
   };
 
   return (
-    <MembersWrapper data-testid="t--members-wrapper" isMobile={isMobile}>
+    <MembersWrapper
+      className="members-wrapper"
+      data-testid="t--members-wrapper"
+      isMobile={isMobile}
+    >
       <>
         {!isMobile && (
           <Table

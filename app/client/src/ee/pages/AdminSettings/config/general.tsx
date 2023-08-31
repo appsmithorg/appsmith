@@ -21,7 +21,7 @@ import {
 
 export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
   ...CE_APPSMITH_HIDE_WATERMARK_SETTING,
-  needsUpgrade: false,
+  isFeatureEnabled: true,
   isDisabled: () => false,
 };
 

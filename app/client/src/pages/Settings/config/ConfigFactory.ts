@@ -44,7 +44,6 @@ export class ConfigFactory {
       slug: config.type,
       subText: config.subText,
       categoryType: config.categoryType,
-      needsUpgrade: config.needsUpgrade,
       isEnterprise: config.isEnterprise,
       needsRefresh: config.needsRefresh,
       isFeatureEnabled: config.isFeatureEnabled,

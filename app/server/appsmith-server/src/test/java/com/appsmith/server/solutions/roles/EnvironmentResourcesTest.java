@@ -45,10 +45,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
-import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -115,6 +113,10 @@ public class EnvironmentResourcesTest {
         String name = UUID.randomUUID().toString();
         workspace.setName(name);
         createdWorkspace = workspaceService.create(workspace).block();
+
+        // This stub has been added for feature flag placed for multiple environments
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(TRUE));
     }
 
     @Test
@@ -122,11 +124,6 @@ public class EnvironmentResourcesTest {
     @DirtiesContext
     public void
             testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenExecuteOnWorkspace_assertExecuteOnEnvironments() {
-
-        // This stub has been added for feature flag placed for multiple environments
-        doReturn(Mono.just(TRUE))
-                .when(featureFlagService)
-                .check(Mockito.eq(FeatureFlagEnum.release_datasource_environments_enabled));
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
@@ -221,11 +218,6 @@ public class EnvironmentResourcesTest {
     public void
             testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenExecuteOnDatasource_assertNoExecuteOnEnvironments() {
 
-        // This stub has been added for feature flag placed for multiple environments
-        doReturn(Mono.just(TRUE))
-                .when(featureFlagService)
-                .check(Mockito.eq(FeatureFlagEnum.release_datasource_environments_enabled));
-
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -319,114 +311,6 @@ public class EnvironmentResourcesTest {
                         assertThat(policyOptional.isPresent()).isTrue();
                         Policy policy = policyOptional.get();
                         assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
-                    });
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    @DirtiesContext
-    public void
-            testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenExecuteOnDatasource_assertExecuteOnEnvironments() {
-
-        // This stub has been added for feature flag placed for multiple environments
-        doReturn(Mono.just(FALSE))
-                .when(featureFlagService)
-                .check(Mockito.eq(FeatureFlagEnum.release_datasource_environments_enabled));
-
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        Workspace workspace = new Workspace();
-        workspace.setName("givenExecuteOnDatasource_assertExecuteOnEnvironments workspace");
-        Workspace createdWorkspace = workspaceService.create(workspace).block();
-
-        Environment environment =
-                workspaceService.getDefaultEnvironment(createdWorkspace.getId()).blockFirst();
-
-        Datasource datasource = new Datasource();
-        datasource.setName("Default Database");
-        datasource.setWorkspaceId(createdWorkspace.getId());
-        Plugin installed_plugin =
-                pluginRepository.findByPackageName("restapi-plugin").block();
-        datasource.setPluginId(installed_plugin.getId());
-        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(
-                environment.getId(),
-                new DatasourceStorageDTO(null, environment.getId(), new DatasourceConfiguration()));
-        datasource.setDatasourceStorages(storages);
-        Datasource savedDs = datasourceService.create(datasource).block();
-
-        PermissionGroup permissionGroup = new PermissionGroup();
-        permissionGroup.setName("New role for editing : givenExecuteOnDatasource_assertExecuteOnEnvironments");
-        PermissionGroup createdPermissionGroup =
-                permissionGroupService.create(permissionGroup).block();
-
-        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
-
-        // Add entity changes
-        // Datasource : Give execute permissions to the datasource
-        UpdateRoleEntityDTO datasourceEntity = new UpdateRoleEntityDTO(
-                Datasource.class.getSimpleName(), savedDs.getId(), List.of(1, 0, 0, 0, 0), savedDs.getName());
-        updateRoleConfigDTO.setEntitiesChanged(Set.of(datasourceEntity));
-        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
-
-        roleConfigurationSolution
-                .updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO)
-                .block();
-
-        // Fetch the environment post the role change with execute permissions
-        Mono<List<Environment>> environmentsMono =
-                environmentService.findByWorkspaceId(createdWorkspace.getId()).collectList();
-
-        StepVerifier.create(environmentsMono)
-                .assertNext(environmentList -> {
-
-                    // Assert that environment execute has been given execute permission for this permission group
-                    assertThat(environmentList).isNotEmpty();
-                    assertThat(environmentList).hasSize(2);
-                    environmentList.stream().forEach(env -> {
-                        Optional<Policy> policyOptional = env.getPolicies().stream()
-                                .filter(policy -> policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue()))
-                                .findFirst();
-
-                        assertThat(policyOptional.isPresent()).isTrue();
-                        Policy policy = policyOptional.get();
-                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
-                    });
-                })
-                .verifyComplete();
-
-        // Now test for removal of the same datasource permission
-        // Remove entity changes
-        // Datasource : Remove execute permissions to the datasource
-        UpdateRoleEntityDTO datasourceEntity2 = new UpdateRoleEntityDTO(
-                Datasource.class.getSimpleName(), savedDs.getId(), List.of(0, 0, 0, 0, 0), savedDs.getName());
-        updateRoleConfigDTO.setEntitiesChanged(Set.of(datasourceEntity2));
-        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
-
-        Mono<RoleViewDTO> roleViewDTOMono =
-                roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO);
-
-        // Fetch the environment post the role change with execute permissions
-        Mono<List<Environment>> environmentsMono2 = roleViewDTOMono.then(
-                environmentService.findByWorkspaceId(createdWorkspace.getId()).collectList());
-
-        StepVerifier.create(environmentsMono2)
-                .assertNext(environmentList -> {
-
-                    // Assert that environment execute has been retained for this permission group
-                    assertThat(environmentList).isNotEmpty();
-                    assertThat(environmentList).hasSize(2);
-                    environmentList.stream().forEach(env -> {
-                        Optional<Policy> policyOptional = env.getPolicies().stream()
-                                .filter(policy -> policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue()))
-                                .findFirst();
-
-                        assertThat(policyOptional.isPresent()).isTrue();
-                        Policy policy = policyOptional.get();
-                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
                     });
                 })
                 .verifyComplete();

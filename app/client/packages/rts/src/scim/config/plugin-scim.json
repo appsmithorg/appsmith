@@ -13,7 +13,7 @@
     "log": {
       "loglevel": {
         "file": "debug",
-        "console": "error"
+        "console": "debug"
       },
       "customMasking": null
     },
