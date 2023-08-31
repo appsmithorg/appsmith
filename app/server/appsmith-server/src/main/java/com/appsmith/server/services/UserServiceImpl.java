@@ -26,7 +26,6 @@ import com.appsmith.server.helpers.ProvisionUtils;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
@@ -125,8 +124,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
             PermissionGroupRepository permissionGroupRepository,
             UserGroupRepository userGroupRepository,
             PolicyGenerator policyGenerator,
-            ProvisionUtils provisionUtils,
-            RateLimitService rateLimitService) {
+            ProvisionUtils provisionUtils) {
         super(
                 scheduler,
                 validator,
@@ -150,8 +148,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                 permissionGroupService,
                 userUtils,
                 emailVerificationTokenRepository,
-                redirectHelper,
-                rateLimitService);
+                redirectHelper);
 
         this.userDataService = userDataService;
         this.tenantService = tenantService;
