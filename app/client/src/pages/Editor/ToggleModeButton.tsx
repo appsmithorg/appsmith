@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Tooltip } from "design-system";
+import { Tooltip, ToggleButton } from "design-system";
 
 import type { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
@@ -40,17 +40,13 @@ function ToggleModeButton() {
       isDisabled={appMode !== APP_MODE.EDIT}
       placement="bottom"
     >
-      <Button
+      <ToggleButton
         data-testid={`${isPreviewMode ? "preview" : "edit"}-mode`}
-        // TODO: (Albin) - check with design team for a better UI
-        // isDisabled={isPreviewMode}
-        kind="tertiary"
+        icon="play-line"
+        isSelected={isPreviewMode}
         onClick={onClickPreviewModeButton}
         size="md"
-        startIcon="play-circle-line"
-      >
-        {createMessage(EDITOR_HEADER.previewTooltip.text)}
-      </Button>
+      />
     </Tooltip>
   );
 }
