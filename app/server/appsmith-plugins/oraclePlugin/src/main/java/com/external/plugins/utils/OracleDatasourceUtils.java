@@ -325,16 +325,16 @@ public class OracleDatasourceUtils {
 
             table.getTemplates()
                     .add(new DatasourceStructure.Template(
-                            "SELECT", null, Map.of("body", Map.of("data", selectQueryTemplate))));
+                            "SELECT", null, Map.of("body", Map.of("data", selectQueryTemplate)), true));
             table.getTemplates()
                     .add(new DatasourceStructure.Template(
-                            "INSERT", null, Map.of("body", Map.of("data", insertQueryTemplate))));
+                            "INSERT", null, Map.of("body", Map.of("data", insertQueryTemplate)), false));
             table.getTemplates()
                     .add(new DatasourceStructure.Template(
-                            "UPDATE", null, Map.of("body", Map.of("data", updateQueryTemplate))));
+                            "UPDATE", null, Map.of("body", Map.of("data", updateQueryTemplate)), false));
             table.getTemplates()
                     .add(new DatasourceStructure.Template(
-                            "DELETE", null, Map.of("body", Map.of("data", deleteQueryTemplate))));
+                            "DELETE", null, Map.of("body", Map.of("data", deleteQueryTemplate)), false));
         });
     }
 

@@ -5,8 +5,8 @@ export default defineConfig({
   requestTimeout: 60000,
   responseTimeout: 60000,
   pageLoadTimeout: 60000,
-  videoUploadOnPasses: false,
   videoCompression: false,
+  videoUploadOnPasses: false,
   numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
   reporterOptions: {

@@ -79,6 +79,9 @@ export const WIDGETSKIT = {
     "//a[@data-testid='t--image-download']//parent::div/a[2]",
   styleResetBtn: ".reset-button",
   styleOrangeIcon: ".rounded-full",
+  dividerVertical: "[data-testid=dividerVertical]",
+  dividerHorizontal: "[data-testid=dividerHorizontal]",
+  
 };
 type ValueOf<T> = T[keyof T];
 
@@ -109,4 +112,17 @@ export const checkboxlocators = {
   // read Blue here
   checkBoxLabel: (value: string) =>
     `//*[contains(@class,'t--checkbox-widget-label') and text()='${value}']`,
-};
+}
+
+export const buttongroupwidgetlocators = {
+  buttongroup: ".t--buttongroup-widget",
+  buttonSettingInPropPane: ".t--property-control-buttons .t--edit-column-btn",
+  menuSettingInPropPane:".t--edit-column-btn",
+  newButton:"//*[text()='Add new button']",
+  groupButtonValue: "//input[contains(@value,'Group Button')]",
+  buttonText: (value: string) => `//*[@class="bp3-button-text" and text()='${value}']`,
+  menu: "[data-value='MENU']",
+  buttonMenuOptions: (text: string) => `//*[contains(@class,'bp3-menu-item')]//*[text()='${text}']`,
+  button:"//*[contains(@class,'t--widget-buttongroupwidget')]//button"
+}
+
