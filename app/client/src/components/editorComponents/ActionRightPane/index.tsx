@@ -1,12 +1,10 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
 import { Divider, Icon, Link, Text } from "design-system";
-import { useState } from "react";
 import SuggestedWidgets from "./SuggestedWidgets";
 import type { ReactNode, MutableRefObject } from "react";
-import { useEffect } from "react";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
@@ -40,6 +38,7 @@ import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/Da
 import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   getDatasourceStructureById,
+  getIsFetchingDatasourceStructure,
   getPluginDatasourceComponentFromId,
   getPluginNameFromId,
 } from "selectors/entitiesSelector";
@@ -314,6 +313,7 @@ function ActionSidebar({
     popFeature,
     pushFeature,
   } = useContext(WalkthroughContext) || {};
+  const schemaRef = useRef(null);
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -326,6 +326,10 @@ function ActionSidebar({
 
   const pluginDatasourceForm = useSelector((state) =>
     getPluginDatasourceComponentFromId(state, pluginId || ""),
+  );
+
+  const isLoadingSchema = useSelector((state: AppState) =>
+    getIsFetchingDatasourceStructure(state, datasourceId),
   );
 
   const datasourceStructure = useSelector((state) =>

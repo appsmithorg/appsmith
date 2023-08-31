@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  DatasourceStructureContainer as DatasourceStructureList,
-  DatasourceStructureContext,
-} from "../Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
+import { DatasourceStructureContainer as DatasourceStructureList } from "../Explorer/Datasources/DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,

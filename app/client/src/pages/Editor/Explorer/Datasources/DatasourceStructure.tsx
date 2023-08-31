@@ -22,6 +22,7 @@ import { Virtuoso } from "react-virtuoso";
 export enum DatasourceStructureContext {
   EXPLORER = "entity-explorer",
   QUERY_EDITOR = "query-editor",
+  DATASOURCE_VIEW_MODE = "datasource-view-mode",
   // this does not exist yet, but in case it does in the future.
   API_EDITOR = "api-editor",
 }
