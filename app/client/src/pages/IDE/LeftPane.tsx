@@ -76,7 +76,7 @@ const LeftPane = () => {
     <Container ref={sidebarRef} style={{ width: leftPaneWidth }}>
       {!disableResize && (
         <StyledResizer
-          className={`absolute w-2 -mr-1 ${tailwindLayers.resizer} group cursor-ew-resize`}
+          className={`absolute w-2 -mr-1 h-full ${tailwindLayers.resizer} group cursor-ew-resize`}
           onMouseDown={resizer.onMouseDown}
           onMouseEnter={onHoverResizer}
           onMouseLeave={onHoverEndResizer}
@@ -104,19 +104,19 @@ const LeftPane = () => {
           </div>
         </StyledResizer>
       )}
-      <div>
+      {/* <div>
         <Switch>
           <SentryRoute component={DataLeftPane} path={IDE_DATA_PATH} />
-          {/* <SentryRoute component={PageLeftPane} path={IDE_PAGE_PATH} />
+          <SentryRoute component={PageLeftPane} path={IDE_PAGE_PATH} />
           <SentryRoute component={AddLeftPane} exact path={IDE_ADD_PATH} />
           <SentryRoute component={LibLeftPane} exact path={IDE_LIB_PATH} />
           <SentryRoute
             component={SettingsLeftPane}
             exact
             path={IDE_SETTINGS_PATH}
-          /> */}
+          />
         </Switch>
-      </div>
+      </div> */}
     </Container>
   );
 };
