@@ -662,9 +662,9 @@ export default class DataTreeEvaluator {
 
     const draft = createDraft(this.evalTree);
 
-    updateEvalTreeWithJSCollectionState(draft, this.oldUnEvalTree);
+    updateEvalTreeWithJSCollectionState(draft as any, this.oldUnEvalTree);
 
-    this.setEvalTree(finishDraft(draft));
+    this.setEvalTree(finishDraft(draft) as any);
     const calculateSortOrderStartTime = performance.now();
     const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
       updatedValuePaths,
@@ -1622,7 +1622,7 @@ export default class DataTreeEvaluator {
       // Apply the changes into the evalTree so that it gets the latest changes
       applyChange(draft, undefined, d);
     }
-    this.setEvalTree(finishDraft(draft));
+    this.setEvalTree(finishDraft(draft) as any);
   }
 
   calculateSubTreeSortOrder(
