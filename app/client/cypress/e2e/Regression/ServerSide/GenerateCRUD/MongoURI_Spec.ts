@@ -93,7 +93,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
-    table.ReadTableRowColumnData(8, 8, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(8, 8, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq(
         "Write Your Story with Elegance: The Pen of Choice!",
       );
@@ -112,7 +112,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
     );
 
     agHelper.AssertElementEnabledDisabled(
-      locators._spanButton("Submit") + "/parent::div",
+      locators._buttonByText("Submit") + "/parent::div",
       0,
       false,
     );
@@ -155,7 +155,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
     table.OpenNFilterTable("title", "contains", "USB");
     for (let i = 0; i < 3; i++) {
-      table.ReadTableRowColumnData(i, 5, "v1").then(($cellData) => {
+      table.ReadTableRowColumnData(i, 6, "v1").then(($cellData) => {
         expect($cellData).contains("USB");
       });
     }
@@ -204,7 +204,7 @@ function GenerateCRUDNValidateDeployPage(
   agHelper.AssertContains("Successfully generated a page"); // Commenting this since FindQuery failure appears sometimes
   assertHelper.AssertNetworkStatus("@getActions", 200);
   assertHelper.AssertNetworkStatus("@postExecute", 200);
-  agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+  agHelper.ClickButton("Got it");
   assertHelper.AssertNetworkStatus("@updateLayout", 200);
   appSettings.OpenPaneAndChangeTheme("Pacific");
   deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
@@ -222,7 +222,7 @@ function GenerateCRUDNValidateDeployPage(
   });
 
   //Validating loaded JSON form
-  cy.xpath(locators._spanButton("Update")).then((selector) => {
+  cy.xpath(locators._buttonByText("Update")).then((selector) => {
     cy.wrap(selector)
       .invoke("attr", "class")
       .then((classes) => {

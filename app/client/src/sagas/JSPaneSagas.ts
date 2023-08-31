@@ -648,7 +648,7 @@ function* handleUpdateJSFunctionPropertySaga(
           source: {
             type: ENTITY_TYPE.JSACTION,
             name: collection.name + "." + action.name,
-            id: actionId,
+            id: action.collectionId,
             propertyPath: fieldToBeUpdated,
           },
           state: {
@@ -700,7 +700,7 @@ function* toggleFunctionExecuteOnLoadSaga(
         source: {
           type: ENTITY_TYPE.JSACTION,
           name: collection.name + "." + jsAction?.name,
-          id: actionId,
+          id: collectionId,
           propertyPath: "executeOnLoad",
         },
         state: {

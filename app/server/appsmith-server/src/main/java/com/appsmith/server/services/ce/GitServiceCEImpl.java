@@ -37,9 +37,9 @@ import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -74,6 +74,7 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.stereotype.Service;
 import reactor.core.Exceptions;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
@@ -117,6 +118,7 @@ import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 @Slf4j
 @RequiredArgsConstructor
 @Import({GitExecutorImpl.class})
+@Service
 public class GitServiceCEImpl implements GitServiceCE {
 
     private final UserService userService;
@@ -133,7 +135,6 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final ResponseUtils responseUtils;
     private final EmailConfig emailConfig;
     private final AnalyticsService analyticsService;
-    private final GitCloudServicesUtils gitCloudServicesUtils;
     private final GitDeployKeysRepository gitDeployKeysRepository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
@@ -142,6 +143,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final WorkspaceService workspaceService;
     private final RedisUtils redisUtils;
     private final ObservationRegistry observationRegistry;
+    private final GitPrivateRepoHelper gitPrivateRepoCountHelper;
 
     private static final Duration RETRY_DELAY = Duration.ofSeconds(1);
     private static final Integer MAX_RETRIES = 20;
@@ -449,7 +451,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return applicationService
                                             .save(defaultApplication)
                                             // Check if the private repo count is less than the allowed repo count
-                                            .flatMap(application -> isRepoLimitReached(workspaceId, false))
+                                            .flatMap(application ->
+                                                    gitPrivateRepoCountHelper.isRepoLimitReached(workspaceId, false))
                                             .flatMap(isRepoLimitReached -> {
                                                 if (Boolean.FALSE.equals(isRepoLimitReached)) {
                                                     return Mono.just(defaultApplication);
@@ -734,7 +737,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.just(application);
                     }
                     // Check the limit for number of private repo
-                    return isRepoLimitReached(application.getWorkspaceId(), true)
+                    return gitPrivateRepoCountHelper
+                            .isRepoLimitReached(application.getWorkspaceId(), true)
                             .flatMap(isRepoLimitReached -> {
                                 if (Boolean.FALSE.equals(isRepoLimitReached)) {
                                     return Mono.just(application);
@@ -1740,7 +1744,7 @@ public class GitServiceCEImpl implements GitServiceCE {
            1. Copy resources from DB to local repo
            2. Fetch the current status from local repo
         */
-        Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
+        Mono<User> currUserMono = sessionUserService.getCurrentUser();
         Mono<GitStatusDTO> statusMono = getGitApplicationMetadata(defaultApplicationId)
                 .flatMap(gitApplicationMetadata -> {
                     Mono<Tuple2<Application, ApplicationJson>> applicationJsonTuple = branchedAppMono
@@ -1843,17 +1847,24 @@ public class GitServiceCEImpl implements GitServiceCE {
                         GitStatusDTO gitStatusDTO = objects.getT2().getT1();
                         User currentUser = objects.getT2().getT2();
                         Application app = objects.getT2().getT3();
-                        return sendAnalyticsEvent(elapsedTime, gitStatusDTO, currentUser, app);
+                        String flowName;
+                        if (compareRemote) {
+                            flowName = AnalyticsEvents.GIT_STATUS.getEventName();
+                        } else {
+                            flowName = AnalyticsEvents.GIT_STATUS_WITHOUT_FETCH.getEventName();
+                        }
+                        return sendUnitExecutionTimeAnalyticsEvent(flowName, elapsedTime, currentUser, app)
+                                .thenReturn(gitStatusDTO);
                     })
                     .subscribe(sink::success, sink::error, null, sink.currentContext());
         });
     }
 
-    private Mono<GitStatusDTO> sendAnalyticsEvent(
-            Long elapsedTime, GitStatusDTO gitStatusDTO, User currentUser, Application app) {
+    private Mono<Void> sendUnitExecutionTimeAnalyticsEvent(
+            String flowName, Long elapsedTime, User currentUser, Application app) {
         final Map<String, Object> data = Map.of(
                 FieldName.FLOW_NAME,
-                AnalyticsEvents.GIT_STATUS.getEventName(),
+                flowName,
                 FieldName.APPLICATION_ID,
                 app.getGitApplicationMetadata().getDefaultApplicationId(),
                 "appId",
@@ -1866,9 +1877,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                 app.getGitApplicationMetadata().getRemoteUrl(),
                 "executionTime",
                 elapsedTime);
-        return analyticsService
-                .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), data)
-                .thenReturn(gitStatusDTO);
+        return analyticsService.sendEvent(
+                AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), data);
     }
 
     @Override
@@ -1896,11 +1906,13 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
         final String finalBranchName = branchName.replaceFirst("origin/", "");
 
-        Mono<BranchTrackingStatus> statusMono = getGitApplicationMetadata(defaultApplicationId)
+        Mono<Application> applicationMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(
+                        finalBranchName, defaultApplicationId, applicationPermission.getEditPermission())
+                .cache(); // caching as it'll be also used when sending analytics
+        Mono<User> currUserMono = sessionUserService.getCurrentUser(); // will be used to send analytics event
+        Mono<BranchTrackingStatus> fetchRemoteStatusMono = getGitApplicationMetadata(defaultApplicationId)
                 .flatMap(gitApplicationMetadata -> {
-                    Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(
-                            finalBranchName, defaultApplicationId, applicationPermission.getEditPermission());
-
                     if (Boolean.TRUE.equals(isFileLock)) {
                         // Add file lock to avoid sending wrong info on the status
                         return redisUtils
@@ -1952,10 +1964,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()));
                             });
+                })
+                .elapsed()
+                .zipWith(Mono.zip(currUserMono, applicationMono))
+                .flatMap(objects -> {
+                    Long elapsedTime = objects.getT1().getT1();
+                    BranchTrackingStatus branchTrackingStatus = objects.getT1().getT2();
+                    User currentUser = objects.getT2().getT1();
+                    Application app = objects.getT2().getT2();
+                    return sendUnitExecutionTimeAnalyticsEvent(
+                                    AnalyticsEvents.GIT_FETCH.getEventName(), elapsedTime, currentUser, app)
+                            .thenReturn(branchTrackingStatus);
                 });
 
         return Mono.create(sink -> {
-            statusMono.subscribe(sink::success, sink::error, null, sink.currentContext());
+            fetchRemoteStatusMono.subscribe(sink::success, sink::error, null, sink.currentContext());
         });
     }
 
@@ -2236,7 +2259,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                             .getGitApplicationMetadata()
                                                             .getIsRepoPrivate(),
                                                     false,
-                                                    true))
+                                                    mergeStatusDTO.isMergeAble()))
                                             .then(Mono.just(mergeStatusDTO))))
                             .onErrorResume(error -> {
                                 try {
@@ -2377,19 +2400,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (!isRepoPrivate) {
                         return Mono.just(gitAuth).zipWith(applicationMono);
                     }
-                    return isRepoLimitReached(workspaceId, true).flatMap(isRepoLimitReached -> {
-                        if (Boolean.FALSE.equals(isRepoLimitReached)) {
-                            return Mono.just(gitAuth).zipWith(applicationMono);
-                        }
-                        return addAnalyticsForGitOperation(
-                                        AnalyticsEvents.GIT_IMPORT.getEventName(),
-                                        newApplication,
-                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
-                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
-                                        true)
-                                .flatMap(user ->
-                                        Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
-                    });
+                    return gitPrivateRepoCountHelper
+                            .isRepoLimitReached(workspaceId, true)
+                            .flatMap(isRepoLimitReached -> {
+                                if (Boolean.FALSE.equals(isRepoLimitReached)) {
+                                    return Mono.just(gitAuth).zipWith(applicationMono);
+                                }
+                                return addAnalyticsForGitOperation(
+                                                AnalyticsEvents.GIT_IMPORT.getEventName(),
+                                                newApplication,
+                                                AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
+                                                AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
+                                                true)
+                                        .flatMap(user -> Mono.error(
+                                                new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
+                            });
                 })
                 .flatMap(tuple -> {
                     GitAuth gitAuth = tuple.getT1();
@@ -2919,11 +2944,6 @@ public class GitServiceCEImpl implements GitServiceCE {
         });
     }
 
-    @Override
-    public Mono<Long> getApplicationCountWithPrivateRepo(String workspaceId) {
-        return applicationService.getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(workspaceId);
-    }
-
     /**
      * Method to pull the files from remote repo and rehydrate the application
      *
@@ -3114,30 +3134,5 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     private Mono<Boolean> releaseFileLock(String defaultApplicationId) {
         return redisUtils.releaseFileLock(defaultApplicationId);
-    }
-
-    @Override
-    public Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache) {
-        return gitCloudServicesUtils
-                .getPrivateRepoLimitForOrg(workspaceId, isClearCache)
-                .flatMap(limit -> {
-                    if (limit == -1) {
-                        return Mono.just(Boolean.FALSE);
-                    }
-                    return this.getApplicationCountWithPrivateRepo(workspaceId).map(privateRepoCount -> {
-                        // isClearCache is false for the commit flow
-                        // isClearCache is true for the connect & import flow
-                        if (!isClearCache) {
-                            if (privateRepoCount <= limit) {
-                                return Boolean.FALSE;
-                            }
-                        } else {
-                            if (privateRepoCount < limit) {
-                                return Boolean.FALSE;
-                            }
-                        }
-                        return Boolean.TRUE;
-                    });
-                });
     }
 }

@@ -12,8 +12,7 @@ let datasourceName: any, jsName: any;
 
 describe("JSObjects OnLoad Actions tests", function () {
   before(() => {
-    homePage.NavigateToHome();
-    homePage.CreateNewWorkspace("JSOnLoadTest");
+    homePage.CreateNewWorkspace("JSOnLoadTest", true);
   });
 
   it("1. Tc #58 Verify JSOnPageload with ConfirmBefore calling - while imported", () => {

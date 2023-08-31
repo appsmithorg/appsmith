@@ -38,7 +38,7 @@ describe("Entity bottom bar", () => {
   it("3. Api bottom pane should be collapsable", () => {
     _.entityExplorer.NavigateToSwitcher("Explorer");
     _.apiPage.CreateAndFillApi(
-      _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment].mockApiUrl,
+      _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
     );
     //Verify that the errors tab is still open.
     _.debuggerHelper.AssertSelectedTab("Errors");

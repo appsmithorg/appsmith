@@ -88,7 +88,7 @@ describe("Boolean & Enum Datatype tests", function () {
     agHelper.ToggleSwitch("Areweworking");
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
@@ -106,7 +106,7 @@ describe("Boolean & Enum Datatype tests", function () {
     agHelper.SelectDropDown("Saturday");
     agHelper.ToggleSwitch("Areweworking", "uncheck");
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
@@ -124,7 +124,7 @@ describe("Boolean & Enum Datatype tests", function () {
     agHelper.SelectDropDown("Friday");
     agHelper.ToggleSwitch("Areweworking", "uncheck");
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -143,7 +143,7 @@ describe("Boolean & Enum Datatype tests", function () {
     agHelper.ToggleSwitch("Areweworking", "check");
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Update did not fail
-    agHelper.AssertElementVisibility(locators._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -202,7 +202,7 @@ describe("Boolean & Enum Datatype tests", function () {
 
     //Deleting all records from table
     agHelper.GetNClick(locators._deleteIcon);
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
@@ -213,7 +213,7 @@ describe("Boolean & Enum Datatype tests", function () {
     agHelper.SelectDropDown("Wednesday");
     agHelper.ToggleSwitch("Areweworking", "check");
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });

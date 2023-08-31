@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let repoName: any;
@@ -19,7 +20,7 @@ describe("Git Bugs", function () {
   it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     _.apiPage.CreateAndFillApi(
-      _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment].mockApiUrl,
+      _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
       "GitSyncTest",
     );
     _.gitSync.OpenGitSyncModal();
@@ -142,7 +143,60 @@ describe("Git Bugs", function () {
     _.gitSync.SwitchGitBranch("origin/test-24486", false, true);
   });
 
-  it("7. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
+  it("7. Bug 26038 - 1 : Simultaneous git status and remote compare api calls", function () {
+    featureFlagIntercept({
+      release_git_status_lite_enabled: true,
+    });
+
+    cy.wait(1000);
+
+    cy.intercept({
+      method: "GET",
+      url: "/api/v1/git/status/app/**",
+      query: { compareRemote: "false" },
+    }).as("gitStatusApi");
+
+    cy.intercept({
+      method: "GET",
+      url: "/api/v1/git/fetch/remote/app/**",
+    }).as("gitRemoteStatusApi");
+
+    _.agHelper.GetNClick(_.locators._publishButton);
+
+    cy.wait("@gitStatusApi").then((res1) => {
+      expect(res1.response).to.have.property("statusCode", 200);
+      cy.wait("@gitRemoteStatusApi").then((res2) => {
+        expect(res2.response).to.have.property("statusCode", 200);
+
+        _.agHelper.GetNClick(_.locators._dialogCloseButton);
+      });
+    });
+  });
+
+  it("8. Bug 26038 - 2 : Simultaneous git status and remote compare api calls", function () {
+    featureFlagIntercept({
+      release_git_status_lite_enabled: false,
+    });
+
+    _.gitSync.SwitchGitBranch("master");
+
+    cy.wait(1000);
+
+    cy.intercept({
+      method: "GET",
+      url: "/api/v1/git/status/app/**",
+      query: { compareRemote: "true" },
+    }).as("gitStatusApi");
+
+    _.agHelper.GetNClick(_.locators._publishButton);
+
+    cy.wait("@gitStatusApi").then((res1) => {
+      expect(res1.response).to.have.property("statusCode", 200);
+      _.agHelper.GetNClick(_.locators._dialogCloseButton);
+    });
+  });
+
+  it("9. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
     // add navigation settings changes
     _.agHelper.GetNClick(_.appSettings.locators._appSettings);
     _.agHelper.GetNClick(_.appSettings.locators._navigationSettingsTab);
@@ -155,7 +209,7 @@ describe("Git Bugs", function () {
     _.gitSync.VerifyChangeLog(false);
   });
 
-  it("8. Bug 23858 : Branch list in git sync modal is not scrollable", function () {
+  it("10. Bug 23858 : Branch list in git sync modal is not scrollable", function () {
     // create git branches
     _.gitSync.CreateGitBranch(tempBranch1, true);
     _.gitSync.CreateGitBranch(tempBranch2, true);
@@ -173,7 +227,8 @@ describe("Git Bugs", function () {
     _.agHelper.GetNClick(_.gitSync._dropdownmenu, 5);
     _.gitSync.CloseGitSyncModal();
   });
-  it("9. Bug 24206 : Open repository button is not functional in git sync modal", function () {
+
+  it("10. Bug 24206 : Open repository button is not functional in git sync modal", function () {
     _.gitSync.SwitchGitBranch("master");
     _.appSettings.OpenPaneAndChangeTheme("Moon");
     _.gitSync.CommitAndPush();

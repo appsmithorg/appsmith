@@ -10,12 +10,12 @@ import {
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe.skip("Binary Datatype tests", function () {
+describe("Binary Datatype tests", function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Create DS, Importing App & setting theme", () => {
     agHelper.AddDsl("Datatypes/BinaryDTdsl");
-    appSettings.OpenPaneAndChangeThemeColors(24, -37);
+    appSettings.OpenPaneAndChangeThemeColors(7, -9);
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -89,7 +89,7 @@ describe.skip("Binary Datatype tests", function () {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 10000); //for the update row to appear at last
     table.WaitUntilTableLoad();
     agHelper.Sleep(3000); //some more time for all rows with images to be populated
@@ -117,7 +117,7 @@ describe.skip("Binary Datatype tests", function () {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
     agHelper.Sleep(2000); //some more time for all rows with images to be populated
@@ -145,7 +145,7 @@ describe.skip("Binary Datatype tests", function () {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
     agHelper.Sleep(2000); //some more time for all rows with images to be populated
@@ -174,7 +174,7 @@ describe.skip("Binary Datatype tests", function () {
 
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Update did not fail
-    agHelper.AssertElementVisibility(locators._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
     agHelper.Sleep(10000); //some more time for rows to rearrange!
@@ -210,7 +210,7 @@ describe.skip("Binary Datatype tests", function () {
 
     //Deleting all records from .table
     agHelper.GetNClick(locators._deleteIcon);
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
@@ -227,7 +227,7 @@ describe.skip("Binary Datatype tests", function () {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.WaitUntilTableLoad();
     agHelper.Sleep(2000); //for all rows with images to be populated
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
@@ -378,6 +378,7 @@ describe.skip("Binary Datatype tests", function () {
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
 
+  //Since query delete & Postgress DS delete is covered in other specs, commenting below code
   // after(
   //   "Validate Drop of the Newly Created - binarytype - Table & Verify Deletion of all created queries",
   //   () => {

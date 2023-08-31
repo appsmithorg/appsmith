@@ -14,6 +14,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
@@ -60,6 +61,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -268,6 +270,21 @@ public class PostgresPlugin extends BasePlugin {
                     explicitCastDataTypes);
         }
 
+        @Override
+        public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate) {
+            ActionConfiguration actionConfig = new ActionConfiguration();
+            // Sets query body
+            actionConfig.setBody(queryTemplate.getBody());
+
+            // Sets prepared statement to false
+            Property preparedStatement = new Property();
+            preparedStatement.setValue(false);
+            List<Property> pluginSpecifiedTemplates = new ArrayList<Property>();
+            pluginSpecifiedTemplates.add(preparedStatement);
+            actionConfig.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            return actionConfig;
+        }
+
         private Mono<ActionExecutionResult> executeCommon(
                 HikariDataSource connection,
                 DatasourceConfiguration datasourceConfiguration,
@@ -285,6 +302,7 @@ public class PostgresPlugin extends BasePlugin {
             String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
             List<RequestParamDTO> requestParams =
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, transformedQuery, null, null, psParams));
+            Instant requestedAt = Instant.now();
 
             return Mono.fromCallable(() -> {
                         Connection connectionFromPool;
@@ -544,6 +562,9 @@ public class PostgresPlugin extends BasePlugin {
                         request.setQuery(query);
                         request.setProperties(requestData);
                         request.setRequestParams(requestParams);
+                        if (request.getRequestedAt() == null) {
+                            request.setRequestedAt(requestedAt);
+                        }
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
@@ -835,26 +856,29 @@ public class PostgresPlugin extends BasePlugin {
 
                                 final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
                                 table.getTemplates()
-                                        .addAll(
-                                                List.of(
-                                                        new DatasourceStructure.Template(
-                                                                "SELECT",
-                                                                "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
-                                                        new DatasourceStructure.Template(
-                                                                "INSERT",
-                                                                "INSERT INTO " + quotedTableName
-                                                                        + " (" + String.join(", ", columnNames) + ")\n"
-                                                                        + "  VALUES (" + String.join(", ", columnValues)
-                                                                        + ");"),
-                                                        new DatasourceStructure.Template(
-                                                                "UPDATE",
-                                                                "UPDATE " + quotedTableName + " SET"
-                                                                        + setFragments.toString() + "\n"
-                                                                        + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                                                        new DatasourceStructure.Template(
-                                                                "DELETE",
-                                                                "DELETE FROM " + quotedTableName
-                                                                        + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")));
+                                        .addAll(List.of(
+                                                new DatasourceStructure.Template(
+                                                        "SELECT",
+                                                        "SELECT * FROM " + quotedTableName + " LIMIT 10;",
+                                                        true),
+                                                new DatasourceStructure.Template(
+                                                        "INSERT",
+                                                        "INSERT INTO " + quotedTableName
+                                                                + " (" + String.join(", ", columnNames) + ")\n"
+                                                                + "  VALUES (" + String.join(", ", columnValues)
+                                                                + ");",
+                                                        false),
+                                                new DatasourceStructure.Template(
+                                                        "UPDATE",
+                                                        "UPDATE " + quotedTableName + " SET"
+                                                                + setFragments.toString() + "\n"
+                                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                                        false),
+                                                new DatasourceStructure.Template(
+                                                        "DELETE",
+                                                        "DELETE FROM " + quotedTableName
+                                                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                                        false)));
                             }
 
                         } catch (SQLException throwable) {

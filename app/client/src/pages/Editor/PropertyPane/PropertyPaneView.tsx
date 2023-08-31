@@ -3,7 +3,7 @@ import { useContext } from "react";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
-import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import type { IPanelProps } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "./PropertyPaneTitle";
@@ -16,13 +16,12 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
 import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
-import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { Button, Callout } from "design-system";
 import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
-import { useSearchText } from "./helpers";
+import { useSearchText, renderWidgetCallouts } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
@@ -63,11 +62,9 @@ function PropertyPaneView(
   } & IPanelProps,
 ) {
   const dispatch = useDispatch();
-  const { ...panel } = props;
-  const widgetProperties = useSelector(
-    getWidgetPropsForPropertyPaneView,
-    equal,
-  );
+
+  const panel = props;
+  const widgetProperties = useSelector(getWidgetPropsForPropertyPane, equal);
 
   const doActionsExist = useSelector(actionsExist);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -77,7 +74,7 @@ function PropertyPaneView(
     }
 
     return true;
-  }, [widgetProperties?.type, excludeList]);
+  }, [widgetProperties]);
   const { searchText, setSearchText } = useSearchText("");
   const { pushFeature } = useContext(WalkthroughContext) || {};
   const widgets = useSelector(getWidgets);
@@ -95,7 +92,7 @@ function PropertyPaneView(
 
     if (widgetId && pushFeature && isTableWidget) {
       pushFeature({
-        targetId: PROPERTY_PANE_ID,
+        targetId: `#${PROPERTY_PANE_ID}`,
         onDismiss: async () => {
           await localStorage.removeItem(WIDGET_ID_SHOW_WALKTHROUGH);
           await setFeatureWalkthroughShown(
@@ -120,7 +117,7 @@ function PropertyPaneView(
             FEATURE_WALKTHROUGH_KEYS.binding_widget,
           [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: true,
         },
-        multipleHighlights: [widgetId, PROPERTY_PANE_ID],
+        multipleHighlights: [`#${widgetId}`, `#${PROPERTY_PANE_ID}`],
         delay: 5000,
       });
     }
@@ -155,9 +152,9 @@ function PropertyPaneView(
    */
   useEffect(() => {
     sendPropertyPaneSearchAnalytics({
-      widgetType: widgetProperties?.type,
+      widgetType: widgetProperties?.type ?? "",
       searchText,
-      widgetName: widgetProperties.widgetName,
+      widgetName: widgetProperties?.widgetName ?? "",
       searchPath: "",
     });
   }, [searchText]);
@@ -173,19 +170,6 @@ function PropertyPaneView(
    * on  copy button click
    */
   const onCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
-
-  const handleTabKeyDownForButton = useCallback(
-    (propertyName: string) => (e: React.KeyboardEvent) => {
-      if (e.key === "Tab")
-        emitInteractionAnalyticsEvent(containerRef?.current, {
-          key: e.key,
-          propertyName,
-          propertyType: "BUTTON",
-          widgetType: widgetProperties?.type,
-        });
-    },
-    [],
-  );
 
   /**
    * actions shown on the right of title
@@ -220,7 +204,7 @@ function PropertyPaneView(
         ),
       },
     ];
-  }, [onCopy, onDelete, handleTabKeyDownForButton]);
+  }, [onCopy, onDelete]);
 
   useEffect(() => {
     setSearchText("");
@@ -275,6 +259,7 @@ function PropertyPaneView(
             {deprecationMessage}
           </Callout>
         )}
+        {renderWidgetCallouts(widgetProperties)}
       </div>
 
       <div

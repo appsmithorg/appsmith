@@ -6,7 +6,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
@@ -301,13 +300,14 @@ public class ApplicationServiceCETest {
             Datasource datasource = new Datasource();
             datasource.setName("Clone App with action Test");
             datasource.setPluginId(testPlugin.getId());
+            datasource.setWorkspaceId(workspaceId);
             DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
             datasourceConfiguration.setUrl("http://test.com");
-            datasource.setDatasourceConfiguration(datasourceConfiguration);
-            datasource.setWorkspaceId(workspaceId);
-            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+            storages.put(
+                    defaultEnvironmentId,
+                    new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
             datasource.setDatasourceStorages(storages);
             testDatasource = datasourceService.create(datasource).block();
         }
@@ -1347,15 +1347,13 @@ public class ApplicationServiceCETest {
         Datasource datasource = new Datasource();
         datasource.setName("Public App Test");
         datasource.setPluginId(plugin.getId());
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
 
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
@@ -1482,11 +1480,11 @@ public class ApplicationServiceCETest {
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
-
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
@@ -3215,15 +3213,13 @@ public class ApplicationServiceCETest {
         Datasource datasource = new Datasource();
         datasource.setName("Cloned App Test");
         datasource.setPluginId(plugin.getId());
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
 
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
@@ -3450,15 +3446,13 @@ public class ApplicationServiceCETest {
         Datasource datasource = new Datasource();
         datasource.setName("Public View App Test");
         datasource.setPluginId(plugin.getId());
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
 
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();

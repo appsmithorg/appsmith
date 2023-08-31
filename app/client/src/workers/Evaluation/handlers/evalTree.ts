@@ -23,6 +23,7 @@ import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import { setEvalContext } from "../evaluate";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 import { errorModifier } from "../errorModifier";
+import { generateOptimisedUpdatesAndSetPrevState } from "../helpers";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
@@ -82,6 +83,8 @@ export default function (request: EvalWorkerSyncRequest) {
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
+        identicalEvalPathsPatches:
+          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
@@ -122,6 +125,8 @@ export default function (request: EvalWorkerSyncRequest) {
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
+        identicalEvalPathsPatches:
+          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else {
@@ -167,6 +172,8 @@ export default function (request: EvalWorkerSyncRequest) {
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
+        identicalEvalPathsPatches:
+          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
 
       evalMetaUpdates = JSON.parse(
@@ -201,6 +208,8 @@ export default function (request: EvalWorkerSyncRequest) {
       makeEntityConfigsAsObjProperties(unevalTree, {
         sanitizeDataTree: false,
         evalProps: dataTreeEvaluator?.evalProps,
+        identicalEvalPathsPatches:
+          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       }),
       widgetTypeConfigMap,
       configTree,
@@ -210,8 +219,13 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const jsVarsCreatedEvent = getJSVariableCreatedEvents(jsUpdates);
 
-  const evalTreeResponse: EvalTreeResponseData = {
+  const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
+    dataTreeEvaluator,
+  );
+
+  const evalTreeResponse: EvalTreeResponseData = {
+    updates,
     dependencies,
     errors,
     evalMetaUpdates,
