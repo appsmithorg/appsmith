@@ -93,6 +93,7 @@ export function DataSourceContextMenu(props: {
       className={props.className}
       optionTree={treeOptions as TreeDropdownOption[]}
       setConfirmDelete={setConfirmDelete}
+      triggerId={"add-datasource"}
     />
   ) : null;
 }

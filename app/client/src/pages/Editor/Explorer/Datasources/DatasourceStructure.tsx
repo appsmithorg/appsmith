@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { datasourceTableIcon } from "../ExplorerIcons";
 import QueryTemplates from "./QueryTemplates";
@@ -34,6 +34,8 @@ type DatasourceStructureItemProps = {
   isDefaultOpen?: boolean;
   forceExpand?: boolean;
   currentActionId: string;
+  onEntityTableClick?: (table: string) => void;
+  tableName?: string;
 };
 
 const StyledMenuContent = styled(MenuContent)`
@@ -74,13 +76,17 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
     setActive(false);
   };
 
-  const onEntityClick = () => {
+  const onEntityClick = (entity: any) => {
     AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_TABLE_SELECT", {
       datasourceId: props.datasourceId,
       pluginName: plugin?.name,
     });
 
     canCreateDatasourceActions && setActive(!active);
+
+    if (!!props?.onEntityTableClick) {
+      props?.onEntityTableClick(entity.target.outerText);
+    }
   };
 
   const lightningMenu =
@@ -123,13 +129,22 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
       </Menu>
     ) : null;
 
-  if (dbStructure.templates) templateMenu = lightningMenu;
+  if (dbStructure.templates && !props?.onEntityTableClick)
+    templateMenu = lightningMenu;
   const columnsAndKeys = dbStructure.columns.concat(dbStructure.keys);
+
+  const activeState = useMemo(() => {
+    if (props.context === DatasourceStructureContext.DATASOURCE_VIEW_MODE) {
+      return props.tableName === dbStructure.name;
+    } else {
+      return active;
+    }
+  }, [active, props.tableName]);
 
   return (
     <Entity
       action={onEntityClick}
-      active={active}
+      active={activeState}
       className={`datasourceStructure${
         props.context !== DatasourceStructureContext.EXPLORER &&
         `-${props.context}`

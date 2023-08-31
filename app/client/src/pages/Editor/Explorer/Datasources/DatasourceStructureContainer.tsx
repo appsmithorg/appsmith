@@ -6,8 +6,7 @@ import {
 } from "@appsmith/constants/messages";
 import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
 import type { ReactElement } from "react";
-import { useContext } from "react";
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useState, useContext, useMemo } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import DatasourceStructure, {
   DatasourceStructureContext,
@@ -33,6 +32,9 @@ type Props = {
   context: DatasourceStructureContext;
   pluginName?: string;
   currentActionId?: string;
+  onEntityTableClick?: (table: string) => void;
+  tableName?: string;
+  customEditDatasourceFn?: () => void;
 };
 
 // leaving out DynamoDB and Firestore because they have a schema but not templates
@@ -79,10 +81,7 @@ const Container = (props: Props) => {
 
   const closeWalkthrough = () => {
     popFeature && popFeature("DATASOURCE_SCHEMA_CONTAINER");
-    setFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
-      true,
-    );
+    setFeatureWalkthroughShown(FEATURE_WALKTHROUGH_KEYS.ds_schema, true);
   };
 
   useEffect(() => {
@@ -211,6 +210,8 @@ const Container = (props: Props) => {
       if (props.context !== DatasourceStructureContext.EXPLORER) {
         view = (
           <DatasourceStructureNotFound
+            context={props.context}
+            customEditDatasourceFn={props?.customEditDatasourceFn}
             datasourceId={props.datasourceId}
             error={
               !!props.datasourceStructure &&
