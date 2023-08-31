@@ -481,21 +481,24 @@ public class RedshiftPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Template[] {
                                 new DatasourceStructure.Template(
-                                        "SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;"),
+                                        "SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;", true),
                                 new DatasourceStructure.Template(
                                         "INSERT",
                                         "INSERT INTO public.\"possessions\" "
-                                                + "(\"id\", \"title\", \"user_id\")\n  VALUES (1, '', 1);"),
+                                                + "(\"id\", \"title\", \"user_id\")\n  VALUES (1, '', 1);",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "UPDATE",
                                         "UPDATE public.\"possessions\" SET\n" + "    \"id\" = 1\n"
                                                 + "    \"title\" = ''\n"
                                                 + "    \"user_id\" = 1\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM public.\"possessions\"\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
                             },
                             possessionsTable.getTemplates().toArray());
 
@@ -521,20 +524,24 @@ public class RedshiftPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[] {
-                                new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;"),
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"users\" LIMIT 10;", true),
                                 new DatasourceStructure.Template(
                                         "INSERT",
                                         "INSERT INTO public.\"users\" (\"username\", \"password\")\n"
-                                                + "  VALUES ('', '');"),
+                                                + "  VALUES ('', '');",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "UPDATE",
                                         "UPDATE public.\"users\" SET\n" + "    \"username\" = ''\n"
                                                 + "    \"password\" = ''\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM public.\"users\"\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
                             },
                             usersTable.getTemplates().toArray());
                 })

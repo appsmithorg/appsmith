@@ -79,6 +79,9 @@ export const WIDGETSKIT = {
     "//a[@data-testid='t--image-download']//parent::div/a[2]",
   styleResetBtn: ".reset-button",
   styleOrangeIcon: ".rounded-full",
+  dividerVertical: "[data-testid=dividerVertical]",
+  dividerHorizontal: "[data-testid=dividerHorizontal]",
+  
 };
 type ValueOf<T> = T[keyof T];
 
