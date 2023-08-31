@@ -14,7 +14,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupWidthInPercentage } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -690,7 +690,8 @@ class MultiSelectWidget extends BaseWidget<
 
   getPageView() {
     const options = isArray(this.props.options) ? this.props.options : [];
-    const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const minDropDownWidth =
+      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const values = this.mergeLabelAndValue();
     const isInvalid =

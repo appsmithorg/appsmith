@@ -9,7 +9,7 @@ import { get } from "lodash";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupWidthInPercentage } from "widgets/constants";
 import ButtonGroupComponent from "../component";
 import { getStylesheetValue } from "./helpers";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
@@ -594,7 +594,8 @@ class ButtonGroupWidget extends BaseWidget<
 
   getPageView() {
     const { componentWidth } = this.getComponentDimensions();
-    const minPopoverWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const minPopoverWidth =
+      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
 
     return (
       <ButtonGroupComponent

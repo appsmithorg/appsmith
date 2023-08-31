@@ -15,7 +15,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupWidthInPercentage } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -548,7 +548,8 @@ class SingleSelectTreeWidget extends BaseWidget<
     const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const dropDownWidth =
+      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <SingleSelectTreeComponent

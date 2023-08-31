@@ -16,7 +16,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupWidthInPercentage } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -583,7 +583,8 @@ class MultiSelectTreeWidget extends BaseWidget<
 
   getPageView() {
     const options = isArray(this.props.options) ? this.props.options : [];
-    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const dropDownWidth =
+      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;

@@ -10,7 +10,7 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupWidthInPercentage } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import type { Stylesheet } from "entities/AppTheming";
@@ -425,7 +425,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const options = _.isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const dropDownWidth =
+      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
 
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,

@@ -14,7 +14,7 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DraftValueType } from "rc-select/lib/Select";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupWidthInPercentage } from "widgets/constants";
 import MultiSelectComponent from "../component";
 import {
   DefaultAutocompleteDefinitions,
@@ -479,7 +479,8 @@ class MultiSelectWidget extends BaseWidget<
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
-    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const dropDownWidth =
+      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     return (

@@ -10,7 +10,7 @@ import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupWidthInPercentage } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -666,7 +666,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const dropDownWidth =
+      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
 
     const selectedIndex = findIndex(this.props.options, {
       value: this.props.selectedOptionValue,

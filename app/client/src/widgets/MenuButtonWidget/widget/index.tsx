@@ -5,7 +5,7 @@ import { isArray, orderBy } from "lodash";
 import { default as React } from "react";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupWidthInPercentage } from "widgets/constants";
 import MenuButtonComponent from "../component";
 import type { MenuButtonWidgetProps, MenuItem } from "../constants";
 import { MenuItemsSource } from "../constants";
@@ -131,7 +131,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
 
   getPageView() {
     const { componentWidth } = this.getComponentDimensions();
-    const menuDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const menuDropDownWidth =
+      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
 
     return (
       <MenuButtonComponent
