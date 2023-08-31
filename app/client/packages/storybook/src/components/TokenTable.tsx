@@ -1,6 +1,8 @@
 import * as React from "react";
 import styled from "styled-components";
 import { CopyLink } from "./CopyLink";
+import isArray from "lodash/isArray";
+import isString from "lodash/isString";
 
 import type { Token } from "@design-system/theming";
 import type { ReactNode } from "react";
@@ -24,16 +26,10 @@ export const StyledTable = styled.table`
   td {
     text-align: left;
     padding: var(--spacing-2);
-    color: var(--color-fg) !important;
-    //border-color: var(--color-bd-neutral) !important;
   }
 
   td {
     padding-bottom: 0;
-  }
-
-  tr {
-    background-color: var(--color-bg) !important;
   }
 
   thead tr {
@@ -44,36 +40,53 @@ export const StyledTable = styled.table`
 interface TokenTableProps {
   prefix: string;
   children: (cssVar: string) => ReactNode;
-  filter?: string;
+  filter?: string | string[];
   tokens?: { [key: string]: Token };
+  isExactMatch: boolean;
 }
 
 export const TokenTable = ({
   children,
   filter,
+  isExactMatch,
   prefix,
   tokens,
-}: TokenTableProps) => (
-  <StyledTable>
-    <thead>
-      <tr>
-        <th>Preview</th>
-        <th>CSS</th>
-        <th>Value</th>
-      </tr>
-    </thead>
-    <tbody>
-      {Object.keys(tokens ?? {})
-        .filter((key) => (filter ? key.includes(filter) : true))
-        .map((key) => (
-          <tr key={key}>
-            <td>{children(`var(--${prefix}-${key})`)}</td>
-            <td>
-              <CopyLink value={`var(--${prefix}-${key})`} />
-            </td>
-            <td>{tokens?.[key]?.value}</td>
-          </tr>
-        ))}
-    </tbody>
-  </StyledTable>
-);
+}: TokenTableProps) => {
+  const renderRows = (filter: string) => {
+    return Object.keys(tokens ?? {})
+      .filter((key) => {
+        if (!filter) return true;
+
+        if (isExactMatch) {
+          return key === filter;
+        }
+
+        return key.includes(filter);
+      })
+      .map((key) => (
+        <tr key={key}>
+          <td>{children(`var(--${prefix}-${key})`)}</td>
+          <td>
+            <CopyLink value={`var(--${prefix}-${key})`} />
+          </td>
+          <td>{tokens?.[key]?.value}</td>
+        </tr>
+      ));
+  };
+
+  return (
+    <StyledTable>
+      <thead>
+        <tr>
+          <th>Preview</th>
+          <th>CSS</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {isArray(filter) && filter.map((key) => renderRows(key))}
+        {isString(filter) && renderRows(filter)}
+      </tbody>
+    </StyledTable>
+  );
+};

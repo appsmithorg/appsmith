@@ -85,6 +85,7 @@ export class DarkModeTheme implements ColorModeTheme {
       fgOnNegative: this.fgOnNegative.to("sRGB").toString(),
       fgOnWarning: this.fgOnWarning.to("sRGB").toString(),
 
+      bd: this.bd.toString(),
       bdAccent: this.bdAccent.toString(),
       bdFocus: this.bdFocus.toString(),
       bdNeutral: this.bdNeutral.toString(),
@@ -792,6 +793,14 @@ export class DarkModeTheme implements ColorModeTheme {
   /*
    * Border colors
    */
+
+  private get bd() {
+    const color = this.fg.clone();
+
+    color.oklch.l = 0.4;
+
+    return color;
+  }
 
   private get bdAccent() {
     const color = this.seedColor.clone();
