@@ -1,0 +1,7 @@
+{
+  "flakyTests": [
+    "cypress/e2e/Regression/ClientSide/Binding/ChartText_spec.js",
+    "cypress/e2e/Regression/ClientSide/Binding/API_with_List_Widget_spec.js",
+    "cypress/e2e/Regression/ClientSide/Widgets/CodeScanner/CodeScanner2_spec.ts"
+  ]
+}
