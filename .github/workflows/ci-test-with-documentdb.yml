@@ -178,7 +178,7 @@ jobs:
           DB_NAME="${hash}-${current_date}-${random}"
           MONGO_CREDS=$(echo $APPSMITH_MONGODB_URI | sed 's/@.*//')
           URI="${MONGO_CREDS}@localhost:27010/${DB_NAME}?retryWrites=false&replicaSet=rs0&directConnection=true" 
-          mongorestore --uri="${URI}" --archive=data.gz --gzip --drop --nsInclude=*
+          mongorestore --uri="${URI}" --archive=data.gz --gzip --drop --nsInclude 'doc-db-base.*'
           sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos
