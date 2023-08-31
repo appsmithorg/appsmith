@@ -75,7 +75,7 @@ export function createBrandColorsFromPrimaryColor(
       ? getComputedStyle(document.documentElement).getPropertyValue(
           "--ads-v2-color-bg-brand-emphasis-plus",
         )
-      : lightTheme.bgAccentActive;
+      : lightTheme.bgAccentActive.toString({ format: "hex" });
   return {
     primary: brand,
     background: bgColor,
