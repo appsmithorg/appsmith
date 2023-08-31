@@ -1,25 +1,58 @@
 import { createSelector } from "reselect";
+import { groupBy } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import type {
   ApplicationsReduxState,
   creatingApplicationMap,
 } from "@appsmith/reducers/uiReducers/applicationsReducer";
-import type {
-  ApplicationPayload,
-  WorkspaceDetails,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import Fuse from "fuse.js";
 import type { Workspaces } from "@appsmith/constants/workspaceConstants";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
+import { getPackagesList } from "@appsmith/selectors/packageSelectors";
+import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
 
 const fuzzySearchOptions = {
-  keys: ["applications.name", "workspace.name"],
+  keys: ["applications.name", "workspace.name", "packages.name"],
   shouldSort: true,
   threshold: 0.5,
   location: 0,
   distance: 100,
+};
+
+/**
+ * Helps injecting packages array into the Workspaces Array.
+ * workspacesList
+ *  {
+ *    workspace: {},
+ *    applications: [],
+ *    users:[]
+ *  }
+ *
+ *  @returns
+ *  {
+ *    workspace: {},
+ *    applications: [],
+ *    users:[],
+ *    packages: []
+ *  }
+ */
+const injectPackagesToWorkspacesList = (
+  workspacesList: Workspaces[] = [],
+  packages: PackageMetadata[] = [],
+) => {
+  const packagesGroupByWorkspaceId = groupBy(packages, (p) => p.workspaceId);
+
+  return workspacesList.map((workspacesObj) => {
+    const { workspace } = workspacesObj;
+
+    return {
+      ...workspacesObj,
+      packages: packagesGroupByWorkspaceId[workspace.id] || [],
+    };
+  });
 };
 
 export const getApplicationsState = (state: AppState) => state.ui.applications;
@@ -82,37 +115,47 @@ export const getApplicationList = createSelector(
 export const getUserApplicationsWorkspacesList = createSelector(
   getUserApplicationsWorkspaces,
   getApplicationSearchKeyword,
+  getPackagesList,
   (
     applicationsWorkspaces?: Workspaces[],
     keyword?: string,
-  ): WorkspaceDetails[] => {
+    packages?: PackageMetadata[],
+  ) => {
+    const workspacesList = injectPackagesToWorkspacesList(
+      applicationsWorkspaces,
+      packages,
+    );
+
     if (
-      applicationsWorkspaces &&
-      applicationsWorkspaces.length > 0 &&
+      workspacesList &&
+      workspacesList.length > 0 &&
       keyword &&
       keyword.trim().length > 0
     ) {
-      const fuzzy = new Fuse(applicationsWorkspaces, fuzzySearchOptions);
-      let workspaceList = fuzzy.search(keyword) as WorkspaceDetails[];
-      workspaceList = workspaceList.map((workspace) => {
-        const applicationFuzzy = new Fuse(workspace.applications, {
+      const fuzzy = new Fuse(workspacesList, fuzzySearchOptions);
+      const workspaceList = fuzzy.search(keyword);
+
+      return workspaceList.map((workspace) => {
+        const appFuzzy = new Fuse(workspace.applications, {
           ...fuzzySearchOptions,
           keys: ["name"],
         });
-        const applications = applicationFuzzy.search(keyword) as any[];
+        const packageFuzzy = new Fuse(workspace.packages, {
+          ...fuzzySearchOptions,
+          keys: ["name"],
+        });
 
         return {
           ...workspace,
-          applications,
+          applications: appFuzzy.search(keyword),
+          packages: packageFuzzy.search(keyword),
         };
       });
-
-      return workspaceList;
     } else if (
-      applicationsWorkspaces &&
+      workspacesList &&
       (keyword === undefined || keyword.trim().length === 0)
     ) {
-      return applicationsWorkspaces;
+      return workspacesList;
     }
     return [];
   },
@@ -135,6 +178,13 @@ export const getIsCreatingApplication = createSelector(
   (applications: ApplicationsReduxState): creatingApplicationMap =>
     applications.creatingApplication,
 );
+
+export const getIsCreatingApplicationByWorkspaceId = (workspaceId: string) =>
+  createSelector(
+    getApplicationsState,
+    (applications: ApplicationsReduxState) =>
+      applications.creatingApplication[workspaceId],
+  );
 
 export const getCreateApplicationError = createSelector(
   getApplicationsState,

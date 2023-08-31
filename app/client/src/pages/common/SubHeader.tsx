@@ -24,6 +24,7 @@ import {
   DELETING_MULTIPLE_APPLICATION_MODAL_TITLE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { CONTAINER_WRAPPER_PADDING } from "@appsmith/pages/Applications";
 
 const SubHeaderWrapper = styled.div<{
   isMobile?: boolean;
@@ -38,12 +39,10 @@ const SubHeaderWrapper = styled.div<{
   ${({ isMobile }) =>
     isMobile
       ? "padding: 12px 16px; margin: 0px;"
-      : "padding: var(--ads-v2-spaces-7) 0; position: sticky; top: 0; align-items: center;"}
+      : `padding: ${CONTAINER_WRAPPER_PADDING} ${CONTAINER_WRAPPER_PADDING} 12px ${CONTAINER_WRAPPER_PADDING} ; position: sticky; top: 0; align-items: center;`}
 `;
-const SearchContainer = styled.div<{
-  isMobile?: boolean;
-}>`
-  width: ${({ isMobile }) => (isMobile ? `100%` : `250px`)};
+const SearchContainer = styled.div<{ isMobile?: boolean }>`
+  width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};
 `;
 
 const MultipleDeleteWrapper = styled.div`
@@ -102,6 +101,9 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
     }
   };
 
+  const isEnabledMultipleSelection =
+    !!deleteMultipleApplicationObject.list?.length;
+
   return (
     <SubHeaderWrapper
       isBannerVisible={props.isBannerVisible}
@@ -118,8 +120,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
           />
         )}
       </SearchContainer>
-
-      {!!deleteMultipleApplicationObject.list?.length && (
+      {isEnabledMultipleSelection && (
         <MultipleDeleteWrapper>
           <Button
             isLoading={deleteMultipleApplicationObject.isDeleting}
@@ -164,7 +165,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
         </MultipleDeleteWrapper>
       )}
 
-      {props.add && (
+      {props.add && !isEnabledMultipleSelection && (
         <>
           <Button size="md">{props.add.title}</Button>
           <Modal
