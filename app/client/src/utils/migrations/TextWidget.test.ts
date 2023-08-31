@@ -29,6 +29,7 @@ const inputDsl1: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
@@ -49,6 +50,7 @@ const inputDsl1: DSLWidget = {
       widgetId: "yf8bhokz7d",
       dynamicBindingPathList: [],
       renderMode: "CANVAS",
+      mainCanvasWidth: 900,
     },
   ],
 };
@@ -76,6 +78,7 @@ const inputDsl2: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
@@ -96,6 +99,7 @@ const inputDsl2: DSLWidget = {
       widgetId: "yf8bhokz7d",
       dynamicBindingPathList: [],
       renderMode: "CANVAS",
+      mainCanvasWidth: 900,
     },
   ],
 };
@@ -123,6 +127,7 @@ const inputDsl3: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
@@ -143,6 +148,7 @@ const inputDsl3: DSLWidget = {
       widgetId: "yf8bhokz7d",
       dynamicBindingPathList: [],
       renderMode: "CANVAS",
+      mainCanvasWidth: 900,
     },
   ],
 };
@@ -170,6 +176,7 @@ const outputDsl1: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
@@ -191,6 +198,7 @@ const outputDsl1: DSLWidget = {
       fontSize: TextSizes.PARAGRAPH,
       fontStyle: FontStyleTypes.BOLD,
       renderMode: "CANVAS",
+      mainCanvasWidth: 900,
     },
   ],
 };
@@ -218,6 +226,7 @@ const outputDsl2: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
@@ -239,6 +248,7 @@ const outputDsl2: DSLWidget = {
       fontSize: TextSizes.HEADING1,
       fontStyle: FontStyleTypes.BOLD,
       renderMode: "CANVAS",
+      mainCanvasWidth: 900,
     },
   ],
 };
@@ -266,6 +276,7 @@ const outputDsl3: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
@@ -286,6 +297,7 @@ const outputDsl3: DSLWidget = {
       dynamicBindingPathList: [],
       fontSize: TextSizes.PARAGRAPH,
       renderMode: "CANVAS",
+      mainCanvasWidth: 900,
     },
   ],
 };
@@ -328,6 +340,7 @@ const inputDsl4: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
@@ -351,6 +364,7 @@ const inputDsl4: DSLWidget = {
       renderMode: "CANVAS",
       shouldScroll: true,
       shouldTruncate: false,
+      mainCanvasWidth: 900,
     },
   ],
 };
@@ -378,6 +392,7 @@ const outputDsl4: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
@@ -400,6 +415,7 @@ const outputDsl4: DSLWidget = {
       fontStyle: FontStyleTypes.BOLD,
       renderMode: "CANVAS",
       overflow: OverflowTypes.SCROLL,
+      mainCanvasWidth: 900,
     },
   ],
 };
@@ -427,6 +443,7 @@ const inputDsl5: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
@@ -450,6 +467,7 @@ const inputDsl5: DSLWidget = {
       renderMode: "CANVAS",
       shouldScroll: true,
       shouldTruncate: true,
+      mainCanvasWidth: 900,
     },
   ],
 };
@@ -477,6 +495,7 @@ const outputDsl5: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
@@ -499,6 +518,7 @@ const outputDsl5: DSLWidget = {
       fontStyle: FontStyleTypes.BOLD,
       renderMode: "CANVAS",
       overflow: OverflowTypes.TRUNCATE,
+      mainCanvasWidth: 900,
     },
   ],
 };
@@ -526,6 +546,7 @@ const inputDsl6: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
@@ -549,6 +570,7 @@ const inputDsl6: DSLWidget = {
       renderMode: "CANVAS",
       shouldScroll: false,
       shouldTruncate: false,
+      mainCanvasWidth: 900,
     },
   ],
 };
@@ -576,6 +598,7 @@ const outputDsl6: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
@@ -598,6 +621,7 @@ const outputDsl6: DSLWidget = {
       fontStyle: FontStyleTypes.BOLD,
       renderMode: "CANVAS",
       overflow: OverflowTypes.NONE,
+      mainCanvasWidth: 900,
     },
   ],
 };

@@ -38,6 +38,7 @@ describe("WidgetBlueprintSagas", () => {
           items: [],
           version: 16,
           disablePropertyPane: false,
+          mainCanvasWidth: 900,
         },
       },
       ["widgetId"],

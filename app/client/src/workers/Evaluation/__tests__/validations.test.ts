@@ -21,6 +21,7 @@ const DUMMY_WIDGET: WidgetProps = {
   version: 2,
   widgetId: "",
   widgetName: "",
+  mainCanvasWidth: 900,
 };
 
 describe("Validate Validators", () => {

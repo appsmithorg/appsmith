@@ -25,6 +25,7 @@ export const data = {
     leftColumn: 0,
     children: ["mglfryj65c", "vaqw5v85cs"],
     positioning: "vertical",
+    mainCanvasWidth: 900,
     flexLayers: [
       {
         children: [
@@ -59,6 +60,7 @@ export const data = {
     animateLoading: true,
     parentColumnSpace: 8.796875,
     leftColumn: 0,
+    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "buttonColor",
@@ -104,6 +106,7 @@ export const data = {
     animateLoading: true,
     parentColumnSpace: 8.796875,
     leftColumn: 48,
+    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "buttonColor",
@@ -162,6 +165,7 @@ export const data = {
     renderMode: RenderModes.CANVAS,
     isLoading: false,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    mainCanvasWidth: 900,
     flexLayers: [
       {
         children: [
@@ -194,6 +198,7 @@ export const data = {
     animateLoading: true,
     parentColumnSpace: 18.21875,
     leftColumn: 0,
+    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",
@@ -252,6 +257,7 @@ export const data = {
     renderMode: RenderModes.CANVAS,
     isLoading: false,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    mainCanvasWidth: 900,
     flexLayers: [],
   },
   vaqw5v85cs: {
@@ -271,6 +277,7 @@ export const data = {
     animateLoading: true,
     parentColumnSpace: 18.21875,
     leftColumn: 32,
+    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",
@@ -326,6 +333,7 @@ export const dataForgetCanvasDimensions = {
     dynamicTriggerPathList: [],
     dynamicBindingPathList: [],
     leftColumn: 0,
+    mainCanvasWidth: 900,
     children: [
       "kv4o6eopdn",
       "l29m7e6zds",
@@ -401,6 +409,7 @@ export const dataForgetCanvasDimensions = {
     parentColumnSpace: 18.015625,
     dynamicTriggerPathList: [],
     leftColumn: 0,
+    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "buttonColor",
@@ -447,6 +456,7 @@ export const dataForgetCanvasDimensions = {
     parentColumnSpace: 17.703125,
     dynamicTriggerPathList: [],
     leftColumn: 0,
+    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "buttonColor",
@@ -503,6 +513,7 @@ export const dataForgetCanvasDimensions = {
     renderMode: "CANVAS",
     isLoading: false,
     responsiveBehavior: "fill",
+    mainCanvasWidth: 900,
     flexLayers: [
       {
         children: [
@@ -531,6 +542,7 @@ export const dataForgetCanvasDimensions = {
     animateLoading: true,
     parentColumnSpace: 18.015625,
     leftColumn: 0,
+    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",
@@ -579,6 +591,7 @@ export const dataForgetCanvasDimensions = {
     parentColumnSpace: 17.703125,
     dynamicTriggerPathList: [],
     leftColumn: 0,
+    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "buttonColor",
@@ -635,6 +648,7 @@ export const dataForgetCanvasDimensions = {
     renderMode: "CANVAS",
     isLoading: false,
     responsiveBehavior: "fill",
+    mainCanvasWidth: 900,
     flexLayers: [
       {
         children: [
@@ -663,6 +677,7 @@ export const dataForgetCanvasDimensions = {
     animateLoading: true,
     parentColumnSpace: 18.015625,
     leftColumn: 0,
+    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",
@@ -721,6 +736,7 @@ export const dataForgetCanvasDimensions = {
     renderMode: "CANVAS",
     isLoading: false,
     responsiveBehavior: "fill",
+    mainCanvasWidth: 900,
     flexLayers: [],
   },
   "341mei61on": {
@@ -740,6 +756,7 @@ export const dataForgetCanvasDimensions = {
     animateLoading: true,
     parentColumnSpace: 18.015625,
     leftColumn: 16,
+    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",
@@ -799,6 +816,7 @@ export const dataForgetCanvasDimensions = {
     isLoading: false,
     responsiveBehavior: "fill",
     flexLayers: [],
+    mainCanvasWidth: 900,
   },
   w1g8kwyww5: {
     boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
@@ -817,6 +835,7 @@ export const dataForgetCanvasDimensions = {
     animateLoading: true,
     parentColumnSpace: 18.015625,
     leftColumn: 32,
+    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",
@@ -876,6 +895,7 @@ export const dataForgetCanvasDimensions = {
     isLoading: false,
     responsiveBehavior: "fill",
     flexLayers: [],
+    mainCanvasWidth: 900,
   },
   c3qord3aex: {
     boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
@@ -924,6 +944,7 @@ export const dataForgetCanvasDimensions = {
     originalBottomRow: 26,
     alignment: "start",
     minDynamicHeight: 10,
+    mainCanvasWidth: 900,
   },
   cq25w8hz6n: {
     resetFormOnClick: false,
@@ -970,6 +991,7 @@ export const dataForgetCanvasDimensions = {
     buttonVariant: "PRIMARY",
     placement: "CENTER",
     alignment: "start",
+    mainCanvasWidth: 900,
   },
   b91wojl19o: {
     widgetName: "Canvas3",
@@ -1008,6 +1030,7 @@ export const dataForgetCanvasDimensions = {
         ],
       },
     ],
+    mainCanvasWidth: 900,
   },
   hibb5668qy: {
     boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
@@ -1056,6 +1079,7 @@ export const dataForgetCanvasDimensions = {
     originalBottomRow: 11,
     alignment: "start",
     minDynamicHeight: 10,
+    mainCanvasWidth: 900,
   },
   hatp88y71d: {
     widgetName: "Canvas9",
@@ -1085,6 +1109,7 @@ export const dataForgetCanvasDimensions = {
     isLoading: false,
     responsiveBehavior: "fill",
     flexLayers: [],
+    mainCanvasWidth: 900,
   },
   vjdtark0mi: {
     boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
@@ -1133,6 +1158,7 @@ export const dataForgetCanvasDimensions = {
     originalBottomRow: 11,
     alignment: "start",
     minDynamicHeight: 10,
+    mainCanvasWidth: 900,
   },
   o1fc1zt9kd: {
     widgetName: "Canvas8",
@@ -1162,6 +1188,7 @@ export const dataForgetCanvasDimensions = {
     isLoading: false,
     responsiveBehavior: "fill",
     flexLayers: [],
+    mainCanvasWidth: 900,
   },
   jl6pk4uoaz: {
     boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
@@ -1210,6 +1237,7 @@ export const dataForgetCanvasDimensions = {
     originalBottomRow: 11,
     alignment: "start",
     minDynamicHeight: 10,
+    mainCanvasWidth: 900,
   },
   uh83f0dzzi: {
     widgetName: "Canvas5",
@@ -1239,6 +1267,7 @@ export const dataForgetCanvasDimensions = {
     isLoading: false,
     responsiveBehavior: "fill",
     flexLayers: [],
+    mainCanvasWidth: 900,
   },
   ji56m4kt8i: {
     boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
@@ -1287,6 +1316,7 @@ export const dataForgetCanvasDimensions = {
     originalBottomRow: 11,
     alignment: "start",
     minDynamicHeight: 10,
+    mainCanvasWidth: 900,
   },
   xp6lxmot21: {
     widgetName: "Canvas4",
@@ -1337,6 +1367,7 @@ export const dataForgetCanvasDimensions = {
         ],
       },
     ],
+    mainCanvasWidth: 900,
   },
   sy88tbxp13: {
     boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
@@ -1385,5 +1416,6 @@ export const dataForgetCanvasDimensions = {
     originalBottomRow: 39,
     alignment: "start",
     minDynamicHeight: 10,
+    mainCanvasWidth: 900,
   },
 };

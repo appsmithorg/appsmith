@@ -70,6 +70,7 @@ describe("<DividerWidget />", () => {
       isLoading: false,
       version: 1,
       disablePropertyPane: false,
+      mainCanvasWidth: 900,
       ...props,
     };
     // Mock store to bypass the error of react-redux

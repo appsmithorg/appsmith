@@ -28,6 +28,7 @@ const tableWidgetDataTree = generateDataTreeWidget({
   topRow: 0,
   primaryColumns: [],
   tableData: [],
+  mainCanvasWidth: 900,
 });
 
 evalTree["Table1"] = tableWidgetDataTree.unEvalEntity;

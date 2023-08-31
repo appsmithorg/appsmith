@@ -66,6 +66,7 @@ const BASE_WIDGET: WidgetEntity = {
   version: 1,
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   meta: {},
+  mainCanvasWidth: 900,
 };
 
 const BASE_WIDGET_CONFIG: WidgetEntityConfig = {
@@ -623,6 +624,7 @@ describe("5. overrideWidgetProperties", () => {
           renderMode: RenderModes.CANVAS,
           rightColumn: 0,
           topRow: 0,
+          mainCanvasWidth: 900,
         },
         {},
       );
@@ -709,6 +711,7 @@ describe("5. overrideWidgetProperties", () => {
           renderMode: RenderModes.CANVAS,
           rightColumn: 0,
           topRow: 0,
+          mainCanvasWidth: 900,
         },
         {},
       );

@@ -40,6 +40,7 @@ describe("test PositionUtils methods", () => {
           parentColumnSpace: 10,
           parentRowSpace: 10,
           isLoading: false,
+          mainCanvasWidth: 900,
         },
         "2": {
           widgetId: "2",
@@ -55,6 +56,7 @@ describe("test PositionUtils methods", () => {
           parentColumnSpace: 10,
           parentRowSpace: 10,
           isLoading: false,
+          mainCanvasWidth: 900,
         },
         "3": {
           widgetId: "3",
@@ -70,6 +72,7 @@ describe("test PositionUtils methods", () => {
           parentColumnSpace: 10,
           parentRowSpace: 10,
           isLoading: false,
+          mainCanvasWidth: 900,
         },
       };
       const layer: FlexLayer = {
@@ -122,6 +125,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Hug,
+          mainCanvasWidth: 900,
         },
         "2": {
           widgetId: "2",
@@ -138,6 +142,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
         },
         "3": {
           widgetId: "3",
@@ -154,6 +159,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
         },
       };
       const layer: FlexLayer = {
@@ -185,6 +191,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
         },
         "2": {
           widgetId: "2",
@@ -201,6 +208,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
         },
         "3": {
           widgetId: "3",
@@ -217,6 +225,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
         },
       };
       const layer: FlexLayer = {
@@ -254,6 +263,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Hug,
+          mainCanvasWidth: 900,
           autoLayout: {
             widgetSize: [
               {
@@ -283,6 +293,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
           autoLayout: {
             disabledPropsDefaults: {
               labelPosition: LabelPosition.Top,
@@ -324,6 +335,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
         },
       };
       jest
@@ -512,6 +524,7 @@ describe("test PositionUtils methods", () => {
               mobileLeftColumn: 0,
               mobileRightColumn: 16,
               responsiveBehavior: ResponsiveBehavior.Hug,
+              mainCanvasWidth: 900,
             },
             columns: 16,
             rows: 4,
@@ -536,6 +549,7 @@ describe("test PositionUtils methods", () => {
               mobileLeftColumn: 16,
               mobileRightColumn: 80,
               responsiveBehavior: ResponsiveBehavior.Fill,
+              mainCanvasWidth: 900,
             },
             columns: 64,
             rows: 7,
@@ -576,6 +590,7 @@ describe("test PositionUtils methods", () => {
           parentColumnSpace: 10,
           parentRowSpace: 10,
           isLoading: false,
+          mainCanvasWidth: 900,
         },
         "2": {
           widgetId: "2",
@@ -591,6 +606,7 @@ describe("test PositionUtils methods", () => {
           parentColumnSpace: 10,
           parentRowSpace: 10,
           isLoading: false,
+          mainCanvasWidth: 900,
         },
         "3": {
           widgetId: "3",
@@ -606,6 +622,7 @@ describe("test PositionUtils methods", () => {
           parentColumnSpace: 10,
           parentRowSpace: 10,
           isLoading: false,
+          mainCanvasWidth: 900,
         },
       };
       const arr: AlignmentInfo[] = [
@@ -654,6 +671,7 @@ describe("test PositionUtils methods", () => {
           parentColumnSpace: 10,
           parentRowSpace: 10,
           isLoading: false,
+          mainCanvasWidth: 900,
         },
         "2": {
           widgetId: "2",
@@ -669,6 +687,7 @@ describe("test PositionUtils methods", () => {
           parentColumnSpace: 10,
           parentRowSpace: 10,
           isLoading: false,
+          mainCanvasWidth: 900,
         },
         "3": {
           widgetId: "3",
@@ -684,6 +703,7 @@ describe("test PositionUtils methods", () => {
           parentColumnSpace: 10,
           parentRowSpace: 10,
           isLoading: false,
+          mainCanvasWidth: 900,
         },
       };
       const arr: AlignmentInfo[] = [
@@ -739,6 +759,7 @@ describe("test PositionUtils methods", () => {
           mobileLeftColumn: 0,
           mobileRightColumn: 16,
           responsiveBehavior: ResponsiveBehavior.Hug,
+          mainCanvasWidth: 900,
         },
         "2": {
           widgetId: "2",
@@ -759,6 +780,7 @@ describe("test PositionUtils methods", () => {
           mobileLeftColumn: 0,
           mobileRightColumn: 24,
           responsiveBehavior: ResponsiveBehavior.Hug,
+          mainCanvasWidth: 900,
         },
         "3": {
           widgetId: "3",
@@ -779,6 +801,7 @@ describe("test PositionUtils methods", () => {
           mobileLeftColumn: 0,
           mobileRightColumn: 16,
           responsiveBehavior: ResponsiveBehavior.Hug,
+          mainCanvasWidth: 900,
         },
       };
       const arr: AlignmentInfo[] = [
@@ -831,6 +854,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
           autoLayout: {
             widgetSize: [
               {
@@ -860,6 +884,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
           autoLayout: {
             disabledPropsDefaults: {
               labelPosition: LabelPosition.Top,
@@ -891,6 +916,7 @@ describe("test PositionUtils methods", () => {
           leftColumn: 64,
           rightColumn: 96,
           alignment: FlexLayerAlignment.End,
+          mainCanvasWidth: 900,
           topRow: 0,
           bottomRow: 7,
           type: "CONTAINER_WIDGET",
@@ -1005,6 +1031,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
         },
         "2": {
           widgetId: "2",
@@ -1021,6 +1048,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
         },
         "3": {
           widgetId: "3",
@@ -1037,6 +1065,7 @@ describe("test PositionUtils methods", () => {
           parentRowSpace: 10,
           isLoading: false,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
         },
       };
       jest
@@ -1148,6 +1177,7 @@ describe("test PositionUtils methods", () => {
           mobileLeftColumn: 0,
           mobileRightColumn: 16,
           responsiveBehavior: ResponsiveBehavior.Hug,
+          mainCanvasWidth: 900,
         },
         "2": {
           widgetId: "2",
@@ -1168,6 +1198,7 @@ describe("test PositionUtils methods", () => {
           mobileLeftColumn: 0,
           mobileRightColumn: 64,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
         },
         "3": {
           widgetId: "3",
@@ -1188,6 +1219,7 @@ describe("test PositionUtils methods", () => {
           mobileLeftColumn: 0,
           mobileRightColumn: 16,
           responsiveBehavior: ResponsiveBehavior.Hug,
+          mainCanvasWidth: 900,
         },
       };
       const result: {
@@ -1245,6 +1277,7 @@ describe("test PositionUtils methods", () => {
           mobileLeftColumn: 0,
           mobileRightColumn: 16,
           responsiveBehavior: ResponsiveBehavior.Hug,
+          mainCanvasWidth: 900,
         },
         "2": {
           widgetId: "2",
@@ -1265,6 +1298,7 @@ describe("test PositionUtils methods", () => {
           mobileLeftColumn: 0,
           mobileRightColumn: 24,
           responsiveBehavior: ResponsiveBehavior.Hug,
+          mainCanvasWidth: 900,
         },
         "3": {
           widgetId: "3",
@@ -1285,6 +1319,7 @@ describe("test PositionUtils methods", () => {
           mobileLeftColumn: 0,
           mobileRightColumn: 640,
           responsiveBehavior: ResponsiveBehavior.Fill,
+          mainCanvasWidth: 900,
           parentId: "0",
           flexLayers: [
             {
@@ -1321,6 +1356,7 @@ describe("test PositionUtils methods", () => {
           flexLayers: [
             { children: [{ id: "3", align: FlexLayerAlignment.Start }] },
           ],
+          mainCanvasWidth: 900,
         },
       };
       const result = updateWidgetPositions(

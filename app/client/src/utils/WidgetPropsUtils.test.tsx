@@ -124,6 +124,7 @@ describe("WidgetProps tests", () => {
       version: 17,
       isLoading: false,
       renderMode: RenderModes.CANVAS,
+      mainCanvasWidth: 900,
       children: [
         {
           widgetId: "some-random-id",
@@ -138,6 +139,7 @@ describe("WidgetProps tests", () => {
           isLoading: false,
           renderMode: RenderModes.CANVAS,
           type: "CHART_WIDGET",
+          mainCanvasWidth: 900,
           chartData: [
             {
               seriesName: "seris1",
@@ -167,6 +169,7 @@ describe("WidgetProps tests", () => {
       version: 17,
       isLoading: false,
       renderMode: RenderModes.CANVAS,
+      mainCanvasWidth: 900,
       children: [
         {
           widgetId: "some-random-id",
@@ -188,6 +191,7 @@ describe("WidgetProps tests", () => {
               data: [{ x: 1, y: 2 }],
             },
           },
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -278,6 +282,7 @@ describe("Initial value migration test", () => {
     dynamicTriggerPathList: [],
     dynamicBindingPathList: [],
     leftColumn: 0,
+    mainCanvasWidth: 900,
   };
 
   it("Input widget", () => {
@@ -302,6 +307,7 @@ describe("Initial value migration test", () => {
           inputType: "TEXT",
           renderMode: RenderModes.CANVAS,
           resetOnSubmit: false,
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -330,6 +336,7 @@ describe("Initial value migration test", () => {
           // following properties get added
           isRequired: false,
           isDisabled: false,
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -375,6 +382,7 @@ describe("Initial value migration test", () => {
               value: "RED",
             },
           ],
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -416,6 +424,7 @@ describe("Initial value migration test", () => {
           ],
           isRequired: false,
           isDisabled: false,
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -462,6 +471,7 @@ describe("Initial value migration test", () => {
               value: "RED",
             },
           ],
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -502,6 +512,7 @@ describe("Initial value migration test", () => {
               value: "RED",
             },
           ],
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -533,6 +544,7 @@ describe("Initial value migration test", () => {
           parentColumnSpace: 67.375,
           leftColumn: 2,
           isDisabled: false,
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -564,6 +576,7 @@ describe("Initial value migration test", () => {
           isRequired: false,
           minDate: "2001-01-01 00:00",
           maxDate: "2041-12-31 23:59",
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -593,6 +606,7 @@ describe("Initial value migration test", () => {
           isLoading: false,
           parentColumnSpace: 67.375,
           leftColumn: 3,
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -620,6 +634,7 @@ describe("Initial value migration test", () => {
           leftColumn: 3,
           // following properties get added
           isDisabled: false,
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -650,6 +665,7 @@ describe("Initial value migration test", () => {
           parentColumnSpace: 67.375,
           leftColumn: 2,
           autoPlay: false,
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -678,6 +694,7 @@ describe("Initial value migration test", () => {
           // following properties get added
           isRequired: false,
           isDisabled: false,
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -707,6 +724,7 @@ describe("Initial value migration test", () => {
           parentColumnSpace: 67.375,
           leftColumn: 5,
           defaultCheckedState: true,
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -731,6 +749,7 @@ describe("Initial value migration test", () => {
           parentColumnSpace: 67.375,
           leftColumn: 5,
           defaultCheckedState: true,
+          mainCanvasWidth: 900,
           // following properties get added
           isDisabled: false,
           isRequired: false,
@@ -772,6 +791,7 @@ describe("Initial value migration test", () => {
               value: "N",
             },
           ],
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -805,6 +825,7 @@ describe("Initial value migration test", () => {
               value: "N",
             },
           ],
+          mainCanvasWidth: 900,
           // following properties get added
           isDisabled: false,
           isRequired: false,
@@ -840,6 +861,7 @@ describe("Initial value migration test", () => {
           leftColumn: 1,
           files: [],
           maxNumFiles: 1,
+          mainCanvasWidth: 900,
         },
       ],
     };
@@ -872,6 +894,7 @@ describe("Initial value migration test", () => {
           isDisabled: false,
           isRequired: false,
           allowedFileTypes: [],
+          mainCanvasWidth: 900,
         },
       ],
     };

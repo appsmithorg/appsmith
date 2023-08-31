@@ -34,11 +34,13 @@ const input1: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
       label: "Data",
       widgetName: "Table1",
+      mainCanvasWidth: 900,
       searchKey: "",
       tableData:
         '[\n  {\n    "id": 2381224,\n    "email": "michael.lawson@reqres.in",\n    "userName": "Michael Lawson",\n    "productName": "Chicken Sandwich",\n    "orderAmount": 4.99\n  },\n  {\n    "id": 2736212,\n    "email": "lindsay.ferguson@reqres.in",\n    "userName": "Lindsay Ferguson",\n    "productName": "Tuna Salad",\n    "orderAmount": 9.99\n  },\n  {\n    "id": 6788734,\n    "email": "tobias.funke@reqres.in",\n    "userName": "Tobias Funke",\n    "productName": "Beef steak",\n    "orderAmount": 19.99\n  }\n]',
@@ -81,11 +83,13 @@ const input2: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
       label: "Data",
       widgetName: "Table2",
+      mainCanvasWidth: 900,
       searchKey: "",
       tableData:
         '[\n  {\n    "id": 2381224,\n    "email": "michael.lawson@reqres.in",\n    "userName": "Michael Lawson",\n    "productName": "Chicken Sandwich",\n    "orderAmount": 4.99\n  },\n  {\n    "id": 2736212,\n    "email": "lindsay.ferguson@reqres.in",\n    "userName": "Lindsay Ferguson",\n    "productName": "Tuna Salad",\n    "orderAmount": 9.99\n  },\n  {\n    "id": 6788734,\n    "email": "tobias.funke@reqres.in",\n    "userName": "Tobias Funke",\n    "productName": "Beef steak",\n    "orderAmount": 19.99\n  }\n]',
@@ -143,11 +147,13 @@ const input3: DSLWidget = {
   isLoading: false,
   parentId: "",
   renderMode: "CANVAS",
+  mainCanvasWidth: 900,
   children: [
     {
       isVisible: true,
       label: "Data",
       widgetName: "Table3",
+      mainCanvasWidth: 900,
       searchKey: "",
       tableData:
         '[\n  {\n    "id": 2381224,\n    "email": "michael.lawson@reqres.in",\n    "userName": "Michael Lawson",\n    "productName": "Chicken Sandwich",\n    "orderAmount": 4.99\n  },\n  {\n    "id": 2736212,\n    "email": "lindsay.ferguson@reqres.in",\n    "userName": "Lindsay Ferguson",\n    "productName": "Tuna Salad",\n    "orderAmount": 9.99\n  },\n  {\n    "id": 6788734,\n    "email": "tobias.funke@reqres.in",\n    "userName": "Tobias Funke",\n    "productName": "Beef steak",\n    "orderAmount": 19.99\n  }\n]',
@@ -673,11 +679,13 @@ describe("Table Widget Property Pane Upgrade", () => {
       isLoading: false,
       parentId: "",
       renderMode: "CANVAS",
+      mainCanvasWidth: 900,
       children: [
         {
           isVisible: true,
           label: "Data",
           widgetName: "Table1",
+          mainCanvasWidth: 900,
           searchKey: "",
           tableData:
             '[\n  {\n    "id": 2381224,\n    "email": "michael.lawson@reqres.in",\n    "userName": "Michael Lawson",\n    "productName": "Chicken Sandwich",\n    "orderAmount": 4.99\n  },\n  {\n    "id": 2736212,\n    "email": "lindsay.ferguson@reqres.in",\n    "userName": "Lindsay Ferguson",\n    "productName": "Tuna Salad",\n    "orderAmount": 9.99\n  },\n  {\n    "id": 6788734,\n    "email": "tobias.funke@reqres.in",\n    "userName": "Tobias Funke",\n    "productName": "Beef steak",\n    "orderAmount": 19.99\n  }\n]',
@@ -809,11 +817,13 @@ describe("Table Widget Property Pane Upgrade", () => {
       isLoading: false,
       parentId: "",
       renderMode: "CANVAS",
+      mainCanvasWidth: 900,
       children: [
         {
           isVisible: true,
           label: "Data",
           widgetName: "Table1",
+          mainCanvasWidth: 900,
           searchKey: "",
           tableData:
             '[\n  {\n    "id": 2381224,\n    "email": "michael.lawson@reqres.in",\n    "userName": "Michael Lawson",\n    "productName": "Chicken Sandwich",\n    "orderAmount": 4.99\n  },\n  {\n    "id": 2736212,\n    "email": "lindsay.ferguson@reqres.in",\n    "userName": "Lindsay Ferguson",\n    "productName": "Tuna Salad",\n    "orderAmount": 9.99\n  },\n  {\n    "id": 6788734,\n    "email": "tobias.funke@reqres.in",\n    "userName": "Tobias Funke",\n    "productName": "Beef steak",\n    "orderAmount": 19.99\n  }\n]',
@@ -950,11 +960,13 @@ describe("Table Widget Property Pane Upgrade", () => {
       isLoading: false,
       parentId: "",
       renderMode: "CANVAS",
+      mainCanvasWidth: 900,
       children: [
         {
           isVisible: true,
           label: "Data",
           widgetName: "Table1",
+          mainCanvasWidth: 900,
           searchKey: "",
           tableData:
             '[\n  {\n    "id": 2381224,\n    "email": "michael.lawson@reqres.in",\n    "userName": "Michael Lawson",\n    "productName": "Chicken Sandwich",\n    "orderAmount": 4.99\n  },\n  {\n    "id": 2736212,\n    "email": "lindsay.ferguson@reqres.in",\n    "userName": "Lindsay Ferguson",\n    "productName": "Tuna Salad",\n    "orderAmount": 9.99\n  },\n  {\n    "id": 6788734,\n    "email": "tobias.funke@reqres.in",\n    "userName": "Tobias Funke",\n    "productName": "Beef steak",\n    "orderAmount": 19.99\n  }\n]',
@@ -1086,11 +1098,13 @@ describe("Table Widget Property Pane Upgrade", () => {
       isLoading: false,
       parentId: "",
       renderMode: "CANVAS",
+      mainCanvasWidth: 900,
       children: [
         {
           isVisible: true,
           label: "Data",
           widgetName: "Table1",
+          mainCanvasWidth: 900,
           searchKey: "",
           tableData:
             '[\n  {\n    "id": 2381224,\n    "email": "michael.lawson@reqres.in",\n    "userName": "Michael Lawson",\n    "productName": "Chicken Sandwich",\n    "orderAmount": 4.99\n  },\n  {\n    "id": 2736212,\n    "email": "lindsay.ferguson@reqres.in",\n    "userName": "Lindsay Ferguson",\n    "productName": "Tuna Salad",\n    "orderAmount": 9.99\n  },\n  {\n    "id": 6788734,\n    "email": "tobias.funke@reqres.in",\n    "userName": "Tobias Funke",\n    "productName": "Beef steak",\n    "orderAmount": 19.99\n  }\n]',
@@ -1695,9 +1709,11 @@ describe("Table Widget selectedRow bindings update", () => {
       leftColumn: 0,
       renderMode: "CANVAS",
       isLoading: false,
+      mainCanvasWidth: 900,
       children: [
         {
           widgetName: "Table1",
+          mainCanvasWidth: 900,
           defaultPageSize: 0,
           isVisibleDownload: true,
           dynamicPropertyPathList: [],
@@ -1865,9 +1881,11 @@ describe("Table Widget selectedRow bindings update", () => {
       leftColumn: 0,
       renderMode: "CANVAS",
       isLoading: false,
+      mainCanvasWidth: 900,
       children: [
         {
           widgetName: "Table1",
+          mainCanvasWidth: 900,
           defaultPageSize: 0,
           isVisibleDownload: true,
           dynamicPropertyPathList: [],
@@ -2040,9 +2058,11 @@ describe("Table Widget numeric column name to string update", () => {
       parentId: "",
       renderMode: "CANVAS",
       isLoading: false,
+      mainCanvasWidth: 900,
       children: [
         {
           widgetName: "Table1",
+          mainCanvasWidth: 900,
           parentColumnSpace: 74,
           defaultPageSize: 0,
           columnOrder: [
@@ -2327,9 +2347,11 @@ describe("Table Widget numeric column name to string update", () => {
       parentId: "",
       renderMode: "CANVAS",
       isLoading: false,
+      mainCanvasWidth: 900,
       children: [
         {
           widgetName: "Table1",
+          mainCanvasWidth: 900,
           parentColumnSpace: 74,
           defaultPageSize: 0,
           columnOrder: [

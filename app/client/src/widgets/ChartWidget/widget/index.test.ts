@@ -51,6 +51,7 @@ describe("emptyChartData", () => {
     widgetName: "widgetName",
     version: 1,
     renderMode: RenderModes.CANVAS,
+    mainCanvasWidth: 900,
   };
 
   describe("when chart type is basic ECharts", () => {

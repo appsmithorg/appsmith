@@ -218,6 +218,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
       parentColumnSpace: 33.375,
       dynamicTriggerPathList: [],
       leftColumn: 42,
+      mainCanvasWidth: 900,
       dynamicBindingPathList: [
         {
           key: "defaultOptionValue",
@@ -388,6 +389,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
       parentColumnSpace: 33.375,
       dynamicTriggerPathList: [],
       leftColumn: 42,
+      mainCanvasWidth: 900,
       dynamicBindingPathList: [
         {
           key: "defaultOptionValue",

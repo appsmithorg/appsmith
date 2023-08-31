@@ -492,6 +492,7 @@ const DUMMY_WIDGET: WidgetProps = {
   version: 2,
   widgetId: "",
   widgetName: "",
+  mainCanvasWidth: 900,
 };
 describe("Auto Height Utils", () => {
   it("should return true if withLimits is true and widget has AUTO_HEIGHT_WITH_LIMITS", () => {

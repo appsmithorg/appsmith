@@ -20,10 +20,12 @@ const inputDSL: DSLWidget = {
   bottomRow: 0,
   leftColumn: 0,
   rightColumn: 0,
+  mainCanvasWidth: 900,
   children: [
     {
       widgetId: "",
       widgetName: "chart widget",
+      mainCanvasWidth: 900,
       type: "CHART_WIDGET",
       renderMode: "CANVAS",
       version: 1,

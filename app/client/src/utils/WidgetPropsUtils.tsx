@@ -355,6 +355,7 @@ export const generateWidgetProps = (
       isLoading: false,
       parentColumnSpace,
       parentRowSpace,
+      mainCanvasWidth: 900,
       ...sizes,
       ...mobileSizes,
       ...others,

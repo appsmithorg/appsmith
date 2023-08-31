@@ -19,6 +19,7 @@ describe("Autocomplete suggestions test", () => {
       bottomRow: 2,
       isLoading: false,
       version: 1,
+      mainCanvasWidth: 900,
       selectedItem: {
         id: 1,
         name: "Some random name",

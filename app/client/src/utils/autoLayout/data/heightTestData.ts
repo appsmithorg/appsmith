@@ -44,6 +44,7 @@ export const MAIN_CONTAINER_WIDGET_WITH_BUTTON = {
         ],
       },
     ],
+    mainCanvasWidth: 900,
   },
   "2": {
     boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
@@ -94,6 +95,7 @@ export const MAIN_CONTAINER_WIDGET_WITH_BUTTON = {
     maxDynamicHeight: 9000.0,
     alignment: "start",
     minDynamicHeight: 10.0,
+    mainCanvasWidth: 900,
   },
   "3": {
     mobileBottomRow: 100.0,
@@ -136,6 +138,7 @@ export const MAIN_CONTAINER_WIDGET_WITH_BUTTON = {
         ],
       },
     ],
+    mainCanvasWidth: 900,
   },
   "4": {
     resetFormOnClick: false,
@@ -185,6 +188,7 @@ export const MAIN_CONTAINER_WIDGET_WITH_BUTTON = {
     buttonVariant: "PRIMARY",
     placement: "CENTER",
     alignment: "start",
+    mainCanvasWidth: 900,
   },
 };
 
@@ -236,4 +240,5 @@ export const buttonData = (widgetId: string, parentId: string) => ({
   buttonVariant: "PRIMARY",
   placement: "CENTER",
   alignment: "start",
+  mainCanvasWidth: 900,
 });

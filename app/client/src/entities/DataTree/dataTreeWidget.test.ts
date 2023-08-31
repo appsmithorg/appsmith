@@ -176,6 +176,7 @@ describe("generateDataTreeWidget", () => {
           value: 10,
         },
       },
+      mainCanvasWidth: 900,
     };
 
     const widgetMetaProps: Record<string, unknown> = {
@@ -222,6 +223,7 @@ describe("generateDataTreeWidget", () => {
       parentRowSpace: 0,
       rightColumn: 0,
       renderMode: RenderModes.CANVAS,
+      mainCanvasWidth: 900,
       version: 0,
       topRow: 0,
       widgetId: "123",
@@ -330,6 +332,7 @@ describe("generateDataTreeWidget", () => {
           value: 10,
         },
       },
+      mainCanvasWidth: 900,
     };
 
     const inputSetterConfig: Record<string, any> = {
@@ -399,6 +402,7 @@ describe("generateDataTreeWidget", () => {
           value: 10,
         },
       },
+      mainCanvasWidth: 900,
     };
 
     const jsonFormSetterConfig: Record<string, any> = {
@@ -449,6 +453,7 @@ describe("generateDataTreeWidget", () => {
       widgetId: "123",
       widgetName: "Table1",
       defaultText: "",
+      mainCanvasWidth: 900,
       deepObj: {
         level1: {
           value: 10,
