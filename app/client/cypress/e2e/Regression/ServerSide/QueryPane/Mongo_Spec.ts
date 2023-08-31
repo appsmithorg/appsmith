@@ -862,7 +862,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ClickButton("Got it");
     deployMode.DeployApp();
 
     //Validating loaded table
