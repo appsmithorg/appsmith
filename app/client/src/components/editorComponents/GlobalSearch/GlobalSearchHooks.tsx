@@ -114,7 +114,7 @@ export const getFilteredAndSortedFileOperations = (
   if (!canCreateActions) return fileOperations;
 
   // Add JS Object operation
-  fileOperations.push(actionOperations[2]);
+  // fileOperations.push(actionOperations[2]);
   // Add app datasources
   if (appWideDS.length > 0 || otherDS.length > 0) {
     const showCreateQuery = [...appWideDS, ...otherDS].some((ds: Datasource) =>

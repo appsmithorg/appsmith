@@ -6,7 +6,7 @@ type Item = {
   key: string;
   name: string;
   icon: React.ReactNode;
-  selected: boolean;
+  selected?: boolean;
 };
 
 type Props = {
@@ -46,7 +46,7 @@ const ListView = (props: Props) => {
             key={item.key}
             onClick={() => props.onClick(item)}
           >
-            {item.icon}
+            {item.icon || <div />}
             {item.name}
           </ListItem>
         );
