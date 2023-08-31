@@ -5,6 +5,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
@@ -227,5 +228,37 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
         return userDataService
                 .getFeatureFlagsForCurrentUser()
                 .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
+    }
+
+    /**
+     * This function generates a unique link or magic link for verifying user email and sends an email
+     * with the link, on clicking which the user email gets verified and the user gets logged in
+     * @param resendEmailVerificationDTO
+     * @param originHeader
+     * @return
+     */
+    @JsonView(Views.Public.class)
+    @PostMapping("/resendEmailVerification")
+    public Mono<ResponseDTO<Boolean>> resendEmailVerification(
+            @RequestBody ResendEmailVerificationDTO resendEmailVerificationDTO,
+            @RequestHeader("Origin") String originHeader) {
+        resendEmailVerificationDTO.setBaseUrl(originHeader);
+        return service.resendEmailVerification(resendEmailVerificationDTO, null)
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
+    }
+
+    /**
+     * This function verifies the email verification token received from the magic link sent in the email,
+     * it verifies the token and if verified, sets the user to verified true and auto-login the user session.
+     * It also redirects to the /signup-success page with the required params.
+     * @param exchange
+     * @return
+     */
+    @JsonView(Views.Public.class)
+    @PostMapping(
+            value = "/verifyEmailVerificationToken",
+            consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    public Mono<Void> verifyEmailVerificationToken(ServerWebExchange exchange) {
+        return service.verifyEmailVerificationToken(exchange);
     }
 }

@@ -15,6 +15,7 @@ export const DataSourceKVP = {
   Redis: "Redis",
   Oracle: "Oracle",
   S3: "S3",
+  Twilio: "Twilio",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -215,6 +216,7 @@ export class DataSources {
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
   public _urlInputControl = "input[name='url']";
+  public _headerKey = "input[name='headers[0].key']";
   public _mongoCollectionPath = "t--actionConfiguration.formData.collection";
   _getJSONswitchLocator = (fieldName: string) =>
     "//p[contains(text(),'" +
@@ -284,7 +286,7 @@ export class DataSources {
     ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
+    this.agHelper.ClickButton("Got it");
   }
 
   public GeneratePageWithMockDB() {
@@ -301,7 +303,7 @@ export class DataSources {
     this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
     this.agHelper.GetNClick(this._generatePageBtn);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
+    this.agHelper.ClickButton("Got it");
   }
 
   public StartDataSourceRoutes() {
@@ -729,6 +731,18 @@ export class DataSources {
     this.agHelper.UpdateInputValue(
       this._password,
       Cypress.env("S3_SECRET_KEY"),
+    );
+  }
+
+  public fillTwilioDSForm(environment = this.dataManager.defaultEnviorment) {
+    this.ValidateNSelectDropdown("Authentication type", "", "Basic auth");
+    this.agHelper.UpdateInputValue(
+      this._username,
+      this.dataManager.dsValues[environment].twilio_username.toString(),
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      this.dataManager.dsValues[environment].twilio_password.toString(),
     );
   }
 
@@ -1201,7 +1215,8 @@ export class DataSources {
       | "Elasticsearch"
       | "Redis"
       | "Oracle"
-      | "S3",
+      | "S3"
+      | "Twilio",
     navigateToCreateNewDs = true,
     testNSave = true,
     environment = this.dataManager.defaultEnviorment,
@@ -1250,6 +1265,7 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "Redis")
           this.FillRedisDSForm(environment);
         else if (DataSourceKVP[dsType] == "S3") this.FillS3DSForm();
+        else if (DataSourceKVP[dsType] == "Twilio") this.fillTwilioDSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
