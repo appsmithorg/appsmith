@@ -692,10 +692,14 @@ export default class DataTreeEvaluator {
       inverseValidationDependencies: this.inverseValidationDependencies,
     });
 
-    // Remove any deleted paths from the eval tree
-    removedPaths.forEach((removedPath) => {
-      unset(this.evalTree, removedPath.fullpath);
-    });
+    this.setEvalTree(
+      produce(this.evalTree, (draft) => {
+        // Remove any deleted paths from the eval tree
+        removedPaths.forEach((removedPath) => {
+          unset(draft, removedPath.fullpath);
+        });
+      }),
+    );
 
     const cloneStartTime = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
