@@ -27,9 +27,7 @@ export default {
   tableOrSpreadsheetDropdown:
     '[data-testid="t--one-click-binding-table-selector"] .rc-select-selector',
   tableOrSpreadsheetDropdownOption: (table?: string) =>
-    `[data-testId='t--one-click-binding-table-selector--table']${
-      table ? `:contains(${table})` : ""
-    }`,
+    `//div[@data-testId='t--one-click-binding-table-selector--table']//div[text()='${table}']`,
   tableOrSpreadsheetSelectedOption: (table?: string) =>
     `[data-testid="t--one-click-binding-table-selector"] .rc-select-selection-item${
       table ? `:contains(${table})` : ""

@@ -91,7 +91,20 @@ export type WidgetMethods =
   | GetQueryGenerationConfig
   | GetPropertyUpdatesForQueryBinding
   | getSnipingModeUpdates
-  | getOneClickBindingConnectableWidgetConfig;
+  | getOneClickBindingConnectableWidgetConfig
+  | getEditorCallouts;
+
+type getEditorCallouts = (props: WidgetProps) => WidgetCallout[];
+
+export type WidgetCallout = {
+  message: string;
+  links: [
+    {
+      text: string;
+      url: string;
+    },
+  ];
+};
 
 type GetQueryGenerationConfig = (
   widgetProps: WidgetProps,

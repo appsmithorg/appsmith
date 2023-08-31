@@ -25,8 +25,14 @@ export const EMBED_PRIVATE_APPS_DOC =
   "https://docs.appsmith.com/advanced-concepts/embed-appsmith-into-existing-application#embedding-private-apps";
 export const PROVISIONING_SETUP_DOC =
   "http://docs.appsmith.com/advanced-concepts/user-provisioning-group-sync";
+export const DISCORD_URL = "https://discord.gg/rBTTVJp";
 export const PRICING_PAGE_URL = (
   URL: string,
   source: string,
   instanceId: string,
-) => `${URL}?source=${source}${instanceId ? `&instance=${instanceId}` : ``}`;
+  feature?: string,
+  section?: string,
+) =>
+  `${URL}?source=${source}${instanceId ? `&instance=${instanceId}` : ``}${
+    feature ? `&feature=${feature}` : ""
+  }${section ? `&section=${section}` : ""}`;
