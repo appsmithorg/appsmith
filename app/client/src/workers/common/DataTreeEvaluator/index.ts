@@ -1207,7 +1207,7 @@ export default class DataTreeEvaluator {
 
   sortDependencies(
     dependencyMap: DependencyMap,
-    diffs?: (DataTreeDiff | DataTreeDiff[])[],
+    diffs?: DataTreeDiff[],
   ): Array<string> {
     const result = DependencyMapUtils.sortDependencies(dependencyMap);
     if (result.success) {
@@ -1226,6 +1226,9 @@ export default class DataTreeEvaluator {
         entityType = entity.ENTITY_TYPE;
       }
       const dependencies = dependencyMap.dependencies;
+      const logToSentry = !diffs
+        ? false
+        : !diffs.some((val) => val.event === DataTreeDiffEvent.EDIT);
       this.errors.push({
         type: EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR,
         message: "Cyclic dependency found while evaluating.",
@@ -1234,6 +1237,7 @@ export default class DataTreeEvaluator {
           entityType,
           dependencyMap: dependencies,
           diffs,
+          logToSentry,
         },
       });
       logError("CYCLICAL DEPENDENCY MAP", dependencies);
