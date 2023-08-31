@@ -13,7 +13,7 @@ const Styles = styled.div`
       top: 0;
 
       tr {
-        background-color: var(--ads-v2-color-bg-subtle);
+        background-color: var(--ads-v2-color-gray-50);
 
         th {
           padding: var(--ads-spaces-5) var(--ads-spaces-9);
@@ -31,7 +31,8 @@ const Styles = styled.div`
 
           &:hover {
             color: var(--ads-v2-color-fg-emphasis);
-            cursor: pointer;
+            cursor: inherit;
+
             svg {
               path {
                 fill: var(var(--ads-v2-color-fg));
@@ -65,12 +66,14 @@ const Styles = styled.div`
 
         &:hover:not(.no-hover) {
           background-color: var(--ads-v2-color-bg-subtle);
+
           td {
             color: var(--ads-v2-color-fg);
 
             &:first-child {
               color: var(--ads-v2-color-fg);
             }
+
             &.no-border {
               background-color: var(--ads-v2-color-bg-muted);
             }
@@ -93,10 +96,12 @@ const TableColumnEmptyWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
   img {
     width: 156px;
     margin-top: 16px;
   }
+
   .no-data-title {
     font-weight: 500;
     font-size: 14px;
@@ -106,6 +111,7 @@ const TableColumnEmptyWrapper = styled.div`
     margin-top: 23px;
   }
 `;
+
 export interface TableProps {
   data: any[];
   columns: any[];

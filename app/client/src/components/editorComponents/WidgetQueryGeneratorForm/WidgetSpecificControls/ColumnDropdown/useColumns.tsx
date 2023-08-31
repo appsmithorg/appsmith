@@ -18,9 +18,8 @@ import { getWidget } from "sagas/selectors";
 import { useColumnDropdown } from "./useColumnDropdown";
 
 export function useColumns(alias: string, isSearcheable: boolean) {
-  const { config, propertyName, updateConfig, widgetId } = useContext(
-    WidgetQueryGeneratorFormContext,
-  );
+  const { config, excludePrimaryColumn, propertyName, updateConfig, widgetId } =
+    useContext(WidgetQueryGeneratorFormContext);
 
   const widget = useSelector((state: AppState) => getWidget(state, widgetId));
 
@@ -103,7 +102,7 @@ export function useColumns(alias: string, isSearcheable: boolean) {
           type: prepareColumns(column.type),
           isSelected:
             column.name === primaryColumn
-              ? !config.excludePrimaryColumn
+              ? !excludePrimaryColumn
               : column?.isSelected === undefined || column?.isSelected,
         };
       });

@@ -35,7 +35,6 @@ type WidgetQueryGeneratorFormContextType = {
     datasourcePluginName: string;
     datasourceConnectionMode: string;
     selectedColumns?: Array<Record<string, unknown>>;
-    excludePrimaryColumn?: boolean;
     otherFields?: Record<string, unknown>;
   };
   updateConfig: (
@@ -50,6 +49,9 @@ type WidgetQueryGeneratorFormContextType = {
   sampleData: string;
   aliases: Alias[];
   otherFields: OtherField[];
+  excludePrimaryColumn?: boolean;
+  isConnectableToWidget?: boolean;
+  constants?: Record<string, string>;
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -62,7 +64,6 @@ const DEFAULT_CONFIG_VALUE = {
   datasourcePluginType: "",
   datasourcePluginName: "",
   datasourceConnectionMode: "",
-  excludePrimaryColumn: false,
   otherFields: {},
 };
 
@@ -80,6 +81,9 @@ const DEFAULT_CONTEXT_VALUE = {
   sampleData: "",
   aliases: [],
   otherFields: [],
+  excludePrimaryColumn: false,
+  isConnectableToWidget: false,
+  constants: {},
 };
 
 export const WidgetQueryGeneratorFormContext =
@@ -98,9 +102,10 @@ type Props = {
   searchableColumn: boolean;
   sampleData: string;
   allowFieldConfigurations?: boolean;
-  ctaText?: string;
   excludePrimaryColumn?: boolean;
   otherFields?: OtherField[];
+  isConnectableToWidget?: boolean;
+  constants?: Record<string, string>;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -111,7 +116,6 @@ function WidgetQueryGeneratorForm(props: Props) {
   const {
     aliases,
     allowFieldConfigurations = false,
-    ctaText = createMessage(TABLE_CONNECT_BUTTON_TEXT),
     errorMsg,
     excludePrimaryColumn,
     expectedType,
@@ -122,6 +126,8 @@ function WidgetQueryGeneratorForm(props: Props) {
     searchableColumn,
     widgetId,
     otherFields = [],
+    isConnectableToWidget,
+    constants,
   } = props;
 
   const isSourceOpen = useSelector(getIsOneClickBindingOptionsVisibility);
@@ -230,6 +236,9 @@ function WidgetQueryGeneratorForm(props: Props) {
       sampleData,
       aliases,
       otherFields,
+      excludePrimaryColumn,
+      isConnectableToWidget,
+      constants,
     };
   }, [
     config,
@@ -244,11 +253,10 @@ function WidgetQueryGeneratorForm(props: Props) {
     sampleData,
     aliases,
     otherFields,
+    excludePrimaryColumn,
+    isConnectableToWidget,
+    constants,
   ]);
-
-  useEffect(() => {
-    updateConfig("excludePrimaryColumn", excludePrimaryColumn);
-  }, [excludePrimaryColumn]);
 
   useEffect(() => {
     if (!pristine && propertyValue && !isConnecting) {
@@ -266,7 +274,11 @@ function WidgetQueryGeneratorForm(props: Props) {
           hasSearchableColumn={searchableColumn}
           otherFields={otherFields}
         />
-        <ConnectData btnText={ctaText} />
+        <ConnectData
+          btnText={
+            constants?.ctaText || createMessage(TABLE_CONNECT_BUTTON_TEXT)
+          }
+        />
       </WidgetQueryGeneratorFormContext.Provider>
     </Wrapper>
   );

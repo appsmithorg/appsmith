@@ -15,6 +15,7 @@ import { useParams } from "react-router";
 import { integrationEditorURL } from "RouteBuilder";
 import {
   getActionsForCurrentPage,
+  getCurrentPageWidgets,
   getDatasourceLoading,
   getDatasources,
   getMockDatasources,
@@ -43,6 +44,11 @@ import {
 } from "@appsmith/utils/Environments";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getDatatype } from "utils/AppsmithUtils";
+import WidgetFactory from "utils/WidgetFactory";
+import {
+  createMessage,
+  DATASOURCE_DROPDOWN_OPTIONS,
+} from "@appsmith/constants/messages";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -100,8 +106,10 @@ export function useDatasource(searchText: string) {
   const {
     addBinding,
     config,
+    constants,
     errorMsg,
     expectedType,
+    isConnectableToWidget,
     isSourceOpen,
     onSourceClose,
     propertyName,
@@ -131,6 +139,52 @@ export function useDatasource(searchText: string) {
   const plugins = useSelector(getPlugins);
 
   const workspaceId = useSelector(getCurrentWorkspaceId);
+
+  const currentPageWidgets = useSelector(getCurrentPageWidgets);
+
+  const widgetOptions = useMemo(() => {
+    if (!isConnectableToWidget) return [];
+    return Object.entries(currentPageWidgets)
+      .map(([widgetId, widget]) => {
+        const { getOneClickBindingConnectableWidgetConfig } =
+          WidgetFactory.getWidgetMethods(widget.type);
+        if (getOneClickBindingConnectableWidgetConfig) {
+          const widgetBindPath =
+            getOneClickBindingConnectableWidgetConfig(widget);
+          return {
+            id: widgetId,
+            value: `{{${widgetBindPath}}}`,
+            label: widget.widgetName,
+            icon: (
+              <ImageWrapper>
+                <DatasourceImage
+                  alt="widget-icon"
+                  className="dataSourceImage"
+                  src={widget.iconSVG}
+                />
+              </ImageWrapper>
+            ),
+            onSelect: function (
+              value?: string,
+              valueOption?: DropdownOptionType,
+            ) {
+              addBinding(valueOption?.value, false);
+
+              updateConfig({
+                datasource: "",
+                datasourcePluginType: "",
+                datasourcePluginName: "",
+                datasourceConnectionMode: "",
+              });
+
+              // TODO (Sangeeth) : Check with team for analytics event
+            },
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }, [currentPageWidgets, addBinding, isConnectableToWidget]);
 
   const [actualDatasourceOptions, mockDatasourceOptions] = useMemo(() => {
     const availableDatasources = datasources.filter(({ pluginId }) =>
@@ -494,7 +548,12 @@ export function useDatasource(searchText: string) {
         />
       );
     } else {
-      return <Placeholder>Connect data</Placeholder>;
+      return (
+        <Placeholder>
+          {constants?.sourceDataPlaceholderText ||
+            createMessage(DATASOURCE_DROPDOWN_OPTIONS.CONNECT_DATA)}
+        </Placeholder>
+      );
     }
   }, [
     config,
@@ -505,11 +564,18 @@ export function useDatasource(searchText: string) {
     queryOptions,
   ]);
 
+  const connectToOptions = useMemo(() => {
+    return [...filteredQueryOptions, ...widgetOptions];
+  }, [filteredQueryOptions, widgetOptions]);
+
   return {
+    constants,
     datasourceOptions: filteredDatasourceOptions,
     otherOptions,
     selected,
     queryOptions: filteredQueryOptions,
+    widgetOptions,
+    connectToOptions,
     isSourceOpen,
     onSourceClose,
     error: config.datasource ? "" : errorMsg,

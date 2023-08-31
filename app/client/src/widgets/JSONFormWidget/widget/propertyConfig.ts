@@ -15,6 +15,7 @@ import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyC
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   createMessage,
+  DATASOURCE_DROPDOWN_OPTIONS,
   JSON_FORM_CONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
 import { FieldOptionsType } from "../../../components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
@@ -28,6 +29,19 @@ export const sourceDataValidationFn = (
   props: JSONFormWidgetProps,
   _?: any,
 ): ValidationResponse => {
+  if (value === "") {
+    return {
+      isValid: false,
+      parsed: {},
+      messages: [
+        {
+          name: "ValidationError",
+          message: "Source data cannot be empty.",
+        },
+      ],
+    };
+  }
+
   if (_.isNumber(value) || _.isBoolean(value)) {
     return {
       isValid: false,
@@ -76,7 +90,7 @@ export const sourceDataValidationFn = (
   } catch (e) {
     return {
       isValid: false,
-      parsed: {},
+      parsed: value,
       messages: [e as Error],
     };
   }
@@ -139,8 +153,28 @@ export const contentConfig = [
         controlType: "ONE_CLICK_BINDING_CONTROL",
         controlConfig: {
           allowFieldConfigurations: true,
+          constants: {
+            ctaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
+            connectToText: createMessage(
+              DATASOURCE_DROPDOWN_OPTIONS.CONNECT_TO,
+            ),
+            bindDatasourceText: createMessage(
+              DATASOURCE_DROPDOWN_OPTIONS.CREATE_OR_EDIT_RECORDS,
+            ),
+            schemaText: createMessage(
+              DATASOURCE_DROPDOWN_OPTIONS.WRITE_JSON_SCHEMA,
+            ),
+            sourceDataPlaceholderText: createMessage(
+              DATASOURCE_DROPDOWN_OPTIONS.SELECT_A_DATASOURCE,
+            ),
+          },
           ctaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
           excludePrimaryColumn: true,
+          isConnectableToWidget: true,
+          sampleData: {
+            name: "John Doe",
+            age: 29,
+          },
           otherFields: [
             {
               label: "Form Type",

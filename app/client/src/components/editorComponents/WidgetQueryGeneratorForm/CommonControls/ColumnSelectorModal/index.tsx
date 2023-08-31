@@ -23,6 +23,7 @@ import {
   FIELDS_CONFIGURATION,
   SAVE_CHANGES,
   createMessage,
+  SAVE_CHANGES_DISABLED_TOOLTIP_TEXT,
 } from "@appsmith/constants/messages";
 import EditFieldsTable from "./EditFieldsTable";
 import { WidgetQueryGeneratorFormContext } from "../../index";
@@ -58,7 +59,7 @@ const FlexWrapper = styled.div<{ disabled?: boolean }>`
   display: flex;
   align-items: center;
   gap: 4px;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  cursor: inherit;
   background-color: ${(props) =>
     props.disabled ? "var(--ads-v2-color-bg-muted)" : "transparent"};
 `;
@@ -67,12 +68,20 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
   const { primaryColumn, columns: data = [] } = useColumns("", false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updatedData, setUpdatedData] = useState<any>([]);
+  const [saveDisabled, setSaveDisabled] = useState(false);
   const { updateConfig } = useContext(WidgetQueryGeneratorFormContext);
 
   useEffect(() => {
     const clonedData = klona(data);
     setUpdatedData([...clonedData]);
   }, [data]);
+
+  useEffect(() => {
+    const isSaveDisabled = updatedData?.every(
+      (column: any) => !column.isSelected,
+    );
+    setSaveDisabled(isSaveDisabled);
+  }, [updatedData]);
 
   const setIsOpen = (isOpen: boolean) => {
     setIsModalOpen(isOpen);
@@ -171,9 +180,8 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
                 return {
                   onClick: () => isDisabled && null,
                   style: {
-                    backgroundColor: isDisabled
-                      ? "var(--ads-v2-color-bg-subtle)"
-                      : "transparent",
+                    opacity: isDisabled ? "0.5" : "1",
+                    cursor: isDisabled ? "not-allowed" : "pointer",
                   },
                 };
               }}
@@ -188,13 +196,24 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
             >
               {createMessage(CANCEL_DIALOG)}
             </Button>
-            <Button
-              data-testid="t--edit-fields-save-btn"
-              onClick={handleSave}
-              size="md"
+            <Tooltip
+              content={
+                saveDisabled
+                  ? createMessage(SAVE_CHANGES_DISABLED_TOOLTIP_TEXT)
+                  : null
+              }
             >
-              {createMessage(SAVE_CHANGES)}
-            </Button>
+              <span>
+                <Button
+                  data-testid="t--edit-fields-save-btn"
+                  isDisabled={saveDisabled}
+                  onClick={handleSave}
+                  size="md"
+                >
+                  {createMessage(SAVE_CHANGES)}
+                </Button>
+              </span>
+            </Tooltip>
           </ModalFooter>
         </ModalContent>
       </Modal>
