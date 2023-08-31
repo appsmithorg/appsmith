@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 import { Switch } from "react-router";

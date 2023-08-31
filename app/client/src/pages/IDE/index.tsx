@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
