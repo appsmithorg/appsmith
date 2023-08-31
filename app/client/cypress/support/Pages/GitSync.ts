@@ -44,6 +44,9 @@ export class GitSync {
   public _discardCallout = "[data-testid='t--discard-callout']";
   public _gitStatusChanges = "[data-testid='t--git-change-statuses']";
   private _gitSyncBranches = ".t--sync-branches";
+  private _currentBranch = "[data-testid='t--branch-button-currentBranch']";
+  private _gitBranchContextMenu = ".git-branch-more-menu";
+  private _deleteBranch = "//div[@role='menu']//span[text()='Delete']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -339,6 +342,20 @@ export class GitSync {
       );
     }
     this.CloseGitSyncModal();
+  }
+
+  DeleteBranchFromUI(index = 1) {
+    //  cy.get(this._currentBranch).click();
+    this.agHelper.GetNClick(this._currentBranch);
+    this.agHelper
+      .GetElement(this._branchListItem)
+      .eq(index)
+      .trigger("mouseenter");
+    this.agHelper.GetNClick(this._gitBranchContextMenu, 0, true);
+    this.agHelper.WaitUntilEleAppear(this._deleteBranch);
+    cy.xpath("//div[@role='menu']//span[text()='Delete']")
+      .should("be.visible")
+      .click({ force: true });
   }
   //#region Unused methods
 

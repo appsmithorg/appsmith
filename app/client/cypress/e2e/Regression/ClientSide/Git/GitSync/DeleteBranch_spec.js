@@ -20,7 +20,7 @@ describe("Delete branch flow", () => {
     //cy.createGitBranch(branchName);
     cy.wait(1000);
     // verify can not delete the checked out branch
-    DeleteBranchFromUI(1);
+    gitSync.DeleteBranchFromUI(1);
     cy.get("@gitbranchName").then((branName) => {
       branchName = branName;
       cy.get(homePage.toastMessage).should(
@@ -32,7 +32,7 @@ describe("Delete branch flow", () => {
       cy.switchGitBranch("master");
       cy.wait(2000);
 
-      DeleteBranchFromUI(1);
+      gitSync.DeleteBranchFromUI(1);
       cy.wait("@deleteBranch").should(
         "have.nested.property",
         "response.body.responseMeta.status",
@@ -60,7 +60,7 @@ describe("Delete branch flow", () => {
     cy.switchGitBranch("master");
     cy.wait(2000);
 
-    DeleteBranchFromUI(1);
+    gitSync.DeleteBranchFromUI(1);
 
     cy.wait("@deleteBranch").should(
       "have.nested.property",
@@ -83,7 +83,7 @@ describe("Delete branch flow", () => {
     cy.switchGitBranch("master");
     cy.wait(3000);
 
-    DeleteBranchFromUI(1);
+    gitSync.DeleteBranchFromUI(1);
 
     cy.wait("@deleteBranch").should(
       "have.nested.property",
@@ -96,22 +96,10 @@ describe("Delete branch flow", () => {
 
   it("4. Verify Default branch deletion not allowed ", () => {
     agHelper.WaitUntilAllToastsDisappear();
-    DeleteBranchFromUI(0);
+    gitSync.DeleteBranchFromUI(0);
     cy.get(gitSyncLocators.closeBranchList).click({ force: true });
     agHelper.ValidateToastMessage("Cannot delete default branch: master");
   });
-
-  function DeleteBranchFromUI(index = 1) {
-    cy.get(gitSyncLocators.branchButton).click();
-    cy.get(gitSyncLocators.branchListItem)
-      .eq(index)
-      .trigger("mouseenter")
-      .wait(1000);
-    cy.get(gitSyncLocators.gitBranchContextMenu).click({ force: true });
-    cy.xpath("//div[@role='menu']//span[text()='Delete']")
-      .should("be.visible")
-      .click({ force: true });
-  }
 
   after(() => {
     //clean up
