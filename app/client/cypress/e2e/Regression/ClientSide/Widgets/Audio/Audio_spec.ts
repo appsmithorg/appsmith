@@ -9,13 +9,13 @@ import {
 
 const URL = "https://assets.appsmith.com/widgets/birds_chirping.mp3";
 
-describe("Audio Widget functionality tests", () => {
+describe("excludeForAirgap", "Audio Widget functionality tests", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.AUDIO, 200, 200);
   });
   it("1. Audio widget property verification", () => {
     entityExplorer.SelectEntityByName("Audio1", "Widgets");
-    // assert propertis are present
+    // assert properties are present
     propPane.Search("general");
     propPane.AssertIfPropertyOrSectionExists("general", "CONTENT");
     propPane.Search("data");

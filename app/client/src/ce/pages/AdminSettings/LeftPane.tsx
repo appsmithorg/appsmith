@@ -113,13 +113,13 @@ export function Categories({
     });
   };
 
-  const onClickHandler = (category: string, needsUpgrade: boolean) => {
+  const onClickHandler = (category: string, showUpgradeTag: boolean) => {
     if (category === "general") {
       dispatch({
         type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
       });
     }
-    if (needsUpgrade) {
+    if (showUpgradeTag) {
       triggerAnalytics(category);
     }
   };
@@ -131,6 +131,7 @@ export function Categories({
           !!currentSubCategory && showSubCategory
             ? currentSubCategory == config.slug
             : currentCategory == config.slug;
+        const showUpgradeTag = config?.isFeatureEnabled === false;
         return (
           <CategoryItem key={config.slug}>
             <StyledLink
@@ -139,7 +140,7 @@ export function Categories({
                 active ? "active" : ""
               }`}
               onClick={() =>
-                onClickHandler(config.slug, config?.needsUpgrade || false)
+                onClickHandler(config.slug, showUpgradeTag || false)
               }
               to={
                 !parentCategory
@@ -150,13 +151,13 @@ export function Categories({
                     })
               }
             >
-              {config?.needsUpgrade ? (
+              {showUpgradeTag ? (
                 <Icon name="lock-2-line" />
               ) : (
                 config?.icon && <Icon name={config?.icon} size="md" />
               )}
               <SettingName active={active}>{config.title}</SettingName>
-              {config?.needsUpgrade &&
+              {showUpgradeTag &&
                 (config?.isEnterprise ? <EnterpriseTag /> : <BusinessTag />)}
             </StyledLink>
             {showSubCategory && (

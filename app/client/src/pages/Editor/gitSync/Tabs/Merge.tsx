@@ -172,7 +172,7 @@ export default function Merge() {
   }, [currentBranch, selectedBranchOption?.value, dispatch]);
 
   useEffect(() => {
-    dispatch(fetchGitStatusInit());
+    dispatch(fetchGitStatusInit({ compareRemote: false }));
     dispatch(fetchBranchesInit());
     return () => {
       dispatch(resetMergeStatus());
