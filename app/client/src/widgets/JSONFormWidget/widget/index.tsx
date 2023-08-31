@@ -175,7 +175,7 @@ class JSONFormWidget extends BaseWidget<
           formConfig?.otherFields?.defaultValues
         },${selectedColumnNames.map((name) => `'${name}'`).join(",")})}}`,
         title: `Update Row ${primaryKey} {{${formConfig?.otherFields?.defaultValues}.${primaryKey}}}`,
-        onSubmit: queryConfig.update.run,
+        onSubmit: queryConfig?.update.run,
       };
     }
 

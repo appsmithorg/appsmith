@@ -55,7 +55,7 @@ const StyledDropdownTrigger = styled.div<{
 `;
 
 const StyledMenuSeparator = styled(MenuSeparator)`
-  margin: 10px 0px;
+  margin: 10px 0;
 `;
 
 const StyledInputContainer = styled.div`
