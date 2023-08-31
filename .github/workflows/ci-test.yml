@@ -180,6 +180,8 @@ jobs:
             -e ENTERPRISE_ADMIN_NAME=ent-admin@appsmith.com \
             -e ENTERPRISE_ADMIN_PASSWORD=ent_admin_password \
             -e FLAGSMITH_URL=http://host.docker.internal:5001/flagsmith \
+            -e FLAGSMITH_SERVER_KEY=dummykey \
+            -e FLAGSMITH_SERVER_KEY=dummykey \
             appsmith/cloud-services:release
           cd cicontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
