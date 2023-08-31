@@ -14,6 +14,9 @@ describe("Tests to assert install/uninstall flows", function () {
       self.lodash = {};
     });
 
+    //@ts-expect-error importScripts is not defined in the test environment
+    self.import = jest.fn();
+
     const mockTernDefsGenerator = jest.fn(() => ({}));
 
     jest.mock("../../../common/JSLibrary/ternDefinitionGenerator.ts", () => {
@@ -23,8 +26,8 @@ describe("Tests to assert install/uninstall flows", function () {
     });
   });
 
-  it("should install a library", function () {
-    const res = installLibrary({
+  it("should install a library", async function () {
+    const res = await installLibrary({
       data: {
         url: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js",
         takenAccessors: [],
@@ -46,8 +49,8 @@ describe("Tests to assert install/uninstall flows", function () {
     });
   });
 
-  it("Reinstalling a different version of the same installed library should fail", function () {
-    const res = installLibrary({
+  it("Reinstalling a different version of the same installed library should fail", async function () {
+    const res = await installLibrary({
       data: {
         url: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.16.0/lodash.min.js",
         takenAccessors: ["lodash"],
@@ -62,10 +65,10 @@ describe("Tests to assert install/uninstall flows", function () {
     });
   });
 
-  it("Detects name space collision where there is another entity(api, widget or query) with the same name", function () {
+  it("Detects name space collision where there is another entity(api, widget or query) with the same name", async function () {
     //@ts-expect-error ignore
     delete self.lodash;
-    const res = installLibrary({
+    const res = await installLibrary({
       data: {
         url: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.16.0/lodash.min.js",
         takenAccessors: [],
@@ -80,10 +83,10 @@ describe("Tests to assert install/uninstall flows", function () {
     });
   });
 
-  it("Removes or set the accessors to undefined on the global object on uninstallation", function () {
+  it("Removes or set the accessors to undefined on the global object on uninstallation", async function () {
     //@ts-expect-error ignore
     self.lodash = {};
-    const res = uninstallLibrary({
+    const res = await uninstallLibrary({
       data: ["lodash"],
       method: EVAL_WORKER_SYNC_ACTION.UNINSTALL_LIBRARY,
     });
