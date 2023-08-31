@@ -1,271 +1,299 @@
 import {
-    agHelper,
-    locators,
-    deployMode,
-    entityExplorer,
-    propPane,
-    dataSources,
+  agHelper,
+  locators,
+  deployMode,
+  entityExplorer,
+  propPane,
+  dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Multi Select widget Tests", function () {
-    before(() => {
-        entityExplorer.DragDropWidgetNVerify("multiselectwidgetv2", 550, 100);
+  before(() => {
+    entityExplorer.DragDropWidgetNVerify("multiselectwidgetv2", 550, 100);
+  });
+
+  it("1. Verify property visibility", function () {
+    const dataProperties = [
+      "sourcedata",
+      "labelkey",
+      "valuekey",
+      "defaultselectedvalues",
+    ];
+    const labelProperties = ["text", "position"];
+    const searchfilterProperties = ["allowsearching", "serversidefiltering"];
+    const generalProperties = [
+      "tooltip",
+      "placeholder",
+      "visible",
+      "disabled",
+      "animateloading",
+      "allowselectall",
+      "height",
+    ];
+    const eventsProperties = [
+      "onoptionchange",
+      "ondropdownopen",
+      "ondropdownclose",
+    ];
+    const validationsProperties = ["required"];
+
+    const labelStylesProperties = ["fontcolor", "fontsize"];
+    const borderShadows = ["borderradius", "boxshadow"];
+
+    entityExplorer.SelectEntityByName("MultiSelect1", "Widgets");
+    // Data section
+    dataProperties.forEach((dataSectionProperty) => {
+      agHelper.AssertElementVisibility(
+        propPane._propertyPanePropertyControl("data", `${dataSectionProperty}`),
+      );
     });
 
-    it("1. Verify property visibility", function () {
-        const dataProperties = [
-            "sourcedata",
-            "labelkey",
-            "valuekey",
-            "defaultselectedvalues"
-        ];
-        const labelProperties = [
-            "text",
-            "position"
-        ];
-        const searchfilterProperties = [
-            "allowsearching",
-            "serversidefiltering"
-        ];
-        const generalProperties = [
-            "tooltip",
-            "placeholder",
-            "visible",
-            "disabled",
-            "animateloading",
-            "allowselectall",
-            "height"
-        ];
-        const eventsProperties = [
-            "onoptionchange",
-            "ondropdownopen",
-            "ondropdownclose"
-        ];
-        const validationsProperties = ["required"];
+    // Label section
+    labelProperties.forEach((labelSectionProperty) => {
+      agHelper.AssertElementVisibility(
+        propPane._propertyPanePropertyControl(
+          "label",
+          `${labelSectionProperty}`,
+        ),
+      );
+    });
 
-        const labelStylesProperties = [
-            "fontcolor", 
-            "fontsize"
-        ];
-        const borderShadows = [
-            "borderradius",
-            "boxshadow"
-        ]
+    // Search & filters section
+    searchfilterProperties.forEach((searchSectionProperty) => {
+      agHelper.AssertElementVisibility(
+        propPane._propertyPanePropertyControl(
+          "search\\&filters",
+          `${searchSectionProperty}`,
+        ),
+      );
+    });
 
-        entityExplorer.SelectEntityByName("MultiSelect1", "Widgets");
-        // Data section
-        dataProperties.forEach((dataSectionProperty) => {
-            agHelper.AssertElementVisibility(
-                propPane._propertyPanePropertyControl("data", `${dataSectionProperty}`),
-            );
-        });
+    // General section
+    generalProperties.forEach((generalSectionProperty) => {
+      agHelper.AssertElementVisibility(
+        propPane._propertyPanePropertyControl(
+          "general",
+          `${generalSectionProperty}`,
+        ),
+      );
+    });
 
-        // Label section
-        labelProperties.forEach((labelSectionProperty) => {
-            agHelper.AssertElementVisibility(
-                propPane._propertyPanePropertyControl("label", `${labelSectionProperty}`),
-            );
-        });
+    // Events section
+    eventsProperties.forEach((eventsSectionProperty) => {
+      agHelper.AssertElementVisibility(
+        propPane._propertyPanePropertyControl(
+          "events",
+          `${eventsSectionProperty}`,
+        ),
+      );
+    });
 
-        // Search & filters section
-        searchfilterProperties.forEach((searchSectionProperty) => {
-            agHelper.AssertElementVisibility(
-                propPane._propertyPanePropertyControl("search\\&filters", `${searchSectionProperty}`),
-            );
-        });
+    // Validation Section properties
+    agHelper.AssertElementVisibility(
+      propPane._propertyPanePropertyControl(
+        "validations",
+        `${validationsProperties}`,
+      ),
+    );
 
-        // General section
-        generalProperties.forEach((generalSectionProperty) => {
-            agHelper.AssertElementVisibility(
-                propPane._propertyPanePropertyControl("general", `${generalSectionProperty}`),
-            );
-        });
+    propPane.MoveToTab("Style");
+    labelStylesProperties.forEach((labelStyleSectionProperty) => {
+      agHelper.AssertElementVisibility(
+        propPane._propertyPanePropertyControl(
+          "labelstyles",
+          `${labelStyleSectionProperty}`,
+        ),
+      );
+    });
+    borderShadows.forEach((borderShadowSectionProperty) => {
+      agHelper.AssertElementVisibility(
+        propPane._propertyPanePropertyControl(
+          "borderandshadow",
+          `${borderShadowSectionProperty}`,
+        ),
+      );
+    });
+  });
 
-        // Events section
-        eventsProperties.forEach((eventsSectionProperty) => {
-            agHelper.AssertElementVisibility(
-                propPane._propertyPanePropertyControl("events", `${eventsSectionProperty}`),
-            );
-        });
+  it("2. Verify Renaming, duplication and deletion", () => {
+    // Rename and verify
+    entityExplorer.RenameEntityFromExplorer(
+      "MultiSelect1",
+      "NewMultiSelect",
+      true,
+    );
+    agHelper.AssertElementVisibility(locators._widgetName("NewMultiSelect"));
 
-        // Validation Section properties
-         agHelper.AssertElementVisibility(
-            propPane._propertyPanePropertyControl("validations", `${validationsProperties}`),
-        );
+    // Copy and paste widget using cmd+c and cmd+v
+    entityExplorer.CopyPasteWidget("NewMultiSelect");
+    entityExplorer.AssertEntityPresenceInExplorer("NewMultiSelectCopy");
+    entityExplorer.DeleteWidgetFromEntityExplorer("NewMultiSelectCopy");
 
-        propPane.MoveToTab("Style");
-        labelStylesProperties.forEach((labelStyleSectionProperty) => {
-            agHelper.AssertElementVisibility(
-                propPane._propertyPanePropertyControl("labelstyles", `${labelStyleSectionProperty}`),
-            );
-        });
-        borderShadows.forEach((borderShadowSectionProperty) => {
-            agHelper.AssertElementVisibility(
-                propPane._propertyPanePropertyControl("borderandshadow", `${borderShadowSectionProperty}`),
-            );
-        });
-    })
+    // Copy paste from property pane and delete from property pane
+    propPane.CopyPasteWidgetFromPropertyPane("NewMultiSelect");
+    propPane.DeleteWidgetFromPropertyPane("NewMultiSelectCopy");
+    entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
+    propPane.MoveToTab("Content");
+  });
 
-    it("2. Verify Renaming, duplication and deletion", () => {    
-        // Rename and verify
-        entityExplorer.RenameEntityFromExplorer("MultiSelect1", "NewMultiSelect", true);
-        agHelper.AssertElementVisibility(locators._widgetName("NewMultiSelect"));
+  it("3. Verify changing Label text and position", () => {
+    propPane.UpdatePropertyFieldValue("Text", "New Label");
+    agHelper.AssertText(locators._label, "text", "New Label");
+    agHelper.GetNClick(`${locators._adsV2Text}:contains('Left')`);
+    agHelper.AssertAttribute(locators._label, "position", "Left");
 
-        // Copy and paste widget using cmd+c and cmd+v
-        entityExplorer.CopyPasteWidget("NewMultiSelect");
-        entityExplorer.AssertEntityPresenceInExplorer("NewMultiSelectCopy");
-        entityExplorer.DeleteWidgetFromEntityExplorer("NewMultiSelectCopy");
+    // Preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    agHelper.AssertAttribute(locators._label, "position", "Left");
+    agHelper.GetNClick(locators._exitPreviewMode);
 
-        // Copy paste from property pane and delete from property pane
-        propPane.CopyPasteWidgetFromPropertyPane("NewMultiSelect");
-        propPane.DeleteWidgetFromPropertyPane("NewMultiSelectCopy");
-        entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
-        propPane.MoveToTab("Content");
-    })
+    // Deploy mode
+    deployMode.DeployApp();
+    agHelper.AssertAttribute(locators._label, "position", "Left");
+    deployMode.NavigateBacktoEditor();
 
-    it("3. Verify changing Label text and position", () => {
-        propPane.UpdatePropertyFieldValue("Text", "New Label");
-        agHelper.AssertText(locators._label, "text", "New Label");
-        agHelper.GetNClick(`${locators._adsV2Text}:contains('Left')`)
-        agHelper.AssertAttribute(locators._label, 'position', 'Left');
+    entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
+    agHelper.GetNClick(`${locators._adsV2Text}:contains('Top')`);
+    agHelper.AssertAttribute(locators._label, "position", "Top");
+  });
 
-        // Preview mode
-        agHelper.GetNClick(locators._enterPreviewMode);
-        agHelper.AssertAttribute(locators._label, 'position', 'Left');
-        agHelper.GetNClick(locators._exitPreviewMode);
+  it("5. Verify tooltip", () => {
+    entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 550, 300);
+    propPane.UpdatePropertyFieldValue("Default value", "1000");
+    entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
+    propPane.UpdatePropertyFieldValue("Tooltip", "{{CurrencyInput1.text}}");
+    agHelper.HoverElement(".bp3-popover-target svg");
+    agHelper.AssertPopoverTooltip("1,000");
 
-        // Deploy mode
-        deployMode.DeployApp();
-        agHelper.AssertAttribute(locators._label, 'position', 'Left');
-        deployMode.NavigateBacktoEditor();
+    // Preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    agHelper.HoverElement(".bp3-popover-target svg");
+    agHelper.AssertPopoverTooltip("1,000");
+    agHelper.GetNClick(locators._exitPreviewMode);
 
-        entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
-        agHelper.GetNClick(`${locators._adsV2Text}:contains('Top')`)
-        agHelper.AssertAttribute(locators._label, 'position', 'Top');
-    })
+    // Deploy mode
+    deployMode.DeployApp();
+    agHelper.HoverElement(".bp3-popover-target svg");
+    agHelper.AssertPopoverTooltip("1,000");
+    deployMode.NavigateBacktoEditor();
+  });
 
-    it("5. Verify tooltip", () => { 
-        entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 550, 300);
-        propPane.UpdatePropertyFieldValue("Default value", "1000");
-        entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
-        propPane.UpdatePropertyFieldValue("Tooltip", "{{CurrencyInput1.text}}");
-        agHelper.HoverElement(".bp3-popover-target svg");
-        agHelper.AssertPopoverTooltip("1,000");  
+  it("6. Validate 'visible' and 'disable' toggle", () => {
+    entityExplorer.SelectEntityByName("NewMultiSelect");
 
-        // Preview mode
-        agHelper.GetNClick(locators._enterPreviewMode);
-        agHelper.HoverElement(".bp3-popover-target svg");
-        agHelper.AssertPopoverTooltip("1,000");  
-        agHelper.GetNClick(locators._exitPreviewMode);
+    // Verify Disabled toggle
+    propPane.TogglePropertyState("disabled", "On");
+    agHelper.AssertAttribute(
+      locators._widgetInDeployed("multiselectwidgetv2"),
+      "disabled",
+      "disabled",
+    );
+    propPane.TogglePropertyState("disabled", "Off");
+    // Verify Visible toggle
+    propPane.TogglePropertyState("visible", "Off");
+    agHelper.AssertAttribute(
+      locators._widgetInDeployed("multiselectwidgetv2"),
+      "data-hidden",
+      "true",
+    );
+    agHelper.AssertExistingToggleState("visible", "false");
+    propPane.TogglePropertyState("visible", "On");
+    agHelper.AssertExistingToggleState("visible", "true");
+  });
 
-        // Deploy mode
-        deployMode.DeployApp();
-        agHelper.HoverElement(".bp3-popover-target svg");
-        agHelper.AssertPopoverTooltip("1,000"); 
-        deployMode.NavigateBacktoEditor();
-    })
+  it("7. Validate auto height with limits", function () {
+    propPane.SelectPropertiesDropDown("height", "Auto Height with limits");
+    agHelper.HoverElement(propPane._autoHeightLimitMin);
+    agHelper.AssertContains("Min-Height: 4 rows");
+    agHelper.HoverElement(propPane._autoHeightLimitMax);
+    agHelper.AssertContains("Max-Height: 9 rows");
+    propPane.SelectPropertiesDropDown("height", "Auto Height");
+  });
 
-    it("6. Validate 'visible' and 'disable' toggle", () => {
-        entityExplorer.SelectEntityByName("NewMultiSelect");
-    
-        // Verify Disabled toggle
-        propPane.TogglePropertyState("disabled", "On");
-        agHelper.AssertAttribute(locators._widgetInDeployed('multiselectwidgetv2'), "disabled", "disabled");
-        propPane.TogglePropertyState("disabled", "Off");
-        // Verify Visible toggle
-        propPane.TogglePropertyState("visible", "Off");
-        agHelper.AssertAttribute(locators._widgetInDeployed('multiselectwidgetv2'), "data-hidden", "true");
-        agHelper.AssertExistingToggleState("visible", "false");
-        propPane.TogglePropertyState("visible", "On");
-        agHelper.AssertExistingToggleState("visible", "true");
-      });
+  it("7. Validate events onOptionChange, onDropdownOpen and onDropdownClose", function () {
+    propPane.SelectPlatformFunction("onOptionChange", "Show alert");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
+      "Option Changed",
+    );
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
-    it("7. Validate auto height with limits", function () {
-        propPane.SelectPropertiesDropDown("height", "Auto Height with limits");
-        agHelper.HoverElement(propPane._autoHeightLimitMin);
-        agHelper.AssertContains("Min-Height: 4 rows");
-        agHelper.HoverElement(propPane._autoHeightLimitMax);
-        agHelper.AssertContains("Max-Height: 9 rows");
-        propPane.SelectPropertiesDropDown("height", "Auto Height");
-      });
-    
-    it("7. Validate events onOptionChange, onDropdownOpen and onDropdownClose", function () {
-        propPane.SelectPlatformFunction("onOptionChange", "Show alert");
-        agHelper.TypeText(
-            propPane._actionSelectorFieldByLabel("Message"),
-            "Option Changed",
-          );
-        agHelper.GetNClick(propPane._actionSelectorPopupClose);
+    agHelper.SelectFromMultiSelect(["Blue"]);
+    agHelper.ValidateToastMessage("Option Changed");
 
-        agHelper.SelectFromMultiSelect(["Blue"]);
-        agHelper.ValidateToastMessage("Option Changed");
+    // onDropdownOpen
+    propPane.SelectPlatformFunction("onDropdownOpen", "Show alert");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
+      "Dropdown Opened",
+    );
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
+    agHelper.GetNClick(propPane._multiSelect);
+    agHelper.ValidateToastMessage("Dropdown Opened");
 
-        // onDropdownOpen
-        propPane.SelectPlatformFunction("onDropdownOpen", "Show alert");
-        agHelper.TypeText(
-            propPane._actionSelectorFieldByLabel("Message"),
-            "Dropdown Opened",
-          );
-        agHelper.GetNClick(propPane._actionSelectorPopupClose);
-        agHelper.GetNClick(propPane._multiSelect);
-        agHelper.ValidateToastMessage("Dropdown Opened");
+    // Dropdown Close
+    propPane.SelectPlatformFunction("onDropdownClose", "Show alert");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
+      "Dropdown Closed",
+    );
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
+    agHelper.GetNClick(propPane._multiSelect);
+    agHelper.GetNClick(propPane._multiSelect);
+    agHelper.ValidateToastMessage("Dropdown Closed");
+  });
 
-        // Dropdown Close
-        propPane.SelectPlatformFunction("onDropdownClose", "Show alert");
-        agHelper.TypeText(
-            propPane._actionSelectorFieldByLabel("Message"),
-            "Dropdown Closed",
-          );
-        agHelper.GetNClick(propPane._actionSelectorPopupClose);
-        agHelper.GetNClick(propPane._multiSelect);
-        agHelper.GetNClick(propPane._multiSelect);
-        agHelper.ValidateToastMessage("Dropdown Closed");
-    })
+  it("8. Verify Full color picker and font size", () => {
+    // Verify font color picker opens up
+    propPane.MoveToTab("Style");
+    agHelper.GetNClick(propPane._propertyControlColorPicker("fontcolor"));
+    agHelper.AssertElementVisibility(propPane._colorPickerV2Color);
+    // Verify full color picker
+    agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 0);
+    propPane.TogglePropertyState("fontcolor", "On", "updateLayout", false);
+    agHelper.AssertAttribute(propPane._colorPickerInput, "type", "color", 0);
+    // Font size
+    propPane.SelectPropertiesDropDown("fontsize", "L");
+    propPane.AssertPropertiesDropDownCurrentValue("fontsize", "L");
+    propPane.ToggleJSMode("fontsize", true);
+    propPane.UpdatePropertyFieldValue("Font size", "1rem");
+    propPane.ToggleJSMode("fontsize", false);
+    propPane.AssertPropertiesDropDownCurrentValue("fontsize", "M");
+    // Verify Emphasis
+    agHelper.GetNClick(propPane._emphasisSelector("BOLD"));
+    agHelper.AssertAttribute(locators._label, "font-style", "BOLD");
+    agHelper.GetNClick(propPane._emphasisSelector("BOLD"));
+    propPane.ToggleJSMode("emphasis", true);
+    propPane.UpdatePropertyFieldValue("Emphasis", "ITALIC");
+    agHelper.AssertAttribute(locators._label, "font-style", "ITALIC");
 
-    it("8. Verify Full color picker and font size", () => {
-        // Verify font color picker opens up
-        propPane.MoveToTab("Style");
-        agHelper.GetNClick(propPane._propertyControlColorPicker("fontcolor"));
-        agHelper.AssertElementVisibility(propPane._colorPickerV2Color);
-        // Verify full color picker
-        agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 0);
-        propPane.TogglePropertyState("fontcolor", "On");
-        agHelper.AssertAttribute(propPane._colorPickerInput, "type", "color", 0);
-        // Font size
-        propPane.SelectPropertiesDropDown("fontsize", "L");
-        propPane.AssertPropertiesDropDownCurrentValue("fontsize", "L");
-        propPane.ToggleJSMode("fontsize", true);
-        propPane.UpdatePropertyFieldValue("Font size", "1rem");
-        propPane.ToggleJSMode("fontsize", false);
-        propPane.AssertPropertiesDropDownCurrentValue("fontsize", "M");
-        // Verify Emphasis
-        agHelper.GetNClick(propPane._emphasisSelector("BOLD"));
-        agHelper.AssertAttribute(locators._label, 'font-style', 'BOLD');
-        agHelper.GetNClick(propPane._emphasisSelector("BOLD"));
-        propPane.ToggleJSMode("emphasis", true);
-        propPane.UpdatePropertyFieldValue("Emphasis", "ITALIC");
-        agHelper.AssertAttribute(locators._label, 'font-style', 'ITALIC');
+    // Preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    agHelper.AssertAttribute(locators._label, "font-style", "ITALIC");
+    agHelper.GetNClick(locators._exitPreviewMode);
 
-        // Preview mode
-        agHelper.GetNClick(locators._enterPreviewMode);
-        agHelper.AssertAttribute(locators._label, 'font-style', 'ITALIC');
-        agHelper.GetNClick(locators._exitPreviewMode);
+    // Deploy mode
+    deployMode.DeployApp();
+    agHelper.AssertAttribute(locators._label, "font-style", "ITALIC");
+    deployMode.NavigateBacktoEditor();
 
-        // Deploy mode
-        deployMode.DeployApp();
-        agHelper.AssertAttribute(locators._label, 'font-style', 'ITALIC');
-        deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
+    propPane.MoveToTab("Style");
 
-        entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
-        propPane.MoveToTab("Style");
+    // Verify border
+    agHelper.GetNClick(propPane._segmentedControl("0px"));
+    agHelper.AssertCSS(
+      `${propPane._multiSelect} .rc-select-selector`,
+      "border-radius",
+      "0px",
+    );
 
-        // Verify border
-        agHelper.GetNClick(propPane._segmentedControl("0px"));
-        agHelper.AssertCSS(`${propPane._multiSelect} .rc-select-selector`, "border-radius", "0px");
-
-        // Verify Box Shadow
-        agHelper.GetNClick(`${propPane._segmentedControl("0")}:contains('Large')`);
-        agHelper.AssertCSS(`${propPane._multiSelect} .rc-select-selector`, "box-shadow", "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px");
-
-    })
-})
+    // Verify Box Shadow
+    agHelper.GetNClick(`${propPane._segmentedControl("0")}:contains('Large')`);
+    agHelper.AssertCSS(
+      `${propPane._multiSelect} .rc-select-selector`,
+      "box-shadow",
+      "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+    );
+  });
+});
