@@ -97,7 +97,21 @@ async function getSpecsToRun(
         totalRunnersCount,
         currentRunner,
       );
-      return specsToRun.join(",");
+
+      // TODO(aswathkk): Replace this with an API call to get the list of flaky tests
+      const flakyTestsResponse = await fetch(
+        "https://raw.githubusercontent.com/appsmithorg/appsmith/d683514c5d564ecb8928e01c37f26c6a83391912/app/client/cypress/mockFlakyTestListingAPI.json",
+      );
+      const flakyTestsJson: { flakyTests: string[] } =
+        await flakyTestsResponse.json();
+      const flakyTestsList = flakyTestsJson.flakyTests;
+
+      // Remove flaky tests from the specs to run
+      const finalSpecsToRun = specsToRun.filter(
+        (spec) => !flakyTestsList.includes(spec),
+      );
+
+      return finalSpecsToRun.join(",");
     } catch (err) {
       console.error(err);
       process.exit(1);
