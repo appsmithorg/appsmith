@@ -119,8 +119,8 @@ export type ProviderViewerRouteParams = {
 
 export type QueryEditorRouteParams = {
   pageId: string;
-  queryId?: string;
-  apiId?: string;
+  actionId?: string;
+  // ac?: string;
 };
 
 export type JSEditorRouteParams = {

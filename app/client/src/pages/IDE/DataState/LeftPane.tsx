@@ -8,6 +8,8 @@ import { keyBy } from "lodash";
 import history from "../../../utils/history";
 import { datasourcesEditorIdURL } from "RouteBuilder";
 import { useParams } from "react-router";
+import ListSubTitle from "../components/ListSubTitle";
+import { Button } from "design-system";
 
 const DataLeftPane = () => {
   const { appWideDS } = useAppWideAndOtherDatasource();
@@ -32,7 +34,15 @@ const DataLeftPane = () => {
       }),
     );
   };
-  return <ListView items={items} onClick={onItemClick} />;
+  return (
+    <div>
+      <ListSubTitle
+        rightIcon={<Button isIconButton kind="tertiary" startIcon={"plus"} />}
+        title={"Active Datasources"}
+      />
+      <ListView items={items} onClick={onItemClick} />
+    </div>
+  );
 };
 
 export default DataLeftPane;

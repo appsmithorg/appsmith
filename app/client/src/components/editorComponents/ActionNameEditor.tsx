@@ -70,10 +70,10 @@ type ActionNameEditorProps = {
 };
 
 function ActionNameEditor(props: ActionNameEditorProps) {
-  const params = useParams<{ apiId?: string; queryId?: string }>();
+  const params = useParams<{ actionId: string }>();
 
   const currentActionConfig: Action | undefined = useSelector(
-    (state: AppState) => getAction(state, params.apiId || params.queryId || ""),
+    (state: AppState) => getAction(state, params.actionId || ""),
   );
 
   const currentPlugin: Plugin | undefined = useSelector((state: AppState) =>

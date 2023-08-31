@@ -5,6 +5,8 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
   DATA_SOURCES_EDITOR_ID_PATH,
+  IDE_PAGE_QUERIES_DETAIL_PATH,
+  IDE_PAGE_QUERIES_PATH,
   IDE_PAGE_UI_DETAIL_PATH,
   INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
@@ -92,6 +94,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     pluginPackageName?: string;
     queryId?: string;
     appId?: string;
+    actionId?: string;
     pageId?: string;
     collectionId?: string;
     widgetIds?: string;
@@ -122,6 +125,8 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       BUILDER_CUSTOM_PATH + WIDGETS_EDITOR_ID_PATH,
       BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH,
       IDE_PAGE_UI_DETAIL_PATH,
+      IDE_PAGE_QUERIES_PATH,
+      IDE_PAGE_QUERIES_DETAIL_PATH,
       BUILDER_PATH_DEPRECATED,
       BUILDER_PATH,
       BUILDER_CUSTOM_PATH,
@@ -162,10 +167,10 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       pageId: match.params.pageId,
     };
   }
-  if (match.params.queryId) {
+  if (match.params.actionId) {
     return {
       entity: FocusEntity.QUERY,
-      id: match.params.queryId,
+      id: match.params.actionId,
       pageId: match.params.pageId,
     };
   }

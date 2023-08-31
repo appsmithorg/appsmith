@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Switch } from "react-router";
 import {
   IDE_ADD_PATH,
+  IDE_DATA_DETAIL_PATH,
   IDE_DATA_PATH,
   IDE_LIB_PATH,
   IDE_PAGE_PATH,
@@ -107,7 +108,12 @@ const LeftPane = () => {
       )}
       <div>
         <Switch>
-          <SentryRoute component={DataLeftPane} path={IDE_DATA_PATH} />
+          <SentryRoute component={DataLeftPane} exact path={IDE_DATA_PATH} />
+          <SentryRoute
+            component={DataLeftPane}
+            exact
+            path={IDE_DATA_DETAIL_PATH}
+          />
           <SentryRoute component={PageLeftPane} path={IDE_PAGE_PATH} />
           <SentryRoute component={AddLeftPane} exact path={IDE_ADD_PATH} />
           <SentryRoute component={LibLeftPane} exact path={IDE_LIB_PATH} />

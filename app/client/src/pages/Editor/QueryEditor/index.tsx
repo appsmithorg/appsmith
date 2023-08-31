@@ -1,9 +1,7 @@
 import React from "react";
-import type { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
-import type { QueryEditorRouteParams } from "constants/routes";
 import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import QueryEditorForm from "./Form";
@@ -33,6 +31,7 @@ import {
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import type { QueryAction, SaaSAction } from "entities/Action";
+import { PluginType } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeQuery } from "actions/queryPaneActions";
@@ -108,20 +107,20 @@ type ReduxStateProps = {
   datasourceId?: string;
 };
 
-type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
-
-type Props = StateAndRouteProps & ReduxDispatchProps & ReduxStateProps;
+type Props = ReduxDispatchProps &
+  ReduxStateProps & { actionId: string; pageId: string };
 
 class QueryEditor extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
     // Call the first evaluations when the page loads
     // call evaluations only for queries and not google sheets (which uses apiId)
-    if (this.props.match.params.queryId) {
+    const { actionId } = props;
+    if (actionId) {
       this.props.initFormEvaluation(
         this.props.editorConfig,
         this.props.settingConfig,
-        this.props.match.params.queryId,
+        actionId,
       );
     }
   }
@@ -194,10 +193,9 @@ class QueryEditor extends React.Component<Props> {
   }
 
   onCreateDatasourceClick = () => {
-    const { pageId } = this.props.match.params;
     history.push(
       integrationEditorURL({
-        pageId,
+        pageId: this.props.pageId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
@@ -217,6 +215,7 @@ class QueryEditor extends React.Component<Props> {
       isDeleting,
       isEditorInitialized,
       isRunning,
+      pageId,
       pluginId,
       pluginIds,
       responses,
@@ -225,7 +224,6 @@ class QueryEditor extends React.Component<Props> {
       uiComponent,
       updateActionResponseDisplayFormat,
     } = this.props;
-    const { pageId } = this.props.match.params;
 
     // custom function to return user to integrations page if action is not found
     const goToDatasourcePage = () =>
@@ -264,7 +262,6 @@ class QueryEditor extends React.Component<Props> {
         formData={this.props.formData}
         isDeleting={isDeleting}
         isRunning={isRunning}
-        location={this.props.location}
         onCreateDatasourceClick={this.onCreateDatasourceClick}
         onDeleteClick={this.handleDeleteClick}
         onRunClick={this.handleRunClick}
@@ -278,11 +275,13 @@ class QueryEditor extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
-  const { apiId, queryId } = props.match.params;
-  const actionId = queryId || apiId;
+const mapStateToProps = (
+  state: AppState,
+  props: { actionId: string },
+): ReduxStateProps => {
   const { runErrorMessage } = state.ui.queryPane;
   const { plugins } = state.entities;
+  const { actionId } = props;
 
   const { editorConfigs, settingConfigs } = plugins;
 
@@ -336,13 +335,14 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     plugins: allPlugins,
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
-    dataSources: !!apiId
-      ? getDatasourceByPluginId(state, action?.pluginId)
-      : getDBAndRemoteDatasources(state),
+    dataSources:
+      action.pluginType === PluginType.SAAS
+        ? getDatasourceByPluginId(state, action?.pluginId)
+        : getDBAndRemoteDatasources(state),
     responses: getActionResponses(state),
     isRunning: state.ui.queryPane.isRunning[actionId],
     isDeleting: state.ui.queryPane.isDeleting[actionId],
-    isSaas: !!apiId,
+    isSaas: action.pluginType === PluginType.SAAS,
     formData,
     editorConfig,
     settingConfig,
