@@ -744,6 +744,12 @@ export const SCHEMA_WALKTHROUGH_TITLE = () => "Query data fast";
 export const SCHEMA_WALKTHROUGH_DESC = () =>
   "Select a template from a database table to quickly create your first query. ";
 
+// structure - View Mode
+
+export const DATASOURCE_VIEW_DATA_TAB = () => "View data";
+export const DATASOURCE_CONFIGURATIONS_TAB = () => "Configurations";
+export const DATASOURCE_NO_RECORDS_TO_SHOW = () => "No data records to show";
+
 // Git sync
 export const CONNECTED_TO_GIT = () => "Connected to Git";
 
@@ -851,7 +857,7 @@ export const DISCONNECT_SERVICE_SUBHEADER = () =>
 export const DISCONNECT_SERVICE_WARNING = () =>
   "will be removed as primary method of authentication";
 export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
-  ${methodName} authentication method is enabled
+  ${methodName} authentication is enabled
 `;
 
 export const REVOKE_EXISTING_REPOSITORIES = () =>
