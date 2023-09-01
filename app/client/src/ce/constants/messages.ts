@@ -489,6 +489,7 @@ export const PAGE_SERVER_UNAVAILABLE_ERROR_MESSAGES = (
 export const POST = () => "Post";
 export const CANCEL = () => "Cancel";
 export const REMOVE = () => "Remove";
+export const CREATE = () => "Create";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
