@@ -19,7 +19,6 @@ import {
   PASTE_SSH_URL_INFO,
   createMessage,
 } from "@appsmith/constants/messages";
-import GitUserSettings from "../GitSettings/GitUserSettings";
 
 interface GenerateSSHState {
   remoteUrl: string;
@@ -66,7 +65,6 @@ function GenerateSSH({ onChange = NOOP, value = {} }: GenerateSSHProps) {
             value={value?.remoteUrl}
           />
         </FieldContainer>
-        <GitUserSettings />
         <Collapsible isOpen>
           <CollapsibleHeader arrowPosition="end">
             <Icon name="play-circle-line" size="md" />

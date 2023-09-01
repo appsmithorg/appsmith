@@ -1,7 +1,35 @@
+import {
+  DEPLOY,
+  DEPLOY_YOUR_APPLICATION,
+  MERGE,
+  MERGE_CHANGES,
+  // SETTINGS_GIT,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { GitSyncModalTab } from "entities/GitSync";
+
 export enum AUTH_TYPE {
   SSH = "SSH",
   HTTPS = "HTTPS",
 }
+
+export const MENU_ITEMS_MAP: Record<string, any> = {
+  [GitSyncModalTab.DEPLOY]: {
+    key: GitSyncModalTab.DEPLOY,
+    title: createMessage(DEPLOY),
+    modalTitle: createMessage(DEPLOY_YOUR_APPLICATION),
+  },
+  [GitSyncModalTab.MERGE]: {
+    key: GitSyncModalTab.MERGE,
+    title: createMessage(MERGE),
+    modalTitle: createMessage(MERGE_CHANGES),
+  },
+  // [GitSyncModalTab.SETTINGS]: {
+  //   key: GitSyncModalTab.SETTINGS,
+  //   title: createMessage(SETTINGS_GIT),
+  //   modalTitle: createMessage(SETTINGS_GIT),
+  // },
+};
 
 export const AUTH_TYPE_OPTIONS = [
   { label: AUTH_TYPE.SSH, value: AUTH_TYPE.SSH },

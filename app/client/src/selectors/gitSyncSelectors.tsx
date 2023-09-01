@@ -61,11 +61,6 @@ export const getIsFetchingGlobalGitConfig = (state: AppState) =>
 export const getIsFetchingLocalGitConfig = (state: AppState) =>
   state.ui.gitSync.isFetchingLocalGitConfig;
 
-export const getIsGitStatusLiteEnabled = createSelector(
-  selectFeatureFlags,
-  (flags) => !!flags?.release_git_status_lite_enabled,
-);
-
 export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
 
 export const getGitRemoteStatus = (state: AppState) =>
@@ -208,3 +203,14 @@ export const getBranchSwitchingDetails = (state: AppState) => ({
   isSwitchingBranch: state.ui.gitSync.isSwitchingBranch,
   switchingToBranch: state.ui.gitSync.switchingToBranch,
 });
+
+// feature flag selectors
+export const getIsGitStatusLiteEnabled = createSelector(
+  selectFeatureFlags,
+  (flags) => !!flags?.release_git_status_lite_enabled,
+);
+
+export const getIsGitConnectV2Enabled = createSelector(
+  selectFeatureFlags,
+  (flags) => !!flags?.release_git_connect_v2_enabled,
+);
