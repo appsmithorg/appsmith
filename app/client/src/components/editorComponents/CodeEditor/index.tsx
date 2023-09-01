@@ -92,6 +92,7 @@ import {
   removeNewLineCharsIfRequired,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
+import { assistiveBindingHinter } from "./assistiveBindingHinter";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
@@ -274,7 +275,12 @@ const getEditorIdentifier = (props: EditorProps): string => {
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [entityMarker],
-    hinting: [bindingHint, commandsHelper, sqlHint.hinter],
+    hinting: [
+      bindingHint,
+      commandsHelper,
+      sqlHint.hinter,
+      assistiveBindingHinter, // better to end all hinters with Hinter suffix. TODO: Refactor hinter names
+    ],
     lineCommentString: "//",
   };
   // this is the higlighted element for any highlighted text in the codemirror
