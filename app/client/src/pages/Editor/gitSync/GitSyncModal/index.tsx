@@ -4,12 +4,21 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import GitSyncModalV1 from "./GitSyncModalV1";
 import GitSyncModalV2 from "./GitSyncModalV2";
 
-function GitSyncModal() {
-  const isGitConnectV2Enabled = useFeatureFlag(
-    FEATURE_FLAG.release_git_connect_v2_enabled,
-  );
+interface GitSyncModalProps {
+  isImport?: boolean;
+}
 
-  return isGitConnectV2Enabled ? <GitSyncModalV2 /> : <GitSyncModalV1 />;
+function GitSyncModal(props: GitSyncModalProps) {
+  // const isGitConnectV2Enabled = useFeatureFlag(
+  //   FEATURE_FLAG.release_git_connect_v2_enabled,
+  // );
+  const isGitConnectV2Enabled = false;
+
+  return isGitConnectV2Enabled ? (
+    <GitSyncModalV2 {...props} />
+  ) : (
+    <GitSyncModalV1 {...props} />
+  );
 }
 
 export default GitSyncModal;
