@@ -10,10 +10,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
@@ -594,7 +594,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   getPageView() {
     const {
       alignment,
-      bottomRow,
       isDisabled,
       isInline,
       isLoading,
@@ -606,7 +605,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       labelTextSize,
       options,
       selectedOptionValue,
-      topRow,
       widgetId,
     } = this.props;
 
@@ -616,7 +614,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       <RadioGroupComponent
         accentColor={this.props.accentColor}
         alignment={alignment}
-        compactMode={!((bottomRow - topRow) / GRID_DENSITY_MIGRATION_V1 > 1)}
+        compactMode={isCompactMode(componentHeight)}
         disabled={isDisabled}
         height={componentHeight}
         inline={Boolean(isInline)}
