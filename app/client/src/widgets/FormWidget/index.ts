@@ -4,12 +4,12 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import get from "lodash/get";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";

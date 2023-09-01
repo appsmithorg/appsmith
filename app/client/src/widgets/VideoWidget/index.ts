@@ -1,5 +1,5 @@
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";

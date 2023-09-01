@@ -133,7 +133,7 @@ class NumberSliderWidget extends BaseWidget<
       : sliderValue.toString();
   };
 
-  getPageView() {
+  getWidgetView() {
     return (
       <SliderComponent
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}

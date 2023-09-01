@@ -892,7 +892,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     );
   };
 
-  getPageView() {
+  getWidgetView() {
     const value = this.getFormattedText();
     let isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
@@ -923,7 +923,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     }
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
     const minInputSingleLineHeight =
       this.props.label || this.props.tooltip
         ? // adjust height for label | tooltip extra div

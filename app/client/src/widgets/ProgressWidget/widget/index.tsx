@@ -11,7 +11,7 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -203,7 +203,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
       borderRadius,
       counterClockwise,
@@ -214,7 +214,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
       showResult,
       steps,
     } = this.props;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     const isScaleY = componentHeight > componentWidth;
 
     return (

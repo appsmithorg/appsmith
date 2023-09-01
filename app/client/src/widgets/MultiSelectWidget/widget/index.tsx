@@ -474,14 +474,14 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
     const dropDownWidth =
       MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
 
     return (
       <MultiSelectComponent

@@ -381,7 +381,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     });
   };
 
-  getPageView() {
+  getWidgetView() {
     const { colorRange, data, isVisible, mapTitle, mapType, showLabels } =
       this.props;
 

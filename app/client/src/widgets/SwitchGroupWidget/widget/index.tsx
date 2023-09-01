@@ -18,7 +18,7 @@ import {
 import type { OptionProps } from "../component";
 import SwitchGroupComponent from "../component";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -458,7 +458,7 @@ class SwitchGroupWidget extends BaseWidget<
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
       accentColor,
       alignment,
@@ -478,7 +478,7 @@ class SwitchGroupWidget extends BaseWidget<
       widgetId,
     } = this.props;
 
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     // TODO(abhinav): Not sure why we have to do this.
     // Check with the App Viewers Pod

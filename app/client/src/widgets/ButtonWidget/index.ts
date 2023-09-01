@@ -4,7 +4,7 @@ import {
   RecaptchaTypes,
 } from "components/constants";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";

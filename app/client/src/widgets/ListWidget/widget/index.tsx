@@ -1,4 +1,4 @@
-import { Positioning } from "utils/autoLayout/constants";
+import { Positioning } from "layoutSystems/autolayout/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
@@ -392,7 +392,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   renderChild = (childWidgetData: WidgetProps) => {
     const { shouldPaginate } = this.shouldPaginate();
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
 
     childWidgetData.parentId = this.props.widgetId;
     // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
@@ -892,9 +892,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   /**
    * view that is rendered in editor
    */
-  getPageView() {
+  getWidgetView() {
     const children = this.renderChildren();
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
     const { pageNo, serverSidePaginationEnabled } = this.props;
     const { perPage, shouldPaginate } = this.shouldPaginate();
     const templateBottomRow = get(

@@ -497,7 +497,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     });
   };
 
-  getPageView() {
+  getWidgetView() {
     const value = this.props.text ?? "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
@@ -507,7 +507,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     if (this.props.showStepArrows) {
       conditionalProps.buttonPosition = NumberInputStepButtonPosition.RIGHT;

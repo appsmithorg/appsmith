@@ -251,9 +251,9 @@ class AudioRecorderWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
-    const { blobURL, iconColor, isDisabled } = this.props;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+  getWidgetView() {
+    const { blobURL, componentHeight, componentWidth, iconColor, isDisabled } =
+      this.props;
 
     return (
       <AudioRecorderComponent

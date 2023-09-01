@@ -17,7 +17,7 @@ class TabsMigratorWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
-  getPageView() {
+  getWidgetView() {
     return null;
   }
   static getPropertyPaneConfig() {

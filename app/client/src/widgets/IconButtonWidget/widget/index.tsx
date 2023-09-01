@@ -229,7 +229,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
       borderRadius,
       boxShadow,
@@ -241,7 +241,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       tooltip,
       widgetId,
     } = this.props;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
 
     return (
       <IconButtonComponent

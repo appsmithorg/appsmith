@@ -655,7 +655,7 @@ class ListWidget extends BaseWidget<
 
     const itemsCount = (listData || []).length;
 
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     const spaceAvailableWithoutPaginationControls =
       componentHeight - WIDGET_PADDING * 2;
@@ -816,7 +816,7 @@ class ListWidget extends BaseWidget<
   mainMetaCanvasWidget = () => {
     const { flattenedChildCanvasWidgets = {}, mainCanvasId = "" } = this.props;
     const mainCanvasWidget = flattenedChildCanvasWidgets[mainCanvasId] || {};
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     const metaMainCanvas = klona(mainCanvasWidget) ?? {};
 
     const { metaWidgetId, metaWidgetName } =
@@ -837,7 +837,7 @@ class ListWidget extends BaseWidget<
   };
 
   mainMetaCanvasWidgetBottomRow = () => {
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     if (this.props.infiniteScroll) {
       return Math.max(
@@ -1299,8 +1299,8 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  getPageView() {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+  getWidgetView() {
+    const { componentHeight, componentWidth } = this.props;
     const {
       infiniteScroll,
       isLoading,

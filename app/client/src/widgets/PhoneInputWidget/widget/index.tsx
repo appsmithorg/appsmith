@@ -382,7 +382,7 @@ class PhoneInputWidget extends BaseInputWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const value = this.props.text ?? "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
@@ -392,7 +392,7 @@ class PhoneInputWidget extends BaseInputWidget<
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     return (
       <PhoneInputComponent

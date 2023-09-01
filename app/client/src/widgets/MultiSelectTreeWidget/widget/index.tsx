@@ -13,7 +13,7 @@ import type { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import type { ReactNode } from "react";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupWidthInPercentage } from "widgets/constants";
@@ -581,13 +581,14 @@ class MultiSelectTreeWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const dropDownWidth =
       MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+
     return (
       <MultiTreeSelectComponent
         accentColor={this.props.accentColor}

@@ -32,8 +32,11 @@ import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
-import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import {
+  AlignItems,
+  LayoutDirection,
+} from "layoutSystems/autolayout/utils/constants";
+import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import { useContext, useEffect, useRef } from "react";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {

@@ -197,7 +197,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     const { onEnd, onPause, onPlay, playing, url } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>

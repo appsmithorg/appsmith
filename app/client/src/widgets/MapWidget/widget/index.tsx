@@ -443,7 +443,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.disableDrag(false);
   };
 
-  getPageView() {
+  getWidgetView() {
     return (
       <>
         {!this.props.googleMapsApiKey && (

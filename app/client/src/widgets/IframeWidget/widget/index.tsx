@@ -264,7 +264,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     });
   };
 
-  getPageView() {
+  getWidgetView() {
     const {
       borderColor,
       borderOpacity,

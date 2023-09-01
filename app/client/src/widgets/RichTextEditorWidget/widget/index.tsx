@@ -419,12 +419,12 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     let value = this.props.text ?? "";
     if (this.props.inputType === RTEFormats.MARKDOWN) {
       value = converter.makeHtml(value);
     }
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     return (
       <Suspense fallback={<Skeleton />}>

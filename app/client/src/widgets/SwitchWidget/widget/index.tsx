@@ -17,7 +17,7 @@ import {
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -286,7 +286,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <SwitchComponent
         accentColor={this.props.accentColor}

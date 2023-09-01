@@ -1,19 +1,14 @@
 import type { ReactNode } from "react";
 import React from "react";
-
 import { connect } from "react-redux";
-
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
-import type { UIElementSize } from "components/editorComponents/ResizableUtils";
-import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { RenderMode } from "constants/WidgetConstants";
 import { MAX_MODAL_WIDTH_FROM_MAIN_WIDTH } from "constants/WidgetConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
-import { get } from "lodash";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
   getCanvasWidth,
@@ -24,21 +19,14 @@ import type {
   Alignment,
   Positioning,
   Spacing,
-} from "utils/autoLayout/constants";
-import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+} from "layoutSystems/autolayout/utils/constants";
 import { generateClassName } from "utils/generators";
-import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  isAutoHeightEnabledForWidget,
-  DefaultAutocompleteDefinitions,
-} from "widgets/WidgetUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import ModalComponent from "../component";
 import type { AutocompletionDefinitions } from "widgets/constants";
-
-const minSize = 100;
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -195,28 +183,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     }
   };
 
-  onModalResize = (dimensions: UIElementSize) => {
-    const newDimensions = {
-      height: Math.max(minSize, dimensions.height),
-      width: Math.max(minSize, this.getModalWidth(dimensions.width)),
-    };
-
-    if (
-      newDimensions.height !== this.props.height &&
-      isAutoHeightEnabledForWidget(this.props)
-    )
-      return;
-
-    const canvasWidgetId =
-      this.props.children && this.props.children.length > 0
-        ? this.props.children[0]?.widgetId
-        : "";
-    this.updateWidget("MODAL_RESIZE", this.props.widgetId, {
-      ...newDimensions,
-      canvasWidgetId,
-    });
-  };
-
   closeModal = (e: any) => {
     this.props.updateWidgetMetaProperty("isVisible", false);
     this.selectWidgetRequest(SelectionRequestType.Empty);
@@ -238,74 +204,27 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     }
   }
 
-  makeModalSelectable(content: ReactNode): ReactNode {
-    // substitute coz the widget lacks draggable and position containers.
-    return (
-      <ClickContentToOpenPropPane widgetId={this.props.widgetId}>
-        {content}
-      </ClickContentToOpenPropPane>
-    );
-  }
-
-  makeModalComponent(content: ReactNode, isEditMode: boolean) {
-    const artBoard = document.getElementById("art-board");
-    const portalContainer = isEditMode && artBoard ? artBoard : undefined;
-    const { isPreviewMode, isSnipingMode } = this.props;
-    const modalWidth = this.getModalWidth(this.props.width);
-    const isResizeEnabled = isEditMode && !isSnipingMode && !isPreviewMode;
-    const settingsComponent = isEditMode ? (
-      <WidgetNameComponent
-        errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
-        parentId={this.props.parentId}
-        showControls
-        topRow={this.props.detachFromLayout ? 4 : this.props.topRow}
-        type={this.props.type}
-        widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
-        widgetWidth={modalWidth}
-      />
-    ) : null;
+  makeModalComponent(content: ReactNode) {
     return (
       <ModalComponent
         background={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
-        canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
-        enableResize={isResizeEnabled}
-        height={this.props.height}
-        isAutoLayout={this.props.isAutoLayout}
-        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
-        isEditMode={isEditMode}
         isOpen={this.getModalVisibility()}
-        maxWidth={this.getMaxModalWidth()}
-        minSize={minSize}
         onClose={this.closeModal}
         onModalClose={this.onModalClose}
-        portalContainer={portalContainer}
-        resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
-        settingsComponent={settingsComponent}
         widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
-        width={modalWidth}
       >
         {content}
       </ModalComponent>
     );
   }
 
-  getCanvasView() {
-    let children = this.getChildren();
-    children = this.makeModalSelectable(children);
-    // children = this.showWidgetName(children, true);
-
-    return this.makeModalComponent(children, true);
-  }
-
-  getPageView() {
+  getWidgetView() {
     const children = this.getChildren();
-    return this.makeModalComponent(children, false);
+    return this.makeModalComponent(children);
   }
 
   static getWidgetType() {

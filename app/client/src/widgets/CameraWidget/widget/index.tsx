@@ -275,10 +275,16 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
-    const { defaultCamera, isDisabled, isMirrored, mode, videoBlobURL } =
-      this.props;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+  getWidgetView() {
+    const {
+      componentHeight,
+      componentWidth,
+      defaultCamera,
+      isDisabled,
+      isMirrored,
+      mode,
+      videoBlobURL,
+    } = this.props;
 
     const height = componentHeight - WIDGET_PADDING * 2;
     const width = componentWidth - WIDGET_PADDING * 2;

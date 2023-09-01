@@ -158,7 +158,7 @@ class RangeSliderWidget extends BaseWidget<
       : sliderValue.toString();
   };
 
-  getPageView() {
+  getWidgetView() {
     return (
       <RangeSliderComponent
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}

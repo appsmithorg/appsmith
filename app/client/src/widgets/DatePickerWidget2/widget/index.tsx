@@ -22,7 +22,7 @@ import { TimePrecision } from "../constants";
 import { DateFormatOptions } from "./constants";
 import derivedProperties from "./parseDerivedProperties";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 
 function allowedRange(value: any) {
   const allowedValues = [0, 1, 2, 3, 4, 5, 6];
@@ -544,8 +544,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
     }
   }
 
-  getPageView() {
-    const { componentHeight } = this.getComponentDimensions();
+  getWidgetView() {
+    const { componentHeight } = this.props;
 
     return (
       <DatePickerComponent

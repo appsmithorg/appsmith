@@ -1,12 +1,12 @@
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
-import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
+import { deriveHighlightsFromLayers } from "layoutSystems/autolayout/utils/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
-import type { Point } from "utils/autoLayout/highlightSelectionUtils";
-import { getHighlightPayload } from "utils/autoLayout/highlightSelectionUtils";
-import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import type { Point } from "layoutSystems/autolayout/utils/highlightSelectionUtils";
+import { getHighlightPayload } from "layoutSystems/autolayout/utils/highlightSelectionUtils";
+import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import { useRef } from "react";
 import { getIsAutoLayoutMobileBreakPoint } from "selectors/editorSelectors";
 

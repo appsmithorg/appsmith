@@ -631,7 +631,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     );
   };
 
-  getPageView() {
+  getWidgetView() {
     const value = this.props.inputText ?? "";
     let isInvalid = false;
     if (this.props.isDirty) {
@@ -708,7 +708,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       conditionalProps.buttonPosition = NumberInputStepButtonPosition.NONE;
     }
 
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     const autoFillProps =
       !this.props.shouldAllowAutofill &&

@@ -60,7 +60,7 @@ import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
-import { Positioning } from "utils/autoLayout/constants";
+import { Positioning } from "layoutSystems/autolayout/utils/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export interface CopiedWidgetGroup {

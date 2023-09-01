@@ -37,7 +37,7 @@ import {
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { updateRelationships } from "utils/autoLayout/autoLayoutDraggingUtils";
+import { updateRelationships } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";

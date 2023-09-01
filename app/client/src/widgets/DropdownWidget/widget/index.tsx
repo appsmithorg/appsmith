@@ -421,7 +421,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
@@ -432,7 +432,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       value: this.props.selectedOptionValue,
     });
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     return (
       <DropDownComponent
         accentColor={this.props.accentColor}
