@@ -1,6 +1,5 @@
 import {
   CONTAINER_GRID_PADDING,
-  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import type { AppState } from "@appsmith/reducers";
@@ -12,15 +11,11 @@ import type {
   WidgetSpace,
 } from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
-import type { WidgetOperationParams } from "utils/WidgetPropsUtils";
-import {
-  getDropZoneOffsets,
-  widgetOperationParams,
-} from "utils/WidgetPropsUtils";
+import { widgetOperationParams } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
-import type { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -30,42 +25,26 @@ import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
-import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import {
-  AlignItems,
-  LayoutDirection,
-} from "layoutSystems/autolayout/utils/constants";
-import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import { useContext, useEffect, useRef } from "react";
-
-export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
-  updateWidgetParams: WidgetOperationParams;
-}
-
-export type WidgetDraggingBlock = {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-  columnWidth: number;
-  rowHeight: number;
-  widgetId: string;
-  isNotColliding: boolean;
-  detachFromLayout?: boolean;
-  fixedHeight?: number;
-  type: string;
-};
+import type {
+  WidgetDraggingBlock,
+  WidgetDraggingUpdateParams,
+  XYCord,
+} from "../../../../common/CanvasArenas/ArenaTypes";
+import {
+  getBlocksToDraw,
+  getUpdateRelativeRowsMethod,
+  updateBottomRow as updateBottomRowMethod,
+} from "layoutSystems/common/utils/canvasDraggingUtils";
 
 export const useBlocksToBeDraggedOnCanvas = ({
-  alignItems,
-  direction,
   noPad,
   snapColumnSpace,
   snapRows,
   snapRowSpace,
   widgetId,
-}: CanvasDraggingArenaProps) => {
+}: FixedCanvasDraggingArenaProps) => {
   const dispatch = useDispatch();
   const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
@@ -160,61 +139,17 @@ export const useBlocksToBeDraggedOnCanvas = ({
       Y: topRow * parentRowHeight,
     };
   };
-  const getBlocksToDraw = (): {
-    blocksToDraw: WidgetDraggingBlock[];
-    draggingSpaces: OccupiedSpace[];
-  } => {
-    if (isNewWidget) {
-      return {
-        blocksToDraw: [
-          {
-            top: 0,
-            left: 0,
-            width: newWidget.columns * snapColumnSpace,
-            height: newWidget.rows * snapRowSpace,
-            columnWidth: newWidget.columns,
-            rowHeight: newWidget.rows,
-            widgetId: newWidget.widgetId,
-            detachFromLayout: newWidget.detachFromLayout,
-            isNotColliding: true,
-            fixedHeight: newWidget.isDynamicHeight
-              ? newWidget.rows * snapRowSpace
-              : undefined,
-            type: newWidget.type,
-          },
-        ],
-        draggingSpaces: [
-          {
-            top: 0,
-            left: 0,
-            right: newWidget.columns,
-            bottom: newWidget.rows,
-            id: newWidget.widgetId,
-          },
-        ],
-      };
-    } else {
-      const draggingSpaces = childrenOccupiedSpaces.filter((each) =>
-        selectedWidgets.includes(each.id),
-      );
-      return {
-        draggingSpaces,
-        blocksToDraw: draggingSpaces.map((each) => ({
-          top: each.top * snapRowSpace + containerPadding,
-          left: each.left * snapColumnSpace + containerPadding,
-          width: (each.right - each.left) * snapColumnSpace,
-          height: (each.bottom - each.top) * snapRowSpace,
-          columnWidth: each.right - each.left,
-          rowHeight: each.bottom - each.top,
-          widgetId: each.id,
-          isNotColliding: true,
-          fixedHeight: each.fixedHeight,
-          type: allWidgets[each.id].type,
-        })),
-      };
-    }
-  };
-  const { blocksToDraw, draggingSpaces } = getBlocksToDraw();
+
+  const { blocksToDraw, draggingSpaces } = getBlocksToDraw(
+    newWidget,
+    allWidgets,
+    isNewWidget,
+    snapColumnSpace,
+    snapRowSpace,
+    childrenOccupiedSpaces,
+    selectedWidgets,
+    containerPadding,
+  );
 
   const dragCenterSpace: any = getDragCenterSpace();
   // get spaces occupied by unselected children
@@ -225,70 +160,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const stopReflowing = () => {
     if (isReflowing) dispatch(stopReflowAction());
   };
-  const updateChildrenPositions = (
-    dropPayload: HighlightInfo,
-    drawingBlocks: WidgetDraggingBlock[],
-  ): void => {
-    if (isNewWidget) addNewWidgetToAutoLayout(dropPayload, drawingBlocks);
-    else
-      dispatch({
-        type: ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
-        payload: {
-          dropPayload,
-          movedWidgets: selectedWidgets,
-          parentId: widgetId,
-          direction,
-        },
-      });
-  };
-  const addNewWidgetToAutoLayout = (
-    dropPayload: HighlightInfo,
-    drawingBlocks: WidgetDraggingBlock[],
-  ) => {
-    const blocksToUpdate = drawingBlocks.map((each) => {
-      const updateWidgetParams = widgetOperationParams(
-        newWidget,
-        { x: 0, y: each.top },
-        { x: 0, y: 0 },
-        snapColumnSpace,
-        snapRowSpace,
-        newWidget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : widgetId,
-        {
-          width: each.width,
-          height: each.height,
-        },
-        direction === LayoutDirection.Vertical &&
-          alignItems === AlignItems.Stretch,
-      );
-      return {
-        ...each,
-        updateWidgetParams,
-      };
-    });
-    // Add alignment to props of the new widget
-    const widgetPayload = {
-      ...blocksToUpdate[0]?.updateWidgetParams?.payload,
-      props: {
-        ...blocksToUpdate[0]?.updateWidgetParams?.payload?.props,
-        alignment: dropPayload.alignment,
-      },
-    };
-    dispatch({
-      type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
-      payload: {
-        dropPayload,
-        newWidget: widgetPayload,
-        parentId: newWidget.detachFromLayout
-          ? MAIN_CONTAINER_WIDGET_ID
-          : widgetId,
-        direction,
-        addToBottom: newWidget.detachFromLayout,
-      },
-    });
-    setTimeout(() => {
-      selectWidget(SelectionRequestType.One, [widgetPayload.newWidgetId]);
-    }, 100);
-  };
+
   const onDrop = (
     drawingBlocks: WidgetDraggingBlock[],
     reflowedPositionsUpdatesWidgets: OccupiedSpace[],
@@ -420,39 +292,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
       didDrop: true,
     });
   };
-  const updateRelativeRows = (
-    drawingBlocks: WidgetDraggingBlock[],
-    rows: number,
-  ) => {
-    if (drawingBlocks.length) {
-      const sortedByTopBlocks = drawingBlocks.sort(
-        (each1, each2) => each2.top + each2.height - (each1.top + each1.height),
-      );
-      const bottomMostBlock = sortedByTopBlocks[0];
-      const [, top] = getDropZoneOffsets(
-        snapColumnSpace,
-        snapRowSpace,
-        {
-          x: bottomMostBlock.left,
-          y: bottomMostBlock.top + bottomMostBlock.height,
-        } as XYCord,
-        { x: 0, y: 0 },
-      );
-      const widgetIdsToExclude = drawingBlocks.map((a) => a.widgetId);
-      return updateBottomRow(top, rows, widgetIdsToExclude);
-    }
-  };
-  const updateBottomRow = (
-    bottom: number,
-    rows: number,
-    widgetIdsToExclude: string[],
-  ) => {
-    if (bottom > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
-      return (
-        updateDropTargetRows && updateDropTargetRows(widgetIdsToExclude, bottom)
-      );
-    }
-  };
+
   const rowRef = useRef(snapRows);
   useEffect(() => {
     rowRef.current = snapRows;
@@ -478,6 +318,19 @@ export const useBlocksToBeDraggedOnCanvas = ({
         left: 0,
       };
 
+  const updateBottomRow = (
+    bottom: number,
+    rows: number,
+    widgetIdsToExclude: string[],
+  ) => {
+    return updateBottomRowMethod(
+      bottom,
+      rows,
+      widgetIdsToExclude,
+      updateDropTargetRows,
+    );
+  };
+
   const relativeStartPoints =
     isDragging && !isEmpty(dragCenterSpace)
       ? {
@@ -500,6 +353,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   return {
     blocksToDraw,
     defaultHandlePositions,
+    draggingSpaces,
     getSnappedXY,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
@@ -509,17 +363,16 @@ export const useBlocksToBeDraggedOnCanvas = ({
     isResizing,
     lastDraggedCanvas,
     occSpaces,
-    draggingSpaces,
     onDrop,
     parentDiff,
     relativeStartPoints,
     rowRef,
     stopReflowing,
     updateBottomRow,
-    updateChildrenPositions,
-    updateRelativeRows,
-    widgetOccupiedSpace: childrenOccupiedSpaces.filter(
-      (each) => each.id === dragCenter?.widgetId,
-    )[0],
+    updateRelativeRows: getUpdateRelativeRowsMethod(
+      updateDropTargetRows,
+      snapColumnSpace,
+      snapRowSpace,
+    ),
   };
 };

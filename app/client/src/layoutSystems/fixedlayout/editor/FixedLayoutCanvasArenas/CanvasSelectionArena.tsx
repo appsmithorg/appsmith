@@ -27,16 +27,12 @@ import {
 } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
-import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
-import type { XYCord } from "./hooks/useRenderBlocksOnCanvas";
-import { StickyCanvasArena } from "./StickyCanvasArena";
-
-export interface SelectedArenaDimensions {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-}
+import type {
+  SelectedArenaDimensions,
+  XYCord,
+} from "layoutSystems/common/CanvasArenas/ArenaTypes";
+import { useCanvasDragToScroll } from "layoutSystems/common/CanvasArenas/useCanvasDragToScroll";
+import { StickyCanvasArena } from "layoutSystems/common/CanvasArenas/StickyCanvasArena";
 
 export function CanvasSelectionArena({
   canExtend,
