@@ -31,7 +31,6 @@ const _CheckboxGroup = (props: CheckboxGroupProps, ref: CheckboxGroupRef) => {
       descriptionProps={descriptionProps}
       errorMessageProps={errorMessageProps}
       fieldType="field-group"
-      includeNecessityIndicatorInAccessibilityName
       labelProps={labelProps}
       ref={domRef}
       wrapperClassName={className}
