@@ -1,7 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
-import { WALKTHROUGH_TEST_PAGE } from "../Constants";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
