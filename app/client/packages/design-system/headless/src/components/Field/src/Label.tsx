@@ -4,10 +4,8 @@ import { filterDOMProps } from "@react-aria/utils";
 import type { DOMRef } from "@react-types/shared";
 import type { SpectrumLabelProps } from "@react-types/label";
 
-type MyOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-
 export interface LabelProps
-  extends MyOmit<
+  extends Omit<
     SpectrumLabelProps,
     | "necessityIndicator"
     | "includeNecessityIndicatorInAccessibilityName"
