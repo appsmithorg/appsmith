@@ -39,7 +39,6 @@ describe("test HighlightUtils methods", () => {
           parentId: "",
           flexLayers: [],
           children: [],
-          mainCanvasWidth: 900,
         },
       };
       const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
@@ -82,7 +81,6 @@ describe("test HighlightUtils methods", () => {
             { children: [{ id: "2", align: FlexLayerAlignment.Start }] },
           ],
           children: ["2"],
-          mainCanvasWidth: 900,
         },
         "2": {
           widgetId: "2",
@@ -104,7 +102,6 @@ describe("test HighlightUtils methods", () => {
           mobileRightColumn: 16,
           responsiveBehavior: ResponsiveBehavior.Hug,
           parentId: "1",
-          mainCanvasWidth: 900,
         },
       };
       const offsetTop = ROW_GAP;
@@ -164,7 +161,6 @@ describe("test HighlightUtils methods", () => {
           mobileRightColumn: 16,
           responsiveBehavior: ResponsiveBehavior.Hug,
           parentId: "1",
-          mainCanvasWidth: 900,
         },
       ];
       const result: HighlightInfo[] = generateHighlightsForAlignment({
@@ -218,7 +214,6 @@ describe("test HighlightUtils methods", () => {
           mobileRightColumn: 16,
           responsiveBehavior: ResponsiveBehavior.Hug,
           parentId: "1",
-          mainCanvasWidth: 900,
         },
         {
           widgetId: "3",
@@ -240,7 +235,6 @@ describe("test HighlightUtils methods", () => {
           mobileRightColumn: 16,
           responsiveBehavior: ResponsiveBehavior.Hug,
           parentId: "1",
-          mainCanvasWidth: 900,
         },
       ];
       const result: HighlightInfo[] = generateHighlightsForAlignment({
@@ -314,7 +308,6 @@ describe("test HighlightUtils methods", () => {
             },
           ],
           children: ["2", "3"],
-          mainCanvasWidth: 900,
         },
         "2": {
           widgetId: "2",
@@ -336,7 +329,6 @@ describe("test HighlightUtils methods", () => {
           mobileRightColumn: 16,
           responsiveBehavior: ResponsiveBehavior.Hug,
           parentId: "1",
-          mainCanvasWidth: 900,
         },
         "3": {
           widgetId: "3",
@@ -358,7 +350,6 @@ describe("test HighlightUtils methods", () => {
           mobileRightColumn: 26,
           responsiveBehavior: ResponsiveBehavior.Hug,
           parentId: "1",
-          mainCanvasWidth: 900,
         },
       };
       const result: VerticalHighlightsPayload = generateVerticalHighlights({
@@ -398,7 +389,6 @@ describe("test HighlightUtils methods", () => {
           mobileRightColumn: 640,
           responsiveBehavior: ResponsiveBehavior.Fill,
           parentId: "",
-          mainCanvasWidth: 900,
           flexLayers: [
             {
               children: [
@@ -429,7 +419,6 @@ describe("test HighlightUtils methods", () => {
           mobileRightColumn: 16,
           responsiveBehavior: ResponsiveBehavior.Hug,
           parentId: "1",
-          mainCanvasWidth: 900,
         },
         "3": {
           widgetId: "3",
@@ -451,7 +440,6 @@ describe("test HighlightUtils methods", () => {
           mobileRightColumn: 64,
           responsiveBehavior: ResponsiveBehavior.Fill,
           parentId: "1",
-          mainCanvasWidth: 900,
         },
       };
       const result: VerticalHighlightsPayload = generateVerticalHighlights({

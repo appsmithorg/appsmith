@@ -1234,7 +1234,6 @@ export const groupWidgetsIntoContainer = function* (
     bottomRow: (boundary.bottom?.bottomRow || 0) + 2,
     rightColumn: boundary.right?.rightColumn || 0,
     tabId: "",
-    mainCanvasWidth: 900,
     children: [newCanvasWidget.widgetId],
     renderMode: RenderModes.CANVAS,
     version: 1,

@@ -85,7 +85,6 @@ const Table_tree: WidgetEntity = {
   isLoading: false,
   animateLoading: true,
   meta: {},
-  mainCanvasWidth: 900,
 };
 
 const baseDataTree = {

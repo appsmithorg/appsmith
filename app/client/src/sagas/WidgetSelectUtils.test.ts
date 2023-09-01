@@ -24,7 +24,6 @@ describe("Wigdet selection methods", () => {
       topRow: 0,
       bottomRow: 0,
       isLoading: false,
-      mainCanvasWidth: 900,
     },
     widgetId2: {
       widgetId: "widgetId2",
@@ -40,7 +39,6 @@ describe("Wigdet selection methods", () => {
       topRow: 0,
       bottomRow: 0,
       isLoading: false,
-      mainCanvasWidth: 900,
     },
     widgetId3: {
       widgetId: "widgetId3",
@@ -56,7 +54,6 @@ describe("Wigdet selection methods", () => {
       topRow: 0,
       bottomRow: 0,
       isLoading: false,
-      mainCanvasWidth: 900,
     },
   };
 

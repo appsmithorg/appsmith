@@ -9,11 +9,9 @@ const inputDsl1: DSLWidget = {
   version: 15,
   parentId: "",
   renderMode: "CANVAS",
-  mainCanvasWidth: 900,
   children: [
     {
       widgetName: "modal",
-      mainCanvasWidth: 900,
       version: 1,
       type: "MODAL_WIDGET",
       size: "MODAL_SMALL",
@@ -45,11 +43,9 @@ const outputDsl1: DSLWidget = {
   version: 15,
   parentId: "",
   renderMode: "CANVAS",
-  mainCanvasWidth: 900,
   children: [
     {
       widgetName: "modal",
-      mainCanvasWidth: 900,
       version: 2,
       type: "MODAL_WIDGET",
       height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
@@ -82,11 +78,9 @@ const inputDsl2: DSLWidget = {
   version: 15,
   parentId: "",
   renderMode: "CANVAS",
-  mainCanvasWidth: 900,
   children: [
     {
       widgetName: "modal",
-      mainCanvasWidth: 900,
       version: 1,
       type: "MODAL_WIDGET",
       size: "MODAL_LARGE",
@@ -118,11 +112,9 @@ const outputDsl2: DSLWidget = {
   version: 15,
   parentId: "",
   renderMode: "CANVAS",
-  mainCanvasWidth: 900,
   children: [
     {
       widgetName: "modal",
-      mainCanvasWidth: 900,
       version: 2,
       type: "MODAL_WIDGET",
       height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 60,
@@ -155,12 +147,10 @@ const dsl3: DSLWidget = {
   version: 15,
   parentId: "",
   renderMode: "CANVAS",
-  mainCanvasWidth: 900,
   children: [
     {
       widgetName: "modal",
       version: 2,
-      mainCanvasWidth: 900,
       type: "MODAL_WIDGET",
       height: 500,
       width: 532,

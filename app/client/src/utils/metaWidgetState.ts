@@ -24,7 +24,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     key: "zqar6ryg82",
     iconSVG: "/static/media/icon.52d8fb963abcb95c79b10f1553389f22.svg",
     boxShadow: "none",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "image",
@@ -81,7 +80,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     iconSVG: "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
     textStyle: "HEADING",
     boxShadow: "none",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "text",
@@ -142,7 +140,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     iconSVG: "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
     textStyle: "BODY",
     boxShadow: "none",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "text",
@@ -207,7 +204,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     topRow: 0,
     bottomRow: 1,
     parentId: "e3bqqc9oid",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",
@@ -261,7 +257,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     topRow: 0,
     bottomRow: 12,
     parentId: "8ari8fii6k",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",
@@ -303,7 +298,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     key: "zqar6ryg82",
     iconSVG: "/static/media/icon.52d8fb963abcb95c79b10f1553389f22.svg",
     boxShadow: "none",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "image",
@@ -375,7 +369,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     iconSVG: "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
     textStyle: "HEADING",
     boxShadow: "none",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "text",
@@ -450,7 +443,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     iconSVG: "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
     textStyle: "BODY",
     boxShadow: "none",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "text",
@@ -529,7 +521,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     topRow: 0,
     bottomRow: 1,
     parentId: "4b5r4c3kp7",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",
@@ -597,7 +588,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     topRow: 12,
     bottomRow: 24,
     parentId: "8ari8fii6k",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",
@@ -658,7 +648,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     topRow: 0,
     bottomRow: 400,
     parentId: "hwgin979n4",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",
@@ -692,7 +681,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     key: "zqar6ryg82",
     iconSVG: "/static/media/icon.52d8fb963abcb95c79b10f1553389f22.svg",
     boxShadow: "none",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "image",
@@ -763,7 +751,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     iconSVG: "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
     textStyle: "HEADING",
     boxShadow: "none",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "text",
@@ -838,7 +825,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     iconSVG: "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
     textStyle: "BODY",
     boxShadow: "none",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "text",
@@ -916,7 +902,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     topRow: 0,
     bottomRow: 1,
     parentId: "3g3bxw6q2z",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",
@@ -983,7 +968,6 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     topRow: 24,
     bottomRow: 36,
     parentId: "8ari8fii6k",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "borderRadius",

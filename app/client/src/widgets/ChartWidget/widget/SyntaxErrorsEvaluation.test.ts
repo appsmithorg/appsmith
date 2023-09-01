@@ -51,7 +51,6 @@ describe("SyntaxErrorsEvaluation", () => {
     widgetName: "widgetName",
     version: 1,
     renderMode: RenderModes.CANVAS,
-    mainCanvasWidth: 900,
   };
 
   it("returns zero errors when errors field is undefined", () => {

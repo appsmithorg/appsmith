@@ -18,7 +18,6 @@ const DUMMY_WIDGET: WidgetProps = {
   version: 2,
   widgetId: "",
   widgetName: "",
-  mainCanvasWidth: 900,
 };
 
 it("Computes the bottomRow of the canvas within a container correctly", () => {

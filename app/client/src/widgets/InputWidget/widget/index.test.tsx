@@ -25,7 +25,6 @@ describe("#defaultValueValidation", () => {
     version: 1,
     widgetId: "23424",
     widgetName: "input1",
-    mainCanvasWidth: 900,
   };
 
   const inputs = [

@@ -38,7 +38,6 @@ describe("dataTreeTypeDefCreator", () => {
       isLoading: false,
       version: 1,
       meta: {},
-      mainCanvasWidth: 900,
     };
     const dataTreeEntityConfig: WidgetEntityConfig = {
       bindingPaths: {

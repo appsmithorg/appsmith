@@ -34,7 +34,6 @@ describe("evaluateSync", () => {
     privateWidgets: {},
     propertyOverrideDependency: {},
     meta: {},
-    mainCanvasWidth: 900,
   };
   const dataTree: DataTree = {
     Input1: widget,

@@ -38,7 +38,6 @@ describe("getAllPathsFromPropertyConfig", () => {
       horizontalAlignment: "LEFT",
       parentColumnSpace: 74,
       version: 1,
-      mainCanvasWidth: 900,
       dynamicTriggerPathList: [
         {
           key: "primaryColumns.status.onClick",
@@ -506,7 +505,6 @@ describe("getAllPathsFromPropertyConfig", () => {
       bottomRow: 14,
       parentId: "0",
       widgetId: "x1naz9is2b",
-      mainCanvasWidth: 900,
       dynamicBindingPathList: [
         {
           key: "chartData.random-id.data",

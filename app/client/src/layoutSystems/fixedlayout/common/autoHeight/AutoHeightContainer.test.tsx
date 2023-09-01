@@ -19,7 +19,6 @@ const DUMMY_WIDGET = {
   version: 2,
   widgetId: "",
   widgetName: "",
-  mainCanvasWidth: 900,
 };
 
 describe("<AutoHeightContainer />", () => {

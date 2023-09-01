@@ -65,7 +65,6 @@ describe("WidgetOperationSaga", () => {
         text: "{{currentItem.text}}",
         version: 16,
         disablePropertyPane: false,
-        mainCanvasWidth: 900,
       },
       {
         list1: {
@@ -85,7 +84,6 @@ describe("WidgetOperationSaga", () => {
           version: 16,
           disablePropertyPane: false,
           template: {},
-          mainCanvasWidth: 900,
         },
         0: {
           image: "",
@@ -105,7 +103,6 @@ describe("WidgetOperationSaga", () => {
           version: 16,
           disablePropertyPane: false,
           template: {},
-          mainCanvasWidth: 900,
         },
       },
     );
@@ -137,7 +134,6 @@ describe("WidgetOperationSaga", () => {
         text: "{{currentItem.text}}",
         version: 16,
         disablePropertyPane: false,
-        mainCanvasWidth: 900,
       },
       {
         list1: {
@@ -157,7 +153,6 @@ describe("WidgetOperationSaga", () => {
           version: 16,
           disablePropertyPane: false,
           template: {},
-          mainCanvasWidth: 900,
         },
         0: {
           image: "",
@@ -177,7 +172,6 @@ describe("WidgetOperationSaga", () => {
           version: 16,
           disablePropertyPane: false,
           template: {},
-          mainCanvasWidth: 900,
         },
         list2: {
           widgetId: "list2",
@@ -196,7 +190,6 @@ describe("WidgetOperationSaga", () => {
           version: 16,
           disablePropertyPane: false,
           template: {},
-          mainCanvasWidth: 900,
         },
       },
       {
@@ -220,7 +213,6 @@ describe("WidgetOperationSaga", () => {
           version: 16,
           disablePropertyPane: false,
           template: {},
-          mainCanvasWidth: 900,
         },
       ],
     );
@@ -251,7 +243,6 @@ describe("WidgetOperationSaga", () => {
         listData: [],
         version: 16,
         disablePropertyPane: false,
-        mainCanvasWidth: 900,
         template: {
           Image1: {
             widgetId: "image1",
@@ -307,7 +298,6 @@ describe("WidgetOperationSaga", () => {
         leftColumn: 0,
         children: ["ihxw5r23hd"],
         renderMode: "CANVAS",
-        mainCanvasWidth: 900,
       },
       {
         k441huwm77: {
@@ -330,7 +320,6 @@ describe("WidgetOperationSaga", () => {
           leftColumn: 0,
           children: ["ihxw5r23hd"],
           renderMode: "CANVAS",
-          mainCanvasWidth: 900,
         },
         suhkuyfpk3: {
           widgetName: "Icon1Copy",
@@ -351,7 +340,6 @@ describe("WidgetOperationSaga", () => {
           renderMode: "CANVAS",
           parentColumnSpace: 2,
           parentRowSpace: 3,
-          mainCanvasWidth: 900,
         },
         twnxjwy3r1: {
           widgetName: "Button1Copy",
@@ -379,7 +367,6 @@ describe("WidgetOperationSaga", () => {
           renderMode: "CANVAS",
           parentColumnSpace: 2,
           parentRowSpace: 3,
-          mainCanvasWidth: 900,
         },
       },
       {
@@ -411,7 +398,6 @@ describe("WidgetOperationSaga", () => {
           leftColumn: 0,
           children: ["ihxw5r23hd"],
           renderMode: "CANVAS",
-          mainCanvasWidth: 900,
         },
         {
           widgetName: "Icon1Copy",
@@ -432,7 +418,6 @@ describe("WidgetOperationSaga", () => {
           renderMode: "CANVAS",
           parentColumnSpace: 2,
           parentRowSpace: 3,
-          mainCanvasWidth: 900,
         },
         {
           widgetName: "Button1Copy",
@@ -460,7 +445,6 @@ describe("WidgetOperationSaga", () => {
           renderMode: "CANVAS",
           parentColumnSpace: 2,
           parentRowSpace: 3,
-          mainCanvasWidth: 900,
         },
       ],
     );
@@ -492,7 +476,6 @@ describe("WidgetOperationSaga", () => {
           version: 16,
           disablePropertyPane: false,
           template: {},
-          mainCanvasWidth: 900,
         },
       },
       {
@@ -512,7 +495,6 @@ describe("WidgetOperationSaga", () => {
         version: 16,
         disablePropertyPane: false,
         template: {},
-        mainCanvasWidth: 900,
       },
       [
         {
@@ -536,7 +518,6 @@ describe("WidgetOperationSaga", () => {
               version: 16,
               disablePropertyPane: false,
               template: {},
-              mainCanvasWidth: 900,
             },
           ],
         },
@@ -573,7 +554,6 @@ describe("WidgetOperationSaga", () => {
               key: "template.ButtonWidget1.onClick",
             },
           ],
-          mainCanvasWidth: 900,
         },
         buttonWidget1: {
           type: "BUTTON_WIDGET",
@@ -589,7 +569,6 @@ describe("WidgetOperationSaga", () => {
           renderMode: "CANVAS",
           isLoading: false,
           parentId: "list1",
-          mainCanvasWidth: 900,
         },
         0: {
           type: "CANVAS_WIDGET",
@@ -605,7 +584,6 @@ describe("WidgetOperationSaga", () => {
           renderMode: "CANVAS",
           isLoading: false,
           parentId: "list1",
-          mainCanvasWidth: 900,
         },
       },
       "buttonWidget1",
@@ -634,7 +612,6 @@ describe("WidgetOperationSaga", () => {
           enhancements: {},
           dynamicBindingPathList: [],
           dynamicTriggerPathList: [],
-          mainCanvasWidth: 900,
         },
         buttonWidget1: {
           type: "BUTTON_WIDGET",
@@ -650,7 +627,6 @@ describe("WidgetOperationSaga", () => {
           renderMode: "CANVAS",
           isLoading: false,
           parentId: "list1",
-          mainCanvasWidth: 900,
         },
         0: {
           type: "CANVAS_WIDGET",
@@ -666,7 +642,6 @@ describe("WidgetOperationSaga", () => {
           renderMode: "CANVAS",
           isLoading: false,
           parentId: "list1",
-          mainCanvasWidth: 900,
         },
       },
       "buttonWidget1",
@@ -1085,7 +1060,6 @@ describe("WidgetOperationSaga", () => {
               version: 16,
               disablePropertyPane: false,
               template: {},
-              mainCanvasWidth: 900,
             },
           ],
         },
@@ -1116,7 +1090,6 @@ describe("WidgetOperationSaga", () => {
               version: 16,
               disablePropertyPane: false,
               template: {},
-              mainCanvasWidth: 900,
             },
           ],
         },

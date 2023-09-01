@@ -28,7 +28,6 @@ const modifiedState: MetaWidgetsReduxState = {
     key: "zqar6ryg82",
     iconSVG: "/static/media/icon.52d8fb963abcb95c79b10f1553389f22.svg",
     boxShadow: "none",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "image",
@@ -86,7 +85,6 @@ const modifiedState: MetaWidgetsReduxState = {
     iconSVG: "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
     textStyle: "HEADING",
     boxShadow: "none",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "text",
@@ -148,7 +146,6 @@ const modifiedState: MetaWidgetsReduxState = {
     iconSVG: "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
     textStyle: "BODY",
     boxShadow: "none",
-    mainCanvasWidth: 900,
     dynamicBindingPathList: [
       {
         key: "text",
@@ -198,7 +195,6 @@ const modifiedState: MetaWidgetsReduxState = {
     key: "rhrv9ccmof",
     containerStyle: "none",
     canExtend: false,
-    mainCanvasWidth: 900,
     children: ["baowuczcgg", "xy20z9gxsc", "tsdy8whhl1"],
     minHeight: 1,
     widgetId: "xbbs7cls18",
@@ -241,7 +237,6 @@ const modifiedState: MetaWidgetsReduxState = {
     containerStyle: "card",
     borderColor: "#E0DEDE",
     borderWidth: "1",
-    mainCanvasWidth: 900,
     boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     animateLoading: true,
     children: ["xbbs7cls18"],
@@ -299,7 +294,6 @@ const modifiedState: MetaWidgetsReduxState = {
     key: "rhrv9ccmof",
     containerStyle: "none",
     dropDisabled: true,
-    mainCanvasWidth: 900,
     openParentPropertyPane: true,
     noPad: true,
     children: ["e3bqqc9oid"],
@@ -376,7 +370,6 @@ describe("meta widget reducer test", () => {
               isDeprecated: false,
               displayName: "Canvas",
               key: "rhrv9ccmof",
-              mainCanvasWidth: 900,
               containerStyle: "none",
               dropDisabled: true,
               openParentPropertyPane: true,
