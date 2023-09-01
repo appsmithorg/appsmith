@@ -6,7 +6,6 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
@@ -50,8 +49,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             RedirectHelper redirectHelper,
-            EmailService emailService,
-            RateLimitService rateLimitService) {
+            EmailService emailService) {
+
         super(
                 scheduler,
                 validator,
@@ -75,8 +74,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                 permissionGroupService,
                 userUtils,
                 emailVerificationTokenRepository,
-                redirectHelper,
                 emailService,
-                rateLimitService);
+                redirectHelper);
     }
 }

@@ -8,7 +8,6 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.PasswordResetToken;
@@ -31,7 +30,6 @@ import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
@@ -117,7 +115,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final TenantService tenantService;
     private final PermissionGroupService permissionGroupService;
     private final UserUtils userUtils;
-    private final RateLimitService rateLimitService;
     private final RedirectHelper redirectHelper;
     private final EmailService emailService;
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
@@ -156,9 +153,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             PermissionGroupService permissionGroupService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
-            RedirectHelper redirectHelper,
             EmailService emailService,
-            RateLimitService rateLimitService) {
+            RedirectHelper redirectHelper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -175,7 +171,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.tenantService = tenantService;
         this.permissionGroupService = permissionGroupService;
         this.userUtils = userUtils;
-        this.rateLimitService = rateLimitService;
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
         this.redirectHelper = redirectHelper;
         this.emailService = emailService;
@@ -419,17 +414,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                             emailTokenDTO.getToken())))
                                     .flatMap(passwordResetTokenRepository::delete)
                                     .then(repository.save(userFromDb))
-                                    .doOnSuccess(result -> {
-                                        // In a separate thread, we delete all other sessions of this user.
-                                        sessionUserService
-                                                .logoutAllSessions(userFromDb.getEmail())
-                                                .subscribeOn(Schedulers.boundedElastic())
-                                                .subscribe();
-
-                                        // we reset the counter for user's login attempts once password is reset
-                                        rateLimitService.resetCounter(
-                                                RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, userFromDb.getEmail());
-                                    })
+                                    .doOnSuccess(result ->
+                                            // In a separate thread, we delete all other sessions of this user.
+                                            sessionUserService
+                                                    .logoutAllSessions(userFromDb.getEmail())
+                                                    .subscribeOn(Schedulers.boundedElastic())
+                                                    .subscribe())
                                     .thenReturn(true);
                         }));
     }
@@ -588,7 +578,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * @param user User object representing the user to be created/enabled.
      * @return Publishes the user object, after having been saved.
      */
-
     private Mono<User> signupIfAllowed(User user) {
         boolean isAdminUser = false;
 

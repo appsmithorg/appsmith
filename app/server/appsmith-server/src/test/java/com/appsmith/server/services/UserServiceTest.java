@@ -55,10 +55,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
@@ -351,9 +349,8 @@ public class UserServiceTest {
         signUpUser.setEmail(newUserEmail);
         signUpUser.setPassword("123456");
 
-        Mono<User> invitedUserSignUpMono = userService
-                .createUser(signUpUser, "http://localhost:8080")
-                .map(UserSignupDTO::getUser);
+        Mono<User> invitedUserSignUpMono =
+                userService.createUser(signUpUser, "http://localhost:8080").map(UserSignupDTO::getUser);
 
         StepVerifier.create(invitedUserSignUpMono)
                 .assertNext(user -> {
