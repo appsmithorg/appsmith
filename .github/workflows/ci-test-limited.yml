@@ -354,13 +354,11 @@ jobs:
           fi
 
       - name: Run the cypress test
-        id: cypress_test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
+        id: cypress_test
         uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
@@ -401,13 +399,19 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
+          TOTAL_RUNNERS: ${{ strategy.job-total }}
+          THIS_RUNNER: ${{ strategy.job-index }}
+          CYPRESS_SPEC_PATTERN: "cypress/e2e/**/**/*"
+          CYPRESS_ENV: "NODE_ENV=development"
+          CYPRESS_CONFIG_FILE: cypress_ci_custom.config.ts
+          CYPRESS_HEADLESS: "true"
+          CYPRESS_BROWSER: ${{ env.BROWSER_PATH }}
           RUNID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
           REPOSITORY: ${{ github.repository }}
           COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
           TAG: ${{ github.event_name }}
           BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
-          THIS_RUNNER: ${{ strategy.job-index }}
           CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
           CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
           CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
@@ -415,27 +419,17 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
-          browser: ${{ env.BROWSER_PATH }}
-          record: true
           install: false
-          parallel: true
-          config-file: cypress_ci.config.ts
-          group: "Chrome-Fat Container tests"
-          spec: ${{ env.specs_to_run }}
           working-directory: app/client
-          # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}
-          env: "NODE_ENV=development"
+          command: yarn ts-node --require esm cypress/cypress-split.ts
 
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
-        id: cypress_test_failedtest
         if: steps.run_result.outputs.run_result == 'failedtest'
+        id: cypress_test_failedtest
         uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
@@ -475,7 +469,10 @@ jobs:
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
-          CYPRESS_VERIFY_TIMEOUT: 100000
+          CYPRESS_ENV: "NODE_ENV=development"
+          CYPRESS_CONFIG_FILE: cypress_ci.config.ts
+          CYPRESS_HEADLESS: "true"
+          CYPRESS_BROWSER: ${{ env.BROWSER_PATH }}
           RUNID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
           REPOSITORY: ${{ github.repository }}
@@ -490,18 +487,9 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
-          browser: ${{ env.BROWSER_PATH }}
-          record: true
           install: false
-          parallel: true
-          config-file: cypress_ci.config.ts
-          group: "Chrome-Fat Container tests"
-          spec: ${{ env.failed_spec_env }}
           working-directory: app/client
-          # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}
-          env: "NODE_ENV=development"
-
+          command: yarn cypress run --browser ${{ env.BROWSER_PATH }} --config-file cypress_ci_custom.config.ts --spec ${{ env.failed_spec_env }}
       - name: Collect CI container logs
         if: failure()
         working-directory: "."
