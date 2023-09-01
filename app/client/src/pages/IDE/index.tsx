@@ -10,6 +10,12 @@ import MainPane from "./MainPane";
 import { getIdeSidebarWidth } from "./ideSelector";
 import { Helmet } from "react-helmet";
 import GlobalHotKeys from "../Editor/GlobalHotKeys";
+import GitSyncModal from "../Editor/gitSync/GitSyncModal";
+import DisconnectGitModal from "../Editor/gitSync/DisconnectGitModal";
+import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
+import TemplatesModal from "../Templates/TemplatesModal";
+import ImportedApplicationSuccessModal from "../Editor/gitSync/ImportedAppSuccessModal";
+import ReconnectDatasourceModal from "../Editor/gitSync/ReconnectDatasourceModal";
 
 const Body = styled.div<{ leftPaneWidth: number }>`
   height: calc(100vh - 40px);
@@ -45,6 +51,12 @@ const IDE = function () {
           <MainPane />
           <DebugBar />
         </Body>
+        <GitSyncModal />
+        <DisconnectGitModal />
+        <RepoLimitExceededErrorModal />
+        <TemplatesModal />
+        <ImportedApplicationSuccessModal />
+        <ReconnectDatasourceModal />
       </GlobalHotKeys>
     </div>
   );
