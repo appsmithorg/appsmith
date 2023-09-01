@@ -19,6 +19,7 @@ export const FixedLayoutEditorModalOnion = (props: BaseWidgetProps) => {
             disablePropertyPane={props.disablePropertyPane}
             evalErrorsObj={get(props, EVAL_ERROR_PATH, {})}
             parentId={props.parentId}
+            showControls
             topRow={props.topRow}
             type={props.type}
             widgetId={props.widgetId}

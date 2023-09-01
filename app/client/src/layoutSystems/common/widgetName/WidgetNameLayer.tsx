@@ -23,6 +23,7 @@ type WidgetNameLayerProps = {
   widgetName: string;
   componentWidth: number;
   evalErrorsObj: Record<any, any>;
+  showControls?: boolean;
 };
 
 export const WidgetNameLayer = (props: WidgetNameLayerProps) => {
@@ -31,7 +32,7 @@ export const WidgetNameLayer = (props: WidgetNameLayerProps) => {
       <WidgetNameComponent
         errorCount={getErrorCount(props.evalErrorsObj)}
         parentId={props.parentId}
-        showControls={props.type === "MODAL_WIDGET"}
+        showControls={!!props.showControls}
         topRow={props.detachFromLayout ? 4 : props.topRow}
         type={props.type}
         widgetId={props.widgetId}
