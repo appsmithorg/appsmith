@@ -825,8 +825,7 @@ public class TenantServiceTest {
         UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO(licenseKey, false);
         // Check after force update if we get updated values for existing features
         tenantService.updateTenantLicenseKey(updateLicenseKeyDTO).block();
-        Mono<CachedFeatures> updatedCacheMono =
-                cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(defaultTenantId);
+        Mono<CachedFeatures> updatedCacheMono = cacheableFeatureFlagHelper.fetchCachedTenantFeatures(defaultTenantId);
         // Assert if the cache entry is updated
         StepVerifier.create(updatedCacheMono)
                 .assertNext(cachedFeatures -> {
