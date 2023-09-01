@@ -131,8 +131,6 @@ import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
 import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
-
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -816,8 +814,6 @@ export function EditorJSONtoForm(props: Props) {
       panelComponent: <EntityDeps />,
     },
   ];
-  
-  const { hasDependencies } = useEntityDependencies(props.actionName);
 
   const pluginImages = useSelector(getPluginImages);
 
