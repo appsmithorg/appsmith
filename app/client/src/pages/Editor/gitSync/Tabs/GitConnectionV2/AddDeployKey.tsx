@@ -81,13 +81,18 @@ interface AddDeployKeyState {
 interface AddDeployKeyProps {
   onChange: (args: Partial<AddDeployKeyState>) => void;
   value: Partial<AddDeployKeyState>;
+  isImport?: boolean;
 }
 
 const NOOP = () => {
   // do nothing
 };
 
-function AddDeployKey({ onChange = NOOP, value = {} }: AddDeployKeyProps) {
+function AddDeployKey({
+  onChange = NOOP,
+  value = {},
+  isImport = false,
+}: AddDeployKeyProps) {
   const [fetched, setFetched] = useState(false);
   const [sshKeyType, setSshKeyType] = useState<string>();
   const {
@@ -101,17 +106,23 @@ function AddDeployKey({ onChange = NOOP, value = {} }: AddDeployKeyProps) {
 
   useEffect(() => {
     // On mount check SSHKeyPair is defined, if not fetchSSHKeyPair
-    if (!fetched) {
-      fetchSSHKeyPair({
-        onSuccessCallback: () => {
-          setFetched(true);
-        },
-        onErrorCallback: () => {
-          setFetched(true);
-        },
-      });
+    if (!isImport) {
+      if (!fetched) {
+        fetchSSHKeyPair({
+          onSuccessCallback: () => {
+            setFetched(true);
+          },
+          onErrorCallback: () => {
+            setFetched(true);
+          },
+        });
+      }
+    } else {
+      if (!fetched) {
+        setFetched(true);
+      }
     }
-  }, [fetched]);
+  }, [isImport, fetched]);
 
   useEffect(() => {
     if (fetched && !fetchingSSHKeyPair) {
@@ -135,14 +146,6 @@ function AddDeployKey({ onChange = NOOP, value = {} }: AddDeployKeyProps) {
       });
     }
   }, [sshKeyType, SSHKeyPair]);
-
-  console.log({
-    fetched,
-    sshKeyType,
-    SSHKeyPair,
-    fetchingSSHKeyPair,
-    generatingSSHKey,
-  });
 
   const loading = fetchingSSHKeyPair || generatingSSHKey;
 

@@ -9,6 +9,7 @@ import {
 } from "./styles";
 import {
   Callout,
+  Checkbox,
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
@@ -23,13 +24,20 @@ const WellInnerContainer = styled.div`
   padding-left: 16px;
 `;
 
+const CheckboxTextContainer = styled.div`
+  display: flex;
+  justify-content: flex-start;
+`;
+
 interface ChooseGitProviderState {
   gitProvider: string;
   gitEmptyRepoExists: string;
+  gitExistingRepoExists: boolean;
 }
 interface ChooseGitProviderProps {
   onChange: (args: Partial<ChooseGitProviderState>) => void;
   value: Partial<ChooseGitProviderState>;
+  isImport?: boolean;
 }
 
 const NOOP = () => {
@@ -39,6 +47,7 @@ const NOOP = () => {
 function ChooseGitProvider({
   onChange = NOOP,
   value = {},
+  isImport = false,
 }: ChooseGitProviderProps) {
   return (
     <div>
@@ -65,27 +74,29 @@ function ChooseGitProvider({
               </RadioGroup>
             </FieldControl>
           </FieldContainer>
-          <FieldContainer>
-            <FieldQuestion
-              renderAs="p"
-              style={{ opacity: !value?.gitProvider ? 0.5 : 1 }}
-            >
-              ii. Do you have an existing empty repository to connect to git?{" "}
-              <Text color="var(--ads-v2-color-red-600)">*</Text>
-            </FieldQuestion>
-            <FieldControl>
-              <RadioGroup
-                isDisabled={!value?.gitProvider}
-                onChange={(v) => onChange({ gitEmptyRepoExists: v })}
-                orientation="horizontal"
-                value={value?.gitEmptyRepoExists}
+          {!isImport && (
+            <FieldContainer>
+              <FieldQuestion
+                renderAs="p"
+                style={{ opacity: !value?.gitProvider ? 0.5 : 1 }}
               >
-                <Radio value="yes">Yes</Radio>
-                <Radio value="no">No</Radio>
-              </RadioGroup>
-            </FieldControl>
-          </FieldContainer>
-          {value?.gitEmptyRepoExists === "no" ? (
+                ii. Do you have an existing empty repository to connect to git?{" "}
+                <Text color="var(--ads-v2-color-red-600)">*</Text>
+              </FieldQuestion>
+              <FieldControl>
+                <RadioGroup
+                  isDisabled={!value?.gitProvider}
+                  onChange={(v) => onChange({ gitEmptyRepoExists: v })}
+                  orientation="horizontal"
+                  value={value?.gitEmptyRepoExists}
+                >
+                  <Radio value="yes">Yes</Radio>
+                  <Radio value="no">No</Radio>
+                </RadioGroup>
+              </FieldControl>
+            </FieldContainer>
+          )}
+          {!isImport && value?.gitEmptyRepoExists === "no" && (
             <Collapsible isOpen>
               <CollapsibleHeader arrowPosition="end">
                 <Icon name="play-circle-line" size="md" />
@@ -98,15 +109,30 @@ function ChooseGitProvider({
                 />
               </CollapsibleContent>
             </Collapsible>
-          ) : null}
+          )}
         </WellInnerContainer>
       </WellContainer>
-      {value?.gitEmptyRepoExists === "no" ? (
+      {!isImport && value?.gitEmptyRepoExists === "no" ? (
         <Callout kind="info" links={[{ children: "Import via git", to: "/#" }]}>
           If you choose to use an existing repository, then you should try to
           import the app via git
         </Callout>
       ) : null}
+      {isImport && (
+        <Checkbox
+          isSelected={value?.gitExistingRepoExists}
+          onChange={(v) => onChange({ gitExistingRepoExists: v })}
+        >
+          <CheckboxTextContainer>
+            <Text renderAs="p">
+              I have an existing appsmith app connected to git
+            </Text>
+            <Text color="var(--ads-v2-color-red-600)" renderAs="p">
+              &nbsp;*
+            </Text>
+          </CheckboxTextContainer>
+        </Checkbox>
+      )}
     </div>
   );
 }

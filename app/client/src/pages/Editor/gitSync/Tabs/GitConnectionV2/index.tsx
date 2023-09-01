@@ -8,9 +8,9 @@ import styled from "styled-components";
 import { GIT_CONNECT_STEPS } from "./constants";
 import { useGitConnect } from "../../hooks";
 import { isValidGitRemoteUrl } from "../../utils";
-// import { useDispatch } from "react-redux";
-// import { GitSyncModalTab } from "entities/GitSync";
-// import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { importAppFromGit } from "actions/gitSyncActions";
+import { useDispatch, useSelector } from "react-redux";
+import { getIsImportingApplicationViaGit } from "selectors/gitSyncSelectors";
 
 const StyledModalFooter = styled(ModalFooter)`
   justify-content: space-between;
@@ -43,17 +43,24 @@ const nextStepText = {
 interface FormDataState {
   gitProvider?: string;
   gitEmptyRepoExists?: string;
+  gitExistingRepoExists?: boolean;
   remoteUrl?: string;
   isAddedDeployKey?: boolean;
   sshKeyType?: "RSA" | "ECDSA";
 }
 
-function GitConnectionV2() {
-  // const dispatch = useDispatch();
+interface GitConnectionV2Props {
+  isImport?: boolean;
+}
+
+function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
+  const isImportingViaGit = useSelector(getIsImportingApplicationViaGit);
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = useState<FormDataState>({
     gitProvider: undefined,
     gitEmptyRepoExists: undefined,
+    gitExistingRepoExists: false,
     remoteUrl: undefined,
     isAddedDeployKey: false,
     sshKeyType: "ECDSA",
@@ -71,10 +78,11 @@ function GitConnectionV2() {
   const { connectToGit, isConnectingToGit } = useGitConnect();
 
   const isDisabled = {
-    [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]:
-      !formData.gitProvider ||
-      !formData.gitEmptyRepoExists ||
-      formData.gitEmptyRepoExists === "no",
+    [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: !isImport
+      ? !formData.gitProvider ||
+        !formData.gitEmptyRepoExists ||
+        formData.gitEmptyRepoExists === "no"
+      : !formData.gitProvider || !formData.gitExistingRepoExists,
     [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]:
       typeof formData?.remoteUrl !== "string" ||
       !isValidGitRemoteUrl(formData?.remoteUrl),
@@ -99,33 +107,43 @@ function GitConnectionV2() {
           break;
         }
         case GIT_CONNECT_STEPS.ADD_DEPLOY_KEY: {
+          const gitProfile = {
+            authorName: "Appsmith",
+            authorEmail: "abc@xyz.com",
+          };
           if (formData.remoteUrl) {
-            connectToGit(
-              {
+            if (!isImport) {
+              connectToGit({
                 remoteUrl: formData.remoteUrl,
-                gitProfile: {
-                  authorName: "Appsmith",
-                  authorEmail: "abc@xyz.com",
-                },
+                gitProfile,
                 isDefaultProfile: true,
-              },
-              // {
-              //   onSuccessCallback: () => {
-              //     dispatch(
-              //       setIsGitSyncModalOpen({
-              //         isOpen: true,
-              //         tab: GitSyncModalTab.CONNECTION_SUCCESS,
-              //       }),
-              //     );
-              //   },
-              // },
-            );
+              });
+            } else {
+              dispatch(
+                importAppFromGit({
+                  payload: {
+                    remoteUrl: formData.remoteUrl,
+                    gitProfile,
+                    isDefaultProfile: true,
+                  },
+                }),
+              );
+            }
           }
           break;
         }
       }
     }
   };
+
+  const stepProps = {
+    onChange: handleChange,
+    value: formData,
+    isImport: isImport,
+  };
+
+  const loading =
+    (!isImport && isConnectingToGit) || (isImport && isImportingViaGit);
 
   return (
     <>
@@ -138,18 +156,18 @@ function GitConnectionV2() {
           />
         )}
         {activeStep === GIT_CONNECT_STEPS.CHOOSE_PROVIDER && (
-          <ChooseGitProvider onChange={handleChange} value={formData} />
+          <ChooseGitProvider {...stepProps} />
         )}
         {activeStep === GIT_CONNECT_STEPS.GENERATE_SSH_KEY && (
-          <GenerateSSH onChange={handleChange} value={formData} />
+          <GenerateSSH {...stepProps} />
         )}
         {activeStep === GIT_CONNECT_STEPS.ADD_DEPLOY_KEY && (
-          <AddDeployKey onChange={handleChange} value={formData} />
+          <AddDeployKey {...stepProps} />
         )}
       </ModalBody>
       <StyledModalFooter>
-        {isConnectingToGit && <Text>Connecting ...</Text>}
-        {!isConnectingToGit && (
+        {loading && <Text>Connecting ...</Text>}
+        {!loading && (
           <Button
             endIcon={
               currentIndex < steps.length - 1 ? "arrow-right-s-line" : undefined
