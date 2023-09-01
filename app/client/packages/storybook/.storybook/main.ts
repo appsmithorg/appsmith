@@ -1,3 +1,4 @@
+import globby from "globby";
 import { mergeConfig } from "vite";
 import svgr from "vite-plugin-svgr";
 
@@ -6,10 +7,14 @@ function getStories() {
     return ["../../design-system/**/*.chromatic.stories.@(js|jsx|ts|tsx)"];
   }
 
-  return [
-    "../../design-system/**/*.stories.mdx",
-    "../../design-system/**/*.stories.@(js|jsx|ts|tsx)",
-  ];
+  return globby.sync(
+    [
+      "../../design-system/**/*.stories.mdx",
+      "../../design-system/**/*.stories.@(js|jsx|ts|tsx)",
+      "!../../design-system/**/*chromatic.stories.@(js|jsx|ts|tsx)",
+    ],
+    { cwd: "./.storybook" },
+  );
 }
 
 module.exports = {
