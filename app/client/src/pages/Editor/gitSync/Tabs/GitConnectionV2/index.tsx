@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { Button, ModalBody, ModalFooter, Text, toast } from "design-system";
+import React, { useState } from "react";
+import { Button, ModalBody, ModalFooter, Text } from "design-system";
 import Steps from "./Steps";
 import ChooseGitProvider from "./ChooseGitProvider";
 import GenerateSSH from "./GenerateSSH";
 import AddDeployKey from "./AddDeployKey";
 import styled from "styled-components";
 import { GIT_CONNECT_STEPS } from "./constants";
-import { useGitConnect, useSSHKeyPair } from "../../hooks";
+import { useGitConnect } from "../../hooks";
 import { isValidGitRemoteUrl } from "../../utils";
+// import { useDispatch } from "react-redux";
+// import { GitSyncModalTab } from "entities/GitSync";
+// import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 
 const StyledModalFooter = styled(ModalFooter)`
   justify-content: space-between;
@@ -18,19 +21,24 @@ const steps = [
   {
     key: GIT_CONNECT_STEPS.CHOOSE_PROVIDER,
     text: "Choose a git provider",
-    nextStep: "Configure git",
   },
   {
     key: GIT_CONNECT_STEPS.GENERATE_SSH_KEY,
     text: "Generate SSH key",
-    nextStep: "Generate SSH key",
   },
   {
     key: GIT_CONNECT_STEPS.ADD_DEPLOY_KEY,
     text: "Add deploy key",
-    nextStep: "Connect Git",
   },
 ];
+
+const possibleSteps = steps.map((s) => s.key);
+
+const nextStepText = {
+  [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: "Configure git",
+  [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: "Generate SSH key",
+  [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: "Connect git",
+};
 
 interface FormDataState {
   gitProvider?: string;
@@ -41,6 +49,8 @@ interface FormDataState {
 }
 
 function GitConnectionV2() {
+  // const dispatch = useDispatch();
+
   const [formData, setFormData] = useState<FormDataState>({
     gitProvider: undefined,
     gitEmptyRepoExists: undefined,
@@ -53,29 +63,12 @@ function GitConnectionV2() {
     setFormData((s) => ({ ...s, ...partialFormData }));
   };
 
-  // const [gitProvider, setGitProvider] = useState<string>();
-  // const [gitEmptyRepoExists, setGitEmptyRepoExists] = useState<string>();
-
   const [activeStep, setActiveStep] = useState<string>(
     GIT_CONNECT_STEPS.CHOOSE_PROVIDER,
   );
   const currentIndex = steps.findIndex((s) => s.key === activeStep);
 
-  const [connectedToGit, setConnectedToGit] = useState(false);
   const { connectToGit, isConnectingToGit } = useGitConnect();
-
-  // const [isValid, setIsValid] = useState({
-  //   [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: false,
-  //   [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: false,
-  //   [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: false,
-  // });
-
-  // const handleStepValidation = (step: string, isValid: boolean) => {
-  //   setIsValid((prev) => ({
-  //     ...prev,
-  //     [step]: isValid,
-  //   }));
-  // };
 
   const isDisabled = {
     [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]:
@@ -95,7 +88,6 @@ function GitConnectionV2() {
   };
 
   const handleNextStep = () => {
-    console.log({ currentIndex, s: steps.length });
     if (currentIndex < steps.length) {
       switch (activeStep) {
         case GIT_CONNECT_STEPS.CHOOSE_PROVIDER: {
@@ -107,7 +99,6 @@ function GitConnectionV2() {
           break;
         }
         case GIT_CONNECT_STEPS.ADD_DEPLOY_KEY: {
-          console.log("HERE");
           if (formData.remoteUrl) {
             connectToGit(
               {
@@ -118,12 +109,16 @@ function GitConnectionV2() {
                 },
                 isDefaultProfile: true,
               },
-              {
-                onSuccessCallback: () => {
-                  setConnectedToGit(true);
-                  console.log("HANDLE REDIRECTION HERE");
-                },
-              },
+              // {
+              //   onSuccessCallback: () => {
+              //     dispatch(
+              //       setIsGitSyncModalOpen({
+              //         isOpen: true,
+              //         tab: GitSyncModalTab.CONNECTION_SUCCESS,
+              //       }),
+              //     );
+              //   },
+              // },
             );
           }
           break;
@@ -135,11 +130,13 @@ function GitConnectionV2() {
   return (
     <>
       <ModalBody>
-        <Steps
-          activeKey={activeStep}
-          onActiveKeyChange={setActiveStep}
-          steps={steps}
-        />
+        {possibleSteps.includes(activeStep) && (
+          <Steps
+            activeKey={activeStep}
+            onActiveKeyChange={setActiveStep}
+            steps={steps}
+          />
+        )}
         {activeStep === GIT_CONNECT_STEPS.CHOOSE_PROVIDER && (
           <ChooseGitProvider onChange={handleChange} value={formData} />
         )}
@@ -149,20 +146,10 @@ function GitConnectionV2() {
         {activeStep === GIT_CONNECT_STEPS.ADD_DEPLOY_KEY && (
           <AddDeployKey onChange={handleChange} value={formData} />
         )}
-        {/* {steps.map((step) => {
-          const Comp = StepComp[step.key];
-          return (
-            <Comp
-              key={step.key}
-              onValidate={(v) => handleStepValidation(activeStep, v)}
-              show={step.key === activeStep}
-            />
-          );
-        })} */}
       </ModalBody>
       <StyledModalFooter>
         {isConnectingToGit && <Text>Connecting ...</Text>}
-        {!connectedToGit && (
+        {!isConnectingToGit && (
           <Button
             endIcon={
               currentIndex < steps.length - 1 ? "arrow-right-s-line" : undefined
@@ -171,10 +158,10 @@ function GitConnectionV2() {
             onClick={handleNextStep}
             size="md"
           >
-            {steps[currentIndex].nextStep}
+            {nextStepText[activeStep]}
           </Button>
         )}
-        {currentIndex > 0 && (
+        {possibleSteps.includes(activeStep) && currentIndex > 0 && (
           <Button
             kind="secondary"
             onClick={handlePreviousStep}

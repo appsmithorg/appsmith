@@ -12,7 +12,7 @@ function GitSyncModal(props: GitSyncModalProps) {
   // const isGitConnectV2Enabled = useFeatureFlag(
   //   FEATURE_FLAG.release_git_connect_v2_enabled,
   // );
-  const isGitConnectV2Enabled = false;
+  const isGitConnectV2Enabled = true;
 
   return isGitConnectV2Enabled ? (
     <GitSyncModalV2 {...props} />
