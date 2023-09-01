@@ -76,7 +76,7 @@ public class GitFileUtils {
 
     // Number of seconds after lock file is stale
     @Value("${appsmith.index.lock.file.time}")
-    public static final int INDEX_LOCK_FILE_STALE_TIME = 900;
+    public static final int INDEX_LOCK_FILE_STALE_TIME = 300;
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields = Set.of(
