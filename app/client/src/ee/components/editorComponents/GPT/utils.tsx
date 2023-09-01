@@ -25,10 +25,25 @@ import WidgetFactory from "utils/WidgetFactory";
 import log from "loglevel";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { WidgetType } from "constants/WidgetConstants";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type {
+  EntityNavigationData,
+  NavigationData,
+} from "selectors/navigationSelectors";
+import _, { isObject } from "lodash";
+import { AutocompleteSorter } from "utils/autocomplete/AutocompleteSortRules";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type { Completion } from "utils/autocomplete/CodemirrorTernService";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { js_beautify } from "js-beautify";
 import { apiRequestConfig } from "api/Api";
 import axios from "axios";
 import type { AxiosResponse, AxiosError } from "axios";
+import type {
+  JSActionEntity,
+  JSActionEntityConfig,
+} from "entities/DataTree/types";
 
 export type TUserPrompt = {
   role: "user";
@@ -576,4 +591,377 @@ export function useTextAutocomplete(
     }
   }, [query]);
   return ref;
+}
+
+/**
+ * Function that returns either all the jsFunctions from the jsObject or the JsVaribles
+ */
+function getJsObjectValues(
+  evalTree: DataTree,
+  configTree: ConfigTree,
+  jsObjects: NavigationData[],
+  isFunction = true,
+) {
+  const jsFunctions: NavigationData[] = [];
+  const jsVariables: NavigationData[] = [];
+
+  jsObjects.forEach((jsO: Record<string, any>) => {
+    const evalObject = evalTree[jsO.name] as JSActionEntity;
+    const configTreeObject = configTree[jsO.name] as JSActionEntityConfig;
+    const jsVariablesKeys = configTreeObject.variables;
+    const childrenKeys = Object.keys(jsO.children);
+
+    childrenKeys.forEach((c) => {
+      if (!jsVariablesKeys.includes(c)) {
+        jsFunctions.push(jsO.children[c]);
+      } else {
+        const value = evalObject[c];
+        const obj = _.cloneDeep(jsO.children[c]);
+        obj.valueType = (typeof value).toUpperCase();
+        jsVariables.push(obj);
+      }
+    });
+  });
+
+  if (isFunction) {
+    return jsFunctions;
+  }
+
+  return jsVariables;
+}
+
+function getWidgetBindings(widgets: NavigationData[]) {
+  const widgetBindings: Completion[] = [];
+
+  widgets.forEach((widget) => {
+    const widgetType = widget.widgetType;
+
+    if (!widgetType) return;
+    const autocompleteDefinitions =
+      WidgetFactory.getAutocompleteDefinitions(widgetType) || {};
+    let autocompleteDefinitionsObj: Record<string, any> = {};
+
+    if (typeof autocompleteDefinitions === "function") {
+      try {
+        autocompleteDefinitionsObj = autocompleteDefinitions(
+          widget as unknown as WidgetProps,
+        );
+      } catch (e) {
+        log.debug(e);
+        autocompleteDefinitionsObj = {};
+      }
+    } else {
+      autocompleteDefinitionsObj = autocompleteDefinitions;
+    }
+
+    if (autocompleteDefinitionsObj) {
+      /**
+       * Using the Autocomplete config defined in widgets to pick the properties which can be shown as suggested bindings.
+       * Therefore created this config as different set of types have been defined in the config that Tern server consumes
+       * and we need to transform a different type to pass in the completions which we consume and use.
+       */
+      const typeConfig: Record<string, string> = {
+        bool: "BOOLEAN",
+        string: "STRING",
+        JSON: "OBJECT",
+        "[$__dropdownOption__$]": "ARRAY",
+        "[$__dropdrowOptionWithChildren__$]": "ARRAY",
+      };
+      const autocompleteDefinitionsKeys: string[] = Object.keys(
+        autocompleteDefinitionsObj,
+      );
+
+      autocompleteDefinitionsKeys.forEach((def: string) => {
+        if (!def.startsWith("!")) {
+          let type = autocompleteDefinitionsObj[def];
+
+          if (isObject(autocompleteDefinitionsObj[def])) {
+            type = autocompleteDefinitionsObj[def]["!type"];
+          }
+
+          let bindingType = typeConfig[type];
+
+          if (type && type[0] === "[" && type[type.length - 1] === "]") {
+            bindingType = "ARRAY";
+          }
+
+          widgetBindings.push({
+            text: `${widget.name}.${def}`,
+            origin: "DATA_TREE",
+            type: bindingType,
+            data: {
+              ...widget,
+              doc: "",
+            },
+          });
+        }
+      });
+    }
+  });
+
+  return widgetBindings;
+}
+
+function transformSortedCompletions(
+  sortedCompletions: Record<string, any>[],
+  expectedType: string | undefined,
+) {
+  let randomIndex = 0;
+  let prompts = [];
+  let completions = [];
+
+  /**
+   * We want to show atleast 1 of each of the three functions, jsObject functions, platform function or queries. If
+   * either query or jsObject is not present, we fill it up with variations of whichever is present and
+   * in case none are present, we show only platform functions
+   */
+  if (expectedType === AutocompleteDataType.FUNCTION) {
+    const platformFnCompletions: Record<string, any> = sortedCompletions.filter(
+      (c) => c.origin === "DATA_TREE.APPSMITH.FUNCTIONS",
+    );
+    const actionsCompletions: Record<string, any> = sortedCompletions.filter(
+      (c) => {
+        return c.text.split(".").includes("run");
+      },
+    );
+    const otherFunctions: Record<string, any> = sortedCompletions.filter(
+      (c) =>
+        c.type === "FUNCTION" &&
+        c.origin !== "DATA_TREE.APPSMITH.FUNCTIONS" &&
+        !c.text.split(".").includes("run"),
+    );
+
+    actionsCompletions.length
+      ? completions.push(actionsCompletions.splice(0, 1)[0])
+      : otherFunctions.length
+      ? completions.push(otherFunctions.splice(0, 1)[0])
+      : completions.push(platformFnCompletions.splice(0, 1)[0]);
+
+    otherFunctions.length
+      ? completions.push(otherFunctions.splice(0, 1)[0])
+      : actionsCompletions.length
+      ? completions.push(actionsCompletions.splice(0, 1)[0])
+      : completions.push(platformFnCompletions.splice(0, 1)[0]);
+
+    completions.push(platformFnCompletions.splice(0, 1)[0]);
+  } else {
+    completions = sortedCompletions;
+  }
+
+  return completions
+    .filter((c: any) => !c.isHeader)
+    .slice(0, 3)
+    .map((c: Record<string, any>) => {
+      switch (c.type) {
+        case "ACTION":
+          prompts = [
+            `Bind data from ${c.text.split(".")[0]} to this property`,
+            `Add first 5 values from ${c.text.split(".")[0]} to this property`,
+          ];
+          break;
+
+        case "BOOLEAN":
+        case "STRING":
+        case "NUMBER":
+          prompts = [
+            `Bind ${c.text} to this property`,
+            `Connect this property to ${c.text}`,
+            `Use the value of ${c.text} in this property`,
+          ];
+          break;
+        case "FUNCTION":
+          prompts = [
+            `Run ${c.text} on trigger of this property`,
+            `Invoke ${c.text} upon this property's trigger`,
+            `Call ${c.text} when this property is triggered`,
+            `When this property triggers execute ${c.text} `,
+          ];
+          break;
+        case "UNKNOWN":
+        default:
+          prompts = [`Bind ${c.text} to this property`];
+
+          break;
+      }
+      randomIndex = Math.floor(Math.random() * prompts.length);
+      c.text = c.prompt || prompts[randomIndex];
+
+      return c;
+    });
+}
+
+const platformFunctionsPrompts: Record<string, string> = {
+  navigateTo: "Navigate to appsmith.com",
+  showAlert: "Show an alert: 'Data saved successfully'",
+  postWindowMessage: "Send message to iframe: 'Hello from Appsmith'",
+  copyToClipboard: "Copy user email to clipboard",
+  storeValue: "Store value of user email",
+  clearStore: "Clear all stored values",
+  windowMessageListener: "Listen for messages from 'https://appsmith.com'",
+  unlistenWindowMessage:
+    "Stop listening for messages from 'https://example.com'",
+};
+
+export function getAllPossibleBindingsForSuggestions(
+  entity: FieldEntityInformation,
+  entitiesForNavigation: EntityNavigationData,
+  platformFunctions: Record<string, unknown>[],
+  evalTree: DataTree,
+  configTree: ConfigTree,
+  dataTreePath: string | undefined,
+) {
+  const expectedType = entity.expectedType;
+  const listOfBindings: Record<string, any>[] = [];
+  const entitiesForNavigationValues = Object.values(entitiesForNavigation);
+  let sortedCompletions: Record<string, any>[] = [];
+  const jsObjects: NavigationData[] = entitiesForNavigationValues.filter(
+    (e) => e.type === "JSACTION",
+  );
+  const actions = entitiesForNavigationValues.filter(
+    (e) => e.type === "ACTION",
+  );
+
+  // These are a whitelist of properties for which we need to show only suggestions with actions as bindings or show nothing.
+  let addOnlyActions = false;
+  const onlyActionsForProperties: Record<string, string[]> = {
+    TEXT_WIDGET: ["text"],
+    TABLE_WIDGET_V2: ["tableData"],
+    JSON_FORM_WIDGET: ["sourceData"],
+    INPUT_WIDGET_V2: ["defaultText", "validation"],
+    SELECT_WIDGET: ["sourceData"],
+    BUTTON_WIDGET: ["onClick"],
+  };
+
+  /**
+   * We build the list of completions from the entites that are available on
+   *  appsmith like platform functions, widgets, actions, datasources etc.
+   *  */
+  switch (expectedType) {
+    case AutocompleteDataType.FUNCTION:
+      //Add all the platform functions
+      const platformFunctionsToUse: Record<string, any> = [];
+      platformFunctions.forEach((pf: Record<string, any>) => {
+        const name = pf.name as string;
+
+        if (platformFunctionsPrompts[name]) {
+          platformFunctionsToUse.push({
+            ...pf,
+            prompt: platformFunctionsPrompts[name],
+          });
+        }
+      });
+
+      listOfBindings.push(
+        ...platformFunctionsToUse.map((f: Record<string, any>) => {
+          return { ...f, origin: "DATA_TREE.APPSMITH.FUNCTIONS" };
+        }),
+      );
+
+      //Adding all the jsObject functions
+      const jsObjectFunctions = getJsObjectValues(
+        evalTree,
+        configTree,
+        jsObjects,
+        true,
+      );
+      listOfBindings.push(...jsObjectFunctions);
+
+      //Adding the run function for the actions like 'api1.run'
+      listOfBindings.push(
+        ..._.flatten(
+          actions.map((a) => {
+            return [{ ...a, name: `${a.name}.run` }];
+          }),
+        ),
+      );
+
+      /**
+       * Transform the structure into the completions format so we can pass
+       * it through the sort function to get the best match results like we do in autocomplete.
+       *  */
+      const completions: Completion[] = listOfBindings.map((b: any) => {
+        return {
+          origin: b.origin || "DATA_TREE",
+          data: {
+            ...b,
+            origin: "DATA_TREE",
+            type: "fn(params: ?)",
+          },
+          text: b.name,
+          type: "FUNCTION",
+          prompt: b.prompt,
+        };
+      });
+      sortedCompletions = AutocompleteSorter.sort(completions, entity);
+
+      break;
+    default:
+      //Adding all the data properties for the datasources like 'Api1.data'
+      listOfBindings.push(
+        ..._.flatten(
+          actions.map((a) => {
+            return [{ ...a, name: `${a.name}.data` }];
+          }),
+        ),
+      );
+
+      const widgetType = entity.widgetType;
+
+      if (dataTreePath && widgetType) {
+        const { propertyPath } = getEntityNameAndPropertyPath(dataTreePath);
+
+        if (onlyActionsForProperties[widgetType]?.includes(propertyPath)) {
+          addOnlyActions = true;
+        }
+      }
+
+      /**
+       * Add widgets in case of the properties where we show even possible bindings with other widget properties
+       */
+      if (!addOnlyActions) {
+        const widgets: NavigationData[] = entitiesForNavigationValues.filter(
+          (e) => e.type === "WIDGET",
+        );
+        const widgetBindings: Completion[] = getWidgetBindings(widgets);
+        listOfBindings.push(...widgetBindings);
+
+        //Adding js variables
+        const jsObjectVariables = getJsObjectValues(
+          evalTree,
+          configTree,
+          jsObjects,
+          false,
+        );
+        listOfBindings.push(...jsObjectVariables);
+      }
+
+      const completion = listOfBindings.map((b: any) => {
+        return {
+          origin: "DATA_TREE",
+          data: {
+            ...b,
+            origin: "DATA_TREE",
+            type: "?",
+          },
+          text: b.name || b.text,
+          type: b.valueType || b.type || "UNKNOWN",
+        };
+      });
+
+      const sameTypedCompletions = completion.filter(
+        (c) => c.type === expectedType,
+      );
+
+      sortedCompletions = AutocompleteSorter.sort(
+        sameTypedCompletions.length > 2 ? sameTypedCompletions : completion,
+        entity,
+      );
+  }
+
+  const transformedBindings = transformSortedCompletions(
+    sortedCompletions,
+    expectedType,
+  );
+
+  return transformedBindings;
 }

@@ -1,9 +1,14 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useState } from "react";
 import styled from "styled-components";
 import classNames from "classnames";
 import type { TAssistantPrompt, TChatGPTPrompt } from "./utils";
-import { chatGenerationApi, getErrorMessage, getFormattedCode } from "./utils";
+import {
+  getAllPossibleBindingsForSuggestions,
+  chatGenerationApi,
+  getErrorMessage,
+  getFormattedCode,
+} from "./utils";
 import { useTextAutocomplete } from "./utils";
 import { useGPTTask } from "./utils";
 import { useGPTContextGenerator } from "./utils";
@@ -12,13 +17,21 @@ import BetaCard from "components/editorComponents/BetaCard";
 import { Button, Callout, Text } from "design-system";
 import { usePrevious } from "@mantine/hooks";
 import { APPSMITH_AI_LINK } from "./constants";
-import type { TAIWrapperProps } from "ce/components/editorComponents/GPT";
+import type { TAIWrapperProps } from "@appsmith/components/editorComponents/GPT";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import {
+  getAISuggestedPromptShownForType,
   getApplicationAIRecentQueriesByType,
   setAIRecentQuery,
+  setAISuggestedPromptShownForType,
 } from "utils/storage";
+import { getPlatformFunctions } from "@appsmith/workers/Evaluation/fns";
+import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
+import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
+import { useLocation } from "react-router";
+
+import { PromptTriggers } from "./constants";
 
 const QueryForm = styled.form`
   > div {
@@ -113,6 +126,9 @@ export function AskAI(props: TAskAIProps) {
     }
   }, [props.isOpen, currentValue, prevOpen]);
 
+  const [promptTriggerSource, setPromptTriggerSource] = useState(
+    PromptTriggers.USER,
+  );
   /**
    * When this is invoked the field should already be updated.
    * Logs analytics and closes the popover.
@@ -132,6 +148,8 @@ export function AskAI(props: TAskAIProps) {
           property: props.entity.propertyPath,
           widgetName: props.entity.entityName,
           widgetType: props.entity.widgetType,
+          isSuggestedPrompt: promptTriggerSource === PromptTriggers.SUGGESTED,
+          isRecentPrompt: promptTriggerSource === PromptTriggers.RECENT,
         });
       }
       defaultValue.current = currentValue;
@@ -160,11 +178,80 @@ export function AskAI(props: TAskAIProps) {
     acceptResponseRef.current = acceptResponse;
   }, [acceptResponse]);
 
+  const dataTree = useSelector(getDataTree);
+  const configTree = useSelector(getConfigTree);
+  const [suggestedBindings, setSuggestedBindings] = useState<string[]>([]);
+
+  useEffect(() => {
+    //Get and set all the suggested bindings
+    const platformFunctions = getPlatformFunctions(self.$cloudHosting);
+
+    const bestBindings = getAllPossibleBindingsForSuggestions(
+      props.entity,
+      props.entitiesForNavigation,
+      platformFunctions,
+      dataTree,
+      configTree,
+      props.dataTreePath,
+    );
+
+    setSuggestedBindings(bestBindings.map((b: Record<string, any>) => b.text));
+  }, []);
+
+  const [
+    noOfTimesSuggestedPromptsShownForType,
+    setNoOfTimesSuggestedPromptsShownForTypeInState,
+  ] = useState<number | null>(null);
+
+  const fetchApplicationAIRecentQueriesByType = useCallback(async () => {
+    if (!applicationId || !task) return;
+
+    const result = await getAISuggestedPromptShownForType(
+      props.entity.expectedType || "unknown",
+    );
+
+    setNoOfTimesSuggestedPromptsShownForTypeInState(result);
+  }, [applicationId, task]);
+
+  useEffect(() => {
+    fetchApplicationAIRecentQueriesByType();
+    const expectedType = props.entity.expectedType;
+
+    setAISuggestedPromptShownForType(expectedType || "unknown");
+  }, []);
+
   useEffect(() => {
     return () => {
       acceptResponseRef.current?.(true);
     };
   }, []);
+
+  const location = useLocation();
+  const { pageType } = getEntityInCurrentPath(location.pathname);
+  const showSuggestedPrompts = useMemo(() => {
+    return (
+      noOfTimesSuggestedPromptsShownForType !== null &&
+      noOfTimesSuggestedPromptsShownForType < 5 &&
+      !response &&
+      !isLoading &&
+      suggestedBindings.length > 0 &&
+      pageType !== "queryEditor"
+    );
+  }, [
+    noOfTimesSuggestedPromptsShownForType,
+    response,
+    isLoading,
+    suggestedBindings,
+  ]);
+
+  const showRecentQueries = useMemo(() => {
+    return (
+      !response &&
+      !isLoading &&
+      recentQueries.length > 0 &&
+      !showSuggestedPrompts
+    );
+  }, [response, isLoading, recentQueries, showSuggestedPrompts]);
 
   /** To hold the latest reference of props.acceptResponse,
    * It needs to be fired when the component unmounts */
@@ -188,15 +275,21 @@ export function AskAI(props: TAskAIProps) {
       property: props.entity.propertyPath,
       widgetName: props.entity.entityName,
       widgetType: props.entity.widgetType,
+      isSuggestedPrompt: promptTriggerSource === PromptTriggers.SUGGESTED,
+      isRecentPrompt: promptTriggerSource === PromptTriggers.RECENT,
     });
     setResponse(null);
     props.update?.(defaultValue.current || "");
   };
 
   const fireQuery = useCallback(
-    async (inputQuery: string) => {
+    async (inputQuery: string, trigger = PromptTriggers.USER) => {
       if (isLoading || !inputQuery) return;
 
+      const isSuggestedPrompt = trigger === PromptTriggers.SUGGESTED;
+      const isRecentPrompt = trigger === PromptTriggers.RECENT;
+
+      setPromptTriggerSource(trigger);
       setResponse(null);
       setError("");
       setIsLoading(true);
@@ -221,6 +314,8 @@ export function AskAI(props: TAskAIProps) {
         property: props.entity.propertyPath,
         widgetName: props.entity.entityName,
         widgetType: props.entity.widgetType,
+        isSuggestedPrompt,
+        isRecentPrompt,
       });
 
       const start = performance.now();
@@ -278,6 +373,8 @@ export function AskAI(props: TAskAIProps) {
           property: props.entity.propertyPath,
           widgetName: props.entity.entityName,
           widgetType: props.entity.widgetType,
+          isSuggestedPrompt,
+          isRecentPrompt,
         });
         updateResponse(message);
 
@@ -297,6 +394,8 @@ export function AskAI(props: TAskAIProps) {
           widgetName: props.entity.entityName,
           widgetType: props.entity.widgetType,
           error: e,
+          isSuggestedPrompt,
+          isRecentPrompt,
         });
       } finally {
         setIsLoading(false);
@@ -330,14 +429,60 @@ export function AskAI(props: TAskAIProps) {
     window.open(APPSMITH_AI_LINK, "_blank", "noopener noreferrer");
   };
 
-  const onClickRecentQuery = (query: string) => {
+  /**
+   * We want to fire this event only after we get all the information for both suggested prompts and recent queries
+   * from indexDB before finally deciding on which prompts were actually shown.
+   */
+  const [hasShownEventBeenFired, setHasShownEventBeenFired] = useState(false);
+  useEffect(() => {
+    if (
+      hasShownEventBeenFired ||
+      (!showSuggestedPrompts && !showRecentQueries) ||
+      noOfTimesSuggestedPromptsShownForType === null
+    )
+      return;
+
+    AnalyticsUtil.logEvent("AI_PROMPT_SHOWN", {
+      isSuggestedPrompt: showSuggestedPrompts,
+      isRecentPrompt: showRecentQueries,
+      propertyName: props.entity.propertyPath,
+      widgetName: props.entity.entityName,
+      totalPrompts: showSuggestedPrompts
+        ? suggestedBindings.length
+        : recentQueries.length,
+    });
+
+    setHasShownEventBeenFired(true);
+  }, [
+    showSuggestedPrompts,
+    showRecentQueries,
+    noOfTimesSuggestedPromptsShownForType,
+  ]);
+
+  const onClickRecentQuery = (
+    query: string,
+    index: number,
+    trigger: PromptTriggers,
+  ) => {
+    AnalyticsUtil.logEvent("AI_PROMPT_CLICKED", {
+      isSuggestedPrompt: trigger === PromptTriggers.SUGGESTED,
+      isRecentPrompt: trigger === PromptTriggers.RECENT,
+      propertyName: props.entity.propertyPath,
+      widgetName: props.entity.entityName,
+      totalPrompts:
+        trigger === PromptTriggers.SUGGESTED
+          ? suggestedBindings.length
+          : recentQueries.length,
+      selectedPromptIndex: index,
+      userQuery: query,
+    });
+
     setQuery(query);
-    fireQuery(query);
+    queryContainerRef.current?.focus();
+    fireQuery(query, trigger);
   };
 
   if (!task) return null;
-
-  const showRecentQueries = !response && !isLoading && recentQueries.length > 0;
 
   return (
     <div
@@ -434,11 +579,31 @@ export function AskAI(props: TAskAIProps) {
               <div
                 className="flex justify-between items-center py-1 cursor-pointer"
                 key={index}
-                onClick={() => onClickRecentQuery(query)}
+                onClick={() =>
+                  onClickRecentQuery(query, index, PromptTriggers.RECENT)
+                }
               >
                 <Text className="text-ellipsis" kind="body-m">
                   {query}
                 </Text>
+              </div>
+            ))}
+          </div>
+        )}
+        {showSuggestedPrompts && (
+          <div className="flex flex-col pt-3">
+            <Text className="!mb-1" kind="heading-xs">
+              Suggested prompts
+            </Text>
+            {suggestedBindings.map((query, index) => (
+              <div
+                className="flex justify-between items-center py-1 cursor-pointer"
+                key={index}
+                onClick={() =>
+                  onClickRecentQuery(query, index, PromptTriggers.SUGGESTED)
+                }
+              >
+                <Text className="text-ellipsis">{query}</Text>
               </div>
             ))}
           </div>

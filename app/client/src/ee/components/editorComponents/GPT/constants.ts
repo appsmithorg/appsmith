@@ -20,3 +20,9 @@ export const PROMPT_INPUT_PLACEHOLDER =
 
 export const APPSMITH_AI_LINK =
   "https://appsmith.notion.site/AI-features-in-Appsmith-fd22891eb9b946e4916995cecf97a9ad";
+
+export enum PromptTriggers {
+  USER = "USER",
+  RECENT = "RECENT",
+  SUGGESTED = "SUGGESTED",
+}
