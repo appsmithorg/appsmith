@@ -5,6 +5,7 @@ import type {
 import { isAssistantPrompt } from "@appsmith/components/editorComponents/GPT/utils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { ENTITY_TYPE } from "entities/DataTree/types";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { ExpectedValueExample } from "utils/validation/common";
@@ -16,6 +17,7 @@ export type GPTTriggerContext = Partial<{
   entityId: string;
   example: ExpectedValueExample;
   noOfTimesAITriggered: number;
+  noOfTimesAITriggeredForQuery: number;
 }>;
 
 export interface AIReduxState {
@@ -26,6 +28,7 @@ export interface AIReduxState {
   isLoading: boolean;
   context: GPTTriggerContext;
   noOfTimesAITriggered: number;
+  noOfTimesAITriggeredForQuery: number;
 }
 
 const initialGPTState: AIReduxState = {
@@ -36,6 +39,7 @@ const initialGPTState: AIReduxState = {
   isLoading: false,
   context: {},
   noOfTimesAITriggered: 0,
+  noOfTimesAITriggeredForQuery: 0,
 };
 
 const handlers = {
@@ -88,11 +92,16 @@ const handlers = {
   [ReduxActionTypes.UPDATE_AI_TRIGGERED]: (
     state: AIReduxState,
     action: {
-      payload: { value: number };
+      payload: { value: number; mode: string };
     },
   ) => {
-    const { value } = action.payload;
-    state.noOfTimesAITriggered = value;
+    const { mode, value } = action.payload;
+
+    if (mode === EditorModes.TEXT_WITH_BINDING) {
+      state.noOfTimesAITriggered = value;
+    } else {
+      state.noOfTimesAITriggeredForQuery = value;
+    }
   },
 };
 

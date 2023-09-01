@@ -11,7 +11,7 @@ export type Props = {
 
 export function EditorFormSignPosting(props: Props) {
   const noOfTimesAITriggered = useSelector(
-    (state) => state.ai.noOfTimesAITriggered,
+    (state) => state.ai.noOfTimesAITriggeredForQuery,
   );
 
   const canShowSignPosting = noOfTimesAITriggered < 5 && props.isAIEnabled;
