@@ -5,7 +5,7 @@ import {
   dataSources,
   locators,
   dataManager,
-  entityExplorer,
+  propPane,
 } from "../../../support/Objects/ObjectsCore";
 
 let appName = "";
@@ -252,7 +252,7 @@ describe("GraphQL Datasource Implementation", function () {
     });
   });
 
-  it("6. Validate Authenticated GraphQL with Empty body & then Save as Datasource", () => {
+  it("6. Validate Authenticated GraphQL with Empty body & then Save as Datasource + Bug #26873", () => {
     POST_ID = 5;
     GRAPHQL_VARIABLES = `{
       "myid": ${POST_ID}
@@ -281,13 +281,12 @@ describe("GraphQL Datasource Implementation", function () {
         dataManager.defaultEnviorment
       ].GraphqlApiUrl_TED.replace("/graphql", ""),
     );
-    dataSources.SaveDSFromDialog(false);
-    cy.get("@dsName").then(($dsName: any) => {
-      cy.log("DS Name: " + $dsName);
-      entityExplorer.SelectEntityByName($dsName);
-      apiPage.SelectPaneTab("Authentication");
-      agHelper.ClickButton("Save as datasource");
-    });
+    // dataSources.SaveDSFromDialog(false); //verifies bug #26873, to uncomment below once bug is fixed
+    // cy.get("@dsName").then(($dsName: any) => {
+    //   entityExplorer.SelectEntityByName($dsName);
+    //   apiPage.SelectPaneTab("Authentication");
+    //   agHelper.ClickButton("Save as datasource");
+    // });
     dataSources.SaveDatasource();
     agHelper.ValidateToastMessage("datasource created");
     agHelper.AssertElementVisibility(locators._buttonByText("Edit datasource"));
@@ -297,6 +296,45 @@ describe("GraphQL Datasource Implementation", function () {
       variable: GRAPHQL_VARIABLES,
     });
     apiPage.RunAPI();
+    agHelper.ClickButton("Edit datasource");
+    dataSources.AssertDataSourceInfo([
+      dataManager.dsValues[
+        dataManager.defaultEnviorment
+      ].GraphqlApiUrl_TED.replace("/graphql", ""),
+      "content-type",
+      "application/json",
+      "No",
+    ]);
+    agHelper.ClickButton("Edit");
+    dataSources.ValidateNSelectDropdown(
+      "Authentication type",
+      "None",
+      "OAuth 2.0",
+    );
+    propPane.AssertPropertiesDropDownValues("Grant type", [
+      "Client Credentials",
+      "Authorization Code",
+    ]);
+
+    propPane.AssertPropertiesDropDownValues("Add Access Token To", [
+      "Request Header",
+      "Request Header",
+    ]);
+    agHelper.AssertElementVisibility(
+      locators._visibleTextDiv("Datasource not authorized"),
+    );
+    agHelper.ClickButton("Cancel");
+    dataSources.AssertDatasourceSaveModalVisibilityAndSave(false);
+
+    //verify Same ds info are present that was present before editing the DS:
+    dataSources.AssertDataSourceInfo([
+      dataManager.dsValues[
+        dataManager.defaultEnviorment
+      ].GraphqlApiUrl_TED.replace("/graphql", ""),
+      "content-type",
+      "application/json",
+      "No",
+    ]);
   });
 
   function RunNValidateGraphQL() {
