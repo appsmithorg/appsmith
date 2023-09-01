@@ -37,7 +37,7 @@ describe("Date picker widget testcases", () => {
       .then((labelValue) => {
         expect(labelValue).to.equal("");
       });
-      agHelper.GetNClick(datePickerlocators.selectYear, 0, true);
+    agHelper.GetNClick(datePickerlocators.selectYear, 0, true);
 
     agHelper
       .GetAttribute(datePickerlocators.dayPick, "aria-label")
