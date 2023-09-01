@@ -957,7 +957,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={(this.props.labelWidth || 0) * this.props.parentColumnSpace}
+        labelWidth={this.getLabelWidth()}
         multiline={
           componentHeight >
             minInputSingleLineHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT &&
