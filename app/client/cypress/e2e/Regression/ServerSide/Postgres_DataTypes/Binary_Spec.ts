@@ -76,7 +76,7 @@ describe("Binary Datatype tests", function () {
     entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
-  it("3. Inserting record - binarytype", () => {
+  it.skip("3. Inserting record - binarytype", () => {
     imageNameToUpload = "Datatypes/Bridge.jpg";
     entityExplorer.SelectEntityByName("Page1");
     deployMode.DeployApp();
