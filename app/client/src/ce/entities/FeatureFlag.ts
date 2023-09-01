@@ -10,8 +10,6 @@ export const FEATURE_FLAG = {
   ask_ai_js: "ask_ai_js",
   release_embed_hide_share_settings_enabled:
     "release_embed_hide_share_settings_enabled",
-  ab_ds_schema_enabled: "ab_ds_schema_enabled",
-  ab_ds_binding_enabled: "ab_ds_binding_enabled",
   ab_gsheet_schema_enabled: "ab_gsheet_schema_enabled",
   ab_wds_enabled: "ab_wds_enabled",
   release_widgetdiscovery_enabled: "release_widgetdiscovery_enabled",
@@ -40,8 +38,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ask_ai_js: false,
   ask_ai_sql: false,
   release_embed_hide_share_settings_enabled: false,
-  ab_ds_schema_enabled: false,
-  ab_ds_binding_enabled: false,
   ab_gsheet_schema_enabled: false,
   ab_wds_enabled: false,
   release_widgetdiscovery_enabled: false,
