@@ -47,15 +47,15 @@ const GRAPHQL_LIMIT_DATA = [
 ];
 
 describe("GraphQL Datasource Implementation", function () {
-  // before(() => {
-  //   appName = localStorage.getItem("AppName") || "";
-  //   agHelper.GenerateUUID();
-  //   cy.get("@guid").then((uid) => {
-  //     //apiName = `${apiName}${uid}`;
-  //     authoemail = `ci${uid}@appsmith.com`;
-  //   });
-  //   dataSources.CreateDataSource("UnAuthenticatedGraphQL");
-  // });
+  before(() => {
+    appName = localStorage.getItem("AppName") || "";
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      //apiName = `${apiName}${uid}`;
+      authoemail = `ci${uid}@appsmith.com`;
+    });
+    dataSources.CreateDataSource("UnAuthenticatedGraphQL");
+  });
 
   it("1. Should execute the API and validate the response", function () {
     apiPage.SelectPaneTab("Body");

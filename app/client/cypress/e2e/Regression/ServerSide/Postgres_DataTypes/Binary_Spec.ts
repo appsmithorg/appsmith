@@ -74,13 +74,16 @@ describe("Binary Datatype tests", function () {
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     entityExplorer.ExpandCollapseEntity(dsName, false);
+    entityExplorer.SelectEntityByName("Page1");
+    deployMode.DeployApp();
+    table.WaitForTableEmpty(); //asserting table is empty before inserting!
   });
 
   it.skip("3. Inserting record - binarytype", () => {
     imageNameToUpload = "Datatypes/Bridge.jpg";
-    entityExplorer.SelectEntityByName("Page1");
-    deployMode.DeployApp();
-    table.WaitForTableEmpty(); //asserting table is empty before inserting!
+    // entityExplorer.SelectEntityByName("Page1");
+    // deployMode.DeployApp();
+    // table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisibility(locators._modal);
 
