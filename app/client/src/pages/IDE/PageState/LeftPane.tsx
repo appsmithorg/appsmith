@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import { matchPath, Switch } from "react-router";
 import {
+  IDE_PAGE_JS_DETAIL_PATH,
+  IDE_PAGE_JS_PATH,
   IDE_PAGE_NAV_PATH,
   IDE_PAGE_PATH,
   IDE_PAGE_QUERIES_DETAIL_PATH,
@@ -39,6 +41,7 @@ import PropertyPaneContainer from "../../Editor/WidgetsEditor/PropertyPaneContai
 import WidgetSidebar from "./components/WidgetSidebar";
 import { setIdeSidebarWidth } from "../ideActions";
 import QuerySidebar from "./components/QuerySidebar";
+import JSObjects from "./components/JSObjects";
 
 const Container = styled.div`
   background-color: #f1f5f9;
@@ -251,6 +254,16 @@ const PageLeftPane = () => {
                 component={QuerySidebar}
                 exact
                 path={IDE_PAGE_QUERIES_DETAIL_PATH}
+              />
+              <SentryRoute
+                component={JSObjects}
+                exact
+                path={IDE_PAGE_JS_PATH}
+              />
+              <SentryRoute
+                component={JSObjects}
+                exact
+                path={IDE_PAGE_JS_DETAIL_PATH}
               />
             </Switch>
           </TabContainer>
