@@ -731,7 +731,7 @@ function* gitPullSaga(
   }
 }
 
-function* showConnectGitModal() {
+function* showConnectGitModal(action: ReduxAction<{ isDeploying: boolean }>) {
   // This is done through a separate saga in case we fetch
   // the flag to show to repo limit reached error modal in advance
   // currently it just opens the git sync modal assuming the APIs would
@@ -740,7 +740,7 @@ function* showConnectGitModal() {
     setIsGitSyncModalOpen({
       isOpen: true,
       tab: GitSyncModalTab.DEPLOY,
-      isDeploying: true,
+      isDeploying: action.payload.isDeploying,
     }),
   );
 }

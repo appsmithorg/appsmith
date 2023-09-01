@@ -253,7 +253,7 @@ function ConnectGitPlaceholder() {
                   source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
                 });
 
-                dispatch(showConnectGitModal());
+                dispatch(showConnectGitModal(false));
               }}
               size="sm"
             >
