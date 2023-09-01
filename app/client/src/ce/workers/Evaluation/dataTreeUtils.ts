@@ -30,7 +30,7 @@ export function makeEntityConfigsAsObjProperties(
     : newDataTree;
 
   if (!evalProps) return dataTreeToReturn;
-
+  // add
   //clean up deletes widget states
   Object.entries(identicalEvalPathsPatches || {}).forEach(
     ([evalPath, statePath]) => {
