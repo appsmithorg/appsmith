@@ -44,6 +44,7 @@ export const WIDGET = {
   STATBOX: "statboxwidget",
   JSONFORM: "jsonformwidget",
   MENUBUTTON: "menubuttonwidget",
+  DATEPICKER: "datepickerwidget2",
 } as const;
 
 // property pane element selector are maintained here
@@ -79,6 +80,9 @@ export const WIDGETSKIT = {
     "//a[@data-testid='t--image-download']//parent::div/a[2]",
   styleResetBtn: ".reset-button",
   styleOrangeIcon: ".rounded-full",
+  dividerVertical: "[data-testid=dividerVertical]",
+  dividerHorizontal: "[data-testid=dividerHorizontal]",
+  
 };
 type ValueOf<T> = T[keyof T];
 
@@ -109,4 +113,35 @@ export const checkboxlocators = {
   // read Blue here
   checkBoxLabel: (value: string) =>
     `//*[contains(@class,'t--checkbox-widget-label') and text()='${value}']`,
-};
+}
+
+export const datePickerlocators = {
+  options : `//*[contains(@id,'rc_select_') and @role='option']`,
+  input: `//*[@class='bp3-input-group']//input`,
+  dayPick:`//*[contains(@class,'DayPicker-Day')]`,
+  selectYear: `//*[contains(@class,'bp3-datepicker-year-select')]//select//option`,
+  selectMonth:`//*[contains(@class,'bp3-datepicker-month-select')]//select//option`,
+  yearCaret: `//*[contains(@class,'bp3-datepicker-year-select')]//*[contains(@class,'bp3-icon-double-caret-vertical')]`,
+  monthCaret: `//*[contains(@class,'bp3-datepicker-month-select')]//*[contains(@class,'bp3-icon-double-caret-vertical')]`,
+  yearInDropdown: (year: string) => datePickerlocators.selectYear + `[@value='${year}']`,
+  monthInDropdown: (month: string) => datePickerlocators.selectMonth + `[@label='${month}']`,
+  inputHour:`.bp3-timepicker-hour`,
+  inputMinute:`.bp3-timepicker-minute`,
+  inputSecond:`.bp3-timepicker-second`,
+  weekDay: `//*[@class='DayPicker-Weekday']//*[@title]`,
+  calendarHeader:`//*[contains(@class,'datepicker__calender-header')]//*[@type='button']`,
+  year: (yearToSelect: string) => `//*[@data-value='${yearToSelect}']`,
+  date: (dateToSelect: string) => `//*[contains(@class,'datepicker__day--${dateToSelect}')]`,
+}
+export const buttongroupwidgetlocators = {
+  buttongroup: ".t--buttongroup-widget",
+  buttonSettingInPropPane: ".t--property-control-buttons .t--edit-column-btn",
+  menuSettingInPropPane:".t--edit-column-btn",
+  newButton:"//*[text()='Add new button']",
+  groupButtonValue: "//input[contains(@value,'Group Button')]",
+  buttonText: (value: string) => `//*[@class="bp3-button-text" and text()='${value}']`,
+  menu: "[data-value='MENU']",
+  buttonMenuOptions: (text: string) => `//*[contains(@class,'bp3-menu-item')]//*[text()='${text}']`,
+  button:"//*[contains(@class,'t--widget-buttongroupwidget')]//button"
+}
+

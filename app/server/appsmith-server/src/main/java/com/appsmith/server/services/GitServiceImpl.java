@@ -3,8 +3,8 @@ package com.appsmith.server.services;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.configurations.EmailConfig;
-import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
@@ -36,7 +36,6 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
             ResponseUtils responseUtils,
             EmailConfig emailConfig,
             AnalyticsService analyticsService,
-            GitCloudServicesUtils gitCloudServicesUtils,
             GitDeployKeysRepository gitDeployKeysRepository,
             DatasourceService datasourceService,
             PluginService pluginService,
@@ -44,7 +43,8 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
             ApplicationPermission applicationPermission,
             WorkspaceService workspaceService,
             RedisUtils redisUtils,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            GitPrivateRepoHelper gitPrivateRepoHelper) {
 
         super(
                 userService,
@@ -61,7 +61,6 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                 responseUtils,
                 emailConfig,
                 analyticsService,
-                gitCloudServicesUtils,
                 gitDeployKeysRepository,
                 datasourceService,
                 pluginService,
@@ -69,6 +68,7 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                 applicationPermission,
                 workspaceService,
                 redisUtils,
-                observationRegistry);
+                observationRegistry,
+                gitPrivateRepoHelper);
     }
 }
