@@ -5,12 +5,12 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import type { SlashCommandPayload } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { Icon } from "design-system";
-import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
 import BetaCard from "../BetaCard";
 
 enum Shortcuts {
@@ -123,7 +123,7 @@ export const generateAssistiveBindingCommands = (
   searchText: string,
   {
     // datasources,
-    enableAIAssistance,
+    // enableAIAssistance,
     // executeCommand,
     pluginIdToImageLocation,
     recentEntities,
@@ -136,31 +136,15 @@ export const generateAssistiveBindingCommands = (
     enableAIAssistance: boolean;
   },
 ) => {
-  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind data");
+  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind dataX");
   // const createNewHeader: CommandsCompletion = commandsHeader("Create a query");
   recentEntities.reverse();
-  // const newBinding: CommandsCompletion = generateCreateNewCommand({
-  //   text: "{{}}",
-  //   displayText: "New binding",
-  //   shortcut: Shortcuts.BINDING,
-  //   triggerCompletionsPostPick: true,
-  // });
-  // const newIntegration: CommandsCompletion = generateCreateNewCom mand({
-  //   text: "",
-  //   displayText: "New datasource",
-  //   action: () => {
-  //     executeCommand({
-  //       actionType: SlashCommand.NEW_INTEGRATION,
-  //       args: {},
-  //     });
-  //     // Event for datasource creation click
-  //     const entryPoint = DatasourceCreateEntryPoints.CODE_EDITOR_SLASH_COMMAND;
-  //     AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
-  //       entryPoint,
-  //     });
-  //   },
-  //   shortcut: Shortcuts.PLUS,
-  // });
+  const newBinding: CommandsCompletion = generateCreateNewCommand({
+    text: "{{}", // the last } already added by the codemirror autocomplete
+    displayText: "New binding",
+    shortcut: Shortcuts.BINDING,
+    triggerCompletionsPostPick: true,
+  });
 
   const actionEntities = entitiesForSuggestions.filter((suggestion: any) => {
     return suggestion.ENTITY_TYPE === ENTITY_TYPE.ACTION;
@@ -237,57 +221,17 @@ export const generateAssistiveBindingCommands = (
   });
 
   const suggestions = [...suggestionsAction, ...suggestionsJSAction];
-  // const datasourceCommands = datasources.map((action: any) => {
-  //   return {
-  //     text: "",
-  //     displayText: `${action.name}`,
-  //     className: "CodeMirror-commands",
-  //     data: action,
-  //     action: () =>
-  //       executeCommand({
-  //         actionType: SlashCommand.NEW_QUERY,
-  //         args: { datasource: action },
-  //       }),
-  //     render: (element: HTMLElement, self: any, data: any) => {
-  //       const icon = (
-  //         <EntityIcon>
-  //           <img
-  //             src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
-  //           />
-  //         </EntityIcon>
-  //       );
-  //       ReactDOM.render(
-  //         <Command icon={icon} name={`New ${data.displayText} query`} />,
-  //         element,
-  //       );
-  //     },
-  //   };
-  // });
+
   const suggestionsMatchingSearchText = matchingCommands(
     suggestions,
     searchText,
     recentEntities,
     5,
   );
-  const actionCommands = [];
+  const actionCommands = [newBinding];
 
-  // Adding this hack in the interest of time.
-  // TODO: Refactor slash commands generation for easier code splitting
-  if (enableAIAssistance) {
-    const askGPT: CommandsCompletion = generateCreateNewCommand({
-      text: "",
-      displayText: APPSMITH_AI,
-      shortcut: Shortcuts.ASK_AI,
-      triggerCompletionsPostPick: true,
-      description: "Generate code using AI",
-      isBeta: true,
-    });
-    actionCommands.unshift(askGPT);
-  }
   const createNewCommands: any = [];
-  // if (currentEntityType === ENTITY_TYPE.WIDGET) {
-  //   createNewCommands = [...datasourceCommands];
-  // }
+
   const createNewCommandsMatchingSearchText = matchingCommands(
     createNewCommands,
     searchText,
@@ -299,20 +243,14 @@ export const generateAssistiveBindingCommands = (
     searchText,
     [],
   );
-  // if (currentEntityType === ENTITY_TYPE.WIDGET) {
-  //   createNewCommandsMatchingSearchText.push(
-  //     ...matchingCommands([newIntegration], searchText, []),
-  //   );
-  // }
+
   const list: CommandsCompletion[] = actionCommandsMatchingSearchText;
 
   if (suggestionsMatchingSearchText.length) {
     list.push(suggestionsHeader);
   }
   list.push(...suggestionsMatchingSearchText);
-  // if (createNewCommandsMatchingSearchText.length) {
-  //   list.push(createNewHeader);
-  // }
+
   list.push(...createNewCommandsMatchingSearchText);
   return list;
 };

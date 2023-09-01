@@ -65,9 +65,10 @@ export const assistiveBindingHinter: HintHelper = (editor, data: DataTree) => {
       // const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
       const slashIndex = value.lastIndexOf("/");
-      if (value.length >= 3) {
+      if (value.length >= 3 || value == "{}") {
         // show binding suggestions hinter
-        const searchText = value.substring(slashIndex + 1);
+        const searchText =
+          value.length >= 3 ? value.substring(slashIndex + 1) : "";
         // const list = generateQuickCommands(
         const list = generateAssistiveBindingCommands(
           entitiesForSuggestions,

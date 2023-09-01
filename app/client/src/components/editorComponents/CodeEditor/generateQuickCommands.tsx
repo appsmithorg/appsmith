@@ -143,7 +143,7 @@ export const generateQuickCommands = (
   const createNewHeader: CommandsCompletion = commandsHeader("Create a query");
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
-    text: "{{}}",
+    text: "{{}}x",
     displayText: "New binding",
     shortcut: Shortcuts.BINDING,
     triggerCompletionsPostPick: true,
