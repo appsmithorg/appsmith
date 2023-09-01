@@ -26,7 +26,6 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
@@ -104,18 +103,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     private final PasswordEncoder passwordEncoder;
-    private final EmailSender emailSender;
-    private final ApplicationRepository applicationRepository;
+
     private final PolicySolution policySolution;
     private final CommonConfig commonConfig;
-    private final EmailConfig emailConfig;
     private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
     private final UserDataService userDataService;
     private final TenantService tenantService;
     private final PermissionGroupService permissionGroupService;
     private final UserUtils userUtils;
-    private final RedirectHelper redirectHelper;
     private final EmailService emailService;
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
@@ -153,18 +149,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             PermissionGroupService permissionGroupService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
-            EmailService emailService,
-            RedirectHelper redirectHelper) {
+            EmailService emailService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
-        this.emailSender = emailSender;
-        this.applicationRepository = applicationRepository;
         this.policySolution = policySolution;
         this.commonConfig = commonConfig;
-        this.emailConfig = emailConfig;
         this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
         this.userDataService = userDataService;
@@ -172,7 +164,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.permissionGroupService = permissionGroupService;
         this.userUtils = userUtils;
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
-        this.redirectHelper = redirectHelper;
         this.emailService = emailService;
     }
 
@@ -455,6 +446,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .flatMap(this::addUserPoliciesAndSaveToRepo)
                 .flatMap(crudUser -> {
                     if (isAdminUser) {
+                        emailService.sendInstanceAdminInviteEmail(crudUser);
                         return userUtils.makeSuperUser(List.of(crudUser)).then(Mono.just(crudUser));
                     }
                     return Mono.just(crudUser);
@@ -662,7 +654,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         newUser.setInviteToken(role + ":" + UUID.randomUUID());
 
         boolean isAdminUser = commonConfig.getAdminEmails().contains(email.toLowerCase());
-
         // Call user service's userCreate function so that the default workspace, etc are also created along with
         // assigning basic permissions.
         return userCreate(newUser, isAdminUser);

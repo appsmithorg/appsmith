@@ -74,7 +74,6 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                 permissionGroupService,
                 userUtils,
                 emailVerificationTokenRepository,
-                emailService,
-                redirectHelper);
+                emailService);
     }
 }

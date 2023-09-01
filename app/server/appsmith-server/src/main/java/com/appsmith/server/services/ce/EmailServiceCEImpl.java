@@ -69,6 +69,22 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                         updatedParams));
     }
 
+    @Override
+    public Mono<Boolean> sendInstanceAdminInviteEmail(User user) {
+        Map<String, String> params = new HashMap<>();
+        String inviteUrl = String.format(
+                INVITE_USER_CLIENT_URL_FORMAT,
+                URLEncoder.encode(user.getUsername().toLowerCase(), StandardCharsets.UTF_8));
+        params.put(PRIMARY_LINK_URL, inviteUrl);
+        params.put(PRIMARY_LINK_TEXT, PRIMARY_LINK_TEXT_USER_SIGNUP);
+        return this.enrichParams(params)
+                .flatMap(updatedParams -> emailSender.sendMail(
+                        user.getEmail(),
+                        INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT,
+                        INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE,
+                        updatedParams));
+    }
+
     private Mono<Map<String, String>> enrichParams(Map<String, String> params) {
         return tenantService.getDefaultTenant().map(tenant -> {
             final TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
