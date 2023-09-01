@@ -330,6 +330,7 @@ export const generateWidgetProps = (
     renderMode: RenderMode;
   } & Partial<WidgetProps>,
   version: number,
+  mainCanvasWidth: number,
 ): DSLWidget => {
   if (parent) {
     const sizes = {
@@ -355,7 +356,7 @@ export const generateWidgetProps = (
       isLoading: false,
       parentColumnSpace,
       parentRowSpace,
-      mainCanvasWidth: 900,
+      mainCanvasWidth,
       ...sizes,
       ...mobileSizes,
       ...others,

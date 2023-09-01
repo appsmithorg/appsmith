@@ -53,7 +53,10 @@ import {
   getSlidingArenaName,
   POSITIONED_WIDGET,
 } from "constants/componentClassNameConstants";
-import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
+import {
+  getCanvasWidth,
+  getContainerWidgetSpacesSelector,
+} from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
@@ -1149,6 +1152,7 @@ export const groupWidgetsIntoContainer = function* (
   const containerWidgetId = generateReactKey();
   const evalTree: DataTree = yield select(getDataTree);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const mainCanvasWidth: number = yield select(getCanvasWidth);
   const newContainerName = getNextWidgetName(
     canvasWidgets,
     "CONTAINER_WIDGET",
@@ -1234,7 +1238,7 @@ export const groupWidgetsIntoContainer = function* (
     bottomRow: (boundary.bottom?.bottomRow || 0) + 2,
     rightColumn: boundary.right?.rightColumn || 0,
     tabId: "",
-    mainCanvasWidth: 900,
+    mainCanvasWidth,
     children: [newCanvasWidget.widgetId],
     renderMode: RenderModes.CANVAS,
     version: 1,
