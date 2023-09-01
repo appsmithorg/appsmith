@@ -3,6 +3,9 @@ import {
   entityItems,
   apiPage,
   dataSources,
+  locators,
+  dataManager,
+  entityExplorer,
 } from "../../../support/Objects/ObjectsCore";
 
 let appName = "";
@@ -18,9 +21,9 @@ const GRAPHQL_QUERY = `query ($myid: Int!) {
   }
 }`;
 
-const POST_ID = 4;
+let POST_ID = 4;
 
-const GRAPHQL_VARIABLES = `{
+let GRAPHQL_VARIABLES = `{
     "myid": ${POST_ID}
   }`;
 
@@ -44,15 +47,15 @@ const GRAPHQL_LIMIT_DATA = [
 ];
 
 describe("GraphQL Datasource Implementation", function () {
-  before(() => {
-    appName = localStorage.getItem("AppName") || "";
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      //apiName = `${apiName}${uid}`;
-      authoemail = `ci${uid}@appsmith.com`;
-    });
-    dataSources.CreateDataSource("UnAuthenticatedGraphQL");
-  });
+  // before(() => {
+  //   appName = localStorage.getItem("AppName") || "";
+  //   agHelper.GenerateUUID();
+  //   cy.get("@guid").then((uid) => {
+  //     //apiName = `${apiName}${uid}`;
+  //     authoemail = `ci${uid}@appsmith.com`;
+  //   });
+  //   dataSources.CreateDataSource("UnAuthenticatedGraphQL");
+  // });
 
   it("1. Should execute the API and validate the response", function () {
     apiPage.SelectPaneTab("Body");
@@ -247,6 +250,53 @@ describe("GraphQL Datasource Implementation", function () {
     cy.get("@dsName").then(($dsName: any) => {
       dataSources.DeleteDatasouceFromActiveTab($dsName);
     });
+  });
+
+  it("6. Validate Authenticated GraphQL with Empty body & then Save as Datasource", () => {
+    POST_ID = 5;
+    GRAPHQL_VARIABLES = `{
+      "myid": ${POST_ID}
+    }`;
+    dataSources.CreateDataSource("UnAuthenticatedGraphQL");
+    // cy.get("@dsName").then(($dsName: any) => {
+    //   cy.log("DS Name: " + $dsName);
+    // });
+
+    apiPage.RunAPI(false);
+    apiPage.ResponseStatusCheck("PE-ARG-5000");
+    cy.get("@postExecute").then((interception: any) => {
+      expect(interception.response.body.data.isExecutionSuccess).to.eq(false);
+      expect(interception.response.body.data.body).to.contains(
+        "Your GraphQL query body is empty. Please edit the 'Body' tab of your GraphQL API to provide a query body.",
+      );
+    });
+
+    apiPage.SelectPaneTab("Authentication");
+    agHelper.ClickButton("Save as datasource");
+
+    agHelper.AssertText(
+      locators._inputFieldByName("URL") + "//" + locators._inputField,
+      "val",
+      dataManager.dsValues[
+        dataManager.defaultEnviorment
+      ].GraphqlApiUrl_TED.replace("/graphql", ""),
+    );
+    dataSources.SaveDSFromDialog(false);
+    cy.get("@dsName").then(($dsName: any) => {
+      cy.log("DS Name: " + $dsName);
+      entityExplorer.SelectEntityByName($dsName);
+      apiPage.SelectPaneTab("Authentication");
+      agHelper.ClickButton("Save as datasource");
+    });
+    dataSources.SaveDatasource();
+    agHelper.ValidateToastMessage("datasource created");
+    agHelper.AssertElementVisibility(locators._buttonByText("Edit datasource"));
+    apiPage.SelectPaneTab("Body");
+    dataSources.UpdateGraphqlQueryAndVariable({
+      query: GRAPHQL_QUERY,
+      variable: GRAPHQL_VARIABLES,
+    });
+    apiPage.RunAPI();
   });
 
   function RunNValidateGraphQL() {
