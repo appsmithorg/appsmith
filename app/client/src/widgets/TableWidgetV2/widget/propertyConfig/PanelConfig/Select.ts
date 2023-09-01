@@ -30,6 +30,7 @@ export default {
           },
           fnString: selectColumnOptionsValidation.toString(),
         },
+        dependentPaths: ["primaryColumns"],
       },
       isTriggerProperty: false,
       dependencies: ["primaryColumns"],
@@ -93,6 +94,31 @@ export default {
             return true;
           }
         }
+      },
+    },
+    {
+      propertyName: "selectDisplayAs",
+      defaultValue: "label",
+      label: "Display as",
+      controlType: "DROP_DOWN",
+      isBindProperty: true,
+      isJSConvertible: true,
+      isTriggerProperty: false,
+      options: [
+        {
+          label: "Label",
+          value: "label",
+        },
+        {
+          label: "Value",
+          value: "value",
+        },
+      ],
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          allowedValues: ["label", "value"],
+        },
       },
     },
     {

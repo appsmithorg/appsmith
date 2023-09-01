@@ -821,3 +821,24 @@ export const migrateTableWidgetTableDataJsMode = (currentDSL: DSLWidget) => {
     }
   });
 };
+
+export const migrateTableWidgetSelectColumnDisplayAsProperty = (
+  currentDSL: DSLWidget,
+) => {
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (widget.type === "TABLE_WIDGET_V2") {
+      const primaryColumns = widget?.primaryColumns as ColumnPropertiesV2;
+
+      if (primaryColumns) {
+        Object.values(primaryColumns).forEach((column) => {
+          if (
+            column.hasOwnProperty("columnType") &&
+            column.columnType === "select"
+          ) {
+            column.selectDisplayAs = "value";
+          }
+        });
+      }
+    }
+  });
+};

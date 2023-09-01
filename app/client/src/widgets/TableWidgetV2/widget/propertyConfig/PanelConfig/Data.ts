@@ -13,6 +13,10 @@ import {
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+const COMPUTED_VALUE_SELECT_HELPER_TEXT =
+  "Each computed value here represents default value/display value";
 
 export default {
   sectionName: "Data",
@@ -146,6 +150,13 @@ export default {
     {
       helpText:
         "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
+      helperText: (props: WidgetProps, propertName: string) => {
+        const basePropertyPath = getBasePropertyPath(propertName);
+        const columnType = get(props, `${basePropertyPath}.columnType`);
+        return columnType === ColumnTypes.SELECT
+          ? COMPUTED_VALUE_SELECT_HELPER_TEXT
+          : "";
+      },
       propertyName: "computedValue",
       label: "Computed value",
       controlType: "TABLE_COMPUTE_VALUE",

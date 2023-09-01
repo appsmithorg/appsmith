@@ -179,6 +179,7 @@ export interface SelectCellProperties {
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
   selectOptions?: DropdownOption[];
+  selectDisplayAs?: string;
 }
 
 export interface ImageCellProperties {
@@ -335,7 +336,8 @@ export interface ColumnProperties
     ColumnStyleProperties,
     DateColumnProperties,
     ColumnEditabilityProperties,
-    EditActionColumnProperties {
+    EditActionColumnProperties,
+    Pick<SelectCellProperties, "selectDisplayAs"> {
   allowSameOptionsInNewRow?: boolean;
   newRowSelectOptions?: DropdownOption[];
   buttonLabel?: string;

@@ -9,6 +9,8 @@ import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { BasicCell } from "./BasicCell";
 import { useCallback } from "react";
 
+type SelectionOptionTypes = "label" | "value";
+
 const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
   height: number;
@@ -100,6 +102,7 @@ type SelectProps = BaseCellComponentProps & {
   onFilterChangeActionString?: string;
   disabledEditIconMessage: string;
   isNewRow: boolean;
+  selectDisplayAs: string;
 };
 
 /*
@@ -137,6 +140,7 @@ export const SelectCell = (props: SelectProps) => {
     placeholderText,
     resetFilterTextOnClose,
     rowIndex,
+    selectDisplayAs,
     serverSideFiltering = false,
     tableWidth,
     textColor,
@@ -146,16 +150,17 @@ export const SelectCell = (props: SelectProps) => {
     verticalAlignment,
     width,
   } = props;
+  const displayAs = selectDisplayAs?.toLowerCase();
   const onSelect = useCallback(
     (option: DropdownOption) => {
       onItemSelect(
-        option.value || "",
+        option[displayAs as SelectionOptionTypes] || "",
         rowIndex,
         alias,
         onOptionSelectActionString,
       );
     },
-    [onItemSelect, rowIndex, alias, onOptionSelectActionString],
+    [displayAs, onItemSelect, rowIndex, alias, onOptionSelectActionString],
   );
 
   const onFilter = useCallback(
@@ -188,6 +193,17 @@ export const SelectCell = (props: SelectProps) => {
     .filter((d: DropdownOption) => d)
     .map((d: DropdownOption) => d.value)
     .indexOf(value);
+
+  let baseCellValueFromSelectOptions: string | number | undefined = value;
+
+  if (displayAs === "label") {
+    const filteredOptions = options.filter((item) => item["value"] === value);
+    if (filteredOptions.length > 0) {
+      baseCellValueFromSelectOptions = filteredOptions[0]["label"];
+    } else {
+      baseCellValueFromSelectOptions = "";
+    }
+  }
 
   if (isEditable && isCellEditable && isCellEditMode) {
     return (
@@ -227,7 +243,7 @@ export const SelectCell = (props: SelectProps) => {
           resetFilterTextOnClose={resetFilterTextOnClose}
           selectedIndex={selectedIndex}
           serverSideFiltering={serverSideFiltering}
-          value={value}
+          value={baseCellValueFromSelectOptions}
           widgetId={""}
           width={width}
         />
@@ -257,7 +273,7 @@ export const SelectCell = (props: SelectProps) => {
         tableWidth={tableWidth}
         textColor={textColor}
         textSize={textSize}
-        value={value}
+        value={baseCellValueFromSelectOptions}
         verticalAlignment={verticalAlignment}
       />
     );

@@ -221,6 +221,7 @@ export function getDefaultColumnProperties(
         )}"]))}}`,
     sticky: StickyType.NONE,
     validation: {},
+    selectDisplayAs: "value",
   };
 
   return columnProps;
@@ -507,6 +508,10 @@ export const getCellProperties = (
         columnProperties.timePrecision,
         rowIndex,
         true,
+      ),
+      selectDisplayAs: getPropertyValue(
+        columnProperties.selectDisplayAs,
+        rowIndex,
       ),
     } as CellLayoutProperties;
   }

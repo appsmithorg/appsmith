@@ -29,6 +29,7 @@ import {
   migrateTableSelectOptionAttributesForNewRow,
   migrateBindingPrefixSuffixForInlineEditValidationControl,
   migrateTableWidgetTableDataJsMode,
+  migrateTableWidgetSelectColumnDisplayAsProperty,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -1227,6 +1228,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 85) {
     currentDSL = migrateDefaultValuesForCustomEChart(currentDSL);
+    currentDSL.version = 86;
+  }
+
+  if (currentDSL.version === 86) {
+    currentDSL = migrateTableWidgetSelectColumnDisplayAsProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

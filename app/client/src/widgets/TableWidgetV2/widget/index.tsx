@@ -1993,6 +1993,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             placeholderText={cellProperties.placeholderText}
             resetFilterTextOnClose={cellProperties.resetFilterTextOnClose}
             rowIndex={rowIndex}
+            selectDisplayAs={cellProperties.selectDisplayAs ?? "value"}
             serverSideFiltering={cellProperties.serverSideFiltering}
             tableWidth={this.getComponentDimensions().componentWidth}
             textColor={cellProperties.textColor}
