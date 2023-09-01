@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
@@ -33,7 +34,7 @@ public class MySQLDatasourceValidationTest {
         datasourceConfiguration.setProperties(properties);
 
         /* Set connection mode */
-        datasourceConfiguration.setConnection(new com.appsmith.external.models.Connection());
+        datasourceConfiguration.setConnection(new Connection());
         datasourceConfiguration.getConnection().setMode(READ_WRITE);
 
         /* Set MySQL endpoints */
