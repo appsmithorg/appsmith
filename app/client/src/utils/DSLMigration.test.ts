@@ -828,6 +828,15 @@ const migrations: Migration[] = [
     ],
     version: 85,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetSelectColumnDisplayAsProperty",
+      },
+    ],
+    version: 86,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};

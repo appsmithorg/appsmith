@@ -9,8 +9,6 @@ import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { BasicCell } from "./BasicCell";
 import { useCallback } from "react";
 
-type SelectionOptionTypes = "label" | "value";
-
 const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
   height: number;
@@ -154,7 +152,7 @@ export const SelectCell = (props: SelectProps) => {
   const onSelect = useCallback(
     (option: DropdownOption) => {
       onItemSelect(
-        option[displayAs as SelectionOptionTypes] || "",
+        option?.value || "",
         rowIndex,
         alias,
         onOptionSelectActionString,

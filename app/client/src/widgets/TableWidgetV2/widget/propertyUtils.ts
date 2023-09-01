@@ -975,13 +975,28 @@ export function selectColumnOptionsValidation(
     _message = invalidMessage;
   }
 
+  /**
+   * Below we check if each computed value is present in select options or not.
+   * We only do this check:
+   * 1. When the select option passes all the above validations
+   * 2. When we don't want this validation on new row options
+   * 3. When computedValue is not a dynamic string.
+   *    We get computed value as dynamic string when there is
+   *    a change in the value mentioned in dependentPaths
+   *    in the validation config.
+   */
   const basePropertyPath = getBasePropertyPath(propertyPath);
   const allowSameOptionsInNewRow = _.get(
     props,
     `${basePropertyPath}.allowSameOptionsInNewRow`,
   );
-  if (_isValid && allowSameOptionsInNewRow) {
-    const computedValue = _.get(props, `${basePropertyPath}.computedValue`);
+  const computedValue = _.get(props, `${basePropertyPath}.computedValue`);
+  const DYNAMIC_BINDING_REGEX = /{{([\s\S]*?)}}/;
+  if (
+    _isValid &&
+    allowSameOptionsInNewRow &&
+    !DYNAMIC_BINDING_REGEX.test(computedValue)
+  ) {
     const isComputedValueNotInOptions = computedValue
       .map((cellValue: unknown, index: number) => {
         const regexValueExp = new RegExp(`${cellValue}"`, "gi");
