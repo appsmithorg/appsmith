@@ -18,6 +18,7 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
+import { EEWorkspaceMenuItems } from "@appsmith/pages/Applications/WorkspaceMenu";
 
 type WorkspaceMenuProps = {
   canDeleteWorkspace: boolean;
@@ -150,6 +151,7 @@ function WorkspaceMenu({
             Import
           </MenuItem>
         )}
+        {<EEWorkspaceMenuItems workspaceId={workspace.id} />}
         {hasManageWorkspacePermissions && canInviteToWorkspace && (
           <MenuItem
             onSelect={() =>
