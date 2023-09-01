@@ -1377,7 +1377,7 @@ class CodeEditor extends Component<Props, State> {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
       showAutocomplete =
         mode.name != EditorModes.JAVASCRIPT || // for JSmode donot show autocomplete
-        prevChar === "{"; // for JSON mode show autocomplete. This will endup showing assistiveBindignHinter.
+        prevChar === "{"; // for non JSmode mode show autocomplete. This will endup showing assistiveBindignHinter.
     } else if (key === "'" || key === '"') {
       /* Autocomplete for [ should show up only when a user attempts to write {['']} for Object property suggestions. */
       showAutocomplete = prevChar === "[";
