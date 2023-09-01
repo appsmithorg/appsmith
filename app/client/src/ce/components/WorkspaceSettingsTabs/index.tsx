@@ -76,15 +76,15 @@ export const WorkspaceSettingsTabs = ({
   );
 
   const tabArr: TabProp[] = [
-    isMemberofTheWorkspace && {
-      key: "members",
-      title: "Members",
-      panelComponent: MemberSettingsComponent,
-    },
     {
       key: "general",
       title: "General Settings",
       panelComponent: GeneralSettingsComponent,
+    },
+    isMemberofTheWorkspace && {
+      key: "members",
+      title: "Members",
+      panelComponent: MemberSettingsComponent,
     },
     addTabComponent && addTabComponent(),
   ].filter(Boolean) as TabProp[];
