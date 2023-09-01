@@ -1,17 +1,7 @@
 import WidgetNameComponent from "layoutSystems/common/widgetName";
-import { memoize } from "lodash";
 import React from "react";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { getErrorCount } from "./utils";
 
-const getErrorCount = memoize(
-  (evalErrors: Record<string, EvaluationError[]>) => {
-    return Object.values(evalErrors).reduce(
-      (prev, curr) => curr.length + prev,
-      0,
-    );
-  },
-  JSON.stringify,
-);
 type WidgetNameLayerProps = {
   disablePropertyPane?: boolean;
   children: any;
