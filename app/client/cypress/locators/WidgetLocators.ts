@@ -44,6 +44,7 @@ export const WIDGET = {
   STATBOX: "statboxwidget",
   JSONFORM: "jsonformwidget",
   MENUBUTTON: "menubuttonwidget",
+  DATEPICKER: "datepickerwidget2",
 } as const;
 
 // property pane element selector are maintained here
@@ -93,4 +94,23 @@ export const switchlocators = {
 export const checkboxlocators = {
   // read Blue here
   checkBoxLabel: (value: string) => `//*[contains(@class,'t--checkbox-widget-label') and text()='${value}']`,
+}
+
+export const datePickerlocators = {
+  options : `//*[contains(@id,'rc_select_') and @role='option']`,
+  input: `//*[@class='bp3-input-group']//input`,
+  dayPick:`//*[contains(@class,'DayPicker-Day')]`,
+  selectYear: `//*[contains(@class,'bp3-datepicker-year-select')]//select//option`,
+  selectMonth:`//*[contains(@class,'bp3-datepicker-month-select')]//select//option`,
+  yearCaret: `//*[contains(@class,'bp3-datepicker-year-select')]//*[contains(@class,'bp3-icon-double-caret-vertical')]`,
+  monthCaret: `//*[contains(@class,'bp3-datepicker-month-select')]//*[contains(@class,'bp3-icon-double-caret-vertical')]`,
+  yearInDropdown: (year: string) => datePickerlocators.selectYear + `[@value='${year}']`,
+  monthInDropdown: (month: string) => datePickerlocators.selectMonth + `[@label='${month}']`,
+  inputHour:`.bp3-timepicker-hour`,
+  inputMinute:`.bp3-timepicker-minute`,
+  inputSecond:`.bp3-timepicker-second`,
+  weekDay: `//*[@class='DayPicker-Weekday']//*[@title]`,
+  calendarHeader:`//*[contains(@class,'datepicker__calender-header')]//*[@type='button']`,
+  year: (yearToSelect: string) => `//*[@data-value='${yearToSelect}']`,
+  date: (dateToSelect: string) => `//*[contains(@class,'datepicker__day--${dateToSelect}')]`,
 }
