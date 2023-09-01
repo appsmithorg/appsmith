@@ -112,7 +112,7 @@ import WalkthroughContext from "components/featureWalkthrough/walkthroughContext
 import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
-import { KnowledgeBaseContainer } from "@appsmith/pages/Editor/KnowledgeBase";
+import { KnowledgeBaseNavButton } from "@appsmith/pages/Editor/KnowledgeBase/KnowledgeBaseNavButton";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -504,7 +504,6 @@ export function EditorHeader() {
           <HelpBar />
         </HeaderSection>
         <HeaderSection className="gap-x-1">
-          <KnowledgeBaseContainer />
           <Boxed
             alternative={<EndTour />}
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
@@ -573,6 +572,7 @@ export function EditorHeader() {
                 </ModalBody>
               </ModalContent>
             </Modal>
+            <KnowledgeBaseNavButton />
             <div className="flex items-center">
               <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
