@@ -83,7 +83,6 @@ export class HomePage {
   private _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
   private _forkModal = ".fork-modal";
-  private _importSuccessModalGotit = ".t--import-success-modal-got-it";
   private _appCard = (applicationName: string) =>
     "//span[text()='" +
     applicationName +
@@ -253,7 +252,7 @@ export class HomePage {
       this.agHelper.AssertElementVisibility(
         this.entityExplorer._entityExplorer,
       );
-      this.onboarding.closeIntroModal();
+      this.onboarding.skipSignposting();
     }
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
@@ -585,7 +584,7 @@ export class HomePage {
     this.agHelper.AssertElementVisibility(
       this.locator._visibleTextSpan("Your application is ready to use."),
     );
-    this.agHelper.GetNClick(this._importSuccessModalGotit, 0, true);
+    this.agHelper.ClickButton("Got it");
   }
 
   public AssertImportToast(timeout = 5000) {

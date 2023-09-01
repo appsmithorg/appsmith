@@ -142,7 +142,7 @@ public class Find extends MongoCommand {
                 + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return new DatasourceStructure.Template("Find", null, configMap);
+        return new DatasourceStructure.Template("Find", null, configMap, true);
     }
 
     private DatasourceStructure.Template generateFindByIdTemplate(String collectionName) {
@@ -160,7 +160,7 @@ public class Find extends MongoCommand {
                 + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return new DatasourceStructure.Template("Find by ID", null, configMap);
+        return new DatasourceStructure.Template("Find by ID", null, configMap, false);
     }
 
     /**
