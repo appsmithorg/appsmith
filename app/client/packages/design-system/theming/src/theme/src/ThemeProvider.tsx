@@ -12,7 +12,7 @@ const providerStyleSheet = new ProviderStyleSheet();
 providerStyleSheet.global("wds-font-faces", fontFaces);
 
 export const ThemeProvider = (props: ThemeProviderProps) => {
-  const { children, className, theme } = props;
+  const { children, className, style, theme } = props;
   const {
     borderRadius,
     borderWidth,
@@ -26,81 +26,82 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
     typography,
     zIndex,
   } = theme;
-  const providerSheetKey = useRef(uniqueId("wds-provider-"));
+  const sheetKey = useRef(uniqueId("wds-provider-"));
 
   useLayoutEffect(() => {
-    providerStyleSheet.createSheets(providerSheetKey.current);
+    providerStyleSheet.createSheets(sheetKey.current);
 
     return () => {
-      providerStyleSheet.flush(providerSheetKey.current);
+      providerStyleSheet.flush(sheetKey.current);
     };
   }, []);
 
   useLayoutEffect(() => {
     if (borderRadius) {
-      providerStyleSheet.borderRadius(borderRadius);
+      providerStyleSheet.borderRadius(sheetKey.current, borderRadius);
     }
   }, [borderRadius]);
 
   useLayoutEffect(() => {
     if (borderWidth) {
-      providerStyleSheet.borderWidth(borderWidth);
+      providerStyleSheet.borderWidth(sheetKey.current, borderWidth);
     }
   }, [borderWidth]);
 
   useLayoutEffect(() => {
     if (boxShadow) {
-      providerStyleSheet.boxShadow(boxShadow);
+      providerStyleSheet.boxShadow(sheetKey.current, boxShadow);
     }
   }, [boxShadow]);
 
   useLayoutEffect(() => {
     if (color) {
-      providerStyleSheet.color(color);
+      providerStyleSheet.color(sheetKey.current, color);
     }
   }, [color]);
 
   useLayoutEffect(() => {
     if (opacity) {
-      providerStyleSheet.opacity(opacity);
+      providerStyleSheet.opacity(sheetKey.current, opacity);
     }
   }, [opacity]);
 
   useLayoutEffect(() => {
     if (sizing) {
-      providerStyleSheet.sizing(sizing);
+      providerStyleSheet.sizing(sheetKey.current, sizing);
     }
   }, [sizing]);
 
   useLayoutEffect(() => {
     if (spacing) {
-      providerStyleSheet.spacing(spacing);
+      providerStyleSheet.spacing(sheetKey.current, spacing);
     }
   }, [spacing]);
 
   useLayoutEffect(() => {
     if (zIndex) {
-      providerStyleSheet.zIndex(zIndex);
+      providerStyleSheet.zIndex(sheetKey.current, zIndex);
     }
   }, [zIndex]);
 
   useLayoutEffect(() => {
     if (rootUnit) {
-      providerStyleSheet.rootUnit(rootUnit);
+      providerStyleSheet.rootUnit(sheetKey.current, rootUnit);
     }
   }, [rootUnit]);
 
   useLayoutEffect(() => {
     if (typography) {
-      providerStyleSheet.typography(typography, fontFamily);
+      providerStyleSheet.typography(sheetKey.current, typography, fontFamily);
     }
   }, [typography, fontFamily]);
 
   return (
     <ThemeContext.Provider value={theme}>
       <div
-        className={clsx(className, providerSheetKey.current)}
+        className={clsx(className, sheetKey.current)}
         data-theme-provider=""
+        style={style}
       >
         {children}
       </div>

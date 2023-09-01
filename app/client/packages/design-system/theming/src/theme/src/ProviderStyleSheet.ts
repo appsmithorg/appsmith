@@ -9,10 +9,8 @@ import type { FontFamily, Typography } from "../../typography";
 
 export class ProviderStyleSheet {
   private sheets = new Map<string, StyleSheet>();
-  private providerKey = "wds-provider-";
 
   createSheets = (key: string) => {
-    this.providerKey = key;
     Object.values(SheetTypes).map((type) => {
       const sheetKey = `${key}-${type}`;
       this.sheets.set(sheetKey, this.createSheet(sheetKey));
@@ -33,62 +31,62 @@ export class ProviderStyleSheet {
     });
   };
 
-  borderRadius = (token: ThemeToken) => {
-    this.updateSheet("borderRadius", cssRule(`.${this.providerKey}`, token));
+  borderRadius = (key: string, token: ThemeToken) => {
+    this.updateSheet(`${key}-borderRadius`, cssRule(`.${key}`, token));
   };
 
-  borderWidth = (token: ThemeToken) => {
-    this.updateSheet("borderWidth", cssRule(`.${this.providerKey}`, token));
+  borderWidth = (key: string, token: ThemeToken) => {
+    this.updateSheet(`${key}-borderWidth`, cssRule(`.${key}`, token));
   };
 
-  boxShadow = (token: ThemeToken) => {
-    this.updateSheet("boxShadow", cssRule(`.${this.providerKey}`, token));
+  boxShadow = (key: string, token: ThemeToken) => {
+    this.updateSheet(`${key}-boxShadow`, cssRule(`.${key}`, token));
   };
 
-  color = (token: ThemeToken) => {
-    this.updateSheet("color", cssRule(`.${this.providerKey}`, token));
+  color = (key: string, token: ThemeToken) => {
+    this.updateSheet(`${key}-color`, cssRule(`.${key}`, token));
   };
 
-  opacity = (token: ThemeToken) => {
-    this.updateSheet("opacity", cssRule(`.${this.providerKey}`, token));
+  opacity = (key: string, token: ThemeToken) => {
+    this.updateSheet(`${key}-opacity`, cssRule(`.${key}`, token));
   };
 
-  sizing = (token: ThemeToken) => {
-    this.updateSheet("sizing", cssRule(`.${this.providerKey}`, token));
+  sizing = (key: string, token: ThemeToken) => {
+    this.updateSheet(`${key}-sizing`, cssRule(`.${key}`, token));
   };
 
-  spacing = (token: ThemeToken) => {
-    this.updateSheet("spacing", cssRule(`.${this.providerKey}`, token));
+  spacing = (key: string, token: ThemeToken) => {
+    this.updateSheet(`${key}-spacing`, cssRule(`.${key}`, token));
   };
 
-  zIndex = (token: ThemeToken) => {
-    this.updateSheet("zIndex", cssRule(`.${this.providerKey}`, token));
+  zIndex = (key: string, token: ThemeToken) => {
+    this.updateSheet(`${key}-zIndex`, cssRule(`.${key}`, token));
   };
 
-  rootUnit = (rootUnit: RootUnit) => {
-    const styles = `.${this.providerKey} {--root-unit: ${rootUnit}}`;
-    this.updateSheet("rootUnit", styles);
+  rootUnit = (key: string, rootUnit: RootUnit) => {
+    const styles = `.${key} {--root-unit: ${rootUnit}}`;
+    this.updateSheet(`${key}-rootUnit`, styles);
   };
 
-  fontFace = (fontFace: string) => {
-    this.updateSheet("fontFace", fontFace);
+  fontFamily = (key: string, fontFamily: FontFamily) => {
+    const styles = `.${key} {font-family: ${fontFamily}}`;
+    this.updateSheet(`${key}-fontFamily`, styles);
   };
 
-  fontFamily = (fontFamily: FontFamily) => {
-    const styles = `.${this.providerKey} {font-family: ${fontFamily}}`;
-    this.updateSheet("fontFamily", styles);
-  };
-
-  typography = (typography: Typography, fontFamily?: FontFamily) => {
+  typography = (
+    key: string,
+    typography: Typography,
+    fontFamily?: FontFamily,
+  ) => {
     this.updateSheet(
-      "typography",
-      createTypographyStringMap(typography, this.providerKey, fontFamily),
+      `${key}-typography`,
+      createTypographyStringMap(typography, key, fontFamily),
     );
 
     if (fontFamily) {
       this.updateSheet(
-        "fontFamily",
-        `.${this.providerKey} {font-family: ${fontFamily}}`,
+        `${key}-fontFamily`,
+        `.${key} {font-family: ${fontFamily}}`,
       );
     }
   };
@@ -101,7 +99,7 @@ export class ProviderStyleSheet {
   };
 
   private updateSheet = (providerKey: string, styles: string) => {
-    this.sheets.get(`${this.providerKey}-${providerKey}`)?.flush();
-    this.sheets.get(`${this.providerKey}-${providerKey}`)?.insert(styles);
+    this.sheets.get(`${providerKey}`)?.flush();
+    this.sheets.get(`${providerKey}`)?.insert(styles);
   };
 }
