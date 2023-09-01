@@ -42,6 +42,8 @@ import WidgetSidebar from "./components/WidgetSidebar";
 import { setIdeSidebarWidth } from "../ideActions";
 import QuerySidebar from "./components/QuerySidebar";
 import JSObjects from "./components/JSObjects";
+import { useIDENavState } from "../hooks";
+import useWindowDimensions from "../../../utils/hooks/useWindowDimensions";
 
 const Container = styled.div`
   background-color: #f1f5f9;
@@ -115,10 +117,20 @@ const PageLeftPane = () => {
     },
   );
   const currentPageId = useSelector(getCurrentPageId);
+  const [navState] = useIDENavState();
+  const [width] = useWindowDimensions();
 
   useEffect(() => {
-    dispatch(setIdeSidebarWidth(500));
-  }, []);
+    const { pageNav } = navState;
+    if (pageNav) {
+      if (pageNav === "ui") {
+        dispatch(setIdeSidebarWidth(300));
+      } else if (pageNav === "js" || pageNav === "queries") {
+        const sidebarWidth = (width - 50) * 0.4;
+        dispatch(setIdeSidebarWidth(sidebarWidth));
+      }
+    }
+  }, [navState.pageNav]);
 
   const navigatePageEntity = useCallback(
     (location: string) => {

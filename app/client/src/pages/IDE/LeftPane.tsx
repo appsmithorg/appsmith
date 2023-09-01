@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getIdeSidebarWidth } from "./ideSelector";
 import { setIdeSidebarWidth } from "./ideActions";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
+import { useIDENavState } from "./hooks";
 
 const Container = styled.div`
   background-color: white;
@@ -64,7 +65,10 @@ const LeftPane = () => {
       setTooltipIsOpen(true);
     }, 250);
   }, [setTooltipIsOpen]);
-  const disableResize = useSelector(getIsAppSettingsPaneOpen);
+  const isSettingsPane = useSelector(getIsAppSettingsPaneOpen);
+  const [navState] = useIDENavState();
+  const isWidgetPageNav = navState.pageNav && navState.pageNav === "ui";
+  const disableResize = isSettingsPane || isWidgetPageNav;
 
   /**
    * on hover end of resizer, hide tooltip
