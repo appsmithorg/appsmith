@@ -7,10 +7,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.filters.CSRFFilter;
-import com.appsmith.server.filters.ConditionalFilter;
-import com.appsmith.server.filters.PreAuth;
 import com.appsmith.server.helpers.RedirectHelper;
-import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -95,9 +92,6 @@ public class SecurityConfig {
 
     @Autowired
     private RedirectHelper redirectHelper;
-
-    @Autowired
-    private RateLimitService rateLimitService;
 
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
@@ -214,10 +208,6 @@ public class SecurityConfig {
                 .anyExchange()
                 .authenticated()
                 .and()
-                // Add Pre Auth rate limit filter before authentication filter
-                .addFilterBefore(
-                        new ConditionalFilter(new PreAuth(rateLimitService), Url.LOGIN_URL),
-                        SecurityWebFiltersOrder.FORM_LOGIN)
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
                 .formLogin(formLoginSpec -> formLoginSpec
                         .authenticationFailureHandler(failureHandler)
@@ -227,6 +217,7 @@ public class SecurityConfig {
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler))
+
                 // For Github SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 // For Google SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 .oauth2Login(oAuth2LoginSpec -> oAuth2LoginSpec
