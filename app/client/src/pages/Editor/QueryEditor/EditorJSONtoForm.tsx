@@ -135,11 +135,7 @@ import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
 import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
 import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
-import {
-  selectFeatureFlagCheck,
-  selectFeatureFlags,
-} from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -839,9 +835,7 @@ export function EditorJSONtoForm(props: Props) {
     },
   ];
 
-  const { entityDependencies, hasDependencies } = useEntityDependencies(
-    props.actionName,
-  );
+  const { hasDependencies } = useEntityDependencies(props.actionName);
 
   const pluginImages = useSelector(getPluginImages);
 
@@ -895,22 +889,11 @@ export function EditorJSONtoForm(props: Props) {
   //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
 
-  // A/B feature flag for datasource structure.
-  const isEnabledForDSSchema = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema_enabled),
-  );
-
-  // A/B feature flag for query binding.
-  const isEnabledForQueryBinding = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
-  );
-
   // here we check for normal conditions for opening action pane
   // or if any of the flags are true, We should open the actionpane by default.
   const shouldOpenActionPaneByDefault =
     ((hasDependencies || !!output) && !guidedTourEnabled) ||
-    ((isEnabledForDSSchema || isEnabledForQueryBinding) &&
-      currentActionPluginName !== PluginName.SMTP);
+    currentActionPluginName !== PluginName.SMTP;
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -1122,7 +1105,6 @@ export function EditorJSONtoForm(props: Props) {
               actionName={actionName}
               context={DatasourceStructureContext.QUERY_EDITOR}
               datasourceId={props.datasourceId}
-              entityDependencies={entityDependencies}
               hasConnections={hasDependencies}
               hasResponse={!!output}
               pluginId={props.pluginId}
