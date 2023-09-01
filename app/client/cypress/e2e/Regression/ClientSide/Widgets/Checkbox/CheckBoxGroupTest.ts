@@ -280,7 +280,7 @@ describe("Checkbox Tests", function () {
     );
     // Verify full color picker for accent color
     agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 1);
-    propPane.TogglePropertyState("accentcolor", "On", "");
+    propPane.TogglePropertyState("accentcolor", "On", "updateLayout", false);
     agHelper.AssertAttribute(propPane._colorPickerInput, "type", "color", 1);
 
     // Verify border
