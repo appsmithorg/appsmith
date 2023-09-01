@@ -5,7 +5,9 @@ import com.appsmith.server.dtos.OAuth2AuthorizedClientDTO;
 import com.appsmith.server.dtos.UserSessionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.resource.ClientResources;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -92,9 +94,19 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisClient redisClient() {
+    public AbstractRedisClient redisClient() {
         final URI redisUri = URI.create(redisURL);
-        return RedisClient.create(redisUri.getScheme() + "://" + redisUri.getHost() + ":" + redisUri.getPort());
+        String scheme = redisUri.getScheme();
+        boolean isCluster = false;
+        if ("redis-cluster".equalsIgnoreCase(scheme)) {
+            isCluster = true;
+            // java clients do not support redis-cluster scheme
+            if (redisURL.startsWith("redis-cluster://")) {
+                redisURL = "redis://" + redisURL.substring("redis-cluster://".length());
+            }
+        }
+
+        return isCluster ? RedisClusterClient.create(redisURL) : RedisClient.create(redisURL);
     }
 
     private void fillAuthentication(URI redisUri, RedisConfiguration.WithAuthentication config) {
