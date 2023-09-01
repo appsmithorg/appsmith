@@ -7,7 +7,7 @@ import { getJSCollectionById } from "selectors/editorSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
-import JSEditorForm from "pages/Editor/JSEditor/Form";
+import JSEditorForm from "pages/Editor/JSEditor/IDEForm";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 
 const LoadingContainer = styled(CenteredWrapper)`
