@@ -117,7 +117,7 @@ const PageLeftPane = () => {
   const currentPageId = useSelector(getCurrentPageId);
 
   useEffect(() => {
-    dispatch(setIdeSidebarWidth(300));
+    dispatch(setIdeSidebarWidth(500));
   }, []);
 
   const navigatePageEntity = useCallback(

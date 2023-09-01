@@ -146,17 +146,13 @@ function JSObjects(props: Props) {
         />
       );
       if (collectionId && jsCollection) {
-        body = (
-          <div className="h-full">
-            <JSEditor />
-          </div>
-        );
+        body = <JSEditor />;
       }
       break;
   }
 
   return (
-    <div className="h-full">
+    <div className="h-full js-body-container overflow-hidden">
       <ListSubTitle
         leftIcon={leftIcon}
         rightIcon={rightIcon}
@@ -165,8 +161,6 @@ function JSObjects(props: Props) {
       {body}
     </div>
   );
-
-  return <div>JSObjects</div>;
 }
 
 export default JSObjects;
