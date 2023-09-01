@@ -40,7 +40,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
-import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -69,7 +68,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -190,9 +188,6 @@ public class GitServiceTest {
 
     @Autowired
     EnvironmentPermission environmentPermission;
-
-    @SpyBean
-    GitPrivateRepoHelper gitPrivateRepoHelper;
 
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
@@ -848,9 +843,8 @@ public class GitServiceTest {
         String limitPrivateRepoTestWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
 
-        Mockito.doReturn(Mono.just(Boolean.TRUE))
-                .when(gitPrivateRepoHelper)
-                .isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
+        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just(0));
 
         Mockito.when(gitExecutor.cloneApplication(
                         Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -3441,9 +3435,8 @@ public class GitServiceTest {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         gitService.generateSSHKey(null).block();
         GitService gitService1 = Mockito.spy(gitService);
-        Mockito.doReturn(Mono.just(Boolean.TRUE))
-                .when(gitPrivateRepoHelper)
-                .isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
+        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just(0));
 
         Mono<ApplicationImportDTO> applicationMono = gitService1.importApplicationFromGit(workspaceId, gitConnectDTO);
 
