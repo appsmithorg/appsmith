@@ -147,7 +147,6 @@ function* getChildWidgetProps(
     widgetName,
     widgetProps,
     restDefaultConfig.version,
-    mainCanvasWidth,
   );
 
   let { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(type);
