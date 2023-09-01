@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
+import { WALKTHROUGH_TEST_PAGE } from "../Constants";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -286,7 +287,7 @@ export class DataSources {
     ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
+    this.agHelper.ClickButton("Got it");
   }
 
   public GeneratePageWithMockDB() {
@@ -303,7 +304,7 @@ export class DataSources {
     this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
     this.agHelper.GetNClick(this._generatePageBtn);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
+    this.agHelper.ClickButton("Got it");
   }
 
   public StartDataSourceRoutes() {

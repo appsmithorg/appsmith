@@ -433,28 +433,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
   });
 
-  it("6. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
-    dataSources.NavigateFromActiveDS(datasourceName, true);
-    agHelper.GetObjectName().then(($queryName) => {
-      entityExplorer.SelectEntityByName($queryName, "Queries/JS");
-      dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
-      agHelper.UpdateCodeInput(formControls.s3BucketName, bucketName);
-      dataSources.RunQuery();
-      agHelper.ClickButton("Select widget"); //Binding to dragDropped table
-      agHelper.AssertElementVisibility(dataSources._snippingBanner);
-      agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.TABLE));
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
-      propPane.DeleteWidgetDirectlyFromPropertyPane();
-      entityExplorer.SelectEntityByName($queryName, "Queries/JS");
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Query,
-      });
-      //exeute actions & 200 response is verified in this method
-      cy.wait(3000); //waiting for deletion to complete! - else after hook fails
-    });
-  });
+  // Removed the Select Widget snipping mode test case as we have removed the `Connect widget` element from the new bindings UI - 6th test case
 
   after("Deletes the datasource", () => {
     dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409); //since crud page is still active

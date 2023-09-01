@@ -42,7 +42,6 @@ import { Spinner } from "design-system";
 import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -139,18 +138,7 @@ class Editor extends Component<Props> {
     this.props.resetEditorRequest();
   }
 
-  // This function is triggered on load of google apis javascript library
-  gapiLoaded = () => {
-    (window as any).googleAPIsLoaded = true;
-    return undefined;
-  };
-  onError = () => {
-    (window as any).googleAPIsLoaded = false;
-    return undefined;
-  };
-
   public render() {
-    const isAirgappedInstance = isAirgapped();
     if (!this.props.isEditorInitialized || this.props.loadingGuidedTour) {
       return (
         <CenteredWrapper
@@ -168,17 +156,6 @@ class Editor extends Component<Props> {
             <title>
               {`${this.props.currentApplicationName} |`} Editor | Appsmith
             </title>
-
-            {!isAirgappedInstance && !(window as any)?.googleAPIsLoaded ? (
-              <script
-                async
-                defer
-                id="googleapis"
-                onError={this.onError()}
-                onLoad={this.gapiLoaded()}
-                src="https://apis.google.com/js/api.js"
-              />
-            ) : null}
           </Helmet>
           <GlobalHotKeys>
             <MainContainer />

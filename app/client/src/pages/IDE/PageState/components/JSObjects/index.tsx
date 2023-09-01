@@ -101,7 +101,7 @@ function JSObjects(props: Props) {
   let leftIcon: React.ReactNode = null;
   let body: React.ReactNode = (
     <EmptyStateContainer>
-      <h2>Select a JS Object</h2>
+      <h2>Select a query</h2>
     </EmptyStateContainer>
   );
 

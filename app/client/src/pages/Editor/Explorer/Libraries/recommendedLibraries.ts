@@ -122,16 +122,6 @@ export default [
     docsURL: "https://github.com/dchester/jsonpath/#jsonpath",
     icon: "https://github.com/dchester.png?s=20",
   },
-  {
-    name: "browser-image-compression",
-    url: "https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.0/dist/browser-image-compression.min.js",
-    version: "2.0.0",
-    author: "Donaldcwl",
-    docsURL:
-      "https://github.com/Donaldcwl/browser-image-compression/#browser-image-compression",
-    description: "Compress images in the browser",
-    icon: "https://github.com/Donaldcwl.png?s=20",
-  },
   // We'll be enabling support for segment soon
   // {
   //   name: "@segment/analytics-next",
