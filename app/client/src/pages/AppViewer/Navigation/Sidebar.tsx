@@ -37,7 +37,6 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import MenuItemContainer from "./components/MenuItemContainer";
 import BackToAppsButton from "./components/BackToAppsButton";
-import { KBViewerNavButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerNavButton";
 
 type SidebarProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -216,7 +215,6 @@ export function Sidebar(props: SidebarProps) {
         <StyledFooter navColorStyle={navColorStyle} primaryColor={primaryColor}>
           {currentApplicationDetails && (
             <StyledCtaContainer>
-              <KBViewerNavButton />
               <ShareButton
                 currentApplicationDetails={currentApplicationDetails}
                 currentWorkspaceId={currentWorkspaceId}

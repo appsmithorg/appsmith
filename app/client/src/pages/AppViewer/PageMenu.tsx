@@ -24,6 +24,7 @@ import { PageMenuContainer, StyledNavLink } from "./PageMenu.styled";
 import { StyledCtaContainer } from "./Navigation/Sidebar.styled";
 import ShareButton from "./Navigation/components/ShareButton";
 import BackToAppsButton from "./Navigation/components/BackToAppsButton";
+import { KBViewerNavButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerNavButton";
 
 type NavigationProps = {
   isOpen?: boolean;
@@ -129,6 +130,7 @@ export function PageMenu(props: NavigationProps) {
         <div className="py-3 border-t">
           {application && (
             <StyledCtaContainer>
+              <KBViewerNavButton />
               <ShareButton
                 currentApplicationDetails={application}
                 currentWorkspaceId={workspaceID}
