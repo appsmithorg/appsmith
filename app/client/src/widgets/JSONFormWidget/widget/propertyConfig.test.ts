@@ -64,7 +64,6 @@ describe(".onGenerateFormClick", () => {
     const expectedDynamicPropertyPathList = [
       { key: "schema.__root_schema__.children.dob.defaultValue" },
       { key: "schema.__root_schema__.children.boolean.defaultValue" },
-      { key: "sourceData" },
     ];
 
     expect(mockBatchUpdateProperties.mock.calls.length).toBe(1);
@@ -80,6 +79,7 @@ describe(".onGenerateFormClick", () => {
     const existingDynamicBindingPropertyPathList = [
       { key: "dummy.path1" },
       { key: "dummy.path2" },
+      { key: "sourceData" },
     ];
 
     const mockBatchUpdateProperties = jest.fn();
@@ -109,7 +109,6 @@ describe(".onGenerateFormClick", () => {
       ...existingDynamicBindingPropertyPathList,
       { key: "schema.__root_schema__.children.dob.defaultValue" },
       { key: "schema.__root_schema__.children.boolean.defaultValue" },
-      { key: "sourceData" },
     ];
 
     expect(mockBatchUpdateProperties.mock.calls.length).toBe(1);
@@ -125,6 +124,7 @@ describe(".onGenerateFormClick", () => {
     const existingDynamicBindingPropertyPathList = [
       { key: "dummy.path1" },
       { key: "dummy.path2" },
+      { key: "sourceData" },
     ];
 
     const mockBatchUpdateProperties = jest.fn();
@@ -154,9 +154,7 @@ describe(".onGenerateFormClick", () => {
     const expectedDynamicPropertyPathList = [
       ...existingDynamicBindingPropertyPathList,
       { key: "schema.__root_schema__.children.dob.defaultValue" },
-      { key: "sourceData" },
     ];
-
     expect(mockBatchUpdateProperties.mock.calls.length).toBe(1);
     const response = mockBatchUpdateProperties.mock.calls[0][0];
     expect(response.fieldLimitExceeded).toEqual(false);
