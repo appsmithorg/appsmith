@@ -27,7 +27,7 @@ export class PropertyPane {
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
     "']/ancestor::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
-  private _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
+  public _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
   private _copyWidget = "[data-testid='t--copy-widget']";
   _deleteWidget = "[data-testid='t--delete-widget']";
   private _styleTabBtn = (tab: string) =>
@@ -160,6 +160,8 @@ export class PropertyPane {
   _multiSelect = ".rc-select-multiple";
   _currencyChangeDropdownIcon =
     ".currency-change-dropdown-trigger .remixicon-icon";
+  _countryCodeChangeDropDown = ".t--input-country-code-change .remixicon-icon";
+  _searchCountryPlaceHolder = "[placeholder='Search by ISD code or country']";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -248,7 +250,6 @@ export class PropertyPane {
     propertyName: string,
     toggle: "On" | "Off" = "On",
     networkCall = "updateLayout",
-    toValidateNetworkCall = true,
   ) {
     if (toggle == "On") {
       this.agHelper
@@ -262,9 +263,7 @@ export class PropertyPane {
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
-    if (toValidateNetworkCall) {
-      networkCall && this.assertHelper.AssertNetworkStatus(networkCall);
-    }
+    networkCall && this.assertHelper.AssertNetworkStatus(networkCall);
   }
 
   public MoveToTab(tab: "Content" | "Style") {

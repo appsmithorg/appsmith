@@ -90,7 +90,7 @@ export class Table {
   _liCurrentSelectedPage =
     "//div[@type='LIST_WIDGET']//ul[contains(@class, 'rc-pagination')]/li[contains(@class, 'rc-pagination-item-active')]/a";
   private _tr = ".tbody .tr";
-  private _searchText = "input[type='search']";
+  private _searchTableInput = "input[type='search'][placeholder='Search...']";
   _searchBoxCross =
     "//div[contains(@class, 't--search-input')]/following-sibling::div";
   _addIcon = "button .bp3-icon-add";
@@ -248,15 +248,12 @@ export class Table {
   }
 
   public WaitForTableEmpty(tableVersion: "v1" | "v2" = "v1") {
-    cy.waitUntil(() => cy.get(this._tableEmptyColumnData(tableVersion)), {
-      errorMsg: "Table is populated when not expected",
-      timeout: 10000,
-      interval: 2000,
-    }).then(($children) => {
-      cy.wrap($children).children().should("have.length", 0); //or below
-      //expect($children).to.have.lengthOf(0)
-      this.agHelper.Sleep(500);
-    });
+    this.agHelper
+      .GetElement(this._tableEmptyColumnData(tableVersion))
+      .children()
+      .should("have.length", 0); //or below
+    //expect($children).to.have.lengthOf(0)
+    this.agHelper.Sleep(500);
   }
 
   public AssertTableHeaderOrder(expectedOrder: string) {
@@ -446,11 +443,11 @@ export class Table {
   }
 
   public AssertSearchText(searchTxt: string, index = 0) {
-    cy.get(this._searchText).eq(index).should("have.value", searchTxt);
+    cy.get(this._searchTableInput).eq(index).should("have.value", searchTxt);
   }
 
   public SearchTable(searchTxt: string, index = 0) {
-    cy.get(this._searchText).eq(index).type(searchTxt);
+    this.agHelper.TypeText(this._searchTableInput, searchTxt, index);
   }
 
   public ResetSearch() {

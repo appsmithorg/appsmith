@@ -88,8 +88,8 @@ describe("Theme validation usecase for multi-select widget", function () {
     appSettings.ClosePane();
   });
 
+  //Skipping due to mentioned bug
   it.skip("2. Publish the App and validate Font across the app + Bug 15007", function () {
-    //Skipping due to mentioned bug
     deployMode.DeployApp();
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
       .first()

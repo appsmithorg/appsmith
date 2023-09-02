@@ -25,6 +25,7 @@ import org.springframework.data.redis.connection.RedisConfiguration;
 import org.springframework.data.redis.connection.RedisNode;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.observability.MicrometerTracingAdapter;
@@ -81,6 +82,15 @@ public class RedisConfig {
                         new RedisStandaloneConfiguration(redisUri.getHost(), redisUri.getPort());
                 fillAuthentication(redisUri, config);
                 return new LettuceConnectionFactory(config);
+            }
+
+            case "rediss" -> {
+                final RedisStandaloneConfiguration config =
+                        new RedisStandaloneConfiguration(redisUri.getHost(), redisUri.getPort());
+                fillAuthentication(redisUri, config);
+                final LettuceClientConfiguration clientConfig =
+                        LettucePoolingClientConfiguration.builder().useSsl().build();
+                return new LettuceConnectionFactory(config, clientConfig);
             }
 
             case "redis-cluster" -> {
