@@ -79,6 +79,7 @@ function FieldGroup(props: FieldGroupProps) {
               <li key={index}>
                 <FieldGroup
                   additionalAutoComplete={props.additionalAutoComplete}
+                  dataTreePath={props.dataTreePath}
                   integrationOptions={props.integrationOptions}
                   key={selectorField.label + index}
                   label={selectorField.label}
