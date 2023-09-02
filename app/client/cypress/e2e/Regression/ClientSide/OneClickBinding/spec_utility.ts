@@ -1,4 +1,7 @@
-import { agHelper } from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  assertHelper,
+} from "../../../../support/Objects/ObjectsCore";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 
 export class OneClickBinding {
@@ -16,11 +19,7 @@ export class OneClickBinding {
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceSelector(source));
 
-    cy.wait("@getDatasourceStructure").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    assertHelper.AssertNetworkStatus("getDatasourceStructure", 200);
 
     agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
