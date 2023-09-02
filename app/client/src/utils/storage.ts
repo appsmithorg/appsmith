@@ -29,6 +29,7 @@ export const STORAGE_KEYS: {
   USER_SIGN_UP: "USER_SIGN_UP",
   VERSION_UPDATE_STATE: "VERSION_UPDATE_STATE",
   AI_RECENT_QUERIES: "AI_RECENT_QUERIES",
+  AI_KNOWLEDGE_BASE: "AI_KNOWLEDGE_BASE",
 };
 
 const store = localforage.createInstance({
@@ -603,4 +604,110 @@ export const getVersionUpdateState =
 
 export const removeVersionUpdateState = async () => {
   return store.removeItem(STORAGE_KEYS.VERSION_UPDATE_STATE);
+};
+
+export const getAppKbState = async (appId: string) => {
+  try {
+    const aiKBApplicationMap: Record<
+      string,
+      {
+        checksum: string;
+        pageSlugs: {
+          [pageId: string]: {
+            hasReacted: boolean;
+          };
+        };
+      }
+    > | null = await store.getItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE);
+
+    if (typeof aiKBApplicationMap === "object" && aiKBApplicationMap) {
+      return aiKBApplicationMap[appId];
+    }
+
+    return null;
+  } catch (error) {
+    log.error("An error occurred while reading AI_KNOWLEDGE_BASE");
+    log.error(error);
+  } finally {
+    return null;
+  }
+};
+
+export const initAppKbState = async (
+  appId: string,
+  checksum: string,
+  pageSlugs: string[],
+) => {
+  try {
+    let aiKBApplicationMap: Record<
+      string,
+      {
+        checksum: string;
+        pageSlugs: {
+          [pageId: string]: {
+            hasReacted: boolean;
+          };
+        };
+      }
+    > | null = await store.getItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE);
+
+    if (typeof aiKBApplicationMap !== "object" || !aiKBApplicationMap) {
+      aiKBApplicationMap = {};
+    }
+
+    const appKbState = {
+      checksum,
+      pageSlugs: pageSlugs.reduce((acc, pageSlug) => {
+        acc[pageSlug] = {
+          hasReacted: false,
+        };
+        return acc;
+      }, {} as Record<string, { hasReacted: boolean }>) as Record<
+        string,
+        { hasReacted: boolean }
+      >,
+    };
+
+    aiKBApplicationMap[appId] = appKbState;
+
+    await store.setItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE, aiKBApplicationMap);
+    return appKbState;
+  } catch (error) {
+    log.error("An error occurred while updating AI_KNOWLEDGE_BASE");
+    log.error(error);
+  }
+};
+
+export const reactToPageKB = async (
+  appId: string,
+  pageId: string,
+  hasReacted: boolean,
+) => {
+  try {
+    let aiKBApplicationMap: Record<
+      string,
+      {
+        checksum: string;
+        pageSlugs: {
+          [pageId: string]: {
+            hasReacted: boolean;
+          };
+        };
+      }
+    > | null = await store.getItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE);
+
+    if (typeof aiKBApplicationMap !== "object" || !aiKBApplicationMap) {
+      aiKBApplicationMap = {};
+    }
+
+    if (aiKBApplicationMap?.[appId]?.pageSlugs?.[pageId]) {
+      aiKBApplicationMap[appId].pageSlugs[pageId].hasReacted = hasReacted;
+    }
+
+    await store.setItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE, aiKBApplicationMap);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while updating AI_KNOWLEDGE_BASE");
+    log.error(error);
+  }
 };
