@@ -4,7 +4,7 @@ import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
 import { Select, Option, Tooltip } from "design-system";
 import { DropdownOption } from "../DatasourceDropdown/DropdownOption";
 import type { DefaultOptionType } from "rc-select/lib/Select";
-import { ColumnSelectorModal } from "../../ColumnSelectorModal";
+import { ColumnSelectorModal } from "../ColumnSelectorModal";
 
 type Props = {
   allowFieldConfig: boolean;

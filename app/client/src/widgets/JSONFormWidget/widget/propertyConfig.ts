@@ -1,22 +1,23 @@
 import { Alignment } from "@blueprintjs/core";
-
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-// import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import type { JSONFormWidgetProps } from ".";
-import { ROOT_SCHEMA_KEY } from "../constants";
+import { FieldType, ROOT_SCHEMA_KEY } from "../constants";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
 import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
-  JSON_FORM_CONNECT_BUTTON_TEXT,
   createMessage,
+  JSON_FORM_CONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
+import { FieldOptionsType } from "components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
+import { DROPDOWN_VARIANT } from "components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
+
 const MAX_NESTING_LEVEL = 5;
 
 const panelConfig = generatePanelPropertyConfig(MAX_NESTING_LEVEL);
@@ -26,6 +27,19 @@ export const sourceDataValidationFn = (
   props: JSONFormWidgetProps,
   _?: any,
 ): ValidationResponse => {
+  if (value === "") {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: [
+        {
+          name: "ValidationError",
+          message: "Source data cannot be empty.",
+        },
+      ],
+    };
+  }
+
   if (_.isNumber(value) || _.isBoolean(value)) {
     return {
       isValid: false,
@@ -74,7 +88,7 @@ export const sourceDataValidationFn = (
   } catch (e) {
     return {
       isValid: false,
-      parsed: {},
+      parsed: JSON.parse(value as string),
       messages: [e as Error],
     };
   }
@@ -85,7 +99,6 @@ export const onGenerateFormClick = ({
   props,
 }: OnButtonClickProps) => {
   const widgetProperties: JSONFormWidgetProps = props.widgetProperties;
-
   if (widgetProperties.autoGenerateForm) return;
 
   const currSourceData = widgetProperties[EVALUATION_PATH]?.evaluatedValues
@@ -137,8 +150,57 @@ export const contentConfig = [
         controlType: "ONE_CLICK_BINDING_CONTROL",
         controlConfig: {
           allowFieldConfigurations: true,
+          datasourceDropdownVariant: DROPDOWN_VARIANT.SCHEMA,
           ctaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
           excludePrimaryColumn: true,
+          isConnectableToWidget: true,
+          otherFields: [
+            {
+              label: "Form Type",
+              name: "formType",
+              fieldType: FieldType.SELECT,
+              optionType: FieldOptionsType.CUSTOM,
+              isRequired: true,
+              defaultValue: "create",
+              allowClear: false,
+              options: [
+                {
+                  label: "Create records",
+                  value: "create",
+                  id: "create",
+                },
+                {
+                  label: "Edit records",
+                  value: "edit",
+                  id: "edit",
+                },
+              ],
+              isVisible: (config: Record<string, any>) => {
+                return config?.tableName !== "";
+              },
+            },
+            {
+              label: "Get values from",
+              name: "defaultValues",
+              fieldType: FieldType.SELECT,
+              optionType: FieldOptionsType.WIDGETS,
+              isRequired: true,
+              isVisible: (config: Record<string, any>) => {
+                return config?.otherFields?.formType === "edit";
+              },
+            },
+            {
+              label: "Data Identifier",
+              name: "dataIdentifier",
+              isDataIdentifier: true,
+              fieldType: FieldType.SELECT,
+              optionType: FieldOptionsType.COLUMNS,
+              isRequired: true,
+              isVisible: (config: Record<string, any>) => {
+                return config?.otherFields?.formType === "edit";
+              },
+            },
+          ],
         },
         isJSConvertible: true,
         placeholderText: '{ "name": "John", "age": 24 }',

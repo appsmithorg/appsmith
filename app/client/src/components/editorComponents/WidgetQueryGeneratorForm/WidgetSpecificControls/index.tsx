@@ -1,16 +1,21 @@
 import React from "react";
 import ColumnDropdown from "./ColumnDropdown";
 import { noop } from "lodash";
-import type { Alias } from "../types";
+import type { Alias, OtherField } from "../types";
+import { OtherFieldComponent } from "./OtherFields";
+import { useFormConfig } from "../common/useFormConfig";
 
 type Props = {
   hasSearchableColumn?: boolean;
   aliases?: Alias[];
+  otherFields?: OtherField[];
 };
 
 export default function WidgetSpecificControls(props: Props) {
   let searchableColumn = null;
   let aliases = null;
+  let otherFields = null;
+  const formConfig: Record<string, unknown> = useFormConfig();
 
   if (props.hasSearchableColumn) {
     searchableColumn = (
@@ -41,10 +46,20 @@ export default function WidgetSpecificControls(props: Props) {
     });
   }
 
+  if (props.otherFields?.length) {
+    otherFields = props.otherFields.map((field) => {
+      const isVisible = field.isVisible && field.isVisible(formConfig);
+      return isVisible ? (
+        <OtherFieldComponent field={field} key={field.name} />
+      ) : null;
+    });
+  }
+
   return (
     <>
       {searchableColumn}
       {aliases}
+      {otherFields}
     </>
   );
 }

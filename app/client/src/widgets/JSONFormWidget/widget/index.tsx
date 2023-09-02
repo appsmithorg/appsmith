@@ -1,6 +1,6 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
-import { debounce, difference, isEmpty, noop, merge } from "lodash";
+import { debounce, difference, isEmpty, merge, noop } from "lodash";
 import { klona } from "klona";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -36,6 +36,7 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import { RenderModes } from "constants/WidgetConstants";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -91,7 +92,6 @@ class JSONFormWidget extends BaseWidget<
 
   constructor(props: JSONFormWidgetProps) {
     super(props);
-
     this.debouncedParseAndSaveFieldState = debounce(
       this.parseAndSaveFieldState,
       SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT,
@@ -100,6 +100,7 @@ class JSONFormWidget extends BaseWidget<
     this.isWidgetMounting = true;
     this.actionQueue = [];
   }
+
   formRef = React.createRef<HTMLDivElement>();
 
   state = {
@@ -131,12 +132,24 @@ class JSONFormWidget extends BaseWidget<
     };
   }
 
-  static getQueryGenerationConfig(widget: WidgetProps) {
-    return {
-      create: {
-        value: `(${widget.widgetName}.formData || {})`,
-      },
-    };
+  static getQueryGenerationConfig(
+    widget: WidgetProps,
+    formConfig?: WidgetQueryGenerationFormConfig,
+  ) {
+    if (formConfig?.otherFields?.formType === "create") {
+      return {
+        create: {
+          value: `(${widget.widgetName}.formData || {})`,
+        },
+      };
+    } else {
+      return {
+        update: {
+          value: `${widget.widgetName}.formData`,
+          where: formConfig?.otherFields?.defaultValues as string,
+        },
+      };
+    }
   }
 
   static getPropertyUpdatesForQueryBinding(
@@ -145,6 +158,8 @@ class JSONFormWidget extends BaseWidget<
     formConfig: WidgetQueryGenerationFormConfig,
   ) {
     let modify = {};
+    const dynamicPropertyPathList: DynamicPath[] = [];
+
     if (queryConfig.create) {
       modify = {
         sourceData: getDefaultValues(formConfig),
@@ -152,8 +167,26 @@ class JSONFormWidget extends BaseWidget<
       };
     }
 
+    if (queryConfig.update) {
+      const primaryKey = formConfig?.primaryColumn;
+      const selectedColumnNames = formConfig.columns.map(
+        (column) => `${column.name}`,
+      );
+      modify = {
+        sourceData: `{{_.pick(${
+          formConfig?.otherFields?.defaultValues
+        },${selectedColumnNames.map((name) => `'${name}'`).join(",")})}}`,
+        title: `Update Row ${primaryKey} {{${formConfig?.otherFields?.defaultValues}.${primaryKey}}}`,
+        onSubmit: queryConfig?.update.run,
+      };
+    }
+
+    dynamicPropertyPathList.push({ key: "sourceData" });
     return {
       modify,
+      dynamicUpdates: {
+        dynamicPropertyPathList,
+      },
     };
   }
 
@@ -323,7 +356,6 @@ class JSONFormWidget extends BaseWidget<
     const pathListFromProps = (this.props.dynamicPropertyPathList || []).map(
       ({ key }) => key,
     );
-
     const newPaths = difference(pathListFromSchema, pathListFromProps);
 
     return [...pathListFromProps, ...newPaths].map((path) => ({ key: path }));
@@ -359,6 +391,8 @@ class JSONFormWidget extends BaseWidget<
 
     const prevSourceData = this.getPreviousSourceData(prevProps);
     const currSourceData = this.props?.sourceData;
+    const prevDynamicPropertyPathList =
+      prevProps?.dynamicPropertyPathList || [];
 
     const computedSchema = computeSchema({
       currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,
@@ -367,6 +401,7 @@ class JSONFormWidget extends BaseWidget<
       prevSourceData,
       widgetName: this.props.widgetName,
       fieldThemeStylesheets: this.props.childStylesheet,
+      prevDynamicPropertyPathList,
     });
     const {
       dynamicPropertyPathList,

@@ -13,11 +13,13 @@ const LeftSection = styled.div`
   width: calc(100% - 16px);
   display: flex;
   align-items: center;
+  height: 100%;
 `;
 
 const IconContainer = styled.div`
   width: 24px;
   display: flex;
+  align-items: center;
 `;
 
 const Label = styled.div`

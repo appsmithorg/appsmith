@@ -107,8 +107,11 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
-    getQueryGenerationConfig: (widgetProps: WidgetProps) => {
-      return Widget.getQueryGenerationConfig(widgetProps);
+    getQueryGenerationConfig: (
+      widgetProps: WidgetProps,
+      formConfig?: WidgetQueryGenerationFormConfig,
+    ) => {
+      return Widget.getQueryGenerationConfig(widgetProps, formConfig);
     },
     getPropertyUpdatesForQueryBinding: (
       queryConfig: WidgetQueryConfig,

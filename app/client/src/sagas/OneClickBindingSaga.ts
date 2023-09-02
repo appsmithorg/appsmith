@@ -112,7 +112,10 @@ function* BindWidgetToDatasource(
       widget.type,
     );
 
-    const widgetQueryGenerationConfig = getQueryGenerationConfig(widget);
+    const widgetQueryGenerationConfig = getQueryGenerationConfig(
+      widget,
+      action.payload,
+    );
 
     const widgetQueryGenerator = WidgetQueryGeneratorRegistry.get(
       plugin.packageName,
@@ -233,11 +236,14 @@ function* BindWidgetToDatasource(
       }
 
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.UPDATE])) {
+        const selectQuery = queryNameMap[QUERY_TYPE.SELECT]
+          ? `${queryNameMap[QUERY_TYPE.SELECT]}.run()`
+          : "";
         queryBindingConfig[QUERY_TYPE.UPDATE] = {
           data: `{{${queryNameMap[QUERY_TYPE.UPDATE]}.data}}`,
           run: `{{${queryNameMap[QUERY_TYPE.UPDATE]}.run(() => {
             showAlert("Successfully saved!");
-            ${queryNameMap[QUERY_TYPE.SELECT]}.run();
+            ${selectQuery}
           }, () => {
             showAlert("Unable to save!");
           })}}`,

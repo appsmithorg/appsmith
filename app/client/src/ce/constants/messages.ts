@@ -1942,6 +1942,9 @@ export const COLUMN_NAME = () => "Column name";
 export const EDIT_FIELDS_DISABLED_TOOLTIP_TEXT = () =>
   "Select a table to edit fields";
 
+export const SAVE_CHANGES_DISABLED_TOOLTIP_TEXT = () =>
+  "You have to select at least 1 field to save";
+
 // JSON Form
 export const NO_FIELDS_ADDED = () => "No fields added";
 export const JSON_FORM_CONNECT_OVERLAY_TEXT = () =>
@@ -1952,3 +1955,15 @@ export const JSON_FORM_CONNECT_BUTTON_TEXT = () => "Generate form";
 export const TABLE_CONNECT_OVERLAY_TEXT = () =>
   "Connect your data or use sample data to display table";
 export const TABLE_CONNECT_BUTTON_TEXT = () => "Connect data";
+
+// One click binding control
+export const DATASOURCE_DROPDOWN_OPTIONS = {
+  CONNECT_TO_QUERY: () => "Connect to query",
+  CONNECT_TO: () => "Connect to",
+  CHOOSE_DATASOURCE_TO_CONNECT: () => "Choose datasource to connect",
+  CREATE_OR_EDIT_RECORDS: () => "Create or Edit records",
+  WRITE_JSON_SCHEMA: () => "Write JSON schema",
+  SELECT_A_DATASOURCE: () => "Select a datasource",
+  CONNECT_DATA: () => "Connect data",
+  OTHER_ACTIONS: () => "Other actions",
+};

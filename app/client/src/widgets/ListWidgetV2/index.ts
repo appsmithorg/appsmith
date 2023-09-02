@@ -249,7 +249,11 @@ export const CONFIG = {
       operations: [
         {
           type: BlueprintOperationTypes.MODIFY_PROPS,
-          fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
+          fn: (
+            widget: WidgetProps & {
+              children?: WidgetProps[];
+            },
+          ) => {
             // List > Canvas > Container > Canvas > Widgets
             const mainCanvas = get(widget, "children.0");
             const containerId = get(widget, "children.0.children.0");
@@ -389,10 +393,14 @@ export const CONFIG = {
         {
           type: BlueprintOperationTypes.CHILD_OPERATIONS,
           fn: (
-            widgets: { [widgetId: string]: FlattenedWidgetProps },
+            widgets: {
+              [widgetId: string]: FlattenedWidgetProps;
+            },
             widgetId: string,
             parentId: string,
-            widgetPropertyMaps: { defaultPropertyMap: Record<string, string> },
+            widgetPropertyMaps: {
+              defaultPropertyMap: Record<string, string>;
+            },
             isAutoLayout: boolean,
           ) => {
             if (!parentId) return { widgets };
@@ -411,7 +419,9 @@ export const CONFIG = {
         {
           type: BlueprintOperationTypes.BEFORE_ADD,
           fn: (
-            widgets: { [widgetId: string]: FlattenedWidgetProps },
+            widgets: {
+              [widgetId: string]: FlattenedWidgetProps;
+            },
             widgetId: string,
             parentId: string,
           ) => {
@@ -430,7 +440,9 @@ export const CONFIG = {
         {
           type: BlueprintOperationTypes.BEFORE_PASTE,
           fn: (
-            widgets: { [widgetId: string]: FlattenedWidgetProps },
+            widgets: {
+              [widgetId: string]: FlattenedWidgetProps;
+            },
             widgetId: string,
             parentId: string,
           ) => {
@@ -452,7 +464,9 @@ export const CONFIG = {
         {
           type: BlueprintOperationTypes.BEFORE_DROP,
           fn: (
-            widgets: { [widgetId: string]: FlattenedWidgetProps },
+            widgets: {
+              [widgetId: string]: FlattenedWidgetProps;
+            },
             widgetId: string,
             parentId: string,
           ) => {
@@ -495,6 +509,9 @@ export const CONFIG = {
           isDynamicPropertyPath: true,
         },
       ];
+    },
+    getOneClickBindingConnectableWidgetConfig: (widget: WidgetProps) => {
+      return `${widget.widgetName}.selectedItem`;
     },
   },
   autoLayout: {

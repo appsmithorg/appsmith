@@ -18,8 +18,8 @@ import { getFeatureWalkthroughShown } from "utils/storage";
 const Wrapper = styled.div`
   position: absolute;
   z-index: 9;
-  top: 0px;
-  left: 0pc;
+  top: 0;
+  left: 0;
   height: 100%;
   width: 100%;
   background: #ffffff61;
@@ -29,7 +29,6 @@ const Wrapper = styled.div`
 `;
 
 const Container = styled.div`
-  max-width: 440px;
   text-align: center;
   width: 100%;
   display: flex;

@@ -1,12 +1,13 @@
 import WidgetQueryGeneratorForm from "components/editorComponents/WidgetQueryGeneratorForm";
-import type { Alias } from "components/editorComponents/WidgetQueryGeneratorForm/types";
+import type {
+  Alias,
+  OtherField,
+} from "components/editorComponents/WidgetQueryGeneratorForm/types";
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import {
-  TABLE_CONNECT_BUTTON_TEXT,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { DROPDOWN_VARIANT } from "../editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
+
 class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   constructor(props: OneClickBindingControlProps) {
     super(props);
@@ -52,7 +53,6 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
       this.props.widgetProperties.__evaluation__?.errors?.[
         this.props.propertyName
       ];
-
     if (errorObj?.[0]?.errorMessage) {
       return errorObj[0].errorMessage.message;
     } else {
@@ -67,14 +67,17 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
         allowFieldConfigurations={
           this.props.controlConfig?.allowFieldConfigurations
         }
-        ctaText={
-          this.props.controlConfig.ctaText ||
-          createMessage(TABLE_CONNECT_BUTTON_TEXT)
+        ctaText={this.props.controlConfig?.ctaText}
+        datasourceDropdownVariant={
+          this.props.controlConfig?.datasourceDropdownVariant ||
+          DROPDOWN_VARIANT.DATA
         }
         errorMsg={this.getErrorMessage()}
         excludePrimaryColumn={this.props.controlConfig?.excludePrimaryColumn}
         expectedType={this.props.expected?.autocompleteDataType || ""}
+        isConnectableToWidget={this.props.controlConfig?.isConnectableToWidget}
         onUpdate={this.onUpdatePropertyValue}
+        otherFields={this.props.controlConfig.otherFields}
         propertyPath={this.props.propertyName}
         propertyValue={this.props.propertyValue}
         sampleData={this.props.controlConfig.sampleData}
@@ -90,10 +93,13 @@ export default OneClickBindingControl;
 export type OneClickBindingControlProps = ControlProps & {
   controlConfig: {
     aliases: Alias[];
-    searchableColumn: boolean;
-    sampleData: string;
     allowFieldConfigurations: boolean;
-    ctaText: string;
     excludePrimaryColumn: boolean;
+    otherFields: OtherField[];
+    sampleData: string;
+    searchableColumn: boolean;
+    isConnectableToWidget: boolean;
+    ctaText: string;
+    datasourceDropdownVariant: DROPDOWN_VARIANT;
   };
 };

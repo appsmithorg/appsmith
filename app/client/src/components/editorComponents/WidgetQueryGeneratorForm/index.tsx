@@ -14,11 +14,12 @@ import {
   getOneClickBindingConfigForWidget,
 } from "selectors/oneClickBindingSelectors";
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
-import type { Alias } from "./types";
+import type { Alias, OtherField } from "./types";
 import {
-  TABLE_CONNECT_BUTTON_TEXT,
   createMessage,
+  TABLE_CONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
+import { DROPDOWN_VARIANT } from "./CommonControls/DatasourceDropdown/types";
 
 type WidgetQueryGeneratorFormContextType = {
   widgetId: string;
@@ -35,7 +36,7 @@ type WidgetQueryGeneratorFormContextType = {
     datasourcePluginName: string;
     datasourceConnectionMode: string;
     selectedColumns?: Array<Record<string, unknown>>;
-    excludePrimaryColumn?: boolean;
+    otherFields?: Record<string, unknown>;
   };
   updateConfig: (
     property: string | Record<string, unknown>,
@@ -48,6 +49,10 @@ type WidgetQueryGeneratorFormContextType = {
   expectedType: string;
   sampleData: string;
   aliases: Alias[];
+  otherFields: OtherField[];
+  excludePrimaryColumn?: boolean;
+  isConnectableToWidget?: boolean;
+  datasourceDropdownVariant: DROPDOWN_VARIANT;
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -60,7 +65,7 @@ const DEFAULT_CONFIG_VALUE = {
   datasourcePluginType: "",
   datasourcePluginName: "",
   datasourceConnectionMode: "",
-  excludePrimaryColumn: false,
+  otherFields: {},
 };
 
 const DEFAULT_CONTEXT_VALUE = {
@@ -76,6 +81,10 @@ const DEFAULT_CONTEXT_VALUE = {
   expectedType: "",
   sampleData: "",
   aliases: [],
+  otherFields: [],
+  excludePrimaryColumn: false,
+  isConnectableToWidget: false,
+  datasourceDropdownVariant: DROPDOWN_VARIANT.DATA,
 };
 
 export const WidgetQueryGeneratorFormContext =
@@ -94,8 +103,11 @@ type Props = {
   searchableColumn: boolean;
   sampleData: string;
   allowFieldConfigurations?: boolean;
-  ctaText?: string;
   excludePrimaryColumn?: boolean;
+  otherFields?: OtherField[];
+  isConnectableToWidget?: boolean;
+  datasourceDropdownVariant: DROPDOWN_VARIANT;
+  ctaText?: string;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -116,6 +128,9 @@ function WidgetQueryGeneratorForm(props: Props) {
     sampleData,
     searchableColumn,
     widgetId,
+    otherFields = [],
+    isConnectableToWidget,
+    datasourceDropdownVariant,
   } = props;
 
   const isSourceOpen = useSelector(getIsOneClickBindingOptionsVisibility);
@@ -223,6 +238,10 @@ function WidgetQueryGeneratorForm(props: Props) {
       expectedType,
       sampleData,
       aliases,
+      otherFields,
+      excludePrimaryColumn,
+      isConnectableToWidget,
+      datasourceDropdownVariant,
     };
   }, [
     config,
@@ -236,11 +255,11 @@ function WidgetQueryGeneratorForm(props: Props) {
     propertyPath,
     sampleData,
     aliases,
+    otherFields,
+    excludePrimaryColumn,
+    isConnectableToWidget,
+    datasourceDropdownVariant,
   ]);
-
-  useEffect(() => {
-    updateConfig("excludePrimaryColumn", excludePrimaryColumn);
-  }, [excludePrimaryColumn]);
 
   useEffect(() => {
     if (!pristine && propertyValue && !isConnecting) {
@@ -256,6 +275,7 @@ function WidgetQueryGeneratorForm(props: Props) {
         <WidgetSpecificControls
           aliases={aliases}
           hasSearchableColumn={searchableColumn}
+          otherFields={otherFields}
         />
         <ConnectData btnText={ctaText} />
       </WidgetQueryGeneratorFormContext.Provider>
