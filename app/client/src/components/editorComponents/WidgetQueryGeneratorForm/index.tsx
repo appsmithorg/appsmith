@@ -16,9 +16,10 @@ import {
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
 import type { Alias, OtherField } from "./types";
 import {
-  TABLE_CONNECT_BUTTON_TEXT,
   createMessage,
+  TABLE_CONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
+import { DROPDOWN_VARIANT } from "./CommonControls/DatasourceDropdown/types";
 
 type WidgetQueryGeneratorFormContextType = {
   widgetId: string;
@@ -51,7 +52,7 @@ type WidgetQueryGeneratorFormContextType = {
   otherFields: OtherField[];
   excludePrimaryColumn?: boolean;
   isConnectableToWidget?: boolean;
-  constants?: Record<string, string>;
+  datasourceDropdownVariant: DROPDOWN_VARIANT;
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -83,7 +84,7 @@ const DEFAULT_CONTEXT_VALUE = {
   otherFields: [],
   excludePrimaryColumn: false,
   isConnectableToWidget: false,
-  constants: {},
+  datasourceDropdownVariant: DROPDOWN_VARIANT.DATA,
 };
 
 export const WidgetQueryGeneratorFormContext =
@@ -105,7 +106,8 @@ type Props = {
   excludePrimaryColumn?: boolean;
   otherFields?: OtherField[];
   isConnectableToWidget?: boolean;
-  constants?: Record<string, string>;
+  datasourceDropdownVariant: DROPDOWN_VARIANT;
+  ctaText?: string;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -116,6 +118,7 @@ function WidgetQueryGeneratorForm(props: Props) {
   const {
     aliases,
     allowFieldConfigurations = false,
+    ctaText = createMessage(TABLE_CONNECT_BUTTON_TEXT),
     errorMsg,
     excludePrimaryColumn,
     expectedType,
@@ -127,7 +130,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     widgetId,
     otherFields = [],
     isConnectableToWidget,
-    constants,
+    datasourceDropdownVariant,
   } = props;
 
   const isSourceOpen = useSelector(getIsOneClickBindingOptionsVisibility);
@@ -238,7 +241,7 @@ function WidgetQueryGeneratorForm(props: Props) {
       otherFields,
       excludePrimaryColumn,
       isConnectableToWidget,
-      constants,
+      datasourceDropdownVariant,
     };
   }, [
     config,
@@ -255,7 +258,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     otherFields,
     excludePrimaryColumn,
     isConnectableToWidget,
-    constants,
+    datasourceDropdownVariant,
   ]);
 
   useEffect(() => {
@@ -274,11 +277,7 @@ function WidgetQueryGeneratorForm(props: Props) {
           hasSearchableColumn={searchableColumn}
           otherFields={otherFields}
         />
-        <ConnectData
-          btnText={
-            constants?.ctaText || createMessage(TABLE_CONNECT_BUTTON_TEXT)
-          }
-        />
+        <ConnectData btnText={ctaText} />
       </WidgetQueryGeneratorFormContext.Provider>
     </Wrapper>
   );

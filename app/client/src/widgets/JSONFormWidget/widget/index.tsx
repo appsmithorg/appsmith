@@ -1,6 +1,6 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
-import { debounce, difference, isEmpty, noop, merge } from "lodash";
+import { debounce, difference, isEmpty, merge, noop } from "lodash";
 import { klona } from "klona";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -36,6 +36,7 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import { RenderModes } from "constants/WidgetConstants";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -91,7 +92,6 @@ class JSONFormWidget extends BaseWidget<
 
   constructor(props: JSONFormWidgetProps) {
     super(props);
-
     this.debouncedParseAndSaveFieldState = debounce(
       this.parseAndSaveFieldState,
       SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT,
@@ -158,6 +158,8 @@ class JSONFormWidget extends BaseWidget<
     formConfig: WidgetQueryGenerationFormConfig,
   ) {
     let modify = {};
+    const dynamicPropertyPathList: DynamicPath[] = [];
+
     if (queryConfig.create) {
       modify = {
         sourceData: getDefaultValues(formConfig),
@@ -179,8 +181,12 @@ class JSONFormWidget extends BaseWidget<
       };
     }
 
+    dynamicPropertyPathList.push({ key: "sourceData" });
     return {
       modify,
+      dynamicUpdates: {
+        dynamicPropertyPathList,
+      },
     };
   }
 
@@ -350,7 +356,6 @@ class JSONFormWidget extends BaseWidget<
     const pathListFromProps = (this.props.dynamicPropertyPathList || []).map(
       ({ key }) => key,
     );
-
     const newPaths = difference(pathListFromSchema, pathListFromProps);
 
     return [...pathListFromProps, ...newPaths].map((path) => ({ key: path }));
@@ -386,6 +391,8 @@ class JSONFormWidget extends BaseWidget<
 
     const prevSourceData = this.getPreviousSourceData(prevProps);
     const currSourceData = this.props?.sourceData;
+    const prevDynamicPropertyPathList =
+      prevProps?.dynamicPropertyPathList || [];
 
     const computedSchema = computeSchema({
       currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,
@@ -394,6 +401,7 @@ class JSONFormWidget extends BaseWidget<
       prevSourceData,
       widgetName: this.props.widgetName,
       fieldThemeStylesheets: this.props.childStylesheet,
+      prevDynamicPropertyPathList,
     });
     const {
       dynamicPropertyPathList,

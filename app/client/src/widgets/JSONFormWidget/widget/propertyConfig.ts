@@ -1,11 +1,9 @@
 import { Alignment } from "@blueprintjs/core";
-
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-// import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import type { JSONFormWidgetProps } from ".";
@@ -15,10 +13,10 @@ import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyC
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   createMessage,
-  DATASOURCE_DROPDOWN_OPTIONS,
   JSON_FORM_CONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { FieldOptionsType } from "../../../components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
+import { FieldOptionsType } from "components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
+import { DROPDOWN_VARIANT } from "components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
 
 const MAX_NESTING_LEVEL = 5;
 
@@ -32,7 +30,7 @@ export const sourceDataValidationFn = (
   if (value === "") {
     return {
       isValid: false,
-      parsed: {},
+      parsed: value,
       messages: [
         {
           name: "ValidationError",
@@ -90,7 +88,7 @@ export const sourceDataValidationFn = (
   } catch (e) {
     return {
       isValid: false,
-      parsed: value,
+      parsed: JSON.parse(value as string),
       messages: [e as Error],
     };
   }
@@ -101,7 +99,6 @@ export const onGenerateFormClick = ({
   props,
 }: OnButtonClickProps) => {
   const widgetProperties: JSONFormWidgetProps = props.widgetProperties;
-
   if (widgetProperties.autoGenerateForm) return;
 
   const currSourceData = widgetProperties[EVALUATION_PATH]?.evaluatedValues
@@ -153,28 +150,10 @@ export const contentConfig = [
         controlType: "ONE_CLICK_BINDING_CONTROL",
         controlConfig: {
           allowFieldConfigurations: true,
-          constants: {
-            ctaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
-            connectToText: createMessage(
-              DATASOURCE_DROPDOWN_OPTIONS.CONNECT_TO,
-            ),
-            bindDatasourceText: createMessage(
-              DATASOURCE_DROPDOWN_OPTIONS.CREATE_OR_EDIT_RECORDS,
-            ),
-            schemaText: createMessage(
-              DATASOURCE_DROPDOWN_OPTIONS.WRITE_JSON_SCHEMA,
-            ),
-            sourceDataPlaceholderText: createMessage(
-              DATASOURCE_DROPDOWN_OPTIONS.SELECT_A_DATASOURCE,
-            ),
-          },
+          datasourceDropdownVariant: DROPDOWN_VARIANT.SCHEMA,
           ctaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
           excludePrimaryColumn: true,
           isConnectableToWidget: true,
-          sampleData: {
-            name: "John Doe",
-            age: 29,
-          },
           otherFields: [
             {
               label: "Form Type",

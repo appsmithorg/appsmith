@@ -6,6 +6,7 @@ import type {
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
+import { DROPDOWN_VARIANT } from "../editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
 
 class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   constructor(props: OneClickBindingControlProps) {
@@ -66,7 +67,11 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
         allowFieldConfigurations={
           this.props.controlConfig?.allowFieldConfigurations
         }
-        constants={this.props.controlConfig?.constants}
+        ctaText={this.props.controlConfig?.ctaText}
+        datasourceDropdownVariant={
+          this.props.controlConfig?.datasourceDropdownVariant ||
+          DROPDOWN_VARIANT.DATA
+        }
         errorMsg={this.getErrorMessage()}
         excludePrimaryColumn={this.props.controlConfig?.excludePrimaryColumn}
         expectedType={this.props.expected?.autocompleteDataType || ""}
@@ -94,6 +99,7 @@ export type OneClickBindingControlProps = ControlProps & {
     sampleData: string;
     searchableColumn: boolean;
     isConnectableToWidget: boolean;
-    constants: Record<string, string>;
+    ctaText: string;
+    datasourceDropdownVariant: DROPDOWN_VARIANT;
   };
 };

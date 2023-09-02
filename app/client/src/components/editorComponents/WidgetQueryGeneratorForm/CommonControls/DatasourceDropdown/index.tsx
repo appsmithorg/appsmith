@@ -1,16 +1,15 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { Bold, ErrorMessage, SelectWrapper } from "../../styles";
-import { useDatasource } from "./useDatasource";
 import {
   Icon,
   Menu,
-  MenuTrigger,
   MenuContent,
   MenuGroupName,
-  Text,
   MenuItem,
   MenuSeparator,
+  MenuTrigger,
   SearchInput,
+  Text,
 } from "design-system";
 import { DropdownOption, LoadMoreOptions } from "./DropdownOption";
 import styled from "styled-components";
@@ -20,6 +19,7 @@ import {
   createMessage,
   DATASOURCE_DROPDOWN_OPTIONS,
 } from "@appsmith/constants/messages";
+import useSource from "./useSource";
 
 const StyledDropdownTrigger = styled.div<{
   isDisabled: boolean;
@@ -84,7 +84,7 @@ function DatasourceDropdown() {
     onSourceClose,
     otherOptions,
     selected,
-  } = useDatasource(searchText);
+  } = useSource(searchText);
 
   const [open, setOpen] = useState(false);
 
@@ -143,10 +143,7 @@ function DatasourceDropdown() {
 
             {!!connectToOptions.length && (
               <StyledMenuGroupName data-testId="t--one-click-binding-datasource-selector--bind-to-query">
-                <Text kind="heading-xs">
-                  {constants?.connectToText ||
-                    createMessage(DATASOURCE_DROPDOWN_OPTIONS.CONNECT_TO_QUERY)}
-                </Text>
+                <Text kind="heading-xs">{constants?.connectToText}</Text>
               </StyledMenuGroupName>
             )}
 
@@ -192,12 +189,7 @@ function DatasourceDropdown() {
 
             {!!datasourceOptions.length && (
               <StyledMenuGroupName data-testid="t--one-click-binding-datasource-selector--generate-a-query">
-                <Text kind="heading-xs">
-                  {constants?.bindDatasourceText ||
-                    createMessage(
-                      DATASOURCE_DROPDOWN_OPTIONS.CHOOSE_DATASOURCE_TO_CONNECT,
-                    )}
-                </Text>
+                <Text kind="heading-xs">{constants?.bindDatasourceText}</Text>
               </StyledMenuGroupName>
             )}
 
