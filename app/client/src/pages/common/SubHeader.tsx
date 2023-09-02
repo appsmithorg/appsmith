@@ -14,18 +14,22 @@ import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { CONTAINER_WRAPPER_PADDING } from "@appsmith/pages/Applications";
 
 const SubHeaderWrapper = styled.div<{
   isMobile?: boolean;
   isBannerVisible?: boolean;
 }>`
-  width: ${({ isMobile }) => (isMobile ? `100%` : `250px`)};
+  width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};
   display: flex;
   justify-content: space-between;
   ${(props) => (props.isBannerVisible ? "margin-top: 96px" : "")};
   background: var(--ads-v2-color-bg);
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
-  ${({ isMobile }) => isMobile && `padding: 12px 16px; margin: 0px;`}
+  ${({ isMobile }) =>
+    isMobile
+      ? `padding: 12px 16px; margin: 0px;`
+      : `padding: 0 ${CONTAINER_WRAPPER_PADDING} 12px ${CONTAINER_WRAPPER_PADDING};`}
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;

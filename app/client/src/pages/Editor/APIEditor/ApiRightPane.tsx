@@ -187,9 +187,7 @@ const API_RIGHT_PANE_TABS = {
 };
 function ApiRightPane(props: any) {
   const dispatch = useDispatch();
-  const { entityDependencies, hasDependencies } = useEntityDependencies(
-    props.actionName,
-  );
+  const { hasDependencies } = useEntityDependencies(props.actionName);
   const selectedTab = useSelector(getApiRightPaneSelectedTab);
   const currentEnvironmentId = useSelector(getCurrentEnvironmentId);
 
@@ -314,7 +312,6 @@ function ApiRightPane(props: any) {
                 actionName={props.actionName}
                 context={DatasourceStructureContext.API_EDITOR}
                 datasourceId={props.datasourceId}
-                entityDependencies={entityDependencies}
                 hasConnections={hasDependencies}
                 hasResponse={props.hasResponse}
                 pluginId={props.pluginId}

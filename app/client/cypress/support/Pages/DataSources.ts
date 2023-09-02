@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
+import { WALKTHROUGH_TEST_PAGE } from "../Constants";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -267,6 +268,8 @@ export class DataSources {
   _s3EditFileName =
     "[data-widgetname-cy='update_file_name'] div[data-testid='input-container']";
   _s3MaxFileSizeAlert = "//p[@role='alert']";
+  _entityExplorerID = (dsName: string) =>
+    "[data-testid='t--entity-item-" + dsName + "']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
