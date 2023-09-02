@@ -6,7 +6,10 @@ import com.appsmith.server.dtos.UserSessionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.TimeoutOptions;
+import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.resource.ClientResources;
 import io.micrometer.observation.ObservationRegistry;
@@ -41,6 +44,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -106,7 +110,26 @@ public class RedisConfig {
             }
         }
 
-        return isCluster ? RedisClusterClient.create(redisURL) : RedisClient.create(redisURL);
+        if (isCluster) {
+            RedisClusterClient redisClusterClient = RedisClusterClient.create(redisURL);
+            redisClusterClient.setOptions(ClusterClientOptions.builder()
+                    .timeoutOptions(TimeoutOptions.builder()
+                            .timeoutCommands(true)
+                            .fixedTimeout(Duration.ofMillis(2000))
+                            .build())
+                    .build());
+            return redisClusterClient;
+        }
+
+        RedisClient redisClient = RedisClient.create(redisURL);
+        redisClient.setOptions(ClientOptions.builder()
+                .timeoutOptions(TimeoutOptions.builder()
+                        .timeoutCommands(true)
+                        .fixedTimeout(Duration.ofMillis(2000))
+                        .build())
+                .build());
+
+        return redisClient;
     }
 
     private void fillAuthentication(URI redisUri, RedisConfiguration.WithAuthentication config) {
