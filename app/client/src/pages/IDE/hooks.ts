@@ -1,8 +1,13 @@
 import { useRouteMatch } from "react-router";
 import { IDE_PAGE_NAV_PATH, IDE_PATH } from "../../constants/routes";
+import type { IDEAppState } from "./ideReducer";
 
-export const useIDENavState = (): [{ ideState?: string; pageNav?: string }] => {
-  const appNavState = useRouteMatch<{ ideState: string }>({ path: IDE_PATH });
+export const useIDENavState = (): [
+  { ideState?: IDEAppState; pageNav?: string },
+] => {
+  const appNavState = useRouteMatch<{ ideState: IDEAppState }>({
+    path: IDE_PATH,
+  });
   const pageNavState = useRouteMatch<{ pageNav: string }>({
     path: IDE_PAGE_NAV_PATH,
   });

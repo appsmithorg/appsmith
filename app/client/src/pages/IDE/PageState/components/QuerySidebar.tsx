@@ -3,7 +3,7 @@ import type { RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getActions,
+  getActionsForCurrentPage,
   getPlugins,
   selectFilesForExplorer,
 } from "../../../../selectors/entitiesSelector";
@@ -41,7 +41,7 @@ const QuerySidebar = (props: Props) => {
   const dispatch = useDispatch();
   const { actionId, pageId } = props.match.params;
   const [pageState, setPageState] = useState<TabState>(TabState.LIST);
-  const actions = useSelector(getActions);
+  const actions = useSelector(getActionsForCurrentPage);
   const action = find(actions, (action) => action.config.id === actionId);
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
@@ -143,11 +143,17 @@ const QuerySidebar = (props: Props) => {
       break;
     case TabState.EDIT:
       title = action?.config.name || "";
-      rightIcon = (
-        <Button kind={"secondary"} onClick={() => setPageState(TabState.LIST)}>
-          {actions.length - 1} More
-        </Button>
-      );
+      if (actions.length > 1) {
+        rightIcon = (
+          <Button
+            kind={"secondary"}
+            onClick={() => setPageState(TabState.LIST)}
+          >
+            {actions.length - 1} More
+          </Button>
+        );
+      }
+
       leftIcon = (
         <Button
           isIconButton
