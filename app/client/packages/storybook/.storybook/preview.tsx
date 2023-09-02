@@ -2,6 +2,8 @@ import { theming } from "./decorators/theming";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "./styles.css";
+import { DocsContainer } from "@storybook/addon-docs";
+import { StoryThemeProvider } from "../src";
 
 export const decorators = [theming];
 
@@ -54,13 +56,22 @@ const preview = {
   globalTypes: {
     colorMode: {},
     borderRadius: {},
-    accentColor: {},
+    seedColor: {},
     fontFamily: {},
     rootUnitRatio: {},
   },
   parameters: {
     viewport: { viewports: customViewports },
     actions: { argTypesRegex: "^on[A-Z].*" },
+    docs: {
+      container: ({ children, context }) => (
+        <DocsContainer context={context}>
+          <StoryThemeProvider theme={context.store.globals.globals}>
+            {children}
+          </StoryThemeProvider>
+        </DocsContainer>
+      ),
+    },
   },
 };
 

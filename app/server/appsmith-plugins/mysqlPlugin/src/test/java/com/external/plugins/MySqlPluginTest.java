@@ -60,6 +60,7 @@ import static java.lang.Boolean.TRUE;
 import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -188,6 +189,12 @@ public class MySqlPluginTest {
         datasourceConfiguration.getConnection().setSsl(new SSLDetails());
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
 
+        /* Set connection method toggle to `Standard` */
+        ArrayList<Property> properties = new ArrayList<>();
+        properties.add(null);
+        properties.add(new Property("Connection method", "Standard"));
+        datasourceConfiguration.setProperties(properties);
+
         return datasourceConfiguration;
     }
 
@@ -197,7 +204,12 @@ public class MySqlPluginTest {
         Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(connectionContextMono)
-                .assertNext(Assertions::assertNotNull)
+                .assertNext(connectionContext -> {
+                    assertTrue(connectionContext != null);
+                    assertTrue(connectionContext.getConnection() != null);
+                    assertFalse(connectionContext.getConnection().isDisposed());
+                    assertTrue(connectionContext.getSshTunnelContext() == null);
+                })
                 .verifyComplete();
     }
 

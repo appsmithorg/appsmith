@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import localForage from "localforage";
 
 const OnboardingLocator = require("../../locators/FirstTimeUserOnboarding.json");
 
@@ -115,6 +116,22 @@ export class Onboarding {
     cy.get("body").then(($body) => {
       if ($body.find(OnboardingLocator.introModalCloseBtn).length) {
         this._aggregateHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
+      }
+    });
+  }
+
+  skipSignposting() {
+    cy.get("body").then(($body) => {
+      if ($body.find(OnboardingLocator.introModalCloseBtn).length) {
+        cy.wrap(null).then(() => {
+          localForage.config({
+            name: "Appsmith",
+          });
+          // return a promise to cy.then() that
+          // is awaited until it resolves
+          return localForage.setItem("ENABLE_START_SIGNPOSTING", false);
+        });
+        cy.reload();
       }
     });
   }
