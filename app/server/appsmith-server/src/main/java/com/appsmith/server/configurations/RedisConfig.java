@@ -109,19 +109,20 @@ public class RedisConfig {
 
     @Bean
     public AbstractRedisClient redisClient() {
+        String redisurl = redisURL;
         final URI redisUri = URI.create(redisURL);
         String scheme = redisUri.getScheme();
         boolean isCluster = false;
         if ("redis-cluster".equalsIgnoreCase(scheme)) {
             isCluster = true;
             // java clients do not support redis-cluster scheme
-            if (redisURL.startsWith("redis-cluster://")) {
-                redisURL = "redis://" + redisURL.substring("redis-cluster://".length());
+            if (redisurl.startsWith("redis-cluster://")) {
+                redisurl = "redis://" + redisurl.substring("redis-cluster://".length());
             }
         }
 
         if (isCluster) {
-            RedisClusterClient redisClusterClient = RedisClusterClient.create(redisURL);
+            RedisClusterClient redisClusterClient = RedisClusterClient.create(redisurl);
             redisClusterClient.setOptions(ClusterClientOptions.builder()
                     .timeoutOptions(TimeoutOptions.builder()
                             .timeoutCommands(true)
@@ -131,7 +132,7 @@ public class RedisConfig {
             return redisClusterClient;
         }
 
-        RedisClient redisClient = RedisClient.create(redisURL);
+        RedisClient redisClient = RedisClient.create(redisurl);
         redisClient.setOptions(ClientOptions.builder()
                 .timeoutOptions(TimeoutOptions.builder()
                         .timeoutCommands(true)
