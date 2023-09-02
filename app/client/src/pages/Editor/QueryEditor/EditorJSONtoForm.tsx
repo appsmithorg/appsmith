@@ -31,13 +31,10 @@ import {
 } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
-import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
-import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   checkIfSectionCanRender,
   checkIfSectionIsEnabled,
@@ -49,11 +46,8 @@ import {
 import {
   ACTION_EDITOR_REFRESH,
   createMessage,
-  DEBUGGER_ERRORS,
-  DEBUGGER_LOGS,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
-  INSPECT_ENTITY,
   INVALID_FORM_CONFIGURATION,
   NO_DATASOURCE_FOR_QUERY,
   UNEXPECTED_ERROR,
@@ -106,7 +100,6 @@ import {
 } from "actions/debuggerActions";
 import {
   getDebuggerSelectedTab,
-  getErrorCount,
   getResponsePaneHeight,
   showDebuggerFlag,
 } from "selectors/debuggerSelectors";
@@ -347,7 +340,6 @@ type Props = EditorJSONtoFormProps &
 
 export function EditorJSONtoForm(props: Props) {
   const {
-    actionName,
     dataSources,
     documentationLink,
     editorConfig,
@@ -371,9 +363,6 @@ export function EditorJSONtoForm(props: Props) {
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
 
   const params = useParams<{ actionId: string }>();
-
-  // fetch the error count from the store.
-  const errorCount = useSelector(getErrorCount);
 
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
@@ -780,22 +769,6 @@ export function EditorJSONtoForm(props: Props) {
           )}
         </ResponseContentWrapper>
       ),
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      count: errorCount,
-      panelComponent: <ErrorLogs />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={actionName} />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-      title: createMessage(INSPECT_ENTITY),
-      panelComponent: <EntityDeps />,
     },
   ];
 

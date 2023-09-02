@@ -2,11 +2,12 @@ import React from "react";
 import styled from "styled-components";
 import classNames from "classnames";
 
-type Item = {
+export type Item = {
   key: string;
   name: string;
   icon: React.ReactNode;
   selected?: boolean;
+  [key: string]: any;
 };
 
 type Props = {
@@ -16,6 +17,8 @@ type Props = {
 
 const Container = styled.div`
   padding: 5px;
+  height: 100%;
+  overflow-y: scroll;
 `;
 const ListItem = styled.div`
   padding: 8px;

@@ -52,7 +52,6 @@ const TabContainer = styled.div`
   background-color: white;
   border-radius: 4px;
   height: calc(100vh - 44px - 44px - 40px);
-  overflow-y: scroll;
 `;
 
 const NavPill = styled.div`
