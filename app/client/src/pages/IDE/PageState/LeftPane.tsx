@@ -17,13 +17,13 @@ import history from "../../../utils/history";
 import { pageEntityUrl } from "../../../RouteBuilder";
 import { useDispatch } from "react-redux";
 import { SentryRoute } from "@appsmith/AppRouter";
-import PropertyPaneContainer from "../../Editor/WidgetsEditor/PropertyPaneContainer";
 import WidgetSidebar from "./components/WidgetSidebar";
 import { setIdeSidebarWidth } from "../ideActions";
 import QuerySidebar from "./components/QuerySidebar";
 import JSObjects from "./components/JSObjects";
 import { useIDENavState } from "../hooks";
 import useWindowDimensions from "../../../utils/hooks/useWindowDimensions";
+import PropertyPane from "./components/PropertyPane";
 
 const Container = styled.div`
   background-color: #f1f5f9;
@@ -149,7 +149,7 @@ const PageLeftPane = () => {
         <TabContainer>
           <Switch>
             <SentryRoute
-              component={PropertyPaneContainer}
+              component={PropertyPane}
               exact
               path={IDE_PAGE_UI_DETAIL_PATH}
             />

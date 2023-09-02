@@ -5,7 +5,7 @@ import classNames from "classnames";
 export type Item = {
   key: string;
   name: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   selected?: boolean;
   [key: string]: any;
 };

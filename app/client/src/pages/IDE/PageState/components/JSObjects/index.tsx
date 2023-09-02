@@ -15,7 +15,7 @@ type Props = RouteComponentProps<{
 }>;
 
 function JSObjects(props: Props) {
-  const { pageId } = props.match.params;
+  const { collectionId, pageId } = props.match.params;
   const dispatch = useDispatch();
   const addItemClick = useCallback(() => {
     dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
@@ -32,6 +32,7 @@ function JSObjects(props: Props) {
       name: a.entity.name,
       key: a.entity.id,
       type: a.type,
+      selected: a.entity.id === collectionId,
     }));
 
   const listItemClick = useCallback((a) => {

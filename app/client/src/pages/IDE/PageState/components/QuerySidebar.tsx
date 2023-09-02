@@ -61,6 +61,7 @@ const QuerySidebar = (props: Props) => {
     type: action.config.pluginType,
     pluginId: action.config.pluginId,
     icon: getPluginIcon(pluginGroups[action.config.pluginId]),
+    selected: action.config.id === actionId,
   }));
 
   const listItemClick = useCallback(
