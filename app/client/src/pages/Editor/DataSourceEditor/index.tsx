@@ -161,11 +161,11 @@ export const DSEditorWrapper = styled.div`
 `;
 
 export const CalloutContainer = styled.div<{
-  isSideBarPresent: boolean;
+  viewMode: boolean;
 }>`
   width: 30vw;
   margin-top: 24px;
-  margin-left: ${(props) => (props.isSideBarPresent ? "24px" : "0px")};
+  margin-left: ${(props) => (!props.viewMode ? "24px" : "0px")};
 `;
 
 export type DatasourceFilterState = {
@@ -648,7 +648,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   // function to render toast message.
   renderToast() {
-    const { datasource } = this.props;
+    const { datasource, viewMode } = this.props;
     const environmentId = this.getEnvironmentId() || "";
     const path = `datasourceStorages.${environmentId}.toastMessage`;
     const toastMessage = this.decodeToastMessage(
@@ -658,7 +658,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     );
     if (toastMessage.message)
       return (
-        <CalloutContainer isSideBarPresent={!!this.state.filterParams.name}>
+        <CalloutContainer viewMode={viewMode}>
           <Callout
             isClosable
             kind={toastMessage.kind as CalloutKind}
