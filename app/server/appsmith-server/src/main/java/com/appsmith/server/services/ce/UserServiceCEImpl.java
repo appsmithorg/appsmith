@@ -422,7 +422,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     @Override
-    public Mono<User> userCreate(User user, boolean isAdminUser) {
+    public Mono<User> userCreate(User user, boolean isAdminUser, String originHeader) {
         // It is assumed here that the user's password has already been encoded.
 
         // convert the user email to lowercase
@@ -446,7 +446,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .flatMap(this::addUserPoliciesAndSaveToRepo)
                 .flatMap(crudUser -> {
                     if (isAdminUser) {
-                        emailService.sendInstanceAdminInviteEmail(crudUser);
+                        emailService.sendInstanceAdminInviteEmail(crudUser, originHeader);
                         return userUtils.makeSuperUser(List.of(crudUser)).then(Mono.just(crudUser));
                     }
                     return Mono.just(crudUser);
@@ -498,6 +498,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         }
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
+        String finalOriginHeader = originHeader;
         return repository
                 .findByCaseInsensitiveEmail(user.getUsername())
                 .flatMap(savedUser -> {
@@ -517,7 +518,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
                 })
                 .switchIfEmpty(Mono.defer(() -> {
-                    return signupIfAllowed(user)
+                    return signupIfAllowed(user, finalOriginHeader)
                             .flatMap(savedUser -> {
                                 final UserSignupDTO userSignupDTO = new UserSignupDTO();
                                 userSignupDTO.setUser(savedUser);
@@ -570,7 +571,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * @param user User object representing the user to be created/enabled.
      * @return Publishes the user object, after having been saved.
      */
-    private Mono<User> signupIfAllowed(User user) {
+    private Mono<User> signupIfAllowed(User user, String originHeader) {
         boolean isAdminUser = false;
 
         if (!commonConfig.getAdminEmails().contains(user.getEmail())) {
@@ -598,7 +599,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         }
 
         // No special configurations found, allow signup for the new user.
-        return userCreate(user, isAdminUser).elapsed().map(pair -> {
+        return userCreate(user, isAdminUser, originHeader).elapsed().map(pair -> {
             log.debug("UserServiceCEImpl::Time taken for create user: {} ms", pair.getT1());
             return pair.getT2();
         });
@@ -656,7 +657,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         boolean isAdminUser = commonConfig.getAdminEmails().contains(email.toLowerCase());
         // Call user service's userCreate function so that the default workspace, etc are also created along with
         // assigning basic permissions.
-        return userCreate(newUser, isAdminUser);
+        return userCreate(newUser, isAdminUser, originHeader);
     }
 
     @Override
