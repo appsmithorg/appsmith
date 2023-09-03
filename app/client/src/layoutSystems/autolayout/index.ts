@@ -18,9 +18,8 @@ const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
   return autoDimensionConfig;
 };
 
-const getAutoLayoutComponentDimensions = ({
+export const getAutoLayoutComponentDimensions = ({
   bottomRow,
-  isFlexChild,
   isMobile,
   leftColumn,
   mobileBottomRow,
@@ -36,7 +35,7 @@ const getAutoLayoutComponentDimensions = ({
   let right = rightColumn;
   let top = topRow;
   let bottom = bottomRow;
-  if (isFlexChild && isMobile) {
+  if (isMobile) {
     if (mobileLeftColumn !== undefined && parentColumnSpace !== 1) {
       left = mobileLeftColumn;
     }

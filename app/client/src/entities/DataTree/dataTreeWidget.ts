@@ -15,6 +15,8 @@ import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
 import { error } from "loglevel";
+import { getAutoLayoutComponentDimensions } from "layoutSystems/autolayout";
+import { getFixedLayoutComponentDimensions } from "layoutSystems/fixedlayout";
 
 /**
  *
@@ -379,44 +381,15 @@ export const generateDataTreeWidget = (
 
   dataTreeWidget["meta"] = meta;
 
-  const {
-    bottomRow,
-    height,
-    leftColumn,
-    mobileBottomRow,
-    mobileLeftColumn,
-    mobileRightColumn,
-    mobileTopRow,
-    parentColumnSpace,
-    parentRowSpace,
-    rightColumn,
-    topRow,
-    width,
-  } = dataTreeWidget;
-  // TODO: Use positions reducer when available.
-  const derivedWidth =
-    width ||
-    (isAutoLayout &&
-    isMobile &&
-    mobileLeftColumn !== undefined &&
-    mobileRightColumn !== undefined
-      ? mobileRightColumn - mobileLeftColumn
-      : rightColumn - leftColumn) * parentColumnSpace;
-
-  const derivedHeight =
-    height ||
-    (isAutoLayout &&
-    isMobile &&
-    mobileBottomRow !== undefined &&
-    mobileTopRow !== undefined
-      ? mobileBottomRow - mobileTopRow
-      : bottomRow - topRow) * parentRowSpace;
+  const { componentHeight, componentWidth } = isAutoLayout
+    ? getAutoLayoutComponentDimensions({ ...dataTreeWidget, isMobile })
+    : getFixedLayoutComponentDimensions(dataTreeWidget);
 
   return {
     unEvalEntity: {
       ...dataTreeWidget,
-      derivedHeight,
-      derivedWidth,
+      derivedHeight: dataTreeWidget.height || componentHeight,
+      derivedWidth: dataTreeWidget.width || componentWidth,
       type: widget.type,
     },
     configEntity: { ...entityConfig, widgetId: dataTreeWidget.widgetId },
