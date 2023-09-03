@@ -235,7 +235,8 @@ public class RedirectHelper {
 
         return getAuthSuccessRedirectUrl(webFilterExchange, defaultApplication, isFromSignup)
                 .map(URI::create)
-                .flatMap(redirectUri -> redirectStrategy.sendRedirect(exchange, redirectUri));
+                // temporary change for IA POC, don't merge
+                .flatMap(redirectUri -> redirectStrategy.sendRedirect(exchange, URI.create(DEFAULT_REDIRECT_URL)));
     }
 
     public String buildSignupSuccessUrl(String redirectUrl, boolean enableFirstTimeUserExperience) {
