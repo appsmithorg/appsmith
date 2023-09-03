@@ -4,10 +4,7 @@ import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
 import { isString, noop } from "lodash";
 import type { Datasource } from "entities/Datasource";
-import {
-  getPluginImages,
-  getPluginNameFromId,
-} from "selectors/entitiesSelector";
+import { getPluginNameFromId } from "selectors/entitiesSelector";
 import FormControl from "../FormControl";
 import {
   PluginName,
@@ -17,7 +14,6 @@ import {
 } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import type { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
@@ -25,7 +21,6 @@ import { Text, TextType } from "design-system-old";
 import {
   Button,
   Callout,
-  Icon,
   SegmentedControl,
   Spinner,
   Tab,
@@ -36,13 +31,10 @@ import {
 } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
-import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
-import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   checkIfSectionCanRender,
   checkIfSectionIsEnabled,
@@ -53,13 +45,9 @@ import {
 } from "components/formControls/utils";
 import {
   ACTION_EDITOR_REFRESH,
-  CREATE_NEW_DATASOURCE,
   createMessage,
-  DEBUGGER_ERRORS,
-  DEBUGGER_LOGS,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
-  INSPECT_ENTITY,
   INVALID_FORM_CONFIGURATION,
   NO_DATASOURCE_FOR_QUERY,
   UNEXPECTED_ERROR,
@@ -112,7 +100,6 @@ import {
 } from "actions/debuggerActions";
 import {
   getDebuggerSelectedTab,
-  getErrorCount,
   getResponsePaneHeight,
   showDebuggerFlag,
 } from "selectors/debuggerSelectors";
@@ -228,16 +215,6 @@ const ActionsWrapper = styled.div`
   flex: 1 1 50%;
   justify-content: flex-end;
   gap: var(--ads-v2-spaces-3);
-`;
-
-const DropdownSelect = styled.div`
-  font-size: 14px;
-  width: 230px;
-`;
-
-const CreateDatasource = styled.div`
-  display: flex;
-  gap: 8px;
 `;
 
 const StyledSpinner = styled(Spinner)`
@@ -363,7 +340,6 @@ type Props = EditorJSONtoFormProps &
 
 export function EditorJSONtoForm(props: Props) {
   const {
-    actionName,
     dataSources,
     documentationLink,
     editorConfig,
@@ -387,9 +363,6 @@ export function EditorJSONtoForm(props: Props) {
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
 
   const params = useParams<{ actionId: string }>();
-
-  // fetch the error count from the store.
-  const errorCount = useSelector(getErrorCount);
 
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
@@ -797,47 +770,7 @@ export function EditorJSONtoForm(props: Props) {
         </ResponseContentWrapper>
       ),
     },
-    {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      count: errorCount,
-      panelComponent: <ErrorLogs />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={actionName} />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-      title: createMessage(INSPECT_ENTITY),
-      panelComponent: <EntityDeps />,
-    },
   ];
-
-  const pluginImages = useSelector(getPluginImages);
-
-  type DATASOURCES_OPTIONS_TYPE = {
-    label: string;
-    value: string;
-    image: string;
-  };
-
-  // Filtering the datasources for listing the similar datasources only rather than having all the active datasources in the list, which on switching resulted in error.
-  const DATASOURCES_OPTIONS: Array<DATASOURCES_OPTIONS_TYPE> =
-    dataSources.reduce(
-      (acc: Array<DATASOURCES_OPTIONS_TYPE>, dataSource: Datasource) => {
-        if (dataSource.pluginId === plugin?.id) {
-          acc.push({
-            label: dataSource.name,
-            value: dataSource.id,
-            image: pluginImages[dataSource.pluginId],
-          });
-        }
-        return acc;
-      },
-      [],
-    );
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
@@ -890,26 +823,6 @@ export function EditorJSONtoForm(props: Props) {
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
-            <DropdownSelect>
-              <DropdownField
-                className={"t--switch-datasource"}
-                formName={formName}
-                isDisabled={!isChangePermitted}
-                name="datasource.id"
-                options={DATASOURCES_OPTIONS}
-                placeholder="Datasource"
-              >
-                {canCreateDatasource && (
-                  // this additional div is here so that rc-select can render the child with the onClick correctly
-                  <div>
-                    <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-                      <Icon className="createIcon" name="plus" size="md" />
-                      {createMessage(CREATE_NEW_DATASOURCE)}
-                    </CreateDatasource>
-                  </div>
-                )}
-              </DropdownField>
-            </DropdownSelect>
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"

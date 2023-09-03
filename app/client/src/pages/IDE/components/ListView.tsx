@@ -2,11 +2,12 @@ import React from "react";
 import styled from "styled-components";
 import classNames from "classnames";
 
-type Item = {
+export type Item = {
   key: string;
   name: string;
-  icon: React.ReactNode;
-  selected: boolean;
+  icon?: React.ReactNode;
+  selected?: boolean;
+  [key: string]: any;
 };
 
 type Props = {
@@ -16,15 +17,17 @@ type Props = {
 
 const Container = styled.div`
   padding: 5px;
+  height: 100%;
+  overflow-y: scroll;
 `;
 const ListItem = styled.div`
-  height: 35px;
   padding: 8px;
   margin-bottom: 4px;
   display: grid;
   grid-template-columns: 30px 1fr;
   align-items: center;
   border-radius: 4px;
+  height: 35px;
   &:hover {
     cursor: pointer;
     background-color: #f1f5f9;
@@ -46,7 +49,7 @@ const ListView = (props: Props) => {
             key={item.key}
             onClick={() => props.onClick(item)}
           >
-            {item.icon}
+            {item.icon || <div />}
             {item.name}
           </ListItem>
         );

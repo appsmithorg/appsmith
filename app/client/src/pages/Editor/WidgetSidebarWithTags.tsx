@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
@@ -21,6 +21,16 @@ import {
   SearchInput,
   Text,
 } from "design-system";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  actionsExistInCurrentPage,
+  widgetsExistCurrentPage,
+} from "selectors/entitiesSelector";
+import { getFeatureWalkthroughShown } from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
 
 function WidgetSidebarWithTags({ isActive = true }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
@@ -79,6 +89,37 @@ function WidgetSidebarWithTags({ isActive = true }: { isActive: boolean }) {
   const search = debounce((value: string) => {
     filterCards(value.toLowerCase());
   }, 300);
+
+  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
+  const hasWidgets = useSelector(widgetsExistCurrentPage);
+  const actionsExist = useSelector(actionsExistInCurrentPage);
+  useEffect(() => {
+    if (
+      signpostingEnabled &&
+      !hasWidgets &&
+      actionsExist &&
+      adaptiveSignposting &&
+      isActive
+    ) {
+      checkAndShowTableWidgetWalkthrough();
+    }
+  }, [
+    isActive,
+    hasWidgets,
+    signpostingEnabled,
+    adaptiveSignposting,
+    actionsExist,
+  ]);
+  const checkAndShowTableWidgetWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.add_table_widget,
+    );
+    !isFeatureWalkthroughShown &&
+      pushFeature &&
+      pushFeature(SignpostingWalkthroughConfig.ADD_TABLE_WIDGET, true);
+  };
 
   return (
     <div

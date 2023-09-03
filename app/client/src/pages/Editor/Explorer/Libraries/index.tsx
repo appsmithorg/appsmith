@@ -1,7 +1,18 @@
 import type { MutableRefObject } from "react";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import { Button, Icon, Spinner, toast, Tooltip } from "design-system";
+import {
+  Button,
+  Icon,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+  Spinner,
+  toast,
+  Tooltip,
+} from "design-system";
 import Entity, { AddButtonWrapper, EntityClassNames } from "../Entity";
 import {
   createMessage,
@@ -17,6 +28,7 @@ import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
 import useClipboard from "utils/hooks/useClipboard";
 import {
+  clearInstalls,
   toggleInstaller,
   uninstallLibraryInit,
 } from "actions/JSLibraryActions";
@@ -30,6 +42,7 @@ import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import recommendedLibraries from "./recommendedLibraries";
 import { useTransition, animated } from "react-spring";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { Installer } from "./Installer";
 
 const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
   acc[lib.url] = lib.docsURL;
@@ -299,21 +312,44 @@ function JSDependencies() {
     <Entity
       className={"group libraries"}
       customAddButton={
-        <Tooltip
-          content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
-          isDisabled={isOpen}
-          placement="right"
-          {...(isOpen ? { visible: false } : {})}
+        <Popover
+          onOpenChange={() => {
+            dispatch(clearInstalls());
+            dispatch(toggleInstaller(false));
+          }}
+          open={isOpen}
         >
-          <AddButtonWrapper>
-            <EntityAddButton
-              className={`${
-                EntityClassNames.ADD_BUTTON
-              } group libraries h-100 ${isOpen ? "selected" : ""}`}
-              onClick={openInstaller}
-            />
-          </AddButtonWrapper>
-        </Tooltip>
+          <Tooltip
+            content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
+            isDisabled={isOpen}
+            placement="right"
+            {...(isOpen ? { visible: false } : {})}
+          >
+            <PopoverTrigger>
+              <AddButtonWrapper>
+                <EntityAddButton
+                  className={`${
+                    EntityClassNames.ADD_BUTTON
+                  } group libraries h-100 ${isOpen ? "selected" : ""}`}
+                  onClick={openInstaller}
+                />
+              </AddButtonWrapper>
+            </PopoverTrigger>
+          </Tooltip>
+          <PopoverContent
+            align="start"
+            className="z-[25]"
+            side="left"
+            size="md"
+          >
+            <PopoverHeader className="sticky top-0" isClosable>
+              {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
+            </PopoverHeader>
+            <PopoverBody className={"!overflow-y-clip"}>
+              <Installer />
+            </PopoverBody>
+          </PopoverContent>
+        </Popover>
       }
       entityId={pageId + "_library_section"}
       icon={null}

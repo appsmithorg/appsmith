@@ -9,15 +9,11 @@ import type { AppState } from "@appsmith/reducers";
 import type { JSEditorRouteParams } from "constants/routes";
 import {
   createMessage,
-  DEBUGGER_LOGS,
-  DEBUGGER_ERRORS,
   EXECUTING_FUNCTION,
   NO_JS_FUNCTION_RETURN_VALUE,
   UPDATING_JS_COLLECTION,
 } from "@appsmith/constants/messages";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
-import DebuggerLogs from "./Debugger/DebuggerLogs";
-import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import type { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
@@ -128,12 +124,10 @@ function JSResponseView(props: Props) {
   const {
     currentFunction,
     disabled,
-    errorCount,
     errors,
     isDirty,
     isExecuting,
     isLoading,
-    jsObject,
     onButtonClick,
     responses,
     selectedJSObject,
@@ -282,17 +276,6 @@ function JSResponseView(props: Props) {
           </ResponseTabWrapper>
         </>
       ),
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      count: errorCount,
-      panelComponent: <ErrorLogs />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={jsObject?.name} />,
     },
   ];
 

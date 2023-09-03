@@ -29,13 +29,13 @@ const SettingsIcon = importSvg(
 
 const SideBarContainer = styled.div`
   background-color: white;
-  margin-top: 4px;
   border-top-right-radius: 4px;
   grid-row-start: 1;
   grid-row-end: 3;
   padding: 5px 2px;
   display: grid;
   grid-template-rows: 1fr max-content;
+  height: 100%;
 `;
 
 const TopButtons = styled.div`
@@ -94,11 +94,18 @@ const IconButtonContainer = styled.div`
 `;
 
 const Sidebar = () => {
-  const params = useParams<{ ideState: IDEAppState; appId: string }>();
+  const params = useParams<{
+    ideState: IDEAppState;
+    appId: string;
+  }>();
   const selectedState = params.ideState;
   const setAppState = useCallback((state: IDEAppState) => {
     history.push(
-      builderURL({ ideState: state, appId: params.appId, pageId: "test" }),
+      builderURL({
+        ideState: state,
+        appId: params.appId,
+        pageId: "test",
+      }),
     );
   }, []);
   return (

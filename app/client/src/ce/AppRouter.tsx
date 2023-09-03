@@ -48,7 +48,7 @@ import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
 import { getCurrentUserLoading } from "selectors/usersSelectors";
 import Setup from "pages/setup";
-import SettingsLoader from "pages/Settings/loader";
+import SettingsLoader from "pages/AdminSettings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";

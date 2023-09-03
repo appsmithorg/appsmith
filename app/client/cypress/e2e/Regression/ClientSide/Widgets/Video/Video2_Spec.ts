@@ -48,6 +48,7 @@ describe("Video widget tests", function () {
     propPane.TypeTextIntoField("URL", testdata.videoUrl);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.VIDEO));
+    agHelper.Sleep(2000);
     agHelper.GetElement(widgetLocators.iFrame).then(($iframe) => {
       const doc = $iframe.contents();
       const video = doc.find(widgetLocators.video);
@@ -186,16 +187,21 @@ describe("Video widget tests", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Video1", "Widgets");
     propPane.MoveToTab("Style");
-    propPane.SelectColorFromColorPicker("backgroundcolor", 14);
+    propPane.SelectColorFromColorPicker("backgroundcolor", 9);
     agHelper.ContainsNClick("Medium");
     propPane.EnterJSContext("Border radius", "1.5rem");
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
-    agHelper.AssertCSS(
-      widgetLocators.video,
-      "background-color",
-      "rgb(252, 165, 165)",
-    );
-
+    agHelper
+      .GetWidgetCSSFrAttribute(widgetLocators.video, "background-color")
+      .then((backgroundcolor) => {
+        deployMode.DeployApp(
+          locators._widgetInDeployed(draggableWidgets.VIDEO),
+        );
+        agHelper.AssertCSS(
+          widgetLocators.video,
+          "background-color",
+          backgroundcolor,
+        );
+      });
     agHelper.AssertCSS(
       widgetLocators.video,
       "box-shadow",

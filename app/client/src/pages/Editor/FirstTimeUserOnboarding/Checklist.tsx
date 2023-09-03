@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { Button, Divider, Text, Tooltip } from "design-system";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,8 +7,6 @@ import {
   getPageActions,
   getSavedDatasources,
 } from "selectors/entitiesSelector";
-import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
-import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import { INTEGRATION_TABS } from "constants/routes";
 import {
   getApplicationLastDeployedAt,
@@ -27,6 +25,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getFirstTimeUserOnboardingComplete,
   getSignpostingStepStateByStep,
+  isWidgetActionConnectionPresent,
 } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
@@ -47,13 +46,20 @@ import {
 import type { Datasource } from "entities/Datasource";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { SIGNPOSTING_STEP } from "./Utils";
+import { SIGNPOSTING_STEP, SignpostingWalkthroughConfig } from "./Utils";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import classNames from "classnames";
 import lazyLottie from "utils/lazyLottie";
 import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+
+import { getFeatureWalkthroughShown } from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { setExplorerSwitchIndex } from "actions/editorContextActions";
+import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 const { intercomAppID } = getAppsmithConfigs();
 
 const StyledDivider = styled(Divider)`
@@ -329,10 +335,7 @@ function CheckListItem(props: {
                 AnalyticsUtil.logEvent("SIGNPOSTING_INFO_CLICK", {
                   step: props.step,
                 });
-                window.open(
-                  props.docLink ?? "https://docs.appsmith.com/",
-                  "_blank",
-                );
+                window.open(props.docLink ?? DOCS_BASE_URL, "_blank");
                 e.stopPropagation();
               }}
               startIcon="book-line"
@@ -351,12 +354,7 @@ export default function OnboardingChecklist() {
   const pageId = useSelector(getCurrentPageId);
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
-  const deps = useSelector(getEvaluationInverseDependencyMap);
-  const isConnectionPresent = useIsWidgetActionConnectionPresent(
-    widgets,
-    actions,
-    deps,
-  );
+  const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
   const applicationId = useSelector(getCurrentApplicationId);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   const { completedTasks } = getSuggestedNextActionAndCompletedTasks(
@@ -369,6 +367,10 @@ export default function OnboardingChecklist() {
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
+
+  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const adapativeSignposting = useSelector(adaptiveSignpostingEnabled);
+
   const onconnectYourWidget = () => {
     const action = actions[0];
     dispatch(showSignpostingModal(false));
@@ -445,6 +447,26 @@ export default function OnboardingChecklist() {
     );
   }
 
+  const checkAndShowWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.add_datasouce,
+    );
+
+    // Adding walkthrough tutorial
+    if (!isFeatureWalkthroughShown) {
+      dispatch(setExplorerSwitchIndex(0));
+      pushFeature &&
+        pushFeature(SignpostingWalkthroughConfig.CONNECT_A_DATASOURCE);
+    } else {
+      history.push(
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
+      );
+    }
+  };
+
   return (
     <>
       <div className="flex-1">
@@ -500,12 +522,17 @@ export default function OnboardingChecklist() {
               },
             );
             dispatch(showSignpostingModal(false));
-            history.push(
-              integrationEditorURL({
-                pageId,
-                selectedTab: INTEGRATION_TABS.NEW,
-              }),
-            );
+
+            if (adapativeSignposting) {
+              checkAndShowWalkthrough();
+            } else {
+              history.push(
+                integrationEditorURL({
+                  pageId,
+                  selectedTab: INTEGRATION_TABS.NEW,
+                }),
+              );
+            }
           }}
           step={SIGNPOSTING_STEP.CONNECT_A_DATASOURCE}
           testid={"checklist-datasource"}

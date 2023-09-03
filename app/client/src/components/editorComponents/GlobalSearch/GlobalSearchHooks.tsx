@@ -1,5 +1,3 @@
-import React from "react";
-import { INTEGRATION_TABS } from "constants/routes";
 import type { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
@@ -14,7 +12,6 @@ import {
 } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import history from "utils/history";
 import type { ActionOperation } from "./utils";
 import {
   actionOperations,
@@ -23,8 +20,6 @@ import {
   SEARCH_ITEM_TYPES,
 } from "./utils";
 import { PluginType } from "entities/Action";
-import { integrationEditorURL } from "RouteBuilder";
-import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import {
   hasCreateActionPermission,
@@ -33,11 +28,6 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { importRemixIcon } from "design-system-old";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-const AddLineIcon = importRemixIcon(
-  () => import("remixicon-react/AddLineIcon"),
-);
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
@@ -114,7 +104,7 @@ export const getFilteredAndSortedFileOperations = (
   if (!canCreateActions) return fileOperations;
 
   // Add JS Object operation
-  fileOperations.push(actionOperations[2]);
+  // fileOperations.push(actionOperations[2]);
   // Add app datasources
   if (appWideDS.length > 0 || otherDS.length > 0) {
     const showCreateQuery = [...appWideDS, ...otherDS].some((ds: Datasource) =>
@@ -125,11 +115,11 @@ export const getFilteredAndSortedFileOperations = (
     );
 
     if (showCreateQuery) {
-      fileOperations.push({
-        desc: "",
-        title: "Create a query",
-        kind: SEARCH_ITEM_TYPES.sectionTitle,
-      });
+      // fileOperations.push({
+      //   desc: "",
+      //   title: "Create a query",
+      //   kind: SEARCH_ITEM_TYPES.sectionTitle,
+      // });
     }
   }
 
@@ -178,28 +168,28 @@ export const getFilteredAndSortedFileOperations = (
     .filter((ds) => ds.title.toLowerCase().includes(query.toLowerCase()));
   // Add genetic datasource creation
   if (canCreateDatasource) {
-    filteredFileOperations.push({
-      desc: "Create a new datasource in the organisation",
-      title: "New datasource",
-      icon: (
-        <EntityIcon>
-          <AddLineIcon size={22} />
-        </EntityIcon>
-      ),
-      kind: SEARCH_ITEM_TYPES.actionOperation,
-      redirect: (pageId: string, entryPoint: string) => {
-        history.push(
-          integrationEditorURL({
-            pageId,
-            selectedTab: INTEGRATION_TABS.NEW,
-          }),
-        );
-        // Event for datasource creation click
-        AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
-          entryPoint,
-        });
-      },
-    });
+    // filteredFileOperations.push({
+    //   desc: "Create a new datasource in the organisation",
+    //   title: "New datasource",
+    //   icon: (
+    //     <EntityIcon>
+    //       <AddLineIcon size={22} />
+    //     </EntityIcon>
+    //   ),
+    //   kind: SEARCH_ITEM_TYPES.actionOperation,
+    //   redirect: (pageId: string, entryPoint: string) => {
+    //     history.push(
+    //       integrationEditorURL({
+    //         pageId,
+    //         selectedTab: INTEGRATION_TABS.NEW,
+    //       }),
+    //     );
+    //     // Event for datasource creation click
+    //     AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+    //       entryPoint,
+    //     });
+    //   },
+    // });
   }
   return filteredFileOperations;
 };

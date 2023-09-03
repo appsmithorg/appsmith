@@ -18,20 +18,14 @@ import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
   createMessage,
-  DEBUGGER_LOGS,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
-  INSPECT_ENTITY,
-  DEBUGGER_ERRORS,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import NoResponseSVG from "assets/images/no-response.svg";
-import DebuggerLogs from "./Debugger/DebuggerLogs";
-import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import EntityDeps from "./Debugger/EntityDependecies";
 import { Classes, TAB_MIN_HEIGHT, Text, TextType } from "design-system-old";
 import { Button, Callout, SegmentedControl } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
@@ -589,22 +583,6 @@ function ApiResponseView(props: Props) {
           </ResponseDataContainer>
         </ResponseTabWrapper>
       ),
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      count: props.errorCount,
-      panelComponent: <ErrorLogs />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-      title: createMessage(INSPECT_ENTITY),
-      panelComponent: <EntityDeps />,
     },
   ];
 

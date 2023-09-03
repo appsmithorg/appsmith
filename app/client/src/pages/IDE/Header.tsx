@@ -25,6 +25,7 @@ import {
   TabPanel,
   Tabs,
   TabsList,
+  Text,
   Tooltip,
 } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
@@ -69,6 +70,9 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { EditorSaveIndicator } from "../Editor/EditorSaveIndicator";
 import HelpBar from "../../components/editorComponents/GlobalSearch/HelpBar";
 import GlobalSearch from "components/editorComponents/GlobalSearch";
+import { useIDENavState } from "./hooks";
+import PageSwitcher from "./PageState/PageSwitcher";
+import { IDEAppState } from "./ideReducer";
 
 const Header = styled.div`
   background-color: #f1f5f9;
@@ -90,6 +94,13 @@ const TopBarContainer = styled.div`
   background-color: white;
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+`;
+
+const PaneTitle = styled.div`
+  color: #364252;
+  padding: 8px 12px;
 `;
 
 const AppsmithLink = styled((props) => {
@@ -110,7 +121,7 @@ const AppsmithLink = styled((props) => {
 
 const AppNameContainer = styled.div`
   display: flex;
-  flex: 2;
+  flex: 1;
   justify-content: center;
   #workspace-name {
     color: #6a7585;
@@ -158,8 +169,49 @@ const IDEHeader = function () {
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("invite");
+  const [navState] = useIDENavState();
+  const { ideState } = navState;
 
   const deployLink = useHref(viewerURL, { pageId });
+  let appStateTitle = null;
+  switch (ideState) {
+    case IDEAppState.Data: {
+      appStateTitle = (
+        <PaneTitle>
+          <Text kind="heading-s">Datasources</Text>
+        </PaneTitle>
+      );
+      break;
+    }
+    case IDEAppState.Page: {
+      appStateTitle = <PageSwitcher />;
+      break;
+    }
+    case IDEAppState.Add: {
+      appStateTitle = (
+        <PaneTitle>
+          <Text kind="heading-s">Add new...</Text>
+        </PaneTitle>
+      );
+      break;
+    }
+    case IDEAppState.Libraries: {
+      appStateTitle = (
+        <PaneTitle>
+          <Text kind="heading-s">Libraries</Text>
+        </PaneTitle>
+      );
+      break;
+    }
+    case IDEAppState.Settings: {
+      appStateTitle = (
+        <PaneTitle>
+          <Text kind="heading-s">Settings</Text>
+        </PaneTitle>
+      );
+      break;
+    }
+  }
 
   useEffect(() => {
     if (workspaceId) {
@@ -246,6 +298,7 @@ const IDEHeader = function () {
         </Tooltip>
       </LogoContainer>
       <TopBarContainer>
+        {appStateTitle}
         {currentWorkspace.name && (
           <AppNameContainer>
             <span id="workspace-name">{currentWorkspace.name} / </span>
