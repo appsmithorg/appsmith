@@ -731,7 +731,7 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 // Datasource structure
 
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
-export const TABLE_OR_COLUMN_NOT_FOUND = () => "Table or column not found.";
+export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
   "Search for table or attribute";
 export const SCHEMA_LABEL = () => "Schema";
@@ -743,6 +743,7 @@ export const LOADING_SCHEMA = () => "Loading schema...";
 export const SCHEMA_WALKTHROUGH_TITLE = () => "Query data fast";
 export const SCHEMA_WALKTHROUGH_DESC = () =>
   "Select a template from a database table to quickly create your first query. ";
+export const SUGGESTED_TAG = () => "Suggested";
 
 // structure - View Mode
 

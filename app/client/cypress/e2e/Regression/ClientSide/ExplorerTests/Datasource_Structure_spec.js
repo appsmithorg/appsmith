@@ -54,6 +54,8 @@ describe("Entity explorer datasource structure", function () {
     // cy.get(".bp3-popover-content").should("be.visible");
 
     cy.get(explorer.templateMenuIcon).first().click({ force: true });
+    // assert suggested tag is present
+    cy.get(".t--structure-template-menu-popover").last().contains("Suggested");
     cy.get(".t--structure-template-menu-popover")
       .last()
       .contains("SELECT")
