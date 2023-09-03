@@ -26,7 +26,7 @@ function filterOption(option: DropdownOptionType, searchText: string) {
 }
 
 function getDropdownConstants(variant?: string) {
-  if (variant === DROPDOWN_VARIANT.DATA) {
+  if (variant === DROPDOWN_VARIANT.SCHEMA) {
     return {
       connectToText: createMessage(DATASOURCE_DROPDOWN_OPTIONS.CONNECT_TO),
       bindDatasourceText: createMessage(
