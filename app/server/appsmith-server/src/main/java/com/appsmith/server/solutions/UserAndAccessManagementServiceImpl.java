@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.EmailService;
@@ -24,7 +25,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
             AnalyticsService analyticsService,
             UserService userService,
             PermissionGroupPermission permissionGroupPermission,
-            EmailService emailService) {
+            EmailService emailService,
+            CommonConfig commonConfig) {
 
         super(
                 sessionUserService,
@@ -34,6 +36,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 analyticsService,
                 userService,
                 permissionGroupPermission,
-                emailService);
+                emailService,
+                commonConfig);
     }
 }

@@ -349,8 +349,7 @@ public class UserServiceTest {
         signUpUser.setEmail(newUserEmail);
         signUpUser.setPassword("123456");
 
-        Mono<User> invitedUserSignUpMono =
-                userService.createUser(signUpUser, "http://localhost:8080").map(UserSignupDTO::getUser);
+        Mono<User> invitedUserSignUpMono = userService.createUser(signUpUser).map(UserSignupDTO::getUser);
 
         StepVerifier.create(invitedUserSignUpMono)
                 .assertNext(user -> {

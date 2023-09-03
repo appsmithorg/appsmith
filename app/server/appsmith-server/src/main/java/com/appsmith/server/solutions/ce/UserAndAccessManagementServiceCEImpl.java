@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -41,6 +42,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final UserService userService;
     private final PermissionGroupPermission permissionGroupPermission;
     private final EmailService emailService;
+    private final CommonConfig commonConfig;
 
     public UserAndAccessManagementServiceCEImpl(
             SessionUserService sessionUserService,
@@ -50,7 +52,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
             AnalyticsService analyticsService,
             UserService userService,
             PermissionGroupPermission permissionGroupPermission,
-            EmailService emailService) {
+            EmailService emailService,
+            CommonConfig commonConfig) {
 
         this.sessionUserService = sessionUserService;
         this.permissionGroupService = permissionGroupService;
@@ -60,6 +63,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         this.userService = userService;
         this.emailService = emailService;
         this.permissionGroupPermission = permissionGroupPermission;
+        this.commonConfig = commonConfig;
     }
 
     /**
@@ -152,18 +156,21 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                     .sendInviteUserToWorkspaceEmail(
                                             currentUser, existingUser, workspace, permissionGroup, originHeader, false)
                                     .thenReturn(existingUser))
-                            .switchIfEmpty(userService
-                                    .createNewUserAndSendInviteEmail(
-                                            username, originHeader, workspace, currentUser, permissionGroup.getName())
-                                    .flatMap(newUser -> emailService
-                                            .sendInviteUserToWorkspaceEmail(
-                                                    currentUser,
-                                                    newUser,
-                                                    workspace,
-                                                    permissionGroup,
-                                                    originHeader,
-                                                    true)
-                                            .thenReturn(newUser)));
+                            .switchIfEmpty(Mono.defer(() -> {
+                                User newUser = new User();
+                                newUser.setEmail(username.toLowerCase());
+                                newUser.setIsEnabled(false);
+                                boolean isAdminUser =
+                                        commonConfig.getAdminEmails().contains(username.toLowerCase());
+                                Mono<User> newCreatedUser = userService.userCreate(newUser, isAdminUser);
+                                if (isAdminUser) {
+                                    emailService.sendInstanceAdminInviteEmail(newUser, originHeader);
+                                } else {
+                                    emailService.sendInviteUserToWorkspaceEmail(
+                                            currentUser, newUser, workspace, permissionGroup, originHeader, true);
+                                }
+                                return newCreatedUser;
+                            }));
                 })
                 .collectList()
                 .cache();

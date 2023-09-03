@@ -2,7 +2,6 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
@@ -29,12 +28,9 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<Boolean> resetPasswordAfterForgotPassword(String token, User user);
 
-    Mono<UserSignupDTO> createUser(User user, String originHeader);
+    Mono<UserSignupDTO> createUser(User user);
 
-    Mono<User> userCreate(User user, boolean isAdminUser, String originHeader);
-
-    Mono<? extends User> createNewUserAndSendInviteEmail(
-            String email, String originHeader, Workspace workspace, User inviter, String role);
+    Mono<User> userCreate(User user, boolean isAdminUser);
 
     Mono<User> updateCurrentUser(UserUpdateDTO updates, ServerWebExchange exchange);
 

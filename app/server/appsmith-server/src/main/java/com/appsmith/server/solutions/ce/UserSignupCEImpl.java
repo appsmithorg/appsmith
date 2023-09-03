@@ -127,7 +127,7 @@ public class UserSignupCEImpl implements UserSignupCE {
 
         // only creating user, welcome email will be sent post user email verification
         Mono<UserSignupDTO> createUserMono = userService
-                .createUser(user, exchange.getRequest().getHeaders().getOrigin())
+                .createUser(user)
                 .elapsed()
                 .map(pair -> {
                     log.debug("UserSignupCEImpl::Time taken for create user and send email: {} ms", pair.getT1());
