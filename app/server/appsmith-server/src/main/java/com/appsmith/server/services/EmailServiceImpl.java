@@ -1,8 +1,7 @@
-package com.appsmith.server.services.ce;
+package com.appsmith.server.services;
 
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.services.EmailService;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.ce.EmailServiceCEImpl;
 import org.springframework.stereotype.Service;
 
 @Service
