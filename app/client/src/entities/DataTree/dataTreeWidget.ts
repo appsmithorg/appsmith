@@ -15,8 +15,10 @@ import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
 import { error } from "loglevel";
-import { getAutoLayoutComponentDimensions } from "layoutSystems/autolayout";
-import { getFixedLayoutComponentDimensions } from "layoutSystems/fixedlayout";
+import {
+  getAutoLayoutComponentDimensions,
+  getFixedLayoutComponentDimensions,
+} from "./dataTreeEnhancer";
 
 /**
  *
@@ -388,8 +390,8 @@ export const generateDataTreeWidget = (
   return {
     unEvalEntity: {
       ...dataTreeWidget,
-      derivedHeight: dataTreeWidget.height || componentHeight,
-      derivedWidth: dataTreeWidget.width || componentWidth,
+      componentHeight: dataTreeWidget.height || componentHeight,
+      componentWidth: dataTreeWidget.width || componentWidth,
       type: widget.type,
     },
     configEntity: { ...entityConfig, widgetId: dataTreeWidget.widgetId },

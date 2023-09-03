@@ -18,7 +18,7 @@ const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
   return autoDimensionConfig;
 };
 
-export const getAutoLayoutComponentDimensions = ({
+const getAutoLayoutComponentDimensions = ({
   bottomRow,
   isMobile,
   leftColumn,

@@ -139,7 +139,7 @@ export default {
 
     const templateBottomRow = props.templateBottomRow;
     const templateHeight = templateBottomRow * DEFAULT_GRID_ROW_HEIGHT;
-    const componentHeight = props.derivedHeight;
+    const componentHeight = props.componentHeight;
 
     const spaceAvailableWithoutPaginationControls =
       componentHeight - WIDGET_PADDING * 2;

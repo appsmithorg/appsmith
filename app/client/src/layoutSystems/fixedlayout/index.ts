@@ -3,7 +3,7 @@ import { FixedLayoutEditorWrapper } from "./editor/FixedLayoutEditorWrapper";
 import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
-export const getFixedLayoutComponentDimensions = ({
+const getFixedLayoutComponentDimensions = ({
   bottomRow,
   leftColumn,
   parentColumnSpace,

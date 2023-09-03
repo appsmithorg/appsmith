@@ -92,7 +92,7 @@ export default {
       },
     };
     const compactMode = props.compactMode || "DEFAULT";
-    const componentHeight = props.derivedHeight - 10;
+    const componentHeight = props.componentHeight - 10;
     const tableSizes = TABLE_SIZES[compactMode];
     let pageSize = Math.floor(
       (componentHeight -
