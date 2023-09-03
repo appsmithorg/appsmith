@@ -336,7 +336,7 @@ export const Entity = forwardRef(
         isDisabled={!props.addButtonHelptext}
         placement="right"
       >
-        <AddButtonWrapper>
+        <AddButtonWrapper id={`add_${props.entityId}`}>
           <AddButton
             className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
             onClick={props.onCreate}
