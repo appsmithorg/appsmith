@@ -162,14 +162,25 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                 newUser.setIsEnabled(false);
                                 boolean isAdminUser =
                                         commonConfig.getAdminEmails().contains(username.toLowerCase());
-                                Mono<User> newCreatedUser = userService.userCreate(newUser, isAdminUser);
-                                if (isAdminUser) {
-                                    emailService.sendInstanceAdminInviteEmail(newUser, originHeader);
-                                } else {
-                                    emailService.sendInviteUserToWorkspaceEmail(
-                                            currentUser, newUser, workspace, permissionGroup, originHeader, true);
-                                }
-                                return newCreatedUser;
+                                return userService
+                                        .userCreate(newUser, isAdminUser)
+                                        .flatMap(newCreatedUser -> {
+                                            if (isAdminUser) {
+                                                return emailService
+                                                        .sendInstanceAdminInviteEmail(newCreatedUser, originHeader)
+                                                        .thenReturn(newUser);
+                                            } else {
+                                                return emailService
+                                                        .sendInviteUserToWorkspaceEmail(
+                                                                currentUser,
+                                                                newCreatedUser,
+                                                                workspace,
+                                                                permissionGroup,
+                                                                originHeader,
+                                                                true)
+                                                        .thenReturn(newUser);
+                                            }
+                                        });
                             }));
                 })
                 .collectList()
