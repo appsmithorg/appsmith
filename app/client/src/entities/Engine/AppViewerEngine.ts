@@ -33,7 +33,6 @@ import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
 } from "@appsmith/sagas/userSagas";
-import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -120,7 +119,6 @@ export default class AppViewerEngine extends AppEngine {
 
     yield call(waitForFetchUserSuccess);
     yield call(waitForSegmentInit, true);
-    yield call(waitForFetchEnvironments);
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 }
