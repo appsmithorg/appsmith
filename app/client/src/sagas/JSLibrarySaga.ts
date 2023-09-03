@@ -85,6 +85,23 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     selectInstalledLibraries,
   );
 
+  const alreadyInstalledLibrary = installedLibraries.find(
+    (library) => library.url === url,
+  );
+
+  if (alreadyInstalledLibrary) {
+    toast.show(
+      createMessage(
+        customJSLibraryMessages.INSTALLED_ALREADY,
+        alreadyInstalledLibrary.accessor,
+      ),
+      {
+        kind: "info",
+      },
+    );
+    return;
+  }
+
   const takenAccessors = ([] as string[]).concat(
     ...installedLibraries.map((lib) => lib.accessor),
   );

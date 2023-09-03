@@ -26,6 +26,7 @@ describe("SyntaxErrorsEvaluation", () => {
     chartName: "chart name",
     type: "CHART_WIDGET",
     chartType: "AREA_CHART",
+    customEChartConfig: {},
     customFusionChartConfig: { type: "type", dataSource: undefined },
     hasOnDataPointClick: true,
     isVisible: true,
@@ -52,105 +53,198 @@ describe("SyntaxErrorsEvaluation", () => {
     renderMode: RenderModes.CANVAS,
   };
 
+  it("returns zero errors when errors field is undefined", () => {
+    const props = JSON.parse(JSON.stringify(defaultProps));
+    props.errors = undefined;
+
+    const syntaxErrors = syntaxErrorsFromProps(props);
+    expect(syntaxErrors.length).toEqual(0);
+  });
+
+  it("returns zero errors when errors field is null", () => {
+    const props = JSON.parse(JSON.stringify(defaultProps));
+    props.errors = null;
+
+    const syntaxErrors = syntaxErrorsFromProps(props);
+    expect(syntaxErrors.length).toEqual(0);
+  });
+
   describe("when errors are present in non data fields", () => {
     const props = JSON.parse(JSON.stringify(defaultProps));
 
-    it("returns errors", () => {
-      const widgetError1: WidgetError = {
+    it("returns errors when chart type is basic echarts", () => {
+      props.chartType = "LINE_CHART";
+
+      const nonDataFieldPropertyPath = "accentColor";
+      const widgetError: WidgetError = {
         type: "property",
-        path: "accentColor",
+        path: nonDataFieldPropertyPath,
         name: "ErrorName",
         message: "ErrorMessage",
       };
-      props.errors = [widgetError1];
+      props.errors = [widgetError];
+      const syntaxErrors = syntaxErrorsFromProps(props);
+      expect(syntaxErrors.length).toEqual(1);
+      expect(syntaxErrors[0].name).toEqual("ErrorName");
+    });
+
+    it("returns errors when chart type is custom fusion charts", () => {
+      props.chartType = "CUSTOM_FUSION_CHART";
+
+      const nonDataFieldPropertyPath = "accentColor";
+      const widgetError: WidgetError = {
+        type: "property",
+        path: nonDataFieldPropertyPath,
+        name: "ErrorName",
+        message: "ErrorMessage",
+      };
+      props.errors = [widgetError];
+      const syntaxErrors = syntaxErrorsFromProps(props);
+      expect(syntaxErrors.length).toEqual(1);
+      expect(syntaxErrors[0].name).toEqual("ErrorName");
+    });
+
+    it("returns errors when chart type is basic echarts", () => {
+      props.chartType = "CUSTOM_ECHART";
+
+      const nonDataFieldPropertyPath = "accentColor";
+      const widgetError: WidgetError = {
+        type: "property",
+        path: nonDataFieldPropertyPath,
+        name: "ErrorName",
+        message: "ErrorMessage",
+      };
+      props.errors = [widgetError];
       const syntaxErrors = syntaxErrorsFromProps(props);
       expect(syntaxErrors.length).toEqual(1);
       expect(syntaxErrors[0].name).toEqual("ErrorName");
     });
   });
 
-  describe("when errors are absent in non data fields", () => {
+  describe("when errors are present in data fields", () => {
     describe("When chart type is Custom Fusion Charts", () => {
-      it("returns errors when errors are presnt in customFusionCharts", () => {
-        const props = JSON.parse(JSON.stringify(defaultProps));
+      const customFusionChartProps = JSON.parse(JSON.stringify(defaultProps));
+      customFusionChartProps.chartType = "CUSTOM_FUSION_CHART";
 
-        const widgetError1: WidgetError = {
+      it("returns errors when errors are present in customFusionCharts", () => {
+        const props = JSON.parse(JSON.stringify(customFusionChartProps));
+        const customFusionChartDataFieldPropertyPath =
+          "customFusionChartConfig";
+
+        const widgetError: WidgetError = {
           type: "property",
-          path: "customFusionChartConfig",
+          path: customFusionChartDataFieldPropertyPath,
           name: "ErrorName",
           message: "ErrorMessage",
         };
-        props.errors = [widgetError1];
-        props.chartType = "CUSTOM_FUSION_CHART";
+        props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
         expect(syntaxErrors.length).toEqual(1);
         expect(syntaxErrors[0].name).toEqual("ErrorName");
       });
 
-      it("doesn't return errors when errors are not present in customFusionCharts", () => {
-        const props = JSON.parse(JSON.stringify(defaultProps));
+      it("doesn't return errors when errors are present in basic echarts data field", () => {
+        const props = JSON.parse(JSON.stringify(customFusionChartProps));
+        const basicEChartsDataFieldPropertyPath = "chartData";
 
-        const widgetError1: WidgetError = {
+        const widgetError: WidgetError = {
           type: "property",
-          path: "chartData",
+          path: basicEChartsDataFieldPropertyPath,
           name: "ErrorName",
           message: "ErrorMessage",
         };
-        props.errors = [widgetError1];
-        props.chartType = "CUSTOM_FUSION_CHART";
+        props.errors = [widgetError];
+
+        const syntaxErrors = syntaxErrorsFromProps(props);
+        expect(syntaxErrors.length).toEqual(0);
+      });
+
+      it("doesn't return errors when errors are present in custom echarts data field", () => {
+        const props = JSON.parse(JSON.stringify(customFusionChartProps));
+        const customEChartsDataFieldPropertyPath = "customEChartConfig";
+
+        const widgetError: WidgetError = {
+          type: "property",
+          path: customEChartsDataFieldPropertyPath,
+          name: "ErrorName",
+          message: "ErrorMessage",
+        };
+        props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
         expect(syntaxErrors.length).toEqual(0);
       });
     });
 
-    describe("When chart type is not Custom Fusion Charts", () => {
-      it("returns errors when errors are presnt in chart data field", () => {
-        const props = JSON.parse(JSON.stringify(defaultProps));
+    describe("When chart type is basic ECharts", () => {
+      const basicEChartsProps = JSON.parse(JSON.stringify(defaultProps));
+      basicEChartsProps.chartType = "LINE_CHART";
 
-        const widgetError1: WidgetError = {
+      it("returns errors when errors are present in chart data field", () => {
+        const props = JSON.parse(JSON.stringify(basicEChartsProps));
+        const echartDataPropertyPath = "chartData";
+
+        const widgetError: WidgetError = {
           type: "property",
-          path: "chartData",
+          path: echartDataPropertyPath,
           name: "ErrorName",
           message: "ErrorMessage",
         };
-        props.errors = [widgetError1];
-        props.chartType = "LINE_CHART";
+        props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
         expect(syntaxErrors.length).toEqual(1);
         expect(syntaxErrors[0].name).toEqual("ErrorName");
       });
 
-      it("doesn't return errors when errors are not present in chart data field", () => {
-        const props = JSON.parse(JSON.stringify(defaultProps));
+      it("doesn't return errors when errors are present in custom fusion chart", () => {
+        const props = JSON.parse(JSON.stringify(basicEChartsProps));
+        const customFusionChartDataPropertyPath = "customFusionChartConfig";
 
-        const widgetError1: WidgetError = {
+        const widgetError: WidgetError = {
           type: "property",
-          path: "customFusionChartConfig",
+          path: customFusionChartDataPropertyPath,
           name: "ErrorName",
           message: "ErrorMessage",
         };
-        props.errors = [widgetError1];
-        props.chartType = "LINE_CHART";
+        props.errors = [widgetError];
+
+        const syntaxErrors = syntaxErrorsFromProps(props);
+        expect(syntaxErrors.length).toEqual(0);
+      });
+
+      it("doesn't return errors when errors are present in custom echarts", () => {
+        const props = JSON.parse(JSON.stringify(basicEChartsProps));
+        const customEChartsDataPropertyPath = "customEChartConfig";
+
+        const widgetError: WidgetError = {
+          type: "property",
+          path: customEChartsDataPropertyPath,
+          name: "ErrorName",
+          message: "ErrorMessage",
+        };
+        props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
         expect(syntaxErrors.length).toEqual(0);
       });
 
       describe("when chart type is PIE CHART", () => {
-        it("returns error if there is syntax error in first series data", () => {
-          const props = JSON.parse(JSON.stringify(defaultProps));
+        const pieChartProps = JSON.parse(JSON.stringify(basicEChartsProps));
+        pieChartProps.chartType = "PIE_CHART";
 
-          const widgetError1: WidgetError = {
+        it("returns error if there is syntax error in first series data", () => {
+          const props = JSON.parse(JSON.stringify(pieChartProps));
+          const firstSeriesDataPath = "chartData.seriesID1.data";
+
+          const widgetError: WidgetError = {
             type: "property",
-            path: "chartData.seriesID1.data",
+            path: firstSeriesDataPath,
             name: "ErrorName",
             message: "ErrorMessage",
           };
-          props.errors = [widgetError1];
-          props.chartType = "PIE_CHART";
+          props.errors = [widgetError];
 
           const syntaxErrors = syntaxErrorsFromProps(props);
           expect(syntaxErrors.length).toEqual(1);
@@ -158,20 +252,74 @@ describe("SyntaxErrorsEvaluation", () => {
         });
 
         it("doesn't return an error if there is syntax error in second series data", () => {
-          const props = JSON.parse(JSON.stringify(defaultProps));
+          const props = JSON.parse(JSON.stringify(pieChartProps));
+          const secondSeriesDataPath = "chartData.seriesID2.data";
 
-          const widgetError1: WidgetError = {
+          const widgetError: WidgetError = {
             type: "property",
-            path: "chartData.seriesID2.data",
+            path: secondSeriesDataPath,
             name: "ErrorName",
             message: "ErrorMessage",
           };
-          props.errors = [widgetError1];
-          props.chartType = "PIE_CHART";
+          props.errors = [widgetError];
 
           const syntaxErrors = syntaxErrorsFromProps(props);
           expect(syntaxErrors.length).toEqual(0);
         });
+      });
+    });
+
+    describe("When chart type is custom ECharts", () => {
+      const customEChartsProps = JSON.parse(JSON.stringify(defaultProps));
+      customEChartsProps.chartType = "CUSTOM_ECHART";
+
+      it("returns errors when errors are present in custom Echart config field", () => {
+        const props = JSON.parse(JSON.stringify(customEChartsProps));
+        const customEChartDataPropertyPath = "customEChartConfig";
+
+        const widgetError: WidgetError = {
+          type: "property",
+          path: customEChartDataPropertyPath,
+          name: "ErrorName",
+          message: "ErrorMessage",
+        };
+        props.errors = [widgetError];
+
+        const syntaxErrors = syntaxErrorsFromProps(props);
+        expect(syntaxErrors.length).toEqual(1);
+        expect(syntaxErrors[0].name).toEqual("ErrorName");
+      });
+
+      it("doesn't return errors when errors are present in custom fusion chart", () => {
+        const props = JSON.parse(JSON.stringify(customEChartsProps));
+        const customFusionChartDataPropertyPath = "customFusionChartConfig";
+
+        const widgetError: WidgetError = {
+          type: "property",
+          path: customFusionChartDataPropertyPath,
+          name: "ErrorName",
+          message: "ErrorMessage",
+        };
+        props.errors = [widgetError];
+
+        const syntaxErrors = syntaxErrorsFromProps(props);
+        expect(syntaxErrors.length).toEqual(0);
+      });
+
+      it("doesn't return errors when errors are present in basic echarts data field", () => {
+        const props = JSON.parse(JSON.stringify(customEChartsProps));
+        const basicEChartsDataFieldPropertyPath = "chartData";
+
+        const widgetError: WidgetError = {
+          type: "property",
+          path: basicEChartsDataFieldPropertyPath,
+          name: "ErrorName",
+          message: "ErrorMessage",
+        };
+        props.errors = [widgetError];
+
+        const syntaxErrors = syntaxErrorsFromProps(props);
+        expect(syntaxErrors.length).toEqual(0);
       });
     });
   });

@@ -267,6 +267,8 @@ export class DataSources {
   _s3EditFileName =
     "[data-widgetname-cy='update_file_name'] div[data-testid='input-container']";
   _s3MaxFileSizeAlert = "//p[@role='alert']";
+  _entityExplorerID = (dsName: string) =>
+    "[data-testid='t--entity-item-" + dsName + "']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -286,7 +288,7 @@ export class DataSources {
     ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
+    this.agHelper.ClickButton("Got it");
   }
 
   public GeneratePageWithMockDB() {
@@ -303,7 +305,7 @@ export class DataSources {
     this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
     this.agHelper.GetNClick(this._generatePageBtn);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
+    this.agHelper.ClickButton("Got it");
   }
 
   public StartDataSourceRoutes() {
@@ -683,10 +685,15 @@ export class DataSources {
     environment = this.dataManager.defaultEnviorment,
   ) {
     this.agHelper.GetNClick(this._createBlankGraphQL);
-    this.apiPage.EnterURL(
-      this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
-    );
-    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
+    cy.get("@guid").then((uid) => {
+      this.agHelper.RenameWithInPane("GraphQL_API" + "_" + uid, true);
+
+      this.apiPage.EnterURL(
+        this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
+      );
+      this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
+      cy.wrap("GraphQL_API" + "_" + uid).as("dsName");
+    });
   }
 
   public CreateNFillAuthenticatedGraphQLDSForm(
@@ -1271,9 +1278,10 @@ export class DataSources {
         } else {
           this.SaveDatasource();
         }
-      } else if (DataSourceKVP[dsType] == "GraphQL API")
+        cy.wrap(dataSourceName).as("dsName");
+      } else if (DataSourceKVP[dsType] == "GraphQL API") {
         this.FillUnAuthenticatedGraphQLDSForm(environment);
-      cy.wrap(dataSourceName).as("dsName");
+      }
     });
   }
 
