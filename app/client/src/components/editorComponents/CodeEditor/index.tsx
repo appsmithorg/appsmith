@@ -500,7 +500,9 @@ class CodeEditor extends Component<Props, State> {
     if (command === APPSMITH_AI) {
       this.props.executeCommand({
         actionType: SlashCommand.ASK_AI,
-        args: {},
+        args: {
+          mode: this.props.mode,
+        },
       });
       this.setState({ showAIWindow: true });
     }
@@ -1523,7 +1525,8 @@ class CodeEditor extends Component<Props, State> {
       evaluated = evaluatedValue;
 
     if (dataTreePath) {
-      evaluated = pathEvaluatedValue;
+      evaluated =
+        pathEvaluatedValue !== undefined ? pathEvaluatedValue : evaluated;
     }
     const entityInformation = this.getEntityInformation();
 
@@ -1597,6 +1600,7 @@ class CodeEditor extends Component<Props, State> {
             currentValue={this.props.input.value}
             dataTreePath={dataTreePath}
             enableAIAssistance={this.AIEnabled}
+            entitiesForNavigation={this.props.entitiesForNavigation}
             entity={entityInformation}
             isOpen={this.state.showAIWindow}
             mode={this.props.mode}

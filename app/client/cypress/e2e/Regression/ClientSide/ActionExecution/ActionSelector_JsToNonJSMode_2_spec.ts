@@ -508,7 +508,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     propPane.ToggleJSMode("onClick");
     propPane.ValidatePropertyFieldValue(
       "onClick",
-      `{{copyToClipboard('line1\\nline2\\nline3a');}}`,
+      `{{copyToClipboard('aline1\\nline2\\nline3');}}`,
     );
   });
 
