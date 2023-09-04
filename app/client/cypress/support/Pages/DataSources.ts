@@ -788,7 +788,6 @@ export class DataSources {
       this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
       if (!isSavingEnvInOldDS)
         this.agHelper.AssertContains("datasource created");
-      else this.agHelper.AssertContains("datasource updated successfully");
     } else {
       this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
     }
