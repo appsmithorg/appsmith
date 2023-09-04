@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
@@ -183,8 +184,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                             .map(url -> String.format(
                                     "/user/verificationPending?email=%s",
                                     URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)))
+                            // temporary change for IA POC, don't merge
                             .flatMap(redirectUri -> redirectStrategy.sendRedirect(
-                                    webFilterExchange.getExchange(), URI.create(redirectUri))));
+                                    webFilterExchange.getExchange(), URI.create(DEFAULT_REDIRECT_URL))));
         });
     }
 
@@ -430,7 +432,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
-        String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
+        String redirectUrl = DEFAULT_REDIRECT_URL;
         if (state != null && !state.isEmpty()) {
             String[] stateArray = state.split("@");
             for (String stateVar : stateArray) {

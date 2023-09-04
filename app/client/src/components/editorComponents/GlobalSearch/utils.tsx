@@ -13,16 +13,12 @@ import { getPluginByPackageName } from "selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "utils/WidgetFactory";
 import {
-  CurlIconV2,
   GraphQLIconV2,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import { getQueryParams } from "utils/URLUtils";
-import history from "utils/history";
-import { curlImportPageURL } from "RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
 
@@ -281,23 +277,23 @@ export const actionOperations: ActionOperation[] = [
     action: (pageId: string, from: EventLocation) =>
       createNewJSCollection(pageId, from),
   },
-  {
-    title: "New cURL import",
-    desc: "Import a cURL Request",
-    kind: SEARCH_ITEM_TYPES.actionOperation,
-    icon: <CurlIconV2 />,
-    redirect: (pageId: string, from: EventLocation) => {
-      const queryParams = getQueryParams();
-      const curlImportURL = curlImportPageURL({
-        pageId,
-        params: {
-          from,
-          ...queryParams,
-        },
-      });
-      history.push(curlImportURL);
-    },
-  },
+  // {
+  //   title: "New cURL import",
+  //   desc: "Import a cURL Request",
+  //   kind: SEARCH_ITEM_TYPES.actionOperation,
+  //   icon: <CurlIconV2 />,
+  //   redirect: (pageId: string, from: EventLocation) => {
+  //     const queryParams = getQueryParams();
+  //     const curlImportURL = curlImportPageURL({
+  //       pageId,
+  //       params: {
+  //         from,
+  //         ...queryParams,
+  //       },
+  //     });
+  //     history.push(curlImportURL);
+  //   },
+  // },
 ];
 
 export const isMatching = (text = "", query = "") => {
