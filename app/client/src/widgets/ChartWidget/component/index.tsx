@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import * as echarts from "echarts";
+import "echarts-gl";
 import { invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type {
@@ -18,7 +19,7 @@ import { ChartErrorComponent } from "./ChartErrorComponent";
 import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
 import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
 import { isBasicEChart } from "../widget";
-import { parseOnDataPointClickParams } from "./helpers";
+import { parseOnDataPointClickParams, is3DChart } from "./helpers";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -55,6 +56,7 @@ export interface ChartComponentState {
   eChartsError: Error | undefined;
   chartType: ChartType;
 }
+
 export interface ChartComponentProps extends WidgetPositionProps {
   allowScroll: boolean;
   chartData: AllChartData;
@@ -118,6 +120,7 @@ class ChartComponent extends React.Component<
   echartsConfigurationBuilder: EChartsConfigurationBuilder;
 
   echartConfiguration: Record<string, any> = {};
+  is3DChart = false;
 
   constructor(props: ChartComponentProps) {
     super(props);
@@ -166,12 +169,21 @@ class ChartComponent extends React.Component<
       return;
     }
 
+    this.is3DChart =
+      this.isCustomEChart(this.props.chartType) &&
+      is3DChart(this.props.customEChartConfig);
+
+    if (this.is3DChart) {
+      this.echartsInstance?.dispose();
+    }
+
     if (!this.echartsInstance || this.echartsInstance.isDisposed()) {
+      this.echartsInstance?.dispose();
       this.echartsInstance = echarts.init(
         this.eChartsHTMLContainer,
         undefined,
         {
-          renderer: "svg",
+          renderer: this.is3DChart ? "canvas" : "svg",
           width: this.props.dimensions.componentWidth,
           height: this.props.dimensions.componentHeight,
         },
@@ -191,6 +203,21 @@ class ChartComponent extends React.Component<
     return this.props.customEChartConfig;
   };
 
+  shouldSetOptions(eChartOptions: any) {
+    if (equal(this.echartConfiguration, eChartOptions)) {
+      if (this.is3DChart) {
+        return (
+          this.state.eChartsError == undefined ||
+          this.state.eChartsError == null
+        );
+      } else {
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }
+
   renderECharts = () => {
     this.initializeEchartsInstance();
 
@@ -206,7 +233,7 @@ class ChartComponent extends React.Component<
     }
 
     try {
-      if (!equal(this.echartConfiguration, eChartOptions)) {
+      if (this.shouldSetOptions(eChartOptions)) {
         this.echartConfiguration = eChartOptions;
         this.echartsInstance.setOption(this.echartConfiguration, true);
 

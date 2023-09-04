@@ -3,6 +3,7 @@ import {
   parseOnDataPointClickParams,
   parseOnDataPointClickForCustomEChart,
   parseOnDataPointClickForCustomFusionChart,
+  is3DChart,
 } from "./helpers";
 
 describe("parseOnDataPointClickParams", () => {
@@ -111,5 +112,52 @@ describe("parseOnDataPointClickForCustomFusionChart", () => {
     expect(parsedEvent.x).toBeUndefined();
     expect(parsedEvent.y).toBeUndefined();
     expect(parsedEvent.seriesTitle).toBeUndefined();
+  });
+});
+
+describe("is3DChart", () => {
+  it("returns true if any of the 3D Chart config keys is present", () => {
+    const threeDChartKey = "globe";
+    const config: Record<string, unknown> = {
+      source: {},
+    };
+
+    config[threeDChartKey] = {};
+    expect(is3DChart(config)).toEqual(true);
+  });
+
+  it("returns true if any of the 3D series type is present in an array of series", () => {
+    const config: Record<string, unknown> = {
+      source: {},
+      series: [
+        {
+          type: "line3D",
+        },
+      ],
+    };
+
+    expect(is3DChart(config)).toEqual(true);
+  });
+
+  it("returns true if any of the 3D series type is present in single series", () => {
+    const config: Record<string, unknown> = {
+      source: {},
+      series: {
+        type: "line3D",
+      },
+    };
+
+    expect(is3DChart(config)).toEqual(true);
+  });
+
+  it("returns false if none of the 3D fields is present", () => {
+    const config: Record<string, unknown> = {
+      source: {},
+      series: {
+        type: "line",
+      },
+    };
+
+    expect(is3DChart(config)).toEqual(false);
   });
 });
