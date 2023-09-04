@@ -33,12 +33,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
       .invoke("text")
       .then((text) => {
         const tableRowTxt = text;
-        dataSources.AddSuggestedWidget(
-          Widgets.Table,
-          false,
-          0,
-          dataSources._addSuggestedAddNew,
-        );
+        dataSources.AddSuggestedWidget(Widgets.Table);
         entityExplorer.SelectEntityByName("Table1");
         cy.isSelectRow(1);
         cy.readTableV2dataPublish("1", "0").then((tabData) => {

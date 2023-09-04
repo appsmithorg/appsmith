@@ -189,14 +189,12 @@ export class DataSources {
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
 
-  private _suggestedWidget = (widgetType: string, parentClass?: string) =>
-    parentClass
-      ? "//div[contains(@class, '" +
-        parentClass +
-        "')]//div[contains(@class, 't--suggested-widget-" +
-        widgetType +
-        "')]"
-      : ".t--suggested-widget-" + widgetType + "";
+  private _suggestedWidget = (widgetType: string, parentClass: string) =>
+    "//div[contains(@class, '" +
+    parentClass +
+    "')]//div[contains(@class, 't--suggested-widget-" +
+    widgetType +
+    "')]";
 
   private _curlTextArea =
     "//label[text()='Paste CURL Code Here']/parent::form/div";
@@ -1686,9 +1684,9 @@ export class DataSources {
 
   public AddSuggestedWidget(
     widget: Widgets,
+    parentClass = this._addSuggestedAddNew,
     force = false,
     index = 0,
-    parentClass?: string,
   ) {
     switch (widget) {
       case Widgets.Dropdown:

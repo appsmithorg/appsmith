@@ -20,8 +20,6 @@ describe("Test Create Api and Bind to Table widget", function () {
     apiPage.RunAPI();
     dataSources.AddSuggestedWidget(
       Widgets.TableV1,
-      false,
-      0,
       dataSources._addSuggestedExisting,
     );
     table.WaitUntilTableLoad(0, 0, "v1");

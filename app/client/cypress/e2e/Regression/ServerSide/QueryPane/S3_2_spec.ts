@@ -434,7 +434,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("6. Verify Adding Suggested widget with specific name functionality - S3 ", () => {
-    datasourceName = "";
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     dataSources.NavigateFromActiveDS(datasourceName, true);
     agHelper.GetObjectName().then(($queryName) => {
@@ -444,8 +443,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       dataSources.RunQuery();
       dataSources.AddSuggestedWidget(
         Widgets.Table,
-        false,
-        0,
         dataSources._addSuggestedExisting,
       );
 

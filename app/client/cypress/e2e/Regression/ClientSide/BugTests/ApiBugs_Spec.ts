@@ -27,12 +27,7 @@ describe("API Bugs", function () {
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     apiPage.RunAPI();
-    dataSources.AddSuggestedWidget(
-      Widgets.Table,
-      false,
-      0,
-      dataSources._addSuggestedAddNew,
-    );
+    dataSources.AddSuggestedWidget(Widgets.Table);
     debuggerHelper.AssertErrorCount(0);
     table.WaitUntilTableLoad(0, 0, "v2");
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Api1");
@@ -42,12 +37,7 @@ describe("API Bugs", function () {
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiObjectUrl,
     );
     apiPage.RunAPI();
-    dataSources.AddSuggestedWidget(
-      Widgets.Table,
-      false,
-      0,
-      dataSources._addSuggestedExisting,
-    );
+    dataSources.AddSuggestedWidget(Widgets.Table);
     table.WaitUntilTableLoad(0, 0, "v2");
     propPane.ValidatePropertyFieldValue("Table data", "{{Api2.data.users}}");
   });
@@ -95,5 +85,37 @@ describe("API Bugs", function () {
       key: "records",
       value: "4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}",
     });
+  });
+
+  it("5. Bug 26897, Invalid binding of table data when used existing suggested widgets for an action returning object", function () {
+    // Case where api returns array response
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+      "ARRAY_RESPONSE",
+    );
+    apiPage.RunAPI();
+    dataSources.AddSuggestedWidget(Widgets.Table);
+    debuggerHelper.AssertErrorCount(0);
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.AssertPropertiesDropDownCurrentValue(
+      "Table data",
+      "ARRAY_RESPONSE",
+    );
+
+    // Create another API so that it returns object response
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiObjectUrl,
+      "OBJECT_RESPONSE",
+    );
+    apiPage.RunAPI();
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      dataSources._addSuggestedExisting,
+    );
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.ValidatePropertyFieldValue(
+      "Table data",
+      "{{OBJECT_RESPONSE.data.users}}",
+    );
   });
 });
