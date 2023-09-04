@@ -141,6 +141,20 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     cy.get(viewWidgetsPage.chartWidget).should("not.exist");
   });
 
+  it("5. 3D EChart Custom Chart Widget Functionality", function () {
+    featureFlagIntercept({
+      release_custom_echarts_enabled: true,
+    });
+    cy.UpdateChartType("Custom EChart");
+
+    cy.testJsontext(
+      "customechartsconfiguration",
+      `{{${JSON.stringify(this.dataSet.Custom3DEChartConfig)}}}`,
+    );
+    cy.matchImageSnapshot("3DCustomECharts");
+    _.deployMode.DeployApp();
+  });
+
   afterEach(() => {
     _.deployMode.NavigateBacktoEditor();
   });
