@@ -66,7 +66,7 @@ export function expandLoadMoreOptions() {
     if ($ele.find(oneClickBindingLocator.loadMore).length > 0) {
       const length = $ele.find(oneClickBindingLocator.loadMore).length;
       new Array(length).fill(" ").forEach((d, i) => {
-        agHelper.GetNClick(oneClickBindingLocator.loadMore, i);
+        agHelper.GetNClick(oneClickBindingLocator.loadMore, 0);
       });
     }
   });

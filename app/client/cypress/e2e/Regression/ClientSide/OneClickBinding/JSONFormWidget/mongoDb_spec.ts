@@ -14,15 +14,16 @@ const oneClickBinding = new OneClickBinding();
 
 describe("JSONForm widget one click binding feature", () => {
   let datasourceName: string;
-  it("Create flow: should check that queries are created and bound to table jsonform widget properly ", () => {
+  it("Create flow: should check that queries are created and bound to jsonform widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 450, 200);
 
     entityExplorer.NavigateToSwitcher("Explorer");
 
-    dataSources.CreateDataSource("Postgres");
+    dataSources.CreateDataSource("Mongo");
 
     cy.get("@dsName").then((dsName) => {
       datasourceName = dsName as unknown as string;
+
       entityExplorer.NavigateToSwitcher("Widgets");
 
       entityExplorer.SelectEntityByName("JSONForm1", "Widgets");
@@ -30,7 +31,7 @@ describe("JSONForm widget one click binding feature", () => {
       oneClickBinding.ChooseAndAssertForm(
         `${datasourceName}`,
         datasourceName,
-        "public.employees",
+        "netflix",
         {
           formType: "Create records",
         },
@@ -39,15 +40,22 @@ describe("JSONForm widget one click binding feature", () => {
 
     agHelper.GetNClick(oneClickBindingLocator.connectData);
 
+    assertHelper.AssertNetworkStatus("@postExecute");
+
     agHelper.Sleep(2000);
 
     const columns = [
-      "last_name",
-      "first_name",
-      "title",
-      "title_of_courtesy",
-      "birth_date",
-      "hire_date",
+      "contentRating",
+      "contentType",
+      "creator",
+      "description",
+      "director",
+      "genre",
+      "name",
+      "numberOfSeasons",
+      "releasedDate",
+      "seasonStartDate",
+      "url",
     ];
 
     columns.forEach((column) => {
@@ -68,9 +76,9 @@ describe("JSONForm widget one click binding feature", () => {
     oneClickBinding.ChooseAndAssertForm(
       `${datasourceName}`,
       datasourceName,
-      "public.employees",
+      "netflix",
       {
-        searchableColumn: "first_name",
+        searchableColumn: "creator",
       },
     );
 
@@ -87,7 +95,7 @@ describe("JSONForm widget one click binding feature", () => {
     oneClickBinding.ChooseAndAssertForm(
       `${datasourceName}`,
       datasourceName,
-      "public.employees",
+      "netflix",
       {
         formType: "Edit records",
         defaultValues: "Table1",
@@ -101,20 +109,20 @@ describe("JSONForm widget one click binding feature", () => {
 
     agHelper.Sleep(2000);
 
-    table.SelectTableRow(0, 1, true, "v2");
+    table.SelectTableRow(0, 3, true, "v2");
 
-    table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
+    table.ReadTableRowColumnData(0, 3, "v2").then((cellData) => {
       agHelper
-        .GetText(locators._jsonFormInputField("last_name"), "val")
+        .GetText(locators._jsonFormInputField("creator"), "val")
         .should("be.equal", cellData);
     });
 
     agHelper
-      .GetElement(locators._jsonFormInputField("last_name"))
+      .GetElement(locators._jsonFormInputField("creator"))
       .clear()
       .type("Doe");
     agHelper
-      .GetText(locators._jsonFormInputField("last_name"), "val")
+      .GetText(locators._jsonFormInputField("creator"), "val")
       .should("be.equal", "Doe");
 
     agHelper.GetNClick(locators._jsonFormSubmitBtn, 0, true);
@@ -127,7 +135,7 @@ describe("JSONForm widget one click binding feature", () => {
 
     entityExplorer.SelectEntityByName("Table1", "Widgets");
 
-    table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
+    table.ReadTableRowColumnData(0, 3, "v2").then((cellData) => {
       expect(cellData).to.eq("Doe");
     });
   });

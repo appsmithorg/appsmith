@@ -42,6 +42,9 @@ export default {
   datasourceSearch: `[data-testId="t--one-click-binding-datasource--search"]`,
   searchableColumn:
     '[data-testId="t--one-click-binding-column-searchableColumn"]',
+  formType: '[data-testId="t--one-click-binding-column-formType"]',
+  defaultValues: '[data-testId="t--one-click-binding-column-defaultValues"]',
+  dataIdentifier: '[data-testId="t--one-click-binding-column-dataIdentifier"]',
   label: '[data-testId="t--one-click-binding-column-label"]',
   value: '[data-testId="t--one-click-binding-column-value"]',
   columnDropdownOption: (column: string, value?: string) =>
