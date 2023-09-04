@@ -23,7 +23,6 @@ RUN apt-get update \
   && python3 -m venv --prompt certbot /opt/certbot/venv \
   && /opt/certbot/venv/bin/pip install certbot \
   && ln -s /opt/certbot/venv/bin/certbot /usr/local/bin \
-  && rm -rf /opt/certbot/venv/lib/python3.*/site-packages/setuptools* \
   && apt-get remove --yes git python3-pip python3-venv python-setuptools \
   && apt-get autoremove --yes
 
