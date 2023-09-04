@@ -2,6 +2,7 @@ import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
 import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
+import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export const STORAGE_KEYS: {
@@ -25,6 +26,7 @@ export const STORAGE_KEYS: {
   FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
   SIGNPOSTING_APP_STATE: "SIGNPOSTING_APP_STATE",
+  AI_SUGGESTED_PROMPTS_SHOWN: "AI_SUGGESTED_PROMPTS_SHOWN",
   AI_TRIGGERED_FOR_PROPERTY_PANE: "AI_TRIGGERED",
   AI_TRIGGERED_FOR_QUERY: "AI_TRIGGERED_FOR_QUERY",
   FEATURE_WALKTHROUGH: "FEATURE_WALKTHROUGH",
@@ -615,4 +617,48 @@ export const getVersionUpdateState =
 
 export const removeVersionUpdateState = async () => {
   return store.removeItem(STORAGE_KEYS.VERSION_UPDATE_STATE);
+};
+
+export const setAISuggestedPromptShownForType = async (type: string) => {
+  try {
+    const suggestedPromptsShownForType: Record<string, number> =
+      (await store.getItem(STORAGE_KEYS.AI_SUGGESTED_PROMPTS_SHOWN)) || {};
+
+    if (isNumber(suggestedPromptsShownForType[type])) {
+      suggestedPromptsShownForType[type] += 1;
+    } else {
+      suggestedPromptsShownForType[type] = 1;
+    }
+
+    if (suggestedPromptsShownForType[type] > 5) {
+      return suggestedPromptsShownForType[type];
+    }
+
+    await store.setItem(
+      STORAGE_KEYS.AI_SUGGESTED_PROMPTS_SHOWN,
+      suggestedPromptsShownForType,
+    );
+
+    return suggestedPromptsShownForType[type];
+  } catch (error) {
+    log.error("An error occurred while setting AI_SUGGESTED_PROMPTS_SHOWN");
+    log.error(error);
+
+    return 0;
+  }
+};
+
+export const getAISuggestedPromptShownForType = async (type: string) => {
+  try {
+    const suggestedPromptsShownForType: Record<string, number> | null =
+      await store.getItem(STORAGE_KEYS.AI_SUGGESTED_PROMPTS_SHOWN);
+
+    if (suggestedPromptsShownForType === null) return 0;
+
+    return suggestedPromptsShownForType[type] || 0;
+  } catch (error) {
+    log.error("An error occurred while fetching AI_SUGGESTED_PROMPTS_SHOWN");
+    log.error(error);
+    return 0;
+  }
 };
