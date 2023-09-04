@@ -342,7 +342,7 @@ function renderWidgetImage(image: string | undefined) {
   return null;
 }
 
-const SUPPORTED_SUGGESTED_WIDGETS = ["TABLE_WIDGET", "TABLE_WIDGET_V2"];
+const SUPPORTED_SUGGESTED_WIDGETS = ["TABLE_WIDGET_V2"];
 
 function SuggestedWidgets(props: SuggestedWidgetProps) {
   const dispatch = useDispatch();
