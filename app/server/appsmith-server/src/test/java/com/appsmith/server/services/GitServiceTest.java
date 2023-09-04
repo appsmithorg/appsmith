@@ -105,6 +105,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
@@ -189,8 +190,13 @@ public class GitServiceTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @MockBean
+    FeatureFlagService featureFlagService;
+
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
+
+        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(TRUE));
 
         if (StringUtils.isEmpty(workspaceId)) {
 
