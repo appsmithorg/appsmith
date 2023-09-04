@@ -787,6 +787,7 @@ export default class DataTreeEvaluator {
         isFirstTree: false,
         unevalUpdates,
         metaWidgets: metaWidgetIds,
+        noClone: true,
       },
       configTree,
     );
@@ -928,10 +929,12 @@ export default class DataTreeEvaluator {
       isFirstTree: boolean;
       unevalUpdates: DataTreeDiff[];
       metaWidgets: string[];
+      noClone: any;
     } = {
       isFirstTree: true,
       unevalUpdates: [],
       metaWidgets: [],
+      noClone: false,
     },
     oldConfigTree: ConfigTree,
   ): {
@@ -939,7 +942,7 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
   } {
-    const tree = klona(oldUnevalTree);
+    const tree = options.noClone ? oldUnevalTree : klona(oldUnevalTree);
     errorModifier.updateAsyncFunctions(
       tree,
       this.getConfigTree(),

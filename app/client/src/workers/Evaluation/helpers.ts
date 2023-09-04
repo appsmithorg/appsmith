@@ -3,6 +3,7 @@ import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal";
 import produce from "immer";
+import { klona } from "klona";
 import { get, isNumber, isObject, set } from "lodash";
 
 export interface DiffReferenceState {
@@ -270,6 +271,6 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     identicalEvalPathsPatches,
   );
 
-  dataTreeEvaluator?.setPrevState(dataTree);
+  dataTreeEvaluator?.setPrevState(klona(dataTree));
   return updates;
 };
