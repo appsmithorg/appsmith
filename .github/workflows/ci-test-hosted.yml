@@ -321,6 +321,7 @@ jobs:
           spec: |
             cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts
             cypress/e2e/GSheet/**/**/*
+            cypress/e2e/EE/Enterprise/MultipleEnv/ME_airtable_spec.ts
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
@@ -437,7 +438,7 @@ jobs:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}
-      
+
       - name: get cypress url dashboard url
         id: dashboard_url
         if: always()
@@ -468,13 +469,13 @@ jobs:
         env:
           SLACK_CHANNEL: cypresspushworkflow
           SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
-          SLACK_ICON_EMOJI: ':bell:'
+          SLACK_ICON_EMOJI: ":bell:"
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
-          SLACK_TITLE: 'Result:'
+          SLACK_TITLE: "Result:"
           SLACK_USERNAME: Cloud-Hosted Tests
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
           MSG_MINIMAL: Ref,Event,Commit
-          SLACK_FOOTER: 'Appsmith CI runs'
+          SLACK_FOOTER: "Appsmith CI runs"
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
