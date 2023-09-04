@@ -46,15 +46,17 @@ export class DarkModeTheme implements ColorModeTheme {
       bg: this.bg.to("sRGB").toString(),
       bgAccent: this.bgAccent.to("sRGB").toString(),
       bgAccentHover: this.bgAccentHover.to("sRGB").toString(),
-      bgAccentActive: this.bgAccentActive.toString(),
-      bgAccentSubtleHover: this.bgAccentSubtleHover.toString(),
-      bgAccentSubtleActive: this.bgAccentSubtleActive.toString(),
-      bgAssistive: this.bgAssistive.toString(),
-      bgNeutral: this.bgNeutral.toString(),
-      bgNeutralHover: this.bgNeutralHover.toString(),
-      bgNeutralActive: this.bgNeutralActive.toString(),
-      bgNeutralSubtleHover: this.bgNeutralSubtleHover.toString(),
-      bgNeutralSubtleActive: this.bgNeutralSubtleActive.toString(),
+      bgAccentActive: this.bgAccentActive.to("sRGB").toString(),
+      bgAccentSubtle: this.bgAccentSubtle.to("sRGB").toString(),
+      bgAccentSubtleHover: this.bgAccentSubtleHover.to("sRGB").toString(),
+      bgAccentSubtleActive: this.bgAccentSubtleActive.to("sRGB").toString(),
+      bgAssistive: this.bgAssistive.to("sRGB").toString(),
+      bgNeutral: this.bgNeutral.to("sRGB").toString(),
+      bgNeutralHover: this.bgNeutralHover.to("sRGB").toString(),
+      bgNeutralActive: this.bgNeutralActive.to("sRGB").toString(),
+      bgNeutralSubtle: this.bgNeutralSubtle.to("sRGB").toString(),
+      bgNeutralSubtleHover: this.bgNeutralSubtleHover.to("sRGB").toString(),
+      bgNeutralSubtleActive: this.bgNeutralSubtleActive.to("sRGB").toString(),
       bgPositive: this.bgPositive.to("sRGB").toString(),
       bgPositiveHover: this.bgPositiveHover.to("sRGB").toString(),
       bgPositiveActive: this.bgPositiveActive.to("sRGB").toString(),
@@ -71,24 +73,25 @@ export class DarkModeTheme implements ColorModeTheme {
       bgWarningSubtleHover: this.bgWarningSubtleHover.to("sRGB").toString(),
       bgWarningSubtleActive: this.bgWarningSubtleActive.to("sRGB").toString(),
 
-      fg: this.fg.toString(),
-      fgAccent: this.fgAccent.toString(),
-      fgNeutral: this.fgNeutral.toString(),
+      fg: this.fg.to("sRGB").toString(),
+      fgAccent: this.fgAccent.to("sRGB").toString(),
+      fgNeutral: this.fgNeutral.to("sRGB").toString(),
       fgPositive: this.fgPositive.to("sRGB").toString(),
       fgNegative: this.fgNegative.to("sRGB").toString(),
       fgWarning: this.fgWarning.to("sRGB").toString(),
 
-      fgOnAccent: this.fgOnAccent.toString(),
+      fgOnAccent: this.fgOnAccent.to("sRGB").toString(),
       fgOnAssistive: this.fgOnAssistive.to("sRGB").toString(),
       fgOnNeutral: this.fgOnNeutral.to("sRGB").toString(),
       fgOnPositive: this.fgOnPositive.to("sRGB").toString(),
       fgOnNegative: this.fgOnNegative.to("sRGB").toString(),
       fgOnWarning: this.fgOnWarning.to("sRGB").toString(),
 
-      bdAccent: this.bdAccent.toString(),
-      bdFocus: this.bdFocus.toString(),
-      bdNeutral: this.bdNeutral.toString(),
-      bdNeutralHover: this.bdNeutralHover.toString(),
+      bd: this.bd.to("sRGB").toString(),
+      bdAccent: this.bdAccent.to("sRGB").toString(),
+      bdFocus: this.bdFocus.to("sRGB").toString(),
+      bdNeutral: this.bdNeutral.to("sRGB").toString(),
+      bdNeutralHover: this.bdNeutralHover.to("sRGB").toString(),
       bdPositive: this.bdPositive.to("sRGB").toString(),
       bdPositiveHover: this.bdPositiveHover.to("sRGB").toString(),
       bdNegative: this.bdNegative.to("sRGB").toString(),
@@ -96,7 +99,7 @@ export class DarkModeTheme implements ColorModeTheme {
       bdWarning: this.bdWarning.to("sRGB").toString(),
       bdWarningHover: this.bdWarningHover.to("sRGB").toString(),
 
-      bdOnAccent: this.bdOnAccent.toString(),
+      bdOnAccent: this.bdOnAccent.to("sRGB").toString(),
       bdOnNeutral: this.bdOnNeutral.to("sRGB").toString(),
       bdOnPositive: this.bdOnPositive.to("sRGB").toString(),
       bdOnNegative: this.bdOnNegative.to("sRGB").toString(),
@@ -792,6 +795,14 @@ export class DarkModeTheme implements ColorModeTheme {
   /*
    * Border colors
    */
+
+  private get bd() {
+    const color = this.fg.clone();
+
+    color.oklch.l = 0.4;
+
+    return color;
+  }
 
   private get bdAccent() {
     const color = this.seedColor.clone();

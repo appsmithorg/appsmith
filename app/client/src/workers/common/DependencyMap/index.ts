@@ -309,8 +309,10 @@ export const updateDependencyMap = ({
 
   if (didUpdateDependencyMap) {
     DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
-    dataTreeEvalRef.sortedDependencies =
-      dataTreeEvalRef.sortDependencies(dependencyMap);
+    dataTreeEvalRef.sortedDependencies = dataTreeEvalRef.sortDependencies(
+      dependencyMap,
+      translatedDiffs,
+    );
   }
   if (didUpdateValidationDependencyMap) {
     dataTreeEvalRef.sortedValidationDependencies =
