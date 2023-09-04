@@ -75,7 +75,7 @@ import {
 import { AppThemingMode } from "selectors/appThemingSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { startFormEvaluations } from "actions/evaluationActions";
+import { startFormEvaluations } from "@appsmith/actions/evaluationActions";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import type { Plugin } from "api/PluginApi";

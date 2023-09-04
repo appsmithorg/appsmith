@@ -11,7 +11,7 @@ import type {
   DynamicValues,
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
+import { FORM_EVALUATION_REDUX_ACTIONS } from "@appsmith/actions/evaluationActions";
 import type { Action, ActionConfig } from "entities/Action";
 import type { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";

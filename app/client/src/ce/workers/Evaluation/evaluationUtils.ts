@@ -33,6 +33,11 @@ import type {
 } from "entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
+import store from "store";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import { shouldTriggerLinting } from "@appsmith/actions/evaluationActions";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -979,4 +984,12 @@ export function convertJSFunctionsToString(
   });
 
   return collections;
+}
+
+export function getRequiresLinting(action: ReduxAction<unknown>) {
+  const appMode: ReturnType<typeof getAppMode> = getAppMode(store.getState());
+
+  const requiresLinting =
+    appMode === APP_MODE.EDIT && shouldTriggerLinting(action);
+  return requiresLinting;
 }

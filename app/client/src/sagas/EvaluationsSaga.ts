@@ -45,8 +45,7 @@ import {
   shouldLog,
   shouldProcessAction,
   shouldTriggerEvaluation,
-  shouldTriggerLinting,
-} from "actions/evaluationActions";
+} from "@appsmith/actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
   dynamicTriggerErrorHandler,
@@ -100,7 +99,7 @@ import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
-
+import { getRequiresLinting } from "@appsmith/workers/Evaluation/evaluationUtils";
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -537,10 +536,8 @@ function* evalAndLintingHandler(
   }>,
 ) {
   const { forceEvaluation, requiresLogging, shouldReplay } = options;
-  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
-  const requiresLinting =
-    appMode === APP_MODE.EDIT && shouldTriggerLinting(action);
+  const requiresLinting = getRequiresLinting(action);
 
   const requiresEval = shouldTriggerEvaluation(action);
   log.debug({
