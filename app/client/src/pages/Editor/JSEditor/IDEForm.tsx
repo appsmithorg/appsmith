@@ -14,7 +14,7 @@ import {
   updateJSCollectionBody,
 } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router";
+import { useLocation, useParams } from "react-router";
 import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
@@ -28,15 +28,23 @@ import {
 import type { JSActionDropdownOption } from "./utils";
 import {
   convertJSActionToDropdownOption,
+  convertJSActionsToDropdownOptions,
   getActionFromJsCollection,
   getJSActionOption,
   getJSFunctionLineGutter,
   getJSPropertyLineFromName,
 } from "./utils";
 import JSObjectHotKeys from "./JSObjectHotKeys";
-import { Form, FormWrapper } from "./styledComponents";
+import {
+  ActionButtons,
+  Form,
+  FormWrapper,
+  NameWrapper,
+  StyledFormRow,
+} from "./styledComponents";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import {
+  hasDeleteActionPermission,
   hasExecuteActionPermission,
   hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
@@ -49,6 +57,11 @@ import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import JSObjectNameEditor from "./JSObjectNameEditor";
+import { JSFunctionRun } from "./JSFunctionRun";
+import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { DropdownOnSelect } from "design-system-old";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -75,6 +88,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const theme = EditorTheme.LIGHT;
   const dispatch = useDispatch();
   const { hash } = useLocation();
+  const { pageId } = useParams<ExplorerURLParams>();
 
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
 
@@ -142,6 +156,9 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const isExecutePermitted = hasExecuteActionPermission(
     currentJSCollection?.userPermissions || [],
   );
+  const isDeletePermitted = hasDeleteActionPermission(
+    currentJSCollection?.userPermissions || [],
+  );
 
   // Triggered when there is a change in the code editor
   const handleEditorChange = (valueOrEvent: ChangeEvent<any> | string) => {
@@ -172,6 +189,19 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         from: from,
       }),
     );
+  };
+
+  const handleJSActionOptionSelection: DropdownOnSelect = (value) => {
+    if (value) {
+      const jsAction = getActionFromJsCollection(value, currentJSCollection);
+      if (jsAction) {
+        setSelectedJSActionOption({
+          data: jsAction,
+          value,
+          label: jsAction.name,
+        });
+      }
+    }
   };
 
   const handleActiveActionChange = useCallback(
@@ -259,6 +289,40 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         }}
       >
         <Form onSubmit={(event) => event.preventDefault()}>
+          <StyledFormRow className="form-row-header">
+            <NameWrapper className="t--nameOfJSObject">
+              <JSObjectNameEditor
+                disabled={!isChangePermitted}
+                page="JS_PANE"
+              />
+            </NameWrapper>
+            <ActionButtons className="t--formActionButtons">
+              <MoreJSCollectionsMenu
+                className="t--more-action-menu"
+                id={currentJSCollection.id}
+                isChangePermitted={isChangePermitted}
+                isDeletePermitted={isDeletePermitted}
+                name={currentJSCollection.name}
+                pageId={pageId}
+              />
+              <JSFunctionRun
+                disabled={disableRunFunctionality || !isExecutePermitted}
+                isLoading={isExecutingCurrentJSAction}
+                jsCollection={currentJSCollection}
+                onButtonClick={(
+                  event:
+                    | React.MouseEvent<HTMLElement, MouseEvent>
+                    | KeyboardEvent,
+                ) => {
+                  handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
+                }}
+                onSelect={handleJSActionOptionSelection}
+                options={convertJSActionsToDropdownOptions(jsActions)}
+                selected={selectedJSActionOption}
+                showTooltip={!selectedJSActionOption.data}
+              />
+            </ActionButtons>
+          </StyledFormRow>
           <Wrapper>
             <div className="flex flex-1">
               <SecondaryWrapper>
