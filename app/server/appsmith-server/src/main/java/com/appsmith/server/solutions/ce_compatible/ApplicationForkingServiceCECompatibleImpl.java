@@ -1,22 +1,24 @@
-package com.appsmith.server.solutions;
+package com.appsmith.server.solutions.ce_compatible;
 
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ce_compatible.ApplicationForkingServiceCECompatibleImpl;
-import lombok.extern.slf4j.Slf4j;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.ForkExamplesWorkspace;
+import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.solutions.ce.ApplicationForkingServiceCEImpl;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
-public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCECompatibleImpl
-        implements ApplicationForkingService {
-    public ApplicationForkingServiceImpl(
+public class ApplicationForkingServiceCECompatibleImpl extends ApplicationForkingServiceCEImpl
+        implements ApplicationForkingServiceCECompatible {
+    public ApplicationForkingServiceCECompatibleImpl(
             ApplicationService applicationService,
             WorkspaceService workspaceService,
-            ForkExamplesWorkspace examplesWorkspaceCloner,
+            ForkExamplesWorkspace forkExamplesWorkspace,
             SessionUserService sessionUserService,
             AnalyticsService analyticsService,
             ResponseUtils responseUtils,
@@ -26,7 +28,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCECo
         super(
                 applicationService,
                 workspaceService,
-                examplesWorkspaceCloner,
+                forkExamplesWorkspace,
                 sessionUserService,
                 analyticsService,
                 responseUtils,
