@@ -407,12 +407,14 @@ function GeneratePageForm() {
     setSelectedDatasourceIsInvalid,
   });
 
+  // Flag to indicate fetching of datasource configs or structure
   const fetchingDatasourceConfigs =
     isFetchingDatasourceStructure ||
     (isFetchingBucketList && isS3Plugin) ||
     ((isFetchingSheetPluginForm || spreadSheetsProps.isFetchingSpreadsheets) &&
       isGoogleSheetPlugin);
 
+  // Options for datasource dropdown
   const dataSourceOptions = useDatasourceOptions({
     canCreateDatasource,
     datasources,
