@@ -1,4 +1,4 @@
-package com.appsmith.server.solutions.ce_compatible;
+package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
