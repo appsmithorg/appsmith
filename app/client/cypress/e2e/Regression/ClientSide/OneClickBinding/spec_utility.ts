@@ -19,7 +19,7 @@ export class OneClickBinding {
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceSelector(source));
 
-    assertHelper.AssertNetworkStatus("getDatasourceStructure", 200);
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure");
 
     agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 
