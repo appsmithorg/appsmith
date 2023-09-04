@@ -1,7 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
-import { WALKTHROUGH_TEST_PAGE } from "../Constants";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -695,10 +694,15 @@ export class DataSources {
     environment = this.dataManager.defaultEnviorment,
   ) {
     this.agHelper.GetNClick(this._createBlankGraphQL);
-    this.apiPage.EnterURL(
-      this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
-    );
-    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
+    cy.get("@guid").then((uid) => {
+      this.agHelper.RenameWithInPane("GraphQL_API" + "_" + uid, true);
+
+      this.apiPage.EnterURL(
+        this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
+      );
+      this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
+      cy.wrap("GraphQL_API" + "_" + uid).as("dsName");
+    });
   }
 
   public CreateNFillAuthenticatedGraphQLDSForm(
@@ -1284,9 +1288,10 @@ export class DataSources {
         } else {
           this.SaveDatasource();
         }
-      } else if (DataSourceKVP[dsType] == "GraphQL API")
+        cy.wrap(dataSourceName).as("dsName");
+      } else if (DataSourceKVP[dsType] == "GraphQL API") {
         this.FillUnAuthenticatedGraphQLDSForm(environment);
-      cy.wrap(dataSourceName).as("dsName");
+      }
     });
   }
 
