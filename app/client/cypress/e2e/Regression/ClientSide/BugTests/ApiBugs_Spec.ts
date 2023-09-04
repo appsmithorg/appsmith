@@ -89,9 +89,26 @@ describe("API Bugs", function () {
     });
   });
 
-  it("5. Bug 26897, Invalid binding of table data when used existing suggested widgets for an action returning object", function () {
+  it("5. Bug 26897, Invalid binding of table data when used existing suggested widgets for an action returning object & array", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     entityExplorer.NavigateToSwitcher("Explorer");
+
+    // Case where api returns array response
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+      "ARRAY_RESPONSE",
+    );
+    apiPage.RunAPI();
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      dataSources._addSuggestedExisting,
+    );
+    debuggerHelper.AssertErrorCount(0);
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.AssertPropertiesDropDownCurrentValue(
+      "Table data",
+      "ARRAY_RESPONSE",
+    );
 
     // Create API so that it returns object response
     apiPage.CreateAndFillApi(
