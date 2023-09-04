@@ -18,7 +18,10 @@ describe("Test Create Api and Bind to Table widget V2", function () {
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     apiPage.RunAPI();
-    dataSources.AddSuggestedWidget(Widgets.Table);
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      dataSources._addSuggestedExisting,
+    );
     table.WaitUntilTableLoad(0, 0, "v2");
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Api1");
   });
