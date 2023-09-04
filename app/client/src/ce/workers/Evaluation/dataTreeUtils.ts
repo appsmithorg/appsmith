@@ -1,7 +1,7 @@
+/* eslint-disable no-console */
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { get, set, unset } from "lodash";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
-import { removeFunctionsAndSerialzeBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 /**
  * This method loops through each entity object of dataTree and sets the entity config from prototype as object properties.
@@ -25,12 +25,17 @@ export function makeEntityConfigsAsObjProperties(
     const entity = dataTree[entityName];
     newDataTree[entityName] = Object.assign({}, entity);
   }
-  const dataTreeToReturn = sanitizeDataTree
-    ? removeFunctionsAndSerialzeBigInt(newDataTree)
-    : newDataTree;
+  let dataTreeToReturn: any;
+  try {
+    dataTreeToReturn = sanitizeDataTree
+      ? structuredClone(newDataTree)
+      : newDataTree;
 
-  if (!evalProps) return dataTreeToReturn;
-
+    if (!evalProps) return dataTreeToReturn;
+  } catch (e) {
+    console.log("function is presenet ", newDataTree);
+    throw new Error("function embedded ", e);
+  }
   //clean up deletes widget states
   Object.entries(identicalEvalPathsPatches || {}).forEach(
     ([evalPath, statePath]) => {
@@ -45,11 +50,11 @@ export function makeEntityConfigsAsObjProperties(
   Object.entries(identicalEvalPathsPatches || {}).forEach(
     ([evalPath, statePath]) => {
       const referencePathValue = get(dataTreeToReturn, statePath);
-      set(evalProps, evalPath, referencePathValue);
+      set(evalProps as any, evalPath, referencePathValue);
     },
   );
 
-  const alreadySanitisedDataSet = {} as EvalProps;
+  const alreadySanitisedDataSet = {} as any;
   Object.keys(identicalEvalPathsPatches || {}).forEach((evalPath) => {
     const val = get(evalProps, evalPath);
     //serialised already
@@ -57,19 +62,23 @@ export function makeEntityConfigsAsObjProperties(
     //we are seperating it from evalProps because we don't want to serialise this identical data unecessarily again
     unset(evalProps, evalPath);
   });
+  let sanitizedEvalProps: any;
+  try {
+    sanitizedEvalProps = structuredClone(evalProps) as EvalProps;
+  } catch (e) {
+    console.log("function is presenet in evalProps ", evalProps);
+    throw new Error("function embedded ", e);
+  }
 
-  const sanitizedEvalProps = removeFunctionsAndSerialzeBigInt(
-    evalProps,
-  ) as EvalProps;
   Object.entries(alreadySanitisedDataSet).forEach(([path, val]) => {
     // add it to sanitised Eval props
     set(sanitizedEvalProps, path, val);
     //restore it to evalProps
-    set(evalProps, path, val);
+    set(evalProps as any, path, val);
   });
   for (const [entityName, entityEvalProps] of Object.entries(
     sanitizedEvalProps,
-  )) {
+  ) as any) {
     if (!entityEvalProps.__evaluation__) continue;
     set(
       dataTreeToReturn[entityName],
