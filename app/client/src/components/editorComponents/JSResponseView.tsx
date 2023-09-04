@@ -79,7 +79,6 @@ const ResponseTabWrapper = styled.div`
 
 const TabbedViewWrapper = styled.div`
   height: 100%;
-  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 const ResponseViewer = styled.div`
