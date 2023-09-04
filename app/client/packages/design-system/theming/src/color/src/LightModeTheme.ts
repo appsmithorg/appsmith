@@ -212,7 +212,7 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
-  public get bgAccentActive() {
+  private get bgAccentActive() {
     // Active state of bgAccent. Slightly darker than the resting state to produce the effect of moving further from the viewer / being pushed down.
     const color = this.bgAccent.clone();
 
