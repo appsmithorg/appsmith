@@ -23,7 +23,9 @@ RUN apt-get update \
   && python3 -m venv --prompt certbot /opt/certbot/venv \
   && /opt/certbot/venv/bin/pip install certbot \
   && ln -s /opt/certbot/venv/bin/certbot /usr/local/bin \
-  && apt-get remove --yes git python3-pip python3-venv
+  && rm -rf /opt/certbot/venv/lib/python3.*/site-packages/setuptools* \
+  && apt-get remove --yes git python3-pip python3-venv python-setuptools \
+  && apt-get autoremove --yes
 
 # Install MongoDB v5.0.14, Redis, NodeJS - Service Layer, PostgreSQL v13
 RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add - \
