@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 
 import {
   getCanvasWidth,
-  getCurrentPageId,
   getIsFetchingPage,
   getViewModePageList,
   showCanvasTopSectionSelector,
@@ -24,7 +23,6 @@ import {
   getAppThemeIsChanging,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
-import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 import {
@@ -33,26 +31,31 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import type { AppState } from "@appsmith/reducers";
-import { CanvasResizer } from "widgets/CanvasResizer";
+import { MainCanvasResizer } from "widgets/mainCanvasResizer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
+import {
+  layoutSystemFeatures,
+  useLayoutSystemFeatures,
+} from "../useLayoutSystemFeatures";
 
-type CanvasContainerProps = {
+type MainCanvasWrapperProps = {
   isPreviewMode: boolean;
   shouldShowSnapShotBanner: boolean;
   navigationHeight?: number;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
+  currentPageId: string;
 };
 
-const Container = styled.section<{
-  $isAutoLayout: boolean;
+const Wrapper = styled.section<{
+  $enableMainCanvasResizer: boolean;
   background: string;
   isPreviewingNavigation?: boolean;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
   navigationHeight?: number;
 }>`
-  width: ${({ $isAutoLayout }) =>
-    $isAutoLayout
+  width: ${({ $enableMainCanvasResizer }) =>
+    $enableMainCanvasResizer
       ? `calc(100% - ${AUTOLAYOUT_RESIZER_WIDTH_BUFFER}px)`
       : `100%`};
   position: relative;
@@ -99,15 +102,13 @@ const Container = styled.section<{
   }
 `;
 
-function CanvasContainer(props: CanvasContainerProps) {
+function MainCanvasWrapper(props: MainCanvasWrapperProps) {
   const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
   const dispatch = useDispatch();
-  const { isPreviewMode, shouldShowSnapShotBanner } = props;
+  const { currentPageId, isPreviewMode, shouldShowSnapShotBanner } = props;
 
-  const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const canvasWidth = useSelector(getCanvasWidth);
-  const isAutoLayout = useSelector(getIsAutoLayout);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
   const pages = useSelector(getViewModePageList);
   const theme = useSelector(getCurrentThemeDetails);
@@ -123,6 +124,11 @@ function CanvasContainer(props: CanvasContainerProps) {
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
+
+  const checkLayoutSystemFeatures = useLayoutSystemFeatures();
+  const [enableMainCanvasResizer] = checkLayoutSystemFeatures([
+    layoutSystemFeatures.ENABLE_MAIN_CANVAS_RESIZER,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -150,7 +156,7 @@ function CanvasContainer(props: CanvasContainerProps) {
     node = (
       <Canvas
         canvasWidth={canvasWidth}
-        isAutoLayout={isAutoLayout}
+        enableMainCanvasResizer={enableMainCanvasResizer}
         pageId={params.pageId}
         widgetsStructure={widgetsStructure}
       />
@@ -181,8 +187,8 @@ function CanvasContainer(props: CanvasContainerProps) {
   const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navigationHeight}px)`;
   return (
     <>
-      <Container
-        $isAutoLayout={isAutoLayout}
+      <Wrapper
+        $enableMainCanvasResizer={enableMainCanvasResizer}
         background={
           isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
             ? isWDSV2Enabled
@@ -229,14 +235,17 @@ function CanvasContainer(props: CanvasContainerProps) {
           </div>
         )}
         {node}
-      </Container>
-      <CanvasResizer
+      </Wrapper>
+      <MainCanvasResizer
+        currentPageId={currentPageId}
+        enableMainCanvasResizer={enableMainCanvasResizer}
         heightWithTopMargin={heightWithTopMargin}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
+        isPreviewMode={isPreviewMode}
         shouldHaveTopMargin={shouldHaveTopMargin}
       />
     </>
   );
 }
 
-export default CanvasContainer;
+export default MainCanvasWrapper;

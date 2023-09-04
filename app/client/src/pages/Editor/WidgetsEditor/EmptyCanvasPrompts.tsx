@@ -3,8 +3,6 @@ import styled from "styled-components";
 import { Text, TextType } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getIsAutoLayout,
-  previewModeSelector,
   selectURLSlugs,
   showCanvasTopSectionSelector,
 } from "selectors/editorSelectors";
@@ -24,6 +22,10 @@ import {
 import { deleteCanvasCardsState } from "actions/editorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { Icon } from "design-system";
+import {
+  layoutSystemFeatures,
+  useLayoutSystemFeatures,
+} from "../useLayoutSystemFeatures";
 
 const Wrapper = styled.div`
   margin: ${(props) =>
@@ -76,19 +78,27 @@ const goToGenPageForm = ({ pageId }: routeId): void => {
   history.push(generateTemplateFormURL({ pageId }));
 };
 
-function CanvasTopSection() {
+type EmptyCanvasPromptsProps = {
+  isPreviewMode: boolean;
+};
+
+function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
   const dispatch = useDispatch();
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
-  const inPreviewMode = useSelector(previewModeSelector);
+  const { isPreviewMode } = props;
   const { pageId } = useParams<ExplorerURLParams>();
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-  const isAutoLayout = useSelector(getIsAutoLayout);
+
+  const checkLayoutSystemFeatures = useLayoutSystemFeatures();
+  const [enableForkingFromTemplates] = checkLayoutSystemFeatures([
+    layoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
+  ]);
 
   useEffect(() => {
-    if (!showCanvasTopSection && !inPreviewMode) {
+    if (!showCanvasTopSection && !isPreviewMode) {
       dispatch(deleteCanvasCardsState());
     }
-  }, [showCanvasTopSection, inPreviewMode]);
+  }, [showCanvasTopSection, isPreviewMode]);
 
   if (!showCanvasTopSection) return null;
 
@@ -110,7 +120,7 @@ function CanvasTopSection() {
 
   return (
     <Wrapper data-testid="canvas-ctas">
-      {!isAutoLayout && !isAirgappedInstance && (
+      {enableForkingFromTemplates && !isAirgappedInstance && (
         <Card data-testid="start-from-template" onClick={showTemplatesModal}>
           <Icon name="layout-2-line" size="lg" />
           <Content>
@@ -142,4 +152,4 @@ function CanvasTopSection() {
   );
 }
 
-export default CanvasTopSection;
+export default EmptyCanvasPrompts;

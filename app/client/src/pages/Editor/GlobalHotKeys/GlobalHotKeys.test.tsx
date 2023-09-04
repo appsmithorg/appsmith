@@ -29,7 +29,7 @@ import {
 import { MockCanvas } from "test/testMockedWidgets";
 import { act, fireEvent, render, waitFor } from "test/testUtils";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
-import MainContainer from "../MainContainer";
+import EditorWrapper from "../EditorWrapper";
 import GlobalHotKeys from "./GlobalHotKeys";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
@@ -55,7 +55,7 @@ describe("Canvas Hot Keys", () => {
 
   function UpdatedEditor({ dsl }: any) {
     useMockDsl(dsl);
-    return <MainContainer />;
+    return <EditorWrapper />;
   }
 
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests

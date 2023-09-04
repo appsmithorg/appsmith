@@ -1,13 +1,7 @@
 import { layoutConfigurations } from "constants/WidgetConstants";
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import {
-  getCurrentApplicationLayout,
-  getCurrentAppPositioningType,
-  getCurrentPageId,
-  previewModeSelector,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { setAutoCanvasResizing } from "actions/autoLayoutActions";
 import styled from "styled-components";
 import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "utils/hooks/useDynamicAppLayout";
@@ -55,25 +49,28 @@ const AutoLayoutCanvasResizer = styled.div`
     }
   }
 `;
-export function CanvasResizer({
+export function MainCanvasResizer({
+  currentPageId,
+  enableMainCanvasResizer,
   heightWithTopMargin,
   isPageInitiated,
+  isPreviewMode,
   shouldHaveTopMargin,
 }: {
   heightWithTopMargin: string;
   isPageInitiated: boolean;
   shouldHaveTopMargin: boolean;
+  isPreviewMode: boolean;
+  currentPageId: string;
+  enableMainCanvasResizer: boolean;
 }) {
-  const isPreviewMode = useSelector(previewModeSelector);
-  const currentPageId = useSelector(getCurrentPageId);
   const appLayout = useSelector(getCurrentApplicationLayout);
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
   const ref = useRef(null);
   const dispatch = useDispatch();
   useEffect(() => {
     const ele: any = document.getElementById("canvas-viewport");
 
-    if (isPageInitiated && appPositioningType === AppPositioningTypes.AUTO) {
+    if (isPageInitiated && enableMainCanvasResizer) {
       const buffer = isPreviewMode ? AUTOLAYOUT_RESIZER_WIDTH_BUFFER : 0;
       const fullWidthCSS = `calc(100% - ${AUTOLAYOUT_RESIZER_WIDTH_BUFFER}px)`;
       const wrapperElement: any = document.getElementById("widgets-editor");
@@ -160,10 +157,10 @@ export function CanvasResizer({
     appLayout,
     isPreviewMode,
     currentPageId,
-    appPositioningType,
+    enableMainCanvasResizer,
     isPageInitiated,
   ]);
-  return appPositioningType === AppPositioningTypes.AUTO ? (
+  return enableMainCanvasResizer ? (
     <AutoLayoutCanvasResizer
       className="resizer-right"
       draggable
