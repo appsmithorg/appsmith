@@ -3,6 +3,7 @@ import type {
   WidgetSpace,
 } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
+import { isEmpty } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   MovementLimitMap,
@@ -109,16 +110,18 @@ type NewWidgetBlock = {
 };
 
 /**
- * This method returns blocks and dragging spaces of the widgets being dragged on canvas
- * @param newWidget
- * @param allWidgets
- * @param isNewWidget
- * @param snapColumnSpace
- * @param snapRowSpace
- * @param childrenOccupiedSpaces
- * @param selectedWidgets
- * @param containerPadding
- * @returns
+ * This method returns blocks and dragging spaces of the widgets being dragged on canvas..
+ * @param newWidget details about teh new widget that is being dragged on canvas
+ * @param allWidgets widgets properties of all the widgets on the page
+ * @param isNewWidget indicates if the widget is a new widget
+ * @param snapColumnSpace distance between each grid columns in pixels
+ * @param snapRowSpace distance between each grid rows in pixels
+ * @param childrenOccupiedSpaces array of grid positions of all the widgets on canvas
+ * @param selectedWidgets array of selected widget ids
+ * @param containerPadding padding in pixels
+ * @returns blocksToDraw and draggingSpaces,
+ *          blocksToDraw contains information regarding the widget and positions in pixels
+ *          draggingSpaces only contains the position of the widget in grid columns and rows
  */
 export const getBlocksToDraw = (
   newWidget: NewWidgetBlock,
@@ -186,9 +189,9 @@ export const getBlocksToDraw = (
 
 /**
  * This method returns the bound updateRelativeRows method with the arguments bounded
- * @param updateDropTargetRows
- * @param snapColumnSpace
- * @param snapRowSpace
+ * @param updateDropTargetRows method to update drop target rows
+ * @param snapColumnSpace distance between each grid columns in pixels
+ * @param snapRowSpace distance between each grid rows in pixels
  * @returns
  */
 export const getUpdateRelativeRowsMethod = (
@@ -229,10 +232,10 @@ export const getUpdateRelativeRowsMethod = (
 
 /**
  * This method helps in updating rows for dropTarget/canvas by using updateDropTargetRows
- * @param bottom
- * @param rows
- * @param widgetIdsToExclude
- * @param updateDropTargetRows
+ * @param bottom new bottom most row of canvas
+ * @param rows number of rows of canvas
+ * @param widgetIdsToExclude array of widget ids to be excluded
+ * @param updateDropTargetRows method to update drop target rows
  * @returns
  */
 export const updateBottomRow = (
@@ -251,6 +254,87 @@ export const updateBottomRow = (
       updateDropTargetRows && updateDropTargetRows(widgetIdsToExclude, bottom)
     );
   }
+};
+
+/**
+ * Calculates parent positions diff in pixels
+ * @param dragCenterSpace positions of the center of the dragging group block
+ * @param isDragging indicates if currently in dragging state
+ * @param isChildOfCanvas indicates if the dragging widgets are the original child of the canvas
+ * @param snapRowSpace distance between each grid columns in pixels
+ * @param snapColumnSpace distance between each grid rows in pixels
+ * @param containerPadding padding in pixels
+ * @returns
+ */
+export const getParentDiff = (
+  dragCenterSpace: { top: number; left: number } | undefined,
+  isDragging: boolean,
+  isChildOfCanvas: boolean,
+  snapRowSpace: number,
+  snapColumnSpace: number,
+  containerPadding: number,
+) => {
+  let parentDiff = {
+    top: 0,
+    left: 0,
+  };
+
+  if (isDragging) {
+    const shouldCalculateParentDiff =
+      !isChildOfCanvas && !isEmpty(dragCenterSpace);
+
+    if (shouldCalculateParentDiff) {
+      parentDiff = {
+        top: dragCenterSpace.top * snapRowSpace + containerPadding,
+        left: dragCenterSpace.left * snapColumnSpace + containerPadding,
+      };
+    } else {
+      parentDiff = {
+        top: containerPadding,
+        left: containerPadding,
+      };
+    }
+  }
+
+  return parentDiff;
+};
+
+/**
+ * returns the relative drag start points of the dragging blocks with respect to the dragging group's center
+ * @param dragCenterSpace positions of the center of the dragging group block
+ * @param dragOffset offset of the positions at which the widgets were grabbed for dragging
+ * @param defaultHandlePositions default handle positions in pixels
+ * @param isDragging indicates if currently in dragging state
+ * @param isChildOfCanvas indicates if the dragging widgets are the original child of the canvas
+ * @param snapRowSpace distance between each grid columns in pixels
+ * @param snapColumnSpace distance between each grid rows in pixels
+ * @param containerPadding padding in pixels
+ * @returns
+ */
+export const getRelativeStartPoints = (
+  dragCenterSpace: { top: number; left: number } | undefined,
+  dragOffset: { top: number; left: number },
+  defaultHandlePositions: { top: number; left: number },
+  isDragging: boolean,
+  isChildOfCanvas: boolean,
+  snapRowSpace: number,
+  snapColumnSpace: number,
+  containerPadding: number,
+) => {
+  let relativeStartPoints = defaultHandlePositions;
+
+  if (isDragging && !isEmpty(dragCenterSpace)) {
+    const dragLeft = isChildOfCanvas ? dragCenterSpace.left : 0;
+    const dragTop = isChildOfCanvas ? dragCenterSpace.top : 0;
+
+    relativeStartPoints = {
+      left:
+        (dragLeft + dragOffset.left) * snapColumnSpace + 2 * containerPadding,
+      top: (dragTop + dragOffset.top) * snapRowSpace + 2 * containerPadding,
+    };
+  }
+
+  return relativeStartPoints;
 };
 
 /**

@@ -13,7 +13,6 @@ import type {
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import { widgetOperationParams } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
-import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
 import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,6 +33,8 @@ import type {
 } from "../../../../common/CanvasArenas/ArenaTypes";
 import {
   getBlocksToDraw,
+  getParentDiff,
+  getRelativeStartPoints,
   getUpdateRelativeRowsMethod,
   updateBottomRow as updateBottomRowMethod,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
@@ -302,21 +303,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const isCurrentDraggedCanvas = dragDetails.draggedOn === widgetId;
   const isNewWidgetInitialTargetCanvas =
     isNewWidget && widgetId === MAIN_CONTAINER_WIDGET_ID;
-  const parentDiff = isDragging
-    ? {
-        top:
-          !isChildOfCanvas && !isEmpty(dragCenterSpace)
-            ? dragCenterSpace.top * snapRowSpace + containerPadding
-            : containerPadding,
-        left:
-          !isChildOfCanvas && !isEmpty(dragCenterSpace)
-            ? dragCenterSpace.left * snapColumnSpace + containerPadding
-            : containerPadding,
-      }
-    : {
-        top: 0,
-        left: 0,
-      };
 
   const updateBottomRow = (
     bottom: number,
@@ -331,21 +317,26 @@ export const useBlocksToBeDraggedOnCanvas = ({
     );
   };
 
-  const relativeStartPoints =
-    isDragging && !isEmpty(dragCenterSpace)
-      ? {
-          left:
-            ((isChildOfCanvas ? dragCenterSpace.left : 0) +
-              dragDetails.dragOffset.left) *
-              snapColumnSpace +
-            2 * containerPadding,
-          top:
-            ((isChildOfCanvas ? dragCenterSpace.top : 0) +
-              dragDetails.dragOffset.top) *
-              snapRowSpace +
-            2 * containerPadding,
-        }
-      : defaultHandlePositions;
+  const parentDiff = getParentDiff(
+    dragCenterSpace,
+    isDragging,
+    isChildOfCanvas,
+    snapRowSpace,
+    snapColumnSpace,
+    containerPadding,
+  );
+
+  const relativeStartPoints = getRelativeStartPoints(
+    dragCenterSpace,
+    dragDetails.dragOffset,
+    defaultHandlePositions,
+    isDragging,
+    isChildOfCanvas,
+    snapRowSpace,
+    snapColumnSpace,
+    containerPadding,
+  );
+
   const currentOccSpaces = occupiedSpaces[widgetId] || [];
   const occSpaces: OccupiedSpace[] = isChildOfCanvas
     ? filteredChildOccupiedSpaces

@@ -77,7 +77,7 @@ export const useRenderBlocksOnCanvas = (
     isUpdatingRows: boolean,
     canvasIsDragging: boolean,
     scrollParent: Element | null,
-    highlight: HighlightInfo | undefined,
+    highlight?: HighlightInfo,
     isMainContainer?: boolean,
     parentOffsetTop = 0,
     totalScrollTop = 0,
