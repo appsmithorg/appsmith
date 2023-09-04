@@ -44,10 +44,14 @@ export type FeatureParams = {
   delay?: number;
   // Multiple Highlights -> multiple ids for highlighter, if not present considers targetId as the only highlighting div.
   multipleHighlights?: string[];
+  // Overlay color
+  overlayColor?: string;
+  // Close popup when clicking on the overlay
+  dismissOnOverlayClick?: boolean;
 };
 
 type WalkthroughContextType = {
-  pushFeature: (feature: FeatureParams) => void;
+  pushFeature: (feature: FeatureParams, prioritize?: boolean) => void;
   popFeature: (triggeredFrom?: string) => void;
   feature: FeatureParams[];
   isOpened: boolean;

@@ -114,12 +114,16 @@ jobs:
               file_path=$(echo "$line" | awk -F'/' '{print $(NF-1)"/"$NF}')
               spec_name=$(echo "$file_path" | awk -F'/' '{print $NF}')
               failed_spec=$(find . -name "$spec_name" | sed 's|./||')
-              for file in $failed_spec; do
-                  new_file_path=$(echo "$file" | awk -F'/' '{print $(NF-1)"/"$NF}')
-                  if [ "$new_file_path" == "$file_path" ]; then
-                      failed_spec_env="$failed_spec_env,$file"
-                  fi
-              done
+              if [ "$(echo "$failed_spec" | wc -l)" -eq 1 ]; then
+                  failed_spec_env="$failed_spec_env,$failed_spec"
+              else
+                for file in $failed_spec; do
+                    new_file_path=$(echo "$file" | awk -F'/' '{print $(NF-1)"/"$NF}')
+                    if [ "$new_file_path" == "$file_path" ]; then
+                        failed_spec_env="$failed_spec_env,$file"
+                    fi
+                done
+              fi
           done < ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
           failed_spec_env=${failed_spec_env#,}
           echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV

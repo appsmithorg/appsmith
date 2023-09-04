@@ -131,6 +131,7 @@ import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { setAIPromptTriggered } from "utils/storage";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -461,25 +462,6 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
         pageName,
       });
 
-      if (action?.pluginType === PluginType.DB) {
-        AnalyticsUtil.logEvent("SAVE_QUERY", {
-          queryName: action.name,
-          pageName,
-        });
-      } else if (action?.pluginType === PluginType.API) {
-        AnalyticsUtil.logEvent("SAVE_API", {
-          apiId: response.data.id,
-          apiName: response.data.name,
-          pageName: pageName,
-        });
-      } else if (action?.pluginType === PluginType.SAAS) {
-        AnalyticsUtil.logEvent("SAVE_SAAS", {
-          apiId: response.data.id,
-          apiName: response.data.name,
-          pageName: pageName,
-        });
-      }
-
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.UPDATE_ACTION_API,
       );
@@ -689,7 +671,7 @@ function* copyActionSaga(
         // @ts-expect-error: name not present on ActionCreateUpdateResponse
         actionName: response.data.name,
         pageName: pageName,
-        acitonId: response.data.id,
+        actionId: response.data.id,
         originalActionId,
         actionType: actionObject.pluginType,
       });
@@ -984,17 +966,27 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.ASK_AI: {
       const context = get(actionPayload, "payload.args", {});
+      const isJavascriptMode = context.mode === EditorModes.TEXT_WITH_BINDING;
 
       const noOfTimesAIPromptTriggered: number = yield select(
         (state) => state.ai.noOfTimesAITriggered,
       );
 
-      if (noOfTimesAIPromptTriggered < 5) {
-        const currentValue: number = yield setAIPromptTriggered();
+      const noOfTimesAIPromptTriggeredForQuery: number = yield select(
+        (state) => state.ai.noOfTimesAITriggeredForQuery,
+      );
+
+      const triggerCount = isJavascriptMode
+        ? noOfTimesAIPromptTriggered
+        : noOfTimesAIPromptTriggeredForQuery;
+
+      if (triggerCount < 5) {
+        const currentValue: number = yield setAIPromptTriggered(context.mode);
         yield put({
           type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
           payload: {
             value: currentValue,
+            mode: context.mode,
           },
         });
       }
