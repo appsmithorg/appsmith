@@ -698,9 +698,9 @@ export class DataSources {
         this.apiPage.EnterURL(
           this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
         );
-      else if (enterOrSelectUrl == "select") {
+      else if (enterOrSelectUrl == "select")
         this.agHelper.GetNClick(this._graphQlDsFromRightPane(dsNameToSelect));
-      }
+
       this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
       cy.wrap("GraphQL_API" + "_" + uid).as("dsName");
     });
