@@ -34,7 +34,7 @@ export function makeEntityConfigsAsObjProperties(
     if (!evalProps) return dataTreeToReturn;
   } catch (e) {
     console.log("function is presenet ", newDataTree);
-    throw new Error("function embedded ", e);
+    throw new Error("function embedded ", e as any);
   }
   //clean up deletes widget states
   Object.entries(identicalEvalPathsPatches || {}).forEach(
@@ -67,7 +67,7 @@ export function makeEntityConfigsAsObjProperties(
     sanitizedEvalProps = structuredClone(evalProps) as EvalProps;
   } catch (e) {
     console.log("function is presenet in evalProps ", evalProps);
-    throw new Error("function embedded ", e);
+    throw new Error("function embedded ", e as any);
   }
 
   Object.entries(alreadySanitisedDataSet).forEach(([path, val]) => {
