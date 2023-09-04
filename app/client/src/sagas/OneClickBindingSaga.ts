@@ -258,11 +258,14 @@ function* BindWidgetToDatasource(
       }
 
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.CREATE])) {
+        const selectQuery = queryNameMap[QUERY_TYPE.SELECT]
+          ? `${queryNameMap[QUERY_TYPE.SELECT]}.run()`
+          : "";
         queryBindingConfig[QUERY_TYPE.CREATE] = {
           data: `{{${queryNameMap[QUERY_TYPE.CREATE]}.data}}`,
           run: `{{${queryNameMap[QUERY_TYPE.CREATE]}.run(() => {
             showAlert("Successfully created!");
-            ${queryNameMap[QUERY_TYPE.SELECT]}.run()
+            ${selectQuery.toString()}
           }, () => {
             showAlert("Unable to create!");
           })}}`,

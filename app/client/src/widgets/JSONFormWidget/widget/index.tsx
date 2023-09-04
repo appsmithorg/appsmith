@@ -37,6 +37,12 @@ import type {
 } from "WidgetQueryGenerators/types";
 import { RenderModes } from "constants/WidgetConstants";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { toast } from "design-system";
+import {
+  createMessage,
+  ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
+  ONSUBMIT_NOT_CONFIGURED_MESSAGE,
+} from "@appsmith/constants/messages";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -519,6 +525,21 @@ class JSONFormWidget extends BaseWidget<
           callback: this.handleSubmitResult,
         },
       });
+    } else {
+      toast.show(
+        createMessage(ONSUBMIT_NOT_CONFIGURED_MESSAGE, this.props.widgetName),
+        {
+          kind: "warning",
+          action: {
+            text: createMessage(ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT),
+            effect: () =>
+              window.open(
+                "https://docs.appsmith.com/reference/widgets/json-form#events",
+                "_blank",
+              ),
+          },
+        },
+      );
     }
   };
 

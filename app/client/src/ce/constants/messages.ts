@@ -1952,6 +1952,10 @@ export const JSON_FORM_CONNECT_OVERLAY_TEXT = () =>
 export const JSON_FORM_CONNECT_BUTTON_TEXT = () => "Generate form";
 export const SUCCESSFULL_BINDING_MESSAGE = () =>
   "Successfully created! Refresh the table to see updates";
+export const ONSUBMIT_NOT_CONFIGURED_MESSAGE = (widgetName: string) =>
+  `onSubmit event is not configured for ${widgetName}`;
+export const ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT = () =>
+  "Learn more about events";
 
 // Table widget
 export const TABLE_CONNECT_OVERLAY_TEXT = () =>
