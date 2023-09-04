@@ -28,3 +28,8 @@ export interface OtherField {
   allowClear?: boolean;
   isDataIdentifier?: boolean;
 }
+
+export interface AlertMessage {
+  success: string;
+  error: string;
+}

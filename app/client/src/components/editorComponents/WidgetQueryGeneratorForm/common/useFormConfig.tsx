@@ -3,7 +3,7 @@ import { WidgetQueryGeneratorFormContext } from "..";
 import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns";
 
 export function useFormConfig() {
-  const { aliases, config, otherFields, widgetId } = useContext(
+  const { alertMessage, aliases, config, otherFields, widgetId } = useContext(
     WidgetQueryGeneratorFormContext,
   );
 
@@ -45,5 +45,6 @@ export function useFormConfig() {
       alias: value,
     })),
     otherFields: config.otherFields,
+    alertMessage,
   };
 }

@@ -1,4 +1,4 @@
 export enum DROPDOWN_VARIANT {
-  DATA = "DATA",
-  SCHEMA = "SCHEMA",
+  CONNECT_TO_DATASOURCE = "Connect to datasource",
+  CREATE_OR_EDIT_RECORDS = "Create or edit records",
 }

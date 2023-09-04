@@ -14,7 +14,7 @@ import {
   getOneClickBindingConfigForWidget,
 } from "selectors/oneClickBindingSelectors";
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
-import type { Alias, OtherField } from "./types";
+import type { AlertMessage, Alias, OtherField } from "./types";
 import {
   createMessage,
   TABLE_CONNECT_BUTTON_TEXT,
@@ -50,9 +50,10 @@ type WidgetQueryGeneratorFormContextType = {
   sampleData: string;
   aliases: Alias[];
   otherFields: OtherField[];
-  excludePrimaryColumn?: boolean;
+  excludePrimaryColumnFromQueryGeneration?: boolean;
   isConnectableToWidget?: boolean;
   datasourceDropdownVariant: DROPDOWN_VARIANT;
+  alertMessage?: AlertMessage | null;
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -82,9 +83,10 @@ const DEFAULT_CONTEXT_VALUE = {
   sampleData: "",
   aliases: [],
   otherFields: [],
-  excludePrimaryColumn: false,
+  excludePrimaryColumnFromQueryGeneration: false,
   isConnectableToWidget: false,
-  datasourceDropdownVariant: DROPDOWN_VARIANT.DATA,
+  datasourceDropdownVariant: DROPDOWN_VARIANT.CONNECT_TO_DATASOURCE,
+  alertMessage: null,
 };
 
 export const WidgetQueryGeneratorFormContext =
@@ -102,12 +104,13 @@ type Props = {
   aliases: Alias[];
   searchableColumn: boolean;
   sampleData: string;
-  allowFieldConfigurations?: boolean;
-  excludePrimaryColumn?: boolean;
+  showEditFieldsModal?: boolean;
+  excludePrimaryColumnFromQueryGeneration?: boolean;
   otherFields?: OtherField[];
   isConnectableToWidget?: boolean;
   datasourceDropdownVariant: DROPDOWN_VARIANT;
-  ctaText?: string;
+  actionButtonCtaText?: string;
+  alertMessage?: AlertMessage;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -117,10 +120,11 @@ function WidgetQueryGeneratorForm(props: Props) {
 
   const {
     aliases,
-    allowFieldConfigurations = false,
-    ctaText = createMessage(TABLE_CONNECT_BUTTON_TEXT),
+    alertMessage,
+    showEditFieldsModal = false,
+    actionButtonCtaText = createMessage(TABLE_CONNECT_BUTTON_TEXT),
     errorMsg,
-    excludePrimaryColumn,
+    excludePrimaryColumnFromQueryGeneration,
     expectedType,
     onUpdate,
     propertyPath,
@@ -239,9 +243,10 @@ function WidgetQueryGeneratorForm(props: Props) {
       sampleData,
       aliases,
       otherFields,
-      excludePrimaryColumn,
+      excludePrimaryColumnFromQueryGeneration,
       isConnectableToWidget,
       datasourceDropdownVariant,
+      alertMessage,
     };
   }, [
     config,
@@ -256,9 +261,10 @@ function WidgetQueryGeneratorForm(props: Props) {
     sampleData,
     aliases,
     otherFields,
-    excludePrimaryColumn,
+    excludePrimaryColumnFromQueryGeneration,
     isConnectableToWidget,
     datasourceDropdownVariant,
+    alertMessage,
   ]);
 
   useEffect(() => {
@@ -270,14 +276,14 @@ function WidgetQueryGeneratorForm(props: Props) {
   return (
     <Wrapper>
       <WidgetQueryGeneratorFormContext.Provider value={contextValue}>
-        <CommonControls allowFieldConfig={allowFieldConfigurations} />
+        <CommonControls allowFieldConfig={showEditFieldsModal} />
         <DatasourceSpecificControls />
         <WidgetSpecificControls
           aliases={aliases}
           hasSearchableColumn={searchableColumn}
           otherFields={otherFields}
         />
-        <ConnectData btnText={ctaText} />
+        <ConnectData btnText={actionButtonCtaText} />
       </WidgetQueryGeneratorFormContext.Provider>
     </Wrapper>
   );

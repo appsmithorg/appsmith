@@ -1,3 +1,5 @@
+import type { AlertMessage } from "components/editorComponents/WidgetQueryGeneratorForm/types";
+
 type GsheetConfig = {
   sheetName?: string;
   tableHeaderIndex?: number;
@@ -15,6 +17,7 @@ export type WidgetQueryGenerationFormConfig = {
   primaryColumn: string;
   connectionMode: string;
   otherFields?: Record<string, unknown>;
+  alertMessage?: AlertMessage;
 } & GsheetConfig;
 
 export type WidgetQueryGenerationConfig = {

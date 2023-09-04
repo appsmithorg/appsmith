@@ -122,22 +122,22 @@ function useQueryOptions(props: ConnectToOptionsProps) {
   const widgetOptions = useMemo(() => {
     if (!isConnectableToWidget) return [];
     return Object.entries(currentPageWidgets)
-      .map(([widgetId, widget]) => {
+      .map(([widgetId, currWidget]) => {
         const { getOneClickBindingConnectableWidgetConfig } =
-          WidgetFactory.getWidgetMethods(widget.type);
+          WidgetFactory.getWidgetMethods(currWidget.type);
         if (getOneClickBindingConnectableWidgetConfig) {
           const widgetBindPath =
-            getOneClickBindingConnectableWidgetConfig(widget);
+            getOneClickBindingConnectableWidgetConfig(currWidget);
           return {
             id: widgetId,
             value: `{{${widgetBindPath}}}`,
-            label: widget.widgetName,
+            label: currWidget.widgetName,
             icon: (
               <ImageWrapper>
                 <DatasourceImage
                   alt="widget-icon"
                   className="dataSourceImage"
-                  src={widget.iconSVG}
+                  src={currWidget.iconSVG}
                 />
               </ImageWrapper>
             ),
@@ -146,7 +146,6 @@ function useQueryOptions(props: ConnectToOptionsProps) {
               valueOption?: DropdownOptionType,
             ) {
               addBinding(valueOption?.value, false);
-
               updateConfig({
                 datasource: "",
                 datasourcePluginType: "",

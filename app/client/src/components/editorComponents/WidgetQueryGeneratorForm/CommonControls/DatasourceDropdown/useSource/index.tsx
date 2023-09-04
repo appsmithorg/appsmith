@@ -26,7 +26,7 @@ function filterOption(option: DropdownOptionType, searchText: string) {
 }
 
 function getDropdownConstants(variant?: string) {
-  if (variant === DROPDOWN_VARIANT.SCHEMA) {
+  if (variant === DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS) {
     return {
       connectToText: createMessage(DATASOURCE_DROPDOWN_OPTIONS.CONNECT_TO),
       bindDatasourceText: createMessage(
@@ -74,7 +74,8 @@ export function useSource(searchText: string) {
 
   const constants = getDropdownConstants(datasourceDropdownVariant);
 
-  const canWriteSchema = datasourceDropdownVariant === DROPDOWN_VARIANT.SCHEMA;
+  const canWriteSchema =
+    datasourceDropdownVariant === DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS;
 
   const { datasourceOptions } = useDatasourceOptions({
     config,

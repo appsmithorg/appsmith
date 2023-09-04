@@ -1,11 +1,13 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionErrorTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import type { Plugin } from "api/PluginApi";
 import type { Action, QueryActionConfig } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { invert, merge, omit, partition } from "lodash";
-import { all, call, put, select, takeLatest, take } from "redux-saga/effects";
+import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -239,11 +241,16 @@ function* BindWidgetToDatasource(
         const selectQuery = queryNameMap[QUERY_TYPE.SELECT]
           ? `${queryNameMap[QUERY_TYPE.SELECT]}.run()`
           : "";
+        const { alertMessage } = action.payload;
+        const successMessage = `${
+          alertMessage?.success ? alertMessage.success : "Successfully saved!"
+        }`;
+
         queryBindingConfig[QUERY_TYPE.UPDATE] = {
           data: `{{${queryNameMap[QUERY_TYPE.UPDATE]}.data}}`,
           run: `{{${queryNameMap[QUERY_TYPE.UPDATE]}.run(() => {
-            showAlert("Successfully saved!");
-            ${selectQuery}
+            showAlert("${successMessage}");
+            ${selectQuery.toString()}
           }, () => {
             showAlert("Unable to save!");
           })}}`,

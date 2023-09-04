@@ -14,6 +14,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   createMessage,
   JSON_FORM_CONNECT_BUTTON_TEXT,
+  SUCCESSFULL_BINDING_MESSAGE,
 } from "@appsmith/constants/messages";
 import { FieldOptionsType } from "components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
 import { DROPDOWN_VARIANT } from "components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
@@ -63,7 +64,7 @@ export const sourceDataValidationFn = (
   if (_.isArray(value)) {
     return {
       isValid: false,
-      parsed: value,
+      parsed: {},
       messages: [
         {
           name: "TypeError",
@@ -149,11 +150,14 @@ export const contentConfig = [
         label: "Source data",
         controlType: "ONE_CLICK_BINDING_CONTROL",
         controlConfig: {
-          allowFieldConfigurations: true,
-          datasourceDropdownVariant: DROPDOWN_VARIANT.SCHEMA,
-          ctaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
-          excludePrimaryColumn: true,
+          showEditFieldsModal: true,
+          datasourceDropdownVariant: DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS,
+          actionButtonCtaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
+          excludePrimaryColumnFromQueryGeneration: true,
           isConnectableToWidget: true,
+          alertMessage: {
+            success: createMessage(SUCCESSFULL_BINDING_MESSAGE),
+          },
           otherFields: [
             {
               label: "Form Type",

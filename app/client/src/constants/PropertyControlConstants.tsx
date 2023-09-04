@@ -98,7 +98,7 @@ export type PropertyPaneControlConfig = {
     isToggleDisabled: boolean,
     triggerFlag?: boolean,
   ) => boolean;
-  allowFieldConfigurations?: boolean;
+  showEditFieldsModal?: boolean;
 };
 
 type ValidationConfigParams = {

@@ -124,6 +124,7 @@ export const CONFIG = {
         formConfig,
       );
     },
+
     getSnipingModeUpdates: (
       propValueMap: SnipingModeProperty,
     ): PropertyUpdates[] => {

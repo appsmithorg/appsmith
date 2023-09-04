@@ -1,5 +1,6 @@
 import WidgetQueryGeneratorForm from "components/editorComponents/WidgetQueryGeneratorForm";
 import type {
+  AlertMessage,
   Alias,
   OtherField,
 } from "components/editorComponents/WidgetQueryGeneratorForm/types";
@@ -63,17 +64,17 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   public render() {
     return (
       <WidgetQueryGeneratorForm
+        actionButtonCtaText={this.props.controlConfig?.actionButtonCtaText}
+        alertMessage={this.props.controlConfig?.alertMessage}
         aliases={this.props.controlConfig.aliases}
-        allowFieldConfigurations={
-          this.props.controlConfig?.allowFieldConfigurations
-        }
-        ctaText={this.props.controlConfig?.ctaText}
         datasourceDropdownVariant={
           this.props.controlConfig?.datasourceDropdownVariant ||
-          DROPDOWN_VARIANT.DATA
+          DROPDOWN_VARIANT.CONNECT_TO_DATASOURCE
         }
         errorMsg={this.getErrorMessage()}
-        excludePrimaryColumn={this.props.controlConfig?.excludePrimaryColumn}
+        excludePrimaryColumnFromQueryGeneration={
+          this.props.controlConfig?.excludePrimaryColumnFromQueryGeneration
+        }
         expectedType={this.props.expected?.autocompleteDataType || ""}
         isConnectableToWidget={this.props.controlConfig?.isConnectableToWidget}
         onUpdate={this.onUpdatePropertyValue}
@@ -82,6 +83,7 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
         propertyValue={this.props.propertyValue}
         sampleData={this.props.controlConfig.sampleData}
         searchableColumn={this.props.controlConfig.searchableColumn}
+        showEditFieldsModal={this.props.controlConfig?.showEditFieldsModal}
         widgetId={this.props.widgetProperties.widgetId}
       />
     );
@@ -93,13 +95,14 @@ export default OneClickBindingControl;
 export type OneClickBindingControlProps = ControlProps & {
   controlConfig: {
     aliases: Alias[];
-    allowFieldConfigurations: boolean;
-    excludePrimaryColumn: boolean;
+    showEditFieldsModal: boolean;
+    excludePrimaryColumnFromQueryGeneration: boolean;
     otherFields: OtherField[];
     sampleData: string;
     searchableColumn: boolean;
     isConnectableToWidget: boolean;
-    ctaText: string;
+    actionButtonCtaText: string;
     datasourceDropdownVariant: DROPDOWN_VARIANT;
+    alertMessage: AlertMessage;
   };
 };
