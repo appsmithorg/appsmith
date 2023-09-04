@@ -12,37 +12,25 @@ on:
         description: "Flag to skip Cypress tests"
         required: true
         default: "true"
-      uid:
-        description: "Unique ID to store the run data in the db"
-        required: false
+      id:
+        description: "Document ID for the workflow entry in the MongoDB ( This gets initialized by the ops api )"
+        required: true
       sub-domain-name:
         description: "Sub-domain for dp.appsmith.com to by used by this deploy preview (This will also be the image name and the k8s namespace identifier)"
         required: true
 jobs:
-  # write-job-details-to-db:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Install mongosh
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install -y wget gnupg
-  #         wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-  #         echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-  #         sudo apt-get update
-  #         sudo apt-get install -y mongodb-mongosh
-  #     - name: Update job data to mongoDB
-  #       run: |
-  #         #  mongosh '' --eval 'db.appsmiht-ce-github-dp-runs.insert( { run_id: ${{ github.run_id }}, uid: ${{ github.event.inputs.uid }}, status: "Started" } )'
-  #         mongosh '' --eval 'db.appsmiht-ce-github-dp-runs.update(
-  #                                                                 { _id:  ${{ github.event.inputs.uid }} },
-  #                                                                 {
-  #                                                                   $set: {
-  #                                                                     run_id: ${{ github.run_id }},
-  #                                                                     status: "BUILD IN PROGRESS"
-  #                                                                   }
-  #                                                                 }
-  #                                                               )'
-  #         #TODO Add mongo URI as secret
+  update-job-details-to-db:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update workflow details
+        run: |
+          curl --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
+          --header 'Content-Type: application/json' \
+          --oauth2-bearer '${{secrets.INTERNAL_OPS_API_TOKEN}}' \
+          --data ' {
+                  "status": "IN_PROGRESS",
+                  "githubWorkflowId": "${{ github.run_id }}"
+          }'
 
   server-build:
     name: server-build
@@ -72,31 +60,11 @@ jobs:
     runs-on: ubuntu-latest
     if: success()
     steps:
-      # - name: Install mongosh
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y wget gnupg
-      #     wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-      #     echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-      #     sudo apt-get update
-      #     sudo apt-get install -y mongodb-mongosh
-      # - name: Update job data to mongoDB
-      #   run: |
-      #     #  mongosh '' --eval 'db.appsmiht-ce-github-dp-runs.insert( { run_id: ${{ github.run_id }}, uid: ${{ github.event.inputs.uid }}, status: "Started" } )'
-      #     mongosh '' --eval 'db.appsmiht-ce-github-dp-runs.update(
-      #                                                             { _id:  ${{ github.event.inputs.uid }} },
-      #                                                             {
-      #                                                               $set: {
-      #                                                                 status: "BUILD SUCCESSFUL"
-      #                                                               }
-      #                                                             }
-      #                                                           )'
-
       # Check out merge commit
-      - name: Checkout PR
+      - name: Checkout Branch
         uses: actions/checkout@v3
         with:
-          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+          ref: ${{ github.event.inputs.branch }}
 
       # Timestamp will be used to create cache key
       - id: timestamp
@@ -136,6 +104,12 @@ jobs:
           echo "Cleaning up the tar files"
           rm app/client/packages/rts/dist/rts-dist.tar
 
+      - name: Generate info.json
+        run: |
+          if [[ -f scripts/generate_info_json.sh ]]; then
+            scripts/generate_info_json.sh
+          fi
+
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -166,30 +140,10 @@ jobs:
 
     if: success()
     steps:
-      - name: Install mongosh
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg
-          wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-          sudo apt-get update
-          sudo apt-get install -y mongodb-mongosh
-      - name: Update job data to mongoDB
-        run: |
-          #  mongosh '' --eval 'db.appsmiht-ce-github-dp-runs.insert( { run_id: ${{ github.run_id }}, uid: ${{ github.event.inputs.uid }}, status: "Started" } )'
-         # mongosh '' --eval 'db.appsmiht-ce-github-dp-runs.update(
-                                                                 # { _id:  ${{ github.event.inputs.uid }} },
-                                                                 # {
-                                                                  #  $set: {
-                                                                 #     status: "DEPLOYMENT IN PROGRESS"
-                                                                #    }
-                                                                #  }
-                                                            #    )'
       - name: Checkout PR
         uses: actions/checkout@v3
         with:
-          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
-          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch }}
 
       - name: Install relevant packages
         run: |
@@ -216,35 +170,30 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_URL: ${{ secrets.DB_URL }}
         run: |
-          echo "environment variables set to deploy the image" $IMAGE_HASH
-          /bin/bash ./scripts/build_dp_form_branch.sh
+          echo "environment variables set to deploy the image $IMAGE_HASH"
+          /bin/bash ./scripts/build_dp_from_branch.sh
 
   update-db-on-completion:
     needs: [build-deploy-preview]
     runs-on: ubuntu-latest
-    if: success()
     steps:
-      - run: echo "Workflow completed successfully!"
+      - name: Update workflow completed successfully
+        if: success()
+        run: |
+          curl --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
+          --header 'Content-Type: application/json' \
+          --oauth2-bearer '${{secrets.INTERNAL_OPS_API_TOKEN}}'  \
+          --data ' {
+                  "status": "COMPLETED"
+          }'
+      - name: Update workflow failure
+        if: failure()
+        run: |
+          curl --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
+          --header 'Content-Type: application/json' \
+          --oauth2-bearer '${{secrets.INTERNAL_OPS_API_TOKEN}}'  \
+          --data ' {
+                  "status": "FAILED"
+          }'
 
-      # This step creates a comment on the PR with a link to this workflow run.
-      # - name: Install mongosh
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y wget gnupg
-      #     wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-      #     echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-      #     sudo apt-get update
-      #     sudo apt-get install -y mongodb-mongosh
-      # - name: Update job data to mongoDB
-      #   run: |
-      #     #  mongosh '' --eval 'db.appsmiht-ce-github-dp-runs.insert( { run_id: ${{ github.run_id }}, uid: ${{ github.event.inputs.uid }}, status: "Started" } )'
-      #     mongosh '' --eval 'db.appsmiht-ce-github-dp-runs.update(
-      #                                                             { _id:  ${{ github.event.inputs.uid }} },
-      #                                                           {
-      #                                                             $set: {
-      #                                                               status: "DEPLOYMENT COMPLETE"
-      #                                                               url: https://${{ github.event.inputs.sub-domain-name }}.dp.appsmith.com
-      #                                                             }
-      #                                                           }
-      #                                                         )'
 

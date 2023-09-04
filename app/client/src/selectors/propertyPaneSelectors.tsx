@@ -1,5 +1,5 @@
 import type { AppState } from "@appsmith/reducers";
-import { find, get, pick, set } from "lodash";
+import { find, get, set } from "lodash";
 import { createSelector } from "reselect";
 import type {
   DataTree,
@@ -72,43 +72,31 @@ const getCurrentWidgetName = createSelector(
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
   getCurrentAppPositioningType,
-  getDataTree,
+  (state) => {
+    const currentWidget = getCurrentWidgetProperties(state);
+    if (!currentWidget) return;
+    const evaluatedWidget = find(getDataTree(state), {
+      widgetId: currentWidget.widgetId,
+    }) as WidgetEntity;
+    if (!evaluatedWidget) return;
+    return evaluatedWidget[EVALUATION_PATH];
+  },
   (
     widget: WidgetProps | undefined,
     appPositioningType,
-    evaluatedTree: DataTree,
+    evaluatedValue: any,
   ): WidgetProps | undefined => {
     if (!widget) return undefined;
-    const evaluatedWidget = find(evaluatedTree, {
-      widgetId: widget.widgetId,
-    }) as WidgetEntity;
+
     const widgetProperties = {
       ...widget,
       appPositioningType,
     };
-    if (evaluatedWidget) {
-      widgetProperties[EVALUATION_PATH] = evaluatedWidget[EVALUATION_PATH];
+    if (evaluatedValue) {
+      widgetProperties[EVALUATION_PATH] = evaluatedValue;
     }
     return widgetProperties;
   },
-);
-
-type WidgetPropertiesForPropertyPaneView = {
-  type: string;
-  widgetId: string;
-  widgetName: string;
-  displayName: string;
-};
-
-export const getWidgetPropsForPropertyPaneView = createSelector(
-  getWidgetPropsForPropertyPane,
-  (props) =>
-    pick(props, [
-      "type",
-      "widgetId",
-      "widgetName",
-      "displayName",
-    ]) as WidgetPropertiesForPropertyPaneView,
 );
 
 export const selectedWidgetsPresentInCanvas = createSelector(

@@ -198,10 +198,14 @@ function* BindWidgetToDatasource(
         const runResponse: ReduxAction<unknown> = yield take([
           ReduxActionTypes.RUN_ACTION_SUCCESS,
           ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
+          ReduxActionErrorTypes.RUN_ACTION_ERROR,
         ]);
 
         if (
-          runResponse.type === ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR
+          [
+            ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
+            ReduxActionErrorTypes.RUN_ACTION_ERROR,
+          ].includes(runResponse.type)
         ) {
           throw new Error(`Unable to run action: ${actionToRun.name}`);
         }
@@ -219,7 +223,11 @@ function* BindWidgetToDatasource(
           data: `{{${queryNameMap[QUERY_TYPE.SELECT]}.data}}`,
           run: `{{
             ${queryNameMap[QUERY_TYPE.SELECT]}.run();
-            ${queryNameMap[QUERY_TYPE.TOTAL_RECORD]}.run();
+            ${
+              createdQueryNames.includes(queryNameMap[QUERY_TYPE.TOTAL_RECORD])
+                ? queryNameMap[QUERY_TYPE.TOTAL_RECORD] + ".run()"
+                : ""
+            }
           }}`,
         };
       }

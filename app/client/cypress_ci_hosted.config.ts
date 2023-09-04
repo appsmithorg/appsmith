@@ -5,8 +5,8 @@ export default defineConfig({
   requestTimeout: 60000,
   responseTimeout: 60000,
   pageLoadTimeout: 60000,
-  videoUploadOnPasses: false,
   videoCompression: false,
+  videoUploadOnPasses: false,
   numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
   reporterOptions: {
@@ -30,11 +30,6 @@ export default defineConfig({
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
     testIsolation: false,
-    excludeSpecPattern: [
-      "cypress/e2e/**/spec_utility.ts",
-      "cypress/e2e/Regression/**/**/*",
-      "cypress/e2e/Sanity/**/**/*",
-      "cypress/e2e/Smoke/**/**/*",
-    ],
+    excludeSpecPattern: ["cypress/e2e/**/spec_utility.ts"],
   },
 });

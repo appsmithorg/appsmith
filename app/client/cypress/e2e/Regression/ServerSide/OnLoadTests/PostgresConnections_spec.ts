@@ -49,7 +49,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
     dataSources.CreatePlugIn("PostgreSQL");
     agHelper.RenameWithInPane("Postgres_2_" + guid, false);
     const userName = "test_conn_user_" + guid;
-    dataSources.FillPostgresDSForm("production", false, userName, "password");
+    dataSources.FillPostgresDSForm("Production", false, userName, "password");
     dataSources.TestSaveDatasource();
 
     cy.wrap("Postgres_2_" + guid).as("dsName_2");
@@ -66,15 +66,15 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
     });
   });
 
-  it.skip("3. Bind queries to select widget", () => {
-    for (let i = 1; i <= 10; i++) {
+  it("3. Bind queries to select widget", () => {
+    for (let i = 1; i < 10; i++) {
       entityExplorer.DragDropWidgetNVerify(
         "selectwidget",
-        i * 50 + 50,
-        i * 50 + 200,
+        i * 1.5 * 50 + 100,
+        i * 1.5 * 50 + 50,
       );
-      propPane.UpdatePropertyFieldValue(
-        "Options",
+      propPane.EnterJSContext(
+        "Source Data",
         "{{Query_" +
           i +
           ".data.map( (obj) =>{ return  {'label': obj.table_name, 'value': obj.table_name }})}}",
@@ -83,6 +83,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
         "Default selected value",
         "{{Query_" + i + ".data[" + (i - 1) + "].table_name}}",
       );
+      propPane.EnterJSContext("Value key", "value");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
     }
   });

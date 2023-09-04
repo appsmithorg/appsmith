@@ -3,13 +3,12 @@ import {
   entityExplorer,
   entityItems,
   dataSources,
-  tedTestConfig,
+  dataManager,
   assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
-//Skipping for regular regression since failing in CI, will be added to GSheet regression machine run.
-describe.skip("excludeForAirgap", "Validate Airtable Ds", () => {
+describe("excludeForAirgap", "Validate Airtable Ds", () => {
   before("Create a new Airtable DS", () => {
     dataSources.CreateDataSource("Airtable", true, false);
     cy.get("@dsName").then(($dsName) => {
@@ -29,7 +28,7 @@ describe.skip("excludeForAirgap", "Validate Airtable Ds", () => {
     );
 
     agHelper.EnterValue(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].AirtableBase,
+      dataManager.dsValues[dataManager.defaultEnviorment].AirtableBase,
       {
         propFieldName: "",
         directInput: false,
@@ -37,7 +36,7 @@ describe.skip("excludeForAirgap", "Validate Airtable Ds", () => {
       },
     );
     agHelper.EnterValue(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].AirtableTable,
+      dataManager.dsValues[dataManager.defaultEnviorment].AirtableTable,
       {
         propFieldName: "",
         directInput: false,

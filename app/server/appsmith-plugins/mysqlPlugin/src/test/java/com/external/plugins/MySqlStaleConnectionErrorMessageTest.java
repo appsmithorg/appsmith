@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ConnectionContext;
 import com.external.utils.MySqlDatasourceUtils;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.Connection;
@@ -35,8 +36,10 @@ public class MySqlStaleConnectionErrorMessageTest {
         ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
         String expectedErrorMessage = "Timeout exception from MockConnectionPool";
         when(mockConnectionPool.create()).thenReturn(Mono.error(new TimeoutException(expectedErrorMessage)));
+        ConnectionContext<ConnectionPool> connectionContext =
+                new ConnectionContext<ConnectionPool>(mockConnectionPool, null);
         Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
-                mockConnectionPool, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
+                connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorSatisfies(error -> {
                     assertTrue(error instanceof StaleConnectionException);
@@ -52,8 +55,10 @@ public class MySqlStaleConnectionErrorMessageTest {
         ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
         String expectedErrorMessage = "Timeout exception from MockConnectionPool";
         when(mockConnectionPool.create()).thenReturn(Mono.error(new PoolShutdownException(expectedErrorMessage)));
+        ConnectionContext<ConnectionPool> connectionContext =
+                new ConnectionContext<ConnectionPool>(mockConnectionPool, null);
         Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
-                mockConnectionPool, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
+                connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorSatisfies(error -> {
                     assertTrue(error instanceof StaleConnectionException);
@@ -69,8 +74,10 @@ public class MySqlStaleConnectionErrorMessageTest {
         ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
         String expectedErrorMessage = "Timeout exception from MockConnectionPool";
         when(mockConnectionPool.create()).thenReturn(Mono.error(new IllegalStateException(expectedErrorMessage)));
+        ConnectionContext<ConnectionPool> connectionContext =
+                new ConnectionContext<ConnectionPool>(mockConnectionPool, null);
         Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
-                mockConnectionPool, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
+                connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorSatisfies(error -> {
                     assertTrue(error instanceof StaleConnectionException);
@@ -87,8 +94,10 @@ public class MySqlStaleConnectionErrorMessageTest {
         String expectedErrorMessage = "Timeout exception from MockConnectionPool";
         when(mockConnectionPool.create())
                 .thenReturn(Mono.error(new R2dbcNonTransientResourceException(expectedErrorMessage)));
+        ConnectionContext<ConnectionPool> connectionContext =
+                new ConnectionContext<ConnectionPool>(mockConnectionPool, null);
         Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
-                mockConnectionPool, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
+                connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorSatisfies(error -> {
                     assertTrue(error instanceof StaleConnectionException);
@@ -106,8 +115,10 @@ public class MySqlStaleConnectionErrorMessageTest {
         when(mockConnectionPool.create()).thenReturn(Mono.just(mockConnection));
         when(mockConnection.validate(ValidationDepth.LOCAL)).thenReturn(Mono.just(false));
         when(mockConnection.close()).thenReturn(Mono.empty());
+        ConnectionContext<ConnectionPool> connectionContext =
+                new ConnectionContext<ConnectionPool>(mockConnectionPool, null);
         Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.executeCommon(
-                mockConnectionPool, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
+                connectionContext, actionConfiguration, false, List.of(), new ExecuteActionDTO(), new HashMap<>());
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorSatisfies(error -> {
                     assertTrue(error instanceof StaleConnectionException);

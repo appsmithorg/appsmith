@@ -7,7 +7,7 @@ import {
 
 describe("JS to non-JS mode in Action Selector", () => {
   before(() => {
-    agHelper.AddDsl("promisesBtnDsl", locators._spanButton("Submit"));
+    agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
   });
 
   it("1. should show fields appropriately for setinterval", () => {

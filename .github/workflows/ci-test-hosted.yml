@@ -125,11 +125,11 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
       # actions/setup-node@v3 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
@@ -298,6 +298,19 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
+          RUNID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+          REPOSITORY: ${{ github.repository }}
+          COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
+          TAG: ${{ github.event_name }}
+          BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
+          THIS_RUNNER: ${{ strategy.job-index }}
+          CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
+          CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
           browser: ${{ env.BROWSER_PATH }}
           record: true
@@ -305,7 +318,9 @@ jobs:
           parallel: true
           config-file: cypress_ci_hosted.config.ts
           group: "Chrome-Fat Container tests"
-          spec: "cypress/e2e/GSheet/**/**/*"
+          spec: |
+            cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts
+            cypress/e2e/GSheet/**/**/*
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
@@ -359,6 +374,19 @@ jobs:
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
+          RUNID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+          REPOSITORY: ${{ github.repository }}
+          COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
+          TAG: ${{ github.event_name }}
+          BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
+          THIS_RUNNER: ${{ strategy.job-index }}
+          CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
+          CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
           browser: ${{ env.BROWSER_PATH }}
           record: true
@@ -372,23 +400,9 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
-      - name: Collect CI container logs
-        if: failure()
-        working-directory: "."
-        run: |
-          mkdir -p  ~/dockerlogs
-          docker logs appsmith 2>&1 > ~/dockerlogs.txt
-
-      # Upload docker logs
-      - name: Upload failed test list artifact
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: dockerlogs
-          path: ~/dockerlogs.txt
-
       # Set status = failedtest
       - name: Set fail if there are test failures
+        id: test_status
         if: failure()
         run: |
           echo "run_result=failedtest" >> $GITHUB_OUTPUT
@@ -429,10 +443,38 @@ jobs:
         if: always()
         run: |
           if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-            echo ${{ steps.cypress_test.outputs.resultsUrl }} >> ~/cypress_url
+            echo "url=${{ steps.cypress_test.outputs.resultsUrl }}" >> $GITHUB_OUTPUT
           elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-            echo ${{ steps.cypress_test_failedtest.outputs.resultsUrl }} >> ~/cypress_url
+            echo "url=${{ steps.cypress_test_failedtest.outputs.resultsUrl }}" >> $GITHUB_OUTPUT
           fi
+
+      - name: Generate slack message
+        continue-on-error: true
+        if: always()
+        id: slack_notification
+        run: |
+          if [[ "${{ steps.test_status.outputs.run_result }}" == "failedtest" ]]; then
+            echo "slack_message=There are test failures in the run. Please check the <${{ steps.dashboard_url.outputs.url }}|Cypress dashboard> for more details." >> $GITHUB_OUTPUT
+            echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
+          else
+            echo "slack_message=All tests passed successfully :tada: . Cypress Dashboard: <${{ steps.dashboard_url.outputs.url }}|Click here!>" >> $GITHUB_OUTPUT
+            echo "slack_color=#00FF00" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Slack Notification
+        continue-on-error: true
+        if: always()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: cypresspushworkflow
+          SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
+          SLACK_ICON_EMOJI: ':bell:'
+          SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
+          SLACK_TITLE: 'Result:'
+          SLACK_USERNAME: Cloud-Hosted Tests
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
+          MSG_MINIMAL: Ref,Event,Commit
+          SLACK_FOOTER: 'Appsmith CI runs'
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure

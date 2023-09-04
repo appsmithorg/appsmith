@@ -64,7 +64,7 @@ function logLatestEvalPropertyErrors(
   dataTree: DataTree,
   evalAndValidationOrder: Array<string>,
   configTree: ConfigTree,
-  pathsToClearErrorsFor?: any[],
+  removedPaths?: Array<{ entityId: string; fullpath: string }>,
 ) {
   const errorsToAdd = [];
   const errorsToDelete = [];
@@ -200,15 +200,11 @@ function logLatestEvalPropertyErrors(
   for those paths.
   */
 
-  if (pathsToClearErrorsFor) {
-    for (const error of pathsToClearErrorsFor) {
-      const widgetId = error.widgetId;
-
-      error.paths.forEach((path: string) => {
-        const { propertyPath } = getEntityNameAndPropertyPath(path);
-
-        errorsToDelete.push({ id: `${widgetId}-${propertyPath}` });
-      });
+  if (removedPaths?.length) {
+    for (const removedPath of removedPaths) {
+      const { entityId, fullpath } = removedPath;
+      const { propertyPath } = getEntityNameAndPropertyPath(fullpath);
+      errorsToDelete.push({ id: `${entityId}-${propertyPath}` });
     }
   }
 
@@ -223,7 +219,7 @@ export function* evalErrorHandler(
   evaluationOrder?: Array<string>,
   reValidatedPaths?: Array<string>,
   configTree?: ConfigTree,
-  pathsToClearErrorsFor?: any[],
+  removedPaths?: Array<{ entityId: string; fullpath: string }>,
 ) {
   if (dataTree && evaluationOrder && configTree && reValidatedPaths) {
     const currentDebuggerErrors: Record<string, Log> = yield select(
@@ -240,7 +236,7 @@ export function* evalErrorHandler(
       dataTree,
       [...evalAndValidationOrder],
       configTree,
-      pathsToClearErrorsFor,
+      removedPaths,
     );
   }
 
@@ -256,19 +252,22 @@ export function* evalErrorHandler(
           AppsmithConsole.error({
             text: `${error.message} Node was: ${node}`,
           });
-          // Send the generic error message to sentry for better grouping
-          Sentry.captureException(new Error(error.message), {
-            tags: {
-              node,
-              entityType,
-            },
-            extra: {
-              dependencyMap,
-              diffs,
-            },
-            // Level is warning because it could be a user error
-            level: Sentry.Severity.Warning,
-          });
+          if (error.context.logToSentry) {
+            // Send the generic error message to sentry for better grouping
+            Sentry.captureException(new Error(error.message), {
+              tags: {
+                node,
+                entityType,
+              },
+              extra: {
+                dependencyMap,
+                diffs,
+              },
+              // Level is warning because it could be a user error
+              level: Sentry.Severity.Warning,
+            });
+          }
+
           // Log an analytics event for cyclical dep errors
           AnalyticsUtil.logEvent("CYCLICAL_DEPENDENCY_ERROR", {
             node,
@@ -554,7 +553,7 @@ export function* handleJSFunctionExecutionErrorLog(
               id: action.collectionId ? action.collectionId : action.id,
               name: `${collectionName}.${action.name}`,
               type: ENTITY_TYPE.JSACTION,
-              propertyPath: `${collectionName}.${action.name}`,
+              propertyPath: `${action.name}`,
             },
           },
         },

@@ -10,8 +10,8 @@ import {
 const ExplorerMenu = {
   ADD_PAGE: "ADD_PAGE",
   ENTITY: "ENTITY",
-  ADD_QUERY_JS: "ADD_QUERY_JS",
   ADD_LIBRARY: "ADD_LIBRARY",
+  ADD_QUERY_JS: "ADD_QUERY_JS",
 };
 
 const OpenExplorerMenu = (menu) => {
@@ -67,11 +67,11 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
   it("2. Widgets visibility in widget pane", function () {
     entityExplorer.NavigateToSwitcher("Widgets");
     agHelper.ScrollTo(locators._widgetPane, "bottom");
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._widgetPageIcon(draggableWidgets.VIDEO),
     );
     entityExplorer.PinUnpinEntityExplorer(true);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._widgetPageIcon(draggableWidgets.VIDEO),
     );
     entityExplorer.PinUnpinEntityExplorer(false);
@@ -82,7 +82,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
     "excludeForAirgap",
     "3. Unpinned explorer is to be open when any context menu is open or when an entity name is being edited",
     function () {
-      agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+      agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
       entityExplorer.PinUnpinEntityExplorer(true);
       const menu = Object.keys(ExplorerMenu);
 
@@ -98,7 +98,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
         action: "Edit name",
       });
       cy.get(locators._canvas).trigger("mousemove", 500, 400);
-      agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+      agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
       entityExplorer.PinUnpinEntityExplorer(false);
     },
   );
@@ -107,7 +107,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
     "airgap",
     "4. Unpinned explorer is to be open when any context menu is open or when an entity name is being edited",
     function () {
-      agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+      agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
       entityExplorer.PinUnpinEntityExplorer(true);
       const menu = Object.keys(ExplorerMenu);
 
@@ -123,13 +123,13 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
         action: "Edit name",
       });
       cy.get(locators._canvas).trigger("mousemove", 500, 400);
-      agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+      agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
       entityExplorer.PinUnpinEntityExplorer(false);
     },
   );
 
   it("5. Explorer should be visible by default on a new application", function () {
-    agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+    agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
     entityExplorer.PinUnpinEntityExplorer(true);
     agHelper.GetElement(locators._canvas).trigger("mousemove", 500, 100, {
       force: true,
@@ -139,6 +139,6 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
       .should("not.be.visible");
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
-    agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+    agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
   });
 });

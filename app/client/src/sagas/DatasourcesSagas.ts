@@ -159,6 +159,7 @@ import {
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
+import { klona } from "klona/lite";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -595,7 +596,7 @@ function* redirectAuthorizationCodeSaga(
   const isImport: string = yield select(getWorkspaceIdForImport);
 
   if (pluginType === PluginType.API) {
-    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
+    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${getCurrentEditingEnvID()}`;
   } else {
     try {
       // Get an "appsmith token" from the server
@@ -1477,18 +1478,25 @@ function* executeDatasourceQuerySaga(
   action: executeDatasourceQueryReduxAction<any>,
 ) {
   try {
-    // const response: GenericApiResponse<any> = yield DatasourcesApi.executeDatasourceQuery(
-    //   action.payload,
-    // );
-    const response: ApiResponse =
-      yield DatasourcesApi.executeGoogleSheetsDatasourceQuery(action.payload);
+    // isGeneratePage value is because we are reusing the same action which calls this saga for both generating the page and fetching preview data
+    // We use it to choose the appropriate API to call and the appropriate payload to pass to the API.
+    // We are reusing this saga because of its similar flow, and since we do not persist the data to redux state but instead trigger callbacks.
+    const response: ApiResponse = action.payload.isGeneratePage
+      ? yield DatasourcesApi.executeGoogleSheetsDatasourceQuery(action.payload)
+      : yield DatasourcesApi.executeDatasourceQuery({
+          data: action.payload?.template,
+          datasourceId: action.payload.datasourceId,
+        });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_SUCCESS,
         payload: {
-          // @ts-expect-error: we don't know what the response will be
-          data: response.data?.trigger,
+          data: action.payload.isGeneratePage
+            ? // @ts-expect-error: we don't know what the response will be
+              response.data?.trigger
+            : // @ts-expect-error: we don't know what the response will be
+              response.data?.body,
           datasourceId: action.payload.datasourceId,
         },
       });
@@ -1564,7 +1572,11 @@ function* filePickerActionCallbackSaga(
       },
     });
 
-    const datasource: Datasource = yield select(getDatasource, datasourceId);
+    const datasourceFromState: Datasource = yield select(
+      getDatasource,
+      datasourceId,
+    );
+    const datasource: Datasource = klona(datasourceFromState);
     const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
     const applicationId: string = yield select(getCurrentApplicationId);
     const pageId: string = yield select(getCurrentPageId);

@@ -9,8 +9,7 @@ import type {
   DatasourceTable,
 } from "entities/Datasource";
 import type { ReactElement } from "react";
-import { useContext } from "react";
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useState, useContext, useMemo } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import DatasourceStructure from "./DatasourceStructure";
 import { Input, Text } from "design-system";
@@ -34,11 +33,15 @@ type Props = {
   context: DatasourceStructureContext;
   pluginName?: string;
   currentActionId?: string;
+  onEntityTableClick?: (table: string) => void;
+  tableName?: string;
+  customEditDatasourceFn?: () => void;
 };
 
 export enum DatasourceStructureContext {
   EXPLORER = "entity-explorer",
   QUERY_EDITOR = "query-editor",
+  DATASOURCE_VIEW_MODE = "datasource-view-mode",
   // this does not exist yet, but in case it does in the future.
   API_EDITOR = "api-editor",
 }
@@ -87,10 +90,7 @@ const Container = (props: Props) => {
 
   const closeWalkthrough = () => {
     popFeature && popFeature("DATASOURCE_SCHEMA_CONTAINER");
-    setFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
-      true,
-    );
+    setFeatureWalkthroughShown(FEATURE_WALKTHROUGH_KEYS.ds_schema, true);
   };
 
   useEffect(() => {
@@ -116,6 +116,10 @@ const Container = (props: Props) => {
     const list: string[] = [];
 
     props.datasourceStructure.tables.map((table) => {
+      // if the column is empty push the table name alone.
+      if (table.columns.length === 0) {
+        list.push(`${table.name}~`);
+      }
       table.columns.forEach((column) => {
         list.push(`${table.name}~${column.name}`);
       });
@@ -139,7 +143,7 @@ const Container = (props: Props) => {
     flatStructure.forEach((structure) => {
       const segments = structure.split("~");
       // if the value is present in the columns, add the column and its parent table.
-      if (segments[1].toLowerCase().includes(value)) {
+      if (!!segments[1] && segments[1].toLowerCase().includes(value)) {
         tables.add(segments[0]);
         columns.add(segments[1]);
         return;
@@ -203,7 +207,9 @@ const Container = (props: Props) => {
                   dbStructure={structure}
                   forceExpand={hasSearchedOccured}
                   key={`${props.datasourceId}${structure.name}-${props.context}`}
+                  onEntityTableClick={props.onEntityTableClick}
                   step={props.step + 1}
+                  tableName={props?.tableName}
                 />
               );
             })}
@@ -219,6 +225,8 @@ const Container = (props: Props) => {
       if (props.context !== DatasourceStructureContext.EXPLORER) {
         view = (
           <DatasourceStructureNotFound
+            context={props.context}
+            customEditDatasourceFn={props?.customEditDatasourceFn}
             datasourceId={props.datasourceId}
             error={
               !!props.datasourceStructure &&

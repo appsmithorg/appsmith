@@ -20,15 +20,5 @@
                 "context": "COMMON_CONFIG",
                 "applicabilityExpression": "!isCloudHosting && !isConnectedMongoVersionAvailable",
                 "precedenceIndex": 2
-        },
-        {
-                "messageId": "3",
-                "title": "Appsmith Cloud at app.appsmith.com will be down for 45 minutes at 5 AM UTC on Sunday, August 6, 2023.",
-                "message": "Appsmith Cloud will go through a scheduled upgrade to make it performant and scalable to all of you. This will take roughly 45 minutes at 5 AM UTC on Sunday, August 6, 2023. We will let you know when it comes back online on Discord.",
-                "canDismiss": true,
-                "remindLaterDays": 5,
-                "context": "COMMON_CONFIG",
-                "applicabilityExpression": "isCloudHosting",
-                "precedenceIndex": 3
         }
 ]

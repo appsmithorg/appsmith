@@ -8,7 +8,6 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
@@ -45,6 +44,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -60,6 +60,7 @@ import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -102,6 +103,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -111,7 +113,6 @@ import static org.mockito.ArgumentMatchers.eq;
 @DirtiesContext
 public class GitServiceTest {
 
-    private static final String DEFAULT_GIT_PROFILE = "default";
     private static final String DEFAULT_BRANCH = "defaultBranchName";
     private static final String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     private static final String GIT_CONFIG_ERROR =
@@ -142,6 +143,9 @@ public class GitServiceTest {
 
     @Autowired
     ApplicationService applicationService;
+
+    @Autowired
+    ApplicationRepository applicationRepository;
 
     @Autowired
     LayoutCollectionService layoutCollectionService;
@@ -211,12 +215,12 @@ public class GitServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
-        if (Boolean.TRUE.equals(isSetupDone)) {
+        if (TRUE.equals(isSetupDone)) {
             return;
         }
 
         gitConnectedApplication = createApplicationConnectedToGit("gitConnectedApplication", DEFAULT_BRANCH);
-
+        // applicationPermission = new ApplicationPermissionImpl();
         testUserProfile.setAuthorEmail("test@email.com");
         testUserProfile.setAuthorName("testUser");
         isSetupDone = true;
@@ -839,10 +843,8 @@ public class GitServiceTest {
         String limitPrivateRepoTestWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
 
-        GitService gitService1 = Mockito.spy(gitService);
-        Mockito.doReturn(Mono.just(Boolean.TRUE))
-                .when(gitService1)
-                .isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
+        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just(0));
 
         Mockito.when(gitExecutor.cloneApplication(
                         Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -885,7 +887,7 @@ public class GitServiceTest {
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         Mono<Application> applicationMono =
-                gitService1.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
+                gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(error -> error instanceof AppsmithException
@@ -1751,7 +1753,7 @@ public class GitServiceTest {
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
-                .thenReturn(Mono.just(Boolean.TRUE));
+                .thenReturn(Mono.just(TRUE));
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
                         Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
@@ -3433,9 +3435,8 @@ public class GitServiceTest {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         gitService.generateSSHKey(null).block();
         GitService gitService1 = Mockito.spy(gitService);
-        Mockito.doReturn(Mono.just(Boolean.TRUE))
-                .when(gitService1)
-                .isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
+        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just(0));
 
         Mono<ApplicationImportDTO> applicationMono = gitService1.importApplicationFromGit(workspaceId, gitConnectDTO);
 
@@ -3585,9 +3586,8 @@ public class GitServiceTest {
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
         datasource.setDatasourceStorages(storages);
 
         datasourceService.create(datasource).block();
@@ -3649,9 +3649,8 @@ public class GitServiceTest {
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(testWorkspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
         datasource.setDatasourceStorages(storages);
 
         datasourceService.create(datasource).block();
@@ -3722,9 +3721,8 @@ public class GitServiceTest {
         datasource.setName("db-auth-1");
         datasource.setPluginId(pluginId);
         datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, null));
         datasource.setDatasourceStorages(storages);
 
         datasourceService.create(datasource).block();
@@ -4089,8 +4087,40 @@ public class GitServiceTest {
         createApplicationConnectedToGit("private_repo_2", "master", localWorkspaceId);
         createApplicationConnectedToGit("private_repo_3", "master", localWorkspaceId);
 
-        StepVerifier.create(gitService.getApplicationCountWithPrivateRepo(localWorkspaceId))
+        StepVerifier.create(applicationService.getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(
+                        localWorkspaceId))
                 .assertNext(limit -> assertThat(limit).isEqualTo(3))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void fetchFromRemote_WhenSuccessful_ReturnsResponse() throws GitAPIException, IOException {
+        String randomId = UUID.randomUUID().toString();
+        String appname = "test-app-" + randomId, branch = "test-branch";
+        Application application = createApplicationConnectedToGit(appname, branch);
+        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        GitAuth gitAuth = gitData.getGitAuth();
+        Path repoSuffix =
+                Paths.get(application.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+        Path repoPath = Paths.get("test", "git", "root", repoSuffix.toString());
+
+        BranchTrackingStatus branchTrackingStatus = Mockito.mock(BranchTrackingStatus.class);
+        Mockito.when(branchTrackingStatus.getAheadCount()).thenReturn(1);
+        Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(2);
+
+        Mockito.when(gitExecutor.createRepoPath(repoSuffix)).thenReturn(repoPath);
+        Mockito.when(gitExecutor.checkoutToBranch(repoSuffix, branch)).thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.fetchRemote(
+                        repoPath, gitAuth.getPublicKey(), gitAuth.getPrivateKey(), true, branch, false))
+                .thenReturn(Mono.just("success"));
+        Mockito.when(gitExecutor.getBranchTrackingStatus(repoPath, branch)).thenReturn(Mono.just(branchTrackingStatus));
+
+        StepVerifier.create(gitService.fetchRemoteChanges(gitData.getDefaultApplicationId(), branch, false))
+                .assertNext(response -> {
+                    assertThat(response.getAheadCount()).isEqualTo(1);
+                    assertThat(response.getBehindCount()).isEqualTo(2);
+                })
                 .verifyComplete();
     }
 }

@@ -6,7 +6,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
@@ -73,6 +72,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -300,13 +300,14 @@ public class ApplicationServiceCETest {
             Datasource datasource = new Datasource();
             datasource.setName("Clone App with action Test");
             datasource.setPluginId(testPlugin.getId());
+            datasource.setWorkspaceId(workspaceId);
             DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
             datasourceConfiguration.setUrl("http://test.com");
-            datasource.setDatasourceConfiguration(datasourceConfiguration);
-            datasource.setWorkspaceId(workspaceId);
-            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+            storages.put(
+                    defaultEnvironmentId,
+                    new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
             datasource.setDatasourceStorages(storages);
             testDatasource = datasourceService.create(datasource).block();
         }
@@ -1346,15 +1347,13 @@ public class ApplicationServiceCETest {
         Datasource datasource = new Datasource();
         datasource.setName("Public App Test");
         datasource.setPluginId(plugin.getId());
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
 
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
@@ -1457,6 +1456,151 @@ public class ApplicationServiceCETest {
                             .containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testPublicApp_whenMultiplePublicAppsInWorkspaceAndOneAccessRevoked_otherPublicAppRetainsAccessToWorkspaceLevelResources() {
+        Workspace toCreate = new Workspace();
+        toCreate.setName("Multiple Public Apps Test");
+        Workspace workspace = workspaceService.create(toCreate).block();
+        String workspaceId = workspace.getId();
+
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
+
+        // Create common datasource
+        Plugin plugin = pluginService.findByPackageName("restapi-plugin").block();
+        Datasource datasource = new Datasource();
+        datasource.setName("Public App Test");
+        datasource.setPluginId(plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setWorkspaceId(workspaceId);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        datasource.setDatasourceStorages(storages);
+
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+
+        // Create first app to make public
+        Application application = new Application();
+        application.setName("firstAppToMakePublic");
+
+        Application createdApplication = applicationPageService
+                .createApplication(application, workspaceId)
+                .block();
+
+        String pageId = createdApplication.getPages().get(0).getId();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("Public App Test action");
+        action.setPageId(pageId);
+        action.setDatasource(savedDatasource);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+
+        // Check datasource before making app public
+        PermissionGroup publicPermissionGroup =
+                permissionGroupService.getPublicPermissionGroup().block();
+
+        Datasource datasourceBeforePublicShare =
+                datasourceService.findById(savedDatasource.getId()).block();
+
+        Optional<Policy> policyBeforeOptional = datasourceBeforePublicShare.getPolicies().stream()
+                .filter(policy -> EXECUTE_DATASOURCES.getValue().equals(policy.getPermission()))
+                .findFirst();
+
+        Assertions.assertThat(policyBeforeOptional.isPresent()).isTrue();
+        Assertions.assertThat(policyBeforeOptional.get().getPermissionGroups())
+                .doesNotContain(publicPermissionGroup.getId());
+
+        // Make first application public
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+        applicationService
+                .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
+                .block();
+
+        Datasource datasourceAfterPublicShare =
+                datasourceService.findById(savedDatasource.getId()).block();
+
+        Optional<Policy> policyAfterOptional = datasourceAfterPublicShare.getPolicies().stream()
+                .filter(policy -> EXECUTE_DATASOURCES.getValue().equals(policy.getPermission()))
+                .findFirst();
+
+        Assertions.assertThat(policyAfterOptional.isPresent()).isTrue();
+        Assertions.assertThat(policyAfterOptional.get().getPermissionGroups()).contains(publicPermissionGroup.getId());
+
+        // Create a second app
+        Application application2 = new Application();
+        application2.setName("secondAppToMakePublic");
+
+        Application createdApplication2 = applicationPageService
+                .createApplication(application2, workspaceId)
+                .block();
+
+        String pageId2 = createdApplication2.getPages().get(0).getId();
+
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("Public App Test action");
+        action2.setPageId(pageId2);
+        action2.setDatasource(savedDatasource);
+        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+        actionConfiguration2.setHttpMethod(HttpMethod.GET);
+        action2.setActionConfiguration(actionConfiguration2);
+        layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
+
+        // Make second application public
+        ApplicationAccessDTO applicationAccessDTO2 = new ApplicationAccessDTO();
+        applicationAccessDTO2.setPublicAccess(true);
+        applicationService
+                .changeViewAccess(createdApplication2.getId(), applicationAccessDTO2)
+                .block();
+
+        // Now revoke public access from first app
+        applicationAccessDTO.setPublicAccess(false);
+        applicationService
+                .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
+                .block();
+
+        // Check that datasource still has execute access
+        Datasource datasourceAfterRevokeOnePublicShare =
+                datasourceService.findById(savedDatasource.getId()).block();
+
+        Optional<Policy> policyAfterRevokeOneOptional = datasourceAfterRevokeOnePublicShare.getPolicies().stream()
+                .filter(policy -> EXECUTE_DATASOURCES.getValue().equals(policy.getPermission()))
+                .findFirst();
+
+        Assertions.assertThat(policyAfterRevokeOneOptional.isPresent()).isTrue();
+        Assertions.assertThat(policyAfterRevokeOneOptional.get().getPermissionGroups())
+                .contains(publicPermissionGroup.getId());
+
+        // Now revoke public access from second app
+        applicationAccessDTO2.setPublicAccess(false);
+        applicationService
+                .changeViewAccess(createdApplication2.getId(), applicationAccessDTO2)
+                .block();
+
+        // Check that datasource now does NOT have execute access
+        Datasource datasourceAfterRevokeAllPublicShare =
+                datasourceService.findById(savedDatasource.getId()).block();
+
+        Optional<Policy> policyAfterRevokeAllOptional = datasourceAfterRevokeAllPublicShare.getPolicies().stream()
+                .filter(policy -> EXECUTE_DATASOURCES.getValue().equals(policy.getPermission()))
+                .findFirst();
+
+        Assertions.assertThat(policyAfterRevokeAllOptional.isPresent()).isTrue();
+        Assertions.assertThat(policyAfterRevokeAllOptional.get().getPermissionGroups())
+                .doesNotContain(publicPermissionGroup.getId());
     }
 
     @Test
@@ -3069,15 +3213,13 @@ public class ApplicationServiceCETest {
         Datasource datasource = new Datasource();
         datasource.setName("Cloned App Test");
         datasource.setPluginId(plugin.getId());
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
 
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
@@ -3304,15 +3446,13 @@ public class ApplicationServiceCETest {
         Datasource datasource = new Datasource();
         datasource.setName("Public View App Test");
         datasource.setPluginId(plugin.getId());
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
 
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();

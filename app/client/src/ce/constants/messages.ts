@@ -120,6 +120,25 @@ export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
 export const FORGOT_PASSWORD_SUCCESS_TEXT = (email: string) =>
   `A password reset link has been sent to your email address ${email} registered with Appsmith.`;
 
+export const VERIFICATION_PENDING_TITLE = () => `Check your inbox`;
+export const VERIFICATION_PENDING_BODY = () =>
+  `To finish your account setup click on the verification link we have sent in an email to `;
+
+export const VERIFICATION_PENDING_NOT_YOU = () => `(not you?)`;
+
+export const VERIFICATION_PENDING_NO_EMAIL = () =>
+  `No email in your inbox or spam folder?`;
+
+export const VERIFICATION_PENDING_RESEND_LINK = () => `Resend the link`;
+
+export const VERIFY_ERROR_ALREADY_VERIFIED_TITLE = () =>
+  `Email already verified`;
+
+export const VERIFY_ERROR_EXPIRED_TITLE = () => "Oops, this link has expired";
+
+export const VERIFY_ERROR_MISMATCH_TITLE = () =>
+  "This link seems damaged. Please request a new link";
+
 export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
 export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;
 
@@ -572,9 +591,8 @@ export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
   "Function Timeout (in milliseconds)";
-export const ASYNC_FUNCTION_SETTINGS_HEADING = () => "Async function settings";
-export const NO_ASYNC_FUNCTIONS = () =>
-  "There is no asynchronous function in this JSObject";
+export const FUNCTION_SETTINGS_HEADING = () => "Function settings";
+export const NO_JS_FUNCTIONS = () => "There is no function in this JSObject";
 export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
@@ -726,6 +744,12 @@ export const SCHEMA_WALKTHROUGH_TITLE = () => "Query data fast";
 export const SCHEMA_WALKTHROUGH_DESC = () =>
   "Select a template from a database table to quickly create your first query. ";
 
+// structure - View Mode
+
+export const DATASOURCE_VIEW_DATA_TAB = () => "View data";
+export const DATASOURCE_CONFIGURATIONS_TAB = () => "Configurations";
+export const DATASOURCE_NO_RECORDS_TO_SHOW = () => "No data records to show";
+
 // Git sync
 export const CONNECTED_TO_GIT = () => "Connected to Git";
 
@@ -833,7 +857,7 @@ export const DISCONNECT_SERVICE_SUBHEADER = () =>
 export const DISCONNECT_SERVICE_WARNING = () =>
   "will be removed as primary method of authentication";
 export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
-  ${methodName} authentication method is enabled
+  ${methodName} authentication is enabled
 `;
 
 export const REVOKE_EXISTING_REPOSITORIES = () =>
@@ -1229,6 +1253,9 @@ export const TEST_EMAIL_SUCCESS = (email: string) => () =>
   `Test email sent, please check the inbox of ${email}`;
 export const TEST_EMAIL_SUCCESS_TROUBLESHOOT = () => "Troubleshoot";
 export const TEST_EMAIL_FAILURE = () => "Sending test email failed";
+
+export const ADMIN_SETTINGS_EMAIL_WARNING = () =>
+  "Please ensure that the SMTP server is correctly configured. This will be used to send emails about forgot password and email verification.";
 export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
@@ -1387,9 +1414,9 @@ export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
 export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 
 // Branding
-export const ADMIN_BRANDING_SETTINGS_TITLE = () =>
+export const ADMIN_BRANDING_SETTINGS_TITLE_UPGRADE = () =>
   "Custom Branding for your workspaces";
-export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
+export const ADMIN_BRANDING_SETTINGS_SUBTITLE_UPGRADE = () =>
   "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business Edition.";
 export const ADMIN_BRANDING_COLOR_TOOLTIP = () =>
   `When you choose a primary color, we auto-magically fill in the secondary and accent colors. You can change them to get the look you want.`;
@@ -1755,6 +1782,12 @@ export const DATASOURCE_INTERCOM_TEXT = () =>
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
+export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate new page";
+export const GSHEETS_ERR_FETCHING_PREVIEW_DATA = () =>
+  "Some problem occured while fetching data";
+export const GSHEETS_FETCHING_PREVIEW_DATA = () => "Loading data";
+export const GSHEETS_SCHEMA_NO_DATA = () =>
+  "No data records to show or the table header begins with an index other than 1";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
@@ -1872,9 +1905,11 @@ export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
 
 //Datasource environment
 export const START_SWITCH_ENVIRONMENT = (environment: string) =>
-  `...Switching your environment to ${environment}, and running all associated pageload actions`;
+  `Switching your environment to ${environment}, and running all associated pageload actions`;
 export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
-  `...Environment switched to ${environment} successfully`;
+  `Environment switched to ${environment} successfully`;
+export const SWITCH_ENV_DISABLED_TOOLTIP_TEXT = () =>
+  "To access environments for datasources, try out our ";
 
 export const TEST_DATASOURCE_SUCCESS = (
   datasourceName: string,
@@ -1894,3 +1929,6 @@ export const DEFAULT_CAMERA_LABEL_DESCRIPTION = () =>
   "Default choice for mobile users. Not applicable for other devices";
 export const FRONT_CAMERA_LABEL = () => "Front (Selfie)";
 export const BACK_CAMERA_LABEL = () => "Back (Rear)";
+
+// Color picker
+export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";

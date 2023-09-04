@@ -14,7 +14,6 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
@@ -61,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
@@ -289,6 +289,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return applicationIdMono.flatMap(appId -> repository
                 .updateById(appId, application, applicationPermission.getEditPermission())
                 .onErrorResume(error -> {
+                    log.error("failed to update application {}", appId, error);
                     if (error instanceof DuplicateKeyException) {
                         // Error message : E11000 duplicate key error collection: appsmith.application index:
                         // workspace_app_deleted_gitApplicationMetadata dup key:
@@ -461,10 +462,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Map<String, Policy> applicationPolicyMap =
                 policySolution.generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
 
+        Flux<String> otherApplicationsForThisRoleFlux = repository
+                .getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
+                        application.getWorkspaceId(), READ_APPLICATIONS, permissionGroupId)
+                .filter(applicationId -> !application.getId().equals(applicationId))
+                .cache();
+
         List<Mono<Void>> updateInheritedDomainsList =
                 updatePoliciesForInheritingDomains(application, applicationPolicyMap, addViewAccess);
-        List<Mono<Void>> updateIndependentDomainsList =
-                updatePoliciesForIndependentDomains(application, permissionGroupId, addViewAccess);
+        List<Mono<Void>> updateIndependentDomainsList = updatePoliciesForIndependentDomains(
+                application, permissionGroupId, addViewAccess, otherApplicationsForThisRoleFlux);
 
         return Flux.fromIterable(updateInheritedDomainsList)
                 .flatMap(voidMono -> voidMono)
@@ -485,44 +492,80 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     protected List<Mono<Void>> updatePoliciesForIndependentDomains(
-            Application application, String permissionGroupId, Boolean addViewAccess) {
+            Application application,
+            String permissionGroupId,
+            Boolean addViewAccess,
+            Flux<String> otherApplicationsWithAccessFlux) {
 
         List<Mono<Void>> list = new ArrayList<>();
 
         Map<String, Policy> datasourcePolicyMap = policySolution.generatePolicyFromPermissionWithPermissionGroup(
                 datasourcePermission.getExecutePermission(), permissionGroupId);
 
-        Mono<Void> updatedDatasourcesMono = newActionRepository
-                .findByApplicationId(application.getId())
-                .collectList()
-                .flatMap(actions -> {
-                    Set<String> datasourceIds = new HashSet<>();
-                    for (NewAction action : actions) {
-                        ActionDTO unpublishedAction = action.getUnpublishedAction();
-                        ActionDTO publishedAction = action.getPublishedAction();
+        Set<String> existingDatasourceIds = ConcurrentHashMap.newKeySet();
+        Set<String> newDatasourceIds = ConcurrentHashMap.newKeySet();
 
-                        if (unpublishedAction.getDatasource() != null
-                                && unpublishedAction.getDatasource().getId() != null) {
-                            datasourceIds.add(unpublishedAction.getDatasource().getId());
-                        }
+        Mono<Void> existingDatasourceIdsMono = otherApplicationsWithAccessFlux
+                .flatMap(ids -> newActionRepository.findByApplicationId(ids))
+                .map(action -> {
+                    ActionDTO unpublishedAction = action.getUnpublishedAction();
+                    ActionDTO publishedAction = action.getPublishedAction();
 
-                        if (publishedAction != null
-                                && publishedAction.getDatasource() != null
-                                && publishedAction.getDatasource().getId() != null) {
-                            datasourceIds.add(publishedAction.getDatasource().getId());
-                        }
+                    if (unpublishedAction.getDatasource() != null
+                            && unpublishedAction.getDatasource().getId() != null) {
+                        existingDatasourceIds.add(
+                                unpublishedAction.getDatasource().getId());
                     }
 
-                    // Update the datasource policies without permission since the applications and datasources are at
-                    // the same level in the hierarchy. A user may have permission to change view on application, but
-                    // may not have explicit permissions on the datasource.
-                    Mono<Void> updatedDatasourcesMono1 = policySolution
-                            .updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(
-                                    datasourceIds, datasourcePolicyMap, addViewAccess)
-                            .then();
+                    if (publishedAction != null
+                            && publishedAction.getDatasource() != null
+                            && publishedAction.getDatasource().getId() != null) {
+                        existingDatasourceIds.add(
+                                publishedAction.getDatasource().getId());
+                    }
+                    return action;
+                })
+                .then();
 
-                    return updatedDatasourcesMono1;
-                });
+        Mono<Void> newDatasourceIdsMono = newActionRepository
+                .findByApplicationId(application.getId())
+                .map(action -> {
+                    ActionDTO unpublishedAction = action.getUnpublishedAction();
+                    ActionDTO publishedAction = action.getPublishedAction();
+
+                    if (unpublishedAction.getDatasource() != null
+                            && unpublishedAction.getDatasource().getId() != null) {
+                        newDatasourceIds.add(unpublishedAction.getDatasource().getId());
+                    }
+
+                    if (publishedAction != null
+                            && publishedAction.getDatasource() != null
+                            && publishedAction.getDatasource().getId() != null) {
+                        newDatasourceIds.add(publishedAction.getDatasource().getId());
+                    }
+                    return action;
+                })
+                .then();
+
+        Mono<Set<String>> datasourceIdsMono = Mono.when(existingDatasourceIdsMono, newDatasourceIdsMono)
+                .then(Mono.fromCallable(() -> {
+                    // We want to change permissions for all the datasources related to the new application
+                    HashSet<String> datasourceIds = new HashSet<>(newDatasourceIds);
+                    // But disregard anything that is being used in other applications as well
+                    datasourceIds.removeAll(existingDatasourceIds);
+                    return datasourceIds;
+                }));
+
+        // Update the datasource policies without permission since the applications and datasources are at
+        // the same level in the hierarchy. A user may have permission to change view on application, but
+        // may not have explicit permissions on the datasource.
+        Mono<Void> updatedDatasourcesMono = datasourceIdsMono
+                .flatMapMany(datasourceIds -> {
+                    return policySolution.updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(
+                            datasourceIds, datasourcePolicyMap, addViewAccess);
+                })
+                .then();
+
         list.add(updatedDatasourcesMono);
 
         return list;
