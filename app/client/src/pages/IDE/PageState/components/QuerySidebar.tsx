@@ -87,7 +87,7 @@ const QuerySidebar = (props: Props) => {
   if (actionId && action) {
     if ([PluginType.DB, PluginType.SAAS].includes(action.config.pluginType)) {
       editor = (
-        <div className="h-full">
+        <div className="h-full flex">
           <QueryEditor actionId={actionId} pageId={pageId} />
         </div>
       );
