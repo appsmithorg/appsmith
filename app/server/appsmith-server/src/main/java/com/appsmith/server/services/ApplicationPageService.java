@@ -1,5 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.services.ce.ApplicationPageServiceCE;
+import com.appsmith.server.solutions.ce_compatible.ApplicationPageServiceCECompatible;
 
-public interface ApplicationPageService extends ApplicationPageServiceCE {}
+public interface ApplicationPageService extends ApplicationPageServiceCECompatible {}
