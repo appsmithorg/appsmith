@@ -11,6 +11,10 @@ import { StyledImage } from "./styles";
 import { FieldOptionsType } from "./types";
 import type { DropdownOptionType } from "../../../../types";
 import WidgetFactory from "utils/WidgetFactory";
+import {
+  createMessage,
+  NO_CONNECTABLE_WIDGET_FOUND,
+} from "@appsmith/constants/messages";
 
 export type OneClickDropdownFieldProps = {
   label: string;
@@ -119,7 +123,14 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
         </Option>
       ));
     } else {
-      return null;
+      return (
+        <Option
+          data-testId="t--one-click-binding-no-connectable-widget"
+          disabled
+        >
+          {createMessage(NO_CONNECTABLE_WIDGET_FOUND)}
+        </Option>
+      );
     }
   };
 

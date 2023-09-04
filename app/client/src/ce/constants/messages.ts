@@ -1957,6 +1957,9 @@ export const ONSUBMIT_NOT_CONFIGURED_MESSAGE = (widgetName: string) =>
 export const ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT = () =>
   "Learn more about events";
 
+export const NO_CONNECTABLE_WIDGET_FOUND = () =>
+  "Add a table or list widget with data to get the values from";
+
 // Table widget
 export const TABLE_CONNECT_OVERLAY_TEXT = () =>
   "Connect your data or use sample data to display table";
