@@ -7,7 +7,6 @@ import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.migrations.utils.CompatibilityUtils;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -78,40 +77,33 @@ public class Migration023PopulateDefaultDomainIdInUserManagementRoles {
         int attempt = 0;
 
         while (countOfUserManagementRolesWithMigrationFlag022Set > 0 && attempt < migrationRetries) {
-            Query queryOptimisedUserManagementRolesWithDefaultDomainIdDoesNotExist =
-                    CompatibilityUtils.optimizeQueryForNoCursorTimeout(
-                            mongoTemplate, queryUserManagementRolesWithWithMigrationFlag022Set, PermissionGroup.class);
-            mongoTemplate.stream(
-                            queryOptimisedUserManagementRolesWithDefaultDomainIdDoesNotExist, PermissionGroup.class)
-                    .forEach(userManagementRole -> {
-                        if (userManagementRoleIdToUserIdMap.containsKey(userManagementRole.getId())
-                                && StringUtils.isNotEmpty(
-                                        userManagementRoleIdToUserIdMap.get(userManagementRole.getId()))) {
-                            Criteria criteriaUserManagementRoleById = Criteria.where(
-                                            fieldName(QPermissionGroup.permissionGroup.id))
-                                    .is(userManagementRole.getId());
-                            Query queryUserManagementRoleById = new Query(criteriaUserManagementRoleById);
-                            Update updateDefaultDomainIdOfUserManagementRole = new Update();
+            List<PermissionGroup> userManagementRolesWithMigrationFlag022Set =
+                    mongoTemplate.find(queryUserManagementRolesWithWithMigrationFlag022Set, PermissionGroup.class);
+            userManagementRolesWithMigrationFlag022Set.parallelStream().forEach(userManagementRole -> {
+                if (userManagementRoleIdToUserIdMap.containsKey(userManagementRole.getId())
+                        && StringUtils.isNotEmpty(userManagementRoleIdToUserIdMap.get(userManagementRole.getId()))) {
+                    Criteria criteriaUserManagementRoleById = Criteria.where(
+                                    fieldName(QPermissionGroup.permissionGroup.id))
+                            .is(userManagementRole.getId());
+                    Query queryUserManagementRoleById = new Query(criteriaUserManagementRoleById);
+                    Update updateDefaultDomainIdOfUserManagementRole = new Update();
 
-                            updateDefaultDomainIdOfUserManagementRole.set(
-                                    fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
-                                    userManagementRoleIdToUserIdMap.get(userManagementRole.getId()));
+                    updateDefaultDomainIdOfUserManagementRole.set(
+                            fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
+                            userManagementRoleIdToUserIdMap.get(userManagementRole.getId()));
 
-                            updateDefaultDomainIdOfUserManagementRole.set(
-                                    fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
-                                    User.class.getSimpleName());
+                    updateDefaultDomainIdOfUserManagementRole.set(
+                            fieldName(QPermissionGroup.permissionGroup.defaultDomainType), User.class.getSimpleName());
 
-                            updateDefaultDomainIdOfUserManagementRole.unset(
-                                    Migration022TagUserManagementRolesWithoutDefaultDomainTypeAndId
-                                            .MIGRATION_FLAG_022_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID);
-                            mongoTemplate.updateFirst(
-                                    queryUserManagementRoleById,
-                                    updateDefaultDomainIdOfUserManagementRole,
-                                    PermissionGroup.class);
-                        } else {
-                            System.out.println(userManagementRole.getId());
-                        }
-                    });
+                    updateDefaultDomainIdOfUserManagementRole.unset(
+                            Migration022TagUserManagementRolesWithoutDefaultDomainTypeAndId
+                                    .MIGRATION_FLAG_022_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID);
+                    mongoTemplate.updateFirst(
+                            queryUserManagementRoleById,
+                            updateDefaultDomainIdOfUserManagementRole,
+                            PermissionGroup.class);
+                }
+            });
             countOfUserManagementRolesWithMigrationFlag022Set =
                     mongoTemplate.count(queryUserManagementRolesWithWithMigrationFlag022Set, PermissionGroup.class);
             attempt += 1;
