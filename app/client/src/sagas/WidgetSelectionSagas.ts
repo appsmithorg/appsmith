@@ -16,7 +16,6 @@ import type {
 import {
   setEntityExplorerAncestry,
   setSelectedWidgetAncestry,
-  setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -33,19 +32,20 @@ import { getAppMode, getCanvasWidgets } from "selectors/entitiesSelector";
 import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
 import {
   assertParentId,
+  getWidgetAncestry,
   isInvalidSelectionRequest,
   pushPopWidgetSelection,
   selectAllWidgetsInCanvasSaga,
   SelectionRequestType,
   selectMultipleWidgets,
   selectOneWidget,
-  getWidgetAncestry,
   shiftSelectWidgets,
   unselectWidget,
 } from "sagas/WidgetSelectUtils";
 import { quickScrollToWidget } from "utils/helpers";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
+import { IDEAppState } from "../pages/IDE/ideReducer";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -162,7 +162,15 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     }
 
     if (areArraysEqual([...newSelection], [...selectedWidgets])) {
-      yield put(setSelectedWidgets(newSelection));
+      const currentPageId: string = yield select(getCurrentPageId);
+      history.push(
+        builderURL({
+          pageId: pageId ?? currentPageId,
+          persistExistingParams: true,
+          ideState: IDEAppState.Page,
+          suffix: "/ui",
+        }),
+      );
       return;
     }
     yield call(appendSelectedWidgetToUrlSaga, newSelection, pageId, invokedBy);
@@ -204,6 +212,8 @@ function* appendSelectedWidgetToUrlSaga(
     : builderURL({
         pageId: pageId ?? currentPageId,
         persistExistingParams: true,
+        ideState: IDEAppState.Page,
+        suffix: "/ui",
       });
   if (currentURL !== newUrl) {
     history.push(newUrl, { invokedBy });
