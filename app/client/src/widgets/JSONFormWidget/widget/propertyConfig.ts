@@ -149,6 +149,17 @@ export const contentConfig = [
         helpText: "Input JSON sample for default form layout",
         label: "Source data",
         controlType: "ONE_CLICK_BINDING_CONTROL",
+        updateHook: (props: JSONFormWidgetProps) => {
+          if (!props.onSubmit) {
+            const propertiesToUpdate = [
+              {
+                propertyPath: "onSubmit",
+                propertyValue: `{{showAlert("onSubmit event is not configured for ${props.widgetName} ", "warning")}}`,
+              },
+            ];
+            return propertiesToUpdate;
+          }
+        },
         controlConfig: {
           showEditFieldsModal: true,
           datasourceDropdownVariant: DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS,
