@@ -62,9 +62,23 @@ class WidgetFactory {
       WidgetFactory.widgetBuilderMap.set(widget.type, builder);
 
       WidgetFactory.configureWidget(widget);
+
+      WidgetFactory.preloadConfig(widget);
     }
 
     log.debug("Widget registration took: ", performance.now() - start, "ms");
+  }
+
+  private static preloadConfig(widget: typeof BaseWidget) {
+    if (widget.preloadConfig) {
+      WidgetFactory.getWidgetPropertyPaneCombinedConfig(widget.type);
+      WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
+      WidgetFactory.getWidgetPropertyPaneContentConfig(widget.type);
+      WidgetFactory.getWidgetPropertyPaneStyleConfig(widget.type);
+      WidgetFactory.getWidgetPropertyPaneSearchConfig(widget.type);
+      WidgetFactory.getWidgetAutoLayoutConfig(widget.type);
+      WidgetFactory.getWidgetTypeConfigMap();
+    }
   }
 
   private static configureWidget(widget: typeof BaseWidget) {
