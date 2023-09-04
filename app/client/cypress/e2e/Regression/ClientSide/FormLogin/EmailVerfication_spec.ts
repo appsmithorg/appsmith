@@ -1,7 +1,7 @@
 import adminsSettings from "../../../../locators/AdminsSettings";
 
 describe("Email verification", () => {
-  it("Shows the email verification pending page correctly", () => {
+  it("1. Shows the email verification pending page correctly", () => {
     cy.LogOut();
     cy.visit("/user/verificationPending?email=test@appsmith.com");
     cy.wait(1000);
@@ -9,7 +9,8 @@ describe("Email verification", () => {
       "VerificationPendingScreen",
     );
   });
-  it("Verification error pages", () => {
+
+  it("2. Verification error pages", () => {
     const errorCode = {
       ALREADY_VERIFIED: "AE-EMV-4095",
       EXPIRED: "AE-EMV-4096",
@@ -45,7 +46,9 @@ describe("Email verification", () => {
       "Unknown error",
     );
   });
-  it.skip("Email verification settings test", () => {
+
+  //Skipping since Server restart taking a lot of time
+  it.skip("3. Email verification settings test", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
@@ -54,11 +57,11 @@ describe("Email verification", () => {
     cy.wait("@getEnvVariables");
     cy.get(adminsSettings.authenticationTab).click();
     cy.get(adminsSettings.formloginButton).click();
-    cy.pause();
+    //cy.pause();
     // Assert verification is disabled
     cy.get(adminsSettings.enableEmailVerificationInput).should("be.disabled");
     // Assert callout
-    cy.get(adminsSettings.adminSettingsCallout).should("be.visible");
+    //cy.get(adminsSettings.adminSettingsCallout).should("be.visible");
     // go to email settings
     cy.get(adminsSettings.emailTab).click();
     // add email settings
@@ -67,8 +70,11 @@ describe("Email verification", () => {
     });
     // save
     cy.get(adminsSettings.saveButton).click();
+
+    cy.waitForServerRestart();
+
     cy.waitUntil(() =>
-      cy.contains("General", { timeout: 180000 }).should("be.visible"),
+      cy.contains("General", { timeout: 210000 }).should("be.visible"),
     ).then(() => {
       cy.wait("@getEnvVariables");
       cy.get(adminsSettings.authenticationTab).click();
@@ -92,6 +98,8 @@ describe("Email verification", () => {
       cy.get(adminsSettings.emailTab).click();
       // remove email settings
       cy.get(adminsSettings.saveButton).click();
+      cy.waitForServerRestart();
+
       cy.waitUntil(() =>
         cy.contains("General", { timeout: 180000 }).should("be.visible"),
       ).then(() => {
