@@ -80,6 +80,8 @@ export class DataSources {
   _activeDS = "[data-testid='active-datasource-name']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
+  _addSuggestedExisting = "t--suggested-widget-existing";
+  _addSuggestedAddNew = "t--suggested-widget-add-new";
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
   _createQuery = ".t--create-query";
@@ -186,8 +188,15 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
-  private _suggestedWidget = (widgetType: string) =>
-    ".t--suggested-widget-" + widgetType + "";
+
+  private _suggestedWidget = (widgetType: string, parentClass?: string) =>
+    parentClass
+      ? "//div[contains(@class, '" +
+        parentClass +
+        "')]//div[contains(@class, 't--suggested-widget-" +
+        widgetType +
+        "')]"
+      : ".t--suggested-widget-" + widgetType + "";
 
   private _curlTextArea =
     "//label[text()='Paste CURL Code Here']/parent::form/div";
@@ -1669,17 +1678,24 @@ export class DataSources {
     );
   }
 
-  public AddSuggestedWidget(widget: Widgets, force = false, index = 0) {
+  public AddSuggestedWidget(
+    widget: Widgets,
+    force = false,
+    index = 0,
+    parentClass?: string,
+  ) {
     switch (widget) {
       case Widgets.Dropdown:
-        this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("SELECT_WIDGET", parentClass),
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.SELECT),
         );
         break;
       case Widgets.Table:
         this.agHelper.GetNClick(
-          this._suggestedWidget("TABLE_WIDGET_V2"),
+          this._suggestedWidget("TABLE_WIDGET_V2", parentClass),
           index,
           force,
         );
@@ -1688,13 +1704,17 @@ export class DataSources {
         );
         break;
       case Widgets.Chart:
-        this.agHelper.GetNClick(this._suggestedWidget("CHART_WIDGET"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("CHART_WIDGET", parentClass),
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.CHART),
         );
         break;
       case Widgets.Text:
-        this.agHelper.GetNClick(this._suggestedWidget("TEXT_WIDGET"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("TEXT_WIDGET", parentClass),
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TEXT),
         );

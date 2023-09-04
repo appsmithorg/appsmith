@@ -389,7 +389,10 @@ export type ThemeProp = {
   theme: Theme;
 };
 
-export type SnipingModeProperty = Record<"data" | "run", string>;
+export type SnipingModeProperty = Record<
+  "data" | "run" | "isDynamicPropertyPath",
+  string
+>;
 
 export enum DefaultMobileCameraTypes {
   FRONT = "user",

@@ -6,11 +6,9 @@ import {
   draggableWidgets,
   propPane,
   dataManager,
-  locators,
   homePage,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
-import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
 
 describe("Validate Arango & CURL Import Datasources", () => {
   let dsName: any,
@@ -304,10 +302,22 @@ describe("Validate Arango & CURL Import Datasources", () => {
     entityExplorer.SelectEntityByName("Query6");
     dataSources.FilterAndVerifyDatasourceSchemaBySearch("country", "column");
     dataSources.RunQuery();
-    dataSources.AddSuggestedWidget(Widgets.Table, true); //Binding to new table from schema explorer
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      true,
+      0,
+      dataSources._addSuggestedAddNew,
+    ); //Binding to new table from schema explorer
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
 
-    // Removed the Select Widget snipping mode test case as we have removed the `Connect widget` element from the new bindings UI
+    entityExplorer.SelectEntityByName("Query6");
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      true,
+      0,
+      dataSources._addSuggestedExisting,
+    );
+    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
   });
 
   //To add test for duplicate collection name

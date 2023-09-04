@@ -27,7 +27,12 @@ describe("API Bugs", function () {
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     apiPage.RunAPI();
-    dataSources.AddSuggestedWidget(Widgets.Table);
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      false,
+      0,
+      dataSources._addSuggestedAddNew,
+    );
     debuggerHelper.AssertErrorCount(0);
     table.WaitUntilTableLoad(0, 0, "v2");
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Api1");
@@ -37,7 +42,12 @@ describe("API Bugs", function () {
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiObjectUrl,
     );
     apiPage.RunAPI();
-    dataSources.AddSuggestedWidget(Widgets.Table, false, -1);
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      false,
+      0,
+      dataSources._addSuggestedExisting,
+    );
     table.WaitUntilTableLoad(0, 0, "v2");
     propPane.ValidatePropertyFieldValue("Table data", "{{Api2.data.users}}");
   });

@@ -49,6 +49,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import localStorage from "utils/localStorage";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import type { WidgetType } from "utils/WidgetFactory";
 
 const BINDING_GUIDE_GIF = `${ASSETS_CDN_URL}/binding.gif`;
 
@@ -398,7 +399,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     dispatch(addSuggestedWidget(payload));
   };
 
-  const handleBindData = async (widgetId: string) => {
+  const handleBindData = async (widgetId: string, widgetType: WidgetType) => {
     dispatch(
       bindDataOnCanvas({
         queryId: (params.apiId || params.queryId) as string,
@@ -414,9 +415,14 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       localStorage.setItem(WIDGET_ID_SHOW_WALKTHROUGH, widgetId);
     }
 
+    const widgetSuggestedInfo = props.suggestedWidgets.find(
+      (suggestedWidget) => suggestedWidget.type === widgetType,
+    );
+
     dispatch(
       bindDataToWidget({
         widgetId: widgetId,
+        bindingQuery: widgetSuggestedInfo?.bindingQuery,
       }),
     );
 
@@ -494,7 +500,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     <SuggestedWidgetContainer id={BINDING_SECTION_ID}>
       <Collapsible label={labelNew}>
         {isTableWidgetPresentOnCanvas() && (
-          <SubSection>
+          <SubSection className="t--suggested-widget-existing">
             {renderHeading(
               connectExistingWidgetLabel,
               connectExistingWidgetSubLabel,
@@ -521,7 +527,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
                     <div
                       className={`widget t--suggested-widget-${widget.type}`}
                       key={widget.type + widget.widgetId}
-                      onClick={() => handleBindData(widgetKey)}
+                      onClick={() => handleBindData(widgetKey, widget.type)}
                     >
                       <Tooltip
                         content={createMessage(SUGGESTED_WIDGET_TOOLTIP)}
@@ -542,7 +548,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
             }
           </SubSection>
         )}
-        <SubSection>
+        <SubSection className="t--suggested-widget-add-new">
           {renderHeading(addNewWidgetLabel, addNewWidgetSubLabel)}
           <WidgetList className="spacing">
             {props.suggestedWidgets.map((suggestedWidget) => {

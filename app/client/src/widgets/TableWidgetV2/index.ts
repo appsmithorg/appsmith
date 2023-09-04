@@ -97,7 +97,7 @@ export const CONFIG = {
         {
           propertyPath: "tableData",
           propertyValue: propValueMap.data,
-          isDynamicPropertyPath: false,
+          isDynamicPropertyPath: !!propValueMap.isDynamicPropertyPath,
         },
       ];
     },

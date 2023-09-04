@@ -1,5 +1,3 @@
-const queryLocators = require("../../../../locators/QueryEditor.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
@@ -7,10 +5,9 @@ let datasourceName;
 
 describe("Add widget - Postgress DataSource", function () {
   beforeEach(() => {
-    cy.startRoutesForDatasource();
-    cy.createPostgresDatasource();
-    cy.get("@saveDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
+    _.dataSources.CreateDataSource("Postgres");
+    cy.get("@dsName").then(($dsName) => {
+      datasourceName = $dsName;
     });
   });
 
@@ -23,11 +20,14 @@ describe("Add widget - Postgress DataSource", function () {
     _.dataSources.EnterQuery("select * from public.configs");
     cy.WaitAutoSave();
     cy.runQuery();
-    _.dataSources.AddSuggestedWidget(Widgets.Table);
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("Table1");
-    cy.isSelectRow(1);
-    cy.readTableV2dataPublish("1", "0").then((tabData) => {
+    _.dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      false,
+      0,
+      _.dataSources._addSuggestedAddNew,
+    );
+    cy.isSelectRow(0);
+    cy.readTableV2dataPublish("0", "0").then((tabData) => {
       cy.log("the value is " + tabData);
       expect(tabData).to.be.equal("5");
     });
