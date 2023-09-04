@@ -1,5 +1,5 @@
 import { InputTypes } from "widgets/BaseInputWidget/constants";
-import { parseText } from "./utils";
+import { parseText } from "./helper";
 
 describe("getParsedText", () => {
   it("should test with all possible values", () => {
