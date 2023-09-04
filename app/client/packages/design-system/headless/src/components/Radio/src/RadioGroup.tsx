@@ -12,7 +12,10 @@ import type { LabelProps } from "@design-system/headless";
 
 export type RadioGroupRef = DOMRef<HTMLDivElement>;
 export interface RadioGroupProps
-  extends Omit<SpectrumRadioGroupProps, keyof StyleProps> {
+  extends Omit<
+    SpectrumRadioGroupProps,
+    keyof StyleProps | "includeNecessityIndicatorInAccessibilityName"
+  > {
   className?: string;
   labelWidth?: LabelProps["labelWidth"];
 }
