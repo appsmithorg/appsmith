@@ -1,9 +1,11 @@
 package com.appsmith.server.migrations.db.ce;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.CollectionUtils;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -37,10 +39,13 @@ public class Migration022TagUserManagementRolesWithoutDefaultDomainTypeAndId {
 
     @Execution
     public void tagUserManagementRolesWithoutDefaultDomainTypeAndId() {
-        Query queryExistingUsers = new Query().addCriteria(notDeleted());
-        queryExistingUsers.fields().include(fieldName(QUser.user.policies));
+        Criteria resetPasswordPolicyExistsAndNotDeleted = Criteria.where("policies.permission")
+                .is(RESET_PASSWORD_USERS.getValue())
+                .andOperator(notDeleted());
+        Query queryExistingUsersWithResetPasswordPolicy = new Query(resetPasswordPolicyExistsAndNotDeleted);
+        queryExistingUsersWithResetPasswordPolicy.fields().include(fieldName(QUser.user.policies));
 
-        List<User> existingUsers = mongoTemplate.find(queryExistingUsers, User.class);
+        List<User> existingUsers = mongoTemplate.find(queryExistingUsersWithResetPasswordPolicy, User.class);
 
         /*
          * At the moment, RESET_PASSWORD_USERS policy for the user resource only contains 1 permission group ID, i.e.
@@ -48,12 +53,15 @@ public class Migration022TagUserManagementRolesWithoutDefaultDomainTypeAndId {
          */
         Set<String> userManagementRoleIds = new HashSet<>();
         existingUsers.forEach(existingUser -> {
-            Optional<List<String>> roleWithResetPasswordPermissionOptional = existingUser.getPolicies().stream()
+            Optional<Policy> resetPasswordPolicyOptional = existingUser.getPolicies().stream()
                     .filter(policy1 -> RESET_PASSWORD_USERS.getValue().equals(policy1.getPermission()))
-                    .map(policy2 -> policy2.getPermissionGroups().stream().toList())
                     .findFirst();
-            roleWithResetPasswordPermissionOptional.ifPresent(userManagementRoleId -> {
-                userManagementRoleIds.add(userManagementRoleId.get(0));
+            resetPasswordPolicyOptional.ifPresent(resetPasswordPolicy -> {
+                List<String> roleIdList =
+                        resetPasswordPolicy.getPermissionGroups().stream().toList();
+                if (!CollectionUtils.isNullOrEmpty(roleIdList)) {
+                    userManagementRoleIds.add(roleIdList.get(0));
+                }
             });
         });
 
@@ -72,8 +80,7 @@ public class Migration022TagUserManagementRolesWithoutDefaultDomainTypeAndId {
 
         Update updateSetMigrationFlag = new Update();
         updateSetMigrationFlag.set(
-                MIGRATION_FLAG_022_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID,
-                User.class.getSimpleName());
+                MIGRATION_FLAG_022_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID, Boolean.TRUE);
 
         mongoTemplate.updateMulti(
                 queryUserManagementRolesWithDefaultDomainIdDoesNotExist, updateSetMigrationFlag, PermissionGroup.class);

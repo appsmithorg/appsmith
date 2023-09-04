@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations.db.ce;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QUser;
@@ -12,13 +13,20 @@ import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -37,12 +45,31 @@ public class Migration023PopulateDefaultDomainIdInUserManagementRoles {
 
     @Execution
     public void populateDefaultDomainIdInUserManagementRoles() {
+        Criteria resetPasswordPolicyExistsAndNotDeleted = Criteria.where("policies.permission")
+                .is(RESET_PASSWORD_USERS.getValue())
+                .andOperator(notDeleted());
+        Query queryExistingUsersWithResetPasswordPolicy = new Query(resetPasswordPolicyExistsAndNotDeleted);
+        queryExistingUsersWithResetPasswordPolicy.fields().include(fieldName(QUser.user.policies));
+        Map<String, String> userManagementRoleIdToUserIdMap = new HashMap<>();
+        mongoTemplate.stream(queryExistingUsersWithResetPasswordPolicy, User.class)
+                .forEach(existingUser -> {
+                    Optional<Policy> resetPasswordPolicyOptional = existingUser.getPolicies().stream()
+                            .filter(policy1 -> RESET_PASSWORD_USERS.getValue().equals(policy1.getPermission()))
+                            .findFirst();
+                    resetPasswordPolicyOptional.ifPresent(resetPasswordPolicy -> {
+                        List<String> roleIdList = resetPasswordPolicy.getPermissionGroups().stream()
+                                .toList();
+                        roleIdList.forEach(roleId -> userManagementRoleIdToUserIdMap.put(roleId, existingUser.getId()));
+                    });
+                });
+
         Criteria criteriaUserManagementRolesWithMigrationFlag022Set = Criteria.where(
                         Migration022TagUserManagementRolesWithoutDefaultDomainTypeAndId
                                 .MIGRATION_FLAG_022_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID)
-                .exists(true);
+                .exists(Boolean.TRUE);
         Query queryUserManagementRolesWithWithMigrationFlag022Set =
                 new Query(criteriaUserManagementRolesWithMigrationFlag022Set);
+
         queryUserManagementRolesWithWithMigrationFlag022Set
                 .fields()
                 .include(fieldName(QPermissionGroup.permissionGroup.id));
@@ -54,36 +81,36 @@ public class Migration023PopulateDefaultDomainIdInUserManagementRoles {
             Query queryOptimisedUserManagementRolesWithDefaultDomainIdDoesNotExist =
                     CompatibilityUtils.optimizeQueryForNoCursorTimeout(
                             mongoTemplate, queryUserManagementRolesWithWithMigrationFlag022Set, PermissionGroup.class);
-
             mongoTemplate.stream(
                             queryOptimisedUserManagementRolesWithDefaultDomainIdDoesNotExist, PermissionGroup.class)
                     .forEach(userManagementRole -> {
-                        Criteria criteriaResetPasswordPermission = Criteria.where(fieldName(QUser.user.policies))
-                                .elemMatch(Criteria.where("permissionGroups")
-                                        .in(userManagementRole.getId())
-                                        .and("permission")
-                                        .is(RESET_PASSWORD_USERS.getValue()));
-                        Query queryUserWithResetPasswordPermission = new Query(criteriaResetPasswordPermission);
-                        queryUserWithResetPasswordPermission.fields().include(fieldName(QUser.user.id));
-                        User user = mongoTemplate.findOne(queryUserWithResetPasswordPermission, User.class);
-                        Update updateDefaultDomainIdOfUserManagementRole = new Update();
-                        updateDefaultDomainIdOfUserManagementRole.set(
-                                fieldName(QPermissionGroup.permissionGroup.defaultDomainId), user.getId());
-                        updateDefaultDomainIdOfUserManagementRole.set(
-                                fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
-                                User.class.getSimpleName());
-                        updateDefaultDomainIdOfUserManagementRole.unset(
-                                Migration022TagUserManagementRolesWithoutDefaultDomainTypeAndId
-                                        .MIGRATION_FLAG_022_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID);
+                        if (userManagementRoleIdToUserIdMap.containsKey(userManagementRole.getId())
+                                && StringUtils.isNotEmpty(
+                                        userManagementRoleIdToUserIdMap.get(userManagementRole.getId()))) {
+                            Criteria criteriaUserManagementRoleById = Criteria.where(
+                                            fieldName(QPermissionGroup.permissionGroup.id))
+                                    .is(userManagementRole.getId());
+                            Query queryUserManagementRoleById = new Query(criteriaUserManagementRoleById);
+                            Update updateDefaultDomainIdOfUserManagementRole = new Update();
 
-                        Criteria criteriaUserManagementRoleById = Criteria.where(
-                                        fieldName(QPermissionGroup.permissionGroup.id))
-                                .is(userManagementRole.getId());
-                        Query queryUserManagementRoleById = new Query(criteriaUserManagementRoleById);
-                        mongoTemplate.updateFirst(
-                                queryUserManagementRoleById,
-                                updateDefaultDomainIdOfUserManagementRole,
-                                PermissionGroup.class);
+                            updateDefaultDomainIdOfUserManagementRole.set(
+                                    fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
+                                    userManagementRoleIdToUserIdMap.get(userManagementRole.getId()));
+
+                            updateDefaultDomainIdOfUserManagementRole.set(
+                                    fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
+                                    User.class.getSimpleName());
+
+                            updateDefaultDomainIdOfUserManagementRole.unset(
+                                    Migration022TagUserManagementRolesWithoutDefaultDomainTypeAndId
+                                            .MIGRATION_FLAG_022_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID);
+                            mongoTemplate.updateFirst(
+                                    queryUserManagementRoleById,
+                                    updateDefaultDomainIdOfUserManagementRole,
+                                    PermissionGroup.class);
+                        } else {
+                            System.out.println(userManagementRole.getId());
+                        }
                     });
             countOfUserManagementRolesWithMigrationFlag022Set =
                     mongoTemplate.count(queryUserManagementRolesWithWithMigrationFlag022Set, PermissionGroup.class);
