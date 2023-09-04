@@ -50,6 +50,7 @@ export const ContextMenuWrapper = styled.div`
 `;
 
 const Wrapper = styled.div<{ active: boolean }>`
+  background-color: white;
   line-height: ${(props) => props.theme.lineHeights[2]}px;
   ${ContextMenuWrapper} {
     width: 0;

@@ -45,18 +45,19 @@ const SwitchMode = styled.div`
   border-radius: 4px;
 `;
 
-const PageList = styled.div`
+const PageList = styled.div<{ width: number }>`
   height: 100%;
   background-color: white;
+  position: absolute;
+  top: 40px;
+  left: 54px;
+  bottom: 0;
+  width: ${(props) => props.width}px;
 `;
 
 const PageSwitchOverlay = styled.div<{ width: number }>`
   background-color: white;
-  position: absolute;
-  top: 0;
-  left: 54px;
   width: ${(props) => props.width}px;
-  bottom: 0;
 `;
 
 const PageSwitcher = () => {
@@ -116,7 +117,7 @@ const PageSwitcher = () => {
             size="sm"
           />
         </SwitchMode>
-        <PageList>
+        <PageList width={paneWidth}>
           <Entity
             action={createPageCallback}
             canEditEntityName={false}
