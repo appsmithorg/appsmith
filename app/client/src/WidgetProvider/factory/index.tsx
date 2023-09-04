@@ -71,6 +71,7 @@ class WidgetFactory {
 
   private static preloadConfig(widget: typeof BaseWidget) {
     if (widget.preloadConfig) {
+      // Call functions so we can store the configs in the memo cache
       WidgetFactory.getWidgetPropertyPaneCombinedConfig(widget.type);
       WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
       WidgetFactory.getWidgetPropertyPaneContentConfig(widget.type);
