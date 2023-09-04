@@ -28,7 +28,6 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import Guide from "../GuidedTour/Guide";
 import CanvasContainer from "./CanvasContainer";
-import CanvasTopSection from "./EmptyCanvasSection";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { PageViewContainer } from "pages/AppViewer/AppPage.styled";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
@@ -171,7 +170,6 @@ function WidgetsEditor() {
               isAppSettingsPaneWithNavigationTabOpen,
           })}
         >
-          {!isAppSettingsPaneWithNavigationTabOpen && <CanvasTopSection />}
           <AnonymousDataPopup />
           <div
             className="relative flex flex-row w-full overflow-hidden"

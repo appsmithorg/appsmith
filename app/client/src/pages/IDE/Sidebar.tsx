@@ -6,6 +6,7 @@ import classNames from "classnames";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { useParams } from "react-router";
+import { Layers } from "constants/Layers";
 
 const DataIcon = importSvg(
   () => import("pages/IDE/assets/icons/database-2-line.svg"),
@@ -36,6 +37,7 @@ const SideBarContainer = styled.div`
   display: grid;
   grid-template-rows: 1fr max-content;
   height: 100%;
+  z-index: ${Layers.sideBar};
 `;
 
 const TopButtons = styled.div`

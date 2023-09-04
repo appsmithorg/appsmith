@@ -15,7 +15,7 @@ import PageLeftPane from "./PageState/LeftPane";
 import AddLeftPane from "./AddState/LeftPane";
 import SettingsLeftPane from "./SettingsState/LeftPane";
 import LibLeftPane from "./LibraryState/LeftPane";
-import { tailwindLayers } from "../../constants/Layers";
+import { Layers, tailwindLayers } from "../../constants/Layers";
 import classNames from "classnames";
 import { Tooltip } from "design-system";
 import useHorizontalResize from "../../utils/hooks/useHorizontalResize";
@@ -31,6 +31,7 @@ const Container = styled.div`
   // TODO: auto size based on available space
   height: calc(100vh - 40px - 37px - 8px);
   position: relative;
+  z-index: ${Layers.sideBar};
 `;
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
