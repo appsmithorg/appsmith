@@ -12,7 +12,10 @@ import type { LabelProps } from "@design-system/headless";
 
 export type CheckboxGroupRef = DOMRef<HTMLDivElement>;
 export interface CheckboxGroupProps
-  extends Omit<SpectrumCheckboxGroupProps, keyof StyleProps> {
+  extends Omit<
+    SpectrumCheckboxGroupProps,
+    keyof StyleProps | "includeNecessityIndicatorInAccessibilityName"
+  > {
   className?: string;
   /** label width for the width, only used in side position */
   labelWidth?: LabelProps["labelWidth"];
