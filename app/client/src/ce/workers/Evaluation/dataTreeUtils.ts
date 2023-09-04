@@ -1,6 +1,7 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { get, set, unset } from "lodash";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
+import { removeFunctionsAndSerialzeBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 /**
  * This method loops through each entity object of dataTree and sets the entity config from prototype as object properties.
@@ -21,17 +22,12 @@ export function makeEntityConfigsAsObjProperties(
   } = option;
   const newDataTree: DataTree = {};
   for (const entityName of Object.keys(dataTree)) {
-    const entity = dataTree[entityName] as any;
-    const updated = Object.keys(entity as any)
-      .filter((k) => entity[k] !== undefined)
-      .reduce((acc: any, k) => {
-        acc[k] = entity[k];
-        return acc;
-      }, {});
-    newDataTree[entityName] = { ...updated };
+    const entity = dataTree[entityName];
+    newDataTree[entityName] = Object.assign({}, entity);
   }
-
-  const dataTreeToReturn = sanitizeDataTree ? newDataTree : newDataTree;
+  const dataTreeToReturn = sanitizeDataTree
+    ? removeFunctionsAndSerialzeBigInt(newDataTree)
+    : newDataTree;
 
   if (!evalProps) return dataTreeToReturn;
 
@@ -62,7 +58,9 @@ export function makeEntityConfigsAsObjProperties(
     unset(evalProps, evalPath);
   });
 
-  const sanitizedEvalProps = evalProps as EvalProps;
+  const sanitizedEvalProps = removeFunctionsAndSerialzeBigInt(
+    evalProps,
+  ) as EvalProps;
   Object.entries(alreadySanitisedDataSet).forEach(([path, val]) => {
     // add it to sanitised Eval props
     set(sanitizedEvalProps, path, val);
