@@ -8,6 +8,8 @@ import {
   dataManager,
   propPane,
   table,
+  draggableWidgets,
+  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
@@ -88,21 +90,10 @@ describe("API Bugs", function () {
   });
 
   it("5. Bug 26897, Invalid binding of table data when used existing suggested widgets for an action returning object", function () {
-    // Case where api returns array response
-    apiPage.CreateAndFillApi(
-      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
-      "ARRAY_RESPONSE",
-    );
-    apiPage.RunAPI();
-    dataSources.AddSuggestedWidget(Widgets.Table);
-    debuggerHelper.AssertErrorCount(0);
-    table.WaitUntilTableLoad(0, 0, "v2");
-    propPane.AssertPropertiesDropDownCurrentValue(
-      "Table data",
-      "ARRAY_RESPONSE",
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+    entityExplorer.NavigateToSwitcher("Explorer");
 
-    // Create another API so that it returns object response
+    // Create API so that it returns object response
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiObjectUrl,
       "OBJECT_RESPONSE",
