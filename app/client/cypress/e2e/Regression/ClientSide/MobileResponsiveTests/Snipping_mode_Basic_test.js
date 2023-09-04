@@ -21,8 +21,8 @@ describe("Add widget - Postgress DataSource", function () {
     cy.WaitAutoSave();
     cy.runQuery();
     _.dataSources.AddSuggestedWidget(Widgets.Table);
-    cy.isSelectRow(0);
-    cy.readTableV2dataPublish("0", "0").then((tabData) => {
+    cy.isSelectRow(1);
+    cy.readTableV2dataPublish("1", "0").then((tabData) => {
       cy.log("the value is " + tabData);
       expect(tabData).to.be.equal("5");
     });
