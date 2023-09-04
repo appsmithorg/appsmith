@@ -1,4 +1,4 @@
-import { isEmpty, isNil, isNumber } from "lodash";
+import { isNil, isNumber } from "lodash";
 
 import {
   createMessage,
@@ -26,8 +26,9 @@ import type { InputWidgetProps, Validation } from "./types";
 export function parseText(value: string, inputType: InputType) {
   const parsedText = Number(value);
 
+  // console.log({ empty: isEmpty(value) });
   if (inputType === INPUT_TYPES.NUMBER) {
-    if (isEmpty(value)) return null;
+    if (isNil(value) || value === "") return null;
     if (isNaN(parsedText)) return null;
 
     return parsedText;
