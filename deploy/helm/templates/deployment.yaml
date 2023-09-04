@@ -81,7 +81,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           {{- $customImage := .Values._image | default dict }}
           image: {{ dig "registry" "index.docker.io" $customImage }}/{{ dig "repository" "appsmith/appsmith-ee" $customImage }}:{{ dig "tag" (.Values.image.tag | default "latest") $customImage }}
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: {{ dig "pullPolicy" "IfNotPresent" $customImage }}
           ports:
             - name: http
               containerPort: 80
