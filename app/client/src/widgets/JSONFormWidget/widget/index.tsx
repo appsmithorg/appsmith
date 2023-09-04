@@ -525,7 +525,10 @@ class JSONFormWidget extends BaseWidget<
           callback: this.handleSubmitResult,
         },
       });
-    } else {
+    } else if (
+      !this.props.onSubmit &&
+      this.props.renderMode === RenderModes.CANVAS
+    ) {
       toast.show(
         createMessage(ONSUBMIT_NOT_CONFIGURED_MESSAGE, this.props.widgetName),
         {

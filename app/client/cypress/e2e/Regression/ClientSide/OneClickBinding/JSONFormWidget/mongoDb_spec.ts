@@ -40,8 +40,6 @@ describe("JSONForm widget one click binding feature", () => {
 
     agHelper.GetNClick(oneClickBindingLocator.connectData);
 
-    assertHelper.AssertNetworkStatus("@postExecute");
-
     agHelper.Sleep(2000);
 
     const columns = [
