@@ -9,8 +9,12 @@ import {
 describe("Resizing Behaviour in auto-layout", function () {
   before(() => {
     cy.get(commonlocators.autoConvert).click({
-      force: true,
+      force: false,
     });
+    cy.get(commonlocators.autoConvert).click({
+      force: false,
+    });
+
     cy.get(commonlocators.convert).click({
       force: true,
     });
