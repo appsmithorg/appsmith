@@ -1377,5 +1377,6 @@ export default function* pageSagas() {
     ),
     takeEvery(ReduxActionTypes.SET_PREVIEW_MODE_INIT, setPreviewModeInitSaga),
     takeLatest(ReduxActionTypes.REFRESH_THE_APP, refreshTheApp),
+    takeLatest(ReduxActionTypes.CLEAR_CACHE, clearEvalCache),
   ]);
 }
