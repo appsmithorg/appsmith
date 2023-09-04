@@ -115,8 +115,10 @@ type GetPropertyUpdatesForQueryBinding = (
   formConfig: WidgetQueryGenerationFormConfig,
 ) => Record<string, unknown>;
 
+type SnipingModeSupportedKeys = "data" | "run" | "isDynamicPropertyPath";
+
 type getSnipingModeUpdates = (
-  propValueMap: Record<"data" | "run", string>,
+  propValueMap: Record<SnipingModeSupportedKeys, string>,
 ) => Array<PropertyUpdates>;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
@@ -389,10 +391,7 @@ export type ThemeProp = {
   theme: Theme;
 };
 
-export type SnipingModeProperty = Record<
-  "data" | "run" | "isDynamicPropertyPath",
-  string
->;
+export type SnipingModeProperty = Record<SnipingModeSupportedKeys, string>;
 
 export enum DefaultMobileCameraTypes {
   FRONT = "user",
