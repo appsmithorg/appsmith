@@ -16,7 +16,7 @@ describe("Resizing Behaviour in auto-layout", function () {
     });
 
     cy.get(commonlocators.autoConvert).click({
-      force: false,
+      force: true,
     });
     cy.get(commonlocators.convert).click({
       force: true,
