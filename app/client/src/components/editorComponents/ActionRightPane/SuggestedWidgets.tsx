@@ -342,6 +342,8 @@ function renderWidgetImage(image: string | undefined) {
   return null;
 }
 
+const SUPPORTED_SUGGESTED_WIDGETS = ["TABLE_WIDGET", "TABLE_WIDGET_V2"];
+
 function SuggestedWidgets(props: SuggestedWidgetProps) {
   const dispatch = useDispatch();
   const dataTree = useSelector(getDataTree);
@@ -438,8 +440,9 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       canvasWidgetLength > 1 &&
       Object.keys(canvasWidgets).some((widgetKey: string) => {
         return (
-          canvasWidgets[widgetKey]?.type === "TABLE_WIDGET_V2" &&
-          parseInt(widgetKey, 0) !== 0
+          SUPPORTED_SUGGESTED_WIDGETS.includes(
+            canvasWidgets[widgetKey]?.type,
+          ) && parseInt(widgetKey, 0) !== 0
         );
       })
     );
@@ -520,7 +523,10 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
                   const widgetInfo: WidgetBindingInfo | undefined =
                     WIDGET_DATA_FIELD_MAP[widget.type];
 
-                  if (!widgetInfo || widget?.type !== "TABLE_WIDGET_V2")
+                  if (
+                    !widgetInfo ||
+                    !SUPPORTED_SUGGESTED_WIDGETS.includes(widget?.type)
+                  )
                     return null;
 
                   return (

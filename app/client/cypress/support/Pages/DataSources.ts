@@ -23,6 +23,7 @@ export enum Widgets {
   Table,
   Chart,
   Text,
+  TableV1,
 }
 
 interface RunQueryParams {
@@ -1706,6 +1707,16 @@ export class DataSources {
         );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TABLE),
+        );
+        break;
+      case Widgets.TableV1:
+        this.agHelper.GetNClick(
+          this._suggestedWidget("TABLE_WIDGET", parentClass),
+          index,
+          force,
+        );
+        this.agHelper.AssertElementVisibility(
+          this.locator._widgetInCanvas(WIDGET.TABLE_V1),
         );
         break;
       case Widgets.Chart:
