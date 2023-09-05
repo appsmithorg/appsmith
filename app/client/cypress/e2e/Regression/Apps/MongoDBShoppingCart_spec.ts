@@ -6,6 +6,7 @@ import {
   homePage,
   gitSync,
   dataSources,
+  locators,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("Shopping cart App", function () {
@@ -116,17 +117,57 @@ describe("Shopping cart App", function () {
     //Wait for element to be in DOM
     agHelper.Sleep(3000);
     agHelper.AssertElementLength(appPage.inputValues, 9);
-    agHelper.UpdateInput(appPage.bookname, "Atomic habits", true);
-    agHelper.UpdateInput(appPage.bookgenre, "Self help", true);
-    agHelper.UpdateInput(appPage.bookprice, "200", true);
-    agHelper.UpdateInput(appPage.bookquantity, "2", true);
+    agHelper.ClearNType(
+      appPage.bookname + "//" + locators._inputField,
+      "Atomic habits",
+      0,
+      true,
+    );
+    agHelper.ClearNType(
+      appPage.bookgenre + "//" + locators._inputField,
+      "Self help",
+      0,
+      true,
+    );
+    agHelper.ClearNType(
+      appPage.bookprice + "//" + locators._inputField,
+      "200",
+      0,
+      true,
+    );
+    agHelper.ClearNType(
+      appPage.bookquantity + "//" + locators._inputField,
+      "2",
+      0,
+      true,
+    );
     agHelper.GetNClick(appPage.addButton, 0, true);
     assertHelper.AssertNetworkStatus("@postExecute");
     agHelper.GetNClick(appPage.bookname);
-    agHelper.UpdateInput(appPage.bookname, "A man called ove", true);
-    agHelper.UpdateInput(appPage.bookgenre, "Fiction", true);
-    agHelper.UpdateInput(appPage.bookprice, "100", true);
-    agHelper.UpdateInput(appPage.bookquantity, "1", true);
+    agHelper.ClearNType(
+      appPage.bookname + "//" + locators._inputField,
+      "A man called ove",
+      0,
+      true,
+    );
+    agHelper.ClearNType(
+      appPage.bookgenre + "//" + locators._inputField,
+      "Fiction",
+      0,
+      true,
+    );
+    agHelper.ClearNType(
+      appPage.bookprice + "//" + locators._inputField,
+      "100",
+      0,
+      true,
+    );
+    agHelper.ClearNType(
+      appPage.bookquantity + "//" + locators._inputField,
+      "1",
+      0,
+      true,
+    );
     agHelper.GetNClick(appPage.addButton, 0, true);
     assertHelper.AssertNetworkStatus("@postExecute");
     // Deleting the book from the cart
@@ -138,12 +179,17 @@ describe("Shopping cart App", function () {
     // validating that the book is deleted
     agHelper.AssertElementLength(appPage.deleteButton + "/parent::div", 1);
     // Updating the book quantity from edit cart
-    agHelper.UpdateInput(appPage.editbookquantity, "3", true);
+    agHelper.ClearNType(
+      appPage.editbookquantity + "//" + locators._inputField,
+      "3",
+      0,
+      true,
+    );
     agHelper.GetNClick(appPage.editButton, 0, true);
 
     //Wait for all post execute calls to finish
     agHelper.Sleep(3000);
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     // validating updated value in the cart
     agHelper
       .GetElement(dataSources._selectedRow)

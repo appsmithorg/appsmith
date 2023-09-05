@@ -90,7 +90,7 @@ export class Table {
   _liCurrentSelectedPage =
     "//div[@type='LIST_WIDGET']//ul[contains(@class, 'rc-pagination')]/li[contains(@class, 'rc-pagination-item-active')]/a";
   private _tr = ".tbody .tr";
-  private _searchText = "input[type='search']";
+  private _searchTableInput = "input[type='search'][placeholder='Search...']";
   _searchBoxCross =
     "//div[contains(@class, 't--search-input')]/following-sibling::div";
   _addIcon = "button .bp3-icon-add";
@@ -248,15 +248,12 @@ export class Table {
   }
 
   public WaitForTableEmpty(tableVersion: "v1" | "v2" = "v1") {
-    cy.waitUntil(() => cy.get(this._tableEmptyColumnData(tableVersion)), {
-      errorMsg: "Table is populated when not expected",
-      timeout: 10000,
-      interval: 2000,
-    }).then(($children) => {
-      cy.wrap($children).children().should("have.length", 0); //or below
-      //expect($children).to.have.lengthOf(0)
-      this.agHelper.Sleep(500);
-    });
+    this.agHelper
+      .GetElement(this._tableEmptyColumnData(tableVersion))
+      .children()
+      .should("have.length", 0); //or below
+    //expect($children).to.have.lengthOf(0)
+    this.agHelper.Sleep(500);
   }
 
   public AssertTableHeaderOrder(expectedOrder: string) {
@@ -446,11 +443,11 @@ export class Table {
   }
 
   public AssertSearchText(searchTxt: string, index = 0) {
-    cy.get(this._searchText).eq(index).should("have.value", searchTxt);
+    cy.get(this._searchTableInput).eq(index).should("have.value", searchTxt);
   }
 
   public SearchTable(searchTxt: string, index = 0) {
-    cy.get(this._searchText).eq(index).type(searchTxt);
+    this.agHelper.TypeText(this._searchTableInput, searchTxt, index);
   }
 
   public ResetSearch() {
@@ -531,11 +528,11 @@ export class Table {
     cy.get(this._downloadOption).contains(filetype).click({ force: true });
   }
 
-  public ValidateDownloadNVerify(fileName: string, textToBePresent: string) {
+  public ValidateDownloadNVerify(fileName: string, textToBePresent = "") {
     let downloadsFolder = Cypress.config("downloadsFolder");
     cy.log("downloadsFolder is:" + downloadsFolder);
     cy.readFile(path.join(downloadsFolder, fileName)).should("exist");
-    this.VerifyDownloadedFile(fileName, textToBePresent);
+    textToBePresent && this.VerifyDownloadedFile(fileName, textToBePresent);
   }
 
   public VerifyDownloadedFile(fileName: string, textToBePresent: string) {
@@ -626,7 +623,7 @@ export class Table {
       0,
       true,
     );
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._tableRow(rowIndex, colIndex, "v2") +
         " " +
         this._editCellEditorInput,
@@ -695,7 +692,7 @@ export class Table {
       this.agHelper
         .GetText(this._listActivePage(tableVersion), "text", index)
         .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-      this.agHelper.GetNClick(this._listNextPage, index, true);
+      this.agHelper.GetNClick(this._listNextPage, index);
       this.agHelper.Sleep(1000);
       this.agHelper
         .GetText(this._listActivePage(tableVersion), "text", index)
@@ -703,16 +700,20 @@ export class Table {
     }
   }
 
-  public NavigateToPreviousPage_List() {
+  public NavigateToPreviousPage_List(
+    tableVersion: "v1" | "v2" = "v1",
+    index = 0,
+  ) {
     let curPageNo: number;
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
+    this.agHelper
+      .GetText(this._listActivePage(tableVersion), "text", index)
       .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-    cy.get(this._liPreviousPage).click();
-    //cy.scrollTo('top', { easing: 'linear' })
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
+    this.agHelper.GetNClick(this._liPreviousPage, index);
+    this.agHelper.Sleep(1000);
+    this.agHelper
+      .GetText(this._listActivePage(tableVersion), "text", index)
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
+    //}
   }
 
   public AssertPageNumber_List(

@@ -1551,8 +1551,7 @@
           "paginationType": "NONE",
           "encodeParamsToggle": true,
           "body": "async () => {\n\t\t//use async-await or promises\n\t}",
-          "jsArguments": [],
-          "isAsync": true
+          "jsArguments": []
         },
         "executeOnLoad": false,
         "clientSideExecution": true,
@@ -1608,8 +1607,7 @@
           "paginationType": "NONE",
           "encodeParamsToggle": true,
           "body": "() => {\n\t\t//write code here\n\t}",
-          "jsArguments": [],
-          "isAsync": false
+          "jsArguments": []
         },
         "executeOnLoad": false,
         "clientSideExecution": true,

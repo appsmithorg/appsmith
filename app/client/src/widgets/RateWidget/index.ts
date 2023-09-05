@@ -17,7 +17,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   tags: [WIDGET_TAGS.CONTENT],
   needsMeta: true,
-  searchTags: ["stars"],
+  searchTags: ["stars", "rate"],
   defaults: {
     rows: 4,
     columns: 20,

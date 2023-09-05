@@ -5,7 +5,9 @@ import {
   apiPage,
   dataSources,
   debuggerHelper,
-  tedTestConfig,
+  dataManager,
+  propPane,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
@@ -13,28 +15,31 @@ import {
   ERROR_ACTION_EXECUTE_FAIL,
   createMessage,
 } from "../../../../support/Objects/CommonErrorMessages";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("API Bugs", function () {
   before(() => {
-    featureFlagIntercept(
-      {
-        ab_ds_binding_enabled: false,
-      },
-      false,
-    );
     agHelper.RefreshPage();
   });
-  it("1. Bug 14037: User gets an error even when table widget is added from the API page successfully", function () {
+
+  it("1. Bug 14037, 25432: User gets an error even when table widget is added from the API page successfully", function () {
+    // Case where api returns array response
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
-      "Api1",
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     apiPage.RunAPI();
-
     dataSources.AddSuggestedWidget(Widgets.Table);
-
     debuggerHelper.AssertErrorCount(0);
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Api1");
+
+    // Create another API so that it returns object response
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiObjectUrl,
+    );
+    apiPage.RunAPI();
+    dataSources.AddSuggestedWidget(Widgets.Table, false, -1);
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.ValidatePropertyFieldValue("Table data", "{{Api2.data.users}}");
   });
 
   it("2. Bug 16377, When Api url has dynamic binding expressions, ensure the url and path derived is not corrupting Api execution", function () {
@@ -57,7 +62,7 @@ describe("API Bugs", function () {
 
   it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
       "FirstAPI",
       10000,
       "POST",

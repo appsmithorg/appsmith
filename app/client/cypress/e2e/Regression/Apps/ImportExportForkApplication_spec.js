@@ -131,7 +131,7 @@ describe("Import, Export and Fork application and validate data binding", functi
             const { isPartialImport } = interception.response.body.data;
             if (isPartialImport) {
               // should reconnect button
-              agHelper.AssertElementVisible(dataSources._testDs); //Making sure modal is fully loaded
+              agHelper.AssertElementVisibility(dataSources._testDs); //Making sure modal is fully loaded
               cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
                 force: true,
               });

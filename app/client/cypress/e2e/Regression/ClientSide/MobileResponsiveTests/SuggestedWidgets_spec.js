@@ -10,12 +10,6 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 describe("Check Suggested Widgets Feature in auto-layout", function () {
   before(() => {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
-    featureFlagIntercept(
-      {
-        ab_ds_binding_enabled: true,
-      },
-      false,
-    );
     agHelper.RefreshPage();
   });
 

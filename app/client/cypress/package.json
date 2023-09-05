@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "^16.14.0",
-    "npm": "^8.5.5"
+    "node": "^18.17.1",
+    "yarn": "^3.5.1"
   },
   "scripts": {
     "install": "node apply-patches.js"
@@ -26,7 +26,7 @@
     "@typescript-eslint/parser": "^5.25.0",
     "chalk": "^4.1.1",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "^12.17.0",
+    "cypress": "^12.17.4",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-log-to-output": "^1.1.2",

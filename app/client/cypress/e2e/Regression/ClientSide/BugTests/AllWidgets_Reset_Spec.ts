@@ -137,7 +137,7 @@ const widgetsToTest: Record<
     },
   },
   */
-  [_.draggableWidgets.PHONEINPUT]: {
+  [_.draggableWidgets.PHONE_INPUT]: {
     widgetName: "PhoneInput",
     widgetPrefixName: "PhoneInput1",
     textBindingValue: testdata.phoneBindingValue,
@@ -206,7 +206,7 @@ function selectTableAndReset() {
 }
 
 function selectSwitchGroupAndReset() {
-  cy.get(".bp3-control-indicator").last().click({ force: true });
+  _.agHelper.CheckUncheck(_.locators._checkboxTypeByOption("Red"));
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "RED",
@@ -280,8 +280,7 @@ function multiTreeSelectAndReset() {
 }
 
 function radiogroupAndReset() {
-  cy.get("input").last().click({ force: true });
-  cy.wait(1000);
+  _.agHelper.GetNClick("input", 1, true, 1000);
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "N",
@@ -350,8 +349,7 @@ function checkboxGroupAndReset() {
 }
 
 function checkboxAndReset() {
-  cy.get("input").last().click({ force: true });
-  cy.wait(1000);
+  _.agHelper.GetNClick("input", 0, true, 1000);
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "false",
@@ -441,14 +439,14 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       _.propPane.UpdatePropertyFieldValue("Text", testConfig.textBindingValue);
     });
 
-    it("3. Publish the app and check the reset assertWidgetReset", () => {
+    it(`3. Publish the app and check the reset of ${testConfig.widgetName}`, () => {
       // Set onClick assertWidgetReset, storing value
-      _.deployMode.DeployApp();
+      _.deployMode.DeployApp(_.locators._widgetInDeployed(widgetSelector));
       testConfig.assertWidgetReset();
-      _.agHelper.AssertContains("Reset Success!");
+      _.agHelper.ValidateToastMessage("Reset Success!");
     });
 
-    it(`4. Delete ${testConfig.widgetName} the widgets on canvas`, () => {
+    it(`4. Delete ${testConfig.widgetName} widget from canvas`, () => {
       _.deployMode.NavigateBacktoEditor();
       _.entityExplorer.SelectEntityByName(
         `${testConfig.widgetPrefixName}`,

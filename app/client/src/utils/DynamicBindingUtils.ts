@@ -273,9 +273,12 @@ export const unsafeFunctionForEval = [
 export const isChildPropertyPath = (
   parentPropertyPath: string,
   childPropertyPath: string,
+  // In non-strict mode, an exact match is treated as a child path
+  // Eg. "Api1" is a child property path of "Api1"
+  strict = false,
 ): boolean => {
   return (
-    parentPropertyPath === childPropertyPath ||
+    (!strict && parentPropertyPath === childPropertyPath) ||
     childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
     childPropertyPath.startsWith(`${parentPropertyPath}[`)
   );
@@ -468,7 +471,7 @@ export function getDynamicBindingsChangesSaga(
   if (
     action.datasource &&
     ("datasourceConfiguration" in action.datasource ||
-      "datasourceConfiguration" in formData?.datasource) &&
+      "datasourceConfiguration" in (formData?.datasource || {})) &&
     field === "datasource"
   ) {
     // only the datasource.datasourceConfiguration.url can be a dynamic field

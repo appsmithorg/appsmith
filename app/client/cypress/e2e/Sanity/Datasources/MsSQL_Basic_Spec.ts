@@ -8,6 +8,8 @@ import {
   draggableWidgets,
   entityExplorer,
   table,
+  dataManager,
+  locators,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
 import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
@@ -88,12 +90,6 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       dataSources.RunQuery();
     });
     //agHelper.ActionContextMenuWithInPane("Delete"); Since next case can continue in same template
-    featureFlagIntercept(
-      {
-        ab_ds_binding_enabled: false,
-      },
-      false,
-    );
     agHelper.RefreshPage();
   });
 
@@ -123,6 +119,9 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       "IS_NULLABLE",
       "SS_DATA_TYPE",
     ]);
+
+    runQueryNValidateResponseData("SELECT COUNT(*) FROM Amazon_Sales;", "10");
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -148,7 +147,9 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
   it.skip("3.One click binding - should check that queries are created and bound to table widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
 
-    oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", "title");
+    oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", {
+      searchableColumn: "title",
+    });
 
     agHelper.GetNClick(oneClickBindingLocator.connectData);
 
@@ -172,7 +173,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       agHelper.AssertElementExist(table._headerCell(column));
     });
 
-    agHelper.GetNClick(table._addNewRow, 0, true);
+    table.AddNewRow();
 
     table.EditTableCell(0, 1, "S01E01", false);
 
@@ -218,10 +219,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     assertHelper.AssertNetworkStatus("@postExecute");
 
     agHelper.Sleep(500);
-
-    agHelper.ClearTextField(table._searchInput);
-
-    agHelper.TypeText(table._searchInput, "Westworld");
+    agHelper.ClearNType(table._searchInput, "Westworld");
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
@@ -229,15 +227,53 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
 
     agHelper.AssertElementExist(table._bodyCell("Westworld"));
 
-    agHelper.ClearTextField(table._searchInput);
-
-    agHelper.TypeText(table._searchInput, "Expanse");
+    agHelper.ClearNType(table._searchInput, "Expanse");
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
     agHelper.Sleep(2000);
 
     agHelper.AssertElementAbsence(table._bodyCell("Expanse"));
+  });
+
+  it("4. MsSQL connection errors", () => {
+    let dataSourceName: string;
+    dataSources.NavigateToDSCreateNew();
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      dataSources.CreatePlugIn("Microsoft SQL Server");
+      dataSourceName = "MsSQL" + " " + uid;
+      agHelper.RenameWithInPane(dataSourceName, false);
+
+      dataSources.TestDatasource(false);
+      agHelper.ValidateToastMessage("Missing endpoint.");
+      agHelper.ValidateToastMessage("Missing username for authentication.");
+      agHelper.ValidateToastMessage("Missing password for authentication.");
+      agHelper.ClearTextField(dataSources._databaseName);
+      dataSources.TestDatasource(false);
+      agHelper.WaitUntilAllToastsDisappear();
+      agHelper.UpdateInputValue(
+        dataSources._host,
+        dataManager.dsValues[dataManager.defaultEnviorment].mssql_host,
+      );
+      agHelper.UpdateInputValue(
+        dataSources._username,
+        dataManager.dsValues[dataManager.defaultEnviorment].mssql_username,
+      );
+      agHelper.UpdateInputValue(
+        dataSources._password,
+        dataManager.dsValues[dataManager.defaultEnviorment].mssql_password,
+      );
+      agHelper.GetNClick(locators._visibleTextSpan("Read only"));
+      dataSources.ValidateNSelectDropdown(
+        "SSL mode",
+        "Enabled with no verify",
+        "Disable",
+      );
+      dataSources.TestSaveDatasource();
+      dataSources.AssertDataSourceInfo(["READ_ONLY", "host.docker.internal"]);
+      dataSources.DeleteDSDirectly(200, false);
+    });
   });
 
   after("Verify Deletion of the datasource", () => {
@@ -250,5 +286,15 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(columnHeaders);
+  }
+
+  function runQueryNValidateResponseData(
+    query: string,
+    expectedResponse: string,
+    index = 0,
+  ) {
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.AssertQueryTableResponse(index, expectedResponse);
   }
 });

@@ -52,6 +52,11 @@ export const initialState: any = {
         },
       },
     },
+    users: {
+      featureFlag: {
+        data: {},
+      },
+    },
   },
 };
 let state = JSON.parse(JSON.stringify(initialState));

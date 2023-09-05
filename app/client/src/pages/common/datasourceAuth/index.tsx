@@ -35,7 +35,10 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
-import { getCurrentEnvName } from "@appsmith/utils/Environments";
+import {
+  getCurrentEnvName,
+  getCurrentEditingEnvID,
+} from "@appsmith/utils/Environments";
 
 interface Props {
   datasource: Datasource;
@@ -62,7 +65,6 @@ interface Props {
   triggerSave?: boolean;
   isFormDirty?: boolean;
   scopeValue?: string;
-  showFilterComponent: boolean;
   onCancel: () => void;
 }
 
@@ -93,13 +95,11 @@ export const DatasourceButtonType: Record<
 
 export const ActionButton = styled(Button)<{
   floatLeft: boolean;
-  showFilterComponent: boolean;
 }>`
   &&& {
     // Pulling button to the left if floatLeft is set as true
     margin-right: ${(props) => (props.floatLeft ? "auto" : "9px")};
-    // If filter component is present, then we need to push the button to the right
-    margin-left: ${(props) => (props.showFilterComponent ? "24px" : "0px")};
+    margin-left: ${(props) => (props.floatLeft ? "16px" : "0px")};
   }
 `;
 
@@ -136,7 +136,7 @@ function DatasourceAuth({
   formData,
   getSanitizedFormData,
   isInvalid,
-  pageId: pageIdProp,
+  pageId: pageIdProp = "",
   pluginType,
   pluginName,
   pluginPackageName,
@@ -148,7 +148,6 @@ function DatasourceAuth({
   isFormDirty,
   scopeValue,
   isInsideReconnectModal,
-  showFilterComponent,
   onCancel,
 }: Props) {
   const shouldRender = !viewMode || isInsideReconnectModal;
@@ -174,7 +173,9 @@ function DatasourceAuth({
   const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
   const history = useHistory<AppsmithLocationState>();
 
-  const pageId = (pageIdQuery || pageIdProp) as string;
+  const pageId = isInsideReconnectModal
+    ? pageIdProp
+    : ((pageIdQuery || pageIdProp) as string);
 
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
@@ -234,9 +235,12 @@ function DatasourceAuth({
     }
   }, [triggerSave]);
   const isAuthorized =
-    datasource?.datasourceStorages &&
-    datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
-      ?.authentication?.authenticationStatus === AuthenticationStatus.SUCCESS;
+    datasource?.datasourceStorages && authType === AuthType.OAUTH2
+      ? datasource?.datasourceStorages[getCurrentEditingEnvID()]
+          ?.datasourceConfiguration?.authentication?.isAuthorized
+      : datasource?.datasourceStorages[currentEnvironment]
+          ?.datasourceConfiguration?.authentication?.authenticationStatus ===
+        AuthenticationStatus.SUCCESS;
 
   // Button Operations for respective buttons.
 
@@ -323,7 +327,6 @@ function DatasourceAuth({
           key={buttonType}
           kind="secondary"
           onClick={handleDatasourceTest}
-          showFilterComponent={showFilterComponent}
           size="md"
         >
           {createMessage(TEST_BUTTON_TEXT)}

@@ -188,9 +188,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
     agHelper.TypeText(entityExplorer._widgetSearchInput, "p");
     agHelper.AssertElementLength(entityExplorer._widgetCards, 2);
 
-    agHelper.ClearTextField(entityExplorer._widgetSearchInput);
-
-    agHelper.TypeText(entityExplorer._widgetSearchInput, "cypress");
+    agHelper.ClearNType(entityExplorer._widgetSearchInput, "cypress");
     agHelper.AssertElementLength(entityExplorer._widgetCards, 0);
 
     agHelper.ClearTextField(entityExplorer._widgetSearchInput);

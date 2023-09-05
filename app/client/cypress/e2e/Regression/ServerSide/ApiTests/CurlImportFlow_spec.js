@@ -7,7 +7,7 @@ import {
   apiPage,
   dataSources,
   entityItems,
-  tedTestConfig,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test curl import flow", function () {
@@ -18,7 +18,7 @@ describe("Test curl import flow", function () {
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(
       "curl -X GET " +
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+        dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     cy.importCurl();
     cy.get("@curlImport").then((response) => {
