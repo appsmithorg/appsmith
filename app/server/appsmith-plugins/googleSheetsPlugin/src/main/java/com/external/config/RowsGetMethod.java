@@ -179,7 +179,9 @@ public class RowsGetMethod implements ExecutionMethod, TemplateMethod, TriggerMe
 
         ArrayNode preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
 
-        if (isWhereConditionConfigured(methodConfig)) {
+        // where condition needs to applied only when the filter format is where clause
+        // For filter format of cell range, we do not need to apply where clause
+        if (isWhereConditionConfigured(methodConfig) && "ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             return filterDataService.filterDataNew(
                     preFilteringResponse,
                     new UQIDataFilterParams(

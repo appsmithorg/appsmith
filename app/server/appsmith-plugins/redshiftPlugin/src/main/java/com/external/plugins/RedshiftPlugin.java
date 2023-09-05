@@ -557,24 +557,26 @@ public class RedshiftPlugin extends BasePlugin {
 
                 final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
                 table.getTemplates()
-                        .addAll(
-                                List.of(
-                                        new DatasourceStructure.Template(
-                                                "SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
-                                        new DatasourceStructure.Template(
-                                                "INSERT",
-                                                "INSERT INTO " + quotedTableName
-                                                        + " (" + String.join(", ", columnNames) + ")\n"
-                                                        + "  VALUES (" + String.join(", ", columnValues) + ");"),
-                                        new DatasourceStructure.Template(
-                                                "UPDATE",
-                                                "UPDATE " + quotedTableName + " SET"
-                                                        + setFragments.toString() + "\n"
-                                                        + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                                        new DatasourceStructure.Template(
-                                                "DELETE",
-                                                "DELETE FROM " + quotedTableName
-                                                        + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")));
+                        .addAll(List.of(
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;", true),
+                                new DatasourceStructure.Template(
+                                        "INSERT",
+                                        "INSERT INTO " + quotedTableName
+                                                + " (" + String.join(", ", columnNames) + ")\n"
+                                                + "  VALUES (" + String.join(", ", columnValues) + ");",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "UPDATE",
+                                        "UPDATE " + quotedTableName + " SET"
+                                                + setFragments.toString() + "\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "DELETE",
+                                        "DELETE FROM " + quotedTableName
+                                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false)));
             }
         }
 
