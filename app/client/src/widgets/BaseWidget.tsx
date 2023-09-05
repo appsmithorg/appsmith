@@ -424,7 +424,7 @@ export interface WidgetBaseProps {
    * rather than the evaluated values in withWidgetProps HOC.
    *  */
   additionalStaticProps?: string[];
-  mainCanvasWidth: number;
+  mainCanvasWidth?: number;
   isMobile?: boolean;
 }
 

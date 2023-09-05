@@ -14,6 +14,7 @@ import ButtonGroupComponent from "../component";
 import { getStylesheetValue } from "./helpers";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import { layoutConfigurations } from "constants/WidgetConstants";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -595,7 +596,8 @@ class ButtonGroupWidget extends BaseWidget<
   getWidgetView() {
     const { componentWidth } = this.props;
     const minPopoverWidth =
-      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
+      MinimumPopupWidthInPercentage *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
 
     return (
       <ButtonGroupComponent

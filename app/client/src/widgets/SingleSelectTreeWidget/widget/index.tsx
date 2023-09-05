@@ -2,7 +2,11 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
-import type { TextSize, WidgetType } from "constants/WidgetConstants";
+import {
+  layoutConfigurations,
+  type TextSize,
+  type WidgetType,
+} from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
@@ -549,7 +553,8 @@ class SingleSelectTreeWidget extends BaseWidget<
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth =
-      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
+      MinimumPopupWidthInPercentage *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
 
     return (

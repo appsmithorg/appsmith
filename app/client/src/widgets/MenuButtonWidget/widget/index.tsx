@@ -13,6 +13,7 @@ import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import { layoutConfigurations } from "constants/WidgetConstants";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -132,7 +133,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   getWidgetView() {
     const { componentWidth } = this.props;
     const menuDropDownWidth =
-      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
+      MinimumPopupWidthInPercentage *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
 
     return (
       <MenuButtonComponent

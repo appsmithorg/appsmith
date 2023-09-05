@@ -1,7 +1,10 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
+import {
+  layoutConfigurations,
+  type WidgetType,
+} from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -667,7 +670,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth =
-      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
+      MinimumPopupWidthInPercentage *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
 
     const selectedIndex = findIndex(this.props.options, {
       value: this.props.selectedOptionValue,

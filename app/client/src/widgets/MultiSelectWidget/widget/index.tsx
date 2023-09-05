@@ -1,5 +1,8 @@
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
+import {
+  layoutConfigurations,
+  type WidgetType,
+} from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { isArray } from "lodash";
@@ -480,7 +483,8 @@ class MultiSelectWidget extends BaseWidget<
       ? this.props.selectedOptionValues
       : [];
     const dropDownWidth =
-      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
+      MinimumPopupWidthInPercentage *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
 
     return (

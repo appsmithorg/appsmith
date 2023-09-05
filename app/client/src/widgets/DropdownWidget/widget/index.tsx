@@ -1,7 +1,10 @@
 import React from "react";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
+import {
+  layoutConfigurations,
+  type WidgetType,
+} from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DropDownComponent from "../component";
 import _ from "lodash";
@@ -426,7 +429,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth =
-      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
+      MinimumPopupWidthInPercentage *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
 
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,

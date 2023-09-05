@@ -2,7 +2,10 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
-import type { WidgetType } from "constants/WidgetConstants";
+import {
+  layoutConfigurations,
+  type WidgetType,
+} from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -691,7 +694,8 @@ class MultiSelectWidget extends BaseWidget<
   getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const minDropDownWidth =
-      MinimumPopupWidthInPercentage * this.props.mainCanvasWidth;
+      MinimumPopupWidthInPercentage *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
     const values = this.mergeLabelAndValue();
     const isInvalid =
