@@ -137,15 +137,15 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
 
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: cicontainer
+      # - name: Download Docker image artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: cicontainer
 
-      - name: Load Docker image from tar file
-        run: |
-          gunzip cicontainer.tar.gz
-          docker load -i cicontainer.tar
+      # - name: Load Docker image from tar file
+      #   run: |
+      #     gunzip cicontainer.tar.gz
+      #     docker load -i cicontainer.tar
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
