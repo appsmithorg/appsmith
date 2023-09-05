@@ -4,6 +4,8 @@ set -e
 
 stacks_path=/appsmith-stacks
 
+export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
+
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
 # https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
@@ -206,7 +208,7 @@ init_replica_set() {
     )"
     echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
-    mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile /mongodb-key --bind_ip localhost
+    mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGODB_TMP_KEY_PATH" --bind_ip localhost
     echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
     mongosh "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
@@ -229,11 +231,11 @@ init_replica_set() {
 }
 
 use-mongodb-key() {
-  # This is a little weird. We copy the MongoDB key file to `/mongodb-key`, so that we can reliably set its permissions to 600.
-  # What affects the reliability of this? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
+  # We copy the MongoDB key file to `$MONGODB_TMP_KEY_PATH`, so that we can reliably set its permissions to 600.
+  # Why? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
   # So the key file should be somewhere inside the container, and not in a volume.
-  cp -v "$1" /mongodb-key
-  chmod 600 /mongodb-key
+  cp -v "$1" "$MONGODB_TMP_KEY_PATH"
+  chmod 600 "$MONGODB_TMP_KEY_PATH"
 }
 
 # Keep Let's Encrypt directory persistent
