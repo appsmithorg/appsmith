@@ -252,7 +252,7 @@ export class HomePage {
       this.agHelper.AssertElementVisibility(
         this.entityExplorer._entityExplorer,
       );
-      this.onboarding.closeIntroModal();
+      this.onboarding.skipSignposting();
     }
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }

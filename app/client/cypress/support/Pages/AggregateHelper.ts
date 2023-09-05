@@ -1636,6 +1636,14 @@ export class AggregateHelper extends ReusableHelper {
       });
   }
 
+  public GetAttribute(selector: string, attribName: string, index = 0) {
+    return this.GetElement(selector).eq(index).invoke("attr", attribName);
+  }
+
+  public AssertClassExists(selector: string, className: string) {
+    cy.get(selector).should("have.class", className);
+  }
+
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath
