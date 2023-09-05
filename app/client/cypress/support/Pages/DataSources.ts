@@ -1869,6 +1869,7 @@ export class DataSources {
   }
 
   public AssertTableInVirtuosoList(dsName: string, targetTableName: string) {
+    this.entityExplorer.ExpandCollapseEntity("Datasources");
     this.entityExplorer.ExpandCollapseEntity(dsName);
     this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: dsName,
