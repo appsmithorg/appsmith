@@ -390,8 +390,8 @@ export const generateDataTreeWidget = (
   return {
     unEvalEntity: {
       ...dataTreeWidget,
-      componentHeight: dataTreeWidget.height || componentHeight,
-      componentWidth: dataTreeWidget.width || componentWidth,
+      componentHeight,
+      componentWidth,
       type: widget.type,
     },
     configEntity: { ...entityConfig, widgetId: dataTreeWidget.widgetId },
