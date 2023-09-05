@@ -230,6 +230,8 @@ describe("GraphQL Datasource Implementation", function () {
       });
 
       //Create Auth GraphQL to verify Delete operation
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn("Authenticated GraphQL API");
       dataSources.CreateNFillAuthenticatedGraphQLDSForm(
         datasourceName,
         "Authorization",
