@@ -68,7 +68,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
 import static java.lang.Boolean.FALSE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * Test class to verify the workspace resources when the environments are not supported
@@ -162,8 +162,9 @@ public class WorkspaceResourcesCECompatibleTest {
 
     @BeforeEach
     public void setup() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        // This stub has been added for featureflag placed for multiple environments
+        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(FALSE));
 
         if (api_user == null) {
             api_user = userRepository.findByEmail("api_user").block();
@@ -232,9 +233,6 @@ public class WorkspaceResourcesCECompatibleTest {
         actionToCreate.setPluginId(restApiPlugin.getId());
 
         createdActionDto = layoutActionService.createAction(actionToCreate).block();
-
-        // This stub has been added for featureflag placed for multiple environments
-        doReturn(Mono.just(FALSE)).when(featureFlagService).check(Mockito.any());
     }
 
     @Test

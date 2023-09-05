@@ -98,7 +98,7 @@ import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -191,6 +191,7 @@ public class WorkspaceResourcesTest {
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(TRUE));
 
         if (api_user == null) {
             api_user = userRepository.findByEmail("api_user").block();
@@ -261,9 +262,6 @@ public class WorkspaceResourcesTest {
         actionToCreate.setPluginId(restApiPlugin.getId());
 
         createdActionDto = layoutActionService.createAction(actionToCreate).block();
-
-        // This stub has been added for featureflag placed for multiple environments
-        doReturn(Mono.just(TRUE)).when(featureFlagService).check(Mockito.any());
     }
 
     @Test

@@ -9,6 +9,7 @@ import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AnalyticsConstants;
 import com.appsmith.server.constants.AuditLogConstants;
@@ -44,6 +45,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.AuditLogExportDTO;
 import com.appsmith.server.dtos.AuditLogFilterDTO;
 import com.appsmith.server.dtos.ExportFileDTO;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AuditLogRepository;
 import com.appsmith.server.repositories.ConfigRepository;
@@ -53,6 +55,7 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.ce_compatible.AuditLogServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -90,7 +93,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AuditLogServiceImpl implements AuditLogService {
+public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl implements AuditLogService {
 
     private final AuditLogRepository repository;
     private final WorkspaceRepository workspaceRepository;
@@ -121,6 +124,8 @@ public class AuditLogServiceImpl implements AuditLogService {
      *
      * @return List of Audit Logs
      */
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_audit_logs_enabled)
     public Mono<List<AuditLog>> getAuditLogs(MultiValueMap<String, String> params) {
         return getAuditLogRecords(params, RECORD_LIMIT);
     }
@@ -207,6 +212,8 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param properties Extra properties related to event
      * @return Logged event as an Audit Log
      */
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_audit_logs_enabled)
     public Mono<AuditLog> logEvent(AnalyticsEvents event, Object resource, Map<String, Object> properties) {
         // Layout updates on page are considered as page.updated
         if (AnalyticsEvents.UPDATE_LAYOUT.equals(event)) {
@@ -304,6 +311,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_audit_logs_enabled)
     public Mono<AuditLogFilterDTO> getAuditLogFilterData() {
         AuditLogFilterDTO auditLogFilterDTO = new AuditLogFilterDTO();
         List<String> eventList = new ArrayList<>();
@@ -329,6 +337,7 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @return ExportFileDTO which contains JSON file as response
      */
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_audit_logs_enabled)
     public Mono<ExportFileDTO> exportAuditLogs(MultiValueMap<String, String> params) {
         return this.getAuditLogRecords(params, EXPORT_RECORD_LIMIT).map(records -> {
             records.forEach(BaseDomain::sanitiseToExportDBObject);
@@ -356,6 +365,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_audit_logs_enabled)
     public Mono<List<String>> getAllUsers() {
         return tenantRepository.findBySlug(FieldName.DEFAULT).flatMap(tenant -> userRepository
                 .getAllUserEmail(tenant.getId())
@@ -368,6 +378,7 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param eventName AuditLogEvents.Events
      * @return displayable event name
      */
+    @Override
     public String getAuditLogEventName(AuditLogEvents.Events eventName) {
         String eventNameLower = eventName.name().toLowerCase();
         if (eventName.name().equals(AuditLogEvents.Events.INSTANCE_SETTING_UPDATED.name())) {
@@ -916,6 +927,7 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param resource
      * @return String resource type name
      */
+    @Override
     public String getResourceType(Object resource) {
         // To handle special exceptions in resources class names like NewPage => Page, NewAction => Query
         List<String> exceptionResources = List.of(

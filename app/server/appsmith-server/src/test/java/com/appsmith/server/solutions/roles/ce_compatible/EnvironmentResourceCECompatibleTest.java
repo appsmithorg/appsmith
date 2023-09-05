@@ -9,7 +9,6 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
@@ -50,6 +49,7 @@ import java.util.UUID;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
 import static java.lang.Boolean.FALSE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -101,8 +101,9 @@ public class EnvironmentResourceCECompatibleTest {
 
     @BeforeEach
     public void setup() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        // This stub has been added for feature flag placed for multiple environments
+        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(FALSE));
 
         if (api_user == null) {
             api_user = userRepository.findByEmail("api_user").block();
@@ -116,10 +117,6 @@ public class EnvironmentResourceCECompatibleTest {
         String name = UUID.randomUUID().toString();
         workspace.setName(name);
         createdWorkspace = workspaceService.create(workspace).block();
-
-        // This stub has been added for feature flag placed for multiple environments
-        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.release_datasource_environments_enabled)))
-                .thenReturn(Mono.just(FALSE));
     }
 
     @Test
@@ -128,8 +125,7 @@ public class EnvironmentResourceCECompatibleTest {
     public void
             testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenExecuteOnDatasource_assertExecuteOnEnvironments() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Workspace workspace = new Workspace();
         workspace.setName("givenExecuteOnDatasource_assertExecuteOnEnvironments workspace");

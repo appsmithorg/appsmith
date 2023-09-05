@@ -44,4 +44,9 @@ public enum FeatureFlagEnum {
      * feature flag for making connection pool sizes for plugins manually configurable
      */
     release_connection_pool_size,
+
+    /**
+     * Feature flag to enable the audit log functionality
+     */
+    license_audit_logs_enabled,
 }
