@@ -65,7 +65,7 @@ enum TabState {
 }
 
 const PagePaneContainer = (props: Props) => {
-  const [pageState, setPageState] = useState<TabState>(TabState.LIST);
+  const [pageState, setPageState] = useState<TabState>(TabState.EDIT);
   const onAddClick = useCallback((item: Item) => {
     if (props.onAddClick) {
       props.onAddClick(item);

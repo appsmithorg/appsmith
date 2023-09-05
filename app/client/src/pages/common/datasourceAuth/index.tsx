@@ -112,12 +112,14 @@ const SaveButtonContainer = styled.div<{
   display: flex;
   justify-content: flex-end;
   gap: 9px;
-  padding-right: 20px;
+  padding: 10px 20px 10px 10px;
   border-top: ${(props) =>
     props.isInsideReconnectModal ? "none" : "1px solid"};
   border-color: var(--ads-v2-color-border);
   align-items: center;
-  height: 68px;
+  //height: 68px;
+  width: 100%;
+  margin-left: 160px;
 `;
 
 const StyledAuthMessage = styled.div`

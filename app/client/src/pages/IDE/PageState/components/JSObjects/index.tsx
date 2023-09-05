@@ -7,6 +7,7 @@ import history, { NavigationMethod } from "utils/history";
 import JSEditor from "./JSEditor";
 import PagePaneContainer from "../PagePaneContainer";
 import { createNewJSCollection } from "actions/jsPaneActions";
+import { JsFileIconV2 } from "../../../../Editor/Explorer/ExplorerIcons";
 
 type Props = RouteComponentProps<{
   appId: string;
@@ -23,15 +24,13 @@ function JSObjects(props: Props) {
   const allJSActions = useSelector(selectFilesForExplorer);
   const toListActions = allJSActions
     .filter((a: any) => {
-      if (a.type === "JS") {
-        return true;
-      }
-      return false;
+      return a.type === "JS";
     })
     .map((a: any) => ({
       name: a.entity.name,
       key: a.entity.id,
       type: a.type,
+      icon: JsFileIconV2(16, 16),
       selected: a.entity.id === collectionId,
     }));
 
@@ -45,9 +44,11 @@ function JSObjects(props: Props) {
     );
   }, []);
 
+  const editor = collectionId ? <JSEditor /> : <div />;
+
   return (
     <PagePaneContainer
-      editor={<JSEditor />}
+      editor={editor}
       listItems={toListActions}
       onAddClick={addItemClick}
       onListClick={listItemClick}
