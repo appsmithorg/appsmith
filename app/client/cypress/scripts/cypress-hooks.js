@@ -156,12 +156,13 @@ async function cypressHooks(on, config) {
     specData.pending = results.stats.pending;
     specData.skipped = results.stats.skipped;
     specData.status = results.stats.failures > 0 ? "fail" : "pass";
+    specData.duration = results.stats.wallClockDuration;
 
     const dbClient = await configureDbClient().connect();
     try {
       if (!specData.name.includes("no_spec.ts")) {
         await dbClient.query(
-          'UPDATE public.specs SET "testCount" = $1, "passes" = $2, "failed" = $3, "skipped" = $4, "pending" = $5, "status" = $6 WHERE id = $7',
+          'UPDATE public.specs SET "testCount" = $1, "passes" = $2, "failed" = $3, "skipped" = $4, "pending" = $5, "status" = $6, "duration" = $7 WHERE id = $8',
           [
             results.stats.tests,
             results.stats.passes,
@@ -169,6 +170,7 @@ async function cypressHooks(on, config) {
             results.stats.skipped,
             results.stats.pending,
             specData.status,
+            specData.duration,
             specData.specId,
           ],
         );
