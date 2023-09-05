@@ -55,6 +55,7 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -78,6 +79,7 @@ import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
 @RequiredArgsConstructor
+@Service
 public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private final WorkspaceService workspaceService;

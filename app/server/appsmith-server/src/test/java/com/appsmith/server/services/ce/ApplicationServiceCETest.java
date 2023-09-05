@@ -49,6 +49,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
@@ -156,7 +157,7 @@ public class ApplicationServiceCETest {
     ApplicationService applicationService;
 
     @Autowired
-    ApplicationPageServiceCE applicationPageService;
+    ApplicationPageService applicationPageService;
 
     @Autowired
     UserService userService;
