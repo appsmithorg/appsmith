@@ -261,11 +261,7 @@ public class MongoPlugin extends BasePlugin {
 
                 // If not raw, then it must be form input.
                 if (!isRawCommand(formData)) {
-                    // In case execueParameterized is called from schema preview API executeActionDTO is null
-                    // Hence this check
-                    if (executeActionDTO != null) {
-                        smartSubstituteFormCommand(formData, executeActionDTO.getParams(), parameters);
-                    }
+                    smartSubstituteFormCommand(formData, executeActionDTO.getParams(), parameters);
                 } else {
                     // For raw queries do smart replacements in BSON body
                     final Object body = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, OBJECT_TYPE);
@@ -528,7 +524,12 @@ public class MongoPlugin extends BasePlugin {
             if (isMock) {
                 ActionConfiguration actionConfig = new ActionConfiguration();
                 // Sets query formData
-                actionConfig.setFormData((Map<String, Object>) queryTemplate.getConfiguration());
+                Map<String, Object> queryConfig = (Map<String, Object>) queryTemplate.getConfiguration();
+
+                setDataValueSafelyInFormData(queryConfig, SMART_SUBSTITUTION, false);
+                setDataValueSafelyInFormData(queryConfig, FIND_QUERY, "");
+
+                actionConfig.setFormData(queryConfig);
 
                 // Sets prepared statement to false
                 Property preparedStatement = new Property();
