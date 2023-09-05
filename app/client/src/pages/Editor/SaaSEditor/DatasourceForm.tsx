@@ -244,7 +244,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
         id: "",
         name: "",
         userPermissions: [],
-        showFilterPane: false,
       },
       unblock: () => {
         return undefined;
@@ -330,17 +329,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     }
   }
 
-  updateFilter(
-    id: string,
-    name: string,
-    userPermissions: string[],
-    showFilterPane: boolean,
-  ) {
-    if (
-      this.state.filterParams.id === id &&
-      this.state.filterParams.showFilterPane === showFilterPane
-    )
-      return false;
+  updateFilter(id: string, name: string, userPermissions: string[]) {
+    if (this.state.filterParams.id === id) return false;
 
     AnalyticsUtil.logEvent("SWITCH_ENVIRONMENT", {
       fromEnvId: this.state.filterParams.id,
@@ -354,7 +344,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
         id,
         name,
         userPermissions,
-        showFilterPane,
       },
     });
     return true;
@@ -555,7 +544,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           <ResizerContentContainer className="db-form-resizer-content">
             <DSEditorWrapper>
               <DSDataFilter
-                datasourceId={datasourceId}
                 filterId={this.state.filterParams.id}
                 isInsideReconnectModal={!!isInsideReconnectModal}
                 pluginName={plugin?.name || ""}
@@ -568,7 +556,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   onSubmit={(e) => {
                     e.preventDefault();
                   }}
-                  showFilterComponent={this.state.filterParams.showFilterPane}
                   viewMode={viewMode}
                 >
                   {(!viewMode || createFlow || isInsideReconnectModal) && (
@@ -658,7 +645,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                     scopeValue={scopeValue}
                     setDatasourceViewMode={setDatasourceViewMode}
                     shouldDisplayAuthMessage={!isGoogleSheetPlugin}
-                    showFilterComponent={this.state.filterParams.showFilterPane}
                     triggerSave={this.props.isDatasourceBeingSavedFromPopup}
                     viewMode={viewMode}
                   />
