@@ -601,8 +601,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         }
         return repository
                 .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
-                // Real time Migration logic
-                //
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId + ", " + branchName)));
     }
