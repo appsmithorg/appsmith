@@ -18,7 +18,7 @@ import { error } from "loglevel";
 import {
   getAutoLayoutComponentDimensions,
   getFixedLayoutComponentDimensions,
-} from "./dataTreeEnhancer";
+} from "utils/ComponentSizeUtils";
 
 /**
  *
