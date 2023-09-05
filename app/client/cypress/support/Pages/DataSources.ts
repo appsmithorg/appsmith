@@ -1875,6 +1875,7 @@ export class DataSources {
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
     });
+
     this.assertHelper
       .WaitForNetworkCall("@getDatasourceStructure")
       .then(async (interception) => {
@@ -1886,25 +1887,23 @@ export class DataSources {
         );
         this.agHelper
           .GetNClick(
-            `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`,
+            `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container [data-test-id="virtuoso-item-list"]`,
           )
           .then((containerElement) => {
-            const containerHeight = containerElement.outerHeight() || 0;
-            const elementHeight = containerElement
-              .find('[data-test-id="virtuoso-item-list"]')
-              .children()
-              .first()
-              .attr("data-known-size");
-            const offset = indexOfTable * parseInt(elementHeight || "", 10);
-            const totalScroll =
-              (containerElement
-                .find('[data-test-id="virtuoso-item-list"]')
-                .outerHeight() || 0) - containerHeight;
-            const percentScroll = (offset / (totalScroll || 1)) * 100;
+            // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element is collapsed by default.
+            const elementHeight = parseInt(
+              containerElement.children().first().attr("data-known-size") || "",
+              10,
+            );
+            // Index of the table present in the array of tables which will determine the presence of element inside the parent container
+            let offset = indexOfTable * elementHeight;
+            // Total height of the parent container holding the tables in the dom normally without virtualization rendering
+            const totalScroll = tables.length * elementHeight;
+            const scrollPercent = (offset / (totalScroll || 1)) * 100;
             this.agHelper.ScrollToXY(
-              ".t--schema-virtuoso-container",
+              `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`,
               0,
-              `${percentScroll}%`,
+              `${scrollPercent}%`,
             );
             this.agHelper.AssertElementExist(
               `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`,
