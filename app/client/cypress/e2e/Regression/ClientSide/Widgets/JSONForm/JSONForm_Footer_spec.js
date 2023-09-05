@@ -16,9 +16,7 @@ describe("JSONForm Footer spec", () => {
       name: "John",
     };
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
 
     // check if fixed footer enabled
@@ -55,9 +53,7 @@ describe("JSONForm Footer spec", () => {
     _.agHelper.AddDsl("jsonFormDslWithSchema"); //Should not be needed, to check
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
     // check if fixed footer enabled
     cy.get(".t--property-control-fixedfooter")
       .find(".ads-v2-switch input")

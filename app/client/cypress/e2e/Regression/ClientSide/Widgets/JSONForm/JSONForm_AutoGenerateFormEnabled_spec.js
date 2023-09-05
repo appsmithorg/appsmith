@@ -3,6 +3,7 @@ const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtur
 const fieldPrefix = ".t--jsonformfield";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
+let locators = ObjectsRegistry.CommonLocators;
 
 describe("JSON Form Widget AutoGenerate Enabled", () => {
   beforeEach(() => {
@@ -33,9 +34,7 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
     cy.closePropertyPane();
 
@@ -118,9 +117,9 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({
+      force: true,
+    });
     cy.testJsontext("sourcedata", JSON.stringify(modifiedSourceData));
     cy.closePropertyPane();
 

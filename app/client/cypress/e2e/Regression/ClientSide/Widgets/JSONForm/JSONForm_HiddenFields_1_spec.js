@@ -6,6 +6,7 @@ import {
   entityExplorer,
   deployMode,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
@@ -86,9 +87,7 @@ describe("JSON Form Hidden fields", () => {
   before(() => {
     agHelper.AddDsl("jsonFormDslWithSchema");
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     entityExplorer.SelectEntityByName("Text1");
     propPane.UpdatePropertyFieldValue(
       "Text",

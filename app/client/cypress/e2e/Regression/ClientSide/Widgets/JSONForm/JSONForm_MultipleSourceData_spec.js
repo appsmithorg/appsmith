@@ -16,9 +16,7 @@ describe("Verify syntax to create Datpicker field type", () => {
     const schema = { Key: "20/03/1992" };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.xpath(jsonform.datepickerContainer).click({
       force: true,
@@ -30,9 +28,7 @@ describe("Verify syntax to create Datpicker field type", () => {
     const schema = { Key: true };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.get(jsonform.switchStatus).should("be.visible");
     cy.get(jsonform.switchStatus).click({ force: true });
@@ -42,9 +38,7 @@ describe("Verify syntax to create Datpicker field type", () => {
     const schema = { Key: "Value@mail.com" };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.xpath(jsonform.emailField).should("be.visible");
     cy.xpath(jsonform.emailField).should("have.value", "Value@mail.com");
@@ -54,9 +48,7 @@ describe("Verify syntax to create Datpicker field type", () => {
     const schema = { Key: "value" };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.get(jsonform.keyInput).should("be.visible");
     cy.get(jsonform.keyInput).should("have.value", "value");
@@ -70,9 +62,7 @@ describe("Verify syntax to create Datpicker field type", () => {
     };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.get(jsonform.settings)
       .first()
@@ -99,9 +89,7 @@ describe("Verify syntax to create Datpicker field type", () => {
   it("7. Verify property name change with json/text widget binding - Modify property name and check how the binding value changes", () => {
     cy.addDsl(jsonText);
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
     cy.get(jsonform.settings)
       .first()
       .should("be.visible")

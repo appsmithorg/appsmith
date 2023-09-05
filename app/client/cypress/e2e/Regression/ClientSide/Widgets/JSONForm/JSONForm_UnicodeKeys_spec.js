@@ -3,6 +3,7 @@ const jsonFormUnicodeDSLWithoutSourceData = require("../../../../../fixtures/jso
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
+const locators = ObjectsRegistry.CommonLocators;
 
 const fieldPrefix = ".t--jsonformfield";
 const backBtn = "[data-testid='t--property-pane-back-btn']";
@@ -31,9 +32,7 @@ describe("JSON Form Widget Unicode keys", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
     cy.closePropertyPane();
 
@@ -88,9 +87,7 @@ describe("JSON Form Widget Unicode keys", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(modifiedSourceData));
     cy.closePropertyPane();
 
@@ -158,9 +155,7 @@ describe("JSON Form Widget Unicode keys", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
     cy.closePropertyPane();
 

@@ -1,14 +1,13 @@
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
-
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const locators = ObjectsRegistry.CommonLocators;
 const fieldPrefix = ".t--jsonformfield";
 
 describe("JSON Form reset", () => {
   before(() => {
     cy.addDsl(dslWithSchema);
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
   });
 
   it("updates formData when field value changes", () => {

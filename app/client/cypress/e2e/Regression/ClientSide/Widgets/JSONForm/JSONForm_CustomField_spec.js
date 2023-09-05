@@ -1,6 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
-
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const locators = ObjectsRegistry.CommonLocators;
 const fieldPrefix = ".t--jsonformfield";
 
 describe("JSON Form Widget Custom Field", () => {
@@ -47,9 +48,7 @@ describe("JSON Form Widget Custom Field", () => {
 
     cy.openPropertyPane("jsonformwidget");
     cy.backFromPropertyPanel();
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
 
     cy.wait(500);

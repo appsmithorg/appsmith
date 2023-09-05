@@ -7,6 +7,7 @@ let backBtn = "[data-testid='t--property-pane-back-btn']";
 
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
+const locators = ObjectsRegistry.CommonLocators;
 
 describe("JSON Form Widget Form Bindings", () => {
   afterEach(() => {
@@ -17,9 +18,7 @@ describe("JSON Form Widget Form Bindings", () => {
     agHelper.RestoreLocalStorageCache();
     cy.addDsl(dslWithSchema);
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
   });
 
   it("1. updates formData when field value changes", () => {

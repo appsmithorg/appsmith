@@ -38,9 +38,7 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
     cy.closePropertyPane();
 
@@ -141,9 +139,7 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
+    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
 
     cy.wait(500);
