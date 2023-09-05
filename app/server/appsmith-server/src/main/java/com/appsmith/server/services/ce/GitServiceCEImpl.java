@@ -1605,6 +1605,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (gitApplicationMetadata == null
                             || gitApplicationMetadata.getDefaultApplicationId() == null
                             || gitApplicationMetadata.getRepoName() == null) {
+                        log.error("Git config is not present for application {}", defaultApplicationId);
                         return Mono.error(
                                 new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
                     }
