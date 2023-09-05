@@ -219,6 +219,6 @@ module.exports = async (on, config) => {
     config = await cypressSplit(on, config);
     cypressHooks(on, config);
   }
-  console.log(config);
+
   return config;
 };
