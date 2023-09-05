@@ -17,7 +17,7 @@ import { TagInput } from "design-system-old";
 import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
 import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";
-import { formatEmbedSettings } from "pages/Applications/EmbedSnippet/Utils/utilts";
+import { formatEmbedSettings } from "pages/Applications/EmbedSnippet/Utils/utils";
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "instanceName",

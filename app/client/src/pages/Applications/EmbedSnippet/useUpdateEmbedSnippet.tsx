@@ -14,7 +14,7 @@ import {
 } from "@appsmith/constants/messages";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { AppsmithFrameAncestorsSetting } from "./Constants/constants";
-import { formatEmbedSettings } from "./Utils/utilts";
+import { formatEmbedSettings } from "./Utils/utils";
 
 const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
 
