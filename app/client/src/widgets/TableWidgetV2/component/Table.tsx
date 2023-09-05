@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { reduce } from "lodash";
 import type { Row as ReactTableRowType } from "react-table";
 import {
@@ -263,6 +269,7 @@ export function Table(props: TableProps) {
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const scrollBarRef = useRef<SimpleBar | null>(null);
+  const [pageHeight, setPageHeight] = useState(0);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
@@ -323,6 +330,16 @@ export function Table(props: TableProps) {
   }, [props.isAddRowInProgress]);
 
   useEffect(() => {
+    if (scrollBarRef.current) {
+      setPageHeight(scrollBarRef.current.getScrollElement().scrollHeight || 0);
+    }
+  }, [data, props.pageSize]);
+
+  useEffect(() => {
+    if (pageHeight == 0) {
+      return;
+    }
+
     const isVerticalScrollVisible = () => {
       if (scrollBarRef.current) {
         const scrollElement = scrollBarRef.current.getScrollElement();
@@ -337,7 +354,7 @@ export function Table(props: TableProps) {
       pageSize: props.pageSize,
       yScrollVisibility: isVerticalScrollVisible(),
     });
-  }, [props.pageSize]);
+  }, [pageHeight]);
 
   return (
     <>
