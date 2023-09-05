@@ -527,7 +527,7 @@ class JSONFormWidget extends BaseWidget<
       });
     } else if (
       !this.props.onSubmit &&
-      this.props.renderMode === RenderModes.CANVAS
+      this.props.renderMode === RenderModes.CANVAS // TODO (Sangeeth) : No design system dependencies in widgets, we should change this to get from Widget provider once that PR is merged
     ) {
       toast.show(
         createMessage(ONSUBMIT_NOT_CONFIGURED_MESSAGE, this.props.widgetName),
