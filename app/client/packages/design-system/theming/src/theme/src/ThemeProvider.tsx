@@ -11,7 +11,7 @@ const { fontFaces } = createGlobalFontStack();
 const GlobalStyles = createGlobalStyle`${fontFaces}`;
 
 export const ThemeProvider = (props: ThemeProviderProps) => {
-  const { children, className, theme } = props;
+  const { children, className, style, theme } = props;
   const { fontFamily, typography, ...rest } = theme;
 
   return (
@@ -26,6 +26,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
         $typography={typography}
         className={className}
         data-theme-provider=""
+        style={style}
         theme={rest}
       >
         {children}

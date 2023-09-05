@@ -112,7 +112,7 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   //Skipping due to - "tableData":"ERROR: invalid input syntax for type smallint: "{}""
-  it.skip("4. Tc 53 - Verify OnPage Load - Enabled & Disabling - Before Function calling for JSOBject", function () {
+  it("4. Tc 53 - Verify OnPage Load - Enabled & Disabling - Before Function calling for JSOBject", function () {
     entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
     //jsEditor.RunJSObj(); //Even running JS functin before delpoying does not help

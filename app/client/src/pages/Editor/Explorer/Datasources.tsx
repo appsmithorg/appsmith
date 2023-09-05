@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useContext } from "react";
 import {
   useAppWideAndOtherDatasource,
   useDatasourceSuggestions,
@@ -11,7 +11,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getPlugins } from "selectors/entitiesSelector";
-import { keyBy, noop } from "lodash";
+import { keyBy } from "lodash";
 import Entity from "./Entity";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -40,6 +40,7 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 
 const ShowAllButton = styled(Button)`
   margin: 0.25rem 1.5rem;
@@ -52,6 +53,8 @@ const Datasources = React.memo(() => {
   const applicationId = useSelector(getCurrentApplicationId);
   const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const { isOpened: isWalkthroughOpened, popFeature } =
+    useContext(WalkthroughContext) || {};
 
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
@@ -61,21 +64,25 @@ const Datasources = React.memo(() => {
     userWorkspacePermissions,
   );
 
-  const addDatasource = useCallback(
-    (entryPoint: string) => {
-      history.push(
-        integrationEditorURL({
-          pageId,
-          selectedTab: INTEGRATION_TABS.NEW,
-        }),
-      );
-      // Event for datasource creation click
-      AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
-        entryPoint,
-      });
-    },
-    [pageId],
-  );
+  const closeWalkthrough = useCallback(() => {
+    if (isWalkthroughOpened && popFeature) {
+      popFeature("EXPLORER_DATASOURCE_ADD");
+    }
+  }, [isWalkthroughOpened, popFeature]);
+
+  const addDatasource = (entryPoint: string) => {
+    history.push(
+      integrationEditorURL({
+        pageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
+    );
+    // Event for datasource creation click
+    AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+      entryPoint,
+    });
+    closeWalkthrough();
+  };
   const activeDatasourceId = useDatasourceIdFromURL();
   const datasourceSuggestions = useDatasourceSuggestions();
 
@@ -109,7 +116,7 @@ const Datasources = React.memo(() => {
           />
         );
       }),
-    [appWideDS, pageId],
+    [appWideDS, pageId, activeDatasourceId],
   );
 
   const onDatasourcesToggle = useCallback(
@@ -123,7 +130,7 @@ const Datasources = React.memo(() => {
     <Entity
       addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
       className={"group datasources"}
-      entityId={pageId + "_datasources"}
+      entityId={"datasources"}
       icon={null}
       isDefaultExpanded={
         isDatasourcesOpen === null || isDatasourcesOpen === undefined
@@ -132,10 +139,9 @@ const Datasources = React.memo(() => {
       }
       isSticky
       name="Datasources"
-      onCreate={addDatasource.bind(
-        this,
-        DatasourceCreateEntryPoints.ENTITY_EXPLORER_ADD_DS,
-      )}
+      onCreate={() =>
+        addDatasource(DatasourceCreateEntryPoints.ENTITY_EXPLORER_ADD_DS)
+      }
       onToggle={onDatasourcesToggle}
       searchKeyword={""}
       showAddButton={canCreateDatasource}
@@ -148,20 +154,20 @@ const Datasources = React.memo(() => {
           mainText={createMessage(EMPTY_DATASOURCE_MAIN_TEXT)}
           {...(canCreateDatasource && {
             addBtnText: createMessage(EMPTY_DATASOURCE_BUTTON_TEXT),
-            addFunction:
-              addDatasource.bind(
-                this,
+            addFunction: () =>
+              addDatasource(
                 DatasourceCreateEntryPoints.ENTITY_EXPLORER_NEW_DATASOURCE,
-              ) || noop,
+              ),
           })}
         />
       )}
       {datasourceElements.length > 0 && canCreateDatasource && (
         <AddEntity
-          action={addDatasource.bind(
-            this,
-            DatasourceCreateEntryPoints.ENTITY_EXPLORER_ADD_DS_CTA,
-          )}
+          action={() =>
+            addDatasource(
+              DatasourceCreateEntryPoints.ENTITY_EXPLORER_ADD_DS_CTA,
+            )
+          }
           entityId="add_new_datasource"
           icon={<Icon name="plus" />}
           name={createMessage(ADD_DATASOURCE_BUTTON)}

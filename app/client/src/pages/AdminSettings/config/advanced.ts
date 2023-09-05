@@ -30,7 +30,7 @@ export const config: AdminConfigType = {
       controlSubType: SettingSubtype.TEXT,
       label: "Redis URL",
       subText:
-        "* Appsmith internally uses redis for session storage. Change this to an external redis for clustering",
+        "* Appsmith internally uses Redis for session storage. Change this to an external redis for clustering",
     },
     {
       id: "APPSMITH_CUSTOM_DOMAIN",
