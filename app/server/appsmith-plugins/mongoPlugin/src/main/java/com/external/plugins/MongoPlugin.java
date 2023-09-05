@@ -19,6 +19,7 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
@@ -260,7 +261,11 @@ public class MongoPlugin extends BasePlugin {
 
                 // If not raw, then it must be form input.
                 if (!isRawCommand(formData)) {
-                    smartSubstituteFormCommand(formData, executeActionDTO.getParams(), parameters);
+                    // In case execueParameterized is called from schema preview API executeActionDTO is null
+                    // Hence this check
+                    if (executeActionDTO != null) {
+                        smartSubstituteFormCommand(formData, executeActionDTO.getParams(), parameters);
+                    }
                 } else {
                     // For raw queries do smart replacements in BSON body
                     final Object body = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, OBJECT_TYPE);
@@ -326,6 +331,7 @@ public class MongoPlugin extends BasePlugin {
                         error));
             }
 
+            Instant requestedAt = Instant.now();
             return mongoOutputMono
                     .onErrorMap(
                             MongoTimeoutException.class,
@@ -470,6 +476,9 @@ public class MongoPlugin extends BasePlugin {
                             requestData.put("smart-substitution-parameters", parameters);
                             request.setProperties(requestData);
                         }
+                        if (request.getRequestedAt() == null) {
+                            request.setRequestedAt(requestedAt);
+                        }
                         request.setRequestParams(requestParams);
                         actionExecutionResult.setRequest(request);
                         return actionExecutionResult;
@@ -502,6 +511,35 @@ public class MongoPlugin extends BasePlugin {
             }
 
             return replacementValue;
+        }
+
+        /**
+         * This method returns ActionConfiguration object required in order to generate schema preview data
+         * to be shown on datasource review page.
+         *
+         * @param queryTemplate - query template of the selected schema collection
+         * @param isMock        - if the datasource is mock
+         * @return - ActionConfig object
+         */
+        @Override
+        public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
+            // For mongo, currently this experiment will only exist for mock DB movies
+            // Later on we can extend it for all mongo datasources
+            if (isMock) {
+                ActionConfiguration actionConfig = new ActionConfiguration();
+                // Sets query formData
+                actionConfig.setFormData((Map<String, Object>) queryTemplate.getConfiguration());
+
+                // Sets prepared statement to false
+                Property preparedStatement = new Property();
+                preparedStatement.setValue(false);
+                List<Property> pluginSpecifiedTemplates = new ArrayList<Property>();
+                pluginSpecifiedTemplates.add(preparedStatement);
+                actionConfig.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+                return actionConfig;
+            } else {
+                return null;
+            }
         }
 
         /**
