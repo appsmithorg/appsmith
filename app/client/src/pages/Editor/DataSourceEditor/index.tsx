@@ -87,7 +87,7 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
+import { PluginName, PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import {
@@ -995,7 +995,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   // should plugin be able to preview data
   const isPluginAllowedToPreviewData =
-    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "");
+    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
+    (plugin?.name === PluginName.MONGO && !!(datasource as Datasource)?.isMock);
 
   return {
     canCreateDatasourceActions,
