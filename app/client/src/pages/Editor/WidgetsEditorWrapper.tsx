@@ -30,7 +30,7 @@ const Wrapper = styled.div`
   background-color: ${(props) => props.theme.appBackground};
 `;
 
-function MainWrapper() {
+function WidgetsEditorWrapper() {
   const dispatch = useDispatch();
   const sidebarWidth = useSelector(getExplorerWidth);
   const { path } = useRouteMatch();
@@ -98,6 +98,6 @@ function MainWrapper() {
   );
 }
 
-MainWrapper.displayName = "EditorWrapper";
+WidgetsEditorWrapper.displayName = "WidgetsEditorWrapper";
 
-export default MainWrapper;
+export default WidgetsEditorWrapper;
