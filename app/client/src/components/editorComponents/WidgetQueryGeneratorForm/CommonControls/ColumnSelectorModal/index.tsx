@@ -1,28 +1,28 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  Text,
-  Checkbox,
-  ModalFooter,
   Button,
+  Checkbox,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Text,
   Tooltip,
 } from "design-system";
 import { EditFieldsButton } from "../../styles";
 import styled from "styled-components";
-import { klona } from "klona";
+import { klona } from "klona/json";
 import { useColumns } from "../../WidgetSpecificControls/ColumnDropdown/useColumns";
 import {
   CANCEL_DIALOG,
   COLUMN_NAME,
   COLUMN_TYPE,
-  EDIT_FIELDS_DISABLED_TOOLTIP_TEXT,
+  createMessage,
   EDIT_FIELDS,
+  EDIT_FIELDS_DISABLED_TOOLTIP_TEXT,
   FIELDS_CONFIGURATION,
   SAVE_CHANGES,
-  createMessage,
   SAVE_CHANGES_DISABLED_TOOLTIP_TEXT,
 } from "@appsmith/constants/messages";
 import EditFieldsTable from "./EditFieldsTable";
@@ -73,7 +73,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
 
   useEffect(() => {
     const clonedData = klona(data);
-    setUpdatedData([...clonedData]);
+    setUpdatedData(clonedData);
   }, [data]);
 
   useEffect(() => {
@@ -99,7 +99,8 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
       );
       if (updateColumn) {
         updateColumn.isSelected = !updateColumn.isSelected;
-        setUpdatedData([...updatedData]);
+        const clonedData = klona(updatedData);
+        setUpdatedData(clonedData);
         return;
       }
     }
@@ -107,7 +108,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
 
   const onCancel = () => {
     const clonedData = klona(data);
-    setUpdatedData([...clonedData]);
+    setUpdatedData(clonedData);
     setIsOpen(false);
   };
 

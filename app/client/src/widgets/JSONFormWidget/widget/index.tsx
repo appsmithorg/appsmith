@@ -537,7 +537,7 @@ class JSONFormWidget extends BaseWidget<
             text: createMessage(ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT),
             effect: () =>
               window.open(
-                "https://docs.appsmith.com/reference/widgets/json-form#events",
+                "https://docs.appsmith.com/build-apps/how-to-guides/submit-form-data",
                 "_blank",
               ),
           },
