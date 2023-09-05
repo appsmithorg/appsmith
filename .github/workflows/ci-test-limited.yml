@@ -129,29 +129,40 @@ jobs:
         if: steps.run_result.outputs.run_result == 'failedtest'
         working-directory: app/client
         run: |
-          echo "failed_spec_env<<EOF" >> $GITHUB_ENV
-          while IFS= read -r line
-          do
-            spec_name=$(echo $line | awk -F'/' '{print $NF}')
-            failed_spec_env=$(find . -name $spec_name | sed 's|./||')
-            echo "$failed_spec_env" >> $GITHUB_ENV
-          done < ~/combined_failed_spec_ci/combined_failed_spec_ci
-          echo "EOF" >> $GITHUB_ENV
+          failed_spec_env=""
+          while IFS= read -r line || [ -n "$line" ]; do
+              file_path=$(echo "$line" | awk -F'/' '{print $(NF-1)"/"$NF}')
+              spec_name=$(echo "$file_path" | awk -F'/' '{print $NF}')
+              failed_spec=$(find . -name "$spec_name" | sed 's|./||')
+              if [ "$(echo "$failed_spec" | wc -l)" -eq 1 ]; then
+                  failed_spec_env="$failed_spec_env,$failed_spec"
+              else
+                for file in $failed_spec; do
+                    new_file_path=$(echo "$file" | awk -F'/' '{print $(NF-1)"/"$NF}')
+                    if [ "$new_file_path" == "$file_path" ]; then
+                        failed_spec_env="$failed_spec_env,$file"
+                    fi
+                done
+              fi
+          done < ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          failed_spec_env=${failed_spec_env#,}
+          echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV
 
       # Get specs to run
       - name: Get specs to run
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          echo "specs_to_run<<EOF" >> $GITHUB_ENV
+          specs_to_run=""
           while IFS= read -r line
           do
             if [[ $line =~ ^#|^\/\/ ]]; then
               continue
             else
-              echo "$line" >> $GITHUB_ENV
+              specs_to_run="$specs_to_run,$line"
             fi
           done < app/client/cypress/limited-tests.txt
-          echo "EOF" >> $GITHUB_ENV
+          specs_to_run=${specs_to_run#,}
+          echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
 
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
@@ -223,7 +234,7 @@ jobs:
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
-            cicontainer
+            appsmith/appsmith-ce:release
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -407,7 +418,9 @@ jobs:
           COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
           TAG: ${{ github.event_name }}
           BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
+          TOTAL_RUNNERS: ${{ strategy.job-total }}
           THIS_RUNNER: ${{ strategy.job-index }}
+          CYPRESS_SPEC: ${{ env.specs_to_run }}
           CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
           CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
           CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
@@ -416,15 +429,10 @@ jobs:
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
           browser: ${{ env.BROWSER_PATH }}
-          record: true
           install: false
-          parallel: true
-          config-file: cypress_ci.config.ts
-          group: "Chrome-Fat Container tests"
+          config-file: cypress_ci_custom.config.ts
           spec: ${{ env.specs_to_run }}
           working-directory: app/client
-          # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
       # In case of second attempt only run failed specs
@@ -482,7 +490,9 @@ jobs:
           COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
           TAG: ${{ github.event_name }}
           BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
+          TOTAL_RUNNERS: ${{ strategy.job-total }}
           THIS_RUNNER: ${{ strategy.job-index }}
+          CYPRESS_SPEC: ${{ env.failed_spec_env }}
           CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
           CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
           CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
@@ -491,15 +501,9 @@ jobs:
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
           browser: ${{ env.BROWSER_PATH }}
-          record: true
           install: false
-          parallel: true
-          config-file: cypress_ci.config.ts
-          group: "Chrome-Fat Container tests"
-          spec: ${{ env.failed_spec_env }}
+          config-file: cypress_ci_custom.config.ts
           working-directory: app/client
-          # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
       - name: Collect CI container logs
@@ -516,6 +520,19 @@ jobs:
         with:
           name: dockerlogs
           path: ~/dockerlogs
+
+      - name: Rename reports 
+        if: always()
+        run: |
+          mkdir -p ~/results
+          mv ${{ github.workspace }}/app/client/results ~/results/${{ matrix.job }}
+
+      - name: Upload cypress report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: results-${{github.run_attempt}}
+          path: ~/results
 
       # Set status = failedtest
       - name: Set fail if there are test failures
@@ -570,9 +587,9 @@ jobs:
         if: always()
         run: |
           if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-            echo ${{ steps.cypress_test.outputs.resultsUrl }} >> ~/cypress_url
+            echo "" >> ~/cypress_url
           elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-            echo ${{ steps.cypress_test_failedtest.outputs.resultsUrl }} >> ~/cypress_url
+            echo "" >> ~/cypress_url
           fi
 
       # Force store previous run result to cache
