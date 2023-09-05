@@ -10,6 +10,7 @@ import {
   migrateTableWidgetV2ValidationBinding,
   migrateTableWidgetV2SelectOption,
   migrateTableWidgetTableDataJsMode,
+  migrateTableWidgetSelectColumnDisplayAsProperty,
 } from "./TableWidget";
 
 const input1: DSLWidget = {
@@ -2824,6 +2825,39 @@ describe("migrateTableWidgetTableDataJsMode", () => {
           widgetName: "Text",
           type: "TEXT_WIDGET",
           dynamicPropertyPathList: [{ key: "test" }],
+        },
+      ],
+    });
+  });
+});
+
+describe("migrateTableWidgetSelectColumnDisplayAsProperty", () => {
+  it("should test that selectDisplayAs property is getting added for existing tables", () => {
+    expect(
+      migrateTableWidgetSelectColumnDisplayAsProperty({
+        children: [
+          {
+            widgetName: "Table",
+            type: "TABLE_WIDGET_V2",
+            primaryColumns: {
+              step: {
+                columnType: "select",
+              },
+            },
+          },
+        ],
+      } as any as DSLWidget),
+    ).toEqual({
+      children: [
+        {
+          widgetName: "Table",
+          type: "TABLE_WIDGET_V2",
+          primaryColumns: {
+            step: {
+              columnType: "select",
+              selectDisplayAs: "value",
+            },
+          },
         },
       ],
     });

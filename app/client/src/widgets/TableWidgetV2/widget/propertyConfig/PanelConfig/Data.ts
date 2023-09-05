@@ -1,5 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { COMPUTED_VALUE_SELECT_HELPER_TEXT } from "widgets/TableWidgetV2/constants";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+
 import { ColumnTypes, DateInputFormat } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import {
@@ -14,9 +16,6 @@ import {
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-
-const COMPUTED_VALUE_SELECT_HELPER_TEXT =
-  "Each computed value here represents default value/display value";
 
 export default {
   sectionName: "Data",

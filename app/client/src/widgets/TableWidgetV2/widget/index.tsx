@@ -26,7 +26,7 @@ import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
-import { SORT_ORDER } from "../component/Constants";
+import { SelectOptionAccessor, SORT_ORDER } from "../component/Constants";
 import { StickyType } from "../component/Constants";
 import type { ReactTableFilter } from "../component/Constants";
 import { AddNewRowActions, DEFAULT_FILTER } from "../component/Constants";
@@ -1993,7 +1993,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             placeholderText={cellProperties.placeholderText}
             resetFilterTextOnClose={cellProperties.resetFilterTextOnClose}
             rowIndex={rowIndex}
-            selectDisplayAs={cellProperties.selectDisplayAs ?? "value"}
+            selectDisplayAs={
+              cellProperties.selectDisplayAs ?? SelectOptionAccessor.VALUE
+            }
             serverSideFiltering={cellProperties.serverSideFiltering}
             tableWidth={this.getComponentDimensions().componentWidth}
             textColor={cellProperties.textColor}

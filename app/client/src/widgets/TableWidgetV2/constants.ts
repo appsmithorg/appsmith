@@ -229,3 +229,6 @@ export const DEFAULT_COLUMN_NAME = "Table Column";
 
 export const ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING =
   FEATURE_FLAG["release_table_serverside_filtering_enabled"];
+
+export const COMPUTED_VALUE_SELECT_HELPER_TEXT =
+  "Each computed value here represents default value/display value";

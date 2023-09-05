@@ -1,5 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { get } from "lodash";
+import { SelectOptionAccessor } from "widgets/TableWidgetV2/component/Constants";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import {
@@ -107,11 +108,11 @@ export default {
       options: [
         {
           label: "Label",
-          value: "label",
+          value: SelectOptionAccessor.LABEL,
         },
         {
           label: "Value",
-          value: "value",
+          value: SelectOptionAccessor.VALUE,
         },
       ],
       validation: {

@@ -233,6 +233,11 @@ export enum StickyType {
   NONE = "",
 }
 
+export enum SelectOptionAccessor {
+  LABEL = "label",
+  VALUE = "value",
+}
+
 export const SORT_ORDER = {
   left: -1,
   right: 1,
