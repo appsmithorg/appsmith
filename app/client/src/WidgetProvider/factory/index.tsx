@@ -78,7 +78,6 @@ class WidgetFactory {
       WidgetFactory.getWidgetPropertyPaneStyleConfig(widget.type);
       WidgetFactory.getWidgetPropertyPaneSearchConfig(widget.type);
       WidgetFactory.getWidgetAutoLayoutConfig(widget.type);
-      WidgetFactory.getWidgetTypeConfigMap();
     }
   }
 
