@@ -26,6 +26,14 @@ const TabsContainer = styled.div`
   justify-content: flex-start;
   gap: 4px;
   overflow: hidden;
+  overflow-y: hidden;
+  overflow-x: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 const Tab = styled.div`
   padding: 4px;
@@ -86,6 +94,7 @@ const PagePaneContainer = (props: Props) => {
         {/*LEFT ICON start*/}
         {pageState === TabState.EDIT ? (
           <Button
+            isIconButton
             kind={"secondary"}
             onClick={() => {
               if (props.addItems) {
@@ -127,9 +136,11 @@ const PagePaneContainer = (props: Props) => {
           </Button>
         ) : (
           <Button
+            className="justify-self-end"
+            isIconButton
             kind={"secondary"}
             onClick={() => setPageState(TabState.EDIT)}
-            startIcon={"cross"}
+            startIcon={"close"}
           />
         )}
         {/*RIGHT ICON end*/}
