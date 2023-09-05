@@ -13,17 +13,18 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 
 describe("MaintainContext&Focus", function () {
   before("Import the test application", () => {
-    homePage.NavigateToHome();
+    homePage.CreateNewWorkspace("MaintainContext&Focus", true);
     homePage.ImportApp("ContextSwitching.json");
     cy.wait("@importNewApplication").then((interception) => {
       agHelper.Sleep();
       const { isPartialImport } = interception.response.body.data;
+      cy.log("isPartialImport is", isPartialImport);
       if (isPartialImport) {
         // should reconnect modal
         cy.get("body").then(($ele) => {
           if ($ele.find(reconnectDatasourceModal.SkipToAppBtn))
             agHelper.GetNClick(reconnectDatasourceModal.SkipToAppBtn, 0, true);
-          else agHelper.GetNClick(homePage._importSuccessModalGotit, 0, true);
+          else agHelper.ClickButton("Got it");
           agHelper.Sleep(2000);
         });
       } else {

@@ -60,6 +60,7 @@ import static java.lang.Boolean.TRUE;
 import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -188,6 +189,12 @@ public class MySqlPluginTest {
         datasourceConfiguration.getConnection().setSsl(new SSLDetails());
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
 
+        /* Set connection method toggle to `Standard` */
+        ArrayList<Property> properties = new ArrayList<>();
+        properties.add(null);
+        properties.add(new Property("Connection method", "Standard"));
+        datasourceConfiguration.setProperties(properties);
+
         return datasourceConfiguration;
     }
 
@@ -197,7 +204,12 @@ public class MySqlPluginTest {
         Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(connectionContextMono)
-                .assertNext(Assertions::assertNotNull)
+                .assertNext(connectionContext -> {
+                    assertTrue(connectionContext != null);
+                    assertTrue(connectionContext.getConnection() != null);
+                    assertFalse(connectionContext.getConnection().isDisposed());
+                    assertTrue(connectionContext.getSshTunnelContext() == null);
+                })
                 .verifyComplete();
     }
 
@@ -990,11 +1002,12 @@ public class MySqlPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[] {
-                                new DatasourceStructure.Template("SELECT", "SELECT * FROM possessions LIMIT 10;"),
+                                new DatasourceStructure.Template("SELECT", "SELECT * FROM possessions LIMIT 10;", true),
                                 new DatasourceStructure.Template(
                                         "INSERT",
                                         "INSERT INTO possessions (id, title, user_id, username, email)\n"
-                                                + "  VALUES (1, '', 1, '', '');"),
+                                                + "  VALUES (1, '', 1, '', '');",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "UPDATE",
                                         "UPDATE possessions SET\n" + "    id = 1,\n"
@@ -1002,11 +1015,13 @@ public class MySqlPluginTest {
                                                 + "    user_id = 1,\n"
                                                 + "    username = '',\n"
                                                 + "    email = ''\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM possessions\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
                             },
                             possessionsTable.getTemplates().toArray());
 
@@ -1039,11 +1054,12 @@ public class MySqlPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[] {
-                                new DatasourceStructure.Template("SELECT", "SELECT * FROM users LIMIT 10;"),
+                                new DatasourceStructure.Template("SELECT", "SELECT * FROM users LIMIT 10;", true),
                                 new DatasourceStructure.Template(
                                         "INSERT",
                                         "INSERT INTO users (id, username, password, email, spouse_dob, dob, yob, time1, created_on, updated_on)\n"
-                                                + "  VALUES (1, '', '', '', '2019-07-01', '2019-07-01', '', '', '2019-07-01 10:00:00', '2019-07-01 10:00:00');"),
+                                                + "  VALUES (1, '', '', '', '2019-07-01', '2019-07-01', '', '', '2019-07-01 10:00:00', '2019-07-01 10:00:00');",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "UPDATE",
                                         "UPDATE users SET\n" + "    id = 1,\n"
@@ -1056,11 +1072,13 @@ public class MySqlPluginTest {
                                                 + "    time1 = '',\n"
                                                 + "    created_on = '2019-07-01 10:00:00',\n"
                                                 + "    updated_on = '2019-07-01 10:00:00'\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM users\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
                             },
                             usersTable.getTemplates().toArray());
                 })

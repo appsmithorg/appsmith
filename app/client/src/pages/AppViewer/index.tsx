@@ -50,8 +50,7 @@ import {
 } from "@design-system/theming";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
-import { showProductRamps } from "selectors/rampSelectors";
-import { isCEMode } from "@appsmith/utils";
+import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -112,15 +111,14 @@ function AppViewer(props: Props) {
   });
   const focusRef = useWidgetFocus();
 
-  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
+  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
   const canShowRamp = useSelector(showRampSelector);
 
   const workspaceId = currentApplicationDetails?.workspaceId || "";
   const showBottomBar = useSelector((state: AppState) => {
     return (
       areEnvironmentsFetched(state, workspaceId) &&
-      datasourceEnvEnabled(state) &&
-      (isCEMode() ? canShowRamp : true)
+      (datasourceEnvEnabled(state) || canShowRamp)
     );
   });
 

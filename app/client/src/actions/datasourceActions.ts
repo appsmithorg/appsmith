@@ -11,7 +11,6 @@ import type {
   MockDatasource,
 } from "entities/Datasource";
 import type { PluginType } from "entities/Action";
-import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
 import type { ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
@@ -341,7 +340,7 @@ export type executeDatasourceQuerySuccessPayload<T> = {
   responseMeta: ResponseMeta;
   data: {
     body: T;
-    trigger: T;
+    trigger?: T;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
@@ -349,8 +348,15 @@ export type executeDatasourceQuerySuccessPayload<T> = {
 };
 type errorPayload = string;
 
+export interface executeDatasourceReduxActionPayload {
+  datasourceId: string;
+  template?: Record<string, any>;
+  data?: Record<string, any>;
+  isGeneratePage: boolean;
+}
+
 export type executeDatasourceQueryReduxAction<T> = ReduxActionWithCallbacks<
-  executeDatasourceQueryRequest,
+  executeDatasourceReduxActionPayload,
   executeDatasourceQuerySuccessPayload<T>,
   errorPayload
 >;
@@ -364,7 +370,7 @@ export const executeDatasourceQuery = ({
   onSuccessCallback?: (
     payload: executeDatasourceQuerySuccessPayload<any>,
   ) => void;
-  payload: executeDatasourceQueryRequest;
+  payload: executeDatasourceReduxActionPayload;
 }): executeDatasourceQueryReduxAction<any> => {
   return {
     type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,
