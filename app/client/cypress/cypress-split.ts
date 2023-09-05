@@ -223,19 +223,7 @@ export async function cypressSplit(on: any, config: any) {
     if (specs.length > 0) {
       config.specPattern = specs;
     } else {
-      const commandProcess = exec('echo "No specs found exiting!"');
-      if (commandProcess?.stdout) {
-        commandProcess.stdout.pipe(process.stdout);
-      }
-
-      if (commandProcess?.stderr) {
-        commandProcess.stderr.pipe(process.stderr);
-      }
-
-      commandProcess.on("close", (code) => {
-        console.log(`Cypress exited with code ${code}`);
-        process.exit(code);
-      });
+      config.specPattern = "cypress/scripts/no_spec.ts";
     }
     return config;
   } catch (err) {
