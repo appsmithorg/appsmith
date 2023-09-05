@@ -66,9 +66,7 @@ export const useCanvasDragging = (
     });
   let selectedHighlight: HighlightInfo | undefined;
 
-  setTimeout(() => {
-    calculateHighlights(snapColumnSpace);
-  }, 0);
+  calculateHighlights(snapColumnSpace);
 
   if (!isDragging || !isCurrentDraggedCanvas) {
     cleanUpTempStyles();
