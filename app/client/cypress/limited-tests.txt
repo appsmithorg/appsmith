@@ -1,5 +1,10 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+cypress/e2e/Regression/ClientSide/OneClickBinding/JSONFormWidget/ConnectToWidget_spec.ts
+cypress/e2e/Regression/ClientSide/OneClickBinding/JSONFormWidget/FieldConfigModal_spec.ts
+cypress/e2e/Regression/ClientSide/OneClickBinding/JSONFormWidget/mongoDb_spec.ts
+cypress/e2e/Regression/ClientSide/OneClickBinding/JSONFormWidget/postgres_spec.ts
+cypress/e2e/Regression/ClientSide/OneClickBinding/spec_utility.ts
+cypress/e2e/Regression/ClientSide/OneClickBinding/PropertyControl_spec.ts
 
 
 # For running all specs - uncomment below:
