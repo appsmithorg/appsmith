@@ -1868,7 +1868,11 @@ export class DataSources {
     });
   }
 
-  public AssertTableInVirtuosoList(dsName: string, targetTableName: string) {
+  public AssertTableInVirtuosoList(
+    dsName: string,
+    targetTableName: string,
+    absence = false,
+  ) {
     this.entityExplorer.ExpandCollapseEntity("Datasources");
     this.entityExplorer.ExpandCollapseEntity(dsName);
     this.entityExplorer.ActionContextMenuByEntityName({
@@ -1879,36 +1883,40 @@ export class DataSources {
     this.assertHelper
       .WaitForNetworkCall("@getDatasourceStructure")
       .then(async (interception) => {
-        this.agHelper.Sleep();
-
         const tables: any[] = interception?.response?.body.data?.tables || [];
         const indexOfTable = tables.findIndex(
           (table) => table.name === targetTableName,
         );
-        this.agHelper
-          .GetNClick(
-            `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container [data-test-id="virtuoso-item-list"]`,
-          )
-          .then((containerElement) => {
-            // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element is collapsed by default.
-            const elementHeight = parseInt(
-              containerElement.children().first().attr("data-known-size") || "",
-              10,
-            );
-            // Index of the table present in the array of tables which will determine the presence of element inside the parent container
-            let offset = indexOfTable * elementHeight;
-            // Total height of the parent container holding the tables in the dom normally without virtualization rendering
-            const totalScroll = tables.length * elementHeight;
-            const scrollPercent = (offset / (totalScroll || 1)) * 100;
-            this.agHelper.ScrollToXY(
-              `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`,
-              0,
-              `${scrollPercent}%`,
-            );
-            this.agHelper.AssertElementExist(
-              `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`,
-            );
-          });
+        if (absence) {
+          cy.wrap(indexOfTable).should("eq", -1);
+        } else {
+          this.agHelper.Sleep();
+          this.agHelper
+            .GetNClick(
+              `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container [data-test-id="virtuoso-item-list"]`,
+            )
+            .then((containerElement) => {
+              // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element is collapsed by default.
+              const elementHeight = parseInt(
+                containerElement.children().first().attr("data-known-size") ||
+                  "",
+                10,
+              );
+              // Index of the table present in the array of tables which will determine the presence of element inside the parent container
+              let offset = indexOfTable * elementHeight;
+              // Total height of the parent container holding the tables in the dom normally without virtualization rendering
+              const totalScroll = tables.length * elementHeight;
+              const scrollPercent = (offset / (totalScroll || 1)) * 100;
+              this.agHelper.ScrollToXY(
+                `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`,
+                0,
+                `${scrollPercent}%`,
+              );
+              this.agHelper.AssertElementExist(
+                `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`,
+              );
+            });
+        }
       });
   }
 }

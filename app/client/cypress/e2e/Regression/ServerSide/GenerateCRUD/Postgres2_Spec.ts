@@ -612,15 +612,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.FocusElement(locators._codeMirrorTextArea);
 
     dataSources.RunQueryNVerifyResponseViews();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.vessels"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.vessels", true);
   });
 
   it("17. Verify application does not break when user runs the query with wrong table name", function () {

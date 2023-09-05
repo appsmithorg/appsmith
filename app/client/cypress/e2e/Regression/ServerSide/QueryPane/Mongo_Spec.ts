@@ -688,15 +688,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("AuthorNAwards"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards", true);
   });
 
   it("18. Verify application does not break when user runs the query with wrong collection name", function () {
@@ -811,16 +803,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.EnterQuery(dropCollection);
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("BirthNDeath"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "BirthNDeath", true);
   });
 
   it("20. Verify Deletion of the datasource", () => {
