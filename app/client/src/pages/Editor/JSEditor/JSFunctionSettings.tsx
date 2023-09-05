@@ -56,7 +56,6 @@ const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
   align-items: center;
   flex-grow: ${(props) => (props.grow ? 1 : 0)};
   padding: 5px 12px;
-  min-width: 250px;
 
   ${(props) =>
     props.isHeading &&
@@ -79,8 +78,6 @@ const JSFunctionSettingsWrapper = styled.div`
 const SettingsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: max-content;
-  min-width: 700px;
   height: 100%;
   & > h3 {
     margin: 20px 0;

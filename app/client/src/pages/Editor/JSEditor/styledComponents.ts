@@ -48,7 +48,7 @@ export const Form = styled.form`
     display: none;
   }
   flex: 1;
-  padding: 0px 0px 0px 0px;
+  padding: 20px 0px 0px 0px;
 `;
 
 export const StyledFormRow = styled(FormRow)`

@@ -7,7 +7,7 @@ import history, { NavigationMethod } from "utils/history";
 import JSEditor from "./JSEditor";
 import PagePaneContainer from "../PagePaneContainer";
 import { createNewJSCollection } from "actions/jsPaneActions";
-import { JsFileIconV2 } from "../../../../Editor/Explorer/ExplorerIcons";
+import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 
 type Props = RouteComponentProps<{
   appId: string;
@@ -32,6 +32,7 @@ function JSObjects(props: Props) {
       type: a.type,
       icon: JsFileIconV2(16, 16),
       selected: a.entity.id === collectionId,
+      icon: JsFileIconV2(),
     }));
 
   const listItemClick = useCallback((a) => {
