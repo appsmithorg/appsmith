@@ -30,7 +30,7 @@ const { cypressSplit } = require("../cypress-split");
  * @type {Cypress.PluginConfig}
  */
 
-module.exports = (on, config) => {
+module.exports = async (on, config) => {
   // on("task", {
   //   isFileExist,
   // });
@@ -217,7 +217,7 @@ module.exports = (on, config) => {
 
   if (process.env["RUNID"]) {
     console.log("BEFORE UPDATE====>", config);
-    config = cypressSplit(on, config);
+    config = await cypressSplit(on, config);
     console.log("AFTER UPDATE====>", config);
     cypressHooks(on, config);
   }

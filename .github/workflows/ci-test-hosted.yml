@@ -380,7 +380,7 @@ jobs:
           TAG: ${{ github.event_name }}
           BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
           THIS_RUNNER: ${{ strategy.job-index }}
-          CYPRESS_SPEC: ${{ env.failed_spec_env }}
+          CYPRESS_SPECS: ${{ env.failed_spec_env }}
           CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
           CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
           CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
