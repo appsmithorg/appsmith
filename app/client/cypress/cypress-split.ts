@@ -9,17 +9,14 @@ type GetEnvOptions = {
   required?: boolean;
 };
 
-// some default properties
-const ignoreTestFiles = [
-  "cypress/e2e/**/spec_utility.ts",
-  "cypress/e2e/GSheet/**/*",
-];
-
 // used to roughly determine how many tests are in a file
 const testPattern = /(^|\s)(it)\(/g;
 
 // This function will get all the spec paths using the pattern
-async function getSpecFilePaths(specPattern: any): Promise<string[]> {
+async function getSpecFilePaths(
+  specPattern: any,
+  ignoreTestFiles: any,
+): Promise<string[]> {
   const files = globby.sync(specPattern, {
     ignore: ignoreTestFiles,
   });
@@ -81,12 +78,15 @@ function splitSpecs(
 async function getSpecsToRun(
   totalRunnersCount = 0,
   currentRunner = 0,
-  specPattern = "cypress/e2e/**/**/*.{js,ts}",
-): Promise<string> {
+  specPattern: string | string[] = "cypress/e2e/**/**/*.{js,ts}",
+  ignorePattern: string | string[],
+): Promise<string[]> {
   {
     try {
+      console.log(specPattern);
+      console.log(ignorePattern);
       const specFilePaths = await sortSpecFilesByTestCount(
-        await getSpecFilePaths(specPattern),
+        await getSpecFilePaths(specPattern, ignorePattern),
       );
 
       if (!specFilePaths.length) {
@@ -97,7 +97,7 @@ async function getSpecsToRun(
         totalRunnersCount,
         currentRunner,
       );
-      return specsToRun.join(",");
+      return specsToRun;
     } catch (err) {
       console.error(err);
       process.exit(1);
@@ -135,53 +135,99 @@ function getEnvValue(
 // This is to fetch the env variables from CI
 function getArgs() {
   return {
-    totalRunners: getEnvNumber("TOTAL_RUNNERS", { required: true }),
-    thisRunner: getEnvNumber("THIS_RUNNER", { required: true }),
-    specsPattern: getEnvValue("CYPRESS_SPEC_PATTERN", { required: true }),
-    env: getEnvValue("CYPRESS_ENV", { required: false }),
-    configFile: getEnvValue("CYPRESS_CONFIG_FILE", { required: false }),
-    headless: getEnvValue("CYPRESS_HEADLESS", { required: false }),
-    browser: getEnvValue("CYPRESS_BROWSER", { required: false }),
+    totalRunners: getEnvValue("TOTAL_RUNNERS", { required: false }),
+    thisRunner: getEnvValue("THIS_RUNNER", { required: false }),
+    cypressSpecs: getEnvValue("CYPRESS_SPECS", { required: false }),
+    // specsPattern: getEnvValue("CYPRESS_SPEC_PATTERN", { required: true }),
+    // env: getEnvValue("CYPRESS_ENV", { required: false }),
+    // configFile: getEnvValue("CYPRESS_CONFIG_FILE", { required: false }),
+    // headless: getEnvValue("CYPRESS_HEADLESS", { required: false }),
+    // browser: getEnvValue("CYPRESS_BROWSER", { required: false }),
   };
 }
 
 // This will finally segregate the specs and run the command to execute cypress
-(async () => {
+// (async () => {
+//   try {
+//     const {
+//       browser,
+//       configFile,
+//       env,
+//       headless,
+//       specsPattern,
+//       thisRunner,
+//       totalRunners,
+//     } = getArgs();
+
+//     let command = "yarn cypress run ";
+//     command += browser != "" ? `--browser ${browser} ` : "";
+//     command += configFile != "" ? `--config-file ${configFile} ` : "";
+//     command += env != "" ? `--env ${env} ` : "";
+//     command += headless == "false" ? `--headed ` : "";
+
+//     const specs = await getSpecsToRun(
+//       totalRunners,
+//       thisRunner,
+//       specsPattern?.split(","),
+//     );
+
+//     let commandProcess;
+//     if (specs.length > 0) {
+//       const final_command = `${command} --spec "${specs}"`;
+//       commandProcess = exec(final_command);
+//     } else {
+//       console.log("No specs to run!");
+//       process.exit(0);
+//     }
+
+//     // pipe output because we want to see the results of the run
+//     if (commandProcess?.stdout) {
+//       commandProcess.stdout.pipe(process.stdout);
+//     }
+
+//     if (commandProcess?.stderr) {
+//       commandProcess.stderr.pipe(process.stderr);
+//     }
+
+//     commandProcess?.on("exit", (code) => {
+//       process.exit(code || 0);
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     process.exit(1);
+//   }
+// })();
+
+export async function cypressSplit(on: any, config: any) {
   try {
-    const {
-      browser,
-      configFile,
-      env,
-      headless,
-      specsPattern,
-      thisRunner,
-      totalRunners,
-    } = getArgs();
+    let currentRunner = 1;
+    let allRunners = 1;
+    let specPattern = config.specPattern;
+    const ignorePattern = config.excludeSpecPattern;
+    const { cypressSpecs, thisRunner, totalRunners } = getArgs();
 
-    let command = "yarn cypress run ";
-    command += browser != "" ? `--browser ${browser} ` : "";
-    command += configFile != "" ? `--config-file ${configFile} ` : "";
-    command += env != "" ? `--env ${env} ` : "";
-    command += headless == "false" ? `--headed ` : "";
+    if (cypressSpecs != "") specPattern = cypressSpecs?.split(",");
 
-    const specs = await getSpecsToRun(totalRunners, thisRunner, specsPattern);
-    const final_command = `${command} --spec "${specs}"`;
-    const commandProcess = exec(final_command);
-
-    // pipe output because we want to see the results of the run
-    if (commandProcess.stdout) {
-      commandProcess.stdout.pipe(process.stdout);
+    if (totalRunners != "") {
+      currentRunner = Number(thisRunner);
+      allRunners = Number(totalRunners);
     }
 
-    if (commandProcess.stderr) {
-      commandProcess.stderr.pipe(process.stderr);
+    const specs = await getSpecsToRun(
+      allRunners,
+      currentRunner,
+      specPattern,
+      ignorePattern,
+    );
+
+    if (specs.length > 0) {
+      config.specPattern = specs;
+    } else {
+      config.specPattern = [];
     }
 
-    commandProcess.on("exit", (code) => {
-      process.exit(code || 0);
-    });
+    return config;
   } catch (err) {
-    console.error(err);
-    process.exit(1);
+    console.log(err);
   }
-})();
+}
