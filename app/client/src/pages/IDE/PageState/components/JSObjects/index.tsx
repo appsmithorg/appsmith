@@ -24,17 +24,14 @@ function JSObjects(props: Props) {
   const allJSActions = useSelector(selectFilesForExplorer);
   const toListActions = allJSActions
     .filter((a: any) => {
-      if (a.type === "JS") {
-        return true;
-      }
-      return false;
+      return a.type === "JS";
     })
     .map((a: any) => ({
       name: a.entity.name,
       key: a.entity.id,
       type: a.type,
+      icon: JsFileIconV2(16, 16),
       selected: a.entity.id === collectionId,
-      icon: JsFileIconV2(),
     }));
 
   const listItemClick = useCallback((a) => {
@@ -47,9 +44,11 @@ function JSObjects(props: Props) {
     );
   }, []);
 
+  const editor = collectionId ? <JSEditor /> : <div />;
+
   return (
     <PagePaneContainer
-      editor={<JSEditor />}
+      editor={editor}
       listItems={toListActions}
       onAddClick={addItemClick}
       onListClick={listItemClick}

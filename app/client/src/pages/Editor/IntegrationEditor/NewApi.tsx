@@ -6,8 +6,6 @@ import {
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
 import type { AppState } from "@appsmith/reducers";
-import CurlLogo from "assets/images/Curl-logo.svg";
-import PlusLogo from "assets/images/Plus-logo.svg";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
@@ -19,7 +17,6 @@ import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { curlImportPageURL } from "RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { Spinner } from "design-system";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -150,14 +147,7 @@ const API_ACTION = {
 };
 
 function NewApiScreen(props: Props) {
-  const {
-    createNewApiAction,
-    history,
-    isCreating,
-    pageId,
-    plugins,
-    showSaasAPIs,
-  } = props;
+  const { createNewApiAction, history, pageId, plugins, showSaasAPIs } = props;
 
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
@@ -267,51 +257,20 @@ function NewApiScreen(props: Props) {
   return (
     <StyledContainer>
       <ApiCardsContainer data-testid="newapi-datasource-card-container">
-        {!showSaasAPIs && (
-          <>
-            <ApiCard
-              className="t--createBlankApiCard create-new-api"
-              onClick={() => handleOnClick(API_ACTION.CREATE_NEW_API)}
-            >
-              <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
-                <img
-                  alt="New"
-                  className="curlImage t--plusImage content-icon"
-                  src={PlusLogo}
-                />
-                <p className="textBtn">REST API</p>
-              </CardContentWrapper>
-              {isCreating && <Spinner className="cta" size={25} />}
-            </ApiCard>
-            <ApiCard
-              className="t--createBlankApiGraphqlCard"
-              onClick={() => handleOnClick(API_ACTION.CREATE_NEW_GRAPHQL_API)}
-            >
-              <CardContentWrapper>
-                <img
-                  alt="New"
-                  className="curlImage t--plusImage content-icon"
-                  src={PlusLogo}
-                />
-                <p className="textBtn">GraphQL API</p>
-              </CardContentWrapper>
-            </ApiCard>
-            {authApiPlugin && (
-              <ApiCard
-                className="t--createAuthApiDatasource"
-                onClick={() => handleOnClick(API_ACTION.AUTH_API)}
-              >
-                <CardContentWrapper>
-                  <img
-                    alt="OAuth2"
-                    className="authApiImage t--authApiImage content-icon"
-                    src={getAssetUrl(authApiPlugin.iconLocation)}
-                  />
-                  <p className="t--plugin-name textBtn">Authenticated API</p>
-                </CardContentWrapper>
-              </ApiCard>
-            )}
-          </>
+        {authApiPlugin && !showSaasAPIs && (
+          <ApiCard
+            className="t--createAuthApiDatasource"
+            onClick={() => handleOnClick(API_ACTION.AUTH_API)}
+          >
+            <CardContentWrapper>
+              <img
+                alt="OAuth2"
+                className="authApiImage t--authApiImage content-icon"
+                src={getAssetUrl(authApiPlugin.iconLocation)}
+              />
+              <p className="t--plugin-name textBtn">Authenticated API</p>
+            </CardContentWrapper>
+          </ApiCard>
         )}
         {API_PLUGINS.map((p) => (
           <ApiCard
@@ -339,21 +298,6 @@ function NewApiScreen(props: Props) {
             </CardContentWrapper>
           </ApiCard>
         ))}
-        {!showSaasAPIs && (
-          <ApiCard
-            className="t--createBlankCurlCard"
-            onClick={() => handleOnClick(API_ACTION.IMPORT_CURL)}
-          >
-            <CardContentWrapper>
-              <img
-                alt="CURL"
-                className="curlImage t--curlImage content-icon"
-                src={CurlLogo}
-              />
-              <p className="textBtn">CURL import</p>
-            </CardContentWrapper>
-          </ApiCard>
-        )}
       </ApiCardsContainer>
     </StyledContainer>
   );
