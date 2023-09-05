@@ -20,6 +20,13 @@ import {
 } from "design-system";
 import styled from "styled-components";
 import { GIT_DEMO_GIF } from "./constants";
+import { useDispatch, useSelector } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { GitSyncModalTab } from "entities/GitSync";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import history from "utils/history";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;
@@ -52,6 +59,25 @@ function ChooseGitProvider({
   value = {},
   isImport = false,
 }: ChooseGitProviderProps) {
+  const workspace = useSelector(getCurrentAppWorkspace);
+
+  const dispatch = useDispatch();
+  const handleImport = () => {
+    history.push("/applications");
+
+    dispatch({
+      type: ReduxActionTypes.GIT_INFO_INIT,
+    });
+    dispatch(setWorkspaceIdForImport(workspace.id));
+
+    dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: GitSyncModalTab.GIT_CONNECTION,
+      }),
+    );
+  };
+
   return (
     <div>
       <WellContainer>
@@ -129,7 +155,10 @@ function ChooseGitProvider({
         </WellInnerContainer>
       </WellContainer>
       {!isImport && value?.gitEmptyRepoExists === "no" ? (
-        <Callout kind="info" links={[{ children: "Import via git", to: "/#" }]}>
+        <Callout
+          kind="info"
+          links={[{ children: "Import via git", onClick: handleImport }]}
+        >
           If you choose to use an existing repository, then you should try to
           import the app via git
         </Callout>
