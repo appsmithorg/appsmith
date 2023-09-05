@@ -28,6 +28,8 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import history from "utils/history";
 import noop from "lodash/noop";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;
@@ -57,6 +59,7 @@ function ChooseGitProvider({
   isImport = false,
 }: ChooseGitProviderProps) {
   const workspace = useSelector(getCurrentAppWorkspace);
+  const isMobile = useIsMobileDevice();
 
   const dispatch = useDispatch();
   const handleImport = () => {
@@ -74,6 +77,9 @@ function ChooseGitProvider({
       }),
     );
   };
+
+  const hasCreateNewApplicationPermission =
+    hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;
 
   return (
     <div>
@@ -154,7 +160,11 @@ function ChooseGitProvider({
       {!isImport && value?.gitEmptyRepoExists === "no" ? (
         <Callout
           kind="info"
-          links={[{ children: "Import via git", onClick: handleImport }]}
+          links={
+            hasCreateNewApplicationPermission
+              ? [{ children: "Import via git", onClick: handleImport }]
+              : []
+          }
         >
           If you choose to use an existing repository, then you should try to
           import the app via git
