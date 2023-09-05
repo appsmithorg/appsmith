@@ -15,6 +15,9 @@ import { getCurrentWorkspaceId } from "ce/selectors/workspaceSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import { showProductRamps } from "@appsmith/selectors/rampSelectors";
+import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import CE_DSDataFilter from "ce/components/DSDataFilter";
 
 export const defaultEnvironment = (workspaceId: string): EnvironmentType => ({
   id: DEFAULT_ENV_ID,
@@ -62,12 +65,10 @@ interface ReduxStateProps {
 }
 
 type DSDataFilterProps = {
-  datasourceId: string;
   updateFilter: (
     id: string,
     name: string,
     userPermissions: string[],
-    showFilterPane: boolean,
   ) => boolean;
   pluginType: string;
   pluginName: string;
@@ -98,6 +99,7 @@ const DSDataFilter = ({
   const [selectedEnvironment, setSelectedEnvironment] = React.useState(
     defaultSelectedEnvironment,
   );
+  const showRamps = useSelector(showProductRamps(RAMP_NAME.MULTIPLE_ENV, true));
 
   useEffect(() => {
     if (!filterId) return;
@@ -124,7 +126,6 @@ const DSDataFilter = ({
       selectedEnvironment.id,
       selectedEnvironment.name,
       selectedEnvironment?.userPermissions || [],
-      isRenderAllowed,
     );
 
     if (!updateSuccess) return;
@@ -136,6 +137,18 @@ const DSDataFilter = ({
   }, [environments.length, pluginType, viewMode, isInsideReconnectModal]);
 
   if (!showFilterPane) {
+    if (showRamps) {
+      return (
+        <CE_DSDataFilter
+          filterId={filterId}
+          isInsideReconnectModal={isInsideReconnectModal}
+          pluginName={pluginName}
+          pluginType={pluginType}
+          updateFilter={updateFilter}
+          viewMode={viewMode}
+        />
+      );
+    }
     return null;
   }
 
@@ -152,7 +165,6 @@ const DSDataFilter = ({
             env.id,
             env.name,
             env.userPermissions || [],
-            showFilterPane,
           );
           if (updateSuccess) setSelectedEnvironment(env);
         }}

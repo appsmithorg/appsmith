@@ -1,3 +1,4 @@
+import CE_SwitchEnvironment from "ce/components/SwitchEnvironment";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
@@ -93,10 +94,11 @@ const SwitchEnvironment = ({
       dispatch(softRefreshActions());
     }
   };
-  // skip the render if feature is not enabled or no environments are present
-  if (!allowedToRender || environmentList.length <= 0) {
-    return null;
-  }
+
+  // Show ramps if feature is not enabled or
+  if (!allowedToRender) return <CE_SwitchEnvironment viewMode />;
+  // skip the render if no environments are present
+  if (environmentList.length <= 0) return null;
 
   // if no default environment is set, set the first environment as default
   if (!defaultEnvironment) {

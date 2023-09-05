@@ -219,7 +219,7 @@ describe("Create Permission flow ", function () {
       cy.renameDatasource(datasourceName2);
       // verify user is able to create new query & verify create new datasource dropdown cta is visible
       cy.NavigateToActiveDSQueryPane(datasourceName2);
-      cy.get(".rc-select-selector").click();
+      agHelper.GetNClick(".rc-select-selector", 0, true);
       cy.get(".rc-select-item-option-content")
         .last()
         .contains("Create new datasource");
