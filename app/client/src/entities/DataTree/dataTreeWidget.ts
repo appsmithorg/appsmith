@@ -15,10 +15,7 @@ import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
 import { error } from "loglevel";
-import {
-  getAutoLayoutComponentDimensions,
-  getFixedLayoutComponentDimensions,
-} from "utils/ComponentSizeUtils";
+import { getComponentDimensions } from "utils/ComponentSizeUtils";
 
 /**
  *
@@ -383,9 +380,11 @@ export const generateDataTreeWidget = (
 
   dataTreeWidget["meta"] = meta;
 
-  const { componentHeight, componentWidth } = isAutoLayout
-    ? getAutoLayoutComponentDimensions({ ...dataTreeWidget, isMobile })
-    : getFixedLayoutComponentDimensions(dataTreeWidget);
+  const { componentHeight, componentWidth } = getComponentDimensions(
+    dataTreeWidget,
+    isAutoLayout,
+    isMobile,
+  );
 
   return {
     unEvalEntity: {

@@ -51,3 +51,16 @@ export const getFixedLayoutComponentDimensions = ({
     componentHeight: (bottomRow - topRow) * parentRowSpace,
   };
 };
+
+export const getComponentDimensions = (
+  props: BaseWidgetProps,
+  isAutoLayout: boolean,
+  isMobile: boolean,
+): {
+  componentHeight: number;
+  componentWidth: number;
+} => {
+  return isAutoLayout
+    ? getAutoLayoutComponentDimensions({ ...props, isMobile })
+    : getFixedLayoutComponentDimensions(props);
+};
