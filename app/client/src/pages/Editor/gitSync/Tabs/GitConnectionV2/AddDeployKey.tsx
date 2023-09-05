@@ -75,8 +75,19 @@ const CheckboxTextContainer = styled.div`
   justify-content: flex-start;
 `;
 
+const DummyKey = styled.div`
+  height: 36px;
+
+  background: linear-gradient(
+    90deg,
+    var(--ads-color-black-200) 0%,
+    rgba(240, 240, 240, 0) 100%
+  );
+`;
+
 interface AddDeployKeyState {
   isAddedDeployKey: boolean;
+  remoteUrl: string;
 }
 interface AddDeployKeyProps {
   onChange: (args: Partial<AddDeployKeyState>) => void;
@@ -96,7 +107,6 @@ function AddDeployKey({
   const [fetched, setFetched] = useState(false);
   const [sshKeyType, setSshKeyType] = useState<string>();
   const {
-    // deployKeyDocUrl,
     fetchingSSHKeyPair,
     fetchSSHKeyPair,
     generateSSHKey,
@@ -105,7 +115,6 @@ function AddDeployKey({
   } = useSSHKeyPair();
 
   useEffect(() => {
-    // On mount check SSHKeyPair is defined, if not fetchSSHKeyPair
     if (!isImport) {
       if (!fetched) {
         fetchSSHKeyPair({
@@ -127,6 +136,12 @@ function AddDeployKey({
   useEffect(() => {
     if (fetched && !fetchingSSHKeyPair) {
       if (SSHKeyPair && SSHKeyPair.includes("rsa")) {
+        setSshKeyType("RSA");
+      } else if (
+        !SSHKeyPair &&
+        value?.remoteUrl &&
+        value.remoteUrl.toString().toLocaleLowerCase().includes("azure")
+      ) {
         setSshKeyType("RSA");
       } else {
         setSshKeyType("ECDSA");
@@ -187,7 +202,7 @@ function AddDeployKey({
               />
             </DeployedKeyContainer>
           ) : (
-            <Text>Loading...</Text>
+            <DummyKey />
           )}
         </FieldContainer>
         <Collapsible isOpen>

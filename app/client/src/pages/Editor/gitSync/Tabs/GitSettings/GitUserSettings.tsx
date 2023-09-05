@@ -7,7 +7,7 @@ import {
   USE_DEFAULT_CONFIGURATION,
   createMessage,
 } from "@appsmith/constants/messages";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { Button, Input, Switch, Text } from "design-system";
 import {
   getGlobalGitConfig,
@@ -37,10 +37,84 @@ const HeadContainer = styled.div`
 `;
 
 const InputContainer = styled.div`
-  display: flex;
-  align-items: center;
   margin-bottom: ${(props) => props.theme.spaces[5]}px;
 `;
+
+const loadingKeyframe = keyframes`
+    100% {
+      transform: translateX(100%);
+    }
+`;
+
+const DummyLabel = styled.div`
+  height: 17px;
+  width: 100px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  background-color: var(--ads-color-black-100);
+  position: relative;
+
+  overflow: hidden;
+
+  &::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.5) 20%,
+      rgba(255, 255, 255, 0.8) 60%,
+      rgba(255, 255, 255, 0)
+    );
+    animation: ${loadingKeyframe} 5s infinite;
+    content: "";
+  }
+`;
+
+const DummyInput = styled.div`
+  height: 36px;
+  border-radius: 4px;
+  background-color: linear-gradient(
+    90deg,
+    var(--ads-color-black-200) 0%,
+    rgba(240, 240, 240, 0) 100%
+  );
+  background-color: var(--ads-color-black-100);
+  position: relative;
+
+  overflow: hidden;
+
+  &::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.5) 20%,
+      rgba(255, 255, 255, 0.8) 60%,
+      rgba(255, 255, 255, 0)
+    );
+    animation: ${loadingKeyframe} 5s infinite;
+    content: "";
+  }
+`;
+
+const DummyField = () => {
+  return (
+    <div style={{ width: "100%" }}>
+      <DummyLabel />
+      <DummyInput />
+    </div>
+  );
+};
 
 export type AuthorInfo = {
   authorName: string;
@@ -121,9 +195,7 @@ const GitUserSettings = () => {
     authorEmail,
   ]);
 
-  if (isFetchingGlobalGitConfig || isFetchingLocalGitConfig) {
-    return <>Loading...</>;
-  }
+  const loading = isFetchingGlobalGitConfig || isFetchingLocalGitConfig;
 
   return (
     <Container>
@@ -138,11 +210,9 @@ const GitUserSettings = () => {
                 return (
                   <Switch
                     data-testid="t--git-user-settings-switch"
-                    // isSelected={useGlobalConfig}
-                    //   onChange={toggleUseDefaultConfig}
+                    isDisabled={loading}
                     {...omit(field, ["value"])}
                     isSelected={field.value}
-                    //   onChange={(v) => setValue("useGlobalConfig", v)}
                   >
                     {createMessage(USE_DEFAULT_CONFIGURATION)}
                   </Switch>
@@ -154,50 +224,45 @@ const GitUserSettings = () => {
 
         <Space size={5} />
         <InputContainer>
-          <Input
-            data-testid="t--git-user-settings-author-name-input"
-            // errorMessage={
-            //   nameInvalid ? createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY) : ""
-            // }
-            isReadOnly={useGlobalProfile}
-            // isValid={!nameInvalid}
-            label={createMessage(AUTHOR_NAME)}
-            // isLoading={isFetchingConfig}
-            // onBlur={() => setNameInputFocused(false)}
-            // onChange={(value: string) =>
-            //   changeHandler(AUTHOR_INFO_LABEL.NAME, value)
-            // }
-            // onFocus={() => setNameInputFocused(true)}
-            size="md"
-            type="text"
-            // value={authorInfo.authorName}
-            {...register("authorName", { required: true })}
-            // onChange is overwritten with setValue
-            onChange={(v) => setValue("authorName", v)}
-          />
+          {!loading ? (
+            <Input
+              data-testid="t--git-user-settings-author-name-input"
+              // errorMessage={
+              //   nameInvalid ? createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY) : ""
+              // }
+              isReadOnly={useGlobalProfile}
+              // isValid={!nameInvalid}
+              label={createMessage(AUTHOR_NAME)}
+              // isLoading={isFetchingConfig}
+              size="md"
+              type="text"
+              {...register("authorName", { required: true })}
+              // onChange is overwritten with setValue
+              onChange={(v) => setValue("authorName", v)}
+            />
+          ) : (
+            <DummyField />
+          )}
         </InputContainer>
         <InputContainer>
-          <Input
-            data-testid="t--git-user-settings-author-email-input"
-            // errorMessage={
-            //   emailInvalid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : ""
-            // }
-            isReadOnly={useGlobalProfile}
-            // isValid={!emailInvalid}
-            label={createMessage(AUTHOR_EMAIL)}
-            // isLoading={isFetchingConfig}
-            // onBlur={() => setEmailInputFocused(false)}
-            // onChange={(value: string) =>
-            //   changeHandler(AUTHOR_INFO_LABEL.EMAIL, value)
-            // }
-            // onFocus={() => setEmailInputFocused(true)}
-            size="md"
-            type="email"
-            // value={authorInfo.authorEmail}
-            {...register("authorEmail", { required: true })}
-            // onChange is overwritten with setValue
-            onChange={(v) => setValue("authorEmail", v)}
-          />
+          {!loading ? (
+            <Input
+              data-testid="t--git-user-settings-author-email-input"
+              // errorMessage={
+              //   emailInvalid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : ""
+              // }
+              isReadOnly={useGlobalProfile}
+              // isValid={!emailInvalid}
+              label={createMessage(AUTHOR_EMAIL)}
+              size="md"
+              type="email"
+              {...register("authorEmail", { required: true })}
+              // onChange is overwritten with setValue
+              onChange={(v) => setValue("authorEmail", v)}
+            />
+          ) : (
+            <DummyField />
+          )}
         </InputContainer>
         <div>
           <Button isDisabled={!isSubmitAllowed} size="md" type="submit">

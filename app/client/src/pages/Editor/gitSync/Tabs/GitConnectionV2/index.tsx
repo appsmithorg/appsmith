@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, ModalBody, ModalFooter, Text } from "design-system";
+import { Button, ModalBody, ModalFooter } from "design-system";
 import Steps from "./Steps";
 import ChooseGitProvider from "./ChooseGitProvider";
 import GenerateSSH from "./GenerateSSH";
@@ -11,10 +11,26 @@ import { isValidGitRemoteUrl } from "../../utils";
 import { importAppFromGit } from "actions/gitSyncActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsImportingApplicationViaGit } from "selectors/gitSyncSelectors";
+import {
+  CONNECTING_REPO,
+  IMPORTING_APP_FROM_GIT,
+  createMessage,
+} from "@appsmith/constants/messages";
+import GitSyncStatusbar from "../../components/Statusbar";
 
 const StyledModalFooter = styled(ModalFooter)`
   justify-content: space-between;
   flex-direction: row-reverse;
+`;
+
+const StatusbarWrapper = styled.div`
+  > div {
+    height: 36px;
+  }
+
+  > div > div {
+    margin-top: 0px;
+  }
 `;
 
 const steps = [
@@ -108,8 +124,8 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
         }
         case GIT_CONNECT_STEPS.ADD_DEPLOY_KEY: {
           const gitProfile = {
-            authorName: "Appsmith",
-            authorEmail: "abc@xyz.com",
+            authorName: "",
+            authorEmail: "",
           };
           if (formData.remoteUrl) {
             if (!isImport) {
@@ -166,7 +182,17 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
         )}
       </ModalBody>
       <StyledModalFooter>
-        {loading && <Text>Connecting ...</Text>}
+        {loading && (
+          <StatusbarWrapper className="t--connect-statusbar">
+            <GitSyncStatusbar
+              completed={!loading}
+              message={createMessage(
+                isImport ? IMPORTING_APP_FROM_GIT : CONNECTING_REPO,
+              )}
+              period={4}
+            />
+          </StatusbarWrapper>
+        )}
         {!loading && (
           <Button
             endIcon={
@@ -181,6 +207,7 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
         )}
         {possibleSteps.includes(activeStep) && currentIndex > 0 && (
           <Button
+            isDisabled={loading}
             kind="secondary"
             onClick={handlePreviousStep}
             size="md"
