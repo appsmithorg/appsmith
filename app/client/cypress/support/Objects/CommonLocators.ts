@@ -285,4 +285,5 @@ export class CommonLocators {
   _buttonWidgetInForm =
     "//*[contains(@class,'t--widget-buttonwidget')]//button[contains(@class,'bp3-button')]";
   _walkthrough_overlay = `.t--walkthrough-overlay`;
+  _helperText = ".t--property-control-helperText";
 }
