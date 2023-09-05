@@ -57,20 +57,20 @@ describe("SMTP datasource test cases using ted", function () {
     cy.get("span.bp3-button-text:contains('Run query')").closest("div").click();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
-      expect(response.body.data.body).to.contain(
-        "Couldn't find a valid recipient address. Please check your action configuration",
-      );
     });
+    agHelper.WaitUntilToastDisappear(
+      "Couldn't find a valid recipient address. Please check your action configuration",
+    );
     // verify an error is thrown when sender address is not added
     cy.xpath("//input[@class='bp3-input']").eq(0).clear();
     cy.xpath("//input[@class='bp3-input']").eq(1).type("qwerty@appsmith.com");
     cy.get("span.bp3-button-text:contains('Run query')").closest("div").click();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
-      expect(response.body.data.body).to.contain(
-        "Couldn't find a valid sender address. Please check your action configuration",
-      );
     });
+    agHelper.WaitUntilToastDisappear(
+      "Couldn't find a valid sender address. Please check your action configuration",
+    );
   });
 
   it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function () {
