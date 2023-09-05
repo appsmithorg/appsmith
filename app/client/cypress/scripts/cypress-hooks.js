@@ -161,6 +161,7 @@ async function cypressHooks(on, config) {
   });
 
   await on("before:spec", async (spec) => {
+    console.log("BEFORE SPEC SPEC DETAILS ------->", spec);
     specData.name = spec.relative;
     specData.matrixId = matrix.id;
     const dbClient = await configureDbClient().connect();
@@ -178,6 +179,8 @@ async function cypressHooks(on, config) {
   });
 
   await on("after:spec", async (spec, results) => {
+    console.log("AFTER SPEC SPEC DETAILS ------->", spec);
+    console.log("AFTER SPEC RUN RESULTS ------->", results);
     specData.testCount = results.stats.tests;
     specData.passes = results.stats.passes;
     specData.failed = results.stats.failures;
