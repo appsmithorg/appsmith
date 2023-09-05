@@ -205,7 +205,8 @@ export async function cypressSplit(on: any, config: any) {
     const ignorePattern = await config.excludeSpecPattern;
     const { cypressSpecs, thisRunner, totalRunners } = getArgs();
 
-    if (cypressSpecs != "") specPattern = cypressSpecs?.split(",");
+    if (cypressSpecs != "")
+      specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
 
     if (totalRunners != "") {
       currentRunner = Number(thisRunner);
