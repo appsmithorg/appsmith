@@ -3,12 +3,9 @@ import {
   getSSHKeyDeployDocUrl,
   getSshKeyPair,
 } from "selectors/gitSyncSelectors";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { generateSSHKeyPair, getSSHKeyPair } from "actions/gitSyncActions";
-
-const NOOP = () => {
-  // do nothing
-};
+import noop from "lodash/noop";
 
 export const useSSHKeyPair = () => {
   // As SSHKeyPair fetching and generation is only done only for GitConnection part,
@@ -25,16 +22,8 @@ export const useSSHKeyPair = () => {
 
   const [failedGeneratingSSHKey, setFailedGeneratingSSHKey] = useState(false);
 
-  // useEffect(() => {
-  //   // on change of sshKeyPair if it is defined, then stop the loading state.
-  //   if (SSHKeyPair) {
-  //     if (generatingSSHKey) setIsGeneratingSSHKey(false);
-  //     if (fetchingSSHKeyPair) setIsFetchingSSHKeyPair(false);
-  //   }
-  // }, [SSHKeyPair]);
-
   const fetchSSHKeyPair = useCallback(
-    ({ onSuccessCallback = NOOP, onErrorCallback = NOOP } = {}) => {
+    ({ onSuccessCallback = noop, onErrorCallback = noop } = {}) => {
       setIsFetchingSSHKeyPair(true);
       dispatch(
         getSSHKeyPair({
@@ -55,7 +44,7 @@ export const useSSHKeyPair = () => {
   const generateSSHKey = useCallback(
     (
       keyType = "ECDSA",
-      { onSuccessCallback = NOOP, onErrorCallback = NOOP } = {},
+      { onSuccessCallback = noop, onErrorCallback = noop } = {},
     ) => {
       // if (currentApplication?.id) {
       setIsGeneratingSSHKey(true);

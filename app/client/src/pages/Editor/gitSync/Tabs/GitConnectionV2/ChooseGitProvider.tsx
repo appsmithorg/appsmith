@@ -27,6 +27,7 @@ import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import history from "utils/history";
+import noop from "lodash/noop";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;
@@ -50,12 +51,8 @@ interface ChooseGitProviderProps {
   isImport?: boolean;
 }
 
-const NOOP = () => {
-  // do nothing
-};
-
 function ChooseGitProvider({
-  onChange = NOOP,
+  onChange = noop,
   value = {},
   isImport = false,
 }: ChooseGitProviderProps) {

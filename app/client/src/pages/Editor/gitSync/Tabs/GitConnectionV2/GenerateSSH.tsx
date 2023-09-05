@@ -21,6 +21,7 @@ import {
 } from "@appsmith/constants/messages";
 import type { GitProvider } from "./ChooseGitProvider";
 import { GIT_DEMO_GIF } from "./constants";
+import noop from "lodash/noop";
 
 interface GenerateSSHState {
   gitProvider?: GitProvider;
@@ -31,11 +32,7 @@ interface GenerateSSHProps {
   value: Partial<GenerateSSHState>;
 }
 
-const NOOP = () => {
-  // do nothing
-};
-
-function GenerateSSH({ onChange = NOOP, value = {} }: GenerateSSHProps) {
+function GenerateSSH({ onChange = noop, value = {} }: GenerateSSHProps) {
   const [isTouched, setIsTouched] = useState(false);
   const isInvalid =
     isTouched &&

@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { Button, Icon, Tooltip } from "design-system";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
+import noop from "lodash/noop";
 
 export const TooltipWrapper = styled.div`
   display: flex;
@@ -18,14 +19,10 @@ interface CopyButtonProps {
   tooltipMessage?: string;
 }
 
-const NOOP = () => {
-  // do nothing
-};
-
 export function CopyButton({
   value,
   delay = 2000,
-  onCopy = NOOP,
+  onCopy = noop,
   tooltipMessage,
 }: CopyButtonProps) {
   const timerRef = useRef<number>();

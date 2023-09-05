@@ -24,6 +24,7 @@ import { COPY_SSH_KEY, createMessage } from "@appsmith/constants/messages";
 import { useSSHKeyPair } from "../../hooks";
 import type { GitProvider } from "./ChooseGitProvider";
 import { GIT_DEMO_GIF } from "./constants";
+import noop from "lodash/noop";
 
 export const DeployedKeyContainer = styled.div`
   height: 36px;
@@ -98,12 +99,8 @@ interface AddDeployKeyProps {
   isImport?: boolean;
 }
 
-const NOOP = () => {
-  // do nothing
-};
-
 function AddDeployKey({
-  onChange = NOOP,
+  onChange = noop,
   value = {},
   isImport = false,
 }: AddDeployKeyProps) {

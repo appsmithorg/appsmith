@@ -1,4 +1,5 @@
 import { Divider, Text } from "design-system";
+import noop from "lodash/noop";
 import React, { Fragment } from "react";
 import styled from "styled-components";
 
@@ -64,14 +65,10 @@ interface StepsProps {
   onActiveKeyChange: (activeKey: string) => void;
 }
 
-const NOOP = () => {
-  //do nothing
-};
-
 function Steps({
   steps = [],
   activeKey,
-  onActiveKeyChange = NOOP,
+  onActiveKeyChange = noop,
 }: StepsProps) {
   const activeIndex = steps.findIndex((s) => s.key === activeKey);
 

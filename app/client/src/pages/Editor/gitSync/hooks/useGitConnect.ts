@@ -2,10 +2,7 @@ import { useDispatch } from "react-redux";
 import { useCallback, useState } from "react";
 import type { ConnectToGitPayload } from "api/GitSyncAPI";
 import { connectToGitInit } from "actions/gitSyncActions";
-
-const NOOP = () => {
-  // do nothing
-};
+import noop from "lodash/noop";
 
 export const useGitConnect = () => {
   const dispatch = useDispatch();
@@ -15,7 +12,7 @@ export const useGitConnect = () => {
   const connectToGit = useCallback(
     (
       payload: ConnectToGitPayload,
-      { onErrorCallback = NOOP, onSuccessCallback = NOOP } = {},
+      { onErrorCallback = noop, onSuccessCallback = noop } = {},
     ) => {
       setIsConnectingToGit(true);
       // Here after the ssh key pair generation, we fetch the application data again and on success of it
