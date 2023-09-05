@@ -31,7 +31,7 @@ export function CanvasPropertyPane() {
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
   const [enableLayoutControl] = checkLayoutSystemFeatures([
-    layoutSystemFeatures.ENABLE_LAYOUT_CONTROL,
+    layoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL,
   ]);
 
   return (

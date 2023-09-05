@@ -6,12 +6,12 @@ import { getCurrentAppPositioningType } from "selectors/editorSelectors";
 export const layoutSystemFeatures = {
   ENABLE_MAIN_CANVAS_RESIZER: "ENABLE_MAIN_CANVAS_RESIZER", //enable main canvas resizer
   ENABLE_FORKING_FROM_TEMPLATES: "ENABLE_FORKING_FROM_TEMPLATES", //enable forking pages from template directly inside apps
-  ENABLE_LAYOUT_CONTROL: "ENABLE_LAYOUT_CONTROL", //enables layout control option in property pane
+  ENABLE_CANVAS_LAYOUT_CONTROL: "ENABLE_CANVAS_LAYOUT_CONTROL", //enables layout control option in property pane
 };
 
 const FIXED_LAYOUT_FEATURES = {
   [layoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES]: true,
-  [layoutSystemFeatures.ENABLE_LAYOUT_CONTROL]: true,
+  [layoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: true,
 };
 
 const AUTO_LAYOUT_FEATURES = {
