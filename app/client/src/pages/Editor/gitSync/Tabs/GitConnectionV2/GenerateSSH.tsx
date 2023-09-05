@@ -19,8 +19,11 @@ import {
   PASTE_SSH_URL_INFO,
   createMessage,
 } from "@appsmith/constants/messages";
+import type { GitProvider } from "./ChooseGitProvider";
+import { GIT_DEMO_GIF } from "./constants";
 
 interface GenerateSSHState {
+  gitProvider?: GitProvider;
   remoteUrl: string;
 }
 interface GenerateSSHProps {
@@ -65,18 +68,22 @@ function GenerateSSH({ onChange = NOOP, value = {} }: GenerateSSHProps) {
             value={value?.remoteUrl}
           />
         </FieldContainer>
-        <Collapsible isOpen>
-          <CollapsibleHeader arrowPosition="end">
-            <Icon name="play-circle-line" size="md" />
-            <Text>How to copy & paste SSH remote URL</Text>
-          </CollapsibleHeader>
-          <CollapsibleContent>
-            <DemoImage
-              alt="Copy and paste remote url from Github"
-              src="https://placehold.co/600x300"
-            />
-          </CollapsibleContent>
-        </Collapsible>
+        {value?.gitProvider !== "others" && (
+          <Collapsible isOpen>
+            <CollapsibleHeader arrowPosition="end">
+              <Icon name="play-circle-line" size="md" />
+              <Text>How to copy & paste SSH remote URL</Text>
+            </CollapsibleHeader>
+            <CollapsibleContent>
+              <DemoImage
+                alt={`Copy and paste remote url from ${value?.gitProvider}`}
+                src={
+                  GIT_DEMO_GIF.copy_remoteurl[value?.gitProvider || "github"]
+                }
+              />
+            </CollapsibleContent>
+          </Collapsible>
+        )}
       </WellContainer>
     </div>
   );

@@ -22,6 +22,8 @@ import { CopyButton } from "../../components/CopyButton";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { COPY_SSH_KEY, createMessage } from "@appsmith/constants/messages";
 import { useSSHKeyPair } from "../../hooks";
+import type { GitProvider } from "./ChooseGitProvider";
+import { GIT_DEMO_GIF } from "./constants";
 
 export const DeployedKeyContainer = styled.div`
   height: 36px;
@@ -86,6 +88,7 @@ const DummyKey = styled.div`
 `;
 
 interface AddDeployKeyState {
+  gitProvider?: GitProvider;
   isAddedDeployKey: boolean;
   remoteUrl: string;
 }
@@ -205,18 +208,20 @@ function AddDeployKey({
             <DummyKey />
           )}
         </FieldContainer>
-        <Collapsible isOpen>
-          <CollapsibleHeader arrowPosition="end">
-            <Icon name="play-circle-line" size="md" />
-            <Text>How to paste SSH Key in repo and give write access</Text>
-          </CollapsibleHeader>
-          <CollapsibleContent>
-            <DemoImage
-              alt="Copy and paste remote url from Github"
-              src="https://placehold.co/600x300"
-            />
-          </CollapsibleContent>
-        </Collapsible>
+        {value?.gitProvider !== "others" && (
+          <Collapsible isOpen>
+            <CollapsibleHeader arrowPosition="end">
+              <Icon name="play-circle-line" size="md" />
+              <Text>How to paste SSH Key in repo and give write access</Text>
+            </CollapsibleHeader>
+            <CollapsibleContent>
+              <DemoImage
+                alt={`Add deploy key in ${value?.gitProvider}`}
+                src={GIT_DEMO_GIF.add_deploykey[value?.gitProvider || "github"]}
+              />
+            </CollapsibleContent>
+          </Collapsible>
+        )}
       </WellContainer>
       <Checkbox
         isSelected={value?.isAddedDeployKey}

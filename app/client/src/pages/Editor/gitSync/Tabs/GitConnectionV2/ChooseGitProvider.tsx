@@ -19,6 +19,7 @@ import {
   Text,
 } from "design-system";
 import styled from "styled-components";
+import { GIT_DEMO_GIF } from "./constants";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;
@@ -29,8 +30,10 @@ const CheckboxTextContainer = styled.div`
   justify-content: flex-start;
 `;
 
+export type GitProvider = "github" | "gitlab" | "bitbucket" | "others";
+
 interface ChooseGitProviderState {
-  gitProvider: string;
+  gitProvider?: GitProvider;
   gitEmptyRepoExists: string;
   gitExistingRepoExists: boolean;
 }
@@ -63,7 +66,16 @@ function ChooseGitProvider({
             </FieldQuestion>
             <FieldControl>
               <RadioGroup
-                onChange={(v) => onChange({ gitProvider: v })}
+                onChange={(v) => {
+                  if (
+                    v === "github" ||
+                    v === "gitlab" ||
+                    v === "bitbucket" ||
+                    v === "others"
+                  ) {
+                    onChange({ gitProvider: v });
+                  }
+                }}
                 orientation="horizontal"
                 value={value?.gitProvider}
               >
@@ -96,20 +108,24 @@ function ChooseGitProvider({
               </FieldControl>
             </FieldContainer>
           )}
-          {!isImport && value?.gitEmptyRepoExists === "no" && (
-            <Collapsible isOpen>
-              <CollapsibleHeader arrowPosition="end">
-                <Icon name="play-circle-line" size="md" />
-                <Text>How to create a new repository?</Text>
-              </CollapsibleHeader>
-              <CollapsibleContent>
-                <DemoImage
-                  alt="Copy and paste remote url from Github"
-                  src="https://placehold.co/600x300"
-                />
-              </CollapsibleContent>
-            </Collapsible>
-          )}
+          {!isImport &&
+            value?.gitProvider !== "others" &&
+            value?.gitEmptyRepoExists === "no" && (
+              <Collapsible isOpen>
+                <CollapsibleHeader arrowPosition="end">
+                  <Icon name="play-circle-line" size="md" />
+                  <Text>How to create a new repository?</Text>
+                </CollapsibleHeader>
+                <CollapsibleContent>
+                  <DemoImage
+                    alt={`Create an empty repo in ${value?.gitProvider}}`}
+                    src={
+                      GIT_DEMO_GIF.create_repo[value?.gitProvider || "github"]
+                    }
+                  />
+                </CollapsibleContent>
+              </Collapsible>
+            )}
         </WellInnerContainer>
       </WellContainer>
       {!isImport && value?.gitEmptyRepoExists === "no" ? (

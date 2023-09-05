@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, ModalBody, ModalFooter } from "design-system";
 import Steps from "./Steps";
+import type { GitProvider } from "./ChooseGitProvider";
 import ChooseGitProvider from "./ChooseGitProvider";
 import GenerateSSH from "./GenerateSSH";
 import AddDeployKey from "./AddDeployKey";
@@ -57,7 +58,7 @@ const nextStepText = {
 };
 
 interface FormDataState {
-  gitProvider?: string;
+  gitProvider?: GitProvider;
   gitEmptyRepoExists?: string;
   gitExistingRepoExists?: boolean;
   remoteUrl?: string;
