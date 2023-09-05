@@ -107,14 +107,24 @@ jobs:
         if: steps.run_result.outputs.run_result == 'failedtest'
         working-directory: app/client
         run: |
-          echo "failed_spec_env<<EOF" >> $GITHUB_ENV
-          while IFS= read -r line
-          do
-            spec_name=$(echo $line | awk -F'/' '{print $NF}')
-            failed_spec_env=$(find . -name $spec_name | sed 's|./||')
-            echo "$failed_spec_env" >> $GITHUB_ENV
-          done < ~/failed_spec_ci/failed_spec_ci
-          echo "EOF" >> $GITHUB_ENV
+          failed_spec_env=""
+          while IFS= read -r line || [ -n "$line" ]; do
+              file_path=$(echo "$line" | awk -F'/' '{print $(NF-1)"/"$NF}')
+              spec_name=$(echo "$file_path" | awk -F'/' '{print $NF}')
+              failed_spec=$(find . -name "$spec_name" | sed 's|./||')
+              if [ "$(echo "$failed_spec" | wc -l)" -eq 1 ]; then
+                  failed_spec_env="$failed_spec_env,$failed_spec"
+              else
+                for file in $failed_spec; do
+                    new_file_path=$(echo "$file" | awk -F'/' '{print $(NF-1)"/"$NF}')
+                    if [ "$new_file_path" == "$file_path" ]; then
+                        failed_spec_env="$failed_spec_env,$file"
+                    fi
+                done
+              fi
+          done < ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          failed_spec_env=${failed_spec_env#,}
+          echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV
 
       - if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         run: echo "Starting full run" && exit 0
