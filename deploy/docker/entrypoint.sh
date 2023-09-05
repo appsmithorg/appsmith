@@ -6,8 +6,6 @@ stacks_path=/appsmith-stacks
 
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
 
-mkdir -pv "$MONGODB_TMP_KEY_PATH"
-
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
 # https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
@@ -236,6 +234,7 @@ use-mongodb-key() {
   # We copy the MongoDB key file to `$MONGODB_TMP_KEY_PATH`, so that we can reliably set its permissions to 600.
   # Why? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
   # So the key file should be somewhere inside the container, and not in a volume.
+  mkdir -pv "$(dirname "$MONGODB_TMP_KEY_PATH")"
   cp -v "$1" "$MONGODB_TMP_KEY_PATH"
   chmod 600 "$MONGODB_TMP_KEY_PATH"
 }
