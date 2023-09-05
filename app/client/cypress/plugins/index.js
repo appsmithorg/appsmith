@@ -216,11 +216,9 @@ module.exports = async (on, config) => {
   });
 
   if (process.env["RUNID"]) {
-    console.log("BEFORE UPDATE====>", config);
     config = await cypressSplit(on, config);
-    console.log("AFTER UPDATE====>", config);
     cypressHooks(on, config);
   }
-
+  console.log(config);
   return config;
 };
