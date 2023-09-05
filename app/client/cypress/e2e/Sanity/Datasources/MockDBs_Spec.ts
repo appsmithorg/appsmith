@@ -26,6 +26,7 @@ describe(
 
         assertHelper.AssertNetworkStatus("@trigger");
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
+        agHelper.Sleep(2000); //for movies collection to load & populate in dropdown
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
         dataSources.NavigateToActiveTab();
