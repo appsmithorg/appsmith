@@ -221,7 +221,7 @@ export async function cypressSplit(on: any, config: any) {
     );
 
     if (specs.length > 0) {
-      config.specPattern = specs;
+      config.specPattern = specs.length == 1 ? specs[0] : specs;
     } else {
       config.specPattern = "cypress/scripts/no_spec.ts";
     }
