@@ -21,7 +21,7 @@ RUN apt-get update \
   && apt-get update && apt-get install --no-install-recommends --yes temurin-17-jdk \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && python3 -m venv --prompt certbot /opt/certbot/venv \
-  && /opt/certbot/venv/bin/pip install certbot \
+  && /opt/certbot/venv/bin/pip install --upgrade certbot setuptools \
   && ln -s /opt/certbot/venv/bin/certbot /usr/local/bin \
   && apt-get remove --yes git python3-pip python3-venv python-setuptools \
   && apt-get autoremove --yes
