@@ -301,9 +301,7 @@ configure_supervisord() {
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"/
-      # Initialize Redis rdb directory
-      local redis_db_path="$stacks_path/data/redis"
-      mkdir -p "$redis_db_path"
+      mkdir -p "$stacks_path/data/redis"
     fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"/
