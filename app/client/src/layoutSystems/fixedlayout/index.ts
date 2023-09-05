@@ -2,20 +2,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import { FixedLayoutEditorWrapper } from "./editor/FixedLayoutEditorWrapper";
 import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-
-const getFixedLayoutComponentDimensions = ({
-  bottomRow,
-  leftColumn,
-  parentColumnSpace,
-  parentRowSpace,
-  rightColumn,
-  topRow,
-}: BaseWidgetProps) => {
-  return {
-    componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
-    componentHeight: (bottomRow - topRow) * parentRowSpace,
-  };
-};
+import { getFixedLayoutComponentDimensions } from "utils/ComponentSizeUtils";
 
 const getFixedLayoutSystemProps = (props: BaseWidgetProps) => {
   const { componentHeight, componentWidth } =
