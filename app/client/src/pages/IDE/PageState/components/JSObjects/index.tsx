@@ -32,7 +32,6 @@ function JSObjects(props: Props) {
       type: a.type,
       icon: JsFileIconV2(16, 16),
       selected: a.entity.id === collectionId,
-      icon: JsFileIconV2(),
     }));
 
   const listItemClick = useCallback((a) => {
