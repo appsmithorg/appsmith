@@ -116,7 +116,7 @@ const Datasources = React.memo(() => {
           />
         );
       }),
-    [appWideDS, pageId],
+    [appWideDS, pageId, activeDatasourceId],
   );
 
   const onDatasourcesToggle = useCallback(

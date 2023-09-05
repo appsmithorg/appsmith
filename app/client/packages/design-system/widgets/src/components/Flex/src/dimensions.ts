@@ -6,6 +6,8 @@ export type SpacingDimension =
   | "spacing-4"
   | "spacing-5"
   | "spacing-6"
+  | "spacing-7"
+  | "spacing-8"
   // eslint-disable-next-line @typescript-eslint/ban-types
   | (string & {})
   | number;
