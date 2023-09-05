@@ -133,10 +133,6 @@ export interface TableProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
-  bottomRow: number;
-  topRow: number;
-  leftColumn: number;
-  rightColumn: number;
 }
 
 const defaultColumn = {

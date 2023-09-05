@@ -104,10 +104,6 @@ interface ReactTableComponentProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
-  bottomRow: number;
-  topRow: number;
-  leftColumn: number;
-  rightColumn: number;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -118,7 +114,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     applyFilter,
     borderColor,
     borderWidth,
-    bottomRow,
     canFreezeColumn,
     columns,
     columnWidthMap,
@@ -140,7 +135,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     isVisibleFilters,
     isVisiblePagination,
     isVisibleSearch,
-    leftColumn,
     multiRowSelection,
     nextPageClick,
     onAddNewRow,
@@ -153,7 +147,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     pageSize,
     prevPageClick,
     primaryColumnId,
-    rightColumn,
     searchKey,
     searchTableData,
     selectAllRow,
@@ -163,7 +156,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     showConnectDataOverlay,
     sortTableColumn: _sortTableColumn,
     tableData,
-    topRow,
     totalRecordsCount,
     triggerRowSelection,
     unSelectAllRow,
@@ -233,7 +225,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       borderColor={borderColor}
       borderRadius={props.borderRadius}
       borderWidth={borderWidth}
-      bottomRow={bottomRow}
       boxShadow={props.boxShadow}
       canFreezeColumn={canFreezeColumn}
       columnWidthMap={columnWidthMap}
@@ -258,7 +249,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       isVisibleFilters={isVisibleFilters}
       isVisiblePagination={isVisiblePagination}
       isVisibleSearch={isVisibleSearch}
-      leftColumn={leftColumn}
       multiRowSelection={multiRowSelection}
       nextPageClick={nextPageClick}
       onAddNewRow={onAddNewRow}
@@ -270,7 +260,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
       primaryColumnId={primaryColumnId}
-      rightColumn={rightColumn}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -280,7 +269,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       showConnectDataOverlay={showConnectDataOverlay}
       sortTableColumn={sortTableColumn}
       toggleAllRowSelect={toggleAllRowSelect}
-      topRow={topRow}
       totalRecordsCount={totalRecordsCount}
       triggerRowSelection={triggerRowSelection}
       updatePageNo={updatePageNo}
@@ -326,10 +314,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.widgetId === next.widgetId &&
     prev.widgetName === next.widgetName &&
     prev.width === next.width &&
-    prev.bottomRow == next.bottomRow &&
-    prev.topRow == next.topRow &&
-    prev.leftColumn == next.leftColumn &&
-    prev.rightColumn == next.rightColumn &&
     prev.borderRadius === next.borderRadius &&
     prev.boxShadow === next.boxShadow &&
     prev.borderWidth === next.borderWidth &&
