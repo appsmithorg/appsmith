@@ -1,13 +1,11 @@
-
+import atexit
+import logging
 import os
-import sys
-import time
 import shutil
 import subprocess
-import logging
-import urllib.request
+import time
 import urllib.error
-import atexit
+import urllib.request
 
 
 LOADING_TEMPLATE_PAGE = r'/opt/appsmith/templates/appsmith_starting.html'
@@ -17,11 +15,6 @@ LOG_FILE = r'/appsmith-stacks/logs/backend/starting_page_init.log'
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s -  %(message)s'
 
 logging.basicConfig(filename = LOG_FILE, level = logging.NOTSET, format = LOG_FORMAT)
-
-try:
-   import requests
-except ModuleNotFoundError as e:
-   logging.error("Module Not Found: " , e)
 
 
 def get_backend_status():
