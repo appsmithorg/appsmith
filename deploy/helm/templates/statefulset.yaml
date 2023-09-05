@@ -103,6 +103,9 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /appsmith-stacks
+          env:
+            - name: APPSMITH_ENABLE_EMBEDDED_DB
+              value: "0"
           envFrom:
             - configMapRef:
                 name: {{ include "appsmith.fullname" . }}

@@ -24,10 +24,12 @@ export const FAKE_DATASOURCE_OPTION = {
 export const useDatasourceOptions = ({
   canCreateDatasource,
   datasources,
+  fetchingDatasourceConfigs,
   generateCRUDSupportedPlugin,
 }: {
   canCreateDatasource: boolean;
   datasources: Datasource[];
+  fetchingDatasourceConfigs: boolean;
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;
 }) => {
   const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(
@@ -76,7 +78,12 @@ export const useDatasourceOptions = ({
       unSupportedDatasourceOptions,
     );
     setDataSourceOptions(newDataSourceOptions);
-  }, [datasources, setDataSourceOptions, generateCRUDSupportedPlugin]);
+  }, [
+    datasources,
+    setDataSourceOptions,
+    generateCRUDSupportedPlugin,
+    fetchingDatasourceConfigs,
+  ]);
   return dataSourceOptions;
 };
 
