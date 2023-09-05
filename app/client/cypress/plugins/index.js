@@ -46,10 +46,6 @@ module.exports = (on, config) => {
 
   on("file:preprocessor", tagify(config));
   addMatchImageSnapshotPlugin(on, config);
-  if (process.env["RUNID"]) {
-    config = cypressSplit(on, config);
-    cypressHooks(on, config);
-  }
 
   on("before:browser:launch", (browser = {}, launchOptions) => {
     /*
@@ -76,15 +72,15 @@ module.exports = (on, config) => {
       return launchOptions;
     }
 
-    // if (browser.name === "electron") {
-    //   // && browser.isHeadless) {
-    //   launchOptions.preferences.fullscreen = true;
-    //   launchOptions.preferences.darkTheme = true;
-    //   launchOptions["width"] = 1400;
-    //   launchOptions["height"] = 1100;
-    //   launchOptions["resizable"] = false;
-    //   return launchOptions;
-    // }
+    if (browser.name === "electron") {
+      // && browser.isHeadless) {
+      launchOptions.preferences.fullscreen = true;
+      launchOptions.preferences.darkTheme = true;
+      launchOptions["width"] = 1400;
+      launchOptions["height"] = 1100;
+      launchOptions["resizable"] = false;
+      return launchOptions;
+    }
   });
   // module.exports = (on, config) => {
   //   on("after:spec", (spec, results) => {
@@ -218,6 +214,13 @@ module.exports = (on, config) => {
       return null;
     },
   });
+
+  if (process.env["RUNID"]) {
+    console.log("BEFORE UPDATE====>", config);
+    config = cypressSplit(on, config);
+    console.log("AFTER UPDATE====>", config);
+    cypressHooks(on, config);
+  }
 
   return config;
 };

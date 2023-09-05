@@ -81,27 +81,26 @@ async function getSpecsToRun(
   specPattern: string | string[] = "cypress/e2e/**/**/*.{js,ts}",
   ignorePattern: string | string[],
 ): Promise<string[]> {
-  {
-    try {
-      console.log(specPattern);
-      console.log(ignorePattern);
-      const specFilePaths = await sortSpecFilesByTestCount(
-        await getSpecFilePaths(specPattern, ignorePattern),
-      );
+  try {
+    console.log(specPattern);
+    console.log(ignorePattern);
+    const specFilePaths = await sortSpecFilesByTestCount(
+      await getSpecFilePaths(specPattern, ignorePattern),
+    );
 
-      if (!specFilePaths.length) {
-        throw Error("No spec files found.");
-      }
-      const specsToRun = splitSpecs(
-        specFilePaths,
-        totalRunnersCount,
-        currentRunner,
-      );
-      return specsToRun;
-    } catch (err) {
-      console.error(err);
-      process.exit(1);
+    if (!specFilePaths.length) {
+      throw Error("No spec files found.");
     }
+    const specsToRun = splitSpecs(
+      specFilePaths,
+      totalRunnersCount,
+      currentRunner,
+    );
+    console.log("SPECS TO RUN =======>", specsToRun);
+    return specsToRun;
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
   }
 }
 
