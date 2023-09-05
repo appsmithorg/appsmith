@@ -1,7 +1,6 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 import { agHelper } from "../../../support/Objects/ObjectsCore";
-let datasourceName;
 
 describe("SMTP datasource test cases using ted", function () {
   let SMTPDatasourceName;
@@ -45,7 +44,7 @@ describe("SMTP datasource test cases using ted", function () {
       .type("{{Body.text}}", { parseSpecialCharSequences: false });
     cy.get(queryLocators.queryFromEmail)
       .eq(6)
-      .type("{{FilePicker.text}}", { parseSpecialCharSequences: false });
+      .type("{{FilePicker.files}}", { parseSpecialCharSequences: false });
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
@@ -74,7 +73,7 @@ describe("SMTP datasource test cases using ted", function () {
     });
   });
 
-  /* it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function() {
+  it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function () {
     cy.get(`.t--entity-name:contains("smtpquery")`)
       .should("be.visible")
       .click({ force: true });
@@ -82,30 +81,16 @@ describe("SMTP datasource test cases using ted", function () {
       .should("be.visible")
       .click({ force: true });
     cy.wait(2000);
-    cy.xpath("//input[@class='bp3-input']")
-      .eq(0)
-      .type("test@appsmith.com");
-    cy.xpath("//input[@class='bp3-input']")
-      .eq(2)
-      .type("this is a smtp test");
+    cy.xpath("//input[@class='bp3-input']").eq(0).type("test@appsmith.com");
+    cy.xpath("//input[@class='bp3-input']").eq(2).type("this is a smtp test");
     // adding an attachment in file picker
-    /* cy.SearchEntityandOpen("FilePicker");
     const fixturePath = "testFile.mov";
-    cy.get(commonlocators.filePickerButton).click();
-    cy.get(commonlocators.filePickerInput)
-      .first()
-      .attachFile(fixturePath);
-    cy.get(commonlocators.filePickerUploadButton).click();
-    cy.get(".bp3-spinner").should("have.length", 1);
+    agHelper.ClickButton("Select Files"); //1 files selected
+    agHelper.UploadFile(fixturePath);
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get("button").contains("1 files selected");
-    cy.xpath(
-      "//span[text()='Run query' and @class='bp3-button-text']",
-    ).click();
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-      //  expect(response.body.data.statusCode).to.eq("5000");
-      expect(response.body.data.body).to.contain("Sent the email successfully");
-    });
-  }); */
+    agHelper.ClickButton("Run query");
+    agHelper.ValidateToastMessage("Sent the email successfully");
+  });
 });

@@ -75,6 +75,19 @@ describe("Check datasource doc links", function () {
     });
   });
 
+  it("6. Verify SMTP documentation opens", function () {
+    CreateDummyDSNSave(DataSourceKVP["SMTP"]);
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+      dataSources.CreateQueryAfterDSSaved();
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "connect-data/reference/using-smtp",
+        "getWorkspace",
+      );
+    });
+  });
+
   afterEach(() => {
     agHelper.PressEscape();
     agHelper.ActionContextMenuWithInPane({

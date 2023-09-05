@@ -17,6 +17,7 @@ export const DataSourceKVP = {
   Oracle: "Oracle",
   S3: "S3",
   Twilio: "Twilio",
+  SMTP: "SMTP",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
