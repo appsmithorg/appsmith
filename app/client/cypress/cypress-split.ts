@@ -223,9 +223,8 @@ export async function cypressSplit(on: any, config: any) {
     if (specs.length > 0) {
       config.specPattern = specs;
     } else {
-      config.specPattern = [];
+      process.exit(0);
     }
-
     return config;
   } catch (err) {
     console.log(err);
