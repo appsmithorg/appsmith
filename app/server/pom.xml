@@ -27,7 +27,6 @@
 
     <properties>
         <deploy.disabled>true</deploy.disabled>
-        <h2.version>2.1.210</h2.version>
         <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
         <maven.compiler.source>${java.version}</maven.compiler.source>
