@@ -23,11 +23,7 @@ describe("Bug 19933: Authenticated API DS in case of OAuth2, should have save an
     });
 
     dataSources.EditDatasource();
-    agHelper.AssertElementEnabledDisabled(
-      dataSources._saveAndAuthorizeDS,
-      0,
-      false,
-    );
+    agHelper.AssertElementEnabledDisabled(dataSources._saveDs, 0, false);
     dataSources.DeleteDSDirectly();
   });
 });

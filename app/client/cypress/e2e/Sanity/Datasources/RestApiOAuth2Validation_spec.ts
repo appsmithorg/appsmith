@@ -63,7 +63,7 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
   });
 
   it("3. Validate save and Authorise", function () {
-    agHelper.GetNClick(dataSources._saveAndAuthorizeDS);
+    agHelper.GetNClick(dataSources._saveDs);
 
     //Accept consent
     agHelper.GetNClick(dataSources._consent);
