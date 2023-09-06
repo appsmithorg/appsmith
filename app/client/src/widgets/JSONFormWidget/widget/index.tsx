@@ -42,7 +42,7 @@ import {
   createMessage,
   ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
   ONSUBMIT_NOT_CONFIGURED_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "../constants/messages";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -533,6 +533,12 @@ class JSONFormWidget extends BaseWidget<
         createMessage(ONSUBMIT_NOT_CONFIGURED_MESSAGE, this.props.widgetName),
         {
           kind: "warning",
+          style: {
+            width: "max-content",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          },
           action: {
             text: createMessage(ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT),
             effect: () =>

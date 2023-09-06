@@ -1,6 +1,11 @@
 import type { ReactElement } from "react";
-import { useContext } from "react";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
@@ -9,7 +14,7 @@ import type { IPanelProps } from "@blueprintjs/core";
 import PropertyPaneTitle from "./PropertyPaneTitle";
 import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+import { copyWidget, deleteSelectedWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
 import type { WidgetType } from "constants/WidgetConstants";
@@ -21,7 +26,7 @@ import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { Button, Callout } from "design-system";
 import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
-import { useSearchText, renderWidgetCallouts } from "./helpers";
+import { renderWidgetCallouts, useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
@@ -58,6 +63,7 @@ export const excludeList: WidgetType[] = [
   "FILE_PICKER_WIDGET_V2",
   "TABLE_WIDGET_V2",
   "BUTTON_WIDGET_V2",
+  "JSON_FORM_WIDGET",
 ];
 
 function PropertyPaneView(
