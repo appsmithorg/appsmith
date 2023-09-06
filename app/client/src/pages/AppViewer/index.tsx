@@ -129,7 +129,7 @@ function AppViewer(props: Props) {
     editorInitializer().then(() => {
       dispatch(widgetInitialisationSuccess());
     });
-  });
+  }, []);
   /**
    * initialize the app if branch, pageId or application is changed
    */
