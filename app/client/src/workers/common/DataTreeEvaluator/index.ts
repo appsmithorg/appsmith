@@ -123,6 +123,7 @@ import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import DependencyMap from "entities/DependencyMap";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
+import produce from "immer";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -1468,7 +1469,13 @@ export default class DataTreeEvaluator {
     // setting parseValue in dataTree
     set(currentTree, fullPropertyPath, parsedValue);
     // setting evalPropertyValue in unParsedEvalTree
-    set(this.getUnParsedEvalTree(), fullPropertyPath, klona(evalPropertyValue));
+    const updatedUnParsedEvalTree = produce(
+      this.getUnParsedEvalTree(),
+      (unParsedEvalTree) => {
+        set(unParsedEvalTree, fullPropertyPath, evalPropertyValue);
+      },
+    );
+    this.setUnParsedEvalTree(updatedUnParsedEvalTree);
   }
 
   reValidateWidgetDependentProperty({
