@@ -1455,16 +1455,12 @@ export class DataSources {
 
   public FilterAndVerifyDatasourceSchemaBySearch(
     search: string,
-    filterBy?: "table" | "column",
+    expectedTableName = search,
   ) {
     this.agHelper.Sleep(2500); //for query editor to load
     this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
     this.agHelper.Sleep(); //for search result to load
-    if (filterBy === "column") {
-      this.VerifyColumnSchemaOnQueryEditor(search);
-    } else if (filterBy === "table") {
-      this.VerifyTableSchemaOnQueryEditor(search);
-    }
+    this.VerifyTableSchemaOnQueryEditor(expectedTableName);
   }
 
   public AssertDSDialogVisibility(isVisible = true) {
