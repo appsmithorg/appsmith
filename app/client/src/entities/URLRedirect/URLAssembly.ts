@@ -225,12 +225,25 @@ export class URLBuilder {
       if (!appId && !this.appParams.applicationId) {
         throw new URIError("Missing appId");
       }
+
+      const queryParamsToPersist = fetchQueryParamsToPersist(
+        persistExistingParams,
+      );
+      const branchParams = branch ? { branch: encodeURIComponent(branch) } : {};
+      const modifiedQueryParams = {
+        ...queryParamsToPersist,
+        ...params,
+        ...branchParams,
+      };
+      const queryString = getQueryStringfromObject(modifiedQueryParams);
+
       return this.generateIDEBasePath({
         ideState,
         appId: appId || this.appParams.applicationId || "",
         pageId,
         dataId,
         suffix,
+        queryString,
       });
     }
 
@@ -271,6 +284,7 @@ export class URLBuilder {
     dataId?: string;
     addSection?: string;
     suffix?: string;
+    queryString: string;
   }) {
     let urlFormat = ideBaseUrl[params.ideState];
     if (params.ideState === IDEAppState.Data) {
@@ -282,7 +296,9 @@ export class URLBuilder {
         }
       }
     }
-    return `${generatePath(urlFormat as string, params)}${params.suffix || ""}`;
+    return `${generatePath(urlFormat as string, params)}${params.suffix || ""}${
+      params.queryString
+    }`;
   }
 }
 

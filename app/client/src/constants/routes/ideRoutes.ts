@@ -1,4 +1,4 @@
-export const IDE_BASE = "/ide/:appId";
+export const IDE_BASE = "/ide/:appId/page/:pageId";
 export const IDE_PATH = `${IDE_BASE}/:ideState`;
 
 export const IDE_DATA_PATH = `${IDE_BASE}/data`;
