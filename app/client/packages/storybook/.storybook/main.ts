@@ -1,15 +1,18 @@
 import { mergeConfig } from "vite";
 import svgr from "vite-plugin-svgr";
+import * as glob from "glob";
+import * as path from "path";
+
+const dsDir = path.resolve(__dirname, "../../design-system");
 
 function getStories() {
   if (process.env.CHROMATIC) {
     return ["../../design-system/**/*.chromatic.stories.@(js|jsx|ts|tsx)"];
   }
 
-  return [
-    "../../design-system/**/*.stories.mdx",
-    "../../design-system/**/*.stories.@(js|jsx|ts|tsx)",
-  ];
+  return glob
+    .sync(`${dsDir}/**/*.stories.@(js|jsx|ts|tsx|mdx)`, { nosort: true })
+    .filter((storyPath) => !storyPath.includes("chromatic"));
 }
 
 module.exports = {

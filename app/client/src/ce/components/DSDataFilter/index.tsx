@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
-import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Link, Tag, Text, Tooltip } from "design-system";
 import {
@@ -19,6 +17,7 @@ import {
   RampFeature,
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
   display: flex;
@@ -54,12 +53,10 @@ const TooltipLink = styled(Link)`
 `;
 
 type DSDataFilterProps = {
-  datasourceId: string;
   updateFilter: (
     id: string,
     name: string,
     userPermissions: string[],
-    showFilterPane: boolean,
   ) => boolean;
   pluginType: string;
   pluginName: string;
@@ -90,14 +87,9 @@ const environments: Array<EnvironmentType> = [
   },
 ];
 
-function DSDataFilter({
-  isInsideReconnectModal,
-  updateFilter,
-  viewMode,
-}: DSDataFilterProps) {
+function DSDataFilter({ isInsideReconnectModal, viewMode }: DSDataFilterProps) {
   const [showFilterPane, setShowFilterPane] = useState(false);
-  const datasourceEnv: boolean = useSelector(datasourceEnvEnabled);
-  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
+  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
   const canShowRamp = useSelector(showRampSelector);
 
   const rampLinkSelector = getRampLink({
@@ -110,7 +102,6 @@ function DSDataFilter({
   useEffect(() => {
     const isRenderAllowed =
       environments.length > 0 &&
-      datasourceEnv &&
       canShowRamp &&
       !viewMode &&
       !isInsideReconnectModal;
@@ -118,16 +109,6 @@ function DSDataFilter({
     if (showFilterPane !== isRenderAllowed) setShowFilterPane(isRenderAllowed);
     // If there are no environments, do nothing
     if (!environments.length) return;
-    const defaultSelectedEnvironment = environments[0];
-
-    const updateSuccess = updateFilter(
-      defaultSelectedEnvironment.id,
-      defaultSelectedEnvironment.name,
-      defaultSelectedEnvironment?.userPermissions || [],
-      isRenderAllowed,
-    );
-
-    if (!updateSuccess) return;
   }, [environments.length, viewMode, isInsideReconnectModal]);
 
   if (!showFilterPane) return null;

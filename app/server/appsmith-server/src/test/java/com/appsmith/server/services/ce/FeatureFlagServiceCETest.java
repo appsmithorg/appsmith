@@ -11,6 +11,7 @@ import com.appsmith.server.services.FeatureFlagService;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.conf.XmlParser;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -33,6 +35,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -42,6 +45,7 @@ import static org.mockito.Mockito.doReturn;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
+@ActiveProfiles(profiles = "test")
 public class FeatureFlagServiceCETest {
     @Autowired
     FeatureFlagService featureFlagService;
@@ -57,12 +61,16 @@ public class FeatureFlagServiceCETest {
 
     @BeforeEach
     void setup() {
-        // Mock response to avoid any third party calls
-        doReturn(Mono.just(new FeaturesResponseDTO()))
-                .when(cacheableFeatureFlagHelper)
-                .getRemoteFeaturesForTenant(any());
-
         doReturn(Mono.empty()).when(cacheManager).get(anyString(), anyString());
+    }
+
+    /**
+     *  Clean up the cache after each test to avoid interfering with test assertions.
+     */
+    @AfterEach
+    void tearDown() {
+        cacheManager.evictAll("featureFlag").block();
+        cacheManager.evictAll("tenantNewFeatures").block();
     }
 
     @Test
@@ -126,12 +134,12 @@ public class FeatureFlagServiceCETest {
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertFalse(result.get(FeatureFlagEnum.TEST_FEATURE_3.toString()));
+                    assertNull(result.get(FeatureFlagEnum.TENANT_TEST_FEATURE.toString()));
                 })
                 .verifyComplete();
 
         Map<String, Boolean> tenantFeatures = new HashMap<>();
-        tenantFeatures.put(FeatureFlagEnum.TEST_FEATURE_3.toString(), true);
+        tenantFeatures.put(FeatureFlagEnum.TENANT_TEST_FEATURE.toString(), true);
         FeaturesResponseDTO responseDTO = new FeaturesResponseDTO();
         responseDTO.setFeatures(tenantFeatures);
         doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
@@ -139,7 +147,7 @@ public class FeatureFlagServiceCETest {
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertTrue(result.get(FeatureFlagEnum.TEST_FEATURE_3.toString()));
+                    assertTrue(result.get(FeatureFlagEnum.TENANT_TEST_FEATURE.toString()));
                 })
                 .verifyComplete();
     }
@@ -183,7 +191,7 @@ public class FeatureFlagServiceCETest {
 
         String tenantIdentifier = UUID.randomUUID().toString();
         Mono<CachedFeatures> cachedFeaturesMono =
-                cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantIdentifier);
+                cacheableFeatureFlagHelper.fetchCachedTenantFeatures(tenantIdentifier);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
         StepVerifier.create(cachedFeaturesMono.then(hasKeyMono))
                 .assertNext(Assertions::assertTrue)
@@ -205,14 +213,14 @@ public class FeatureFlagServiceCETest {
 
         String tenantIdentifier = UUID.randomUUID().toString();
         Mono<CachedFeatures> cachedFeaturesMono =
-                cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantIdentifier);
+                cacheableFeatureFlagHelper.fetchCachedTenantFeatures(tenantIdentifier);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
         // Assert key is inserted in cache
         StepVerifier.create(cachedFeaturesMono.then(hasKeyMono))
                 .assertNext(Assertions::assertTrue)
                 .verifyComplete();
 
-        Mono<Void> evictCache = cacheableFeatureFlagHelper.evictCachedTenantNewFeatures(tenantIdentifier);
+        Mono<Void> evictCache = cacheableFeatureFlagHelper.evictCachedTenantFeatures(tenantIdentifier);
         hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
         // Assert key is evicted from cache
         StepVerifier.create(evictCache.then(hasKeyMono))
@@ -245,8 +253,58 @@ public class FeatureFlagServiceCETest {
                 .getRemoteFeaturesForTenant(any());
 
         String tenantIdentifier = UUID.randomUUID().toString();
+        Mono<Map<String, Boolean>> cachedFeaturesMono = featureFlagService.getTenantFeatures();
+        // Assert key is inserted in cache
+        StepVerifier.create(cachedFeaturesMono)
+                .assertNext(cachedFeatures -> {
+                    assertTrue(cachedFeatures.get(feature1));
+                    assertFalse(cachedFeatures.get(feature2));
+                })
+                .verifyComplete();
+
+        // Check after force update if we get updated values for existing features
+        Mono<CachedFeatures> updatedCacheMono = featureFlagService.forceUpdateTenantFeatures(tenantIdentifier);
+        // Assert if the cache entry is updated
+        StepVerifier.create(updatedCacheMono)
+                .assertNext(cachedFeatures -> {
+                    assertFalse(cachedFeatures.getFeatures().get(feature1));
+                    assertTrue(cachedFeatures.getFeatures().get(feature2));
+                    assertTrue(cachedFeatures.getFeatures().get(feature3));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void updateCachedTenantFeatures_withTenantIdentifier_cacheUpdates() {
+        // Insert dummy value for tenant flags
+        Map<String, Boolean> flags = new HashMap<>();
+        String feature1 = UUID.randomUUID().toString();
+        String feature2 = UUID.randomUUID().toString();
+        String feature3 = UUID.randomUUID().toString();
+
+        flags.put(feature1, true);
+        flags.put(feature2, false);
+        FeaturesResponseDTO featuresResponseDTO = new FeaturesResponseDTO();
+        featuresResponseDTO.setFeatures(flags);
+
+        FeaturesResponseDTO updatedFeaturesResponseDTO = new FeaturesResponseDTO();
+        Map<String, Boolean> updatedFlags = new HashMap<>();
+        updatedFlags.put(feature1, false);
+        updatedFlags.put(feature2, true);
+        updatedFlags.put(feature3, true);
+        updatedFeaturesResponseDTO.setFeatures(updatedFlags);
+
+        // Empty object is returned when CS API fails which is being mocked here
+        doReturn(
+                        Mono.just(featuresResponseDTO),
+                        Mono.just(updatedFeaturesResponseDTO),
+                        Mono.just(new FeaturesResponseDTO()))
+                .when(cacheableFeatureFlagHelper)
+                .getRemoteFeaturesForTenant(any());
+
+        String tenantIdentifier = UUID.randomUUID().toString();
         Mono<CachedFeatures> cachedFeaturesMono =
-                cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantIdentifier);
+                cacheableFeatureFlagHelper.fetchCachedTenantFeatures(tenantIdentifier);
         // Assert key is inserted in cache
         StepVerifier.create(cachedFeaturesMono)
                 .assertNext(cachedFeatures -> {
