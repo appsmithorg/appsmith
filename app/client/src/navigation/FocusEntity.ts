@@ -5,18 +5,25 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
   DATA_SOURCES_EDITOR_ID_PATH,
+  IDE_PAGE_JS_DETAIL_PATH,
+  IDE_PAGE_NAV_PATH,
+  IDE_PAGE_PATH,
   IDE_PAGE_QUERIES_DETAIL_PATH,
   IDE_PAGE_QUERIES_PATH,
   IDE_PAGE_UI_DETAIL_PATH,
+  IDE_PATH,
   INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
-import { SAAS_EDITOR_DATASOURCE_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
+import {
+  SAAS_EDITOR_API_ID_PATH,
+  SAAS_EDITOR_DATASOURCE_ID_PATH,
+} from "pages/Editor/SaaSEditor/constants";
 import { getQueryParamsFromString } from "utils/getQueryParamsObject";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { IDEAppState, PageNavState } from "../pages/IDE/ideReducer";
 
 export enum FocusEntity {
   PAGE = "PAGE",
@@ -189,4 +196,66 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     };
   }
   return { entity: FocusEntity.CANVAS, id: "", pageId: match.params.pageId };
+}
+
+export function identifyIDEEntityFromPath(path: string): FocusEntityInfo {
+  const ideStateMatch = matchPath<{ ideState?: IDEAppState }>(path, IDE_PATH);
+
+  if (ideStateMatch) {
+    const { ideState } = ideStateMatch.params;
+    if (ideState === IDEAppState.Page) {
+      const pageStateMatch = matchPath<{ pageId: string }>(path, IDE_PAGE_PATH);
+      if (pageStateMatch) {
+        const { pageId } = pageStateMatch.params;
+        const pageNavMatch = matchPath<{ pageNav: PageNavState }>(
+          path,
+          IDE_PAGE_NAV_PATH,
+        );
+        if (pageNavMatch) {
+          const { pageNav } = pageNavMatch.params;
+          if (pageNav === PageNavState.UI) {
+            const widgetsMatch = matchPath<{ widgetIds: string }>(
+              path,
+              IDE_PAGE_UI_DETAIL_PATH,
+            );
+            if (widgetsMatch) {
+              const { widgetIds } = widgetsMatch.params;
+              return {
+                entity: FocusEntity.PROPERTY_PANE,
+                pageId,
+                id: widgetIds,
+              };
+            }
+            return {
+              entity: FocusEntity.CANVAS,
+              pageId,
+              id: "",
+            };
+          } else if (pageNav === PageNavState.JS) {
+            const jsMatch = matchPath<{ collectionId: string }>(
+              path,
+              IDE_PAGE_JS_DETAIL_PATH,
+            );
+            return {
+              entity: FocusEntity.JS_OBJECT,
+              pageId,
+              id: jsMatch?.params.collectionId || "",
+            };
+          } else if (pageNav === PageNavState.QUERIES) {
+            const queryMatch = matchPath<{ actionId: string }>(
+              path,
+              IDE_PAGE_QUERIES_DETAIL_PATH,
+            );
+            return {
+              entity: FocusEntity.QUERY,
+              pageId,
+              id: queryMatch?.params.actionId || "",
+            };
+          }
+        }
+      }
+    }
+  }
+
+  return { entity: FocusEntity.NONE, id: "", pageId: "" };
 }

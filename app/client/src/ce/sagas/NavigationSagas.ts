@@ -1,6 +1,10 @@
 import { fork, put, select, call } from "redux-saga/effects";
 import type { RouteChangeActionPayload } from "actions/focusHistoryActions";
-import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import {
+  FocusEntity,
+  identifyEntityFromPath,
+  identifyIDEEntityFromPath,
+} from "navigation/FocusEntity";
 import log from "loglevel";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
@@ -37,7 +41,7 @@ export function* handleRouteChange(
       yield fork(logNavigationAnalytics, action.payload);
       yield fork(contextSwitchingSaga, pathname, previousPath, state);
       yield fork(appBackgroundHandler);
-      const entityInfo = identifyEntityFromPath(pathname);
+      const entityInfo = identifyIDEEntityFromPath(pathname);
       yield fork(updateRecentEntitySaga, entityInfo);
       yield fork(setSelectedWidgetsSaga, state?.invokedBy);
     }

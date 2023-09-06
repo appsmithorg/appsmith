@@ -8,6 +8,7 @@ import JSEditor from "./JSEditor";
 import PagePaneContainer from "../PagePaneContainer";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import { useIDEPageRecent } from "../../../hooks";
 
 type Props = RouteComponentProps<{
   appId: string;
@@ -31,8 +32,9 @@ function JSObjects(props: Props) {
       key: a.entity.id,
       type: a.type,
       icon: JsFileIconV2(16, 16),
-      selected: a.entity.id === collectionId,
     }));
+
+  const [sortedList] = useIDEPageRecent(toListActions, collectionId);
 
   const listItemClick = useCallback((a) => {
     history.push(
@@ -49,9 +51,10 @@ function JSObjects(props: Props) {
   return (
     <PagePaneContainer
       editor={editor}
-      listItems={toListActions}
+      listItems={sortedList}
       onAddClick={addItemClick}
       onListClick={listItemClick}
+      titleItemCounts={4}
     />
   );
 }

@@ -14,6 +14,7 @@ import history, { NavigationMethod } from "../../../../utils/history";
 import ApiEditor from "../../../Editor/APIEditor";
 import PagePaneContainer from "./PagePaneContainer";
 import { getPluginIcon } from "../../../Editor/Explorer/ExplorerIcons";
+import { useIDEPageRecent } from "../../hooks";
 
 type Props = RouteComponentProps<{
   appId: string;
@@ -75,8 +76,9 @@ const QuerySidebar = (props: Props) => {
     type: action.config.pluginType,
     pluginId: action.config.pluginId,
     icon: getPluginIcon(pluginGroups[action.config.pluginId]),
-    selected: action.config.id === actionId,
   }));
+
+  const [sortedActionList] = useIDEPageRecent(toListActions, actionId);
 
   const listItemClick = useCallback(
     (a: { type?: PluginType; key: string; pluginId: string; name: string }) => {
@@ -118,11 +120,12 @@ const QuerySidebar = (props: Props) => {
     <PagePaneContainer
       addItems={addOperations}
       editor={editor}
-      listItems={toListActions}
+      listItems={sortedActionList}
       onAddClick={addItemClick}
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       onListClick={listItemClick}
+      titleItemCounts={4}
     />
   );
 };
