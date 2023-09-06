@@ -3,12 +3,6 @@ name: Appsmith CI Test Workflow
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
-    inputs:
-      pr:
-        description: "This is the PR number in case the workflow is being called in a pull request"
-        required: false
-        type: number
-        default: 0
   workflow_call:
     inputs:
       pr:
@@ -143,15 +137,15 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
 
-      # - name: Download Docker image artifact
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: cicontainer
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: cicontainer
 
-      # - name: Load Docker image from tar file
-      #   run: |
-      #     gunzip cicontainer.tar.gz
-      #     docker load -i cicontainer.tar
+      - name: Load Docker image from tar file
+        run: |
+          gunzip cicontainer.tar.gz
+          docker load -i cicontainer.tar
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
@@ -206,7 +200,7 @@ jobs:
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
-            appsmith/appsmith-ce:release
+            cicontainer
 
       - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
