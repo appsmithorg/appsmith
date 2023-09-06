@@ -127,7 +127,7 @@ public class UpdateMany extends MongoCommand {
                 + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return Collections.singletonList(new DatasourceStructure.Template("Update", null, configMap));
+        return Collections.singletonList(new DatasourceStructure.Template("Update", null, configMap, false));
     }
 
     /**

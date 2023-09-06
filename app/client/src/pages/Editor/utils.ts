@@ -1,5 +1,4 @@
-import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
-import _, { debounce, random } from "lodash";
+import { debounce, random } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 import { useLocation } from "react-router";
@@ -10,7 +9,7 @@ import type {
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import ResizeObserver from "resize-observer-polyfill";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   createMessage,
   WIDGET_DEPRECATION_MESSAGE,
@@ -205,42 +204,10 @@ const createDragHandler = (
 };
 
 // Function to access nested property in an object
-const getNestedValue = (obj: Record<string, any>, path = "") => {
+export const getNestedValue = (obj: Record<string, any>, path = "") => {
   return path.split(".").reduce((prev, cur) => {
     return prev && prev[cur];
   }, obj);
-};
-
-export const useIsWidgetActionConnectionPresent = (
-  widgets: any,
-  actions: any,
-  deps: any,
-): boolean => {
-  const actionLables = actions.map((action: any) => action.config.name);
-
-  let isBindingAvailable = !!Object.values(widgets).find((widget: any) => {
-    const depsConnections = getDependenciesFromInverseDependencies(
-      deps,
-      widget.widgetName,
-    );
-    return !!_.intersection(depsConnections?.directDependencies, actionLables)
-      .length;
-  });
-
-  if (!isBindingAvailable) {
-    isBindingAvailable = !!Object.values(widgets).find((widget: any) => {
-      return (
-        widget.dynamicTriggerPathList &&
-        !!widget.dynamicTriggerPathList.find((path: { key: string }) => {
-          return !!actionLables.find((label: string) => {
-            const snippet = getNestedValue(widget, path.key);
-            return snippet ? snippet.indexOf(`${label}.run`) > -1 : false;
-          });
-        })
-      );
-    });
-  }
-  return isBindingAvailable;
 };
 
 export const useQuery = () => {

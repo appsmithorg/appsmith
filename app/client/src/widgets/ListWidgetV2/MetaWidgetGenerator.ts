@@ -12,7 +12,7 @@ import isEqual from "fast-deep-equal/es6";
 
 import Queue from "./Queue";
 import { extractTillNestedListWidget } from "./widget/helper";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { generateReactKey } from "utils/generators";
 import {
   GridDefaults,
@@ -34,7 +34,7 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 
 type TemplateWidgets =
   ListWidgetProps<WidgetProps>["flattenedChildCanvasWidgets"];

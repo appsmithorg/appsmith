@@ -15,19 +15,13 @@ import {
   SNIPING_SELECT_WIDGET_AGAIN,
 } from "@appsmith/constants/messages";
 
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { setSnipingMode } from "actions/propertyPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
-import {
-  AB_TESTING_EVENT_KEYS,
-  FEATURE_FLAG,
-} from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import type { PropertyUpdates } from "widgets/constants";
+import type { PropertyUpdates } from "WidgetProvider/constants";
 
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{
@@ -41,10 +35,6 @@ export function* bindDataToWidgetSaga(
     ),
   );
   const widgetState: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
-  const isDSBindingEnabled: boolean = yield select(
-    selectFeatureFlagCheck,
-    FEATURE_FLAG.ab_ds_binding_enabled,
-  );
   const selectedWidget = widgetState[action.payload.widgetId];
 
   if (!selectedWidget || !selectedWidget.type) {
@@ -78,9 +68,6 @@ export function* bindDataToWidgetSaga(
       apiId: queryId,
       propertyPath: updates?.map((update) => update.propertyPath).toString(),
       propertyValue: updates?.map((update) => update.propertyPath).toString(),
-      [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-        FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
-      [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isDSBindingEnabled,
     });
   } else {
     isValidProperty = false;

@@ -93,7 +93,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     assertHelper.AssertNetworkStatus("@getActions", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
 

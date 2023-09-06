@@ -34,9 +34,8 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     agHelper.AssertContains("Successfully generated a page");
     //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
     assertHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
+    agHelper.ClickButton("Got it");
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
     table.WaitUntilTableLoad(0, 0, "v2");
 
     //CRUD page 3
@@ -53,11 +52,11 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     agHelper.AssertContains("Successfully generated a page");
     //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
     assertHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
+    agHelper.ClickButton("Got it");
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
     table.WaitUntilTableLoad(0, 0, "v2");
   });
+
   it("2. Navigate & Assert toast", () => {
     //Navigating between CRUD (Page3) & EmptyPage (Page2):
     entityExplorer.SelectEntityByName("Page1");
