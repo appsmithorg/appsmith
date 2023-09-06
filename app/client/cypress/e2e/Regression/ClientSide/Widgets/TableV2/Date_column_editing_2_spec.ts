@@ -30,7 +30,6 @@ describe("Table widget date column inline editing functionality", () => {
 
   it("2. should check min date and max date property control functionality", () => {
     entityExplorer.SelectEntityByName("Table1");
-    table.EditColumn("release_date", "v2");
     propPane.TogglePropertyState("Editable", "On");
     agHelper.AssertElementExist(
       propPane._propertyPanePropertyControl("validation", "mindate"),
