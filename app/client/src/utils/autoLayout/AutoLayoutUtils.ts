@@ -34,7 +34,7 @@ import { getWidgetWidth } from "./flexWidgetUtils";
 import type { DSLWidget } from "widgets/constants";
 import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
 import WidgetFactory from "utils/WidgetFactory";
-import { isFunction } from "lodash";
+import { isEmpty, isFunction } from "lodash";
 
 export type ReadableSnapShotDetails = {
   timeSince: string;
@@ -190,8 +190,10 @@ export function alterLayoutForDesktop(
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
-  const children = parent.children;
-
+  const children = parent?.children;
+  if (isEmpty(widgets)) {
+    return widgets;
+  }
   if (!isStack(allWidgets, parent)) {
     return widgets;
   }
