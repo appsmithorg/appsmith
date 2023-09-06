@@ -24,6 +24,7 @@ export const FEATURE_FLAG = {
   license_sso_oidc_enabled: "license_sso_oidc_enabled",
   deprecate_custom_fusioncharts_enabled:
     "deprecate_custom_fusioncharts_enabled",
+  license_session_limit_enabled: "license_session_limit_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -50,6 +51,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_sso_saml_enabled: false,
   license_sso_oidc_enabled: false,
   deprecate_custom_fusioncharts_enabled: false,
+  license_session_limit_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
