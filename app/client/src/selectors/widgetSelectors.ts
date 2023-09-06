@@ -4,7 +4,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getExistingWidgetNames } from "sagas/selectors";
+import { getExistingWidgetNames, getIsMobileBreakPoint } from "sagas/selectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -13,14 +13,24 @@ import {
   getLastSelectedWidget,
   getSelectedWidgets,
 } from "./ui";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { RenderModes } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { get } from "lodash";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 import { getIsPropertyPaneVisible } from "./propertyPaneSelectors";
-import { previewModeSelector } from "./editorSelectors";
+import {
+  getAppPositioningType,
+  getRenderMode,
+  previewModeSelector,
+} from "./editorSelectors";
+import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { getLayoutSystem } from "layoutSystems/withLayoutSystemHOC";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -227,4 +237,50 @@ export const isResizingOrDragging = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isResizing,
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   (isResizing, isDragging) => !!isResizing || !!isDragging,
+);
+
+function buildFlattenedChildCanvasWidgets(
+  canvasWidgets: CanvasWidgetsReduxState,
+  renderMode: RenderModes,
+  appPositioningType: AppPositioningTypes,
+  isMobile: boolean,
+  parentWidgetId: string,
+  flattenedChildCanvasWidgets: Record<string, FlattenedWidgetProps> = {},
+) {
+  const parentWidget = canvasWidgets[parentWidgetId];
+  const { propertyEnhancer } = getLayoutSystem(renderMode, appPositioningType);
+  parentWidget?.children?.forEach((childId) => {
+    const childWidget = canvasWidgets[childId];
+    flattenedChildCanvasWidgets[childId] = propertyEnhancer({
+      ...childWidget,
+      isMobile,
+      parentRowSpace: childWidget.parentRowSpace
+        ? childWidget.parentRowSpace
+        : childWidget.type === "CANVAS_WIDGET"
+        ? 1
+        : GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    });
+
+    buildFlattenedChildCanvasWidgets(
+      canvasWidgets,
+      renderMode,
+      appPositioningType,
+      isMobile,
+      childId,
+      flattenedChildCanvasWidgets,
+    );
+  });
+
+  return flattenedChildCanvasWidgets;
+}
+
+export const getFlattenedChildCanvasWidgets = createSelector(
+  [
+    getCanvasWidgets,
+    getRenderMode,
+    getAppPositioningType,
+    getIsMobileBreakPoint,
+    (_state: AppState, parentWidgetId: string) => parentWidgetId,
+  ],
+  buildFlattenedChildCanvasWidgets,
 );
