@@ -274,6 +274,9 @@ export class DataSources {
   _graphQlDsFromRightPane = (dsName: string) =>
     "//div/span[text() ='" + dsName + "']";
 
+  private _dsVirtuosoElement = (dsName: string) =>
+    `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`;
+
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
     else if (mode == "View") this.agHelper.AssertElementExist(this._editButton);
@@ -1871,28 +1874,32 @@ export class DataSources {
   ) {
     this.entityExplorer.ExpandCollapseEntity("Datasources");
     this.entityExplorer.ExpandCollapseEntity(dsName);
+    cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+      "getDatasourceStructureUpdated",
+    );
     this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
     });
 
     this.assertHelper
-      .WaitForNetworkCall("@getDatasourceStructure")
+      .WaitForNetworkCall("@getDatasourceStructureUpdated")
       .then(async (interception) => {
         const tables: any[] = interception?.response?.body.data?.tables || [];
         const indexOfTable = tables.findIndex(
           (table) => table.name === targetTableName,
         );
         if (absence) {
-          cy.wrap(indexOfTable).should("eq", -1);
+          expect(indexOfTable).to.equal(-1);
         } else {
           this.agHelper.Sleep();
           this.agHelper
-            .GetNClick(
-              `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container [data-test-id="virtuoso-item-list"]`,
-            )
-            .then((containerElement) => {
-              // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element is collapsed by default.
+            .GetNClick(this._dsVirtuosoElement(dsName))
+            .then((parentElement) => {
+              // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element accordion is collapsed by default.
+              const containerElement = parentElement.find(
+                '[data-test-id="virtuoso-item-list"]',
+              );
               const elementHeight = parseInt(
                 containerElement.children().first().attr("data-known-size") ||
                   "",
@@ -1904,7 +1911,7 @@ export class DataSources {
               const totalScroll = tables.length * elementHeight;
               const scrollPercent = (offset / (totalScroll || 1)) * 100;
               this.agHelper.ScrollToXY(
-                `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`,
+                this._dsVirtuosoElement(dsName),
                 0,
                 `${scrollPercent}%`,
               );
