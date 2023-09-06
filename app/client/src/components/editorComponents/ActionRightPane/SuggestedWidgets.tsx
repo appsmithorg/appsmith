@@ -49,7 +49,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import localStorage from "utils/localStorage";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import type { WidgetType } from "utils/WidgetFactory";
+import type { WidgetType } from "constants/WidgetConstants";
 
 const BINDING_GUIDE_GIF = `${ASSETS_CDN_URL}/binding.gif`;
 

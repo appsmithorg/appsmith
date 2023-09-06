@@ -125,7 +125,7 @@ export type GetPropertyUpdatesForQueryBinding = (
 type SnipingModeSupportedKeys = "data" | "run" | "isDynamicPropertyPath";
 
 export type GetSnipingModeUpdates = (
-  propValueMap: Record<SnipingModeSupportedKeys, string>,
+  propValueMap: Record<SnipingModeSupportedKeys, string | boolean>,
 ) => Array<PropertyUpdates>;
 
 export type GetCanvasHeightOffset = (widgetProps: WidgetProps) => number;
@@ -400,7 +400,10 @@ export type ThemeProp = {
   theme: Theme;
 };
 
-export type SnipingModeProperty = Record<SnipingModeSupportedKeys, string>;
+export type SnipingModeProperty = Record<
+  SnipingModeSupportedKeys,
+  string | boolean
+>;
 
 export enum DefaultMobileCameraTypes {
   FRONT = "user",
