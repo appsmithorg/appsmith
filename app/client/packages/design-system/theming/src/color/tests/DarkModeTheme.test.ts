@@ -134,6 +134,6 @@ describe("@design-system/theming/color/DarkModeTheme", () => {
     const { bgAssistive: bgAssistive1 } = new DarkModeTheme(
       "oklch(0.95 0.03 170)",
     ).getColors();
-    expect(bgAssistive1).toBe("rgb(5.1758% 5.1758% 5.1759%)");
+    expect(bgAssistive1).toBe("rgb(92.148% 92.148% 92.148%)");
   });
 });
