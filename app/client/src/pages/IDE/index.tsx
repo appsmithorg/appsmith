@@ -16,6 +16,10 @@ import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErro
 import TemplatesModal from "../Templates/TemplatesModal";
 import ImportedApplicationSuccessModal from "../Editor/gitSync/ImportedAppSuccessModal";
 import ReconnectDatasourceModal from "../Editor/gitSync/ReconnectDatasourceModal";
+import { resetEditorRequest } from "actions/initActions";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { getIsEditorInitialized } from "selectors/editorSelectors";
+import { Spinner } from "design-system";
 
 const Body = styled.div<{ leftPaneWidth: number }>`
   height: calc(100vh - 40px);
@@ -33,11 +37,25 @@ const IDE = function () {
     editorInitializer().then(() => {
       dispatch(widgetInitialisationSuccess());
     });
+
+    return () => {
+      dispatch(resetEditorRequest());
+    };
   }, []);
   const currentApplicationName = useSelector(
     (state) => state.ui.applications.currentApplication?.name,
   );
+  const isEditorInitialized = useSelector(getIsEditorInitialized);
   const leftPaneWidth = useSelector(getIdeSidebarWidth);
+
+  if (!isEditorInitialized) {
+    return (
+      <CenteredWrapper style={{ height: `calc(100vh - 40px})` }}>
+        <Spinner size="lg" />
+      </CenteredWrapper>
+    );
+  }
+
   return (
     <div>
       <Helmet>
