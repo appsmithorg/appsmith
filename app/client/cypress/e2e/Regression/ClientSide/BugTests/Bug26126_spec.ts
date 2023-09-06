@@ -3,7 +3,7 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Fix DS button disability", function () {
+describe("Bug 26126: Fix DS button disability", function () {
   it("ensures save button is correctly updated when DS required fields change", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("S3");
