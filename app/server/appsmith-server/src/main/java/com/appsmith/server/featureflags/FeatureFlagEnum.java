@@ -20,6 +20,7 @@ public enum FeatureFlagEnum {
     TEST_FEATURE_1,
     TEST_FEATURE_2,
     TEST_FEATURE_3,
+    TENANT_TEST_FEATURE,
     // ------------------- End of features for testing -------------------------------------------------------------- //
 
     // ------------------- These are actual feature flags meant to be used across the product ----------------------- //
@@ -43,4 +44,14 @@ public enum FeatureFlagEnum {
      * feature flag for making connection pool sizes for plugins manually configurable
      */
     release_connection_pool_size,
+
+    /**
+     * Feature flag to enable the audit log functionality
+     */
+    license_audit_logs_enabled,
+
+    /**
+     * Flag to detect if unlimited private repos are supported for the tenant
+     */
+    license_git_unlimited_repo_enabled,
 }
