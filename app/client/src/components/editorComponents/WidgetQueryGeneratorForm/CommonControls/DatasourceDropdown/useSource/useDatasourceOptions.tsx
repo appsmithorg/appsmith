@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import type { DropdownOptionType } from "../../../types";
 import {
@@ -31,20 +31,18 @@ import {
 } from "selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
 
 interface DatasourceOptionsProps {
-  updateConfig: (
-    property: string | Record<string, unknown>,
-    value?: unknown,
-  ) => void;
   widget: WidgetProps;
-  propertyName: string;
-  config: Record<string, unknown>;
   pluginImages: Record<string, string>;
 }
 
 function useDatasourceOptions(props: DatasourceOptionsProps) {
-  const { config, pluginImages, propertyName, updateConfig, widget } = props;
+  const { config, propertyName, updateConfig } = useContext(
+    WidgetQueryGeneratorFormContext,
+  );
+  const { pluginImages, widget } = props;
   const dispatch = useDispatch();
   const datasources: Datasource[] = useSelector(getDatasources);
   const pluginsPackageNamesMap = useSelector(getPluginIdPackageNamesMap);

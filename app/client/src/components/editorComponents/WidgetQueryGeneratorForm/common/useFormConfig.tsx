@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { WidgetQueryGeneratorFormContext } from "..";
 import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns";
 
@@ -30,6 +30,16 @@ export function useFormConfig() {
     }
   })();
 
+  const selectedColumns = useMemo(() => {
+    if (!config.selectedColumns || !config.selectedColumns?.length) {
+      return columns?.filter((column) => column.isSelected);
+    } else {
+      return columns?.filter((column) => {
+        return config.selectedColumns?.includes(column.name);
+      });
+    }
+  }, [config.selectedColumns, columns]);
+
   return {
     tableName: config.table,
     sheetName: config.sheet,
@@ -37,7 +47,7 @@ export function useFormConfig() {
     widgetId: widgetId,
     tableHeaderIndex: config.tableHeaderIndex,
     searchableColumn,
-    columns: columns.filter((column) => column.isSelected),
+    columns: selectedColumns,
     primaryColumn: getPrimaryKey(),
     connectionMode: config.datasourceConnectionMode,
     aliases: Object.entries(config.alias).map(([key, value]) => ({

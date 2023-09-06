@@ -53,18 +53,13 @@ function getDropdownConstants(variant?: string) {
 
 export function useSource(searchText: string) {
   const {
-    addBinding,
     config,
     datasourceDropdownVariant,
     errorMsg,
-    expectedType,
-    isConnectableToWidget,
     isSourceOpen,
     onSourceClose,
-    propertyName,
     propertyValue,
     sampleData,
-    updateConfig,
     widgetId,
   } = useContext(WidgetQueryGeneratorFormContext);
 
@@ -74,33 +69,17 @@ export function useSource(searchText: string) {
 
   const constants = getDropdownConstants(datasourceDropdownVariant);
 
-  const canWriteSchema =
-    datasourceDropdownVariant === DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS;
-
   const { datasourceOptions } = useDatasourceOptions({
-    config,
     pluginImages,
-    propertyName,
-    updateConfig,
     widget,
   });
 
   const { queryOptions, widgetOptions } = useConnectToOptions({
-    addBinding,
-    expectedType,
-    isConnectableToWidget,
     pluginImages,
-    propertyName,
-    updateConfig,
     widget,
   });
 
   const otherOptions = useOtherOptions({
-    addBinding,
-    canWriteSchema,
-    propertyName,
-    sampleData,
-    updateConfig,
     widget,
   });
 

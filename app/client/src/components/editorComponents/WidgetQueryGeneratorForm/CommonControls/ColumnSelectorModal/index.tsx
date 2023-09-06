@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   Button,
   Checkbox,
@@ -12,7 +12,6 @@ import {
 } from "design-system";
 import { EditFieldsButton } from "../../styles";
 import styled from "styled-components";
-import { klona } from "klona/json";
 import { useColumns } from "../../WidgetSpecificControls/ColumnDropdown/useColumns";
 import {
   CANCEL_DIALOG,
@@ -65,56 +64,67 @@ const FlexWrapper = styled.div<{ disabled?: boolean }>`
 `;
 
 export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
-  const { primaryColumn, columns: data = [] } = useColumns("", false);
+  const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
+  const { columns: data, primaryColumn } = useColumns("", false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [updatedData, setUpdatedData] = useState<any>([]);
-  const [saveDisabled, setSaveDisabled] = useState(false);
-  const { updateConfig } = useContext(WidgetQueryGeneratorFormContext);
+  const [originalColumns, setOriginalColumns] = useState<string[]>([]); // to reset the selected columns on cancel
+  const [selectedColumns, setSelectedColumns] = useState<string[]>([]); // to update the selected columns on save
 
   useEffect(() => {
-    const clonedData = klona(data);
-    setUpdatedData(clonedData);
-  }, [data]);
+    if (data) {
+      const initialSelectedColumns =
+        config?.selectedColumns && config?.selectedColumns.length > 0
+          ? config.selectedColumns
+          : data
+              .filter((column: any) => column.isSelected)
+              .map((column: any) => column.name);
+      setSelectedColumns(initialSelectedColumns);
+      setOriginalColumns(initialSelectedColumns);
+    }
+  }, [data, config]);
 
-  useEffect(() => {
-    const isSaveDisabled = updatedData?.every(
-      (column: any) => !column.isSelected,
-    );
-    setSaveDisabled(isSaveDisabled);
+  const updatedData = useMemo(() => {
+    return data?.map((column: any) => {
+      return {
+        ...column,
+        isSelected: selectedColumns?.includes(column.name),
+      };
+    });
+  }, [data, selectedColumns]);
+
+  const isSaveDisabled = useMemo(() => {
+    return updatedData?.every((column: any) => !column.isSelected);
   }, [updatedData]);
 
-  const setIsOpen = (isOpen: boolean) => {
-    setIsModalOpen(isOpen);
-  };
-
-  const onOpenChange = (isOpen: boolean) => {
-    setIsOpen(isOpen);
-  };
-
-  const handleSelect = (row: any) => {
+  const handleSelect = (row: any, isSelected: boolean) => {
     if (row) {
       const col = row.original;
-      const updateColumn = updatedData.find(
-        (column: any) => column.name === col.name,
-      );
-      if (updateColumn) {
-        updateColumn.isSelected = !updateColumn.isSelected;
-        const clonedData = klona(updatedData);
-        setUpdatedData(clonedData);
-        return;
-      }
+      setSelectedColumns((prevSelectedColumns) => {
+        if (isSelected) {
+          return [...prevSelectedColumns, col.name];
+        } else {
+          return prevSelectedColumns.filter((name) => name !== col.name);
+        }
+      });
     }
   };
 
   const onCancel = () => {
-    const clonedData = klona(data);
-    setUpdatedData(clonedData);
-    setIsOpen(false);
+    setSelectedColumns(originalColumns);
+    setIsModalOpen(false);
   };
 
   const handleSave = () => {
-    updateConfig("selectedColumns", updatedData);
-    setIsOpen(false);
+    updateConfig("selectedColumns", selectedColumns);
+    setOriginalColumns(selectedColumns);
+    setIsModalOpen(false);
+  };
+
+  const handleModalState = (isOpen: boolean) => {
+    setIsModalOpen(isOpen);
+    if (!isOpen) {
+      onCancel();
+    }
   };
 
   const columns = [
@@ -130,7 +140,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
               data-column-id={`t--edit-field-${row.original.name}`}
               isDisabled={isDisabled}
               isSelected={row.original.isSelected}
-              onChange={() => handleSelect(row)}
+              onChange={(isSelected) => handleSelect(row, isSelected)}
             />
             <ColumnText>{row.original.name}</ColumnText>
           </FlexWrapper>
@@ -155,7 +165,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
             data-testid="t--edit-fields-button"
             isDisabled={isDisabled}
             kind="tertiary"
-            onClick={() => setIsOpen(true)}
+            onClick={() => setIsModalOpen(true)}
             startIcon="edit-2-line"
           >
             {createMessage(EDIT_FIELDS)}
@@ -163,7 +173,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
         </span>
       </Tooltip>
       <Modal
-        onOpenChange={(isOpen) => isModalOpen && onOpenChange(isOpen)}
+        onOpenChange={(isOpen) => handleModalState(isOpen)}
         open={isModalOpen}
       >
         <ModalContent style={{ width: "640px" }}>
@@ -199,7 +209,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
             </Button>
             <Tooltip
               content={
-                saveDisabled
+                isSaveDisabled
                   ? createMessage(SAVE_CHANGES_DISABLED_TOOLTIP_TEXT)
                   : null
               }
@@ -207,7 +217,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
               <span>
                 <Button
                   data-testid="t--edit-fields-save-btn"
-                  isDisabled={saveDisabled}
+                  isDisabled={isSaveDisabled}
                   onClick={handleSave}
                   size="md"
                 >

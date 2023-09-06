@@ -134,7 +134,7 @@ export function useColumns(alias: string, isSearcheable: boolean) {
         !!config.sheet) &&
       !!config.table,
     primaryColumn,
-    columns: config.selectedColumns || columnList,
+    columns: columnList,
     disabled: isConnecting,
     onClear,
   };

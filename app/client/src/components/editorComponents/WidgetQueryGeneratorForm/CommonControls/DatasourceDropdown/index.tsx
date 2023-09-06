@@ -92,8 +92,6 @@ function DatasourceDropdown() {
     setOpen(isSourceOpen);
   }, [isSourceOpen]);
 
-  // const [showMoreQueries, setShowMoreQueries] = useState(false);
-
   const [showMoreDataSources, setShowMoreDataSources] = useState(false);
 
   const [showMoreConnectToOptions, setShowMoreConnectToOptions] =

@@ -1,9 +1,9 @@
+import React, { useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
   getActionsForCurrentPage,
   getCurrentPageWidgets,
 } from "selectors/entitiesSelector";
-import React, { useMemo } from "react";
 import WidgetFactory from "utils/WidgetFactory";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DatasourceImage, ImageWrapper } from "../../../styles";
@@ -11,6 +11,7 @@ import { getDatatype } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { DropdownOptionType } from "../../../types";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -58,29 +59,21 @@ function sortQueries(queries: ActionDataState, expectedDatatype: string) {
 }
 
 interface ConnectToOptionsProps {
-  addBinding: (binding?: string, makeDynamicPropertyPath?: boolean) => void;
-  expectedType: string;
   pluginImages: Record<string, string>;
-  updateConfig: (
-    property: string | Record<string, unknown>,
-    value?: unknown,
-  ) => void;
   widget: WidgetProps;
-  propertyName: string;
-  isConnectableToWidget?: boolean;
 }
 
 function useQueryOptions(props: ConnectToOptionsProps) {
-  const queries = useSelector(getActionsForCurrentPage);
   const {
     addBinding,
     expectedType,
     isConnectableToWidget,
-    pluginImages,
     propertyName,
     updateConfig,
-    widget,
-  } = props;
+  } = useContext(WidgetQueryGeneratorFormContext);
+
+  const queries = useSelector(getActionsForCurrentPage);
+  const { pluginImages, widget } = props;
 
   const queryOptions = useMemo(() => {
     return sortQueries(queries, expectedType).map((query) => ({

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import { Icon } from "design-system";
 import history from "utils/history";
 import { integrationEditorURL } from "RouteBuilder";
@@ -12,29 +12,25 @@ import {
   createMessage,
   DATASOURCE_DROPDOWN_OPTIONS,
 } from "@appsmith/constants/messages";
+import { DROPDOWN_VARIANT } from "components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
+import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
 
 interface OtherOptionsProps {
-  sampleData: string;
-  addBinding: (binding?: string, makeDynamicPropertyPath?: boolean) => void;
-  updateConfig: (
-    property: string | Record<string, unknown>,
-    value?: unknown,
-  ) => void;
   widget: WidgetProps;
-  propertyName: string;
-  canWriteSchema: boolean;
 }
 
 function useOtherOptions(props: OtherOptionsProps) {
-  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
   const {
     addBinding,
-    canWriteSchema,
+    datasourceDropdownVariant,
     propertyName,
     sampleData,
     updateConfig,
-    widget,
-  } = props;
+  } = useContext(WidgetQueryGeneratorFormContext);
+  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+  const canWriteSchema =
+    datasourceDropdownVariant === DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS;
+  const { widget } = props;
   const otherOptions = useMemo(() => {
     const options = [
       {
