@@ -123,8 +123,6 @@ export function ModalOverlayLayer(props: BaseWidgetProps) {
       },
     });
     dispatch(selectWidgetInitAction(SelectionRequestType.Empty));
-    // TODO(abhinav): Create a static property with is a map of widget properties
-    // Populate the map on widget load
     e.stopPropagation();
     e.preventDefault();
   };
