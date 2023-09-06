@@ -4,7 +4,9 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.featureflags.CachedFeatures;
+import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
@@ -100,7 +102,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
         // Combine local flags, remote flags, and tenant features, and merge them into a single map
         return localFlagsForUser.flatMap(localFlags -> this.getAllRemoteFeatureFlagsForUser()
-                .zipWith(this.getCurrentTenantFeatures())
+                .zipWith(this.getTenantFeatures())
                 .map(remoteAndTenantFlags -> {
                     Map<String, Boolean> combinedFlags = new HashMap<>(localFlags);
                     combinedFlags.putAll(remoteAndTenantFlags.getT1());
@@ -130,7 +132,17 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                             return cacheableFeatureFlagHelper
                                     .evictUserCachedFlags(userIdentifier)
                                     .then(cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier, user))
-                                    .flatMap(cachedFlagsUpdated -> Mono.just(cachedFlagsUpdated.getFlags()));
+                                    .flatMap(cachedFlagsUpdated -> {
+                                        // In case the retrieval of the latest flags from CS encounters an error, the
+                                        // previous flags will serve as a fallback value.
+                                        if (cachedFlagsUpdated == null
+                                                || CollectionUtils.isNullOrEmpty(cachedFlagsUpdated.getFlags())) {
+                                            return cacheableFeatureFlagHelper
+                                                    .updateUserCachedFlags(userIdentifier, cachedFlags)
+                                                    .map(CachedFlags::getFlags);
+                                        }
+                                        return Mono.just(cachedFlagsUpdated.getFlags());
+                                    });
                         }
                     });
         });
@@ -144,7 +156,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         return tenantService
                 .getDefaultTenantId()
                 .flatMap(defaultTenantId -> cacheableFeatureFlagHelper
-                        .fetchCachedTenantNewFeatures(defaultTenantId)
+                        .fetchCachedTenantFeatures(defaultTenantId)
                         .flatMap(cachedFeatures -> {
                             if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
                                     < this.tenantFeaturesCacheTimeMin) {
@@ -159,25 +171,35 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     /**
      * Method to force update the tenant level feature flags. This will be utilised in scenarios where we don't want
      * to wait for the flags to get updated for cron scheduled time
+     *
      * @param tenantId  tenant for which the features need to be updated
      * @return          Cached features
      */
     @Override
     public Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId) {
+        // In case the retrieval of the latest flags from CS encounters an error, the previous flags will serve as a
+        // fallback value.
         return cacheableFeatureFlagHelper
-                .evictCachedTenantNewFeatures(tenantId)
-                .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantId));
+                .fetchCachedTenantFeatures(tenantId)
+                .flatMap(cachedFeatures -> cacheableFeatureFlagHelper
+                        .evictCachedTenantFeatures(tenantId)
+                        .then(cacheableFeatureFlagHelper.fetchCachedTenantFeatures(tenantId))
+                        .flatMap(features -> {
+                            if (CollectionUtils.isNullOrEmpty(features.getFeatures())) {
+                                return cacheableFeatureFlagHelper.updateCachedTenantFeatures(tenantId, cachedFeatures);
+                            }
+                            return Mono.just(features);
+                        }));
     }
 
     /**
      * To get all features of the current tenant.
      * @return Mono of Map
      */
-    public Mono<Map<String, Boolean>> getCurrentTenantFeatures() {
+    public Mono<Map<String, Boolean>> getTenantFeatures() {
         return tenantService
                 .getDefaultTenantId()
-                // TODO: Update to call fetchCachedTenantCurrentFeatures once default value storing is complete
-                .flatMap(cacheableFeatureFlagHelper::fetchCachedTenantNewFeatures)
+                .flatMap(cacheableFeatureFlagHelper::fetchCachedTenantFeatures)
                 .map(CachedFeatures::getFeatures);
     }
 }
