@@ -8,6 +8,14 @@ import JSEditor from "./JSEditor";
 import PagePaneContainer from "../PagePaneContainer";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import { getIdeSidebarWidth } from "pages/IDE/ideSelector";
+import styled from "styled-components";
+
+const Wrapper = styled.div<{ width: number }>`
+  height: 100%;
+  width: ${(props) => props.width}px;
+  overflow: hidden;
+`;
 
 type Props = RouteComponentProps<{
   appId: string;
@@ -17,6 +25,7 @@ type Props = RouteComponentProps<{
 
 function JSObjects(props: Props) {
   const { collectionId, pageId } = props.match.params;
+  const leftPaneWidth = useSelector(getIdeSidebarWidth);
   const dispatch = useDispatch();
   const addItemClick = useCallback(() => {
     dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
@@ -44,7 +53,13 @@ function JSObjects(props: Props) {
     );
   }, []);
 
-  const editor = collectionId ? <JSEditor /> : <div />;
+  const editor = collectionId ? (
+    <Wrapper width={leftPaneWidth}>
+      <JSEditor />
+    </Wrapper>
+  ) : (
+    <div />
+  );
 
   return (
     <PagePaneContainer
