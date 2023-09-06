@@ -21,6 +21,14 @@ import {
 import type { UIElementSize } from "./ResizableUtils";
 const minSize = 100;
 
+/**
+ * ModalResizableLayer
+ *
+ * Component that enhances props suplied to ModalResizable
+ * Provides widget specific implementations of onStart and onStop props of ModalResizable.
+ *
+ */
+
 export const ModalResizableLayer = (props: BaseWidgetProps) => {
   const { updateWidget } = useContext(EditorContext);
   const widget = useSelector(getWidgetByID(props.widgetId));

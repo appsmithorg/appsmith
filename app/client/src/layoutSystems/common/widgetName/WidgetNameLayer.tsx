@@ -1,17 +1,7 @@
 import WidgetNameComponent from "layoutSystems/common/widgetName";
-import { memoize } from "lodash";
 import React from "react";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { getErrorCount } from "./utils";
 
-const getErrorCount = memoize(
-  (evalErrors: Record<string, EvaluationError[]>) => {
-    return Object.values(evalErrors).reduce(
-      (prev, curr) => curr.length + prev,
-      0,
-    );
-  },
-  JSON.stringify,
-);
 type WidgetNameLayerProps = {
   disablePropertyPane?: boolean;
   children: any;
@@ -23,6 +13,7 @@ type WidgetNameLayerProps = {
   widgetName: string;
   componentWidth: number;
   evalErrorsObj: Record<any, any>;
+  showControls?: boolean;
 };
 
 export const WidgetNameLayer = (props: WidgetNameLayerProps) => {
@@ -31,7 +22,7 @@ export const WidgetNameLayer = (props: WidgetNameLayerProps) => {
       <WidgetNameComponent
         errorCount={getErrorCount(props.evalErrorsObj)}
         parentId={props.parentId}
-        showControls={props.type === "MODAL_WIDGET"}
+        showControls={!!props.showControls}
         topRow={props.detachFromLayout ? 4 : props.topRow}
         type={props.type}
         widgetId={props.widgetId}

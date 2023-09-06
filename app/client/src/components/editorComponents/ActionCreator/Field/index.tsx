@@ -217,6 +217,7 @@ export function Field(props: FieldProps) {
         },
         value: value,
         additionalAutoComplete: props.additionalAutoComplete,
+        dataTreePath: props.dataTreePath,
       });
       break;
     case FieldType.CALLBACK_FUNCTION_API_AND_QUERY:
@@ -235,6 +236,7 @@ export function Field(props: FieldProps) {
         },
         value: value,
         additionalAutoComplete: props.additionalAutoComplete,
+        dataTreePath: props.dataTreePath,
       });
       break;
     default:

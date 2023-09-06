@@ -8,6 +8,15 @@ import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import { get } from "lodash";
 
+/**
+ * AutoLayoutEditorModalOnion
+ *
+ * Component that wraps the BaseWidget implementation of Modal Widget with Editor specific wrappers
+ * needed in Auto Layout.
+ *
+ * @returns Enhanced Modal Widget
+ */
+
 export const AutoLayoutEditorModalOnion = (props: BaseWidgetProps) => {
   return (
     <AutoLayoutWidgetComponent {...props}>
@@ -19,6 +28,7 @@ export const AutoLayoutEditorModalOnion = (props: BaseWidgetProps) => {
             disablePropertyPane={props.disablePropertyPane}
             evalErrorsObj={get(props, EVAL_ERROR_PATH, {})}
             parentId={props.parentId}
+            showControls
             topRow={props.topRow}
             type={props.type}
             widgetId={props.widgetId}
