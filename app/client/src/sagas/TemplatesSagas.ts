@@ -46,7 +46,6 @@ import { getAllPageIds } from "./selectors";
 import { fetchPageDSLSaga } from "sagas/PageSagas";
 import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { convertFromFixedToAutoSaga } from "./layoutConversionSagas";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -108,7 +107,6 @@ function* importTemplateToWorkspaceSaga(
           pageId: application.defaultPageId,
         });
         history.push(pageURL);
-        yield call(convertToAutolayout);
       }
       yield put(getAllTemplates());
     }
@@ -309,13 +307,6 @@ function* forkTemplateToApplicationSaga(
       },
     });
   }
-}
-
-function* convertToAutolayout() {
-  yield take(ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS);
-
-  yield call(convertFromFixedToAutoSaga);
-  window.location.reload();
 }
 
 function* getTemplateFiltersSaga() {
