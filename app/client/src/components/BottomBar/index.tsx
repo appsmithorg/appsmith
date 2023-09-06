@@ -7,6 +7,10 @@ import HelpButton from "pages/Editor/HelpButton";
 import ManualUpgrades from "./ManualUpgrades";
 import { Button } from "design-system";
 import SwitchEnvironment from "@appsmith/components/SwitchEnvironment";
+import { connect } from "react-redux";
+import type { AppState } from "@appsmith/reducers";
+import { getEnvironmentsWithPermission } from "@appsmith/selectors/environmentSelectors";
+import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
 
 const Container = styled.div`
   width: 100%;
@@ -25,7 +29,23 @@ const Wrapper = styled.div`
   justify-content: space-between;
 `;
 
-export default function BottomBar({ viewMode }: { viewMode: boolean }) {
+function BottomBar({
+  environmentList,
+  viewMode,
+}: {
+  environmentList: Array<EnvironmentType>;
+  viewMode: boolean;
+}) {
+  // skip the render if no environments are present in view mode
+  // or if there is only one environment and it is default in view mode
+  if (
+    (viewMode &&
+      environmentList.length === 1 &&
+      environmentList[0].isDefault) ||
+    (viewMode && environmentList.length <= 0)
+  )
+    return null;
+
   return (
     <Container>
       <Wrapper>
@@ -50,3 +70,12 @@ export default function BottomBar({ viewMode }: { viewMode: boolean }) {
     </Container>
   );
 }
+
+const mapStateToProps = (state: AppState) => {
+  const environmentList = getEnvironmentsWithPermission(state);
+  return {
+    environmentList,
+  };
+};
+
+export default connect(mapStateToProps)(BottomBar);
