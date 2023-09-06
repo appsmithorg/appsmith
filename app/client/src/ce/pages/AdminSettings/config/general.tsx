@@ -18,17 +18,6 @@ import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
 import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";
 import { formatEmbedSettings } from "pages/Applications/EmbedSnippet/Utils/utils";
-import {
-  isProgramaticAccessControlEnabled,
-  isUserSessionLimitEnabled,
-} from "@appsmith/utils/planHelpers";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import store from "store";
-
-const featureFlags = selectFeatureFlags(store.getState());
-const isSessionLimitEnabled = isUserSessionLimitEnabled(featureFlags);
-const isProgramaticAccessControlFFEnabled =
-  isProgramaticAccessControlEnabled(featureFlags);
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "instanceName",
@@ -103,8 +92,8 @@ export const APPSMITH_SINGLE_USER_PER_SESSION_SETTING: Setting = {
   controlType: SettingTypes.CHECKBOX,
   label: "User session limit",
   text: "Limit users to a single active session",
-  isFeatureEnabled: !isSessionLimitEnabled,
-  isDisabled: () => isSessionLimitEnabled,
+  isFeatureEnabled: false,
+  isDisabled: () => true,
 };
 
 export const APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING: Setting = {
@@ -114,8 +103,8 @@ export const APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING: Setting = {
   controlType: SettingTypes.CHECKBOX,
   label: "Programmatic access control",
   text: "Access roles and user groups in code for conditional business logic",
-  isFeatureEnabled: !isProgramaticAccessControlFFEnabled,
-  isDisabled: () => isProgramaticAccessControlFFEnabled,
+  isFeatureEnabled: false,
+  isDisabled: () => true,
 };
 
 export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {

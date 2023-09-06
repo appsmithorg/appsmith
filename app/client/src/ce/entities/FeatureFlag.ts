@@ -22,8 +22,6 @@ export const FEATURE_FLAG = {
   release_git_status_lite_enabled: "release_git_status_lite_enabled",
   license_sso_saml_enabled: "license_sso_saml_enabled",
   license_sso_oidc_enabled: "license_sso_oidc_enabled",
-  license_session_limit_enabled: "license_session_limit_enabled",
-  license_pac_enabled: "license_pac_enabled",
   deprecate_custom_fusioncharts_enabled:
     "deprecate_custom_fusioncharts_enabled",
 } as const;
@@ -51,8 +49,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_git_status_lite_enabled: false,
   license_sso_saml_enabled: false,
   license_sso_oidc_enabled: false,
-  license_session_limit_enabled: false,
-  license_pac_enabled: false,
   deprecate_custom_fusioncharts_enabled: false,
 };
 

@@ -12,13 +12,3 @@ export const isOIDCEnabled = (featureFlags: FeatureFlags) => {
 export const isSAMLEnabled = (featureFlags: FeatureFlags) => {
   return featureFlags?.license_sso_saml_enabled;
 };
-
-export const isUserSessionLimitEnabled = (featureFlags: FeatureFlags) => {
-  return featureFlags?.license_session_limit_enabled;
-};
-
-export const isProgramaticAccessControlEnabled = (
-  featureFlags: FeatureFlags,
-) => {
-  return featureFlags?.license_pac_enabled;
-};
