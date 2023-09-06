@@ -628,6 +628,8 @@ export const getAppKbState = async (appId: string) => {
   } catch (error) {
     log.error("An error occurred while reading AI_KNOWLEDGE_BASE");
     log.error(error);
+
+    return null;
   }
 };
 
