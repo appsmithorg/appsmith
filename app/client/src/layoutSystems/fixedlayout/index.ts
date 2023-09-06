@@ -7,7 +7,7 @@ import { getFixedLayoutComponentDimensions } from "utils/ComponentSizeUtils";
 /**
  * getFixedLayoutSystemPropsEnhancer
  *
- * utiltiy function to enhance BaseWidgetProps with Fixed Layout system specific props
+ * utility function to enhance BaseWidgetProps with Fixed Layout system specific props
  *
  */
 
@@ -24,7 +24,7 @@ const getFixedLayoutSystemPropsEnhancer = (props: BaseWidgetProps) => {
 /**
  * getFixedLayoutSystemWrapper
  *
- * utiltiy function to return the fixed layout system wrapper based on render mode.
+ * utility function to return the fixed layout system wrapper based on render mode.
  * wrapper is the component that wraps around a widget to provide layouting ability and enable editing experience.
  *
  */
@@ -39,8 +39,8 @@ const getFixedLayoutSystemWrapper = (renderMode: RenderModes) => {
 /**
  * getFixedLayoutSystem
  *
- * utiltiy function to return the fixed layout system config for
- * wrapper based on render mode and property enhancer funciton
+ * utility function to return the fixed layout system config for
+ * wrapper based on render mode and property enhancer function
  *
  */
 export function getFixedLayoutSystem(renderMode: RenderModes) {

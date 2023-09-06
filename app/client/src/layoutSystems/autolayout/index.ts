@@ -9,7 +9,7 @@ import { getAutoLayoutComponentDimensions } from "utils/ComponentSizeUtils";
 /**
  * getAutoLayoutDimensionsConfig
  *
- * utiltiy function to fetch and process widget specific autoDimensionConfig(specific to Auto Layout Layout system)
+ * utility function to fetch and process widget specific autoDimensionConfig(specific to Auto Layout Layout system)
  * stored on the autoLayoutConfigMap.
  *
  */
@@ -29,7 +29,7 @@ const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
 /**
  * getAutoLayoutSystemPropsEnhancer
  *
- * utiltiy function to enhance BaseWidgetProps with Auto Layout system specific props
+ * utility function to enhance BaseWidgetProps with Auto Layout system specific props
  *
  */
 
@@ -48,7 +48,7 @@ const getAutoLayoutSystemPropsEnhancer = (props: BaseWidgetProps) => {
 /**
  * getAutoLayoutSystemWrapper
  *
- * utiltiy function to return the auto layout system wrapper based on render mode.
+ * utility function to return the auto layout system wrapper based on render mode.
  * wrapper is the component that wraps around a widget to provide layouting ability and enable editing experience.
  *
  */
@@ -64,8 +64,8 @@ const getAutoLayoutSystemWrapper = (renderMode: RenderModes) => {
 /**
  * getAutoLayoutSystem
  *
- * utiltiy function to return the auto layout system config for
- * wrapper based on render mode and property enhancer funciton
+ * utility function to return the auto layout system config for
+ * wrapper based on render mode and property enhancer function
  *
  */
 
