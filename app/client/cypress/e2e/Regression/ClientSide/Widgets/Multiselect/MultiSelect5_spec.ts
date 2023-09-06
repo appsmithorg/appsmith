@@ -4,8 +4,12 @@ import {
   deployMode,
   entityExplorer,
   propPane,
-  dataSources,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
+
+import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
+import { OneClickBinding } from "../../OneClickBinding/spec_utility";
+const oneClickBinding = new OneClickBinding();
 
 describe("Multi Select widget Tests", function () {
   before(() => {
@@ -296,4 +300,43 @@ describe("Multi Select widget Tests", function () {
       "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
     );
   });
+
+  it("10. Verify Sample source data", () => {
+    propPane.MoveToTab("Content");
+    // MongoDB
+    oneClickBinding.ChooseAndAssertForm("Movies", "Movies", "movies", {
+        label: "title",
+        value: "imdb_id",
+    });
+
+    agHelper.GetNClick(oneClickBindingLocator.connectData);
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.Sleep(2000);
+
+    agHelper.AssertExistingToggleState("serversidefiltering", "true");
+    agHelper.AssertElementExist(propPane._propertyControl("onfilterupdate"));
+
+    propPane.ValidateJSFieldValue("Source Data", "{{Find_movies1.data}}");
+
+    propPane.SelectPropertiesDropDown("valuekey", "vote_average");
+
+    agHelper.GetElementsNAssertTextPresence("[data-testid='t---dropdown-control-error']", "Duplicate values found, value must be unique")
+
+    // Postgres
+    oneClickBinding.ChooseAndAssertForm("Users", "Users", "public.users", {
+        label: "email",
+        value: "id",
+    });
+
+    agHelper.GetNClick(oneClickBindingLocator.connectData);
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.Sleep(2000);
+    agHelper.ValidateToastMessage("[Select_public_users1] will be executed automatically on page load")
+    agHelper.AssertExistingToggleState("serversidefiltering", "true");
+    agHelper.AssertElementExist(propPane._propertyControl("onfilterupdate"));
+})
 });
