@@ -88,14 +88,15 @@ export const assistiveBindingHinter: HintHelper = (
             enableAIAssistance,
           },
         );
-        const hinterHeaders = 1; // hinter headers
         //ASSISTIVE_JS_BINDING_TRIGGERED when not empty
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         // const { data, render, ...rest } = selected; DELETE
         // const { ENTITY_TYPE, name, pluginType } = data as any; DELETE
         AnalyticsUtil.logEvent("ASSISTIVE_JS_BINDING_TRIGGERED", {
           query: value,
-          suggestedEntityCount: list.length - hinterHeaders,
+          suggestedOptionCount: list.filter(
+            (item) => item.className === "CodeMirror-commands",
+          ).length,
           entityType: entityInfo.entityType,
         });
 
@@ -135,18 +136,26 @@ export const assistiveBindingHinter: HintHelper = (
 
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const { data, render, ...rest } = selected;
-              // const { ENTITY_TYPE, entityName, pluginType } = data as any;
-              const selectedOptionType =
-                ENTITY_TYPE != "JSACTION"
+              const { ENTITY_TYPE, entityName } = data as any;
+              const jsLexicalName: string | undefined =
+                selected.displayText?.replace(entityName + ".", "");
+              const selectedOptionType: string =
+                ENTITY_TYPE !== "JSACTION"
                   ? ENTITY_TYPE
-                  : entitiesForNavigation[entityName].isfunction == true
+                  : jsLexicalName !== undefined &&
+                    entitiesForNavigation[entityName].children[jsLexicalName]
+                      .isfunction === true
                   ? "JSFunction"
                   : "JSVariable";
               AnalyticsUtil.logEvent("ASSISTIVE_JS_BINDING_OPTION_SELECTED", {
                 query: value,
-                suggestedEntityCount: list.length - hinterHeaders,
+                suggestedOptionCount: list.filter(
+                  (item) => item.className === "CodeMirror-commands",
+                ).length, //option count
                 selectedOptionType: selectedOptionType,
-                // selectedOptionIndex :
+                selectedOptionIndex: list.findIndex(
+                  (item) => item.displayText === selected.displayText,
+                ),
                 entityType: entityInfo.entityType,
               });
 
