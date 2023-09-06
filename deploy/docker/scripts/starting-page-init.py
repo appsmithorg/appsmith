@@ -1,12 +1,11 @@
-
+import atexit
+import logging
 import os
-import sys
-import time
 import shutil
 import subprocess
-import logging
-import traceback
-import atexit
+import time
+import urllib.error
+import urllib.request
 
 
 LOADING_TEMPLATE_PAGE = r'/opt/appsmith/templates/appsmith_starting.html'
@@ -17,12 +16,7 @@ LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s -  %(message)s'
 
 logging.basicConfig(filename = LOG_FILE, level = logging.NOTSET, format = LOG_FORMAT)
 
-try:
-   import requests
-except ModuleNotFoundError as e:
-   logging.error("Module Not Found: " , e)
-   
-   
+
 def get_backend_status():
     try:
         return subprocess.getoutput("supervisorctl status backend").split()[1]
@@ -30,17 +24,15 @@ def get_backend_status():
         logging.error("Subprocess Error ", e)
     except ValueError as e:
         logging.error("Value Error ", e)
-        
+
 def check_health_endpoint(url,sleep_sec = 3,timeout_sec = 180):
     for _ in range(timeout_sec//sleep_sec):
         try:
-            if requests.get(url).ok:
-                logging.info('Backend health check successful.')
-                break
-        except ImportError as e:
-            logging.error("Import Error:  ", e)
-            sys.exit(1)
-        except requests.RequestException:
+            with urllib.request.urlopen(url) as response:
+                if response.status == 200:
+                    logging.info('Backend health check successful.')
+                    break
+        except urllib.error.URLError:
             pass # retry after sleep_sec
         finally:
             time.sleep(sleep_sec)
@@ -70,7 +62,7 @@ def add_loading_page():
 @atexit.register
 def failsafe():
     remove_loading_page()
-    
+
 def main():
     add_loading_page()
     check_health_endpoint(BACKEND_HEALTH_ENDPOINT)
@@ -78,4 +70,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
