@@ -18,6 +18,7 @@ export type WidgetQueryGenerationFormConfig = {
   connectionMode: string;
   otherFields?: Record<string, unknown>;
   alertMessage?: AlertMessage;
+  dataIdentifier?: string;
 } & GsheetConfig;
 
 export type WidgetQueryGenerationConfig = {

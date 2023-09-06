@@ -49,8 +49,15 @@ export default function WidgetSpecificControls(props: Props) {
   if (props.otherFields?.length) {
     otherFields = props.otherFields.map((field) => {
       const isVisible = field.isVisible && field.isVisible(formConfig);
+      const defaultValue =
+        field.getDefaultValue && field.getDefaultValue?.(formConfig);
+
       return isVisible ? (
-        <OtherFieldComponent field={field} key={field.name} />
+        <OtherFieldComponent
+          defaultValue={defaultValue}
+          field={field}
+          key={field.name}
+        />
       ) : null;
     });
   }

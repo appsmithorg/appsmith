@@ -120,14 +120,17 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
       formConfig.primaryColumn,
     );
 
+    const dataIdentifier = formConfig.dataIdentifier;
+    const primaryKey = formConfig.primaryColumn || dataIdentifier;
+
     return {
       type: QUERY_TYPE.UPDATE,
       name: `Update_${removeSpecialChars(formConfig.tableName)}`,
       payload: {
         body: `UPDATE ${formConfig.tableName} SET ${columns
           .map((column) => `"${column}"= '{{${value}.${column}}}'`)
-          .join(", ")} WHERE "${formConfig.primaryColumn}"= {{${where}.${
-          formConfig.primaryColumn
+          .join(", ")} WHERE "${primaryKey}"= {{${where}.${
+          dataIdentifier || formConfig.primaryColumn
         }}};`,
       },
       dynamicBindingPathList: [
@@ -211,7 +214,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
 
     if (
       widgetConfig.update &&
-      formConfig.primaryColumn &&
+      (formConfig.primaryColumn || formConfig?.otherFields?.dataIdentifier) &&
       formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
     ) {
       allBuildConfigs.push(this.buildUpdate(widgetConfig, formConfig));
@@ -219,7 +222,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
 
     if (
       widgetConfig.create &&
-      formConfig.primaryColumn &&
+      (formConfig.primaryColumn || formConfig?.otherFields?.dataIdentifier) &&
       formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
     ) {
       allBuildConfigs.push(this.buildInsert(widgetConfig, formConfig));

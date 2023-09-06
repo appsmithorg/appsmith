@@ -37,7 +37,6 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
   } = props;
 
   const currentPageWidgets = useSelector(getCurrentPageWidgets);
-
   const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
   const { disabled, options: columns } = useColumns("", false);
 
@@ -94,8 +93,8 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
   const selectedValue = get(config, configName);
 
   const getDefaultDropdownValue = useCallback(() => {
-    if (name === "formType" && !selectedValue && defaultValue) {
-      updateConfig("otherFields.formType", defaultValue);
+    if (!selectedValue && defaultValue) {
+      updateConfig(configName, defaultValue);
     }
   }, [name, selectedValue, defaultValue]);
 

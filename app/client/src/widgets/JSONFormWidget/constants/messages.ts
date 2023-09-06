@@ -6,7 +6,7 @@ export function createMessage(
 }
 
 // JSON Form
-export const NO_FIELDS_ADDED = () => "No fields added";
+
 export const JSON_FORM_CONNECT_OVERLAY_TEXT = () =>
   "Generate a form from a datasource or write a JSON schema";
 export const JSON_FORM_CONNECT_BUTTON_TEXT = () => "Generate form";

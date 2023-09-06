@@ -165,7 +165,9 @@ export const contentConfig = [
               fieldType: FieldType.SELECT,
               optionType: FieldOptionsType.CUSTOM,
               isRequired: true,
-              defaultValue: "create",
+              getDefaultValue: () => {
+                return "create";
+              },
               allowClear: false,
               options: [
                 {
@@ -200,6 +202,9 @@ export const contentConfig = [
               fieldType: FieldType.SELECT,
               optionType: FieldOptionsType.COLUMNS,
               isRequired: true,
+              getDefaultValue: (config: Record<string, any>) => {
+                return config?.primaryColumn;
+              },
               isVisible: (config: Record<string, any>) => {
                 return config?.otherFields?.formType === "edit";
               },
