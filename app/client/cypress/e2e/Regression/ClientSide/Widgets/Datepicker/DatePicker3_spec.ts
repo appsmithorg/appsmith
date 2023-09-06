@@ -16,6 +16,10 @@ describe("Date picker widget testcases", () => {
     entityExplorer.DragNDropWidget(draggableWidgets.DATEPICKER);
   });
 
+  afterEach(() => {
+    deployMode.NavigateBacktoEditor();
+  });
+
   it("1. Sets and asserts a date format ", () => {
     agHelper.GetNClick(propPane._selectPropDropdown("Date format"));
     agHelper
@@ -54,8 +58,6 @@ describe("Date picker widget testcases", () => {
             expect(labelValue).to.contain(formattedDate);
           });
       });
-
-    deployMode.NavigateBacktoEditor();
   });
 
   it("2. Assert time precision - None, Minute, Second ", () => {
@@ -115,7 +117,6 @@ describe("Date picker widget testcases", () => {
       .then((labelValue) => {
         expect(labelValue).to.not.contain("12:58:59");
       });
-    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Assert First day of the week - (0-6) Sunday - Saturday ", () => {
@@ -232,6 +233,7 @@ describe("Date picker widget testcases", () => {
     propPane.UpdatePropertyFieldValue("First Day Of Week", "7");
     agHelper.VerifyEvaluatedErrorMessage("Number should be between 0-6.");
     propPane.UpdatePropertyFieldValue("First Day Of Week", "0");
+    deployMode.DeployApp();
   });
 
   it("4. Assert Min Date and Max Date set ", () => {
@@ -277,7 +279,6 @@ describe("Date picker widget testcases", () => {
     agHelper.AssertElementExist(datePickerlocators.monthInDropdown("January"));
     agHelper.AssertElementExist(datePickerlocators.monthInDropdown("February"));
     agHelper.AssertElementAbsence(datePickerlocators.monthInDropdown("March"));
-    deployMode.NavigateBacktoEditor();
   });
 
   it("5. Assert onDateSelected action ", () => {

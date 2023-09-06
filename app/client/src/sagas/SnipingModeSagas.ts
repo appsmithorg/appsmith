@@ -15,13 +15,13 @@ import {
   SNIPING_SELECT_WIDGET_AGAIN,
 } from "@appsmith/constants/messages";
 
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { setSnipingMode } from "actions/propertyPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
-import type { PropertyUpdates } from "widgets/constants";
+import type { PropertyUpdates } from "WidgetProvider/constants";
 
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{
