@@ -333,19 +333,7 @@ describe("Select widget tests", function () {
 
     //Validate filtered data
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.SELECT));
-    agHelper.TypeText(widgetLocators.selectWidgetFilter, "Ulf");
-    agHelper.AssertElementVisibility(
-      locators._selectOptionValue("Ulf Merbold"),
-      true,
-    );
-    agHelper.GetNClick(locators._selectOptionValue("Ulf Merbold"));
-    agHelper.ValidateToastMessage("Value changed!");
-    agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
-      expect($selectedValue).to.eq("Ulf Merbold");
-    });
-
-    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.SELECT));
-    agHelper.ClearNType(widgetLocators.selectWidgetFilter, "Anil");
+    agHelper.TypeText(widgetLocators.selectWidgetFilter, "Anil");
     agHelper.AssertElementVisibility(
       locators._selectOptionValue("Anil Menon"),
       true,

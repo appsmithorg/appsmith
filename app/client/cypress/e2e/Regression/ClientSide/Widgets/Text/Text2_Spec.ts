@@ -120,9 +120,9 @@ describe("Text widget tests", function () {
     propPane.AssertPropertiesDropDownCurrentValue("Font size", "M");
     propPane.SelectPropertiesDropDown("Font size", "S");
     //color
-    propPane.SelectColorFromColorPicker("textcolor", 9);
-    propPane.SelectColorFromColorPicker("backgroundcolor", 8);
-    propPane.SelectColorFromColorPicker("bordercolor", 7);
+    propPane.SelectColorFromColorPicker("textcolor", 12);
+    propPane.SelectColorFromColorPicker("backgroundcolor", 9);
+    propPane.SelectColorFromColorPicker("bordercolor", 6);
     //text formatting
     agHelper.GetNClick(propPane._emphasisSelector("BOLD"));
     agHelper.GetNClick(locators._alignment("RIGHT"));

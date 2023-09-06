@@ -91,7 +91,10 @@ export const WIDGETSKIT = {
   selectWidgetPlaceholder: (value: string) => `//span[contains(@title,'${value}')]`,
   textWidgetLink: (link: string) => `//a[@href='${link}']`,
   textWidgetContainer: ".t--text-widget-container",
-
+  inputWidgetLabel: ".t--input-widget-label",
+  inputWidgetUnMaskPassword: '[name="eye-on"]',
+  inputWidgetMaskPassword: '[name="eye-off"]',
+  inputWidgetWrapper: ".text-input-wrapper"
 };
 type ValueOf<T> = T[keyof T];
 
