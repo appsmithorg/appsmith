@@ -7,7 +7,7 @@ import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
-import type { AlignWidget } from "widgets/constants";
+import type { AlignWidget } from "WidgetProvider/constants";
 import { importSvg } from "design-system-old";
 
 const HelpIcon = importSvg(() => import("assets/icons/control/help.svg"));
