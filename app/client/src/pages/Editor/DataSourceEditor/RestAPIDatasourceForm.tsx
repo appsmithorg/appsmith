@@ -70,7 +70,6 @@ interface DatasourceRestApiEditorProps {
   formMeta: any;
   messages?: Array<string>;
   datasourceName: string;
-  showFilterComponent: boolean;
   createDatasource: (
     data: Datasource,
     onSuccess?: ReduxAction<unknown>,
@@ -259,7 +258,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         onSubmit={(e) => {
           e.preventDefault();
         }}
-        showFilterComponent={this.props.showFilterComponent}
         viewMode={this.props.viewMode}
       >
         {this.renderEditor()}
