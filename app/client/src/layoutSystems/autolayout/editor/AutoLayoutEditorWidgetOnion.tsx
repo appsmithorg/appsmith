@@ -10,6 +10,15 @@ import { FlexVerticalAlignment, LayoutDirection } from "../utils/constants";
 import { AutoResizableLayer } from "../common/resizer/AutoResizableLayer";
 import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 
+/**
+ * AutoLayoutEditorWidgetOnion
+ *
+ * Component that wraps the BaseWidget implementation of a Widget with Editor specific wrappers
+ * needed in Auto Layout.
+ *
+ * @returns Enhanced Widget
+ */
+
 export const AutoLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
     <FlexComponent
