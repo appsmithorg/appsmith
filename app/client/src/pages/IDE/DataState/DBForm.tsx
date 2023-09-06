@@ -165,7 +165,6 @@ export type DatasourceFilterState = {
   id: string;
   name: string;
   userPermissions: string[];
-  showFilterPane: boolean;
 };
 
 /*
@@ -222,7 +221,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         id: DEFAULT_ENV_ID,
         name: "",
         userPermissions: [],
-        showFilterPane: false,
       },
     };
     this.onSave = this.onSave.bind(this);
@@ -396,12 +394,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     }
   }
 
-  updateFilter = (
-    id: string,
-    name: string,
-    userPermissions: string[],
-    showFilterPane: boolean,
-  ) => {
+  updateFilter = (id: string, name: string, userPermissions: string[]) => {
     if (id.length > 0 && this.state.filterParams.id !== id) {
       if (
         !isEmpty(this.props.formData) &&
@@ -416,29 +409,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       } else {
         this.props.resetForm(this.props.formName);
       }
-      return this.updateFilterSuccess(
-        id,
-        name,
-        userPermissions,
-        showFilterPane,
-      );
+      return this.updateFilterSuccess(id, name, userPermissions);
     } else if (
       !isStorageEnvironmentCreated(this.props.formData as Datasource, id)
     ) {
-      return this.updateFilterSuccess(
-        id,
-        name,
-        userPermissions,
-        showFilterPane,
-      );
-    } else if (showFilterPane !== this.state.filterParams.showFilterPane) {
-      // In case just the viewmode changes but the id remains the same
-      this.setState({
-        filterParams: {
-          ...this.state.filterParams,
-          showFilterPane,
-        },
-      });
+      return this.updateFilterSuccess(id, name, userPermissions);
     }
     return true;
   };
@@ -447,7 +422,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     id: string,
     name: string,
     userPermissions: string[],
-    showFilterPane: boolean,
   ) => {
     onUpdateFilterSuccess(id);
     const { datasourceStorages } = this.props.datasource as Datasource;
@@ -513,7 +487,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         id,
         name,
         userPermissions,
-        showFilterPane,
       },
     });
     return true;
@@ -612,7 +585,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           pageId={pageId}
           pluginName={pluginName}
           pluginPackageName={pluginPackageName}
-          showFilterComponent={this.state.filterParams.showFilterPane}
         />
       );
     }
@@ -633,7 +605,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         pageId={pageId}
         pluginType={pluginType}
         setupConfig={this.setupConfig}
-        showFilterComponent={this.state.filterParams.showFilterPane}
         viewMode={viewMode && !isInsideReconnectModal}
       />
     );
@@ -673,7 +644,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
               <ResizerContentContainer className="db-form-resizer-content">
                 <DSEditorWrapper>
                   <DSDataFilter
-                    datasourceId={datasourceId}
                     filterId={this.state.filterParams.id}
                     isInsideReconnectModal={!!isInsideReconnectModal}
                     pluginName={pluginName}
@@ -708,7 +678,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             pluginPackageName={pluginPackageName}
             pluginType={pluginType as PluginType}
             setDatasourceViewMode={setDatasourceViewMode}
-            showFilterComponent={this.state.filterParams.showFilterPane}
             triggerSave={triggerSave}
             viewMode={viewMode}
           />
