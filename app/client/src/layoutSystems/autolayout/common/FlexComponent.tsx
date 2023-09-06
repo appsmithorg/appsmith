@@ -2,7 +2,6 @@ import type { CSSProperties, ReactNode } from "react";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
-import type { RenderMode, WidgetType } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
@@ -11,36 +10,12 @@ import {
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
-import type {
-  FlexVerticalAlignment,
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
-
-export type AutoLayoutProps = {
-  alignment: FlexVerticalAlignment;
-  children: ReactNode;
-  componentHeight: number;
-  componentWidth: number;
-  direction: LayoutDirection;
-  focused?: boolean;
-  parentId?: string;
-  responsiveBehavior?: ResponsiveBehavior;
-  selected?: boolean;
-  isResizeDisabled?: boolean;
-  widgetId: string;
-  widgetName: string;
-  widgetType: WidgetType;
-  parentColumnSpace: number;
-  flexVerticalAlignment: FlexVerticalAlignment;
-  isMobile: boolean;
-  renderMode: RenderMode;
-};
+import type { AutoLayoutProps } from "layoutSystems/common/utils/commonTypes";
 
 const FlexWidget = styled.div`
   position: relative;

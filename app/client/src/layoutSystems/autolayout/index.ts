@@ -1,10 +1,13 @@
-import { isFunction } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { AutoLayoutEditorWraper } from "./editor/AutoLayoutEditorWraper";
 import { AutoLayoutViewerWrapper } from "./viewer/AutoLayoutViewerWrapper";
 import { getAutoLayoutComponentDimensions } from "utils/ComponentSizeUtils";
+import type { AutoDimensionOptions } from "widgets/constants";
+import {
+  getAutoDimensionsConfig,
+  getAutoLayoutWidgetConfig,
+} from "layoutSystems/common/utils/commonUtils";
 
 /**
  * getAutoLayoutDimensionsConfig
@@ -13,17 +16,10 @@ import { getAutoLayoutComponentDimensions } from "utils/ComponentSizeUtils";
  * stored on the autoLayoutConfigMap.
  *
  */
-const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
-  let autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
-    props.type,
-  ).autoDimension;
-  if (isFunction(autoDimensionConfig)) {
-    autoDimensionConfig = autoDimensionConfig(props);
-  }
-  if (props.isListItemContainer && autoDimensionConfig) {
-    autoDimensionConfig.height = false;
-  }
-  return autoDimensionConfig;
+export const getAutoLayoutDimensionsConfig = (
+  props: BaseWidgetProps,
+): AutoDimensionOptions | undefined => {
+  return getAutoDimensionsConfig(getAutoLayoutWidgetConfig(props), props);
 };
 
 /**

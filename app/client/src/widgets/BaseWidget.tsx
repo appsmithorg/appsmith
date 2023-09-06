@@ -428,6 +428,9 @@ export interface WidgetBaseProps {
   additionalStaticProps?: string[];
   mainCanvasWidth?: number;
   isMobile?: boolean;
+  hasAutoHeight?: boolean;
+  hasAutoWidth?: boolean;
+  widgetSize?: { [key: string]: Record<string, string | number> };
 }
 
 export type WidgetRowCols = {
