@@ -15,7 +15,7 @@ RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
     supervisor curl cron nfs-common nginx nginx-extras gnupg wget netcat openssh-client \
     gettext \
-    python3-pip python3-venv python-setuptools git ca-certificates-java \
+    python3-pip python3-venv git ca-certificates-java \
   && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add - \
   && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
   && apt-get update && apt-get install --no-install-recommends --yes temurin-17-jdk \
@@ -23,7 +23,7 @@ RUN apt-get update \
   && python3 -m venv --prompt certbot /opt/certbot/venv \
   && /opt/certbot/venv/bin/pip install --upgrade certbot setuptools \
   && ln -s /opt/certbot/venv/bin/certbot /usr/local/bin \
-  && apt-get remove --yes git python3-pip python3-venv python-setuptools \
+  && apt-get remove --yes git python3-pip python3-venv \
   && apt-get autoremove --yes
 
 # Install MongoDB v5.0.14, Redis, NodeJS - Service Layer, PostgreSQL v13
