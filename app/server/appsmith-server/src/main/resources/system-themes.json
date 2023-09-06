@@ -2,6 +2,7 @@
   {
     "name": "Default",
     "displayName": "Modern",
+    "deprecated": true,
     "config": {
       "colors": {
         "primaryColor": "#553DE9",
