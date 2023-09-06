@@ -8,7 +8,7 @@ import {
   homePage,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe.skip("RBAC for git connected apps tests", function () {
+describe("RBAC for git connected apps tests", function () {
   let workspaceName;
   let appName;
   let newWorkspaceName;
@@ -71,7 +71,6 @@ describe.skip("RBAC for git connected apps tests", function () {
     cy.get(homePageLocators.appEditIcon).click();
     cy.wait(2000);
     gitSync.CreateGitBranch(childBranch);
-    //cy.createGitBranch(childBranch);
     // verify user is able to create JSObject
     cy.createJSObject('return "Success";');
     // verify user is able to edit the page
@@ -109,7 +108,7 @@ describe.skip("RBAC for git connected apps tests", function () {
     cy.LogOut();
   });
 
-  it.skip("4. Login as admin, edit the existing role: update from create to edit permission", function () {
+  it("4. Login as admin, edit the existing role: update from create to edit permission", function () {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/settings/roles");
     cy.get(RBAC.searchBar).clear().wait(2000).type(PermissionWorkspaceLevel);
@@ -147,7 +146,7 @@ describe.skip("RBAC for git connected apps tests", function () {
     cy.LogOut();
   });
 
-  it.skip("5. Login as test user, create new branch and verify given permission on new and old branch ", function () {
+  it("5. Login as test user, create new branch and verify given permission on new and old branch ", function () {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePageLocators.searchInput).clear().type(appName);
     cy.wait(2000);
@@ -163,19 +162,19 @@ describe.skip("RBAC for git connected apps tests", function () {
     cy.get(explorer.addEntityJSEditor).should("not.exist");
   });
 
-  it.skip("6. Delete branch and verify permissions", function () {
+  it("6. Delete branch and verify permissions", function () {
     cy.switchGitBranch(mainBranch);
     cy.wait(3000);
     cy.get(gitSyncLocators.branchButton).click();
     cy.get(gitSyncLocators.branchListItem)
       .eq(1)
       .trigger("mouseenter")
-      .within(() => {
-        cy.wait(1000);
-        cy.get(gitSyncLocators.gitBranchContextMenu).click();
-        cy.wait(1000);
-        cy.get(gitSyncLocators.gitBranchDelete).click();
-      });
+      .wait(1000);
+    cy.get(gitSyncLocators.gitBranchContextMenu).click({ force: true });
+    cy.xpath("//div[@role='menu']//span[text()='Delete']")
+      .should("be.visible")
+      .click({ force: true });
+
     cy.wait("@deleteBranch").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -183,7 +182,7 @@ describe.skip("RBAC for git connected apps tests", function () {
     );
   });
 
-  it.skip("7. Import an app from git and verify functionality", function () {
+  it("7. Import an app from git and verify functionality", function () {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePageLocators.homeIcon).click({ force: true });
     cy.get(homePageLocators.searchInput).clear();
