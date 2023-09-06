@@ -988,10 +988,18 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   );
 
   //   A/B feature flag for datasource view mode preview data.
-  const isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
+  let isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
     state,
     FEATURE_FLAG.ab_gsheet_schema_enabled,
   );
+
+  // for mongoDB, the feature flag should be based on ab_mock_mongo_schema_enabled.
+  if (plugin?.name === PluginName.MONGO) {
+    isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.ab_mock_mongo_schema_enabled,
+    );
+  }
 
   // should plugin be able to preview data
   const isPluginAllowedToPreviewData =
