@@ -14,7 +14,24 @@ import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTyp
 import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
 import { useCanvasDragToScroll } from "layoutSystems/common/CanvasArenas/useCanvasDragToScroll";
 import { modifyBlockDimension } from "layoutSystems/common/utils/canvasDraggingUtils";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
+/**
+ * useCanvasDragging hook is utilized to handle all drag and drop related functions that are required to give user the sense of dragging and dropping while moving a widget on canvas
+ * @param slidingArenaRef
+ * @param stickyCanvasRef
+ * @param object that contains,
+ * @prop alignItems, defines the alignment of elements on widget canvas
+ * @prop canExtend, indicates if the canvas can extend
+ * @prop direction, defines direction of alignment of widgets on canvas
+ * @props dropDisabled indicates if dropping wi is enabled on the canvas
+ * @prop noPad, indicates if the widget canvas has padding
+ * @prop snapColumnSpace, width between two columns grid
+ * @prop snapRows, number of rows in the canvas
+ * @prop snapRowSpace, height between two row grid
+ * @prop widgetId, id of the current widget canvas associated with current AutoCanvasDraggingArena
+ * @returns showCanvas to indicate if the html canvas side should be rendered
+ */
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
@@ -31,7 +48,7 @@ export const useCanvasDragging = (
   }: AutoCanvasDraggingArenaProps,
 ) => {
   const parentOffsetTop = useSelector(getTotalTopOffset(widgetId));
-  const mainCanvas = document.querySelector("#canvas-viewport");
+  const mainCanvas = document.getElementById(CANVAS_VIEWPORT);
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -164,7 +181,7 @@ export const useCanvasDragging = (
           }, 0);
         };
 
-        const onFirstMoveOnCanvas = (e: any) => {
+        const onFirstMoveOnCanvas = (e: MouseEvent) => {
           if (
             !isResizing &&
             isDragging &&
@@ -252,8 +269,8 @@ export const useCanvasDragging = (
               scrollObj;
             if (
               lastMouseMoveEvent &&
-              typeof lastScrollHeight === "number" &&
-              typeof lastScrollTop === "number" &&
+              lastScrollHeight &&
+              lastScrollTop &&
               scrollParent &&
               canScroll.current
             ) {

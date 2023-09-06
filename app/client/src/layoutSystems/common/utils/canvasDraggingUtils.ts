@@ -5,6 +5,7 @@ import type {
 import { GridDefaults } from "constants/WidgetConstants";
 import { isEmpty } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { DraggingGroupCenter } from "reducers/uiReducers/dragResizeReducer";
 import type {
   MovementLimitMap,
   ReflowedSpaceMap,
@@ -194,7 +195,7 @@ export const getBlocksToDraw = (
  * @param snapRowSpace distance between each grid rows in pixels
  * @returns
  */
-export const getUpdateRelativeRowsMethod = (
+export const getBoundUpdateRelativeRowsMethod = (
   updateDropTargetRows:
     | ((
         widgetIdsToExclude: string[],
@@ -231,7 +232,7 @@ export const getUpdateRelativeRowsMethod = (
 };
 
 /**
- * This method helps in updating rows for dropTarget/canvas by using updateDropTargetRows
+ * This method helps in updating rows for dropTarget/canvas by using calling updateDropTargetRows passed down
  * @param bottom new bottom most row of canvas
  * @param rows number of rows of canvas
  * @param widgetIdsToExclude array of widget ids to be excluded
@@ -257,8 +258,8 @@ export const updateBottomRow = (
 };
 
 /**
- * Calculates parent positions diff in pixels
- * @param dragCenterSpace positions of the center of the dragging group block
+ * Calculates positions in pixels that needs to be offsetted with the widget's positions to get it's actual position on parent canvas
+ * @param dragCenterSpace position of the current widget that was grabbed while dragging
  * @param isDragging indicates if currently in dragging state
  * @param isChildOfCanvas indicates if the dragging widgets are the original child of the canvas
  * @param snapRowSpace distance between each grid columns in pixels
@@ -267,7 +268,7 @@ export const updateBottomRow = (
  * @returns
  */
 export const getParentDiff = (
-  dragCenterSpace: { top: number; left: number } | undefined,
+  dragCenterSpace: { top: number; left: number },
   isDragging: boolean,
   isChildOfCanvas: boolean,
   snapRowSpace: number,
@@ -301,7 +302,7 @@ export const getParentDiff = (
 
 /**
  * returns the relative drag start points of the dragging blocks with respect to the dragging group's center
- * @param dragCenterSpace positions of the center of the dragging group block
+ * @param dragCenterSpace position of the current widget that was grabbed while dragging
  * @param dragOffset offset of the positions at which the widgets were grabbed for dragging
  * @param defaultHandlePositions default handle positions in pixels
  * @param isDragging indicates if currently in dragging state
@@ -312,7 +313,7 @@ export const getParentDiff = (
  * @returns
  */
 export const getRelativeStartPoints = (
-  dragCenterSpace: { top: number; left: number } | undefined,
+  dragCenterSpace: { top: number; left: number },
   dragOffset: { top: number; left: number },
   defaultHandlePositions: { top: number; left: number },
   isDragging: boolean,
@@ -329,12 +330,40 @@ export const getRelativeStartPoints = (
 
     relativeStartPoints = {
       left:
-        (dragLeft + dragOffset.left) * snapColumnSpace + 2 * containerPadding,
-      top: (dragTop + dragOffset.top) * snapRowSpace + 2 * containerPadding,
+        (dragLeft + dragOffset?.left || 0) * snapColumnSpace +
+        2 * containerPadding,
+      top:
+        (dragTop + dragOffset?.top || 0) * snapRowSpace + 2 * containerPadding,
     };
   }
 
   return relativeStartPoints;
+};
+
+/**
+ * returns the position of the current widget that was grabbed while dragging
+ * @param dragCenter
+ * @param childrenOccupiedSpaces
+ * @returns
+ */
+export const getDragCenterSpace = (
+  dragCenter: DraggingGroupCenter | undefined,
+  childrenOccupiedSpaces: WidgetSpace[],
+): { top: number; left: number } => {
+  const defaultDragCenterSpace = { left: 0, top: 0 };
+
+  if (dragCenter && dragCenter.widgetId) {
+    // Dragging by widget
+    return (
+      childrenOccupiedSpaces.find((each) => each.id === dragCenter.widgetId) ||
+      defaultDragCenterSpace
+    );
+  } else if (dragCenter && dragCenter.top && dragCenter.left) {
+    // Dragging by Widget selection box
+    return { top: dragCenter.top, left: dragCenter.left };
+  } else {
+    return defaultDragCenterSpace;
+  }
 };
 
 /**

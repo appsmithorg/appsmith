@@ -6,6 +6,13 @@ import { AutoLayoutEditorWraper } from "./editor/AutoLayoutEditorWraper";
 import { AutoLayoutViewerWrapper } from "./viewer/AutoLayoutViewerWrapper";
 import { getAutoLayoutComponentDimensions } from "utils/ComponentSizeUtils";
 
+/**
+ * getAutoLayoutDimensionsConfig
+ *
+ * utility function to fetch and process widget specific autoDimensionConfig(specific to Auto Layout Layout system)
+ * stored on the autoLayoutConfigMap.
+ *
+ */
 const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
   let autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
     props.type,
@@ -19,7 +26,14 @@ const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
   return autoDimensionConfig;
 };
 
-const getAutoLayoutSystemProps = (props: BaseWidgetProps) => {
+/**
+ * getAutoLayoutSystemPropsEnhancer
+ *
+ * utility function to enhance BaseWidgetProps with Auto Layout system specific props
+ *
+ */
+
+const getAutoLayoutSystemPropsEnhancer = (props: BaseWidgetProps) => {
   const autoDimensionConfig = getAutoLayoutDimensionsConfig(props);
   const { componentHeight, componentWidth } =
     getAutoLayoutComponentDimensions(props);
@@ -31,7 +45,15 @@ const getAutoLayoutSystemProps = (props: BaseWidgetProps) => {
   };
 };
 
-export const getAutoLayoutSystemWrapper = (renderMode: RenderModes) => {
+/**
+ * getAutoLayoutSystemWrapper
+ *
+ * utility function to return the auto layout system wrapper based on render mode.
+ * wrapper is the component that wraps around a widget to provide layouting ability and enable editing experience.
+ *
+ */
+
+const getAutoLayoutSystemWrapper = (renderMode: RenderModes) => {
   if (renderMode === RenderModes.CANVAS) {
     return AutoLayoutEditorWraper;
   } else {
@@ -39,9 +61,17 @@ export const getAutoLayoutSystemWrapper = (renderMode: RenderModes) => {
   }
 };
 
+/**
+ * getAutoLayoutSystem
+ *
+ * utility function to return the auto layout system config for
+ * wrapper based on render mode and property enhancer function
+ *
+ */
+
 export function getAutoLayoutSystem(renderMode: RenderModes) {
   return {
     LayoutSystemWrapper: getAutoLayoutSystemWrapper(renderMode),
-    propertyEnhancer: getAutoLayoutSystemProps,
+    propertyEnhancer: getAutoLayoutSystemPropsEnhancer,
   };
 }

@@ -27,9 +27,36 @@ import {
   getBlocksToDraw,
   getParentDiff,
   getRelativeStartPoints,
-  getUpdateRelativeRowsMethod,
+  getBoundUpdateRelativeRowsMethod,
+  getDragCenterSpace,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
 
+/**
+ * useBlocksToBeDraggedOnCanvas, provides information or functions/methods related to drag n drop,
+ * that can be used to draw rectangle blocks on canvas, information of widgets being dragged on canvas, method to dispatch action on drop etc...
+ * @param useBlocksToBeDraggedOnCanvas is an object that includes properties like
+ * @prop alignItems, defines the alignment of elements on widget canvas
+ * @prop direction, defines direction of alignment of widgets on canvas
+ * @prop noPad, indicates if the widget canvas has padding
+ * @prop snapColumnSpace, width between two columns grid
+ * @prop snapRows, number of rows in the canvas
+ * @prop snapRowSpace, height between two row grid
+ * @prop widgetId, id of the current widget canvas associated with current AutoCanvasDraggingArena
+ * @returns object containing,
+ * @returnProp blocksToDraw, contains information regarding the widget and positions in pixels
+ * @returnProp defaultHandlePositions, position of the grab handle of the widget with respect to the widget
+ * @returnProp isChildOfCanvas, indicates if the dragging widgets are the original child of the canvas
+ * @returnProp isCurrentDraggedCanvas, indicates if the widget is being dragged on the canvas associated with this hook
+ * @returnProp isDragging, indicates if editor is in widget dragging mode
+ * @returnProp isNewWidget, indicates if it is a new Widget
+ * @returnProp isNewWidgetInitialTargetCanvas, indicates if the new widget is being dragged on the main canvas
+ * @returnProp isResizing, indicates if any widget is currently being resized
+ * @returnProp parentDiff, positions in pixels that needs to be offsetted with the widget's positions to get it's actual position on parent canvas
+ * @returnProp relativeStartPoints, the relative drag start points of the dragging blocks with respect to the dragging group's center
+ * @returnProp rowRef, ref object of number of rows on canvas
+ * @returnProp updateChildrenPositions, is called when dragging widgets is dropped to dispatch action to update widget positions on canvas
+ * @returnProp updateRelativeRows, is used to update bottom rows of the canvas
+ */
 export const useBlocksToBeDraggedOnCanvas = ({
   alignItems,
   direction,
@@ -76,7 +103,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
   const selectedWidgets = useSelector(getSelectedWidgets);
-  const occupiedSpaces = useSelector(getOccupiedSpacesWhileMoving, equal) || {};
+  const occupiedSpaces = useSelector(getOccupiedSpacesWhileMoving, equal);
   const isNewWidget = !!newWidget && !dragParent;
   const childrenOccupiedSpaces: WidgetSpace[] =
     (dragParent && occupiedSpaces[dragParent]) || [];
@@ -91,25 +118,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
     defaultHandlePositions.left =
       newWidget.columns * snapColumnSpace - defaultHandlePositions.left;
   }
-  const getDragCenterSpace = () => {
-    if (dragCenter && dragCenter.widgetId) {
-      // Dragging by widget
-      return (
-        childrenOccupiedSpaces.find(
-          (each) => each.id === dragCenter.widgetId,
-        ) || {}
-      );
-    } else if (
-      dragCenter &&
-      Number.isInteger(dragCenter.top) &&
-      Number.isInteger(dragCenter.left)
-    ) {
-      // Dragging by Widget selection box
-      return dragCenter;
-    } else {
-      return {};
-    }
-  };
 
   const { blocksToDraw } = getBlocksToDraw(
     newWidget,
@@ -122,7 +130,10 @@ export const useBlocksToBeDraggedOnCanvas = ({
     containerPadding,
   );
 
-  const dragCenterSpace: any = getDragCenterSpace();
+  const dragCenterSpace = getDragCenterSpace(
+    dragCenter,
+    childrenOccupiedSpaces,
+  );
 
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
@@ -187,6 +198,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
         addToBottom: newWidget.detachFromLayout,
       },
     });
+
+    //Addition of setTimeout to wait for the new widget to be added to the canvas before selecting
+    //TODO: this should be moved to the sagas to avoid this setTimeout
     setTimeout(() => {
       selectWidget(SelectionRequestType.One, [widgetPayload.newWidgetId]);
     }, 100);
@@ -235,7 +249,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     relativeStartPoints,
     rowRef,
     updateChildrenPositions,
-    updateRelativeRows: getUpdateRelativeRowsMethod(
+    updateRelativeRows: getBoundUpdateRelativeRowsMethod(
       updateDropTargetRows,
       snapColumnSpace,
       snapRowSpace,
