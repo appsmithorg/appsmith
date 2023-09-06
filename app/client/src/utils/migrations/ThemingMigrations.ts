@@ -11,13 +11,13 @@ import { clone, get, has, set } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import {
   BUTTON_GROUP_CHILD_STYLESHEET,
   JSON_FORM_WIDGET_CHILD_STYLESHEET,
   rgbaMigrationConstantV56,
   TABLE_WIDGET_CHILD_STYLESHEET,
-} from "widgets/constants";
+} from "WidgetProvider/constants";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { parseSchemaItem } from "widgets/WidgetUtils";

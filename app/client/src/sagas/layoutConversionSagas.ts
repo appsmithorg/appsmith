@@ -11,7 +11,7 @@ import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getPageWidgets } from "selectors/entitiesSelector";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 import convertToAutoLayout from "utils/DSLConversions/fixedToAutoLayout";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import {
   createSnapshotSaga,
   deleteApplicationSnapshotSaga,
