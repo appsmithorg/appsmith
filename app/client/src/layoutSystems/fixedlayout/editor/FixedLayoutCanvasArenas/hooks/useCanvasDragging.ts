@@ -35,6 +35,20 @@ import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/CanvasArenas/useCanvasDragToScroll";
 import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
 
+/**
+ * useCanvasDragging hook is utilized to handle all drag and drop related functions that are required to give user the sense of dragging and dropping while moving a widget on canvas
+ * @param slidingArenaRef
+ * @param stickyCanvasRef
+ * @param object that contains,
+ * @prop canExtend, indicates if the canvas can extend
+ * @props dropDisabled indicates if dropping wi is enabled on the canvas
+ * @prop noPad, indicates if the widget canvas has padding
+ * @prop snapColumnSpace, width between two columns grid
+ * @prop snapRows, number of rows in the canvas
+ * @prop snapRowSpace, height between two row grid
+ * @prop widgetId, id of the current widget canvas associated with current AutoCanvasDraggingArena
+ * @returns showCanvas to indicate if the html canvas side should be rendered
+ */
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,

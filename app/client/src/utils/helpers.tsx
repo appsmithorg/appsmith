@@ -36,6 +36,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 import scrollIntoView from "scroll-into-view-if-needed";
 import validateColor from "validate-color";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -232,7 +233,7 @@ export const quickScrollToWidget = (
   if (!widgetId || widgetId === "") return;
   window.requestIdleCallback(() => {
     const el = document.getElementById(widgetId);
-    const canvas = document.getElementById("canvas-viewport");
+    const canvas = document.getElementById(CANVAS_VIEWPORT);
 
     if (el && canvas && !isElementVisibleInContainer(el, canvas, 5)) {
       const scrollElement = getWidgetElementToScroll(widgetId, canvasWidgets);

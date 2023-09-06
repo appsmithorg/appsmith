@@ -1,5 +1,7 @@
 import type { WidgetOperationParams } from "utils/WidgetPropsUtils";
 
+//This File contains all the types that are common types required in layout System's CanvasArenas
+
 export type WidgetDraggingBlock = {
   left: number;
   top: number;
