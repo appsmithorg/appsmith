@@ -24,7 +24,7 @@ import "./ApiCommands";
 import "./commands";
 import "./OIDCCommands";
 import "./SAMLCommands";
-import { initLocalstorage } from "./commands";
+import { initLocalstorage, addIndexedDBKey } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
@@ -40,6 +40,7 @@ import "./RBACCommands";
 import "./LicenseCommands";
 import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 import "cypress-plugin-tab";
+import { WALKTHROUGH_TEST_PAGE } from "./Constants.js";
 /// <reference types="cypress-xpath" />
 
 Cypress.on("uncaught:exception", () => {
@@ -112,6 +113,15 @@ before(function () {
       cy.LogOut();
     }
   });
+
+  if (!Cypress.currentTest.titlePath[0].includes(WALKTHROUGH_TEST_PAGE)) {
+    // Adding key FEATURE_WALKTHROUGH (which is used to check if the walkthrough is already shown to the user or not) for non walkthrough cypress tests (to not show walkthrough)
+    addIndexedDBKey("FEATURE_WALKTHROUGH", {
+      ab_ds_binding_enabled: true,
+      ab_ds_schema_enabled: true,
+      binding_widget: true,
+    });
+  }
 
   //console.warn = () => {};
   //Cypress.Cookies.preserveOnce("SESSION", "remember_token");

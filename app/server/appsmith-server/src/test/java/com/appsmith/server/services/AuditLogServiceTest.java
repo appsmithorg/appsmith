@@ -276,6 +276,9 @@ public class AuditLogServiceTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @MockBean
+    FeatureFlagService featureFlagService;
+
     private static String workspaceId;
     private static String defaultEnvironmentId;
     private static Application app;
@@ -293,7 +296,10 @@ public class AuditLogServiceTest {
             Files.createFile(envFilePath);
         }
 
+        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(TRUE));
+
         if (StringUtils.isEmpty(workspaceId)) {
+
             User apiUser = userService.findByEmail("api_user").block();
             Workspace toCreate = new Workspace();
             toCreate.setName(workspaceName);

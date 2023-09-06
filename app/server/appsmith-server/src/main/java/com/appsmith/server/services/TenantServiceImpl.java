@@ -511,7 +511,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
 
     private Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId) {
         return cacheableFeatureFlagHelper
-                .evictCachedTenantNewFeatures(tenantId)
-                .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantId));
+                .evictCachedTenantFeatures(tenantId)
+                .then(cacheableFeatureFlagHelper.fetchCachedTenantFeatures(tenantId));
     }
 }

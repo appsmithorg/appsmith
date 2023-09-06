@@ -1,4 +1,5 @@
 export * from "ce/utils/adminSettingsHelpers";
+import { saveAllowed as CE_saveAllowed } from "ce/utils/adminSettingsHelpers";
 import type { User } from "constants/userConstants";
 import {
   ADMIN_SETTINGS_CATEGORY_ACL_PATH,
@@ -30,22 +31,12 @@ export const saveAllowed = (
   const connectedMethodsCount =
     socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
   if (connectedMethodsCount === 1) {
-    const checkFormLogin =
-        !("APPSMITH_FORM_LOGIN_DISABLED" in settings) && isFormLoginEnabled,
-      checkGoogleAuth =
-        settings["APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"] !== "" &&
-        socialLoginList.includes("google"),
-      checkGithubAuth =
-        settings["APPSMITH_OAUTH2_GITHUB_CLIENT_ID"] !== "" &&
-        socialLoginList.includes("github"),
-      checkOidcAuth =
-        settings["APPSMITH_OAUTH2_OIDC_CLIENT_ID"] !== "" &&
-        socialLoginList.includes("oidc");
+    const checkOidcAuth =
+      settings["APPSMITH_OAUTH2_OIDC_CLIENT_ID"] !== "" &&
+      socialLoginList.includes("oidc");
 
     return (
-      checkFormLogin ||
-      checkGoogleAuth ||
-      checkGithubAuth ||
+      CE_saveAllowed(settings, isFormLoginEnabled, socialLoginList) ||
       checkOidcAuth ||
       socialLoginList.includes("saml")
     );

@@ -20,6 +20,7 @@ public enum FeatureFlagEnum {
     TEST_FEATURE_1,
     TEST_FEATURE_2,
     TEST_FEATURE_3,
+    TENANT_TEST_FEATURE,
     // ------------------- End of features for testing -------------------------------------------------------------- //
 
     // ------------------- These are actual feature flags meant to be used across the product ----------------------- //
@@ -32,4 +33,20 @@ public enum FeatureFlagEnum {
     ask_ai,
     ask_ai_sql,
     ask_ai_js,
+
+    /**
+     * feature flag for knowledge base generation
+     * knowledge base is the summary of the application on per page basis
+     */
+    release_knowledge_base,
+
+    /**
+     * feature flag for making connection pool sizes for plugins manually configurable
+     */
+    release_connection_pool_size,
+
+    /**
+     * Feature flag to enable the audit log functionality
+     */
+    license_audit_logs_enabled,
 }

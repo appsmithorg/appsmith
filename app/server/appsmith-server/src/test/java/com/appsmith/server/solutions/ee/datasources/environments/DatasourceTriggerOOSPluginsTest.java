@@ -91,6 +91,7 @@ public class DatasourceTriggerOOSPluginsTest {
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
         Workspace workspace = new Workspace();
         workspace.setName("Datasource Trigger Test Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
@@ -181,7 +182,6 @@ public class DatasourceTriggerOOSPluginsTest {
         Datasource datasource = datasourceService
                 .findById(datasourceId, datasourcePermission.getReadPermission())
                 .block();
-        Mockito.doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
 
         Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(
                 datasourceId,

@@ -106,7 +106,7 @@ function* askAI(
       role: "assistant",
       content: result.data.response,
       messageId: result.data.messageId,
-      task: task,
+      taskId: task,
       query,
     };
     yield put({

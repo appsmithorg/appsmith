@@ -34,8 +34,10 @@ function FloatingAIWindow(props: TAIWrapperProps) {
           close={props.close}
           currentValue={props.currentValue}
           dataTreePath={props.dataTreePath}
+          entitiesForNavigation={props.entitiesForNavigation}
           entity={props.entity}
           isOpen={props.isOpen}
+          mode={props.mode}
           triggerContext={props.triggerContext}
           update={props.update}
         />

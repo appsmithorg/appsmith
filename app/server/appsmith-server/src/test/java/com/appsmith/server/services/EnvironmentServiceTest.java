@@ -66,13 +66,13 @@ public class EnvironmentServiceTest {
      */
     @BeforeEach
     public void setup() {
+        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(TRUE));
         Mono<User> userMono = userRepository.findByEmail("api_user").cache();
         workspace = userMono.flatMap(user -> workspaceService.createDefault(new Workspace(), user))
                 .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
                 .block();
 
         doReturn(Mono.justOrEmpty(workspace)).when(workspaceService).findById(any(), Mockito.<AclPermission>any());
-        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(Boolean.TRUE));
     }
 
     @Test

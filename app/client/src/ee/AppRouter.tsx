@@ -30,6 +30,7 @@ import { LICENSE_CHECK_PATH } from "constants/routes";
 import { requiresLicenseCheck } from "./requiresLicenseCheck";
 import { initCurrentPage } from "actions/initActions";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
+import Walkthrough from "components/featureWalkthrough";
 
 const loadingIndicator = <PageLoadingBar />;
 
@@ -95,16 +96,18 @@ function AppRouter(props: {
           </>
         ) : (
           <>
-            {props.isLicenseValid && <AppHeader />}
-            <Switch>
-              {!props.isLicenseValid && (
-                <SentryRoute
-                  component={LicenseCheckPage}
-                  path={LICENSE_CHECK_PATH}
-                />
-              )}
-              <EE_Routes />
-            </Switch>
+            <Walkthrough>
+              {props.isLicenseValid && <AppHeader />}
+              <Switch>
+                {!props.isLicenseValid && (
+                  <SentryRoute
+                    component={LicenseCheckPage}
+                    path={LICENSE_CHECK_PATH}
+                  />
+                )}
+                <EE_Routes />
+              </Switch>
+            </Walkthrough>
             <ProductAlertBanner />
           </>
         )}

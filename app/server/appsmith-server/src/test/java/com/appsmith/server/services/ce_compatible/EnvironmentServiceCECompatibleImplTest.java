@@ -35,9 +35,9 @@ import java.util.Map;
 
 import static com.appsmith.external.constants.CommonFieldName.PRODUCTION_ENVIRONMENT;
 import static com.appsmith.external.constants.CommonFieldName.STAGING_ENVIRONMENT;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
@@ -66,13 +66,13 @@ class EnvironmentServiceCECompatibleImplTest {
 
     @BeforeEach
     void setUp() {
+        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(FALSE));
         Mono<User> userMono = userRepository.findByEmail("api_user").cache();
         workspace = userMono.flatMap(user -> workspaceService.createDefault(new Workspace(), user))
                 .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
                 .block();
 
         doReturn(Mono.justOrEmpty(workspace)).when(workspaceService).findById(any(), Mockito.<AclPermission>any());
-        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(Boolean.FALSE));
     }
 
     @Test

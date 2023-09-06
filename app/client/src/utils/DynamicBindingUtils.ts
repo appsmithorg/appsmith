@@ -471,7 +471,7 @@ export function getDynamicBindingsChangesSaga(
   if (
     action.datasource &&
     ("datasourceConfiguration" in action.datasource ||
-      "datasourceConfiguration" in formData?.datasource) &&
+      "datasourceConfiguration" in (formData?.datasource || {})) &&
     field === "datasource"
   ) {
     // only the datasource.datasourceConfiguration.url can be a dynamic field

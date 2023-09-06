@@ -60,19 +60,16 @@ describe("Datasource form related tests", function () {
     "excludeForAirgap",
     "3. Verify if schema (table and column) exist in query editor and searching works",
     () => {
-      featureFlagIntercept(
-        {
-          ab_ds_schema_enabled: true,
-        },
-        false,
-      );
       agHelper.RefreshPage();
       dataSources.CreateMockDB("Users");
       dataSources.CreateQueryAfterDSSaved();
       dataSources.VerifyTableSchemaOnQueryEditor("public.users");
       entityExplorer.ExpandCollapseEntity("public.users");
       dataSources.VerifyColumnSchemaOnQueryEditor("id");
-      dataSources.FilterAndVerifyDatasourceSchemaBySearch("gender", "column");
+      dataSources.FilterAndVerifyDatasourceSchemaBySearch(
+        "public.us",
+        "public.users",
+      );
     },
   );
 
@@ -80,12 +77,6 @@ describe("Datasource form related tests", function () {
     "excludeForAirgap",
     "4. Verify if collapsible opens when refresh button is opened.",
     () => {
-      featureFlagIntercept(
-        {
-          ab_ds_schema_enabled: true,
-        },
-        false,
-      );
       agHelper.RefreshPage();
       dataSources.CreateMockDB("Users");
       dataSources.CreateQueryAfterDSSaved();
@@ -100,12 +91,6 @@ describe("Datasource form related tests", function () {
 
   // the full list for schema-less plugins can be found here. https://www.notion.so/appsmith/Don-t-show-schema-section-for-plugins-that-don-t-support-it-78f82b6abf7948c5a7d596ae583ed8a4?pvs=4#3862343ca2564f7e83a2c8279965ca61
   it("5. Verify schema does not show up in schema-less plugins", () => {
-    featureFlagIntercept(
-      {
-        ab_ds_schema_enabled: true,
-      },
-      false,
-    );
     agHelper.RefreshPage();
     dataSources.CreateDataSource("Redis", true, false);
     dataSources.CreateQueryAfterDSSaved();
@@ -113,18 +98,9 @@ describe("Datasource form related tests", function () {
   });
 
   it("6. Verify schema searching works for datasources with empty columns for example S3.", () => {
-    featureFlagIntercept(
-      {
-        ab_ds_schema_enabled: true,
-      },
-      false,
-    );
     agHelper.RefreshPage();
     dataSources.CreateDataSource("S3", true, false);
     dataSources.CreateQueryAfterDSSaved();
-    dataSources.FilterAndVerifyDatasourceSchemaBySearch(
-      "appsmith-hris",
-      "table",
-    );
+    dataSources.FilterAndVerifyDatasourceSchemaBySearch("appsmith-hris");
   });
 });

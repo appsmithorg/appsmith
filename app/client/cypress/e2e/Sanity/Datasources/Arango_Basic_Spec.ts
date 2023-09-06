@@ -297,26 +297,17 @@ describe("Validate Arango & CURL Import Datasources", () => {
   });
 
   it("3. Arango Widget Binding - from Suggested widget, Schema filter for Arango DS", () => {
-    featureFlagIntercept(
-      {
-        ab_ds_schema_enabled: true,
-      },
-      false,
-    );
     agHelper.RefreshPage();
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Connect data");
     entityExplorer.NavigateToSwitcher("Explorer");
     entityExplorer.SelectEntityByName("Query6");
-    dataSources.FilterAndVerifyDatasourceSchemaBySearch("country", "column");
+    dataSources.FilterAndVerifyDatasourceSchemaBySearch(collectionName);
     dataSources.RunQuery();
     dataSources.AddSuggestedWidget(Widgets.Table, true); //Binding to new table from schema explorer
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
-    entityExplorer.SelectEntityByName("Query6");
-    agHelper.ClickButton("Select widget"); //Binding to dragDropped table
-    agHelper.AssertElementVisibility(dataSources._snippingBanner);
-    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.TABLE));
-    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
+
+    // Removed the Select Widget snipping mode test case as we have removed the `Connect widget` element from the new bindings UI
   });
 
   //To add test for duplicate collection name

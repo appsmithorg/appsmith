@@ -7,6 +7,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.SSHTunnelContext;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -45,7 +46,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.mariadb.r2dbc.message.server.ColumnDefinitionPacket;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -53,6 +53,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import reactor.pool.PoolShutdownException;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -77,6 +78,8 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.SSHUtils.getConnectionContext;
+import static com.appsmith.external.helpers.SSHUtils.isSSHTunnelConnected;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.plugins.exceptions.MySQLErrorMessages.CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG;
 import static com.external.utils.MySqlDatasourceUtils.getNewConnectionPool;
@@ -86,6 +89,7 @@ import static com.external.utils.MySqlGetStructureUtils.getTemplates;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 public class MySqlPlugin extends BasePlugin {
@@ -93,6 +97,7 @@ public class MySqlPlugin extends BasePlugin {
     private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
     private static final String IS_KEY = "is";
     public static final String JSON_DB_TYPE = "JSON";
+    public static final int CONNECTION_METHOD_INDEX = 1;
     public static final MySqlErrorUtils mySqlErrorUtils = MySqlErrorUtils.getInstance();
 
     /**
@@ -236,7 +241,7 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate) {
+        public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
             ActionConfiguration actionConfig = new ActionConfiguration();
             // Sets query body
             actionConfig.setBody(queryTemplate.getBody());
@@ -258,6 +263,7 @@ public class MySqlPlugin extends BasePlugin {
                 ExecuteActionDTO executeActionDTO,
                 Map<String, Object> requestData) {
             ConnectionPool connectionPool = connectionContext.getConnection();
+            SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
             String query = actionConfiguration.getBody();
 
             /**
@@ -295,6 +301,8 @@ public class MySqlPlugin extends BasePlugin {
                                         .onErrorMap(
                                                 TimeoutException.class,
                                                 error -> new StaleConnectionException(error.getMessage()))
+                                        .map(isConnectionValid ->
+                                                isConnectionValid && isSSHTunnelConnected(sshTunnelContext))
                                         .flatMapMany(isValid -> {
                                             if (isValid) {
                                                 return createAndExecuteQueryFromConnection(
@@ -509,7 +517,7 @@ public class MySqlPlugin extends BasePlugin {
             Set<String> messages = new HashSet<>();
 
             List<String> identicalColumns = getIdenticalColumns(columnNames);
-            if (!CollectionUtils.isEmpty(identicalColumns)) {
+            if (!isEmpty(identicalColumns)) {
                 messages.add("Your MySQL query result may not have all the columns because duplicate column names "
                         + "were found for the column(s): "
                         + String.join(", ", identicalColumns) + ". You may use the "
@@ -603,24 +611,55 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public Mono<ConnectionContext<ConnectionPool>> datasourceCreate(
                 DatasourceConfiguration datasourceConfiguration) {
-            ConnectionPool pool = null;
-            try {
-                pool = getNewConnectionPool(datasourceConfiguration);
-            } catch (AppsmithPluginException e) {
-                return Mono.error(e);
-            }
-
-            return Mono.just(new ConnectionContext(pool, null));
+            return Mono.just(datasourceConfiguration).flatMap(ignore -> {
+                ConnectionContext<ConnectionPool> connectionContext;
+                try {
+                    connectionContext = getConnectionContext(
+                            datasourceConfiguration, CONNECTION_METHOD_INDEX, ConnectionPool.class);
+                    ConnectionPool pool = getNewConnectionPool(datasourceConfiguration, connectionContext);
+                    connectionContext.setConnection(pool);
+                    return Mono.just(connectionContext);
+                } catch (AppsmithPluginException e) {
+                    return Mono.error(e);
+                }
+            });
         }
 
         @Override
         public void datasourceDestroy(ConnectionContext<ConnectionPool> connectionContext) {
+            Mono.just(connectionContext)
+                    .flatMap(ignore -> {
+                        SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
+                        if (sshTunnelContext != null) {
+                            try {
+                                /**
+                                 * IMO, order of these operations is important here (not sure), this particular order
+                                 * seems safe. e.g. if the thread is stopped first then there may be some issues with
+                                 * closing the server socket or disconnecting client.
+                                 */
+                                sshTunnelContext.getServerSocket().close();
+                                sshTunnelContext.getSshClient().disconnect();
+                                sshTunnelContext.getThread().stop();
+                            } catch (IOException e) {
+                                log.debug("Failed to destroy SSH tunnel context: {}", e.getMessage());
+                            }
+                        }
+
+                        return Mono.empty();
+                    })
+                    .subscribeOn(scheduler)
+                    .subscribe();
+
+            /**
+             * This database connection destroy can be scheduled independently of the previous SSH tunnel destroy
+             * because they are not related to each other. They operate as independent units.
+             */
             ConnectionPool connectionPool = connectionContext.getConnection();
             if (connectionPool != null) {
                 connectionPool
                         .disposeLater()
                         .onErrorResume(exception -> {
-                            log.debug("In datasourceDestroy function error mode.", exception);
+                            log.debug("Could not destroy MySQL connection pool", exception);
                             return Mono.empty();
                         })
                         .subscribeOn(scheduler)
@@ -641,13 +680,16 @@ public class MySqlPlugin extends BasePlugin {
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
             ConnectionPool connectionPool = connectionContext.getConnection();
+            SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
             return Mono.usingWhen(
                             connectionPool.create(),
-                            connection -> Mono.from(connection.validate(ValidationDepth.REMOTE))
+                            connection -> Mono.from(connection.validate(ValidationDepth.LOCAL))
                                     .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
                                     .onErrorMap(
                                             TimeoutException.class,
                                             error -> new StaleConnectionException(error.getMessage()))
+                                    .map(isConnectionValid ->
+                                            isConnectionValid && isSSHTunnelConnected(sshTunnelContext))
                                     .flatMapMany(isValid -> {
                                         if (isValid) {
                                             return connection
