@@ -180,7 +180,7 @@ class CategorySliderWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         loading={this.props.isLoading}
         marks={sliderOptions}
         max={stepSize * sliderOptions.length}

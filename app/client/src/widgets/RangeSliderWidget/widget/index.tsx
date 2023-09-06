@@ -171,7 +171,7 @@ class RangeSliderWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         // If showMarks is off don't show marks at all
         loading={this.props.isLoading}
         marks={this.props.showMarksLabel ? this.props.marks : []}

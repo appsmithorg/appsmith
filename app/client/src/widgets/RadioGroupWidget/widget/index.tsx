@@ -627,7 +627,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         loading={isLoading}
         onRadioSelectionChange={this.onRadioSelectionChange}
         options={isArray(options) ? compact(options) : []}
@@ -682,6 +682,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   labelStyle?: string;
   isDirty: boolean;
   accentColor: string;
+  labelComponentWidth?: number;
 }
 
 export default RadioGroupWidget;

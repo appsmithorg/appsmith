@@ -569,7 +569,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         maxDate={this.props.maxDate}
         minDate={this.props.minDate}
         onBlur={this.onBlur}
@@ -653,6 +653,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   timePrecision: TimePrecision;
   onFocus?: string;
   onBlur?: string;
+  labelComponentWidth?: number;
 }
 
 export default DatePickerWidget;

@@ -446,7 +446,7 @@ class RichTextEditorWidget extends BaseWidget<
           labelTextColor={this.props.labelTextColor}
           labelTextSize={this.props.labelTextSize}
           labelTooltip={this.props.labelTooltip}
-          labelWidth={this.getLabelWidth()}
+          labelWidth={this.props.labelComponentWidth}
           onValueChange={this.onValueChange}
           placeholder={this.props.placeholder}
           value={value}
@@ -481,6 +481,7 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   isDirty: boolean;
+  labelComponentWidth?: number;
 }
 
 export default RichTextEditorWidget;

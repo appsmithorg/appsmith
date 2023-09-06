@@ -580,7 +580,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
         onDropdownClose={this.onDropdownClose}
@@ -679,6 +679,7 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   boxShadow?: string;
   accentColor: string;
   isDirty?: boolean;
+  labelComponentWidth?: number;
 }
 
 export default SingleSelectTreeWidget;

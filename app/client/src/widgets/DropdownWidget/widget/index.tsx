@@ -457,7 +457,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         onFilterChange={this.onFilterChange}
         onOptionSelected={this.onOptionSelected}
         options={options}
@@ -541,6 +541,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   accentColor: string;
   fontFamily?: string;
   isDirty?: boolean;
+  labelComponentWidth?: number;
 }
 
 export default DropdownWidget;

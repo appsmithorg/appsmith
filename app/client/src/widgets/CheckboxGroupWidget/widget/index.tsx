@@ -575,7 +575,7 @@ class CheckboxGroupWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         minWidth={this.props.minWidth}
         onChange={this.handleCheckboxChange}
         onSelectAllChange={this.handleSelectAllChange}
@@ -665,6 +665,7 @@ export interface CheckboxGroupWidgetProps extends WidgetProps {
   labelStyle?: string;
   accentColor: string;
   borderRadius: string;
+  labelComponentWidth?: number;
 }
 
 export default CheckboxGroupWidget;

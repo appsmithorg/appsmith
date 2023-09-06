@@ -419,7 +419,7 @@ class PhoneInputWidget extends BaseInputWidget<
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         onFocusChange={this.handleFocusChange}
         onISDCodeChange={this.onISDCodeChange}
         onKeyDown={this.handleKeyDown}

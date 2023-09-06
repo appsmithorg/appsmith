@@ -506,7 +506,7 @@ class MultiSelectWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
         onFilterChange={this.onFilterChange}
@@ -584,6 +584,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   labelPosition?: LabelPosition;
   labelAlignment?: Alignment;
   labelWidth?: number;
+  labelComponentWidth?: number;
 }
 
 export default MultiSelectWidget;

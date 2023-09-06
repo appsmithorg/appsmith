@@ -17,13 +17,20 @@ const getFixedLayoutComponentDimensions = ({
   };
 };
 
+const getLabelWidth = (props: BaseWidgetProps) => {
+  return (Number(props.labelWidth) || 0) * props.parentColumnSpace;
+};
+
 const getFixedLayoutSystemProps = (props: BaseWidgetProps) => {
   const { componentHeight, componentWidth } =
     getFixedLayoutComponentDimensions(props);
+  const labelComponentWidth = getLabelWidth(props);
+
   return {
     ...props,
     componentHeight,
     componentWidth,
+    labelComponentWidth,
   };
 };
 

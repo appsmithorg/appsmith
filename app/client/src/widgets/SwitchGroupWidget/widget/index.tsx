@@ -505,7 +505,7 @@ class SwitchGroupWidget extends BaseWidget<
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
         labelTooltip={labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         onChange={this.handleSwitchStateChange}
         options={_options}
         required={isRequired}
@@ -565,6 +565,7 @@ export interface SwitchGroupWidgetProps extends WidgetProps {
   labelStyle?: string;
   onSelectionChange?: string;
   accentColor: string;
+  labelComponentWidth?: number;
 }
 
 export default SwitchGroupWidget;
