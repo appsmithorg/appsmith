@@ -417,7 +417,6 @@ class WidgetFactory {
     return typeConfigMap;
   }
 
-  @memoize
   static getAutocompleteDefinitions(
     type: WidgetType,
   ): AutocompletionDefinitions {
