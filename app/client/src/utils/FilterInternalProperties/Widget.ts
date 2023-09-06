@@ -7,7 +7,7 @@ import type {
 import type { EntityDefinitionsOptions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { isFunction } from "lodash";
 import type { Def } from "tern";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { addSettersToDefinitions } from "utils/autocomplete/dataTreeTypeDefCreator";
 
 export const getWidgetChildrenPeekData = (

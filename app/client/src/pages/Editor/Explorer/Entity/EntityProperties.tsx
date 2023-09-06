@@ -22,7 +22,7 @@ import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer"
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EntityClassNames } from ".";
 import { Button } from "design-system";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 
 // const CloseIcon = ControlIcons.CLOSE_CONTROL;
 

@@ -7,7 +7,7 @@ import {
   getEntityDependantPaths,
   groupAndFilterDependantsMap,
 } from "utils/WidgetLoadingStateUtils";
-import WidgetFactory from "./WidgetFactory";
+import WidgetFactory from "../WidgetProvider/factory";
 
 const JS_object_tree: JSActionEntity = {
   pluginType: PluginType.JS,
