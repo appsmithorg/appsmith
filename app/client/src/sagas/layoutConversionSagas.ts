@@ -120,7 +120,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
  * This method is used to convert from fixed layout to auto-layout
  * @param action
  */
-function* convertFromFixedToAutoSaga() {
+export function* convertFromFixedToAutoSaga() {
   let appId = "";
   let snapshotSaveSuccess = false;
   try {

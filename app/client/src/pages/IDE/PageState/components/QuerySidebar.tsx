@@ -25,21 +25,35 @@ const QuerySidebar = (props: Props) => {
   const dispatch = useDispatch();
   const { actionId, pageId } = props.match.params;
   const actions = useSelector(getActionsForCurrentPage);
-  const action = find(actions, (action) => action.config.id === actionId);
+  const supportedActions = actions.filter(
+    (a) => a.config.pluginType !== PluginType.SAAS,
+  );
+  const action = find(
+    supportedActions,
+    (action) => action.config.id === actionId,
+  );
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const fileOperations = useFilteredFileOperations();
-  const addOperations = fileOperations.map((op) => {
-    let icon = op.icon;
-    if (op.pluginId) {
-      icon = getPluginIcon(pluginGroups[op.pluginId]);
-    }
-    return {
-      name: op.title,
-      icon,
-      key: op.title,
-    };
-  });
+  const addOperations = fileOperations
+    .filter((op) => {
+      if (op.pluginId) {
+        const plugin = pluginGroups[op.pluginId];
+        return plugin.type !== PluginType.SAAS;
+      }
+      return true;
+    })
+    .map((op) => {
+      let icon = op.icon;
+      if (op.pluginId) {
+        icon = getPluginIcon(pluginGroups[op.pluginId]);
+      }
+      return {
+        name: op.title,
+        icon,
+        key: op.title,
+      };
+    });
   const addItemClick = useCallback(
     (item?: { key: string }) => {
       if (item) {
@@ -55,7 +69,7 @@ const QuerySidebar = (props: Props) => {
     },
     [fileOperations],
   );
-  const toListActions = actions.map((action) => ({
+  const toListActions = supportedActions.map((action) => ({
     name: action.config.name,
     key: action.config.id,
     type: action.config.pluginType,
@@ -85,7 +99,7 @@ const QuerySidebar = (props: Props) => {
   let editor: React.ReactNode = <div />;
 
   if (actionId && action) {
-    if ([PluginType.DB, PluginType.SAAS].includes(action.config.pluginType)) {
+    if (action.config.pluginType === PluginType.DB) {
       editor = (
         <div className="h-full flex">
           <QueryEditor actionId={actionId} pageId={pageId} />

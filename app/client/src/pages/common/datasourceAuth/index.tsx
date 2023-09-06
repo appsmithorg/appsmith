@@ -65,7 +65,6 @@ interface Props {
   triggerSave?: boolean;
   isFormDirty?: boolean;
   scopeValue?: string;
-  showFilterComponent: boolean;
   onCancel: () => void;
 }
 
@@ -96,13 +95,11 @@ export const DatasourceButtonType: Record<
 
 export const ActionButton = styled(Button)<{
   floatLeft: boolean;
-  showFilterComponent: boolean;
 }>`
   &&& {
     // Pulling button to the left if floatLeft is set as true
     margin-right: ${(props) => (props.floatLeft ? "auto" : "9px")};
-    // If filter component is present, then we need to push the button to the right
-    margin-left: ${(props) => (props.showFilterComponent ? "24px" : "0px")};
+    margin-left: ${(props) => (props.floatLeft ? "16px" : "0px")};
   }
 `;
 
@@ -112,12 +109,14 @@ const SaveButtonContainer = styled.div<{
   display: flex;
   justify-content: flex-end;
   gap: 9px;
-  padding-right: 20px;
+  padding: 10px 20px 10px 10px;
   border-top: ${(props) =>
     props.isInsideReconnectModal ? "none" : "1px solid"};
   border-color: var(--ads-v2-color-border);
   align-items: center;
-  height: 68px;
+  //height: 68px;
+  width: 100%;
+  margin-left: 160px;
 `;
 
 const StyledAuthMessage = styled.div`
@@ -151,7 +150,6 @@ function DatasourceAuth({
   isFormDirty,
   scopeValue,
   isInsideReconnectModal,
-  showFilterComponent,
   onCancel,
 }: Props) {
   const shouldRender = !viewMode || isInsideReconnectModal;
@@ -331,7 +329,6 @@ function DatasourceAuth({
           key={buttonType}
           kind="secondary"
           onClick={handleDatasourceTest}
-          showFilterComponent={showFilterComponent}
           size="md"
         >
           {createMessage(TEST_BUTTON_TEXT)}

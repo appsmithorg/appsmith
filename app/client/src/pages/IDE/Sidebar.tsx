@@ -7,6 +7,8 @@ import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { useParams } from "react-router";
 import { Layers } from "constants/Layers";
+import { useSelector } from "react-redux";
+import { getCurrentPageId, getPageList } from "../../selectors/editorSelectors";
 
 const DataIcon = importSvg(
   () => import("pages/IDE/assets/icons/database-2-line.svg"),
@@ -101,12 +103,14 @@ const Sidebar = () => {
     appId: string;
   }>();
   const selectedState = params.ideState;
+  const currentPageId = useSelector(getCurrentPageId);
+  const pages = useSelector(getPageList);
   const setAppState = useCallback((state: IDEAppState) => {
     history.push(
       builderURL({
         ideState: state,
         appId: params.appId,
-        pageId: "test",
+        pageId: currentPageId || pages[0].pageId,
       }),
     );
   }, []);

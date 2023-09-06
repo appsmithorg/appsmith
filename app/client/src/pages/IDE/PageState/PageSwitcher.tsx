@@ -46,7 +46,7 @@ const SwitchMode = styled.div`
 `;
 
 const PageList = styled.div<{ width: number }>`
-  height: 100%;
+  height: calc(100vh - 80px);
   background-color: white;
   position: absolute;
   top: 40px;

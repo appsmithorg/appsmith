@@ -15,6 +15,7 @@ import { isDatasourceInViewMode } from "../../../selectors/ui";
 import DatasourceInformation from "../../Editor/DataSourceEditor/DatasourceSection";
 import styled from "styled-components";
 import { ViewModeWrapper } from "../../Editor/DataSourceEditor/DBForm";
+import EditDatasourceModal from "./EditDatasourceModal";
 
 const DatasourceViewInfo = styled.div`
   padding: 0 20px;
@@ -73,6 +74,7 @@ const DataMainPane = () => {
           ) : undefined}
         </ViewModeWrapper>
       </DatasourceViewInfo>
+      <EditDatasourceModal datasource={datasource} />
     </>
   );
 };
