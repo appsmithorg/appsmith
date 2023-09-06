@@ -1,6 +1,7 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 
 let datasourceName;
 
@@ -22,7 +23,7 @@ describe("Add widget - Postgress DataSource", function () {
     _.dataSources.EnterQuery("select * from public.configs");
     cy.WaitAutoSave();
     cy.runQuery();
-    cy.get(queryEditor.suggestedTableWidget).click();
+    _.dataSources.AddSuggestedWidget(Widgets.Table);
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("Table1");
     cy.isSelectRow(1);

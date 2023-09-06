@@ -2,17 +2,14 @@ import React, { useContext, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
-import { Button, Divider, Icon, Link, Text } from "design-system";
+import { Divider, Icon, Link, Text } from "design-system";
 import { useState } from "react";
-import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
-import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { AppState } from "@appsmith/reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import {
@@ -29,7 +26,6 @@ import type {
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
@@ -41,14 +37,7 @@ import {
   SCHEMALESS_PLUGINS,
 } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import {
-  adaptiveSignpostingEnabled,
-  selectFeatureFlagCheck,
-} from "@appsmith/selectors/featureFlagsSelectors";
-import {
-  AB_TESTING_EVENT_KEYS,
-  FEATURE_FLAG,
-} from "@appsmith/entities/FeatureFlag";
+import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
@@ -166,23 +155,6 @@ const CollapsibleWrapper = styled.div<{
   }
 `;
 
-const SnipingWrapper = styled.div`
-  ${getTypographyByKey("p1")}
-  margin-left: ${(props) => props.theme.spaces[2] + 1}px;
-
-  img {
-    max-width: 100%;
-  }
-
-  .image-wrapper {
-    position: relative;
-    margin-top: ${(props) => props.theme.spaces[1]}px;
-  }
-
-  .widget:hover {
-    cursor: pointer;
-  }
-`;
 const Placeholder = styled.div`
   display: flex;
   justify-content: center;
@@ -302,7 +274,6 @@ function ActionSidebar({
   actionName,
   context,
   datasourceId,
-  entityDependencies,
   hasConnections,
   hasResponse,
   pluginId,
@@ -312,17 +283,12 @@ function ActionSidebar({
   hasResponse: boolean;
   hasConnections: boolean | null;
   suggestedWidgets?: SuggestedWidgetsType[];
-  entityDependencies: {
-    directDependencies: string[];
-    inverseDependencies: string[];
-  } | null;
   datasourceId: string;
   pluginId: string;
   context: DatasourceStructureContext;
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
-  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const user = useSelector(getCurrentUser);
   const {
@@ -335,20 +301,6 @@ function ActionSidebar({
     apiId?: string;
     queryId?: string;
   }>();
-  const handleBindData = () => {
-    AnalyticsUtil.logEvent("SELECT_IN_CANVAS_CLICK", {
-      actionName: actionName,
-      apiId: params.apiId || params.queryId,
-      appId: applicationId,
-    });
-    dispatch(
-      bindDataOnCanvas({
-        queryId: (params.apiId || params.queryId) as string,
-        applicationId: applicationId as string,
-        pageId: params.pageId,
-      }),
-    );
-  };
 
   const pluginName = useSelector((state) =>
     getPluginNameFromId(state, pluginId || ""),
@@ -356,16 +308,6 @@ function ActionSidebar({
 
   const pluginDatasourceForm = useSelector((state) =>
     getPluginDatasourceComponentFromId(state, pluginId || ""),
-  );
-
-  // A/B feature flag for datasource structure.
-  const isEnabledForDSSchema = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema_enabled),
-  );
-
-  // A/B feature flag for query binding.
-  const isEnabledForQueryBinding = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
   );
 
   const datasourceStructure = useSelector((state) =>
@@ -392,7 +334,7 @@ function ActionSidebar({
 
   const checkAndShowWalkthrough = async () => {
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
+      FEATURE_WALKTHROUGH_KEYS.ds_schema,
     );
 
     const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
@@ -404,7 +346,7 @@ function ActionSidebar({
         targetId: `#${SCHEMA_SECTION_ID}`,
         onDismiss: async () => {
           await setFeatureWalkthroughShown(
-            FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
+            FEATURE_WALKTHROUGH_KEYS.ds_schema,
             true,
           );
         },
@@ -423,9 +365,7 @@ function ActionSidebar({
           },
         },
         eventParams: {
-          [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-            FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
-          [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
+          [FEATURE_WALKTHROUGH_KEYS.ds_schema]: true,
         },
         delay: 5000,
       });
@@ -448,7 +388,6 @@ function ActionSidebar({
   }, [hasWidgets, adaptiveSignposting, signpostingEnabled]);
 
   const showSchema =
-    isEnabledForDSSchema &&
     pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm &&
     !SCHEMALESS_PLUGINS.includes(pluginName);
 
@@ -519,31 +458,7 @@ function ActionSidebar({
         </SchemaSideBarSection>
       )}
 
-      {showSchema && isEnabledForQueryBinding && <Divider />}
-
-      {hasConnections && !isEnabledForQueryBinding && (
-        <Connections
-          actionName={actionName}
-          entityDependencies={entityDependencies}
-        />
-      )}
-      {!isEnabledForQueryBinding &&
-        canEditPage &&
-        hasResponse &&
-        Object.keys(widgets).length > 1 && (
-          <Collapsible label="Connect widget">
-            <SnipingWrapper>
-              <Button
-                className={"t--select-in-canvas"}
-                kind="secondary"
-                onClick={handleBindData}
-                size="md"
-              >
-                Select widget
-              </Button>
-            </SnipingWrapper>
-          </Collapsible>
-        )}
+      {showSchema && <Divider />}
       {showSuggestedWidgets ? (
         <SchemaSideBarSection height={40} marginTop={12}>
           <SuggestedWidgets
@@ -553,12 +468,10 @@ function ActionSidebar({
           />
         </SchemaSideBarSection>
       ) : (
-        isEnabledForQueryBinding && (
-          <DisabledCollapsible
-            label={createMessage(BINDING_SECTION_LABEL)}
-            tooltipLabel={createMessage(BINDINGS_DISABLED_TOOLTIP)}
-          />
-        )
+        <DisabledCollapsible
+          label={createMessage(BINDING_SECTION_LABEL)}
+          tooltipLabel={createMessage(BINDINGS_DISABLED_TOOLTIP)}
+        />
       )}
     </SideBar>
   );

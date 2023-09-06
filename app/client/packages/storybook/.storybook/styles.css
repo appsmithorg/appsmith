@@ -15,6 +15,14 @@ body,
   width: 100%;
 }
 
+.sbdocs.sbdocs-wrapper {
+  padding: 20px;
+}
+
+.sbdocs.sbdocs-content {
+  max-width: unset;
+}
+
 /** we are stopping  animation for all elements for chromatic so that our snapshopts are consistent */
 .is-chromatic * {
   animation: none !important;
