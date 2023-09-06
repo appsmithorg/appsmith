@@ -1468,7 +1468,7 @@ export default class DataTreeEvaluator {
     // setting parseValue in dataTree
     set(currentTree, fullPropertyPath, parsedValue);
     // setting evalPropertyValue in unParsedEvalTree
-    set(this.getUnParsedEvalTree(), fullPropertyPath, evalPropertyValue);
+    set(this.getUnParsedEvalTree(), fullPropertyPath, klona(evalPropertyValue));
   }
 
   reValidateWidgetDependentProperty({
