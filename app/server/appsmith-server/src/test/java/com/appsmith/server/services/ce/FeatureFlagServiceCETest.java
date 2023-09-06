@@ -263,7 +263,8 @@ public class FeatureFlagServiceCETest {
                 .verifyComplete();
 
         // Check after force update if we get updated values for existing features
-        Mono<CachedFeatures> updatedCacheMono = featureFlagService.forceUpdateTenantFeatures(tenantIdentifier);
+        Mono<CachedFeatures> updatedCacheMono =
+                featureFlagService.forceUpdateTenantFeaturesAndSavePendingMigrationFlags(tenantIdentifier);
         // Assert if the cache entry is updated
         StepVerifier.create(updatedCacheMono)
                 .assertNext(cachedFeatures -> {
@@ -314,7 +315,8 @@ public class FeatureFlagServiceCETest {
                 .verifyComplete();
 
         // Check after force update if we get updated values for existing features
-        Mono<CachedFeatures> updatedCacheMono = featureFlagService.forceUpdateTenantFeatures(tenantIdentifier);
+        Mono<CachedFeatures> updatedCacheMono =
+                featureFlagService.forceUpdateTenantFeaturesAndSavePendingMigrationFlags(tenantIdentifier);
         // Assert if the cache entry is updated
         StepVerifier.create(updatedCacheMono)
                 .assertNext(cachedFeatures -> {
