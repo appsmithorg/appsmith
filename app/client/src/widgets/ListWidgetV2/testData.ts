@@ -1,6 +1,6 @@
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 
 export const simpleListInput = {
   containerParentId: "c9cgrw1iky",
