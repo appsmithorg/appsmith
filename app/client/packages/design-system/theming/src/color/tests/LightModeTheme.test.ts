@@ -112,4 +112,26 @@ describe("@design-system/theming/color/LightModeTheme", () => {
     ).getColors();
     expect(bgAccentActive4).toBe("rgb(100% 88.945% 74.563%)");
   });
+
+  it("it checks bgAccentSubtleHover color", () => {
+    const { bgAccentSubtleHover: bgAccentSubtleHover1 } = new LightModeTheme(
+      "oklch(0.35 0.09 70)",
+    ).getColors();
+    expect(bgAccentSubtleHover1).toBe("rgb(28.712% 15.185% 0%)");
+  });
+
+  it("it checks bgAccentSubtleActive color", () => {
+    const { bgAccentSubtleActive: bgAccentSubtleActive1 } = new LightModeTheme(
+      "oklch(0.35 0.09 70)",
+    ).getColors();
+    expect(bgAccentSubtleActive1).toBe("rgb(28.712% 15.185% 0%)");
+  });
+
+  it("it checks bgAssistive", () => {
+    // seed is achromatic
+    const { bgAssistive: bgAssistive1 } = new LightModeTheme(
+      "oklch(0.35 0.03 0)",
+    ).getColors();
+    expect(bgAssistive1).toBe("rgb(100% 100% 100%)");
+  });
 });

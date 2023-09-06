@@ -88,4 +88,18 @@ describe("@design-system/theming/color/DarkModeTheme", () => {
     ).getColors();
     expect(bgAccentActive4).toBe("rgb(46.054% 74.898% 89.15%)");
   });
+
+  it("it checks bgAccentSubtleHover color", () => {
+    const { bgAccentSubtleHover: bgAccentSubtleHover1 } = new DarkModeTheme(
+      "oklch(0.35 0.09 70)",
+    ).getColors();
+    expect(bgAccentSubtleHover1).toBe("rgb(28.712% 15.185% 0%)");
+  });
+
+  it("it checks bgAccentSubtleActive color", () => {
+    const { bgAccentSubtleActive: bgAccentSubtleActive1 } = new DarkModeTheme(
+      "oklch(0.35 0.09 70)",
+    ).getColors();
+    expect(bgAccentSubtleActive1).toBe("rgb(28.712% 15.185% 0%)");
+  });
 });
