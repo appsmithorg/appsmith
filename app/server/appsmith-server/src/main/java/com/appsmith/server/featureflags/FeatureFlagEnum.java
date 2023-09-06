@@ -33,7 +33,7 @@ public enum FeatureFlagEnum {
     ask_ai,
     ask_ai_sql,
     ask_ai_js,
-
+    license_session_limit_enabled,
     /**
      * feature flag for knowledge base generation
      * knowledge base is the summary of the application on per page basis

@@ -66,6 +66,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -106,6 +107,9 @@ public class TenantServiceTest {
     @SpyBean
     CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
 
+    @MockBean
+    FeatureFlagService featureFlagService;
+
     private Tenant tenant;
 
     @BeforeEach
@@ -123,6 +127,7 @@ public class TenantServiceTest {
         User api_user = userRepository.findByEmail("api_user").block();
         // Todo change this to tenant admin once we introduce multitenancy
         userUtils.makeSuperUser(List.of(api_user)).block();
+        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
     }
 
     @Test
@@ -670,13 +675,14 @@ public class TenantServiceTest {
         assertTenantConfigurations(
                 newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, false, true, true);
 
+        when(featureFlagService.check(any())).thenReturn(Mono.just(false));
         Mono<String> update2_singleSessionPerUserEnabled = Mono.just("{\"singleSessionPerUserEnabled\": false}");
 
         Tenant defaultTenantPostUpdate2 = tenantService
                 .updateDefaultTenantConfiguration(update2_singleSessionPerUserEnabled, Mono.empty(), Mono.empty())
                 .block();
         TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
-        assertThat(newTenantConfiguration2.getSingleSessionPerUserEnabled()).isFalse();
+        assertThat(newTenantConfiguration2.getSingleSessionPerUserEnabled()).isTrue();
         assertTenantConfigurations(
                 newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, false, true, true);
     }

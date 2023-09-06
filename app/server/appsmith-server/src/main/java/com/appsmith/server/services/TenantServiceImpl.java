@@ -67,6 +67,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
     private final AssetService assetService;
     private final ObjectMapper objectMapper;
+    private final SessionLimiterService sessionLimiterService;
 
     // Based on information provided on the Branding page.
     private static final int MAX_LOGO_SIZE_KB = 2048;
@@ -89,7 +90,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             AssetService assetService,
             ObjectMapper objectMapper,
             CacheableFeatureFlagHelper cacheableFeatureFlagHelper,
-            @Lazy EnvManager envManager) {
+            @Lazy EnvManager envManager,
+            SessionLimiterService sessionLimiterService) {
 
         super(
                 scheduler,
@@ -108,6 +110,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         this.assetService = assetService;
         this.objectMapper = objectMapper;
         this.cacheableFeatureFlagHelper = cacheableFeatureFlagHelper;
+        this.sessionLimiterService = sessionLimiterService;
     }
 
     @Override
@@ -461,7 +464,11 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     // TODO replace the null setting with @JsonProperty(access = JsonProperty.Access.READ_ONLY) for
                     //  `isActivated` field to make the field read only for client
                     updateForTenantConfig.setIsActivated(null);
-                    return updateTenantConfiguration(defaultTenant.getId(), updateForTenantConfig);
+                    // update tenant config specific to session limits
+                    return sessionLimiterService
+                            .updateTenantConfiguration(updateForTenantConfig)
+                            .flatMap(updatedTenantConfigs ->
+                                    updateTenantConfiguration(defaultTenant.getId(), updatedTenantConfigs));
                 })
                 .flatMap(updatedTenant -> getTenantConfiguration());
     }
