@@ -113,25 +113,57 @@ describe("@design-system/theming/color/LightModeTheme", () => {
     expect(bgAccentActive4).toBe("rgb(100% 88.945% 74.563%)");
   });
 
+  it("it checks bgAccentSubtle", () => {
+    // seedLightness > 0.93
+    const { bgAccentSubtle: bgAccentSubtle1 } = new LightModeTheme(
+      "oklch(0.95 0.09 231)",
+    ).getColors();
+    expect(bgAccentSubtle1).toBe("rgb(85.876% 96.17% 100%)");
+
+    // seedLightness < 0.93
+    const { bgAccentSubtle: bgAccentSubtle2 } = new LightModeTheme(
+      "oklch(0.92 0.09 231)",
+    ).getColors();
+    expect(bgAccentSubtle2).toBe("rgb(78.235% 93.705% 100%)");
+
+    // seedChroma > 0.09 && h >= 116 && h <= 165
+    const { bgAccentSubtle: bgAccentSubtle3 } = new LightModeTheme(
+      "oklch(0.95 0.10 120)",
+    ).getColors();
+    expect(bgAccentSubtle3).toBe("rgb(90.964% 97.964% 71.119%)");
+
+    // seedChroma > 0.06 && !(h >= 116 && h <= 165)
+    const { bgAccentSubtle: bgAccentSubtle4 } = new LightModeTheme(
+      "oklch(0.95 0.07 170)",
+    ).getColors();
+    expect(bgAccentSubtle4).toBe("rgb(75.944% 100% 91.359%)");
+
+    // seedChroma < 0.04
+    const { bgAccentSubtle: bgAccentSubtle5 } = new LightModeTheme(
+      "oklch(0.95 0.03 170)",
+    ).getColors();
+    expect(bgAccentSubtle5).toBe("rgb(94.099% 94.099% 94.099%)");
+  });
+
   it("it checks bgAccentSubtleHover color", () => {
     const { bgAccentSubtleHover: bgAccentSubtleHover1 } = new LightModeTheme(
       "oklch(0.35 0.09 70)",
     ).getColors();
-    expect(bgAccentSubtleHover1).toBe("rgb(28.712% 15.185% 0%)");
+    expect(bgAccentSubtleHover1).toBe("rgb(100% 91.599% 80.256%)");
   });
 
   it("it checks bgAccentSubtleActive color", () => {
     const { bgAccentSubtleActive: bgAccentSubtleActive1 } = new LightModeTheme(
       "oklch(0.35 0.09 70)",
     ).getColors();
-    expect(bgAccentSubtleActive1).toBe("rgb(28.712% 15.185% 0%)");
+    expect(bgAccentSubtleActive1).toBe("rgb(100% 87.217% 72.911%)");
   });
 
   it("it checks bgAssistive", () => {
     // seed is achromatic
     const { bgAssistive: bgAssistive1 } = new LightModeTheme(
-      "oklch(0.35 0.03 0)",
+      "oklch(0.95 0.03 170)",
     ).getColors();
-    expect(bgAssistive1).toBe("rgb(100% 100% 100%)");
+    expect(bgAssistive1).toBe("rgb(5.1758% 5.1758% 5.1759%)");
   });
 });

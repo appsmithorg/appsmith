@@ -89,17 +89,51 @@ describe("@design-system/theming/color/DarkModeTheme", () => {
     expect(bgAccentActive4).toBe("rgb(46.054% 74.898% 89.15%)");
   });
 
+  it("it checks bgAccentSubtle color", () => {
+    // seedLightness > 0.25
+    const { bgAccentSubtle: bgAccentSubtle1 } = new DarkModeTheme(
+      "oklch(0.30 0.09 231)",
+    ).getColors();
+    expect(bgAccentSubtle1).toBe("rgb(0% 14.671% 23.499%)");
+
+    // seedLightness < 0.2
+    const { bgAccentSubtle: bgAccentSubtle2 } = new DarkModeTheme(
+      "oklch(0.15 0.09 231)",
+    ).getColors();
+    expect(bgAccentSubtle2).toBe("rgb(0% 9.5878% 17.677%)");
+
+    // seedChroma > 0.1
+    const { bgAccentSubtle: bgAccentSubtle3 } = new DarkModeTheme(
+      "oklch(0.30 0.15 231)",
+    ).getColors();
+    expect(bgAccentSubtle3).toBe("rgb(0% 14.556% 23.9%)");
+
+    // seedChroma < 0.04
+    const { bgAccentSubtle: bgAccentSubtle4 } = new DarkModeTheme(
+      "oklch(0.30 0.03 231)",
+    ).getColors();
+    expect(bgAccentSubtle4).toBe("rgb(13.15% 13.15% 13.15%)");
+  });
+
   it("it checks bgAccentSubtleHover color", () => {
     const { bgAccentSubtleHover: bgAccentSubtleHover1 } = new DarkModeTheme(
       "oklch(0.35 0.09 70)",
     ).getColors();
-    expect(bgAccentSubtleHover1).toBe("rgb(28.712% 15.185% 0%)");
+    expect(bgAccentSubtleHover1).toBe("rgb(25.181% 12.291% 0%)");
   });
 
   it("it checks bgAccentSubtleActive color", () => {
     const { bgAccentSubtleActive: bgAccentSubtleActive1 } = new DarkModeTheme(
       "oklch(0.35 0.09 70)",
     ).getColors();
-    expect(bgAccentSubtleActive1).toBe("rgb(28.712% 15.185% 0%)");
+    expect(bgAccentSubtleActive1).toBe("rgb(19.651% 7.4427% 0%)");
+  });
+
+  it("it checks bgAssistive", () => {
+    // seed is achromatic
+    const { bgAssistive: bgAssistive1 } = new DarkModeTheme(
+      "oklch(0.95 0.03 170)",
+    ).getColors();
+    expect(bgAssistive1).toBe("rgb(5.1758% 5.1758% 5.1759%)");
   });
 });
