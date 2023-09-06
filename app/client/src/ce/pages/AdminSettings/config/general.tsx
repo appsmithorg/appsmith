@@ -18,6 +18,17 @@ import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
 import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";
 import { formatEmbedSettings } from "pages/Applications/EmbedSnippet/Utils/utils";
+import {
+  isProgramaticAccessControlEnabled,
+  isUserSessionLimitEnabled,
+} from "@appsmith/utils/planHelpers";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import store from "store";
+
+const featureFlags = selectFeatureFlags(store.getState());
+const isSessionLimitEnabled = isUserSessionLimitEnabled(featureFlags);
+const isProgramaticAccessControlFFEnabled =
+  isProgramaticAccessControlEnabled(featureFlags);
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "instanceName",
@@ -83,6 +94,28 @@ export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
   isFeatureEnabled: false,
   isDisabled: () => true,
   textSuffix: <BrandingBadge />,
+};
+
+export const APPSMITH_SINGLE_USER_PER_SESSION_SETTING: Setting = {
+  id: "singleSessionPerUserEnabled",
+  name: "singleSessionPerUserEnabled",
+  category: SettingCategories.GENERAL,
+  controlType: SettingTypes.CHECKBOX,
+  label: "User session limit",
+  text: "Limit users to a single active session",
+  isFeatureEnabled: !isSessionLimitEnabled,
+  isDisabled: () => isSessionLimitEnabled,
+};
+
+export const APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING: Setting = {
+  id: "showRolesAndGroups",
+  name: "showRolesAndGroups",
+  category: SettingCategories.GENERAL,
+  controlType: SettingTypes.CHECKBOX,
+  label: "Programmatic access control",
+  text: "Access roles and user groups in code for conditional business logic",
+  isFeatureEnabled: !isProgramaticAccessControlFFEnabled,
+  isDisabled: () => isProgramaticAccessControlFFEnabled,
 };
 
 export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
@@ -162,6 +195,8 @@ export const config: AdminConfigType = {
     APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING,
     APPSMITH_DISABLE_TELEMETRY_SETTING,
     APPSMITH_HIDE_WATERMARK_SETTING,
+    APPSMITH_SINGLE_USER_PER_SESSION_SETTING,
+    APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
   ],
 } as AdminConfigType;
