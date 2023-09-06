@@ -139,7 +139,7 @@ function getArgs() {
 
 export async function cypressSplit(on: any, config: any) {
   try {
-    let currentRunner = 1;
+    let currentRunner = 0;
     let allRunners = 1;
     let specPattern = await config.specPattern;
     const ignorePattern = await config.excludeSpecPattern;
