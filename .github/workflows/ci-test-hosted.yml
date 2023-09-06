@@ -437,7 +437,7 @@ jobs:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}
-      
+
       - name: get cypress url dashboard url
         id: dashboard_url
         if: always()
@@ -457,7 +457,7 @@ jobs:
             echo "slack_message=There are test failures in the run. Please check the <${{ steps.dashboard_url.outputs.url }}|Cypress dashboard> for more details." >> $GITHUB_OUTPUT
             echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
           else
-            echo "slack_message=All tests passed successfully :tada: . Cypress Dashboard: <${{ steps.dashboard_url.outputs.url }}|Click here!>" >> $GITHUB_OUTPUT
+            echo "slack_message=All tests passed successfully :tada: . Cypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/allruns-64ec3df0c632e24c00764937?branch=master|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#00FF00" >> $GITHUB_OUTPUT
           fi
 
@@ -468,13 +468,13 @@ jobs:
         env:
           SLACK_CHANNEL: cypresspushworkflow
           SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
-          SLACK_ICON_EMOJI: ':bell:'
+          SLACK_ICON_EMOJI: ":bell:"
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
-          SLACK_TITLE: 'Result:'
+          SLACK_TITLE: "Result:"
           SLACK_USERNAME: Cloud-Hosted Tests
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
           MSG_MINIMAL: Ref,Event,Commit
-          SLACK_FOOTER: 'Appsmith CI runs'
+          SLACK_FOOTER: "Appsmith CI runs"
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
