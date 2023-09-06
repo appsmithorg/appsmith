@@ -150,7 +150,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      * To get all features of the tenant from Cloud Services and store them locally
      * @return Mono of Void
      */
-    public Mono<Void> getAllRemoteFeaturesForTenant() {
+    public Mono<Void> getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations() {
         return tenantService
                 .getDefaultTenant()
                 .flatMap(defaultTenant -> cacheableFeatureFlagHelper

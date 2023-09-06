@@ -20,7 +20,7 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
     public void fetchFeatures() {
         log.info("Fetching features for default tenant");
         featureFlagService
-                .getAllRemoteFeaturesForTenant()
+                .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
                 .doOnError(error -> log.error("Error while fetching features from Cloud Services {0}", error))
                 .subscribeOn(scheduler)
                 .subscribe();
