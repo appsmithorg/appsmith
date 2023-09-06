@@ -473,6 +473,7 @@ class CodeEditor extends Component<Props, State> {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           this.props.hinting!, // ! since defaultProps are set
           this.props.dynamicData,
+          this.props.entitiesForNavigation, // send navigation here
         );
 
         this.lintCode(editor);
@@ -958,9 +959,10 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
+    entitiesForNavigation: EntityNavigationData,
   ) {
     return hinting.map((helper) => {
-      return helper(editor, dynamicData);
+      return helper(editor, dynamicData, entitiesForNavigation);
     });
   }
 

@@ -28,6 +28,7 @@ export type NavigationData = {
   name: string;
   id: string;
   type: ENTITY_TYPE;
+  isfunction?: boolean;
   url: string | undefined;
   navigable: boolean;
   children: EntityNavigationData;

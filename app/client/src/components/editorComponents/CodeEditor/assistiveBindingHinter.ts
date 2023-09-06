@@ -8,15 +8,20 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { generateAssistiveBindingCommands } from "./assistiveBindingCommands";
 import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import log from "loglevel";
+// import log from "loglevel";
 
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 // import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import type { SlashCommandPayload } from "entities/Action";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { EntityNavigationData } from "selectors/navigationSelectors";
 
-export const assistiveBindingHinter: HintHelper = (editor, data: DataTree) => {
+export const assistiveBindingHinter: HintHelper = (
+  editor,
+  data: DataTree,
+  entitiesForNavigation: EntityNavigationData,
+) => {
   let entitiesForSuggestions: any[] = [];
 
   Object.keys(data).forEach((entityName) => {
@@ -83,6 +88,17 @@ export const assistiveBindingHinter: HintHelper = (editor, data: DataTree) => {
             enableAIAssistance,
           },
         );
+        const hinterHeaders = 1; // hinter headers
+        //ASSISTIVE_JS_BINDING_TRIGGERED when not empty
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // const { data, render, ...rest } = selected; DELETE
+        // const { ENTITY_TYPE, name, pluginType } = data as any; DELETE
+        AnalyticsUtil.logEvent("ASSISTIVE_JS_BINDING_TRIGGERED", {
+          query: value,
+          suggestedEntityCount: list.length - hinterHeaders,
+          entityType: entityInfo.entityType,
+        });
+
         let currentSelection: CommandsCompletion = {
           origin: "",
           type: AutocompleteDataType.UNKNOWN,
@@ -115,26 +131,25 @@ export const assistiveBindingHinter: HintHelper = (editor, data: DataTree) => {
                   line: editor.lineCount() - 1,
                   ch: editor.getLine(editor.lineCount() - 1).length - 2,
                 });
-                if (selected.action && typeof selected.action === "function") {
-                  selected.action();
-                } else {
-                  selected.triggerCompletionsPostPick &&
-                    CodeMirror.signal(editor, "postPick", selected.displayText);
-                }
               });
-              try {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { data, render, ...rest } = selected;
-                const { ENTITY_TYPE, name, pluginType } = data as any;
-                AnalyticsUtil.logEvent("SLASH_COMMAND", {
-                  ...rest,
-                  ENTITY_TYPE,
-                  name,
-                  pluginType,
-                });
-              } catch (e) {
-                log.debug(e, "Error logging binding suggestions command");
-              }
+
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { data, render, ...rest } = selected;
+              // const { ENTITY_TYPE, entityName, pluginType } = data as any;
+              const selectedOptionType =
+                ENTITY_TYPE != "JSACTION"
+                  ? ENTITY_TYPE
+                  : entitiesForNavigation[entityName].isfunction == true
+                  ? "JSFunction"
+                  : "JSVariable";
+              AnalyticsUtil.logEvent("ASSISTIVE_JS_BINDING_OPTION_SELECTED", {
+                query: value,
+                suggestedEntityCount: list.length - hinterHeaders,
+                selectedOptionType: selectedOptionType,
+                // selectedOptionIndex :
+                entityType: entityInfo.entityType,
+              });
+
               CodeMirror.off(hints, "pick", handlePick);
               CodeMirror.off(hints, "select", handleSelection);
             }

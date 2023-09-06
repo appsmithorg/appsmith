@@ -8,6 +8,7 @@ export const createNavData = (general: {
   name: string;
   id: string;
   type: ENTITY_TYPE;
+  isfunction?: boolean;
   children: EntityNavigationData;
   key?: string;
   url: string | undefined;
@@ -20,6 +21,7 @@ export const createNavData = (general: {
     name: general.name,
     id: general.id,
     type: general.type,
+    isfunction: general.isfunction,
     children: general.children,
     key: general.key,
     url: general.url,
