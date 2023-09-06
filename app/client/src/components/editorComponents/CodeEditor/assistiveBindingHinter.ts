@@ -138,10 +138,10 @@ export const assistiveBindingHinter: HintHelper = (
               const { data, render, ...rest } = selected;
               const { ENTITY_TYPE, entityName } = data as any;
               const jsLexicalName: string | undefined =
-                selected.displayText?.replace(entityName + ".", "");
-              const selectedOptionType: string =
+                selected.displayText?.replace(entityName + ".", ""); //name of the variable of functions in JSAction
+              const selectedOptionType: string | undefined =
                 ENTITY_TYPE !== "JSACTION"
-                  ? ENTITY_TYPE
+                  ? entitiesForNavigation[entityName].actionType
                   : jsLexicalName !== undefined &&
                     entitiesForNavigation[entityName].children[jsLexicalName]
                       .isfunction === true
