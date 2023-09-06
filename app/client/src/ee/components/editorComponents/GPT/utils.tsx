@@ -21,7 +21,7 @@ import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 import FuzzySet from "fuzzyset";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import log from "loglevel";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { WidgetType } from "constants/WidgetConstants";
