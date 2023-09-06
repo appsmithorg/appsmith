@@ -44,7 +44,7 @@ import {
   getCanvasWidgets,
   getJSCollections,
 } from "selectors/entitiesSelector";
-import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import {
   buildChildWidgetTree,
   buildFlattenedChildCanvasWidgets,
@@ -53,10 +53,10 @@ import {
 } from "utils/widgetRenderUtils";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import type { CanvasWidgetStructure } from "widgets/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { nestDSL } from "@shared/dsl";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
@@ -69,8 +69,6 @@ const getIsDraggingOrResizing = (state: AppState) =>
 
 const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
 
-export const getWidgetConfigs = (state: AppState) =>
-  state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
 export const getProviderCategories = (state: AppState) =>
@@ -339,11 +337,12 @@ export const getCurrentPageName = createSelector(
 );
 
 export const getWidgetCards = createSelector(
-  getWidgetConfigs,
   getIsAutoLayout,
   (_state) => selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
-  (widgetConfigs, isAutoLayout, isWDSEnabled) => {
-    const cards = Object.values(widgetConfigs.config).filter((config) => {
+  (isAutoLayout, isWDSEnabled) => {
+    const widgetConfigs = WidgetFactory.getConfigs();
+
+    const cards = Object.values(widgetConfigs).filter((config) => {
       // if wds_vs is not enabled, hide all wds_v2 widgets
       if (
         Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&

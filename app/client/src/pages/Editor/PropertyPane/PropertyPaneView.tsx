@@ -19,7 +19,7 @@ import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { Button, Callout } from "design-system";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText, renderWidgetCallouts } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
