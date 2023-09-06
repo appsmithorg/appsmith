@@ -26,12 +26,12 @@ const TabsContainer = styled.div`
   justify-content: flex-start;
   gap: 4px;
   overflow: hidden;
-  overflow-y: hidden;
   overflow-x: auto;
 
   &::-webkit-scrollbar {
     display: none;
   }
+
   -ms-overflow-style: none;
   scrollbar-width: none;
 `;
@@ -43,12 +43,15 @@ const Tab = styled.div`
   grid-template-columns: max-content 1fr;
   grid-gap: 3px;
   border-radius: 4px;
+  max-width: 116px;
   &:hover {
     background-color: #fbe6dc;
     cursor: pointer;
   }
   span {
     font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   &.selected {
     background-color: #fbe6dc;
@@ -61,6 +64,7 @@ const Tab = styled.div`
 type Props = {
   editor: React.ReactNode;
   addItems?: Array<Item>;
+  titleItemCounts?: number;
   listItems?: Array<Item>;
   onAddClick?: (item?: Item) => void;
   onListClick?: (item: Item) => void;
@@ -112,7 +116,7 @@ const PagePaneContainer = (props: Props) => {
         {/*TABS start*/}
         {pageState === TabState.EDIT ? (
           <TabsContainer>
-            {props.listItems?.map((item) => {
+            {props.listItems?.slice(0, props.titleItemCounts).map((item) => {
               return (
                 <Tab
                   className={classNames({ selected: item.selected })}

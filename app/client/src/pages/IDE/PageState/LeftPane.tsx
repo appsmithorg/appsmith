@@ -24,6 +24,7 @@ import JSObjects from "./components/JSObjects";
 import { useIDENavState } from "../hooks";
 import useWindowDimensions from "../../../utils/hooks/useWindowDimensions";
 import PropertyPane from "./components/PropertyPane";
+import { PageNavState } from "../ideReducer";
 
 const Container = styled.div`
   background-color: #f1f5f9;
@@ -96,9 +97,12 @@ const PageLeftPane = () => {
   useEffect(() => {
     const { pageNav } = navState;
     if (pageNav) {
-      if (pageNav === "ui") {
+      if (pageNav === PageNavState.UI) {
         dispatch(setIdeSidebarWidth(300));
-      } else if (pageNav === "js" || pageNav === "queries") {
+      } else if (
+        pageNav === PageNavState.JS ||
+        pageNav === PageNavState.QUERIES
+      ) {
         const sidebarWidth = (width - 50) * 0.4;
         dispatch(setIdeSidebarWidth(sidebarWidth));
       }
@@ -106,7 +110,7 @@ const PageLeftPane = () => {
   }, [navState.pageNav]);
 
   const navigatePageEntity = useCallback(
-    (location: string) => {
+    (location: PageNavState) => {
       history.push(
         pageEntityUrl({ pageId: matchParams?.params.pageId || "" }, location),
       );
@@ -120,27 +124,27 @@ const PageLeftPane = () => {
         <PageNav>
           <NavPill
             className={classNames({
-              selected: matchParams?.params.pageNav === "queries",
+              selected: matchParams?.params.pageNav === PageNavState.QUERIES,
             })}
-            onClick={() => navigatePageEntity("queries")}
+            onClick={() => navigatePageEntity(PageNavState.QUERIES)}
           >
             <QueriesIcon />
             Queries
           </NavPill>
           <NavPill
             className={classNames({
-              selected: matchParams?.params.pageNav === "js",
+              selected: matchParams?.params.pageNav === PageNavState.JS,
             })}
-            onClick={() => navigatePageEntity("js")}
+            onClick={() => navigatePageEntity(PageNavState.JS)}
           >
             <JSIcon />
             JS
           </NavPill>
           <NavPill
             className={classNames({
-              selected: matchParams?.params.pageNav === "ui",
+              selected: matchParams?.params.pageNav === PageNavState.UI,
             })}
-            onClick={() => navigatePageEntity("ui")}
+            onClick={() => navigatePageEntity(PageNavState.UI)}
           >
             <UIIcon />
             UI

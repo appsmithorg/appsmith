@@ -10,6 +10,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getIdeSidebarWidth } from "pages/IDE/ideSelector";
 import styled from "styled-components";
+import { useIDEPageRecent } from "../../../hooks";
 
 const Wrapper = styled.div<{ width: number }>`
   height: 100%;
@@ -40,8 +41,9 @@ function JSObjects(props: Props) {
       key: a.entity.id,
       type: a.type,
       icon: JsFileIconV2(16, 16),
-      selected: a.entity.id === collectionId,
     }));
+
+  const [sortedList] = useIDEPageRecent(toListActions, collectionId);
 
   const listItemClick = useCallback((a) => {
     history.push(
@@ -64,9 +66,10 @@ function JSObjects(props: Props) {
   return (
     <PagePaneContainer
       editor={editor}
-      listItems={toListActions}
+      listItems={sortedList}
       onAddClick={addItemClick}
       onListClick={listItemClick}
+      titleItemCounts={4}
     />
   );
 }

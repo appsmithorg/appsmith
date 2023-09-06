@@ -31,9 +31,9 @@ import {
 } from "utils/autoLayout/positionUtils";
 import type { AlignmentColumnInfo } from "./autoLayoutTypes";
 import { getWidgetWidth } from "./flexWidgetUtils";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { isEmpty, isFunction } from "lodash";
 
 export type ReadableSnapShotDetails = {

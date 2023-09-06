@@ -11,7 +11,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import type { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   GraphQLIconV2,
   JsFileIconV2,

@@ -4,6 +4,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export interface IDEReduxState {
   sidebarWidth: number;
+  pageNavState: PageNavState;
 }
 
 export enum IDEAppState {
@@ -14,8 +15,15 @@ export enum IDEAppState {
   Settings = "settings",
 }
 
+export enum PageNavState {
+  UI = "ui",
+  JS = "js",
+  QUERIES = "queries",
+}
+
 const initialState: IDEReduxState = {
   sidebarWidth: 300,
+  pageNavState: PageNavState.UI,
 };
 
 const ideReducer = createReducer(initialState, {
@@ -24,6 +32,12 @@ const ideReducer = createReducer(initialState, {
     action: ReduxAction<number>,
   ): IDEReduxState => {
     return { ...state, sidebarWidth: action.payload };
+  },
+  [ReduxActionTypes.SET_IDE_PAGE_NAV]: (
+    state: IDEReduxState,
+    action: ReduxAction<PageNavState>,
+  ): IDEReduxState => {
+    return { ...state, pageNavState: action.payload };
   },
 });
 

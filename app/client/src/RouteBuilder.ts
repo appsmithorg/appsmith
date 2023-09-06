@@ -13,6 +13,7 @@ import type {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { isNil } from "lodash";
+import type { PageNavState } from "./pages/IDE/ideReducer";
 import { IDEAppState } from "./pages/IDE/ideReducer";
 
 export type URLBuilderParams = {
@@ -189,7 +190,10 @@ export const widgetURL = (
   });
 };
 
-export const pageEntityUrl = (props: URLBuilderParams, location: string) => {
+export const pageEntityUrl = (
+  props: URLBuilderParams,
+  location: PageNavState,
+) => {
   return urlBuilder.build({
     ...props,
     suffix: `/${location}`,

@@ -64,7 +64,7 @@ export function* updateRecentEntitySaga(entityInfo: FocusEntityInfo) {
         recentEntity.id !== id,
     );
     recentEntities.unshift(<RecentEntity>{ type: entity, id, pageId });
-    recentEntities = recentEntities.slice(0, 6);
+    // recentEntities = recentEntities.slice(0, 6);
 
     yield put(setRecentEntities(recentEntities));
     if (applicationId) {

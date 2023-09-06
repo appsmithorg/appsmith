@@ -3,7 +3,7 @@ import {
   migrateScrollTruncateProperties,
 } from "utils/migrations/TextWidget";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { OverflowTypes } from "widgets/TextWidget/constants";
 
 const inputDsl1: DSLWidget = {

@@ -4,7 +4,7 @@ import type { BaseCellComponentProps } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import { isString } from "lodash";
-import { YOUTUBE_URL_REGEX } from "widgets/constants";
+import { YOUTUBE_URL_REGEX } from "WidgetProvider/constants";
 
 type renderCellType = BaseCellComponentProps & {
   value: unknown;

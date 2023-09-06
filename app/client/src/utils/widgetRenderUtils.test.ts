@@ -6,7 +6,7 @@ import type {
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import { buildChildWidgetTree, createCanvasWidget } from "./widgetRenderUtils";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 
 describe("createCanvasWidget functionality", () => {
   it("returns an empty errors if no evaluations are present", function () {
