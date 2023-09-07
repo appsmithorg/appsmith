@@ -1,38 +1,39 @@
+import * as Sentry from "@sentry/react";
+import classNames from "classnames";
 import React, {
   memo,
-  useEffect,
-  useRef,
   useCallback,
-  useState,
+  useEffect,
   useMemo,
+  useRef,
+  useState,
 } from "react";
-import classNames from "classnames";
-import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
 
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import Explorer from "pages/Editor/Explorer";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { setExplorerActiveAction } from "actions/explorerActions";
+import { SIDEBAR_ID } from "constants/Explorer";
+import { tailwindLayers } from "constants/Layers";
+import { Button, Tooltip } from "design-system";
+import Explorer from "pages/Editor/Explorer";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
+import Pages from "pages/Editor/Explorer/Pages";
+import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
+import { getEditingEntityName } from "selectors/entitiesSelector";
 import {
   getExplorerActive,
   getExplorerPinned,
 } from "selectors/explorerSelector";
-import { tailwindLayers } from "constants/Layers";
-import { Tooltip } from "design-system";
-import { previewModeSelector } from "selectors/editorSelectors";
-import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
-import Pages from "pages/Editor/Explorer/Pages";
-import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { SIDEBAR_ID } from "constants/Explorer";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { EntityClassNames } from "pages/Editor/Explorer/Entity";
-import { getEditingEntityName } from "selectors/entitiesSelector";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import styled from "styled-components";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import useHorizontalResize from "utils/hooks/useHorizontalResize";
+import PartiaExportModel from "./PartialImportExport/PartialExportModal";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>
@@ -77,6 +78,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   );
   const [tooltipIsOpen, setTooltipIsOpen] = useState(false);
   const isEditingEntityName = useSelector(getEditingEntityName);
+  const [showPartialExportModal, setShowPartialExportModal] = useState(false);
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
   useEffect(() => {
     PerformanceTracker.stopTracking();
@@ -188,6 +190,11 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     isAppSettingsPaneWithNavigationTabOpen,
   ]);
 
+  const onImportClick = useCallback(async () => {
+    dispatch({
+      type: ReduxActionTypes.PARTIAL_IMPORT_INIT,
+    });
+  }, []);
   return (
     <div
       className={classNames({
@@ -210,6 +217,12 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         {enableFirstTimeUserOnboarding && <OnboardingStatusbar />}
         {/* PagesContainer */}
         <Pages />
+        <Button kind="tertiary" onClick={onImportClick}>
+          Import
+        </Button>
+        <Button kind="tertiary" onClick={() => setShowPartialExportModal(true)}>
+          Export
+        </Button>
         {/* Popover that contains the bindings info */}
         <EntityProperties />
         {/* Contains entity explorer & widgets library along with a switcher*/}
@@ -245,6 +258,12 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           </Tooltip>
         </div>
       </StyledResizer>
+      {showPartialExportModal && (
+        <PartiaExportModel
+          handleModalClose={() => setShowPartialExportModal(false)}
+          isModalOpen={showPartialExportModal}
+        />
+      )}
     </div>
   );
 });
