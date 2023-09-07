@@ -603,19 +603,9 @@ export default class DataTreeEvaluator {
     let nonDynamicFieldValidationOrderSet = new Set<string>();
 
     for (const fullPath of subTreeSortOrder) {
-      const { entityName, propertyPath } =
-        getEntityNameAndPropertyPath(fullPath);
       if (pathsToSkipFromEval.includes(fullPath)) continue;
-      // Remove hack after profiling
-      if (
-        !isDynamicLeaf(localUnEvalTree, fullPath, configTree) ||
-        isJSObjectFunction(
-          localUnEvalTree,
-          entityName,
-          propertyPath,
-          configTree,
-        )
-      ) {
+
+      if (!isDynamicLeaf(localUnEvalTree, fullPath, configTree)) {
         /**
          * Store fullPath in nonDynamicFieldValidationOrderSet,
          * if the non dynamic value changes to trigger revalidation.
@@ -739,6 +729,7 @@ export default class DataTreeEvaluator {
 
   setupUpdateTreeWithDifferences(
     updatedValuePaths: string[][],
+    pathsToSkip?: string[],
   ): ReturnType<typeof DataTreeEvaluator.prototype.setupUpdateTree> {
     const localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local unEvalTree
@@ -761,7 +752,9 @@ export default class DataTreeEvaluator {
      *  if "JSObject.myVar1" is updated
      *  then => only re-evaluate values dependent on "JSObject.myVar1"
      */
-    const pathsToSkipFromEval = updatedValuePaths.map((path) => path.join("."));
+    const pathsToSkipFromEval = updatedValuePaths
+      .map((path) => path.join("."))
+      .concat(pathsToSkip);
 
     return {
       ...this.setupTree(localUnEvalTree, updatedValuePaths, {

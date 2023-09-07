@@ -137,8 +137,10 @@ const fnExecutionDataHandler = priorityBatchedActionHandler((data) => {
       data,
     };
   });
+  // Updating jsobject.myfunc.data shouldn't trigger the evaluation of jsobject.myfunc
+  const pathsToSkipFromEval = Object.keys(batchedData.JSExecutionData);
 
-  handleActionsDataUpdate(updateActionProps);
+  handleActionsDataUpdate(updateActionProps, pathsToSkipFromEval);
 
   WorkerMessenger.ping({
     method: MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION,
