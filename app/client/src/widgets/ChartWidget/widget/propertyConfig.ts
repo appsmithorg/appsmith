@@ -89,6 +89,27 @@ export const contentConfig = (
           },
         },
         {
+          helpText: "Add advanced EChart customizations",
+          placeholderText: `Custom ECharts Advanced Functions`,
+          propertyName: "customEChartsAdvanceConfigurations",
+          label: "Custom ECharts Callback function",
+          controlType: "INPUT_TEXT",
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: {
+            type: ValidationTypes.ARRAY,
+            params: {
+              default: [],
+              children: {
+                type: ValidationTypes.OBJECT_WITH_PURE_FUNCTIONS
+              }
+            },
+          },
+          hidden: (props: ChartWidgetProps) =>
+            props.chartType !== "CUSTOM_ECHART",
+          dependencies: ["chartType"],
+        },
+        {
           helpText: "Configure a custom ECHART see docs.appsmith.com",
           placeholderText: `Custom ECharts Configuration`,
           propertyName: "customEChartConfig",

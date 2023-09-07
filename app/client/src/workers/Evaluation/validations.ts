@@ -20,6 +20,9 @@ import type { ValidationConfig } from "constants/PropertyControlConstants";
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
 import { countOccurrences, findDuplicateIndex } from "./helpers";
+import { messages } from "widgets/ChartWidget/constants";
+
+const detect = require('acorn-globals');
 
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
@@ -1247,6 +1250,56 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       isValid: true,
       parsed: resultValue,
     };
+  },
+  [ValidationTypes.OBJECT_WITH_PURE_FUNCTIONS]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+    propertyPath: string,
+  ) : ValidationResponse => {
+    const allowedGlobals = ["Math", "console"]
+    const { isValid, messages, parsed } = VALIDATORS[ValidationTypes.OBJECT](
+      config,
+      value,
+      props,
+      propertyPath,
+    );
+    const overallMessages = messages ? [...messages] : []
+
+    if (!isValid) return { isValid, messages, parsed }; // return the expected type
+
+    const keys = Object.keys(parsed);
+
+    let isPure = true;
+    for (const key of keys) {
+      const value = parsed[key];
+      if (typeof value !== "function") {
+        continue
+      };
+
+      const fnString = `const fn = ${value.toString()};`;
+      const globals = detect(fnString);
+      
+      let filteredGlobals = (globals as Record<string, unknown>[]).filter((global) => {
+        return !allowedGlobals.includes(global.name as string)
+      })
+
+      if (filteredGlobals.length > 0) {
+        isPure = false;
+        parsed[key] = "() => {}";
+        overallMessages?.push({
+          name: "ValidationError",
+          message: `Function uses global variables: ${globals
+            .map((g: any) => g.name)
+            .join(", ")}`,
+        });
+      } else {
+        parsed[key] = value.toString()
+      }
+    }
+    const result = { isValid: isPure, messages: overallMessages, parsed }
+
+    return result;
   },
   [ValidationTypes.UNION]: (
     config: ValidationConfig,

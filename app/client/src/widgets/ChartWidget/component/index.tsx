@@ -80,6 +80,7 @@ export interface ChartComponentProps extends WidgetPositionProps {
     componentWidth: number;
     componentHeight: number;
   };
+  customEChartsAdvanceConfigurations?: Record<string, unknown>[]
 }
 
 const ChartsContainer = styled.div`
@@ -184,8 +185,65 @@ class ChartComponent extends React.Component<
     );
   };
 
+  findKey = (obj : any, id : any) : any => {
+    const myFun = () => { 1+2 }
+    const myFunString = myFun.toString()
+    // console.log("***", "my func string is ", myFunString)
+
+    const evaluatedFunc = new Function("return " + myFunString)
+    // console.log("***", "evaluated func is ", evaluatedFunc()())
+    // console.log("find key called for obj ", JSON.stringify(obj))
+    
+    if (typeof(obj) !== "object") {
+        return null;
+    }
+
+    // console.log("obj.id is ", obj.id, " id is ", id)
+    if (obj.id == id) {
+        // console.log("coming in if")
+        return obj
+    } else {
+        const keys = Object.keys(obj)
+        // console.log("keys is ", keys)
+        for (const key of keys) {
+            // console.log("calling find key for ", obj[key])
+            const result = this.findKey(obj[key], id)
+            // console.log("result for obj ", JSON.stringify(obj[key]), " is ", result)
+            if (result) {
+                return result
+            }
+        }
+        return null
+    }
+}
+
   getCustomEChartOptions = () => {
-    return this.props.customEChartConfig;
+    const options = JSON.parse(JSON.stringify(this.props.customEChartConfig))
+
+    const configs = this.props.customEChartsAdvanceConfigurations ?? []
+    for (const c of configs) {
+      const key : string = c.key as string
+      const id = c.id
+      const fn = c.function
+      const values = c.values
+
+      const config = this.findKey(options, id)
+      if(config) {
+        if (fn) {
+          const assignFunc = (new Function("return " + c.function))()
+          // console.log("***", "assign func is ", assignFunc)
+          config[key] = assignFunc
+        } else if (values) {
+          const assignFunc = (new Function("return " + `(value, params) => {
+              return ${JSON.stringify(values)}[params.dataIndex]
+            }
+          `))()
+          // console.log("***", "assign func is ", assignFunc)
+          config[key] = assignFunc
+        }
+      }
+    }
+    return options;
   };
 
   renderECharts = () => {
@@ -253,6 +311,8 @@ class ChartComponent extends React.Component<
   }
 
   componentDidUpdate() {
+    // console.log("***", "component did update")
+    // console.log("***", "callback function is ", this.props.customEChartsAdvanceConfigurations)
     if (
       this.isCustomFusionChart(this.props.chartType) &&
       !this.isCustomFusionChart(this.state.chartType)

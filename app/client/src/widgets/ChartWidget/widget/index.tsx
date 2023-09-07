@@ -11,6 +11,7 @@ import {
   DefaultEChartConfig,
   DefaultEChartsBasicChartsData,
   DefaultFusionChartConfig,
+  DefaultEChartAdvancedConfig,
   FUSION_CHART_DEPRECATION_FLAG,
   messages,
 } from "../constants";
@@ -96,6 +97,11 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       showDataPointLabel: false,
+      customEChartsAdvanceConfigurations: `{{\n${JSON.stringify(
+        DefaultEChartAdvancedConfig,
+        null,
+        2,
+      )}\n}}`,
       customEChartConfig: `{{\n${JSON.stringify(
         DefaultEChartConfig,
         null,
@@ -218,6 +224,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   };
 
   getPageView() {
+    console.log("***", "props in get page view are ", this.props)
     const errors = syntaxErrorsFromProps(this.props);
 
     if (errors.length == 0) {
@@ -247,6 +254,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
               onDataPointClick={this.onDataPointClick}
               primaryColor={this.props.accentColor ?? Colors.ROYAL_BLUE_2}
               rightColumn={this.props.rightColumn}
+              customEChartsAdvanceConfigurations={this.props.customEChartsAdvanceConfigurations}
               setAdaptiveYMin={this.props.setAdaptiveYMin}
               showDataPointLabel={this.props.showDataPointLabel}
               topRow={this.props.topRow}
