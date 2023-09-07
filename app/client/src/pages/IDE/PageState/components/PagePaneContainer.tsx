@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { Button, Text } from "design-system";
 import type { Item } from "../../components/ListView";
@@ -93,6 +93,19 @@ const PagePaneContainer = (props: Props) => {
     setPageState(TabState.EDIT);
   }, []);
 
+  const showMore = useMemo(() => {
+    return !!props.listItems && props.listItems?.length > 4;
+  }, [props.listItems]);
+
+  const onClose = useCallback(() => {
+    // close button can appear in the edit state where there isn't a more button
+    if (pageState === TabState.EDIT) {
+      setPageState(TabState.LIST);
+    } else {
+      setPageState(TabState.EDIT);
+    }
+  }, [pageState]);
+
   const PaneTitleBarLeft = () => {
     if (pageState === TabState.EDIT) {
       return (
@@ -142,7 +155,7 @@ const PagePaneContainer = (props: Props) => {
         )}
         {/*TABS end*/}
         {/*RIGHT ICON start*/}
-        {pageState === TabState.EDIT ? (
+        {pageState === TabState.EDIT && showMore ? (
           <Button kind="secondary" onClick={() => setPageState(TabState.LIST)}>
             more
           </Button>
@@ -151,7 +164,7 @@ const PagePaneContainer = (props: Props) => {
             className="justify-self-end"
             isIconButton
             kind={"secondary"}
-            onClick={() => setPageState(TabState.EDIT)}
+            onClick={onClose}
             startIcon={"close"}
           />
         )}
