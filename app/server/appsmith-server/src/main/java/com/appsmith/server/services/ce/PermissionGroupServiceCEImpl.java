@@ -37,7 +37,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
@@ -86,9 +85,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 .map(pg -> {
                     Set<Permission> permissions = new HashSet<>(
                             Optional.ofNullable(pg.getPermissions()).orElse(Set.of()));
-                    // Permission to unassign self is always given
-                    // so user can unassign himself from permission group
-                    permissions.add(new Permission(pg.getId(), UNASSIGN_PERMISSION_GROUPS));
                     pg.setPermissions(permissions);
                     Map<String, Policy> policyMap =
                             policySolution.generatePolicyFromPermissionGroupForObject(pg, pg.getId());
