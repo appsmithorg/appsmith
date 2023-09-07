@@ -13,6 +13,8 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { SlashCommandPayload } from "entities/Action";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
+import store from "store";
+import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 
 const PARTIAL_BINDING = "{}";
 
@@ -21,30 +23,32 @@ export const assistiveBindingHinter: HintHelper = (
   data: DataTree,
   entitiesForNavigation?: EntityNavigationData,
 ) => {
-  let entitiesForSuggestions: any[] = [];
+  const entitiesForSuggestions: any[] = Object.values(
+    entitiesForNavigation || {},
+  );
+  const appState = store.getState();
+  const actions = getActionsForCurrentPage(appState);
 
-  Object.keys(data).forEach((entityName) => {
-    const entity: any = data[entityName];
-
-    if (entity.ENTITY_TYPE && entity.ENTITY_TYPE !== ENTITY_TYPE.APPSMITH) {
-      entitiesForSuggestions.push({
-        entityName,
-        ...entity,
-      });
+  for (const navEntity of entitiesForSuggestions) {
+    if (navEntity.type === ENTITY_TYPE.ACTION) {
+      const action = actions.find(
+        (action) => action.config.id === navEntity.id,
+      );
+      const pluginId = action?.config.pluginId;
+      navEntity.pluginId = pluginId;
     }
-  });
+  }
+
   return {
     showHint: (
       editor: CodeMirror.Editor,
       entityInfo: FieldEntityInformation,
       {
-        datasources,
         enableAIAssistance,
         executeCommand,
         featureFlags,
         pluginIdToImageLocation,
         recentEntities,
-        update,
       }: {
         datasources: Datasource[];
         executeCommand: (payload: SlashCommandPayload) => void;
@@ -58,14 +62,13 @@ export const assistiveBindingHinter: HintHelper = (
     ): boolean => {
       // @ts-expect-error: Types are not available
       editor.closeHint();
-      const { entityType } = entityInfo;
-      const currentEntityType =
-        entityType || ENTITY_TYPE.ACTION || ENTITY_TYPE.JSACTION;
-      entitiesForSuggestions = entitiesForSuggestions.filter((entity: any) => {
-        return currentEntityType === ENTITY_TYPE.WIDGET
-          ? entity.ENTITY_TYPE !== ENTITY_TYPE.WIDGET
-          : entity.ENTITY_TYPE !== ENTITY_TYPE.ACTION;
-      });
+      const currentEntityName = entityInfo.entityName;
+      const currentEntityType = entityInfo.entityType || ENTITY_TYPE.WIDGET;
+
+      const filterEntityListForSuggestion = entitiesForSuggestions.filter(
+        (e) => e.name !== currentEntityName,
+      );
+
       // const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
       if (value.length < 3 && value !== PARTIAL_BINDING) return false;
@@ -73,17 +76,15 @@ export const assistiveBindingHinter: HintHelper = (
       const searchText = value === PARTIAL_BINDING ? "" : value;
       // const list = generateQuickCommands(
       const list = generateAssistiveBindingCommands(
-        entitiesForSuggestions,
+        filterEntityListForSuggestion,
         currentEntityType,
         searchText,
         {
-          datasources,
           executeCommand,
           pluginIdToImageLocation,
           recentEntities,
           featureFlags,
           enableAIAssistance,
-          entitiesForNavigation,
         },
       );
       //ASSISTIVE_JS_BINDING_TRIGGERED when not empty
@@ -95,7 +96,7 @@ export const assistiveBindingHinter: HintHelper = (
       AnalyticsUtil.logEvent("ASSISTIVE_JS_BINDING_TRIGGERED", {
         query: value,
         suggestedOptionCount: list.filter(
-          (item) => item.className === "CodeMirror-commands",
+          (item) => item.className === "CodeMirror-command-header",
         ).length,
         entityType: entityInfo.entityType,
       });
@@ -109,33 +110,35 @@ export const assistiveBindingHinter: HintHelper = (
         text: "",
         shortcut: "",
       };
-      const cursor = editor.getCursor();
       editor.showHint({
         hint: () => {
           const hints = {
             list,
             from: {
-              ch: cursor.ch - searchText.length - 1,
-              line: cursor.line,
+              ch: 0,
+              line: 0,
             },
-            to: editor.getCursor(),
+            to: {
+              ch: value.length,
+              line: 0,
+            },
             selectedHint: list[0]?.isHeader ? 1 : 0,
           };
           function handleSelection(selected: CommandsCompletion) {
             currentSelection = selected;
           }
           function handlePick(selected: CommandsCompletion) {
-            update(selected.text);
+            const cursorPosition = selected.text.length - 2;
             setTimeout(() => {
               editor.focus();
               editor.setCursor({
-                line: editor.lineCount() - 1,
-                ch: selected.text.length,
+                line: 0,
+                ch: cursorPosition,
               });
             });
 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { data, render, ...rest } = selected;
+            const { data } = selected;
             const { ENTITY_TYPE, entityName } = data as any;
             const jsLexicalName: string | undefined =
               selected.displayText?.replace(entityName + ".", ""); //name of the variable of functions in JSAction

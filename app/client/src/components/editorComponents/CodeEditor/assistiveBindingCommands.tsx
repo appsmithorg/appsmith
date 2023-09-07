@@ -1,4 +1,3 @@
-import type { Datasource } from "entities/Datasource";
 import React from "react";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -11,7 +10,6 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { Icon } from "design-system";
 import BetaCard from "../BetaCard";
-import type { EntityNavigationData } from "selectors/navigationSelectors";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -122,34 +120,30 @@ export const generateAssistiveBindingCommands = (
   currentEntityType: ENTITY_TYPE,
   searchText: string,
   {
-    datasources,
-    entitiesForNavigation,
     pluginIdToImageLocation,
     recentEntities,
   }: {
-    datasources: Datasource[];
     executeCommand: (payload: SlashCommandPayload) => void;
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
     featureFlags: FeatureFlags;
     enableAIAssistance: boolean;
-    entitiesForNavigation?: EntityNavigationData;
   },
 ) => {
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind data");
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
-    text: "{{}", // the last } already added by the codemirror autocomplete
+    text: "{{}}",
     displayText: "New binding",
     shortcut: Shortcuts.BINDING,
     triggerCompletionsPostPick: true,
   });
 
   const actionEntities = entitiesForSuggestions.filter((suggestion: any) => {
-    return suggestion.ENTITY_TYPE === ENTITY_TYPE.ACTION;
+    return suggestion.type === ENTITY_TYPE.ACTION;
   });
   const suggestionsAction = actionEntities.map((suggestion: any) => {
-    const name = suggestion.entityName;
+    const name = suggestion.name;
     return {
       text: `{{${name}.data}}`,
       displayText: `${name}`,
@@ -157,12 +151,7 @@ export const generateAssistiveBindingCommands = (
       data: suggestion,
       triggerCompletionsPostPick: suggestion.ENTITY_TYPE !== ENTITY_TYPE.ACTION,
       render: (element: HTMLElement, self: any, data: any) => {
-        const name = data.data.entityName;
-        const datasourceId = entitiesForNavigation?.[name].datasourceId;
-        const datasource = datasources.find(
-          (datasource) => datasource.id === datasourceId,
-        );
-        const pluginId = datasource?.pluginId;
+        const pluginId = data.data.pluginId;
         let icon = null;
         if (pluginId && pluginIdToImageLocation[pluginId]) {
           icon = (
@@ -180,12 +169,12 @@ export const generateAssistiveBindingCommands = (
   });
 
   const jsActionEntities = entitiesForSuggestions.filter((suggestion: any) => {
-    return suggestion.ENTITY_TYPE === ENTITY_TYPE.JSACTION;
+    return suggestion.type === ENTITY_TYPE.JSACTION;
   });
   const suggestionsJSAction = jsActionEntities.flatMap((suggestion: any) => {
-    const name = suggestion.entityName;
-    const keys = Object.keys(suggestion);
-    return keys.map((key: string) => {
+    const name = suggestion.name;
+    const children = suggestion.children;
+    return Object.keys(children).map((key: string) => {
       return {
         text: `{{${name}.${key}}}`,
         displayText: `${name}.${key}`,
