@@ -157,6 +157,8 @@ public class MongoPlugin extends BasePlugin {
 
     private static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
 
+    private static final String MOCK_DB_MOVIES_COLLECTION_NAME = "movies";
+
     /**
      * We use this regex to identify the $regex attribute and the respective argument provided:
      * e.g. {"code" : {$regex: value, $options: value}} / {"code" : {$regex: value}}
@@ -896,7 +898,10 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStructure> getStructure(
-                MongoClient mongoClient, DatasourceConfiguration datasourceConfiguration) {
+                MongoClient mongoClient,
+                DatasourceConfiguration datasourceConfiguration,
+                Boolean isMock,
+                Boolean isFlagEnabled) {
             final DatasourceStructure structure = new DatasourceStructure();
             List<DatasourceStructure.Table> tables = new ArrayList<>();
             structure.setTables(tables);
@@ -904,6 +909,12 @@ public class MongoPlugin extends BasePlugin {
             final MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
 
             return Flux.from(database.listCollectionNames())
+                    .filter(collectionName -> {
+                        if (isMock && isFlagEnabled) {
+                            return collectionName.equals(MOCK_DB_MOVIES_COLLECTION_NAME);
+                        }
+                        return true;
+                    })
                     .flatMap(collectionName -> {
                         final ArrayList<DatasourceStructure.Column> columns = new ArrayList<>();
                         final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
