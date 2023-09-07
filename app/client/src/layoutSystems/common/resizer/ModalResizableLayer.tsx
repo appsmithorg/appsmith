@@ -8,10 +8,8 @@ import type { AppState } from "@appsmith/reducers";
 import { Classes } from "@blueprintjs/core";
 import { ModalResizable } from "layoutSystems/common/resizer/ModalResizable";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import { MAX_MODAL_WIDTH_FROM_MAIN_WIDTH } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { getWidgetByID } from "sagas/selectors";
-import { getCanvasWidth } from "selectors/editorSelectors";
 import {
   BottomHandleStyles,
   LeftHandleStyles,
@@ -19,6 +17,7 @@ import {
   TopHandleStyles,
 } from "./ResizeStyledComponents";
 import type { UIElementSize } from "./ResizableUtils";
+import { useModalWidth } from "widgets/ModalWidget/component/useModalWidth";
 const minSize = 100;
 
 /**
@@ -33,14 +32,7 @@ export const ModalResizableLayer = (props: BaseWidgetProps) => {
   const { updateWidget } = useContext(EditorContext);
   const widget = useSelector(getWidgetByID(props.widgetId));
   const disabledResizeHandles = get(props, "disabledResizeHandles", []);
-  const mainCanvasWidth = useSelector(getCanvasWidth);
-  const getMaxModalWidth = () => {
-    return (mainCanvasWidth || 0) * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH;
-  };
-
-  const getModalWidth = (width: number) => {
-    return Math.min(getMaxModalWidth(), width);
-  };
+  const getModalWidth = useModalWidth();
   const onModalResize = (dimensions: UIElementSize) => {
     const newDimensions = {
       height: Math.max(minSize, dimensions.height),

@@ -1,12 +1,7 @@
-import type { ReactNode } from "react";
 import React from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { RenderMode } from "constants/WidgetConstants";
-import {
-  GridDefaults,
-  MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
@@ -456,14 +451,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     canEscapeKeyClose: false,
   };
 
-  getMaxModalWidth() {
-    return this.props.mainCanvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH;
-  }
-
-  getModalWidth(width: number) {
-    return Math.min(this.getMaxModalWidth(), width);
-  }
-
   getModalVisibility() {
     if (this.props.selectedWidgetAncestry) {
       return (
@@ -473,23 +460,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     }
     return !!this.props.isVisible;
   }
-
-  renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
-    const childData = { ...childWidgetData };
-    childData.parentId = this.props.widgetId;
-
-    childData.canExtend = this.props.shouldScrollContents;
-
-    childData.containerStyle = "none";
-    childData.minHeight = this.props.height;
-    childData.rightColumn =
-      this.getModalWidth(this.props.width) + WIDGET_PADDING * 2;
-
-    childData.positioning = this.props.positioning;
-    childData.alignment = this.props.alignment;
-    childData.spacing = this.props.spacing;
-    return WidgetFactory.createWidget(childData, this.props.renderMode);
-  };
 
   onModalClose = () => {
     if (this.props.onClose) {
@@ -512,39 +482,32 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     e.preventDefault();
   };
 
-  getChildren(): ReactNode {
-    if (
-      this.props.height &&
-      this.props.width &&
-      this.props.children &&
-      this.props.children.length > 0
-    ) {
-      const children = this.props.children.filter(Boolean);
-      return children.length > 0 && children.map(this.renderChildWidget);
-    }
-  }
-
-  makeModalComponent(content: ReactNode) {
+  makeModalComponent() {
     return (
       <ModalComponent
+        alignment={this.props.alignment}
         background={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
+        height={this.props.height}
         isOpen={this.getModalVisibility()}
+        modalChildrenProps={this.props.children || []}
         onClose={this.closeModal}
         onModalClose={this.onModalClose}
+        positioning={this.props.positioning}
+        renderMode={this.props.renderMode}
         scrollContents={!!this.props.shouldScrollContents}
+        shouldScrollContents={!!this.props.shouldScrollContents}
+        spacing={this.props.spacing}
         widgetId={this.props.widgetId}
-      >
-        {content}
-      </ModalComponent>
+        width={this.props.width}
+      />
     );
   }
 
   getWidgetView() {
-    const children = this.getChildren();
-    return this.makeModalComponent(children);
+    return this.makeModalComponent();
   }
 }
 export interface ModalWidgetProps extends WidgetProps {
