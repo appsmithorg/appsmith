@@ -40,8 +40,6 @@ import { APP_MODE } from "entities/App";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import classNames from "classnames";
-import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
-import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
 
 function WidgetsEditor() {
@@ -52,8 +50,6 @@ function WidgetsEditor() {
   const currentApp = useSelector(getCurrentApplication);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isPreviewMode = useSelector(previewModeSelector);
-  const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
-  const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
 
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
@@ -72,8 +68,7 @@ function WidgetsEditor() {
   const isPreviewingNavigation =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
 
-  const shouldShowSnapShotBanner =
-    !!readableSnapShotDetails && !isPreviewingNavigation;
+  const shouldShowSnapShotBanner = !isPreviewingNavigation;
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {

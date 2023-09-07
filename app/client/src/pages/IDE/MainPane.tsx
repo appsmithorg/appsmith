@@ -21,6 +21,7 @@ const Container = styled.div`
   background-color: white;
   border-radius: 4px;
   margin-right: 5px;
+  flex: 1;
 `;
 
 const MainPane = () => {
