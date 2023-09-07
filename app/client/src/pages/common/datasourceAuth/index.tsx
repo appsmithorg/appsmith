@@ -17,7 +17,6 @@ import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers"
 import type { Datasource } from "entities/Datasource";
 import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import {
-  CANCEL,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
@@ -338,7 +337,7 @@ function DatasourceAuth({
         <Button
           className="t--cancel-edit-datasource"
           key={buttonType}
-          kind="tertiary"
+          kind="secondary"
           onClick={() => {
             if (createMode) {
               const URL = integrationEditorURL({
@@ -353,7 +352,7 @@ function DatasourceAuth({
           }}
           size="md"
         >
-          {createMessage(CANCEL)}
+          Discard
         </Button>
       ),
       [DatasourceButtonType.SAVE]: (

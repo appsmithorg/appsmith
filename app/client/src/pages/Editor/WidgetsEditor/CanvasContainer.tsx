@@ -7,7 +7,6 @@ import {
   getCurrentPageId,
   getIsFetchingPage,
   getViewModePageList,
-  showCanvasTopSectionSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
@@ -118,7 +117,6 @@ function CanvasContainer(props: CanvasContainerProps) {
     !isAppSettingsPaneWithNavigationTabOpen ||
     pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
-  const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
   const showAnonymousDataPopup = useSelector(getIsAnonymousDataPopupVisible);
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
@@ -169,16 +167,12 @@ function CanvasContainer(props: CanvasContainerProps) {
    * - 2. top bar (header with preview/share/deploy buttons)
    * - 3. bottom bar (footer with debug/logs buttons)
    */
-  const topMargin = "0rem";
   const bottomBarHeight = isPreviewMode ? "0px" : theme.bottomBarHeight;
-  const smallHeaderHeight = showCanvasTopSection
-    ? theme.smallHeaderHeight
-    : "0px";
   const scrollBarHeight =
     isPreviewMode || isPreviewingNavigation ? "8px" : "40px";
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar and scrollbar height at the bottom
-  const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navigationHeight}px - 10px)`;
+  const heightWithTopMargin = `calc(100vh - 2rem - ${bottomBarHeight} - ${scrollBarHeight} - ${navigationHeight}px - 10px)`;
   return (
     <>
       <Container
@@ -193,10 +187,9 @@ function CanvasContainer(props: CanvasContainerProps) {
         className={classNames({
           [`${getCanvasClassName()} scrollbar-thin`]: true,
           "mt-0": !shouldHaveTopMargin,
-          "mt-4": showCanvasTopSection || showAnonymousDataPopup,
+          "mt-4": showAnonymousDataPopup,
           "mt-2":
             shouldHaveTopMargin &&
-            !showCanvasTopSection &&
             !isPreviewingNavigation &&
             !showAnonymousDataPopup,
         })}
