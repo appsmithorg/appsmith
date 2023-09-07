@@ -16,6 +16,7 @@ import setupEvaluationEnvironment, {
   setEvaluationVersion,
 } from "./setupEvalEnv";
 import validateProperty from "./validateProperty";
+import updateActionData from "./updateActionData";
 
 const syncHandlerMap: Record<
   EVAL_WORKER_SYNC_ACTION,
@@ -33,6 +34,7 @@ const syncHandlerMap: Record<
   [EVAL_WORKER_ACTIONS.CLEAR_CACHE]: clearCache,
   [EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION]: setEvaluationVersion,
   [EVAL_WORKER_ACTIONS.INIT_FORM_EVAL]: initFormEval,
+  [EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA]: updateActionData,
 };
 
 const asyncHandlerMap: Record<

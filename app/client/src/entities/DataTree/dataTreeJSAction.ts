@@ -42,7 +42,9 @@ export const generateDataTreeJSAction = (js: JSCollectionData): any => {
       dynamicBindingPathList.push({ key: action.name });
       dependencyMap["body"].push(action.name);
       actionsData[action.name] = {
-        data: (js.data && js.data[`${action.id}`]) || {},
+        // here, data is always set to an empty object
+        // data is handled in the Datastore class
+        data: {},
       };
     }
   }
