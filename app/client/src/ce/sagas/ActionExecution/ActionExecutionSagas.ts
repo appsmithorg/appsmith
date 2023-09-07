@@ -43,6 +43,7 @@ import {
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { getActionById } from "selectors/editorSelectors";
+import type { AppState } from "@appsmith/reducers";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -70,8 +71,14 @@ export function* executeActionTriggers(
     case "CLEAR_PLUGIN_ACTION":
       yield put(clearActionResponse(trigger.payload.actionId));
       const action: ReturnType<typeof getActionById> = yield select(
-        getActionById,
-        trigger.payload.actionId,
+        (state: AppState) =>
+          getActionById(state, {
+            match: {
+              params: {
+                apiId: trigger.payload.actionId,
+              },
+            },
+          }),
       );
       if (action) {
         yield put(
