@@ -22,6 +22,11 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+/**
+ * A new toggle `Connection method` was introduced to the MySQL datasource configuration form as part of the
+ * MySQL SSH tunnel feature. This migration change will add a default value for this new toggle field in the older
+ * MySQL datasources.
+ */
 @ChangeUnit(order = "022", id = "add-connection-method-default-value-for-mysql", author = " ")
 public class Migration022AddConnectionMethodDefaultValueToAllMySQLDatasources {
     private final MongoTemplate mongoTemplate;
