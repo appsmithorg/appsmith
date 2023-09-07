@@ -63,7 +63,8 @@ const Tab = styled.div`
 
 type Props = {
   editor: React.ReactNode;
-  addItemsTitle?: string;
+  addStateTitle?: string;
+  listStateTitle?: string;
   addItems?: Array<Item>;
   titleItemCounts?: number;
   listItems?: Array<Item>;
@@ -122,8 +123,10 @@ const PagePaneContainer = (props: Props) => {
           startIcon={"plus"}
         />
       );
-    } else if (pageState === TabState.ADD && props.addItemsTitle) {
-      return <Text kind="heading-xs">{props.addItemsTitle}</Text>;
+    } else if (pageState === TabState.ADD && props.addStateTitle) {
+      return <Text kind="heading-xs">{props.addStateTitle}</Text>;
+    } else if (pageState === TabState.LIST && props.listStateTitle) {
+      return <Text kind="heading-xs">{props.listStateTitle}</Text>;
     }
     return <div />;
   };

@@ -67,6 +67,7 @@ function JSObjects(props: Props) {
     <PagePaneContainer
       editor={editor}
       listItems={sortedList}
+      listStateTitle={`JS Objects in this page (${sortedList.length})`}
       onAddClick={addItemClick}
       onListClick={listItemClick}
       titleItemCounts={4}

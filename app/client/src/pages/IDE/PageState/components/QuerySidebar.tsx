@@ -119,9 +119,10 @@ const QuerySidebar = (props: Props) => {
   return (
     <PagePaneContainer
       addItems={addOperations}
-      addItemsTitle="Create a new query on..."
+      addStateTitle="Create a new query on..."
       editor={editor}
       listItems={sortedActionList}
+      listStateTitle={`Queries in this page (${sortedActionList.length})`}
       onAddClick={addItemClick}
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
