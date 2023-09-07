@@ -754,7 +754,7 @@ export default class DataTreeEvaluator {
      */
     const pathsToSkipFromEval = updatedValuePaths
       .map((path) => path.join("."))
-      .concat(pathsToSkip);
+      .concat(pathsToSkip || []);
 
     return {
       ...this.setupTree(localUnEvalTree, updatedValuePaths, {
