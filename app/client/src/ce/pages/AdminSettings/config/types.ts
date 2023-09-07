@@ -86,6 +86,7 @@ export type Setting = ControlType & {
   dropdownOptions?: Partial<SelectOptionProps>[];
   isFeatureEnabled?: boolean;
   tooltip?: string;
+  isEnterprise?: boolean;
 };
 
 export interface Category {
@@ -117,13 +118,13 @@ export const SettingCategories = {
   BRANDING: "branding",
   SAML_AUTH: "saml-auth",
   OIDC_AUTH: "oidc-auth",
+  DEVELOPER_SETTINGS: "developer-settings",
 };
 
 export enum CategoryType {
   GENERAL = "general",
   ACL = "acl",
   OTHER = "other",
-  DEVELOPER_SETTINGS = "developerSetting",
 }
 
 export type AdminConfigType = {

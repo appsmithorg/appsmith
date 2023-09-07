@@ -1,4 +1,3 @@
-import { GOOGLE_MAPS_SETUP_DOC } from "constants/ThirdPartyConstants";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
   CategoryType,
@@ -6,26 +5,26 @@ import {
   SettingSubtype,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
+import { GOOGLE_MAPS_SETUP_DOC } from "constants/ThirdPartyConstants";
 
 export const config: AdminConfigType = {
-  icon: "map-pin-2-line",
-  type: SettingCategories.GOOGLE_MAPS,
-  categoryType: CategoryType.DEVELOPER_SETTINGS,
+  icon: "snippet",
+  type: SettingCategories.DEVELOPER_SETTINGS,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
-  title: "Google Maps",
+  title: "Developer Settings",
   canSave: true,
-  needsRefresh: true,
   settings: [
     {
       id: "APPSMITH_GOOGLE_MAPS_READ_MORE",
-      category: SettingCategories.GOOGLE_MAPS,
+      category: SettingCategories.DEVELOPER_SETTINGS,
       controlType: SettingTypes.CALLOUT,
-      label: "How to configure?",
+      label: "How to configure google maps?",
       url: GOOGLE_MAPS_SETUP_DOC,
     },
     {
       id: "googleMapsKey",
-      category: SettingCategories.GOOGLE_MAPS,
+      category: SettingCategories.DEVELOPER_SETTINGS,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Google Maps API key",

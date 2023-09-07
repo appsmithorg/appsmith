@@ -25,6 +25,7 @@ const renderComponent = (
         componentProps.meta.error &&
         componentProps.meta.error
       }
+      isDisabled={componentProps.disabled}
       label={componentProps.label as string}
     />
   ) : (
@@ -36,6 +37,7 @@ const renderComponent = (
         showError &&
         componentProps.meta.error
       }
+      isDisabled={componentProps.disabled}
       renderAs={"input"}
       size="md"
     />
