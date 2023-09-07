@@ -12,7 +12,7 @@ import {
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { useParams, useLocation, useHistory } from "react-router";
+import { useParams, useLocation } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { Datasource } from "entities/Datasource";
 import { AuthType, AuthenticationStatus } from "entities/Datasource";
@@ -29,10 +29,7 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
-import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
-import { integrationEditorURL } from "RouteBuilder";
-import { getQueryParams } from "utils/URLUtils";
-import type { AppsmithLocationState } from "utils/history";
+import { SHOW_FILE_PICKER_KEY } from "constants/routes";
 import type { PluginType } from "entities/Action";
 import {
   getCurrentEnvName,
@@ -172,7 +169,6 @@ function DatasourceAuth({
   const dispatch = useDispatch();
   const location = useLocation();
   const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
-  const history = useHistory<AppsmithLocationState>();
 
   const pageId = isInsideReconnectModal
     ? pageIdProp
@@ -339,16 +335,7 @@ function DatasourceAuth({
           key={buttonType}
           kind="secondary"
           onClick={() => {
-            if (createMode) {
-              const URL = integrationEditorURL({
-                pageId,
-                selectedTab: INTEGRATION_TABS.NEW,
-                params: getQueryParams(),
-              });
-              history.push(URL);
-            } else {
-              !!onCancel && onCancel();
-            }
+            !!onCancel && onCancel();
           }}
           size="md"
         >
