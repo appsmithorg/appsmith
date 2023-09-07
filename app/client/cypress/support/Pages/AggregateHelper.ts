@@ -1636,7 +1636,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public AssertClassExists(selector: string, className: string) {
-    cy.get(selector).should("have.class", className);
+    this.GetElement(selector).should("have.class", className);
   }
 
   //Not used:

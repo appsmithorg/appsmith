@@ -88,13 +88,18 @@ export const WIDGETSKIT = {
   selectWidgetFilter: ".select-popover-wrapper .bp3-input-group input",
   selectWidgetClear: "[data-testid='selectbutton.btn.cancel']",
   selectWidgetWidthPlusBtn: ".ads-v2-input__input-section-icon-end",
-  selectWidgetPlaceholder: (value: string) => `//span[contains(@title,'${value}')]`,
+  selectWidgetPlaceholder: (value: string) =>
+    `//span[contains(@title,'${value}')]`,
   textWidgetLink: (link: string) => `//a[@href='${link}']`,
   textWidgetContainer: ".t--text-widget-container",
   inputWidgetLabel: ".t--input-widget-label",
   inputWidgetUnMaskPassword: '[name="eye-on"]',
   inputWidgetMaskPassword: '[name="eye-off"]',
-  inputWidgetWrapper: ".text-input-wrapper"
+  inputWidgetWrapper: ".text-input-wrapper",
+  inputWidgetStepUp:
+    "//*[contains(@class, 'bp3-icon-chevron-up')]//parent::button",
+  inputWidgetStepDown:
+    "//*[contains(@class, 'bp3-icon-chevron-down')]//parent::button",
 };
 type ValueOf<T> = T[keyof T];
 
@@ -125,7 +130,7 @@ export const checkboxlocators = {
   // read Blue here
   checkBoxLabel: (value: string) =>
     `//*[contains(@class,'t--checkbox-widget-label') and text()='${value}']`,
-}
+};
 
 export const datePickerlocators = {
   options: `//*[contains(@id,'rc_select_') and @role='option']`,
@@ -135,25 +140,29 @@ export const datePickerlocators = {
   selectMonth: `//*[contains(@class,'bp3-datepicker-month-select')]//select//option`,
   yearCaret: `//*[contains(@class,'bp3-datepicker-year-select')]//*[contains(@class,'bp3-icon-double-caret-vertical')]`,
   monthCaret: `//*[contains(@class,'bp3-datepicker-month-select')]//*[contains(@class,'bp3-icon-double-caret-vertical')]`,
-  yearInDropdown: (year: string) => datePickerlocators.selectYear + `[@value='${year}']`,
-  monthInDropdown: (month: string) => datePickerlocators.selectMonth + `[@label='${month}']`,
+  yearInDropdown: (year: string) =>
+    datePickerlocators.selectYear + `[@value='${year}']`,
+  monthInDropdown: (month: string) =>
+    datePickerlocators.selectMonth + `[@label='${month}']`,
   inputHour: `.bp3-timepicker-hour`,
   inputMinute: `.bp3-timepicker-minute`,
   inputSecond: `.bp3-timepicker-second`,
   weekDay: `//*[@class='DayPicker-Weekday']//*[@title]`,
   calendarHeader: `//*[contains(@class,'datepicker__calender-header')]//*[@type='button']`,
   year: (yearToSelect: string) => `//*[@data-value='${yearToSelect}']`,
-  date: (dateToSelect: string) => `//*[contains(@class,'datepicker__day--${dateToSelect}')]`,
-}
+  date: (dateToSelect: string) =>
+    `//*[contains(@class,'datepicker__day--${dateToSelect}')]`,
+};
 export const buttongroupwidgetlocators = {
   buttongroup: ".t--buttongroup-widget",
   buttonSettingInPropPane: ".t--property-control-buttons .t--edit-column-btn",
   menuSettingInPropPane: ".t--edit-column-btn",
   newButton: "//*[text()='Add new button']",
   groupButtonValue: "//input[contains(@value,'Group Button')]",
-  buttonText: (value: string) => `//*[@class="bp3-button-text" and text()='${value}']`,
+  buttonText: (value: string) =>
+    `//*[@class="bp3-button-text" and text()='${value}']`,
   menu: "[data-value='MENU']",
-  buttonMenuOptions: (text: string) => `//*[contains(@class,'bp3-menu-item')]//*[text()='${text}']`,
-  button: "//*[contains(@class,'t--widget-buttongroupwidget')]//button"
-}
-
+  buttonMenuOptions: (text: string) =>
+    `//*[contains(@class,'bp3-menu-item')]//*[text()='${text}']`,
+  button: "//*[contains(@class,'t--widget-buttongroupwidget')]//button",
+};
