@@ -229,7 +229,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                                 .update(tenant.getId(), tenant)
                                 .flatMap(this::checkAndExecuteMigrationsForFeatureFlag);
                     }
-                    return Mono.error(new AppsmithException(AppsmithError.IO_ERROR));
+                    return Mono.error(
+                            new AppsmithException(AppsmithError.FeatureFlagMigrationFailure, featureFlagEnum, ""));
                 });
     }
 }
