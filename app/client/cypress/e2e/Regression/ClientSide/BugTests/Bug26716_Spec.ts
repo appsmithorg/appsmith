@@ -61,6 +61,7 @@ describe(
               action: "Delete",
             });
 
+            dataSources.ShowAllDatasources();
             dataSources.DeleteDatasouceFromActiveTab(userMock);
             dataSources.DeleteDatasouceFromActiveTab(movieMock);
             dataSources.DeleteDatasouceFromActiveTab(dsName);

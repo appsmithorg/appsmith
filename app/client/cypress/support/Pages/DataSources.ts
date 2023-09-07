@@ -117,7 +117,7 @@ export class DataSources {
   _generatePageBtn = "[data-testid=t--generate-page-form-submit]";
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
-  _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
+  _selectedActiveTab = "button[aria-selected='true'] " + this._activeTab;
   _contextMenuDSReviewPage = "[data-testid='t--context-menu-trigger']";
   _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
@@ -812,14 +812,14 @@ export class DataSources {
 
   public ShowAllDatasources() {
     this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if ($body.find(this._selectedActiveTab).length == 0) {
+      if ($body.find(this._selectedActiveTab).length === 0) {
         this.agHelper.ClickButton("Show all datasources");
       }
     });
   }
 
   public ClickActiveTabDSContextMenu(datasourceName: string) {
-    this.ShowAllDatasources();
+    this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .parents(this._datasourceCard)
@@ -912,7 +912,7 @@ export class DataSources {
 
   public NavigateToActiveTab() {
     this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if ($body.find(this._selectedActiveTab).length == 0) {
+      if ($body.find(this._selectedActiveTab).length === 0) {
         this.NavigateToDSCreateNew();
         this.agHelper.GetNClick(this._activeTab, 0, true);
       }
