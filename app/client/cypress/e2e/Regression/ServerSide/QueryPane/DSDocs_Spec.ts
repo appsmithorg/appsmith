@@ -88,6 +88,19 @@ describe("Check datasource doc links", function () {
     });
   });
 
+  it("7. Verify Airtable documentation opens", function () {
+    CreateDummyDSNSave(DataSourceKVP["Airtable"]);
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+      dataSources.CreateQueryAfterDSSaved();
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "airtable#create-queries",
+        "getWorkspace",
+      );
+    });
+  });
+
   afterEach(() => {
     agHelper.PressEscape();
     agHelper.ActionContextMenuWithInPane({
