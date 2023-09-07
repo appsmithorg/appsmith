@@ -36,6 +36,7 @@ export type AppTheme = {
   // NOTE: config represents options available and
   // properties represents the selected option
   config: {
+    isDeprecated?: boolean;
     colors: {
       primaryColor: string;
       backgroundColor: string;
