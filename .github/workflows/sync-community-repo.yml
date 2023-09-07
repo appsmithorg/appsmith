@@ -24,6 +24,22 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.PAT_GITHUB }}
 
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: app/client/package.json
+
+      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore Yarn cache
+        uses: actions/cache@v3
+        with:
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
+
       - name: Pull from CE release
         id: merge
         run: |
@@ -57,7 +73,7 @@ jobs:
 
           merge_head="$(git rev-parse community/release)"
           echo "CE release is at '$merge_head' (this should match with the first item in the above list)"
-          
+
           if [[ "$last_common_ancestor" == "$merge_head" ]]; then
             echo "Already up to date. Not merging anything."
             exit
@@ -71,6 +87,13 @@ jobs:
                 git show :3:.github/config.json > .github/config.json
                 git add .github/config.json
                 git commit -m 'Merge CE, conflict in config.json'
+              elif [[ "$CONFLICT_FILES" == "app/client/yarn.lock" ]]; then
+                # The `:3:` gets the file from CE here. See <https://git-scm.com/docs/gitrevisions#Documentation/gitrevisions.txt-emltngtltpathgtemegem0READMEememREADMEem>.
+                git show :3:app/client/yarn.lock > app/client/yarn.lock
+                cd app/client
+                yarn install
+                git add yarn.lock
+                git commit -m 'Merge CE, conflict in yarn.lock'
               else
                 return 1
               fi
