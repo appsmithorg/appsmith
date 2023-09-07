@@ -258,7 +258,7 @@ jobs:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=<${{ github.run_id }}>&attempt=<${{ github.run_attempt }}>" target="_blank"> Click here!</a>
+            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank"> Click here!</a>
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
             To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
 
@@ -269,7 +269,7 @@ jobs:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=<${{ github.run_id }}>&attempt=<${{ github.run_attempt }}>" target="_blank">Click here!</a>
+            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
             All cypress tests have passed 🎉🎉🎉
 
       - name: Check ci-test-limited set status
@@ -357,7 +357,7 @@ jobs:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=<${{ github.run_id }}>&attempt=<${{ github.run_attempt }}>" target="_blank"> Click here!</a>
+            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank"> Click here!</a>
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
             To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
 
@@ -368,7 +368,7 @@ jobs:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=<${{ github.run_id }}>&attempt=<${{ github.run_attempt }}>" target="_blank">Click here!</a>
+            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
             All cypress tests have passed 🎉🎉🎉
 
       - name: Check ci-test-limited-existing-docker-image set status
