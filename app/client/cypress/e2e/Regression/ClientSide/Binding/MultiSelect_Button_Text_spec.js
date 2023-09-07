@@ -59,7 +59,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       cy.updateCodeInput(PROPERTY_SELECTOR.text, testConfig.textBindingValue);
       cy.closePropertyPane();
 
-      cy.get(".rc-select-selector").click({ force: true });
+      agHelper.GetNClick(".rc-select-selector", 0, true);
       cy.wait(1000);
       cy.get('.rc-select-item-option:contains("Blue")').click({ force: true });
       cy.wait(1000);

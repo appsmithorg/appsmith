@@ -23,6 +23,7 @@ export default function ActionSelector(props: {
   open: boolean;
   id: string;
   level: number;
+  dataTreePath: string | undefined;
   onChange: (actionBlock: TActionBlock, del?: boolean) => void;
 }) {
   const action = props.action;
@@ -43,7 +44,13 @@ export default function ActionSelector(props: {
     <Popover2
       canEscapeKeyClose
       className="w-full"
-      content={<ActionSelectorForm action={action} onChange={props.onChange} />}
+      content={
+        <ActionSelectorForm
+          action={action}
+          dataTreePath={props.dataTreePath}
+          onChange={props.onChange}
+        />
+      }
       isOpen={props.open}
       minimal
       popoverClassName={popoverClassName}
@@ -60,6 +67,7 @@ type TActionSelectorFormProps = {
   action: TActionBlock;
   onChange: (actionBlock: TActionBlock, del?: boolean) => void;
   additionalAutoComplete?: AdditionalDynamicDataTree;
+  dataTreePath: string | undefined;
 };
 
 const pathClassList = [
@@ -176,6 +184,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
       <div className="p-3 pt-0">
         <FieldGroup
           additionalAutoComplete={additionalAutoComplete}
+          dataTreePath={props.dataTreePath}
           integrationOptions={integrationOptions}
           isChainedAction={isChainedAction}
           modalDropdownList={modalDropdownList}

@@ -48,6 +48,14 @@ import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { isFunction } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 
+/**
+ * AutoLayoutResizable
+ *
+ * AutoLayoutResizableComponent is dependent on the app state of the widget(List widget items) so on delete it crashes the app
+ * so adding this component to render auto-layout resize only when the widget does have an app state
+ *
+ */
+
 export function AutoLayoutResizable(props: ResizableProps) {
   // auto-layouts resizable is dependent on the app state of the widget so on delete it crashes the app
   // so adding this check to render auto-layout resize only when the widget does have an app state.
@@ -57,6 +65,14 @@ export function AutoLayoutResizable(props: ResizableProps) {
 
   return widget ? <AutoLayoutResizableComponent {...props} /> : null;
 }
+
+/**
+ * AutoLayoutResizableComponent
+ *
+ * Component that renders the resizing handles of a widget in Auto Layout Editor.
+ * It also handles the component dimension and position updation based on where it is aligned in the parent layer.
+ *
+ */
 
 function AutoLayoutResizableComponent(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
