@@ -1,5 +1,12 @@
 import type { FlattenedWidgetProps } from "widgets/constants";
-import type { FlexLayerAlignment } from "./constants";
+import type {
+  FlexLayerAlignment,
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "./constants";
+import type { ReactNode } from "react";
+import type { WidgetType } from "utils/WidgetFactory";
+import type { RenderMode } from "constants/WidgetConstants";
 
 export type AlignmentColumnInfo = {
   [key in FlexLayerAlignment]: number;
@@ -68,3 +75,22 @@ export interface Row extends AlignmentInfo {
 /**
  * End: Position utils types
  */
+
+export type FlexComponentProps = {
+  alignment: FlexVerticalAlignment;
+  children: ReactNode;
+  componentHeight: number;
+  componentWidth: number;
+  focused?: boolean;
+  parentId?: string;
+  responsiveBehavior?: ResponsiveBehavior;
+  selected?: boolean;
+  isResizeDisabled?: boolean;
+  widgetId: string;
+  widgetName: string;
+  widgetType: WidgetType;
+  parentColumnSpace: number;
+  flexVerticalAlignment: FlexVerticalAlignment;
+  isMobile: boolean;
+  renderMode: RenderMode;
+};

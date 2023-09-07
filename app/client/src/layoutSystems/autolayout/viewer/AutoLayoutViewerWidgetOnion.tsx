@@ -2,7 +2,7 @@ import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 import FlexComponent from "../common/FlexComponent";
-import { FlexVerticalAlignment, LayoutDirection } from "../utils/constants";
+import { FlexVerticalAlignment } from "../../anvil/utils/constants";
 
 export const AutoLayoutViewerWidgetOnion = (props: BaseWidgetProps) => {
   return (
@@ -10,7 +10,6 @@ export const AutoLayoutViewerWidgetOnion = (props: BaseWidgetProps) => {
       alignment={props.alignment}
       componentHeight={props.componentHeight}
       componentWidth={props.componentWidth}
-      direction={props.direction || LayoutDirection.Horizontal}
       flexVerticalAlignment={
         props.flexVerticalAlignment || FlexVerticalAlignment.Bottom
       }

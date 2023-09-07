@@ -2,7 +2,7 @@ import {
   FlexLayerAlignment,
   MOBILE_ROW_GAP,
   ROW_GAP,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/anvil/utils/constants";
 import {
   FLEXBOX_PADDING,
   GridDefaults,
@@ -27,7 +27,7 @@ import type {
   FlexLayer,
   HighlightInfo,
   LayerChild,
-} from "./autoLayoutTypes";
+} from "../../anvil/utils/autoLayoutTypes";
 import { getTotalRowsOfAllChildren } from "./heightUpdateUtils";
 import { DEFAULT_HIGHLIGHT_SIZE } from "../common/flexCanvas/FlexBoxComponent";
 

@@ -2,7 +2,7 @@ import type {
   AlignmentColumnData,
   FlexLayer,
   LayerChild,
-} from "./autoLayoutTypes";
+} from "../../anvil/utils/autoLayoutTypes";
 import {
   FLEXBOX_PADDING,
   layoutConfigurations,
@@ -23,18 +23,18 @@ import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-  SNAPSHOT_EXPIRY_IN_DAYS,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/anvil/utils/constants";
 import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,
 } from "layoutSystems/autolayout/utils/positionUtils";
-import type { AlignmentColumnInfo } from "./autoLayoutTypes";
+import type { AlignmentColumnInfo } from "../../anvil/utils/autoLayoutTypes";
 import { getWidgetWidth } from "./flexWidgetUtils";
 import type { DSLWidget } from "widgets/constants";
 import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { isFunction } from "lodash";
+import { SNAPSHOT_EXPIRY_IN_DAYS } from "./constants";
 
 export type ReadableSnapShotDetails = {
   timeSince: string;

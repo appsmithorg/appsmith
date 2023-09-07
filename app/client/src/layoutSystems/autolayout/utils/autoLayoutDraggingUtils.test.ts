@@ -1,4 +1,4 @@
-import type { FlexLayer } from "./autoLayoutTypes";
+import type { FlexLayer } from "../../anvil/utils/autoLayoutTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   addNewLayer,
@@ -8,7 +8,7 @@ import {
   updateRelationships,
 } from "./autoLayoutDraggingUtils";
 import { getLayerIndexOfWidget } from "./AutoLayoutUtils";
-import { FlexLayerAlignment } from "./constants";
+import { FlexLayerAlignment } from "../../anvil/utils/constants";
 import { data } from "./testData";
 
 describe("test AutoLayoutDraggingUtils methods", () => {

@@ -5,8 +5,8 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { FlexLayerAlignment } from "layoutSystems/autolayout/utils/constants";
-import { LayoutDirection } from "layoutSystems/autolayout/utils/constants";
+import type { FlexLayerAlignment } from "layoutSystems/anvil/utils/constants";
+import { LayoutDirection } from "layoutSystems/anvil/utils/constants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -26,7 +26,7 @@ import {
 import type {
   HighlightInfo,
   FlexLayer,
-} from "layoutSystems/autolayout/utils/autoLayoutTypes";
+} from "layoutSystems/anvil/utils/autoLayoutTypes";
 import { updatePositionsOfParentAndSiblings } from "layoutSystems/autolayout/utils/positionUtils";
 import {
   getCanvasWidth,

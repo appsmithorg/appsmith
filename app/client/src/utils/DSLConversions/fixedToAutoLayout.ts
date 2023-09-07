@@ -5,14 +5,14 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { get, partition } from "lodash";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/anvil/utils/autoLayoutTypes";
 import { alterLayoutForDesktop } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
   FlexLayerAlignment,
   FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/anvil/utils/constants";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
   isDynamicValue,

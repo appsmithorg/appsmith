@@ -11,16 +11,17 @@ import {
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
-import type {
-  FlexVerticalAlignment,
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
+import type { FlexComponentProps } from "../../anvil/utils/autoLayoutTypes";
+import type {
+  FlexVerticalAlignment,
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "layoutSystems/anvil/utils/constants";
 
 export type AutoLayoutProps = {
   alignment: FlexVerticalAlignment;
@@ -46,7 +47,7 @@ const FlexWidget = styled.div`
   position: relative;
 `;
 
-export function FlexComponent(props: AutoLayoutProps) {
+export function FlexComponent(props: FlexComponentProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
 
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);

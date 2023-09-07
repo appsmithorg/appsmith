@@ -1,5 +1,5 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import {
   DefaultEChartConfig,

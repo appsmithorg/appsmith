@@ -2,8 +2,12 @@ import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
-import type { AlignmentInfo, FlexLayer, Row } from "./autoLayoutTypes";
+} from "layoutSystems/anvil/utils/constants";
+import type {
+  AlignmentInfo,
+  FlexLayer,
+  Row,
+} from "../../anvil/utils/autoLayoutTypes";
 import { RenderModes } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
