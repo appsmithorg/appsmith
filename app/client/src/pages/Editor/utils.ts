@@ -9,7 +9,7 @@ import type {
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import ResizeObserver from "resize-observer-polyfill";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   createMessage,
   WIDGET_DEPRECATION_MESSAGE,

@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { ReactNode } from "react";
 
 import type { ColorMode } from "../../color";
@@ -18,6 +19,7 @@ export interface ThemeProviderProps {
   theme: Theme;
   children: ReactNode;
   className?: string;
+  style?: CSSProperties;
 }
 
 export type UseThemeProps = {

@@ -1,5 +1,5 @@
 import { cloneDeep } from "lodash";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import {
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,

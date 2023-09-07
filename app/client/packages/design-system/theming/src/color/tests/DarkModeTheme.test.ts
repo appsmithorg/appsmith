@@ -62,4 +62,30 @@ describe("@design-system/theming/color/DarkModeTheme", () => {
     ).getColors();
     expect(bgAccentHover7).toBe("rgb(78.426% 78.975% 70.34%)");
   });
+
+  it("it checks bgAccentActive color", () => {
+    // seedLightness < 0.4
+    const { bgAccentActive: bgAccentActive1 } = new DarkModeTheme(
+      "oklch(0.2 0.09 231)",
+    ).getColors();
+    expect(bgAccentActive1).toBe("rgb(0% 17.836% 27.428%)");
+
+    // seedLightness >= 0.4 && seedLightness < 0.7
+    const { bgAccentActive: bgAccentActive2 } = new DarkModeTheme(
+      "oklch(0.45 0.09 231)",
+    ).getColors();
+    expect(bgAccentActive2).toBe("rgb(0% 32.155% 44.665%)");
+
+    // seedLightness >= 0.7 && seedLightness < 0.85
+    const { bgAccentActive: bgAccentActive3 } = new DarkModeTheme(
+      "oklch(0.75 0.09 231)",
+    ).getColors();
+    expect(bgAccentActive3).toBe("rgb(37.393% 66.165% 80.119%)");
+
+    // seedLightness >= 0.85
+    const { bgAccentActive: bgAccentActive4 } = new DarkModeTheme(
+      "oklch(0.90 0.09 231)",
+    ).getColors();
+    expect(bgAccentActive4).toBe("rgb(46.054% 74.898% 89.15%)");
+  });
 });

@@ -31,7 +31,7 @@ import {
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import { ButtonVariantTypes } from "components/constants";
-import { dateFormatOptions } from "widgets/constants";
+import { dateFormatOptions } from "WidgetProvider/constants";
 import moment from "moment";
 import type { Stylesheet } from "entities/AppTheming";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
