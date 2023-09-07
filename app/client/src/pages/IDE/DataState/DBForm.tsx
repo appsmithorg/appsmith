@@ -93,6 +93,9 @@ import {
 import DataSourceEditorForm from "../../Editor/DataSourceEditor/DBForm";
 import DatasourceAuth from "../../common/datasourceAuth";
 import { formValuesToDatasource } from "../../../transformers/RestAPIDatasourceFormTransformer";
+import history from "utils/history";
+import { builderURL } from "RouteBuilder";
+import { IDEAppState } from "../ideReducer";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -690,6 +693,12 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       datasourceId: this.props.datasourceId,
       viewMode: true,
     });
+    history.push(
+      builderURL({
+        ideState: IDEAppState.Data,
+        pageId: this.props.pageId,
+      }),
+    );
   }
   getSanitizedData = () => {
     if (
