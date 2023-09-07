@@ -38,7 +38,9 @@ export enum FocusEntity {
 }
 
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
-  [FocusEntity.PROPERTY_PANE]: FocusEntity.CANVAS,
+  [FocusEntity.PROPERTY_PANE]: FocusEntity.PAGE,
+  [FocusEntity.JS_OBJECT]: FocusEntity.PAGE,
+  [FocusEntity.QUERY]: FocusEntity.PAGE,
 };
 
 export type FocusEntityInfo = {
@@ -59,9 +61,10 @@ export function shouldStoreURLForFocus(path: string) {
     FocusEntity.API,
     FocusEntity.JS_OBJECT,
     FocusEntity.DATASOURCE,
+    FocusEntity.PROPERTY_PANE,
   ];
 
-  const entity = identifyEntityFromPath(path)?.entity;
+  const entity = identifyIDEEntityFromPath(path)?.entity;
 
   return entityTypesToStore.indexOf(entity) >= 0;
 }
@@ -227,29 +230,43 @@ export function identifyIDEEntityFromPath(path: string): FocusEntityInfo {
               };
             }
             return {
-              entity: FocusEntity.CANVAS,
+              entity: FocusEntity.PAGE,
               pageId,
-              id: "",
+              id: pageId,
             };
           } else if (pageNav === PageNavState.JS) {
             const jsMatch = matchPath<{ collectionId: string }>(
               path,
               IDE_PAGE_JS_DETAIL_PATH,
             );
+            if (jsMatch) {
+              return {
+                entity: FocusEntity.JS_OBJECT,
+                pageId,
+                id: jsMatch?.params.collectionId || "",
+              };
+            }
             return {
-              entity: FocusEntity.JS_OBJECT,
+              entity: FocusEntity.PAGE,
               pageId,
-              id: jsMatch?.params.collectionId || "",
+              id: pageId,
             };
           } else if (pageNav === PageNavState.QUERIES) {
             const queryMatch = matchPath<{ actionId: string }>(
               path,
               IDE_PAGE_QUERIES_DETAIL_PATH,
             );
+            if (queryMatch) {
+              return {
+                entity: FocusEntity.QUERY,
+                pageId,
+                id: queryMatch?.params.actionId || "",
+              };
+            }
             return {
-              entity: FocusEntity.QUERY,
+              entity: FocusEntity.PAGE,
               pageId,
-              id: queryMatch?.params.actionId || "",
+              id: pageId,
             };
           }
         }
