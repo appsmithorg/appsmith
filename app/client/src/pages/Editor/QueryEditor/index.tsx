@@ -30,7 +30,7 @@ import {
   getActionResponses,
   getDatasourceByPluginId,
   getDBAndRemoteDatasources,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import type { QueryAction, SaaSAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";

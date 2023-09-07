@@ -1,11 +1,11 @@
 import { createSelector } from "reselect";
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getAppData,
   getPluginDependencyConfig,
   getPluginEditorConfigs,
   getJSCollectionsForCurrentPage,
-} from "./entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
@@ -26,7 +26,7 @@ import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
 
 export const getUnevaluatedDataTree = createSelector(
-  getActionsForCurrentPage,
+  getCurrentActions,
   getJSCollectionsForCurrentPage,
   getWidgetsForEval,
   getWidgetsMeta,

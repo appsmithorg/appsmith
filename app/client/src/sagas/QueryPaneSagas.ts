@@ -38,7 +38,7 @@ import {
   getSettingConfig,
   getPlugins,
   getGenerateCRUDEnabledPluginMap,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
 import { PluginType } from "entities/Action";
 import {

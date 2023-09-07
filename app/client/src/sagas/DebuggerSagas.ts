@@ -29,7 +29,7 @@ import {
   getPlugin,
   getJSCollection,
   getAppMode,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";

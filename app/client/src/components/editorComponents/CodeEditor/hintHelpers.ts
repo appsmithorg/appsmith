@@ -10,7 +10,7 @@ import {
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, isString } from "lodash";
-import type { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
+import type { getAllDatasourceTableKeys } from "@appsmith/selectors/entitiesSelector";
 import { getHintDetailsFromClassName } from "./utils/sqlHint";
 
 export const bindingHint: HintHelper = (editor) => {

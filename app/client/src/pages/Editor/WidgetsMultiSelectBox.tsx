@@ -15,7 +15,7 @@ import { TooltipComponent as Tooltip } from "design-system-old";
 import { getSelectedWidgets } from "selectors/ui";
 
 import { stopEventPropagation } from "utils/AppsmithUtils";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import type { IPopoverSharedProps } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import WidgetFactory from "utils/WidgetFactory";

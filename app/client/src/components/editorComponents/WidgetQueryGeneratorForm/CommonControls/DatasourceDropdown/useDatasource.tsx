@@ -14,14 +14,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { integrationEditorURL } from "RouteBuilder";
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getDatasourceLoading,
   getDatasources,
   getMockDatasources,
   getPluginIdPackageNamesMap,
   getPluginImages,
   getPlugins,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import { WidgetQueryGeneratorFormContext } from "../..";
@@ -381,7 +381,7 @@ export function useDatasource(searchText: string) {
     return options;
   }, [currentPageId, history, propertyName, sampleData, addBinding]);
 
-  const queries = useSelector(getActionsForCurrentPage);
+  const queries = useSelector(getCurrentActions);
 
   const queryOptions = useMemo(() => {
     return sortQueries(queries, expectedType).map((query) => ({

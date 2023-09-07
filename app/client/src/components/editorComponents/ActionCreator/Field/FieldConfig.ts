@@ -32,7 +32,7 @@ import {
   genericSetter,
 } from "../utils";
 import store from "store";
-import { getPageList } from "selectors/entitiesSelector";
+import { getPageList } from "@appsmith/selectors/entitiesSelector";
 import type { TreeDropdownOption } from "design-system-old";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
 import { getFunctionName, checkIfArgumentExistAtPosition } from "@shared/ast";

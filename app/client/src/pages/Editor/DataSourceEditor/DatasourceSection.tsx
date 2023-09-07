@@ -12,7 +12,7 @@ import {
   DB_NOT_SUPPORTED,
   getCurrentEnvironment,
 } from "@appsmith/utils/Environments";
-import { getPlugin } from "selectors/entitiesSelector";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { PluginType } from "entities/Action";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
 import { EnvConfigSection } from "@appsmith/components/EnvConfigSection";

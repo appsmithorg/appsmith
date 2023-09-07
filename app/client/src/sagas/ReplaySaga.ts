@@ -51,7 +51,7 @@ import {
   getPluginForm,
   getPlugins,
   getSettingConfig,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { isAPIAction, isQueryAction, isSaaSAction } from "entities/Action";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";

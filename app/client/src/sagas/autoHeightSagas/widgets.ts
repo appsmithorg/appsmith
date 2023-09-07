@@ -41,7 +41,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { TreeNode } from "utils/autoHeight/constants";
 import { directlyMutateDOMNodes } from "utils/autoHeight/mutateDOM";
-import { getAppMode } from "selectors/entitiesSelector";
+import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 import {
   getDimensionMap,

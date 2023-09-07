@@ -19,7 +19,7 @@ import type {
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
 import { get, isArray } from "lodash";
 import store from "store";
-import { getPlugin } from "selectors/entitiesSelector";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import {
   MOCK_DB_TABLE_NAMES,

@@ -31,7 +31,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
-import { getEditingEntityName } from "selectors/entitiesSelector";
+import { getEditingEntityName } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
