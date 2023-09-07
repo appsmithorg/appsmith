@@ -164,7 +164,7 @@ const GitUserSettings = () => {
   }, [isFetchingGlobalGitConfig, isFetchingLocalGitConfig, useGlobalProfile]);
 
   const onSubmit: SubmitHandler<AuthorInfo> = (data) => {
-    if (!data.useGlobalProfile) {
+    if (data.useGlobalProfile) {
       data.authorName = localConfig?.authorName;
       data.authorEmail = localConfig?.authorEmail;
     }
