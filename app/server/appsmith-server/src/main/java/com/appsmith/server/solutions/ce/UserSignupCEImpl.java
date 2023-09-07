@@ -17,6 +17,7 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.EnvManager;
@@ -75,6 +76,7 @@ public class UserSignupCEImpl implements UserSignupCE {
     private final CommonConfig commonConfig;
     private final UserUtils userUtils;
     private final NetworkUtils networkUtils;
+    private final EmailService emailService;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -90,7 +92,8 @@ public class UserSignupCEImpl implements UserSignupCE {
             EnvManager envManager,
             CommonConfig commonConfig,
             UserUtils userUtils,
-            NetworkUtils networkUtils) {
+            NetworkUtils networkUtils,
+            EmailService emailService) {
 
         this.userService = userService;
         this.userDataService = userDataService;
@@ -102,6 +105,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         this.commonConfig = commonConfig;
         this.userUtils = userUtils;
         this.networkUtils = networkUtils;
+        this.emailService = emailService;
     }
 
     /**
@@ -231,7 +235,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                 });
     }
 
-    public Mono<User> signupAndLoginSuper(UserSignupRequestDTO userFromRequest, ServerWebExchange exchange) {
+    public Mono<User> signupAndLoginSuper(
+            UserSignupRequestDTO userFromRequest, String originHeader, ServerWebExchange exchange) {
         Mono<User> userMono = userService
                 .isUsersEmpty()
                 .flatMap(isEmpty -> {
@@ -264,6 +269,9 @@ public class UserSignupCEImpl implements UserSignupCE {
                             });
                     return makeSuperUserMono.thenReturn(user);
                 })
+                .flatMap(user -> emailService
+                        .sendInstanceAdminInviteEmail(user, originHeader)
+                        .thenReturn(user))
                 .flatMap(user -> {
                     final UserData userData = new UserData();
                     userData.setRole(userFromRequest.getRole());
@@ -331,7 +339,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         });
     }
 
-    public Mono<Void> signupAndLoginSuperFromFormData(ServerWebExchange exchange) {
+    public Mono<Void> signupAndLoginSuperFromFormData(String originHeader, ServerWebExchange exchange) {
         return exchange.getFormData()
                 .map(formData -> {
                     final UserSignupRequestDTO user = new UserSignupRequestDTO();
@@ -358,7 +366,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     }
                     return user;
                 })
-                .flatMap(user -> signupAndLoginSuper(user, exchange))
+                .flatMap(user -> signupAndLoginSuper(user, originHeader, exchange))
                 .then()
                 .onErrorResume(error -> {
                     String referer = exchange.getRequest().getHeaders().getFirst("referer");
