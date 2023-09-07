@@ -68,7 +68,7 @@ export type FieldEntityInformation = {
 export type HintHelper = (
   editor: CodeMirror.Editor,
   data: DataTree,
-  entitiesForNavigation: EntityNavigationData,
+  entitiesForNavigation?: EntityNavigationData,
   customDataTree?: AdditionalDynamicDataTree,
 ) => Hinter;
 export type Hinter = {

@@ -5,13 +5,13 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import type { SlashCommandPayload } from "entities/Action";
-import { PluginType } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { Icon } from "design-system";
 import BetaCard from "../BetaCard";
+import type { EntityNavigationData } from "selectors/navigationSelectors";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -122,9 +122,8 @@ export const generateAssistiveBindingCommands = (
   currentEntityType: ENTITY_TYPE,
   searchText: string,
   {
-    // datasources,
-    // enableAIAssistance,
-    // executeCommand,
+    datasources,
+    entitiesForNavigation,
     pluginIdToImageLocation,
     recentEntities,
   }: {
@@ -134,10 +133,10 @@ export const generateAssistiveBindingCommands = (
     recentEntities: string[];
     featureFlags: FeatureFlags;
     enableAIAssistance: boolean;
+    entitiesForNavigation?: EntityNavigationData;
   },
 ) => {
-  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind dataX");
-  // const createNewHeader: CommandsCompletion = commandsHeader("Create a query");
+  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind data");
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}", // the last } already added by the codemirror autocomplete
@@ -152,27 +151,23 @@ export const generateAssistiveBindingCommands = (
   const suggestionsAction = actionEntities.map((suggestion: any) => {
     const name = suggestion.entityName;
     return {
-      text:
-        suggestion.ENTITY_TYPE === ENTITY_TYPE.ACTION
-          ? `{{${name}.data}}`
-          : suggestion.ENTITY_TYPE === ENTITY_TYPE.JSACTION
-          ? `{{${name}.}}`
-          : `{{${name}}}`,
+      text: `{{${name}.data}}`,
       displayText: `${name}`,
       className: "CodeMirror-commands",
       data: suggestion,
       triggerCompletionsPostPick: suggestion.ENTITY_TYPE !== ENTITY_TYPE.ACTION,
       render: (element: HTMLElement, self: any, data: any) => {
-        const pluginType = data.data.pluginType as PluginType;
+        const name = data.data.entityName;
+        const datasourceId = entitiesForNavigation?.[name].datasourceId;
+        const datasource = datasources.find(
+          (datasource) => datasource.id === datasourceId,
+        );
+        const pluginId = datasource?.pluginId;
         let icon = null;
-        if (pluginType === PluginType.JS) {
-          icon = JsFileIconV2();
-        } else if (pluginIdToImageLocation[data.data.pluginId]) {
+        if (pluginId && pluginIdToImageLocation[pluginId]) {
           icon = (
             <EntityIcon>
-              <img
-                src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
-              />
+              <img src={getAssetUrl(pluginIdToImageLocation[pluginId])} />
             </EntityIcon>
           );
         }
@@ -198,19 +193,7 @@ export const generateAssistiveBindingCommands = (
         data: suggestion,
         triggerCompletionsPostPick: false,
         render: (element: HTMLElement, self: any, data: any) => {
-          const pluginType = data.data.pluginType as PluginType;
-          let icon = null;
-          if (pluginType === PluginType.JS) {
-            icon = JsFileIconV2();
-          } else if (pluginIdToImageLocation[data.data.pluginId]) {
-            icon = (
-              <EntityIcon>
-                <img
-                  src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
-                />
-              </EntityIcon>
-            );
-          }
+          const icon = JsFileIconV2();
           ReactDOM.render(
             <Command icon={icon} name={data.displayText} />,
             element,
