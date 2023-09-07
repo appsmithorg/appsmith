@@ -33,7 +33,7 @@ public class SSHConnection implements AppsmithDomain {
 
     public void setEndpoints(List<Endpoint> endpoints) {
         this.endpoints = endpoints;
-        
+
         if (!isEmpty(endpoints)) {
             this.host = endpoints.get(0).getHost();
             this.port = endpoints.get(0).getPort();
