@@ -234,7 +234,7 @@ describe("Image widget tests", function () {
     agHelper.AssertExistingToggleState("Enable download", "false");
     propPane.TogglePropertyState("Enable download", "On");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.Sleep(2000);
+    agHelper.Sleep(2000); //for widget to settle loading
     agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.AssertElementVisibility(widgetLocators.imageDownloadBtn);
     agHelper.AssertAttribute(widgetLocators.imageDownloadBtn, "href", jpgImg);
