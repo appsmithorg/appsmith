@@ -155,6 +155,7 @@ describe("Image widget tests", function () {
     agHelper.AssertExistingToggleState("Enable rotation", "false");
     propPane.TogglePropertyState("Enable rotation", "On");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
+    agHelper.Sleep(2000); //for widget to settle loading
     agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.AssertElementVisibility(widgetLocators.imageRotateClockwiseBtn);
     agHelper.AssertElementVisibility(
