@@ -192,11 +192,11 @@ describe("Image widget tests", function () {
     propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
-      "Image Clicked! (NEW)",
+      "Image Clicked again!",
     );
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.ValidateToastMessage("Image Clicked! (NEW)");
+    agHelper.ValidateToastMessage("Image Clicked again!");
   });
 
   it("8. Validate enable rotation property", function () {
@@ -204,10 +204,13 @@ describe("Image widget tests", function () {
     agHelper.AssertElementAbsence(widgetLocators.imageRotateClockwiseBtn);
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Image1", "Widgets");
+    propPane.EnterJSContext("onClick", ""); //so click toast does not hinder with new icons on screen
+    propPane.ToggleJSMode("onClick", false);
     agHelper.AssertExistingToggleState("Enable rotation", "false");
     propPane.TogglePropertyState("Enable rotation", "On");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.Sleep(2000); //for widget to settle loading
+    agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.AssertElementVisibility(widgetLocators.imageRotateClockwiseBtn);
     agHelper.AssertElementVisibility(
@@ -236,6 +239,7 @@ describe("Image widget tests", function () {
     propPane.TogglePropertyState("Enable download", "On");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.Sleep(2000); //for widget to settle loading
+    agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.AssertElementVisibility(widgetLocators.imageDownloadBtn);
     agHelper.AssertAttribute(widgetLocators.imageDownloadBtn, "href", jpgImg);
