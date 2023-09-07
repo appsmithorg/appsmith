@@ -1,6 +1,5 @@
 import { dataTreeEvaluator } from "./evalTree";
 import type { EvalWorkerSyncRequest } from "../types";
-import DataStore from "../DataStore";
 import { set } from "lodash";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 
@@ -25,8 +24,6 @@ export function handleActionsDataUpdate(
 
   for (const actionToUpdate of actionsToUpdate) {
     const { data, dataPath, entityName } = actionToUpdate;
-    // Update the datastore
-    DataStore.setActionData(entityName, dataPath, data);
     // update the evaltree
     set(evalTree, `${entityName}.[${dataPath}]`, data);
   }
