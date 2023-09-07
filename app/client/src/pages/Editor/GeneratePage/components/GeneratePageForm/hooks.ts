@@ -24,10 +24,12 @@ export const FAKE_DATASOURCE_OPTION = {
 export const useDatasourceOptions = ({
   canCreateDatasource,
   datasources,
+  fetchingDatasourceConfigs,
   generateCRUDSupportedPlugin,
 }: {
   canCreateDatasource: boolean;
   datasources: Datasource[];
+  fetchingDatasourceConfigs: boolean;
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;
 }) => {
   const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(
@@ -76,7 +78,12 @@ export const useDatasourceOptions = ({
       unSupportedDatasourceOptions,
     );
     setDataSourceOptions(newDataSourceOptions);
-  }, [datasources, setDataSourceOptions, generateCRUDSupportedPlugin]);
+  }, [
+    datasources,
+    setDataSourceOptions,
+    generateCRUDSupportedPlugin,
+    fetchingDatasourceConfigs,
+  ]);
   return dataSourceOptions;
 };
 
@@ -184,6 +191,7 @@ export const useSpreadSheets = ({
           payload: {
             datasourceId: selectedDatasourceId,
             data: formattedRequestData,
+            isGeneratePage: true,
           },
           onSuccessCallback: onFetchAllSpreadsheetSuccess,
           onErrorCallback: onFetchAllSpreadsheetFailure,
@@ -322,6 +330,7 @@ export const useSheetsList = (): UseSheetListReturn => {
           payload: {
             datasourceId: selectedDatasourceId,
             data: formattedRequestData,
+            isGeneratePage: true,
           },
           onSuccessCallback: onFetchAllSheetSuccess,
           onErrorCallback: onFetchAllSheetFailure,
@@ -406,6 +415,7 @@ export const useSheetData = (): UseSheetDataReturn => {
           payload: {
             datasourceId: selectedDatasourceId,
             data: formattedRequestData,
+            isGeneratePage: true,
           },
           onSuccessCallback: onFetchAllSheetSuccess,
           onErrorCallback: onFetchAllSheetFailure,
@@ -519,6 +529,7 @@ export const useSheetColumnHeaders = () => {
           payload: {
             datasourceId: params.selectedDatasourceId,
             data: formattedRequestData,
+            isGeneratePage: true,
           },
           onSuccessCallback: onFetchColumnHeadersSuccess,
           onErrorCallback: onFetchColumnHeadersFailure,
@@ -588,6 +599,7 @@ export const useS3BucketList = () => {
             payload: {
               datasourceId: selectedDatasource.id,
               data: payload,
+              isGeneratePage: true,
             },
             onSuccessCallback: onFetchBucketSuccess,
             onErrorCallback: onFetchBucketFailure,

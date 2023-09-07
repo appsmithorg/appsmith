@@ -6,32 +6,63 @@ import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { contentConfig, styleConfig } from "./propertyConfig";
+import {
+  CUSTOM_ECHART_FEATURE_FLAG,
+  DefaultEChartConfig,
+  DefaultEChartsBasicChartsData,
+  DefaultFusionChartConfig,
+  FUSION_CHART_DEPRECATION_FLAG,
+  messages,
+} from "../constants";
 import type { ChartSelectedDataPoint } from "../constants";
-
-import type { WidgetType } from "constants/WidgetConstants";
 import type { ChartComponentProps } from "../component";
 import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AutocompletionDefinitions,
+  WidgetCallout,
+} from "WidgetProvider/constants";
 import { ChartErrorComponent } from "../component/ChartErrorComponent";
 import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 import { EmptyChartData } from "../component/EmptyChartData";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { generateReactKey } from "widgets/WidgetUtils";
+import { LabelOrientation } from "../constants";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { ChartType } from "../constants";
+import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
 
 const ChartComponent = lazy(() =>
   retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
 );
 
+export const isBasicEChart = (type: ChartType) => {
+  const types: ChartType[] = [
+    "AREA_CHART",
+    "PIE_CHART",
+    "LINE_CHART",
+    "BAR_CHART",
+    "COLUMN_CHART",
+  ];
+  return types.includes(type);
+};
+
 export const emptyChartData = (props: ChartWidgetProps) => {
   if (props.chartType == "CUSTOM_FUSION_CHART") {
-    if (!props.customFusionChartConfig) {
-      return true;
-    } else {
-      return Object.keys(props.customFusionChartConfig).length == 0;
-    }
+    return Object.keys(props.customFusionChartConfig).length == 0;
+  } else if (props.chartType == "CUSTOM_ECHART") {
+    return Object.keys(props.customEChartConfig).length == 0;
   } else {
-    for (const seriesID in props.chartData) {
-      if (props.chartData[seriesID].data?.length > 0) {
+    const seriesData = EChartsDatasetBuilder.chartData(
+      props.chartType,
+      props.chartData,
+    );
+
+    for (const seriesID in seriesData) {
+      if (Object.keys(props.chartData[seriesID].data).length > 0) {
         return false;
       }
     }
@@ -40,6 +71,92 @@ export const emptyChartData = (props: ChartWidgetProps) => {
 };
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
+  static type = "CHART_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Chart",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.DISPLAY],
+      needsMeta: true,
+      searchTags: ["graph", "visuals", "visualisations"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 32,
+      columns: 24,
+      widgetName: "Chart",
+      chartType: "COLUMN_CHART",
+      chartName: "Sales Report",
+      allowScroll: false,
+      version: 1,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+      showDataPointLabel: false,
+      customEChartConfig: `{{\n${JSON.stringify(
+        DefaultEChartConfig,
+        null,
+        2,
+      )}\n}}`,
+      chartData: {
+        [generateReactKey()]: DefaultEChartsBasicChartsData,
+      },
+      xAxisName: "Product Line",
+      yAxisName: "Revenue($)",
+      labelOrientation: LabelOrientation.AUTO,
+      customFusionChartConfig: DefaultFusionChartConfig,
+
+      /**
+       * TODO, @sbalaji92
+       * need to remove this once widget properties get added to dynamic binding path list
+       * in WidgetAdditionSagas/dynamicBindingPathList function
+       * */
+      dynamicBindingPathList: [{ key: "customEChartConfig" }],
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
+  static getMethods() {
+    return {
+      getEditorCallouts(props: WidgetProps): WidgetCallout[] {
+        const callouts: WidgetCallout[] = [];
+        if (
+          ChartWidget.showCustomFusionChartDeprecationMessages() &&
+          props.chartType == "CUSTOM_FUSION_CHART"
+        ) {
+          callouts.push({
+            message: messages.customFusionChartDeprecationMessage,
+            links: [
+              {
+                text: "Learn More",
+                url: "https://docs.appsmith.com",
+              },
+            ],
+          });
+        }
+        return callouts;
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -63,11 +180,18 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneContentConfig() {
-    return contentConfig;
+    return contentConfig(
+      this.getFeatureFlag(CUSTOM_ECHART_FEATURE_FLAG),
+      this.showCustomFusionChartDeprecationMessages(),
+    );
   }
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
+  }
+
+  static showCustomFusionChartDeprecationMessages() {
+    return this.getFeatureFlag(FUSION_CHART_DEPRECATION_FLAG);
   }
 
   static getStylesheetConfig(): Stylesheet {
@@ -110,6 +234,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
               chartData={this.props.chartData}
               chartName={this.props.chartName}
               chartType={this.props.chartType}
+              customEChartConfig={this.props.customEChartConfig}
               customFusionChartConfig={this.props.customFusionChartConfig}
               dimensions={this.getComponentDimensions()}
               fontFamily={this.props.fontFamily ?? "Nunito Sans"}
@@ -135,10 +260,6 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     } else {
       return <ChartErrorComponent error={errors[0]} />;
     }
-  }
-
-  static getWidgetType(): WidgetType {
-    return "CHART_WIDGET";
   }
 }
 

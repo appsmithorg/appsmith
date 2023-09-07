@@ -10,7 +10,7 @@ import {
   SearchInput,
   Tooltip,
 } from "design-system";
-import { HeaderWrapper } from "pages/Settings/components";
+import { HeaderWrapper } from "pages/AdminSettings/components";
 import { SettingsHeader } from "components/utils/helperComponents";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
 import { useMediaQuery } from "react-responsive";

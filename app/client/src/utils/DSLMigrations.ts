@@ -38,7 +38,7 @@ import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
 import type { FetchPageResponse } from "api/PageApi";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 // import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
@@ -54,7 +54,7 @@ import {
 } from "./migrations/ModalWidget";
 import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import type { PrivateWidgets } from "entities/DataTree/types";
 import {
@@ -93,6 +93,7 @@ import {
 import {
   migrateChartWidgetLabelOrientationStaggerOption,
   migrateAddShowHideDataPointLabels,
+  migrateDefaultValuesForCustomEChart,
 } from "./migrations/ChartWidget";
 import { flattenDSL } from "@shared/dsl";
 
@@ -1221,6 +1222,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 84) {
     currentDSL = migrateSelectWidgetAddSourceDataPropertyPathList(currentDSL);
+    currentDSL.version = 85;
+  }
+
+  if (currentDSL.version === 85) {
+    currentDSL = migrateDefaultValuesForCustomEChart(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
