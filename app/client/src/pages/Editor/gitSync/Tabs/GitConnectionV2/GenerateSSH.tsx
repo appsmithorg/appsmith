@@ -53,7 +53,7 @@ function GenerateSSH({
   };
 
   return (
-    <div>
+    <>
       {/* hardcoding messages because server doesn't support feature flag. Will change this later */}
       {connectErrorResponse &&
         connectErrorResponse?.responseMeta?.error?.code === "AE-GIT-4033" && (
@@ -117,7 +117,7 @@ function GenerateSSH({
           </Collapsible>
         )}
       </WellContainer>
-    </div>
+    </>
   );
 }
 

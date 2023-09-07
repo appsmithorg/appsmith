@@ -83,7 +83,7 @@ function ChooseGitProvider({
     hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;
 
   return (
-    <div>
+    <>
       <WellContainer>
         <WellTitleContainer>
           <WellTitle kind="heading-s" renderAs="h3">
@@ -212,7 +212,7 @@ function ChooseGitProvider({
           </CheckboxTextContainer>
         </Checkbox>
       )}
-    </div>
+    </>
   );
 }
 

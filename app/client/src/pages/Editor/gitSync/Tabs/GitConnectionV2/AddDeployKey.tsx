@@ -212,7 +212,7 @@ function AddDeployKey({
   const loading = fetchingSSHKeyPair || generatingSSHKey;
 
   return (
-    <div>
+    <>
       {connectErrorResponse &&
         connectErrorResponse?.responseMeta?.error?.code !== "AE-GIT-4033" &&
         connectErrorResponse?.responseMeta?.error?.code !== "AE-GIT-4032" && (
@@ -339,7 +339,7 @@ function AddDeployKey({
           </Text>
         </CheckboxTextContainer>
       </Checkbox>
-    </div>
+    </>
   );
 }
 

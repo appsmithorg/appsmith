@@ -23,6 +23,12 @@ interface StyledModalFooterProps {
   loading?: boolean;
 }
 
+const StepContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  max-height: 580px;
+`;
+
 const StyledModalFooter = styled(ModalFooter)<StyledModalFooterProps>`
   justify-content: space-between;
   flex-direction: ${(p) => (!p.loading ? "row-reverse" : "row")};
@@ -200,15 +206,17 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
             steps={steps}
           />
         )}
-        {activeStep === GIT_CONNECT_STEPS.CHOOSE_PROVIDER && (
-          <ChooseGitProvider {...stepProps} />
-        )}
-        {activeStep === GIT_CONNECT_STEPS.GENERATE_SSH_KEY && (
-          <GenerateSSH {...stepProps} />
-        )}
-        {activeStep === GIT_CONNECT_STEPS.ADD_DEPLOY_KEY && (
-          <AddDeployKey {...stepProps} connectLoading={loading} />
-        )}
+        <StepContent>
+          {activeStep === GIT_CONNECT_STEPS.CHOOSE_PROVIDER && (
+            <ChooseGitProvider {...stepProps} />
+          )}
+          {activeStep === GIT_CONNECT_STEPS.GENERATE_SSH_KEY && (
+            <GenerateSSH {...stepProps} />
+          )}
+          {activeStep === GIT_CONNECT_STEPS.ADD_DEPLOY_KEY && (
+            <AddDeployKey {...stepProps} connectLoading={loading} />
+          )}
+        </StepContent>
       </ModalBody>
       <StyledModalFooter loading={loading}>
         {loading && (
