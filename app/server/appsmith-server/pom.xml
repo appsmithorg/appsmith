@@ -257,13 +257,6 @@
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j-spring</artifactId>
             <version>0.8.0</version>
-            <exclusions>
-                <exclusion>
-                    <!-- Once this transitive dependency is updated to at least 3.10.0, we can remove this exclusion. -->
-                    <groupId>org.pf4j</groupId>
-                    <artifactId>pf4j</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
