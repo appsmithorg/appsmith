@@ -2,7 +2,7 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import type { PropertyUpdates } from "widgets/constants";
+import type { PropertyUpdates } from "WidgetProvider/constants";
 import {
   RenderModes,
   TextSizes,
@@ -11,7 +11,7 @@ import {
 import { remove } from "lodash";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import type { WidgetProps } from "./BaseWidget";
-import { rgbaMigrationConstantV56 } from "./constants";
+import { rgbaMigrationConstantV56 } from "../WidgetProvider/constants";
 import {
   borderRadiusUtility,
   replaceRgbaMigrationConstant,

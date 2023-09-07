@@ -6,14 +6,19 @@ import ButtonComponent from "../component";
 import { propertyPaneStyleConfig } from "./styleConfig";
 import type { ButtonComponentProps } from "../component";
 import type { RecaptchaType } from "components/constants";
-import type { WidgetType } from "constants/WidgetConstants";
 import { propertyPaneContentConfig } from "./contentConfig";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
+import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { BUTTON_COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: () => void;
@@ -25,6 +30,78 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     this.onRecaptchaSubmitSuccess = this.onRecaptchaSubmitSuccess.bind(this);
     this.state = {
       isLoading: false,
+    };
+  }
+
+  static type = "BUTTON_WIDGET_V2";
+
+  static getConfig() {
+    return {
+      name: "Button",
+      iconSVG: IconSVG,
+      needsMeta: false,
+      isCanvas: false,
+      tags: [WIDGET_TAGS.BUTTONS],
+      searchTags: ["click", "submit"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 0,
+        active: false,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      animateLoading: true,
+      text: "Submit",
+      buttonVariant: BUTTON_VARIANTS.FILLED,
+      buttonColor: BUTTON_COLORS.ACCENT,
+      placement: ButtonPlacementTypes.CENTER,
+      rows: 4,
+      columns: 16,
+      widgetName: "Button",
+      isDisabled: false,
+      isVisible: true,
+      isDefaultClickDisabled: true,
+      disabledWhenInvalid: false,
+      resetFormOnClick: false,
+      recaptchaType: RecaptchaTypes.V3,
+      version: 1,
+      responsiveBehavior: ResponsiveBehavior.Hug,
+      minWidth: BUTTON_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      defaults: {
+        rows: 4,
+        columns: 6.453,
+      },
+      autoDimension: {
+        width: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+              maxWidth: "360px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        horizontal: true,
+        vertical: true,
+      },
     };
   }
 
@@ -153,10 +230,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         variant={this.props.buttonVariant}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "BUTTON_WIDGET_V2";
   }
 }
 

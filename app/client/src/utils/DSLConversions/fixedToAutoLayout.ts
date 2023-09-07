@@ -18,10 +18,10 @@ import {
   isDynamicValue,
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 // import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 
 const unHandledWidgets = ["LIST_WIDGET"];
 const specialCaseWidgets = ["LIST_WIDGET_V2"];

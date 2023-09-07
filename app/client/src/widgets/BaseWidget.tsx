@@ -15,13 +15,9 @@ import type {
   WidgetTags,
   WidgetType,
 } from "constants/WidgetConstants";
-import {
-  GridDefaults,
-  RenderModes,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { Context, ReactNode, RefObject } from "react";
 import { Component } from "react";
 import type {
@@ -35,11 +31,17 @@ import type {
   DataTreeEvaluationProps,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import type { CanvasWidgetStructure, FlattenedWidgetProps } from "./constants";
-import { shouldUpdateWidgetHeightAutomatically } from "./WidgetUtils";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type {
+  AutoLayoutConfig,
+  CanvasWidgetStructure,
+  FlattenedWidgetProps,
+  WidgetBaseConfiguration,
+  WidgetDefaultProps,
+  WidgetMethods,
+} from "../WidgetProvider/constants";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
-import type { AutocompletionDefinitions } from "./constants";
+import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
 import type {
   FlexVerticalAlignment,
   LayoutDirection,
@@ -49,6 +51,7 @@ import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 import store from "store";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import type { WidgetFeatures } from "utils/WidgetFeatures";
 
 /***
  * BaseWidget
@@ -71,7 +74,42 @@ abstract class BaseWidget<
   TCache = unknown,
 > extends Component<T, K> {
   static contextType = EditorContext;
+
+  /*
+   * Turning on this flag will preload all the widget configs like
+   * derivedProperties, propertyPaneconfig etc into the widgetFactory.
+   */
+  static preloadConfig = false;
+
   context!: React.ContextType<Context<EditorContextType<TCache>>>;
+
+  static type = "BASE_WIDGET";
+
+  static getDefaults(): WidgetDefaultProps {
+    return {} as WidgetDefaultProps;
+  }
+
+  static getConfig(): WidgetBaseConfiguration {
+    return {
+      name: "baseWidget",
+    };
+  }
+
+  static getFeatures(): WidgetFeatures | null {
+    return null;
+  }
+
+  static getMethods(): WidgetMethods {
+    return {};
+  }
+
+  static getAutoLayoutConfig(): AutoLayoutConfig | null {
+    return null;
+  }
+
+  static getSetterConfig(): SetterConfig | null {
+    return null;
+  }
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -119,15 +157,6 @@ abstract class BaseWidget<
   static getLoadingProperties(): Array<RegExp> | undefined {
     return;
   }
-
-  /**
-   *  Widget abstraction to register the widget type
-   *  ```javascript
-   *   getWidgetType() {
-   *     return "MY_AWESOME_WIDGET",
-   *   }
-   *  ```
-   */
 
   /**
    *  Widgets can execute actions using this `executeAction` method.
@@ -198,36 +227,6 @@ abstract class BaseWidget<
     const { resetChildrenMetaProperty } = this.context;
     if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
   }
-
-  /*
-    This method calls the action to update widget height
-    We're not using `updateWidgetProperty`, because, the workflow differs
-    We will be computing properties of all widgets which are effected by
-    this change.
-    @param height number: Height of the widget's contents in pixels
-    @return void
-
-    TODO (abhinav): Make sure that this isn't called for scenarios which do not require it
-    This is for performance. We don't want unnecessary code to run
-  */
-  updateAutoHeight = (height: number): void => {
-    const paddedHeight =
-      Math.ceil(
-        Math.ceil(height + WIDGET_PADDING * 2) /
-          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      ) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-    const shouldUpdate = shouldUpdateWidgetHeightAutomatically(
-      paddedHeight,
-      this.props,
-    );
-    const { updateWidgetAutoHeight } = this.context;
-
-    if (updateWidgetAutoHeight) {
-      const { widgetId } = this.props;
-      shouldUpdate && updateWidgetAutoHeight(widgetId, paddedHeight);
-    }
-  };
 
   selectWidgetRequest = (
     selectionRequestType: SelectionRequestType,

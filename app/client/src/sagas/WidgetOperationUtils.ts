@@ -33,7 +33,7 @@ import {
   combineDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import type {
   OccupiedSpace,

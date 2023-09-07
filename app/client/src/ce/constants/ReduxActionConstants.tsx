@@ -17,7 +17,7 @@ import type {
   AppLayoutConfig,
   AppPositioningTypeConfig,
 } from "reducers/entityReducers/pageListReducer";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -557,7 +557,6 @@ const ActionTypes = {
   SET_RECENT_ENTITIES: "SET_RECENT_ENTITIES",
   RESET_RECENT_ENTITIES: "RESET_RECENT_ENTITIES",
   UPDATE_API_ACTION_BODY_CONTENT_TYPE: "UPDATE_API_ACTION_BODY_CONTENT_TYPE",
-  ADD_WIDGET_CONFIG: "ADD_WIDGET_CONFIG",
   GENERATE_TEMPLATE_PAGE_INIT: "GENERATE_TEMPLATE_PAGE_INIT",
   GENERATE_TEMPLATE_PAGE_SUCCESS: "GENERATE_TEMPLATE_PAGE_SUCCESS",
   SHOW_TABLE_FILTER_PANE: "SHOW_TABLE_FILTER_PANE",

@@ -1,6 +1,5 @@
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
 import type { InputComponentProps } from "../component";
 import InputComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -14,8 +13,8 @@ import {
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { ICON_NAMES } from "widgets/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { ICON_NAMES } from "WidgetProvider/constants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
@@ -34,8 +33,19 @@ import {
   isCompactMode,
 } from "widgets/WidgetUtils";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { LabelPosition } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import type { AutocompletionDefinitions } from "widgets/constants";
+
+import IconSVG from "../icon.svg";
+
+import type {
+  SnipingModeProperty,
+  PropertyUpdates,
+} from "WidgetProvider/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export function defaultValueValidation(
   value: any,
@@ -268,6 +278,85 @@ function InputTypeUpdateHook(
 }
 
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
+  static type = "INPUT_WIDGET_V2";
+
+  static getConfig() {
+    return {
+      name: "Input",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.INPUTS],
+      needsMeta: true,
+      searchTags: ["form", "text input", "number", "textarea"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 3,
+        defaultValue: DynamicHeight.FIXED,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      ...BaseInputWidget.getDefaults(),
+      rows: 7,
+      labelPosition: LabelPosition.Top,
+      inputType: "TEXT",
+      widgetName: "Input",
+      version: 2,
+      showStepArrows: false,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "defaultText",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+        labelTextSize: "0.875rem",
+      },
+      autoDimension: (props: BaseInputWidgetProps) => ({
+        height: props.inputType !== "MULTI_LINE_TEXT",
+      }),
+      defaults: {
+        rows: 6.6,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: (props: BaseInputWidgetProps) => ({
+        vertical: props.inputType !== "MULTI_LINE_TEXT",
+      }),
+    };
+  }
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     const definitions: AutocompletionDefinitions = {
       "!doc":
@@ -755,10 +844,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         {...conditionalProps}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "INPUT_WIDGET_V2";
   }
 }
 

@@ -1,7 +1,6 @@
 import React from "react";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
 import CodeScannerComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
@@ -9,11 +8,69 @@ import styleConfig from "./propertyConfig/styleConfig";
 import type { CodeScannerWidgetProps } from "../constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import IconSVG from "../icon.svg";
+
+import { ButtonPlacementTypes } from "components/constants";
+import { ScannerLayout } from "../constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 class CodeScannerWidget extends BaseWidget<
   CodeScannerWidgetProps,
   WidgetState
 > {
+  static type = "CODE_SCANNER_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Code Scanner",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.EXTERNAL],
+      needsMeta: true,
+      searchTags: [
+        "barcode scanner",
+        "qr scanner",
+        "code detector",
+        "barcode reader",
+      ],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 33,
+      label: "Scan a QR/Barcode",
+      columns: 25,
+      widgetName: "CodeScanner",
+      isDefaultClickDisabled: true,
+      scannerLayout: ScannerLayout.ALWAYS_ON,
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
+      animateLoading: true,
+      placement: ButtonPlacementTypes.CENTER,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        scannerLayout: ScannerLayout.ALWAYS_ON,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }
@@ -91,10 +148,6 @@ class CodeScannerWidget extends BaseWidget<
         widgetId={this.props.widgetId}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "CODE_SCANNER_WIDGET";
   }
 }
 

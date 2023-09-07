@@ -16,7 +16,7 @@ import {
   ReflowDirection,
   VERTICAL_RESIZE_MIN_LIMIT,
 } from "reflow/reflowTypes";
-import type { WidgetType } from "utils/WidgetFactory";
+import type { WidgetType } from "WidgetProvider/factory";
 import {
   getDraggingSpacesFromBlocks,
   getDropZoneOffsets,

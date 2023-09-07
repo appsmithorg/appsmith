@@ -23,8 +23,8 @@ import {
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
 import { getMetaWidgets, getWidgets } from "sagas/selectors";
-import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
-import WidgetFactory from "utils/WidgetFactory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+import WidgetFactory from "WidgetProvider/factory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";

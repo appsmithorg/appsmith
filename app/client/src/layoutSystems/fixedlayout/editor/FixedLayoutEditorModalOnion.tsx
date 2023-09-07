@@ -7,12 +7,17 @@ import { FixedLayoutWigdetComponent } from "../common/widgetComponent/FixedLayou
 import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
 import { get } from "lodash";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export const FixedLayoutEditorModalOnion = (props: BaseWidgetProps) => {
   return (
     <FixedLayoutWigdetComponent {...props}>
       <ModalOverlayLayer {...props} isEditMode>
-        <ModalResizableLayer {...props}>
+        <ModalResizableLayer
+          enableHorizontalResize
+          enableVerticalResize={!isAutoHeightEnabledForWidget(props)}
+          widgetProps={props}
+        >
           <WidgetNameLayer
             componentWidth={props.componentWidth}
             detachFromLayout={props.detachFromLayout}
