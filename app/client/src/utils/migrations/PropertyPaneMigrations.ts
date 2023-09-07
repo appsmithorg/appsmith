@@ -1,7 +1,7 @@
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
-import { AlignWidgetTypes } from "widgets/constants";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
 
 export const migrateCheckboxSwitchProperty = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {

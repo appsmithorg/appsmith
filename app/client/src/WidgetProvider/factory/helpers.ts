@@ -6,17 +6,17 @@ import type {
 import { ValidationTypes } from "constants/WidgetValidation";
 import { memoize } from "lodash";
 import log from "loglevel";
-import { generateReactKey } from "./generators";
-import type { WidgetType } from "./WidgetFactory";
-import WidgetFactory from "./WidgetFactory";
+import { generateReactKey } from "../../utils/generators";
+import type { WidgetType } from ".";
+import WidgetFactory from ".";
 import type {
   RegisteredWidgetFeatures,
   WidgetFeatures,
-} from "./WidgetFeatures";
+} from "../../utils/WidgetFeatures";
 import {
   PropertyPaneConfigTemplates,
   WidgetFeaturePropertyPaneEnhancements,
-} from "./WidgetFeatures";
+} from "../../utils/WidgetFeatures";
 
 export enum PropertyPaneConfigTypes {
   STYLE = "STYLE",
