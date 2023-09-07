@@ -136,3 +136,10 @@ export const groupWidgets = () => {
     type: ReduxActionTypes.GROUP_WIDGETS_INIT,
   };
 };
+
+export const partialExportWidgets = (widgetIds: string[]) => {
+  return {
+    type: ReduxActionTypes.PARTIAL_EXPORT_INIT,
+    payload: { widgetIds },
+  };
+};

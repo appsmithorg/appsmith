@@ -14,13 +14,17 @@ import type {
   WidgetSelectionRequestPayload,
 } from "actions/widgetSelectionActions";
 import {
+  selectWidgetInitAction,
   setEntityExplorerAncestry,
   setSelectedWidgetAncestry,
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { showModal } from "actions/widgetActions";
+import type {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+import { pasteWidget, showModal } from "actions/widgetActions";
 import history, { NavigationMethod } from "utils/history";
 import {
   getCurrentPageId,
@@ -46,6 +50,10 @@ import {
 import { quickScrollToWidget } from "utils/helpers";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
+import { saveCopiedWidgets } from "utils/storage";
+import { createWidgetCopy } from "./WidgetOperationUtils";
+import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import { getFlexLayersForSelectedWidgets } from "utils/autoLayout/AutoLayoutUtils";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -291,4 +299,41 @@ export function* widgetSelectionSagas() {
       handleWidgetSelectionSaga,
     ),
   ]);
+}
+
+export function* partialExportSaga(
+  action: ReduxAction<{ widgetIds: string[] }>,
+) {
+  const { widgetIds } = action.payload;
+  const canvasWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = yield select(getWidgets);
+  const selectedWidgets = widgetIds.map((each) => canvasWidgets[each]);
+
+  if (!selectedWidgets || !selectedWidgets.length) return;
+
+  const widgetListsToStore: {
+    widgetId: string;
+    parentId: string;
+    list: FlattenedWidgetProps[];
+  }[] = yield all(
+    selectedWidgets.map((widget) => call(createWidgetCopy, widget)),
+  );
+
+  const canvasId = selectedWidgets?.[0]?.parentId || "";
+
+  const flexLayers: FlexLayer[] = getFlexLayersForSelectedWidgets(
+    widgetIds,
+    canvasId ? canvasWidgets[canvasId] : undefined,
+  );
+  const toSaveInJson = {
+    widgets: widgetListsToStore,
+    flexLayers,
+  };
+  yield saveCopiedWidgets(JSON.stringify(toSaveInJson));
+}
+
+export function* partialImportSaga() {
+  yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+  yield put(pasteWidget(false, { x: 0, y: 0 }));
 }
