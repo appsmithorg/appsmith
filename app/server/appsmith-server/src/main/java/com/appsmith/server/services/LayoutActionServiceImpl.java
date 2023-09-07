@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.services.ce.LayoutActionServiceCEImpl;
+import com.appsmith.server.services.ce_compatible.LayoutActionServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.appsmith.server.solutions.PagePermission;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implements LayoutActionService {
+public class LayoutActionServiceImpl extends LayoutActionServiceCECompatibleImpl implements LayoutActionService {
 
     public LayoutActionServiceImpl(
             ObjectMapper objectMapper,
