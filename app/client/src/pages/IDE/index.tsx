@@ -26,7 +26,7 @@ const Body = styled.div<{ leftPaneWidth: number }>`
   padding-top: 4px;
   background: #f1f5f9;
   display: grid;
-  grid-template-columns: 50px ${(props) => props.leftPaneWidth || 300}px auto;
+  grid-template-columns: 50px 1fr;
   grid-template-rows: 1fr 37px;
   grid-gap: 4px;
 `;
@@ -69,8 +69,10 @@ const IDE = function () {
       <GlobalHotKeys>
         <Body id="IDE-body" leftPaneWidth={leftPaneWidth}>
           <SideBar />
-          <LeftPane />
-          <MainPane />
+          <div className="flex gap-x-1" id="vinay-boundary">
+            <LeftPane />
+            <MainPane />
+          </div>
           <DebugBar />
         </Body>
         <GitSyncModal />
