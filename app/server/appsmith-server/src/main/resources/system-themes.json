@@ -2,8 +2,8 @@
   {
     "name": "Default",
     "displayName": "Modern",
-    "deprecated": true,
     "config": {
+      "deprecated": true,
       "colors": {
         "primaryColor": "#553DE9",
         "backgroundColor": "#F8FAFC"
