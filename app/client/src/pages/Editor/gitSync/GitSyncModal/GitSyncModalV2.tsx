@@ -29,6 +29,17 @@ import GitConnectionV2 from "../Tabs/GitConnectionV2";
 import GitSettings from "../Tabs/GitSettings";
 import { GitSyncModalTab } from "entities/GitSync";
 import ConnectionSuccess from "../Tabs/ConnectionSuccess";
+import styled from "styled-components";
+
+const StyledModalContent = styled(ModalContent)`
+  & {
+    width: 640px;
+    transform: none !important;
+    top: 100px;
+    left: calc(50% - 320px);
+    max-height: calc(100vh - 200px);
+  }
+`;
 
 export const modalTitle = {
   [GitSyncModalTab.GIT_CONNECTION]: createMessage(CONFIGURE_GIT),
@@ -104,10 +115,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
         }}
         open={isModalOpen}
       >
-        <ModalContent
-          data-testid="t--git-sync-modal"
-          style={{ width: "640px" }}
-        >
+        <StyledModalContent data-testid="t--git-sync-modal">
           <ModalHeader>{modalTitle[activeTabKey]}</ModalHeader>
           <EnvInfoHeader />
           {possibleMenuOptions.includes(activeTabKey) && (
@@ -128,7 +136,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
           {activeTabKey === GitSyncModalTab.DEPLOY && <Deploy />}
           {activeTabKey === GitSyncModalTab.MERGE && <Merge />}
           {activeTabKey === GitSyncModalTab.SETTINGS && <GitSettings />}
-        </ModalContent>
+        </StyledModalContent>
       </Modal>
       <GitErrorPopup />
     </>

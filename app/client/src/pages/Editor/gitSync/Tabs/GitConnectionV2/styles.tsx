@@ -38,8 +38,7 @@ export const FieldQuestion = styled(Text)`
 
 export const DemoImage = styled.img`
   width: 100%;
-  max-height: 300px;
-  height: auto;
+  height: 300px;
   object-fit: cover;
   object-position: 50% 0;
   background-color: var(--ads-color-black-200);
