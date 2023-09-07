@@ -66,7 +66,7 @@ describe("Select widget tests", function () {
       locators._selectOptionValue("Ulf Merbold"),
       true,
     );
-    agHelper.GetNClick(locators._selectOptionValue("Ulf Merbold"));
+    agHelper.GetNClick(locators._selectOptionValue("Ulf Merbold"), 0, true);
     agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
       expect($selectedValue).to.eq("Ulf Merbold");
     });

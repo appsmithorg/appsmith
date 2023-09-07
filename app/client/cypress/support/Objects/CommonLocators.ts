@@ -291,7 +291,4 @@ export class CommonLocators {
   _position = (value: string) => `//*[@data-value='${value}']`;
   _alignment = (value: string) => `//*[@data-value='${value}']`;
   _borderRadius = (value: string) => `//*[@data-value='${value}']`;
-  _appEditMenuEditBtn = ".ads-v2-menu__menu-item-children:contains(Edit)";
-  _appEditMenuUndoRedo = (value: string) =>
-    `.ads-v2-menu__menu-item-children:contains(${value})`;
 }
