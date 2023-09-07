@@ -2,6 +2,8 @@ import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
 import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
+import { isNumber } from "lodash";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export const STORAGE_KEYS: {
   [id: string]: string;
@@ -24,10 +26,14 @@ export const STORAGE_KEYS: {
   FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
   SIGNPOSTING_APP_STATE: "SIGNPOSTING_APP_STATE",
-  AI_TRIGGERED: "AI_TRIGGERED",
+  AI_SUGGESTED_PROMPTS_SHOWN: "AI_SUGGESTED_PROMPTS_SHOWN",
+  AI_TRIGGERED_FOR_PROPERTY_PANE: "AI_TRIGGERED",
+  AI_TRIGGERED_FOR_QUERY: "AI_TRIGGERED_FOR_QUERY",
   FEATURE_WALKTHROUGH: "FEATURE_WALKTHROUGH",
   USER_SIGN_UP: "USER_SIGN_UP",
   VERSION_UPDATE_STATE: "VERSION_UPDATE_STATE",
+  AI_RECENT_QUERIES: "AI_RECENT_QUERIES",
+  AI_KNOWLEDGE_BASE: "AI_KNOWLEDGE_BASE",
 };
 
 const store = localforage.createInstance({
@@ -212,6 +218,60 @@ export const getEnableStartSignposting = async () => {
   } catch (error) {
     log.error("An error occurred while fetching ENABLE_START_SIGNPOSTING");
     log.error(error);
+  }
+};
+
+export const setAIRecentQuery = async (
+  applicationId: string,
+  query: string,
+  type: string,
+) => {
+  try {
+    const recentQueries: {
+      [applicationId: string]: {
+        [task: string]: string[];
+      };
+    } | null = (await store.getItem(STORAGE_KEYS.AI_RECENT_QUERIES)) || {};
+    const applicationRecentQueries = recentQueries[applicationId] || {};
+    let applicationTypeQueries = applicationRecentQueries[type] || [];
+
+    if (!applicationTypeQueries.includes(query)) {
+      if (applicationTypeQueries.length >= 5) {
+        applicationTypeQueries.pop();
+      }
+      applicationTypeQueries = [query, ...applicationTypeQueries];
+    }
+
+    await store.setItem(STORAGE_KEYS.AI_RECENT_QUERIES, {
+      ...recentQueries,
+      [applicationId]: {
+        ...applicationRecentQueries,
+        [type]: applicationTypeQueries,
+      },
+    });
+  } catch (error) {
+    log.error("An error occurred while setting AI_RECENT_QUERIES");
+    log.error(error);
+  }
+};
+
+export const getApplicationAIRecentQueriesByType = async (
+  applicationId: string,
+  type: string,
+) => {
+  const defaultRecentQueries: string[] = [];
+
+  try {
+    const recentQueries: {
+      [applicationId: string]: {
+        [task: string]: string[];
+      };
+    } | null = await store.getItem(STORAGE_KEYS.AI_RECENT_QUERIES);
+    return recentQueries?.[applicationId]?.[type] ?? defaultRecentQueries;
+  } catch (error) {
+    log.error("An error occurred while fetching AI_RECENT_QUERIES");
+    log.error(error);
+    return defaultRecentQueries;
   }
 };
 
@@ -424,16 +484,21 @@ export const setFirstTimeUserOnboardingTelemetryCalloutVisibility = async (
   }
 };
 
-export const setAIPromptTriggered = async () => {
+export const setAIPromptTriggered = async (mode: string) => {
   try {
-    let noOfTimesAITriggered: number = await getAIPromptTriggered();
+    let noOfTimesAITriggered: number = await getAIPromptTriggered(mode);
 
     if (noOfTimesAITriggered >= 5) {
       return noOfTimesAITriggered;
     }
 
+    const storageKey =
+      mode === EditorModes.TEXT_WITH_BINDING
+        ? STORAGE_KEYS.AI_TRIGGERED_FOR_PROPERTY_PANE
+        : STORAGE_KEYS.AI_TRIGGERED_FOR_QUERY;
+
     noOfTimesAITriggered += 1;
-    await store.setItem(STORAGE_KEYS.AI_TRIGGERED, noOfTimesAITriggered);
+    await store.setItem(storageKey, noOfTimesAITriggered);
 
     return noOfTimesAITriggered;
   } catch (error) {
@@ -444,9 +509,14 @@ export const setAIPromptTriggered = async () => {
   }
 };
 
-export const getAIPromptTriggered = async () => {
+export const getAIPromptTriggered = async (mode: string) => {
   try {
-    const flag: number | null = await store.getItem(STORAGE_KEYS.AI_TRIGGERED);
+    const storageKey =
+      mode === EditorModes.TEXT_WITH_BINDING
+        ? STORAGE_KEYS.AI_TRIGGERED_FOR_PROPERTY_PANE
+        : STORAGE_KEYS.AI_TRIGGERED_FOR_QUERY;
+
+    const flag: number | null = await store.getItem(storageKey);
 
     if (flag === null) return 0;
 
@@ -548,4 +618,154 @@ export const getVersionUpdateState =
 
 export const removeVersionUpdateState = async () => {
   return store.removeItem(STORAGE_KEYS.VERSION_UPDATE_STATE);
+};
+
+export const getAppKbState = async (appId: string) => {
+  try {
+    const aiKBApplicationMap: Record<
+      string,
+      {
+        checksum: string;
+        pageSlugs: {
+          [pageId: string]: {
+            hasReacted: boolean;
+          };
+        };
+      }
+    > | null = await store.getItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE);
+
+    if (typeof aiKBApplicationMap === "object" && aiKBApplicationMap) {
+      return aiKBApplicationMap[appId];
+    }
+
+    return null;
+  } catch (error) {
+    log.error("An error occurred while reading AI_KNOWLEDGE_BASE");
+    log.error(error);
+
+    return null;
+  }
+};
+
+export const initAppKbState = async (
+  appId: string,
+  checksum: string,
+  pageSlugs: string[],
+) => {
+  try {
+    let aiKBApplicationMap: Record<
+      string,
+      {
+        checksum: string;
+        pageSlugs: {
+          [pageId: string]: {
+            hasReacted: boolean;
+          };
+        };
+      }
+    > | null = await store.getItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE);
+
+    if (typeof aiKBApplicationMap !== "object" || !aiKBApplicationMap) {
+      aiKBApplicationMap = {};
+    }
+
+    const appKbState = {
+      checksum,
+      pageSlugs: pageSlugs.reduce((acc, pageSlug) => {
+        acc[pageSlug] = {
+          hasReacted: false,
+        };
+        return acc;
+      }, {} as Record<string, { hasReacted: boolean }>) as Record<
+        string,
+        { hasReacted: boolean }
+      >,
+    };
+
+    aiKBApplicationMap[appId] = appKbState;
+
+    await store.setItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE, aiKBApplicationMap);
+    return appKbState;
+  } catch (error) {
+    log.error("An error occurred while updating AI_KNOWLEDGE_BASE");
+    log.error(error);
+  }
+};
+
+export const reactToPageKB = async (
+  appId: string,
+  pageId: string,
+  hasReacted: boolean,
+) => {
+  try {
+    let aiKBApplicationMap: Record<
+      string,
+      {
+        checksum: string;
+        pageSlugs: {
+          [pageId: string]: {
+            hasReacted: boolean;
+          };
+        };
+      }
+    > | null = await store.getItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE);
+
+    if (typeof aiKBApplicationMap !== "object" || !aiKBApplicationMap) {
+      aiKBApplicationMap = {};
+    }
+
+    if (aiKBApplicationMap?.[appId]?.pageSlugs?.[pageId]) {
+      aiKBApplicationMap[appId].pageSlugs[pageId].hasReacted = hasReacted;
+    }
+
+    await store.setItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE, aiKBApplicationMap);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while updating AI_KNOWLEDGE_BASE");
+    log.error(error);
+  }
+};
+
+export const setAISuggestedPromptShownForType = async (type: string) => {
+  try {
+    const suggestedPromptsShownForType: Record<string, number> =
+      (await store.getItem(STORAGE_KEYS.AI_SUGGESTED_PROMPTS_SHOWN)) || {};
+
+    if (isNumber(suggestedPromptsShownForType[type])) {
+      suggestedPromptsShownForType[type] += 1;
+    } else {
+      suggestedPromptsShownForType[type] = 1;
+    }
+
+    if (suggestedPromptsShownForType[type] > 5) {
+      return suggestedPromptsShownForType[type];
+    }
+
+    await store.setItem(
+      STORAGE_KEYS.AI_SUGGESTED_PROMPTS_SHOWN,
+      suggestedPromptsShownForType,
+    );
+
+    return suggestedPromptsShownForType[type];
+  } catch (error) {
+    log.error("An error occurred while setting AI_SUGGESTED_PROMPTS_SHOWN");
+    log.error(error);
+
+    return 0;
+  }
+};
+
+export const getAISuggestedPromptShownForType = async (type: string) => {
+  try {
+    const suggestedPromptsShownForType: Record<string, number> | null =
+      await store.getItem(STORAGE_KEYS.AI_SUGGESTED_PROMPTS_SHOWN);
+
+    if (suggestedPromptsShownForType === null) return 0;
+
+    return suggestedPromptsShownForType[type] || 0;
+  } catch (error) {
+    log.error("An error occurred while fetching AI_SUGGESTED_PROMPTS_SHOWN");
+    log.error(error);
+    return 0;
+  }
 };

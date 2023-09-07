@@ -890,19 +890,11 @@ export class AggregateHelper extends ReusableHelper {
     propertyName: string,
     toggle: "true" | "false",
   ) {
-    let locator;
-    if (propertyName.startsWith("//")) {
-      locator = cy.xpath(propertyName);
-      locator.should("have.attr", toggle);
-    } else if (propertyName.includes(" ")) {
-      locator = cy.get(propertyName);
-      locator.should("have.attr", toggle);
-    } else {
-      locator = cy.xpath(this.locator._propertyToggleValue(propertyName));
-      locator.invoke("attr", "data-checked").then((classes) => {
+    this.GetElement(this.locator._propertyToggleValue(propertyName))
+      .invoke("attr", "data-checked")
+      .then((classes) => {
         expect(classes).includes(toggle);
       });
-    }
   }
 
   public AssertExistingCheckedState(selector: string, toggle = "true") {
@@ -944,6 +936,18 @@ export class AggregateHelper extends ReusableHelper {
       .eq(index)
       .should("have.attr", attribName, attribValue);
   }
+
+  public AssertProperty(
+    selector: string,
+    propName: string,
+    propValue: boolean,
+    index = 0,
+  ) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should("have.prop", propName, propValue);
+  }
+
   public AssertCSS(
     selector: string,
     cssName: string,
@@ -1625,6 +1629,14 @@ export class AggregateHelper extends ReusableHelper {
           expect(editorCursor.line).to.equal(cursor.line);
         });
       });
+  }
+
+  public GetAttribute(selector: string, attribName: string, index = 0) {
+    return this.GetElement(selector).eq(index).invoke("attr", attribName);
+  }
+
+  public AssertClassExists(selector: string, className: string) {
+    cy.get(selector).should("have.class", className);
   }
 
   //Not used:

@@ -14,7 +14,6 @@ import {
   CONNECT_EXISTING_WIDGET_SUB_HEADING,
   createMessage,
   NO_EXISTING_WIDGETS,
-  SUGGESTED_WIDGETS,
   SUGGESTED_WIDGET_TOOLTIP,
   BINDING_WALKTHROUGH_TITLE,
   BINDING_WALKTHROUGH_DESC,
@@ -29,11 +28,6 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Tooltip } from "design-system";
 import type { TextKind } from "design-system";
 import { Text } from "design-system";
-import {
-  AB_TESTING_EVENT_KEYS,
-  FEATURE_FLAG,
-} from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { useParams } from "react-router";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -359,11 +353,6 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     pushFeature,
   } = useContext(WalkthroughContext) || {};
 
-  // A/B feature flag for query binding.
-  const isEnabledForQueryBinding = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
-  );
-
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -372,10 +361,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
 
   const closeWalkthrough = () => {
     popFeature && popFeature("BINDING_WIDGET");
-    setFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
-      true,
-    );
+    setFeatureWalkthroughShown(FEATURE_WALKTHROUGH_KEYS.ds_binding, true);
   };
 
   const addWidget = async (
@@ -396,9 +382,6 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
 
     AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
       widget: suggestedWidget.type,
-      [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-        FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
-      [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForQueryBinding,
       isWalkthroughOpened,
     });
 
@@ -406,7 +389,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       FEATURE_WALKTHROUGH_KEYS.binding_widget,
     );
     // To enable setting the widget id for showing walkthrough once the widget is created in WidgetOperationSagas.tsx -> addSuggestedWidget function
-    if (!showStatus && isEnabledForQueryBinding) {
+    if (!showStatus) {
       (payload.props as any).setWidgetIdForWalkthrough = "true";
     }
     if (isWalkthroughOpened) {
@@ -424,13 +407,11 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       }),
     );
 
-    if (isEnabledForQueryBinding) {
-      const value = await getFeatureWalkthroughShown(
-        FEATURE_WALKTHROUGH_KEYS.binding_widget,
-      );
-      if (!value) {
-        localStorage.setItem(WIDGET_ID_SHOW_WALKTHROUGH, widgetId);
-      }
+    const value = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.binding_widget,
+    );
+    if (!value) {
+      localStorage.setItem(WIDGET_ID_SHOW_WALKTHROUGH, widgetId);
     }
 
     dispatch(
@@ -458,9 +439,6 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     );
   };
 
-  const labelOld = props.hasWidgets
-    ? createMessage(ADD_NEW_WIDGET)
-    : createMessage(SUGGESTED_WIDGETS);
   const labelNew = createMessage(BINDING_SECTION_LABEL);
   const addNewWidgetLabel = createMessage(ADD_NEW_WIDGET);
   const addNewWidgetSubLabel = createMessage(ADD_NEW_WIDGET_SUB_HEADING);
@@ -474,7 +452,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
 
   const checkAndShowWalkthrough = async () => {
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
+      FEATURE_WALKTHROUGH_KEYS.ds_binding,
     );
 
     const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
@@ -483,17 +461,17 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
-        targetId: BINDING_SECTION_ID,
+        targetId: `#${BINDING_SECTION_ID}`,
         onDismiss: async () => {
           await setFeatureWalkthroughShown(
-            FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
+            FEATURE_WALKTHROUGH_KEYS.ds_binding,
             true,
           );
         },
         details: {
           title: createMessage(BINDING_WALKTHROUGH_TITLE),
           description: createMessage(BINDING_WALKTHROUGH_DESC),
-          imageURL: BINDING_GUIDE_GIF,
+          imageURL: getAssetUrl(BINDING_GUIDE_GIF),
         },
         offset: {
           position: "left",
@@ -502,101 +480,97 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
           indicatorLeft: -3,
         },
         eventParams: {
-          [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-            FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
-          [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForQueryBinding,
+          [FEATURE_WALKTHROUGH_KEYS.ds_binding]: true,
         },
         delay: 5000,
       });
   };
 
   useEffect(() => {
-    if (isEnabledForQueryBinding) checkAndShowWalkthrough();
-  }, [isEnabledForQueryBinding]);
+    checkAndShowWalkthrough();
+  }, []);
 
   return (
     <SuggestedWidgetContainer id={BINDING_SECTION_ID}>
-      {!!isEnabledForQueryBinding ? (
-        <Collapsible label={labelNew}>
-          {isTableWidgetPresentOnCanvas() && (
-            <SubSection>
-              {renderHeading(
-                connectExistingWidgetLabel,
-                connectExistingWidgetSubLabel,
-              )}
-              {!isWidgetsPresentOnCanvas && (
-                <Text kind="body-s">{createMessage(NO_EXISTING_WIDGETS)}</Text>
-              )}
+      <Collapsible label={labelNew}>
+        {isTableWidgetPresentOnCanvas() && (
+          <SubSection>
+            {renderHeading(
+              connectExistingWidgetLabel,
+              connectExistingWidgetSubLabel,
+            )}
+            {!isWidgetsPresentOnCanvas && (
+              <Text kind="body-s">{createMessage(NO_EXISTING_WIDGETS)}</Text>
+            )}
 
-              {/* Table Widget condition is added temporarily as connect to existing
+            {/* Table Widget condition is added temporarily as connect to existing
               functionality is currently working only for Table Widget,
               in future we want to support it for all widgets */}
-              {
-                <ExistingWidgetList>
-                  {Object.keys(canvasWidgets).map((widgetKey) => {
-                    const widget: FlattenedWidgetProps | undefined =
-                      canvasWidgets[widgetKey];
-                    const widgetInfo: WidgetBindingInfo | undefined =
-                      WIDGET_DATA_FIELD_MAP[widget.type];
+            {
+              <ExistingWidgetList>
+                {Object.keys(canvasWidgets).map((widgetKey) => {
+                  const widget: FlattenedWidgetProps | undefined =
+                    canvasWidgets[widgetKey];
+                  const widgetInfo: WidgetBindingInfo | undefined =
+                    WIDGET_DATA_FIELD_MAP[widget.type];
 
-                    if (!widgetInfo || widget?.type !== "TABLE_WIDGET_V2")
-                      return null;
+                  if (!widgetInfo || widget?.type !== "TABLE_WIDGET_V2")
+                    return null;
 
-                    return (
-                      <div
-                        className={`widget t--suggested-widget-${widget.type}`}
-                        key={widget.type + widget.widgetId}
-                        onClick={() => handleBindData(widgetKey)}
+                  return (
+                    <div
+                      className={`widget t--suggested-widget-${widget.type}`}
+                      key={widget.type + widget.widgetId}
+                      onClick={() => handleBindData(widgetKey)}
+                    >
+                      <Tooltip
+                        content={createMessage(SUGGESTED_WIDGET_TOOLTIP)}
                       >
-                        <Tooltip
-                          content={createMessage(SUGGESTED_WIDGET_TOOLTIP)}
-                        >
-                          <div className="image-wrapper">
-                            {renderWidgetImage(widgetInfo.existingImage)}
-                            {renderWidgetItem(
-                              widgetInfo.icon,
-                              widget.widgetName,
-                              "body-s",
-                            )}
-                          </div>
-                        </Tooltip>
-                      </div>
-                    );
-                  })}
-                </ExistingWidgetList>
-              }
-            </SubSection>
-          )}
-          <SubSection>
-            {renderHeading(addNewWidgetLabel, addNewWidgetSubLabel)}
-            <WidgetList className="spacing">
-              {props.suggestedWidgets.map((suggestedWidget) => {
-                const widgetInfo: WidgetBindingInfo | undefined =
-                  WIDGET_DATA_FIELD_MAP[suggestedWidget.type];
-
-                if (!widgetInfo) return null;
-
-                return (
-                  <div
-                    className={`widget t--suggested-widget-${suggestedWidget.type}`}
-                    key={suggestedWidget.type}
-                    onClick={() => addWidget(suggestedWidget, widgetInfo)}
-                  >
-                    <Tooltip content={createMessage(SUGGESTED_WIDGET_TOOLTIP)}>
-                      {renderWidgetItem(
-                        widgetInfo.icon,
-                        widgetInfo.widgetName,
-                        "body-m",
-                      )}
-                    </Tooltip>
-                  </div>
-                );
-              })}
-            </WidgetList>
+                        <div className="image-wrapper">
+                          {renderWidgetImage(widgetInfo.existingImage)}
+                          {renderWidgetItem(
+                            widgetInfo.icon,
+                            widget.widgetName,
+                            "body-s",
+                          )}
+                        </div>
+                      </Tooltip>
+                    </div>
+                  );
+                })}
+              </ExistingWidgetList>
+            }
           </SubSection>
-        </Collapsible>
-      ) : (
-        <Collapsible label={labelOld}>
+        )}
+        <SubSection>
+          {renderHeading(addNewWidgetLabel, addNewWidgetSubLabel)}
+          <WidgetList className="spacing">
+            {props.suggestedWidgets.map((suggestedWidget) => {
+              const widgetInfo: WidgetBindingInfo | undefined =
+                WIDGET_DATA_FIELD_MAP[suggestedWidget.type];
+
+              if (!widgetInfo) return null;
+
+              return (
+                <div
+                  className={`widget t--suggested-widget-${suggestedWidget.type}`}
+                  key={suggestedWidget.type}
+                  onClick={() => addWidget(suggestedWidget, widgetInfo)}
+                >
+                  <Tooltip content={createMessage(SUGGESTED_WIDGET_TOOLTIP)}>
+                    {renderWidgetItem(
+                      widgetInfo.icon,
+                      widgetInfo.widgetName,
+                      "body-m",
+                    )}
+                  </Tooltip>
+                </div>
+              );
+            })}
+          </WidgetList>
+        </SubSection>
+      </Collapsible>
+      {/* <Collapsible label={labelOld}>
           <WidgetList>
             {props.suggestedWidgets.map((suggestedWidget) => {
               const widgetInfo: WidgetBindingInfo | undefined =
@@ -619,8 +593,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
               );
             })}
           </WidgetList>
-        </Collapsible>
-      )}
+        </Collapsible> */}
     </SuggestedWidgetContainer>
   );
 }

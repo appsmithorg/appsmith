@@ -1,5 +1,5 @@
 import { cloneDeep, noop } from "lodash";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { traverseDSLAndMigrate } from "./WidgetMigrationUtils";
 
 const dsl = {

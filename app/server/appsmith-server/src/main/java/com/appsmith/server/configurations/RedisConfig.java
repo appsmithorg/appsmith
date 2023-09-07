@@ -5,6 +5,12 @@ import com.appsmith.server.dtos.OAuth2AuthorizedClientDTO;
 import com.appsmith.server.dtos.UserSessionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.TimeoutOptions;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.resource.ClientResources;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +25,7 @@ import org.springframework.data.redis.connection.RedisConfiguration;
 import org.springframework.data.redis.connection.RedisNode;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.observability.MicrometerTracingAdapter;
@@ -38,6 +45,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,6 +84,15 @@ public class RedisConfig {
                 return new LettuceConnectionFactory(config);
             }
 
+            case "rediss" -> {
+                final RedisStandaloneConfiguration config =
+                        new RedisStandaloneConfiguration(redisUri.getHost(), redisUri.getPort());
+                fillAuthentication(redisUri, config);
+                final LettuceClientConfiguration clientConfig =
+                        LettucePoolingClientConfiguration.builder().useSsl().build();
+                return new LettuceConnectionFactory(config, clientConfig);
+            }
+
             case "redis-cluster" -> {
                 // For ElastiCache Redis with cluster mode enabled, with the configuration endpoint.
                 final RedisClusterConfiguration clusterConfig = new RedisClusterConfiguration();
@@ -88,6 +105,42 @@ public class RedisConfig {
 
             default -> throw new InvalidRedisURIException("Invalid redis scheme: " + scheme);
         }
+    }
+
+    @Bean
+    public AbstractRedisClient redisClient() {
+        String redisurl = redisURL;
+        final URI redisUri = URI.create(redisURL);
+        String scheme = redisUri.getScheme();
+        boolean isCluster = false;
+        if ("redis-cluster".equalsIgnoreCase(scheme)) {
+            isCluster = true;
+            // java clients do not support redis-cluster scheme
+            if (redisurl.startsWith("redis-cluster://")) {
+                redisurl = "redis://" + redisurl.substring("redis-cluster://".length());
+            }
+        }
+
+        if (isCluster) {
+            RedisClusterClient redisClusterClient = RedisClusterClient.create(redisurl);
+            redisClusterClient.setOptions(ClusterClientOptions.builder()
+                    .timeoutOptions(TimeoutOptions.builder()
+                            .timeoutCommands(true)
+                            .fixedTimeout(Duration.ofMillis(2000))
+                            .build())
+                    .build());
+            return redisClusterClient;
+        }
+
+        RedisClient redisClient = RedisClient.create(redisurl);
+        redisClient.setOptions(ClientOptions.builder()
+                .timeoutOptions(TimeoutOptions.builder()
+                        .timeoutCommands(true)
+                        .fixedTimeout(Duration.ofMillis(2000))
+                        .build())
+                .build());
+
+        return redisClient;
     }
 
     private void fillAuthentication(URI redisUri, RedisConfiguration.WithAuthentication config) {
