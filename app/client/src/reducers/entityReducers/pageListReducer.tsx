@@ -255,6 +255,7 @@ export interface AppLayoutConfig {
 
 export enum AppPositioningTypes {
   FIXED = "FIXED",
+  ANVIL = "ANVIL",
   AUTO = "AUTO",
 }
 export interface AppPositioningTypeConfig {
