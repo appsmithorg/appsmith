@@ -66,11 +66,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertElementVisibility(
       entityExplorer._entityNameInExplorer("public.vessels"),
     );
-    //entityExplorer.SelectEntityByName("CreateVessels");
-    agHelper.ActionContextMenuWithInPane({
-      action: "Delete",
-      entityType: entityItems.Query,
-    });
   });
 
   it("2. Validate Select record from Postgress datasource & verify query response", () => {
@@ -78,6 +73,11 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.RunQueryNVerifyResponseViews(10);
     dataSources.AssertQueryTableResponse(0, "371681");
     dataSources.AssertQueryTableResponse(6, "Passenger");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    entityExplorer.SelectEntityByName("CreateVessels");
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
