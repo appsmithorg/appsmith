@@ -6,6 +6,7 @@ import {
   FieldQuestion,
   WellContainer,
   WellTitle,
+  WellTitleContainer,
 } from "./styles";
 import {
   Callout,
@@ -84,9 +85,11 @@ function ChooseGitProvider({
   return (
     <div>
       <WellContainer>
-        <WellTitle>
-          <Text kind="heading-s">Choose a git provider</Text>
-        </WellTitle>
+        <WellTitleContainer>
+          <WellTitle kind="heading-s" renderAs="h3">
+            Choose a git provider
+          </WellTitle>
+        </WellTitleContainer>
         <WellInnerContainer>
           <FieldContainer>
             <FieldQuestion renderAs="p">

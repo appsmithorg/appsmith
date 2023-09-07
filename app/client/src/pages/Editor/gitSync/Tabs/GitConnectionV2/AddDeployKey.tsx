@@ -6,8 +6,10 @@ import {
   WellContainer,
   WellText,
   WellTitle,
+  WellTitleContainer,
 } from "./styles";
 import {
+  Button,
   Checkbox,
   Collapsible,
   CollapsibleContent,
@@ -72,6 +74,10 @@ const StyledSelect = styled(Select)`
   .rc-select-selector {
     min-width: 100px;
   }
+
+  input {
+    width: 100px;
+  }
 `;
 
 const CheckboxTextContainer = styled.div`
@@ -88,6 +94,32 @@ const DummyKey = styled.div`
     rgba(240, 240, 240, 0) 100%
   );
 `;
+
+const getRepositorySettingsUrl = (
+  gitProvider?: GitProvider,
+  remoteUrl?: string,
+) => {
+  if (!gitProvider) {
+    return "";
+  }
+
+  const ownerRepo = remoteUrl?.split(":")?.[1]?.split(".git")?.[0];
+
+  if (!ownerRepo) {
+    return "";
+  }
+
+  switch (gitProvider) {
+    case "github":
+      return `https://github.com/${ownerRepo}/settings/keys`;
+    case "gitlab":
+      return `https://gitlab.com/${ownerRepo}/-/settings/repository`;
+    case "bitbucket":
+      return `https://bitbucket.org/${ownerRepo}/admin/access-keys/`;
+    default:
+      return "";
+  }
+};
 
 interface AddDeployKeyState {
   gitProvider?: GitProvider;
@@ -110,6 +142,7 @@ function AddDeployKey({
   const [fetched, setFetched] = useState(false);
   const [sshKeyType, setSshKeyType] = useState<string>();
   const {
+    deployKeyDocUrl,
     fetchingSSHKeyPair,
     fetchSSHKeyPair,
     generateSSHKey,
@@ -165,6 +198,11 @@ function AddDeployKey({
     }
   }, [sshKeyType, SSHKeyPair]);
 
+  const repositorySettingsUrl = getRepositorySettingsUrl(
+    value?.gitProvider,
+    value?.remoteUrl,
+  );
+
   const loading = fetchingSSHKeyPair || generatingSSHKey;
 
   return (
@@ -198,12 +236,41 @@ function AddDeployKey({
         )}
 
       <WellContainer>
-        <WellTitle>
-          <Text kind="heading-s">Add deploy key & give write access</Text>
-        </WellTitle>
+        <WellTitleContainer>
+          <WellTitle kind="heading-s" renderAs="h3">
+            Add deploy key & give write access
+          </WellTitle>
+          <Button
+            href={
+              deployKeyDocUrl ||
+              "https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository"
+            }
+            kind="tertiary"
+            renderAs="a"
+            size="sm"
+            startIcon="book-line"
+            target="_blank"
+          >
+            {" "}
+            Read docs
+          </Button>
+        </WellTitleContainer>
+
         <WellText renderAs="p">
-          Copy below SSH key and paste it in your repository settings. Now, give
-          write access to it.
+          Copy below SSH key and paste it in your{" "}
+          {!!repositorySettingsUrl && value.gitProvider !== "others" ? (
+            <a
+              href={repositorySettingsUrl}
+              rel="noreferrer"
+              style={{ color: "var(--ads-color-brand)" }}
+              target="_blank"
+            >
+              repository settings.
+            </a>
+          ) : (
+            "repository settings."
+          )}{" "}
+          Now, give write access to it.
         </WellText>
         <FieldContainer>
           <StyledSelect

@@ -6,8 +6,10 @@ import {
   WellContainer,
   WellText,
   WellTitle,
+  WellTitleContainer,
 } from "./styles";
 import {
+  Button,
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
@@ -66,9 +68,22 @@ function GenerateSSH({
           </ErrorCallout>
         )}
       <WellContainer>
-        <WellTitle>
-          <Text kind="heading-s">Generate SSH key</Text>
-        </WellTitle>
+        <WellTitleContainer>
+          <WellTitle kind="heading-s" renderAs="h3">
+            Generate SSH key
+          </WellTitle>
+          <Button
+            href="https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository"
+            kind="tertiary"
+            renderAs="a"
+            size="sm"
+            startIcon="book-line"
+            target="_blank"
+          >
+            {" "}
+            Read docs
+          </Button>
+        </WellTitleContainer>
         <WellText renderAs="p">
           In your empty repo, copy the SSH remote URL & paste it in the input
           field below.

@@ -9,8 +9,15 @@ export const WellContainer = styled.div`
   overflow-y: auto;
 `;
 
-export const WellTitle = styled.h3`
+export const WellTitleContainer = styled.div`
+  display: flex;
+  align-items: center;
   margin-bottom: 16px;
+  justify-content: space-between;
+`;
+
+export const WellTitle = styled(Text)`
+  font-weight: 600;
 `;
 
 export const WellText = styled(Text)`
