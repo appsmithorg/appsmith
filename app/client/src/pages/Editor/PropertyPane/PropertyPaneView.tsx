@@ -24,7 +24,7 @@ import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { Button, Callout } from "design-system";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { renderWidgetCallouts, useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
@@ -131,7 +131,10 @@ function PropertyPaneView(
               FEATURE_WALKTHROUGH_KEYS.binding_widget,
             [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: true,
           },
-          multipleHighlights: [`#${widgetId}`, `#${PROPERTY_PANE_ID}`],
+          multipleHighlights: [
+            `#${CSS.escape(widgetId)}`,
+            `#${PROPERTY_PANE_ID}`,
+          ],
           delay: 5000,
         });
       }
