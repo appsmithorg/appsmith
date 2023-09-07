@@ -63,6 +63,7 @@ import com.appsmith.server.solutions.ImportExportApplicationService;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
@@ -2816,7 +2817,65 @@ public class GitServiceCEImpl implements GitServiceCE {
         6. Analytics event
          */
 
-        return Mono.empty();
+        return getApplicationById(defaultApplicationId).flatMap(application -> {
+            GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+            if (gitApplicationMetadata == null) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+            }
+
+            Path filePath =
+                    Paths.get(application.getWorkspaceId(), defaultApplicationId, gitApplicationMetadata.getRepoName());
+            return fileUtils
+                    .reconstructApplicationJsonFromGitRepo(
+                            application.getWorkspaceId(),
+                            defaultApplicationId,
+                            gitApplicationMetadata.getRepoName(),
+                            branchName)
+                    .flatMap(applicationJson -> {
+
+                        // unPublished mode DSLs
+                        List<JSONObject> unPublishedDSL = applicationJson.getPageList().stream()
+                                .map(newPage -> newPage.getUnpublishedPage()
+                                        .getLayouts()
+                                        .get(0)
+                                        .getDsl())
+                                .toList();
+                        // published mode DSLs
+                        List<JSONObject> publishedDSL = applicationJson.getPageList().stream()
+                                .map(newPage -> newPage.getPublishedPage()
+                                        .getLayouts()
+                                        .get(0)
+                                        .getDsl())
+                                .toList();
+                        // Call the RTS end point for migrating the DSL
+                        // TODO: Add the endpoint for migrating the DSL
+
+                        // Apply the migrated DSLs to the applicationJson
+                        // Commit the migration changes and Push
+                        // TODO: After commit and push, do not deploy the application
+
+                        // Handle error states and clean the repo
+
+                        return Mono.just("");
+                        /*return applicationPageService.migrateApplication(applicationJson, application.getId(), false)
+                        .flatMap(application1 -> {
+                            // Commit and push application flow
+                            return commitAndPushApplication(application, branchName, filePath, false)
+                                    .flatMap(application2 -> {
+                                        // Analytics event
+                                        return addAnalyticsForGitOperation(
+                                                AnalyticsEvents.GIT_AUTO_MIGRATE.getEventName(),
+                                                application2,
+                                                null);
+                                    });
+                        })
+                        .onErrorResume(throwable -> {
+                            // In case of error due to branch protection, reset the repo to a clean state
+                            return resetRepoToCleanState(application, branchName, filePath)
+                                    .then(Mono.error(throwable));
+                        });*/
+                    });
+        });
     }
 
     private Mono<Application> deleteApplicationCreatedFromGitImport(
