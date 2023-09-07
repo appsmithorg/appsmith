@@ -2805,6 +2805,20 @@ public class GitServiceCEImpl implements GitServiceCE {
         return Mono.just(gitDocsDTOList);
     }
 
+    @Override
+    public Mono<String> autoCommitDSLMigration(String defaultApplicationId, String branchName) {
+        /*
+        1. Check the auto commit config
+        2. Get the DSL from the file system
+        3. Call the RTS end point for migrating the DSL
+        4. Commit and push application flow
+        5. In case of error due to branch protection, reset the repo to a clean state
+        6. Analytics event
+         */
+
+        return Mono.empty();
+    }
+
     private Mono<Application> deleteApplicationCreatedFromGitImport(
             String applicationId, String workspaceId, String repoName) {
         Path repoSuffix = Paths.get(workspaceId, applicationId, repoName);
