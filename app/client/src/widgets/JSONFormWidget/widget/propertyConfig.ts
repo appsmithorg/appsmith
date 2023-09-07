@@ -30,12 +30,32 @@ export const sourceDataValidationFn = (
 ): ValidationResponse => {
   if (value === "") {
     return {
+      isValid: true,
+      parsed: value,
+    };
+  }
+
+  if (value === null || value === undefined) {
+    return {
       isValid: false,
       parsed: value,
       messages: [
         {
           name: "ValidationError",
-          message: "Source data cannot be empty.",
+          message: `Data is undefined`,
+        },
+      ],
+    };
+  }
+
+  if (_.isObject(value) && Object.keys(value).length === 0) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: [
+        {
+          name: "ValidationError",
+          message: "Data is empty",
         },
       ],
     };
