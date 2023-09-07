@@ -15,6 +15,7 @@ import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
 import { error } from "loglevel";
+import { getComponentDimensions } from "utils/ComponentSizeUtils";
 
 /**
  *
@@ -343,6 +344,8 @@ const generateDataTreeWidgetWithoutMetaMemoized = memoize(
 export const generateDataTreeWidget = (
   widget: FlattenedWidgetProps,
   widgetMetaProps: Record<string, unknown> = {},
+  isAutoLayout = false,
+  isMobile = false,
 ) => {
   const {
     dataTreeWidgetWithoutMetaProps: dataTreeWidget,
@@ -377,8 +380,19 @@ export const generateDataTreeWidget = (
 
   dataTreeWidget["meta"] = meta;
 
+  const { componentHeight, componentWidth } = getComponentDimensions(
+    dataTreeWidget,
+    isAutoLayout,
+    isMobile,
+  );
+
   return {
-    unEvalEntity: { ...dataTreeWidget, type: widget.type },
+    unEvalEntity: {
+      ...dataTreeWidget,
+      componentHeight,
+      componentWidth,
+      type: widget.type,
+    },
     configEntity: { ...entityConfig, widgetId: dataTreeWidget.widgetId },
   };
 };

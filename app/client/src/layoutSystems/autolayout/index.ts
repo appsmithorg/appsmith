@@ -4,11 +4,12 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { AutoLayoutEditorWraper } from "./editor/AutoLayoutEditorWraper";
 import { AutoLayoutViewerWrapper } from "./viewer/AutoLayoutViewerWrapper";
+import { getAutoLayoutComponentDimensions } from "utils/ComponentSizeUtils";
 
 /**
  * getAutoLayoutDimensionsConfig
  *
- * utiltiy function to fetch and process widget specific autoDimensionConfig(specific to Auto Layout Layout system)
+ * utility function to fetch and process widget specific autoDimensionConfig(specific to Auto Layout Layout system)
  * stored on the autoLayoutConfigMap.
  *
  */
@@ -26,55 +27,9 @@ const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
 };
 
 /**
- * getAutoLayoutComponentDimensions
- *
- * utiltiy function to compute a widgets dimensions in Auto layout system
- *
- */
-
-const getAutoLayoutComponentDimensions = ({
-  bottomRow,
-  isFlexChild,
-  isMobile,
-  leftColumn,
-  mobileBottomRow,
-  mobileLeftColumn,
-  mobileRightColumn,
-  mobileTopRow,
-  parentColumnSpace,
-  parentRowSpace,
-  rightColumn,
-  topRow,
-}: BaseWidgetProps) => {
-  let left = leftColumn;
-  let right = rightColumn;
-  let top = topRow;
-  let bottom = bottomRow;
-  if (isFlexChild && isMobile) {
-    if (mobileLeftColumn !== undefined && parentColumnSpace !== 1) {
-      left = mobileLeftColumn;
-    }
-    if (mobileRightColumn !== undefined && parentColumnSpace !== 1) {
-      right = mobileRightColumn;
-    }
-    if (mobileTopRow !== undefined && parentRowSpace !== 1) {
-      top = mobileTopRow;
-    }
-    if (mobileBottomRow !== undefined && parentRowSpace !== 1) {
-      bottom = mobileBottomRow;
-    }
-  }
-
-  return {
-    componentWidth: (right - left) * parentColumnSpace,
-    componentHeight: (bottom - top) * parentRowSpace,
-  };
-};
-
-/**
  * getAutoLayoutSystemPropsEnhancer
  *
- * utiltiy function to enhance BaseWidgetProps with Auto Layout system specific props
+ * utility function to enhance BaseWidgetProps with Auto Layout system specific props
  *
  */
 
@@ -93,7 +48,7 @@ const getAutoLayoutSystemPropsEnhancer = (props: BaseWidgetProps) => {
 /**
  * getAutoLayoutSystemWrapper
  *
- * utiltiy function to return the auto layout system wrapper based on render mode.
+ * utility function to return the auto layout system wrapper based on render mode.
  * wrapper is the component that wraps around a widget to provide layouting ability and enable editing experience.
  *
  */
@@ -109,8 +64,8 @@ const getAutoLayoutSystemWrapper = (renderMode: RenderModes) => {
 /**
  * getAutoLayoutSystem
  *
- * utiltiy function to return the auto layout system config for
- * wrapper based on render mode and property enhancer funciton
+ * utility function to return the auto layout system config for
+ * wrapper based on render mode and property enhancer function
  *
  */
 
