@@ -6,9 +6,9 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
 import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 import FlexComponent from "../common/FlexComponent";
-import { FlexVerticalAlignment, LayoutDirection } from "../utils/constants";
-import { AutoResizableLayer } from "../common/resizer/AutoResizableLayer";
 import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
+import { FlexVerticalAlignment } from "layoutSystems/anvil/utils/constants";
+import { AutoResizableLayer } from "../common/resizer/AutoResizableLayer";
 
 /**
  * AutoLayoutEditorWidgetOnion
@@ -25,7 +25,6 @@ export const AutoLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
       alignment={props.alignment}
       componentHeight={props.componentHeight}
       componentWidth={props.componentWidth}
-      direction={props.direction || LayoutDirection.Horizontal}
       flexVerticalAlignment={
         props.flexVerticalAlignment || FlexVerticalAlignment.Bottom
       }

@@ -1,8 +1,8 @@
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import WidgetFactory from "utils/WidgetFactory";
-import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/anvil/utils/autoLayoutTypes";
 import { useRef } from "react";
 import { getIsAutoLayoutMobileBreakPoint } from "selectors/editorSelectors";
 import type { WidgetDraggingBlock } from "layoutSystems/common/CanvasArenas/ArenaTypes";

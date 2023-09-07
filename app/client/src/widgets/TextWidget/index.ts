@@ -1,6 +1,6 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DEFAULT_FONT_SIZE, WIDGET_TAGS } from "constants/WidgetConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import { OverflowTypes } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";

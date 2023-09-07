@@ -3,12 +3,12 @@ import type { ReactNode } from "react";
 import React from "react";
 import styled from "styled-components";
 import { getAlignmentMarginInfo } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
-import { FlexLayerAlignment } from "layoutSystems/autolayout/utils/constants";
-import type { LayoutDirection } from "layoutSystems/autolayout/utils/constants";
 import {
   MOBILE_ROW_GAP,
+  type LayoutDirection,
   ROW_GAP,
-} from "layoutSystems/autolayout/utils/constants";
+  FlexLayerAlignment,
+} from "layoutSystems/anvil/utils/constants";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.

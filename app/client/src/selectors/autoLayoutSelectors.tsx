@@ -7,7 +7,7 @@ import type {
   FlexBoxAlignmentColumnInfo,
   FlexLayer,
   LayerChild,
-} from "layoutSystems/autolayout/utils/autoLayoutTypes";
+} from "layoutSystems/anvil/utils/autoLayoutTypes";
 import { getAlignmentColumnInfo } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import { getIsAutoLayoutMobileBreakPoint } from "./editorSelectors";
 

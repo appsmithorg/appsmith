@@ -1,5 +1,5 @@
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import FileDataTypes from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";

@@ -3,8 +3,8 @@ import {
   FlexLayerAlignment,
   ResponsiveBehavior,
   ROW_GAP,
-} from "layoutSystems/autolayout/utils/constants";
-import type { HighlightInfo } from "./autoLayoutTypes";
+} from "layoutSystems/anvil/utils/constants";
+import type { HighlightInfo } from "../../anvil/utils/autoLayoutTypes";
 import { getWidgetHeight } from "./flexWidgetUtils";
 import type { VerticalHighlightsPayload } from "./highlightUtils";
 import {

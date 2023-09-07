@@ -1,4 +1,4 @@
-import { Positioning } from "layoutSystems/autolayout/utils/constants";
+import { Positioning } from "layoutSystems/anvil/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";

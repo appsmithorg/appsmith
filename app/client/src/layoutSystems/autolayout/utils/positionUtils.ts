@@ -4,7 +4,7 @@ import type {
   FlexLayer,
   LayerChild,
   Row,
-} from "./autoLayoutTypes";
+} from "../../anvil/utils/autoLayoutTypes";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -19,7 +19,7 @@ import {
   Positioning,
   ResponsiveBehavior,
   ROW_GAP,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/anvil/utils/constants";
 import {
   getWidgetHeight,
   getWidgetMinMaxDimensionsInPixel,

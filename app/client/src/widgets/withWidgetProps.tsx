@@ -40,7 +40,7 @@ import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   defaultAutoLayoutWidgets,
   Positioning,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/anvil/utils/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";

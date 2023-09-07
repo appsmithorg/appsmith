@@ -2,7 +2,7 @@ import type {
   Alignment,
   Positioning,
   Spacing,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/anvil/utils/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface TabContainerWidgetProps extends WidgetProps {

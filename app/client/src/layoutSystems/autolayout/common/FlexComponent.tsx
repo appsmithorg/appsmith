@@ -15,13 +15,13 @@ import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainer
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
-import type { AutoLayoutProps } from "layoutSystems/common/utils/commonTypes";
+import type { FlexComponentProps } from "../../anvil/utils/autoLayoutTypes";
 
 const FlexWidget = styled.div`
   position: relative;
 `;
 
-export function FlexComponent(props: AutoLayoutProps) {
+export function FlexComponent(props: FlexComponentProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
 
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);

@@ -50,7 +50,7 @@ import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutUpdateSagas";
 import {
   FlexLayerAlignment,
   LayoutDirection,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/anvil/utils/constants";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
