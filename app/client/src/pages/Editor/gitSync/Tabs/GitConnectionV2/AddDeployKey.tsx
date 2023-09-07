@@ -28,6 +28,8 @@ import { useSSHKeyPair } from "../../hooks";
 import type { GitProvider } from "./ChooseGitProvider";
 import { GIT_DEMO_GIF } from "./constants";
 import noop from "lodash/noop";
+import { useSelector } from "react-redux";
+import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 
 export const DeployedKeyContainer = styled.div`
   height: 36px;
@@ -76,7 +78,7 @@ const StyledSelect = styled(Select)`
   }
 
   input {
-    width: 100px;
+    width: 100px !important;
   }
 `;
 
@@ -131,6 +133,7 @@ interface AddDeployKeyProps {
   value: Partial<AddDeployKeyState>;
   isImport?: boolean;
   connectErrorResponse?: any;
+  connectLoading?: boolean;
 }
 
 function AddDeployKey({
@@ -138,7 +141,9 @@ function AddDeployKey({
   value = {},
   isImport = false,
   connectErrorResponse,
+  connectLoading = false,
 }: AddDeployKeyProps) {
+  const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const [fetched, setFetched] = useState(false);
   const [sshKeyType, setSshKeyType] = useState<string>();
   const {
@@ -151,7 +156,7 @@ function AddDeployKey({
   } = useSSHKeyPair();
 
   useEffect(() => {
-    if (!isImport) {
+    if (isModalOpen && !isImport) {
       if (!fetched) {
         fetchSSHKeyPair({
           onSuccessCallback: () => {
@@ -167,10 +172,10 @@ function AddDeployKey({
         setFetched(true);
       }
     }
-  }, [isImport, fetched]);
+  }, [isImport, isModalOpen, fetched]);
 
   useEffect(() => {
-    if (fetched && !fetchingSSHKeyPair) {
+    if (isModalOpen && fetched && !fetchingSSHKeyPair) {
       if (SSHKeyPair && SSHKeyPair.includes("rsa")) {
         setSshKeyType("RSA");
       } else if (
@@ -183,12 +188,13 @@ function AddDeployKey({
         setSshKeyType("ECDSA");
       }
     }
-  }, [fetched, fetchingSSHKeyPair, SSHKeyPair]);
+  }, [isModalOpen, fetched, fetchingSSHKeyPair, SSHKeyPair]);
 
   useEffect(() => {
     if (
-      (sshKeyType && !SSHKeyPair) ||
-      (sshKeyType && !SSHKeyPair?.includes(sshKeyType.toLowerCase()))
+      isModalOpen &&
+      ((sshKeyType && !SSHKeyPair) ||
+        (sshKeyType && !SSHKeyPair?.includes(sshKeyType.toLowerCase())))
     ) {
       generateSSHKey(sshKeyType, {
         onSuccessCallback: () => {
@@ -196,7 +202,7 @@ function AddDeployKey({
         },
       });
     }
-  }, [sshKeyType, SSHKeyPair]);
+  }, [sshKeyType, SSHKeyPair, isModalOpen]);
 
   const repositorySettingsUrl = getRepositorySettingsUrl(
     value?.gitProvider,
@@ -291,13 +297,15 @@ function AddDeployKey({
               />
               <KeyType>{sshKeyType}</KeyType>
               <KeyText>{SSHKeyPair}</KeyText>
-              <CopyButton
-                onCopy={() => {
-                  AnalyticsUtil.logEvent("GS_COPY_SSH_KEY_BUTTON_CLICK");
-                }}
-                tooltipMessage={createMessage(COPY_SSH_KEY)}
-                value={SSHKeyPair}
-              />
+              {!connectLoading && (
+                <CopyButton
+                  onCopy={() => {
+                    AnalyticsUtil.logEvent("GS_COPY_SSH_KEY_BUTTON_CLICK");
+                  }}
+                  tooltipMessage={createMessage(COPY_SSH_KEY)}
+                  value={SSHKeyPair}
+                />
+              )}
             </DeployedKeyContainer>
           ) : (
             <DummyKey />

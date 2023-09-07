@@ -40,6 +40,10 @@ const InputContainer = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[5]}px;
 `;
 
+const SectionTitle = styled(Text)`
+  font-weight: 600;
+`;
+
 const loadingKeyframe = keyframes`
     100% {
       transform: translateX(100%);
@@ -201,7 +205,9 @@ const GitUserSettings = () => {
     <Container>
       <form onSubmit={handleSubmit(onSubmit)}>
         <HeadContainer>
-          <Text kind="heading-s">{createMessage(GIT_USER_SETTINGS_TITLE)}</Text>
+          <SectionTitle kind="heading-s">
+            {createMessage(GIT_USER_SETTINGS_TITLE)}
+          </SectionTitle>
           <div>
             <Controller
               control={control}

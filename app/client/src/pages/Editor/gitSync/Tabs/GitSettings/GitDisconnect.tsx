@@ -29,6 +29,10 @@ const BodyInnerContainer = styled.div`
   margin-right: 32px;
 `;
 
+const SectionTitle = styled(Text)`
+  font-weight: 600;
+`;
+
 function GitDisconnect() {
   const dispatch = useDispatch();
   const currentApp = useSelector(getCurrentApplication);
@@ -50,7 +54,9 @@ function GitDisconnect() {
   return (
     <Container>
       <HeadContainer>
-        <Text kind="heading-s">{createMessage(DANGER_ZONE)}</Text>
+        <SectionTitle kind="heading-s">
+          {createMessage(DANGER_ZONE)}
+        </SectionTitle>
       </HeadContainer>
       <BodyContainer>
         <BodyInnerContainer>

@@ -17,6 +17,7 @@ interface CopyButtonProps {
   delay?: number;
   onCopy?: () => void;
   tooltipMessage?: string;
+  isDisabled?: boolean;
 }
 
 export function CopyButton({
@@ -24,6 +25,7 @@ export function CopyButton({
   delay = 2000,
   onCopy = noop,
   tooltipMessage,
+  isDisabled = false,
 }: CopyButtonProps) {
   const timerRef = useRef<number>();
   const [showCopied, setShowCopied] = useState(false);
@@ -57,6 +59,7 @@ export function CopyButton({
           <Tooltip content={tooltipMessage}>
             <Button
               className="t--copy-ssh-key"
+              isDisabled={isDisabled}
               isIconButton
               kind="tertiary"
               onClick={copyToClipboard}

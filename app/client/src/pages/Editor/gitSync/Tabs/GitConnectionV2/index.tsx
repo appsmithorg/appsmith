@@ -19,18 +19,32 @@ import {
 } from "@appsmith/constants/messages";
 import GitSyncStatusbar from "../../components/Statusbar";
 
-const StyledModalFooter = styled(ModalFooter)`
+interface StyledModalFooterProps {
+  loading?: boolean;
+}
+
+const StyledModalFooter = styled(ModalFooter)<StyledModalFooterProps>`
   justify-content: space-between;
-  flex-direction: row-reverse;
+  flex-direction: ${(p) => (!p.loading ? "row-reverse" : "row")};
 `;
 
 const StatusbarWrapper = styled.div`
+  margin-top: 16px;
+
   > div {
-    height: 36px;
+    display: flex;
+    height: initial;
+    align-items: center;
   }
 
   > div > div {
     margin-top: 0px;
+    width: 200px;
+    margin-right: 12px;
+  }
+
+  > div > p {
+    margin-top: 0;
   }
 `;
 
@@ -193,10 +207,10 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
           <GenerateSSH {...stepProps} />
         )}
         {activeStep === GIT_CONNECT_STEPS.ADD_DEPLOY_KEY && (
-          <AddDeployKey {...stepProps} />
+          <AddDeployKey {...stepProps} connectLoading={loading} />
         )}
       </ModalBody>
-      <StyledModalFooter>
+      <StyledModalFooter loading={loading}>
         {loading && (
           <StatusbarWrapper className="t--connect-statusbar">
             <GitSyncStatusbar
@@ -221,7 +235,7 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
             {nextStepText[activeStep]}
           </Button>
         )}
-        {possibleSteps.includes(activeStep) && currentIndex > 0 && (
+        {possibleSteps.includes(activeStep) && currentIndex > 0 && !loading && (
           <Button
             isDisabled={loading}
             kind="secondary"

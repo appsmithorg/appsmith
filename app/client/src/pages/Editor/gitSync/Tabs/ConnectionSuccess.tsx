@@ -15,6 +15,7 @@ const TitleContainer = styled.div`
 
 const TitleText = styled(Text)`
   flex: 1;
+  font-weight: 600;
 `;
 
 const StyledIcon = styled(Icon)`
@@ -40,7 +41,7 @@ function ConnectionSuccess() {
           <TitleContainer>
             <StyledIcon color="#059669" name="oval-check" size="lg" />
             <TitleText kind="heading-s" renderAs="h3">
-              Add deploy key & give write access
+              Successfully connected to your git remote repository
             </TitleText>
           </TitleContainer>
           <Text renderAs="p">
