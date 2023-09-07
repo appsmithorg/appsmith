@@ -7,6 +7,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.PasswordResetToken;
@@ -28,6 +29,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
@@ -112,6 +114,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final PermissionGroupService permissionGroupService;
     private final UserUtils userUtils;
     private final EmailService emailService;
+    private final RateLimitService rateLimitService;
+
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
@@ -148,7 +152,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             PermissionGroupService permissionGroupService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
-            EmailService emailService) {
+            EmailService emailService,
+            RateLimitService rateLimitService) {
+
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -162,6 +168,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.tenantService = tenantService;
         this.permissionGroupService = permissionGroupService;
         this.userUtils = userUtils;
+        this.rateLimitService = rateLimitService;
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
         this.emailService = emailService;
     }
@@ -404,12 +411,17 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                             emailTokenDTO.getToken())))
                                     .flatMap(passwordResetTokenRepository::delete)
                                     .then(repository.save(userFromDb))
-                                    .doOnSuccess(result ->
-                                            // In a separate thread, we delete all other sessions of this user.
-                                            sessionUserService
-                                                    .logoutAllSessions(userFromDb.getEmail())
-                                                    .subscribeOn(Schedulers.boundedElastic())
-                                                    .subscribe())
+                                    .doOnSuccess(result -> {
+                                        // In a separate thread, we delete all other sessions of this user.
+                                        sessionUserService
+                                                .logoutAllSessions(userFromDb.getEmail())
+                                                .subscribeOn(Schedulers.boundedElastic())
+                                                .subscribe();
+
+                                        // we reset the counter for user's login attempts once password is reset
+                                        rateLimitService.resetCounter(
+                                                RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, userFromDb.getEmail());
+                                    })
                                     .thenReturn(true);
                         }));
     }
