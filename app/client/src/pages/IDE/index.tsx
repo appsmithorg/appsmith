@@ -31,6 +31,10 @@ const Body = styled.div<{ leftPaneWidth: number }>`
   grid-gap: 4px;
 `;
 
+const StyledCenteredWrapper = styled(CenteredWrapper)`
+  height: calc(100vh - 40px);
+`;
+
 const IDE = function () {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -50,9 +54,9 @@ const IDE = function () {
 
   if (!isEditorInitialized) {
     return (
-      <CenteredWrapper style={{ height: `calc(100vh - 40px})` }}>
+      <StyledCenteredWrapper>
         <Spinner size="lg" />
-      </CenteredWrapper>
+      </StyledCenteredWrapper>
     );
   }
 
