@@ -175,6 +175,9 @@ class ListWidget extends BaseWidget<
           },
         ];
       },
+      getOneClickBindingConnectableWidgetConfig: (widget: WidgetProps) => {
+        return `${widget.widgetName}.selectedItem`;
+      },
     };
   }
 

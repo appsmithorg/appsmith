@@ -337,6 +337,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           },
         ];
       },
+      getOneClickBindingConnectableWidgetConfig: (widget: WidgetProps) => {
+        return `${widget.widgetName}.selectedRow`;
+      },
     };
   }
 
