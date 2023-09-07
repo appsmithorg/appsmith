@@ -31,14 +31,7 @@ describe("tests the sagas in initSagas", () => {
     expect(JSON.stringify(gen.next().value)).toStrictEqual(
       JSON.stringify(call(engine.loadAppData, action.payload)),
     );
-    expect(
-      JSON.stringify(
-        gen.next({
-          applicationId: action.payload.applicationId,
-          toLoadPageId: action.payload.pageId,
-        }).value,
-      ),
-    ).toStrictEqual(
+    expect(JSON.stringify(gen.next().value)).toStrictEqual(
       JSON.stringify(
         call(engine.loadAppURL, action.payload.pageId, action.payload.pageId),
       ),

@@ -11,7 +11,7 @@ import type { FocusEntityInfo } from "navigation/FocusEntity";
 import {
   FocusEntity,
   FocusStoreHierarchy,
-  identifyEntityFromPath,
+  identifyIDEEntityFromPath,
   shouldStoreURLForFocus,
 } from "navigation/FocusEntity";
 import { FocusElementsConfig } from "navigation/FocusElements";
@@ -25,6 +25,7 @@ import { getAction, getPlugin } from "selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { has } from "lodash";
+import { IDEAppState } from "../pages/IDE/ideReducer";
 
 export function* contextSwitchingSaga(
   currentPath: string,
@@ -58,8 +59,8 @@ export function* contextSwitchingSaga(
 
 function* waitForPathLoad(currentPath: string, previousPath?: string) {
   if (previousPath) {
-    const currentFocus = identifyEntityFromPath(currentPath);
-    const prevFocus = identifyEntityFromPath(previousPath);
+    const currentFocus = identifyIDEEntityFromPath(currentPath);
+    const prevFocus = identifyIDEEntityFromPath(previousPath);
 
     if (currentFocus.pageId !== prevFocus.pageId) {
       yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
@@ -169,8 +170,8 @@ function shouldSetState(
     // If it is a direct navigation, we will set the state
     return true;
   }
-  const prevFocusEntityInfo = identifyEntityFromPath(prevPath);
-  const currFocusEntityInfo = identifyEntityFromPath(currPath);
+  const prevFocusEntityInfo = identifyIDEEntityFromPath(prevPath);
+  const currFocusEntityInfo = identifyIDEEntityFromPath(currPath);
 
   // While switching from selected widget state to canvas,
   // it should not be restored stored state for canvas
@@ -189,12 +190,32 @@ const getEntityParentUrl = (
     const canvasUrl = builderURL({ pageId: entityInfo.pageId ?? "" });
     return canvasUrl.split("?")[0];
   }
+  if (parentEntity === FocusEntity.PAGE) {
+    let suffix = "";
+    switch (entityInfo.entity) {
+      case FocusEntity.PROPERTY_PANE:
+        suffix = "ui";
+        break;
+      case FocusEntity.JS_OBJECT:
+        suffix = "js";
+        break;
+      case FocusEntity.QUERY:
+        suffix = "queries";
+        break;
+    }
+    const pageUrl = builderURL({
+      pageId: entityInfo.pageId ?? "",
+      ideState: IDEAppState.Page,
+      suffix: `/${suffix}`,
+    });
+    return pageUrl.split("?")[0];
+  }
   return "";
 };
 
 const isPageChange = (prevPath: string, currentPath: string) => {
-  const prevFocusEntityInfo = identifyEntityFromPath(prevPath);
-  const currFocusEntityInfo = identifyEntityFromPath(currentPath);
+  const prevFocusEntityInfo = identifyIDEEntityFromPath(prevPath);
+  const currFocusEntityInfo = identifyIDEEntityFromPath(currentPath);
   if (prevFocusEntityInfo.pageId === "" || currFocusEntityInfo.pageId === "") {
     return false;
   }
@@ -204,7 +225,8 @@ const isPageChange = (prevPath: string, currentPath: string) => {
 function* getEntitiesForStore(previousPath: string, currentPath: string) {
   const branch: string | undefined = yield select(getCurrentGitBranch);
   const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
-  const prevFocusEntityInfo = identifyEntityFromPath(previousPath);
+  const prevFocusEntityInfo = identifyIDEEntityFromPath(previousPath);
+  const currentFocusEntityInfo = identifyIDEEntityFromPath(currentPath);
   if (isPageChange(previousPath, currentPath)) {
     if (prevFocusEntityInfo.pageId) {
       entities.push({
@@ -217,7 +239,10 @@ function* getEntitiesForStore(previousPath: string, currentPath: string) {
     }
   }
 
-  if (prevFocusEntityInfo.entity in FocusStoreHierarchy) {
+  if (
+    prevFocusEntityInfo.entity in FocusStoreHierarchy &&
+    prevFocusEntityInfo.entity !== currentFocusEntityInfo.entity
+  ) {
     const parentEntity = FocusStoreHierarchy[prevFocusEntityInfo.entity];
     if (parentEntity) {
       const parentPath = getEntityParentUrl(prevFocusEntityInfo, parentEntity);
@@ -252,7 +277,7 @@ function* getEntitiesForSet(
   }
   const branch: string | undefined = yield select(getCurrentGitBranch);
   const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
-  const currentEntityInfo = identifyEntityFromPath(currentPath);
+  const currentEntityInfo = identifyIDEEntityFromPath(currentPath);
   if (isPageChange(previousPath, currentPath)) {
     if (currentEntityInfo.pageId) {
       entities.push({

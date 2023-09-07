@@ -11,6 +11,7 @@ import { SelectionRequestType } from "../../../../sagas/WidgetSelectUtils";
 import { MAIN_CONTAINER_WIDGET_ID } from "../../../../constants/WidgetConstants";
 import PropertyPaneContainer from "../../../Editor/WidgetsEditor/PropertyPaneContainer";
 import type { RouteComponentProps } from "react-router";
+import { PageNavState } from "../../ideReducer";
 
 const PropertyPaneSidebar = (
   props: RouteComponentProps<{ pageId: string; widgetIds: string }>,
@@ -19,11 +20,19 @@ const PropertyPaneSidebar = (
   const pageId = props.match.params.pageId;
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const addItemClick = useCallback(() => {
-    history.push(pageEntityUrl({ pageId }, "ui"));
+    history.push(pageEntityUrl({ pageId }, PageNavState.UI));
   }, []);
   const widgets = useSelector(getWidgets);
   const toListWidgets: Array<Item> = Object.values(widgets)
     .filter((w) => w.widgetId !== MAIN_CONTAINER_WIDGET_ID)
+    .sort((a, b) => {
+      if (selectedWidgetIds.indexOf(a.widgetId) === 0) {
+        return -1;
+      } else if (selectedWidgetIds.indexOf(b.widgetId) === 0) {
+        return 1;
+      }
+      return 0;
+    })
     .map((widget) => ({
       name: widget.widgetName,
       key: widget.widgetId,
@@ -38,6 +47,7 @@ const PropertyPaneSidebar = (
       listItems={toListWidgets}
       onAddClick={addItemClick}
       onListClick={listItemClick}
+      titleItemCounts={1}
     />
   );
 };

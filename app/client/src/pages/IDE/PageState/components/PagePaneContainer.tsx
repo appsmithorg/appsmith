@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { Button, Text } from "design-system";
 import type { Item } from "../../components/ListView";
@@ -10,7 +10,7 @@ const PaneTitleBar = styled.div`
   padding: 4px 8px;
   border-bottom: 1px solid #fbe6dc;
   display: grid;
-  grid-template-columns: 40px 1fr 60px;
+  grid-template-columns: auto 1fr 60px;
   height: 32px;
   align-content: center;
   border-bottom: 1px solid #fbe6dc;
@@ -26,12 +26,12 @@ const TabsContainer = styled.div`
   justify-content: flex-start;
   gap: 4px;
   overflow: hidden;
-  overflow-y: hidden;
   overflow-x: auto;
 
   &::-webkit-scrollbar {
     display: none;
   }
+
   -ms-overflow-style: none;
   scrollbar-width: none;
 `;
@@ -43,12 +43,15 @@ const Tab = styled.div`
   grid-template-columns: max-content 1fr;
   grid-gap: 3px;
   border-radius: 4px;
+  max-width: 116px;
   &:hover {
     background-color: #fbe6dc;
     cursor: pointer;
   }
   span {
     font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   &.selected {
     background-color: #fbe6dc;
@@ -60,7 +63,9 @@ const Tab = styled.div`
 
 type Props = {
   editor: React.ReactNode;
+  addItemsTitle?: string;
   addItems?: Array<Item>;
+  titleItemCounts?: number;
   listItems?: Array<Item>;
   onAddClick?: (item?: Item) => void;
   onListClick?: (item: Item) => void;
@@ -88,31 +93,51 @@ const PagePaneContainer = (props: Props) => {
     setPageState(TabState.EDIT);
   }, []);
 
+  const showMore = useMemo(() => {
+    return !!props.listItems && props.listItems?.length > 4;
+  }, [props.listItems]);
+
+  const onClose = useCallback(() => {
+    // close button can appear in the edit state where there isn't a more button
+    if (pageState === TabState.EDIT) {
+      setPageState(TabState.LIST);
+    } else {
+      setPageState(TabState.EDIT);
+    }
+  }, [pageState]);
+
+  const PaneTitleBarLeft = () => {
+    if (pageState === TabState.EDIT) {
+      return (
+        <Button
+          isIconButton
+          kind={"secondary"}
+          onClick={() => {
+            if (props.addItems) {
+              setPageState(TabState.ADD);
+            } else if (props.onAddClick) {
+              props.onAddClick();
+            }
+          }}
+          startIcon={"plus"}
+        />
+      );
+    } else if (pageState === TabState.ADD && props.addItemsTitle) {
+      return <Text kind="heading-xs">{props.addItemsTitle}</Text>;
+    }
+    return <div />;
+  };
+
   return (
     <div className="h-full">
       <PaneTitleBar>
         {/*LEFT ICON start*/}
-        {pageState === TabState.EDIT ? (
-          <Button
-            isIconButton
-            kind={"secondary"}
-            onClick={() => {
-              if (props.addItems) {
-                setPageState(TabState.ADD);
-              } else if (props.onAddClick) {
-                props.onAddClick();
-              }
-            }}
-            startIcon={"plus"}
-          />
-        ) : (
-          <div />
-        )}
+        <PaneTitleBarLeft />
         {/*LEFT ICON end*/}
         {/*TABS start*/}
         {pageState === TabState.EDIT ? (
           <TabsContainer>
-            {props.listItems?.map((item) => {
+            {props.listItems?.slice(0, props.titleItemCounts).map((item) => {
               return (
                 <Tab
                   className={classNames({ selected: item.selected })}
@@ -130,7 +155,7 @@ const PagePaneContainer = (props: Props) => {
         )}
         {/*TABS end*/}
         {/*RIGHT ICON start*/}
-        {pageState === TabState.EDIT ? (
+        {pageState === TabState.EDIT && showMore ? (
           <Button kind="secondary" onClick={() => setPageState(TabState.LIST)}>
             more
           </Button>
@@ -139,7 +164,7 @@ const PagePaneContainer = (props: Props) => {
             className="justify-self-end"
             isIconButton
             kind={"secondary"}
-            onClick={() => setPageState(TabState.EDIT)}
+            onClick={onClose}
             startIcon={"close"}
           />
         )}

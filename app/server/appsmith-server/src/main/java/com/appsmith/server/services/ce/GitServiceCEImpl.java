@@ -1602,7 +1602,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(application -> addFileLock(defaultApplicationId).map(status -> application))
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    if (gitApplicationMetadata == null || gitApplicationMetadata.getDefaultApplicationId() == null) {
+                    if (gitApplicationMetadata == null
+                            || gitApplicationMetadata.getDefaultApplicationId() == null
+                            || gitApplicationMetadata.getRepoName() == null) {
+                        log.error("Git config is not present for application {}", defaultApplicationId);
                         return Mono.error(
                                 new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
                     }

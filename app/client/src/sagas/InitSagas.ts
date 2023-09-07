@@ -30,6 +30,7 @@ import {
 } from "actions/initActions";
 import {
   getCurrentPageId,
+  getIsAutoLayout,
   getIsEditorInitialized,
   getIsWidgetConfigBuilt,
   selectCurrentApplicationSlug,
@@ -62,6 +63,7 @@ import {
 } from "../constants/routes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { convertFromFixedToAutoSaga } from "./layoutConversionSagas";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -146,6 +148,13 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
     yield call(engine.loadAppEntities, toLoadPageId, applicationId);
     yield call(engine.loadGit, applicationId);
+
+    const autolayoutEnabled: boolean = yield select(getIsAutoLayout);
+    if (!autolayoutEnabled) {
+      yield call(convertFromFixedToAutoSaga);
+      window.location.reload();
+    }
+
     yield call(engine.completeChore);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
     engine.stopPerformanceTracking();
