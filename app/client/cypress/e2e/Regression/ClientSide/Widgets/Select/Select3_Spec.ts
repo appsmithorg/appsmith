@@ -1,4 +1,3 @@
-import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
   dataSources,
@@ -60,6 +59,7 @@ describe("Select widget tests", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.SELECT));
 
     //Validate filtered data
+    agHelper.Sleep(3000); //Wait for widget to settle
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.SELECT));
     agHelper.TypeText(widgetLocators.selectWidgetFilter, "Ulf");
     agHelper.AssertElementVisibility(

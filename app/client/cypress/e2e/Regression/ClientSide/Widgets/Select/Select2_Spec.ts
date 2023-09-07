@@ -1,7 +1,6 @@
 import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
-  dataSources,
   draggableWidgets,
   deployMode,
   entityExplorer,
@@ -163,9 +162,9 @@ describe("Select widget tests", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Select1", "Widgets");
     propPane.SelectPropertiesDropDown("Height", "Auto Height with limits");
-    agHelper.AssertElementVisibility(locators.autoHeightHandles);
-    agHelper.AssertElementVisibility(locators.autoHeightMin);
-    agHelper.AssertElementVisibility(locators.autoHeightMax);
+    agHelper.AssertElementVisibility(locators._autoHeightHandles);
+    agHelper.AssertElementVisibility(locators._autoHeightMin);
+    agHelper.AssertElementVisibility(locators._autoHeightMax);
     propPane.SelectPropertiesDropDown("Height", "Fixed");
   });
 

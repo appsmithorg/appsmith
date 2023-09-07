@@ -106,9 +106,9 @@ describe("Text widget tests", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Text1", "Widgets");
     propPane.SelectPropertiesDropDown("Height", "Auto Height with limits");
-    agHelper.AssertElementVisibility(locators.autoHeightHandles);
-    agHelper.AssertElementVisibility(locators.autoHeightMin);
-    agHelper.AssertElementVisibility(locators.autoHeightMax);
+    agHelper.AssertElementVisibility(locators._autoHeightHandles);
+    agHelper.AssertElementVisibility(locators._autoHeightMin);
+    agHelper.AssertElementVisibility(locators._autoHeightMax);
     propPane.SelectPropertiesDropDown("Height", "Fixed");
   });
 

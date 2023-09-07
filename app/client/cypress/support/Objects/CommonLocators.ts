@@ -129,12 +129,10 @@ export class CommonLocators {
     "')]//input[@type='checkbox']/parent::label";
   _openNavigationTab = (tabToOpen: string) =>
     `//span[text()='${tabToOpen}']/ancestor::div`;
-  _position = (value: string) => `//*[@data-value='${value}']`;
   _selectWidgetDropdown = (widgetType: string) =>
     `//div[contains(@class, 't--draggable-${widgetType}')]//button`;
   _selectWidgetDropdownInDeployed = (widgetType: string) =>
     `//div[contains(@class, 't--widget-${widgetType}')]//button`;
-  _alignment = (value: string) => `//*[@data-value='${value}']`;
   _inputFieldByName = (fieldName: string) =>
     "//p[text()='" +
     fieldName +
@@ -207,7 +205,6 @@ export class CommonLocators {
   _sliderThumb = '[data-testid="slider-thumb"]';
   _optionsJsToggle = ".t--property-control-options .t--js-toggle";
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
-  _borderRadius = (value: string) => `//*[@data-value='${value}']`;
   _dropDownMultiTreeValue = (dropdownOption: string) =>
     "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" +
     dropdownOption +
@@ -257,9 +254,6 @@ export class CommonLocators {
   _appEditMenu = "[data-testid='t--application-edit-menu']";
   _appEditMenuBtn = "[data-testid='t--application-edit-menu-cta']";
   _appEditMenuSettings = "[data-testid='t--application-edit-menu-settings']";
-  _appEditMenuEditBtn = ".ads-v2-menu__menu-item-children:contains(Edit)";
-  _appEditMenuUndoRedo = (value: string) =>
-    `.ads-v2-menu__menu-item-children:contains(${value})`;
   _appEditExportSettings =
     "[data-testid='t--application-edit-menu-export-application']";
   _appThemeSettings = "#t--theme-settings-header";
@@ -291,7 +285,13 @@ export class CommonLocators {
   _buttonWidgetInForm =
     "//*[contains(@class,'t--widget-buttonwidget')]//button[contains(@class,'bp3-button')]";
   _walkthrough_overlay = `.t--walkthrough-overlay`;
-  autoHeightHandles = "[data-testid='t-auto-height-overlay-handles']";
-  autoHeightMin = "[data-testid='t--auto-height-overlay-handles-min']";
-  autoHeightMax = "[data-testid='t--auto-height-overlay-handles-max']";
+  _autoHeightHandles = "[data-testid='t-auto-height-overlay-handles']";
+  _autoHeightMin = "[data-testid='t--auto-height-overlay-handles-min']";
+  _autoHeightMax = "[data-testid='t--auto-height-overlay-handles-max']";
+  _position = (value: string) => `//*[@data-value='${value}']`;
+  _alignment = (value: string) => `//*[@data-value='${value}']`;
+  _borderRadius = (value: string) => `//*[@data-value='${value}']`;
+  _appEditMenuEditBtn = ".ads-v2-menu__menu-item-children:contains(Edit)";
+  _appEditMenuUndoRedo = (value: string) =>
+    `.ads-v2-menu__menu-item-children:contains(${value})`;
 }
