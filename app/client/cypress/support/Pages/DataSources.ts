@@ -528,10 +528,11 @@ export class DataSources {
       this._port,
       this.dataManager.dsValues[environment].mongo_port.toString(),
     );
-    this.agHelper.ClearNType(
-      this._databaseName,
-      this.dataManager.dsValues[environment].mongo_databaseName,
-    );
+    this.agHelper.ClearTextField(this._databaseName);
+    const databaseName = shouldAddTrailingSpaces
+      ? this.dataManager.dsValues[environment].mongo_databaseName + "  "
+      : this.dataManager.dsValues[environment].mongo_databaseName;
+    this.agHelper.TypeText(this._databaseName, databaseName);
   }
 
   public FillMySqlDSForm(
