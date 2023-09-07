@@ -232,12 +232,12 @@ describe("Git sync apps", function () {
 
     cy.get(`.t--entity-item:contains(${pageName} Copy)`).click();
     cy.wait("@getPage");
-    cy.readTabledataPublish("0", "1").then((cellData) => {
+    cy.readTableV2dataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
     cy.get(`.t--entity-item:contains(${pageName})`).first().click();
     cy.wait("@getPage");
-    cy.readTabledataPublish("0", "1").then((cellData) => {
+    cy.readTableV2dataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
     // commit and push the changes
@@ -245,13 +245,13 @@ describe("Git sync apps", function () {
     cy.wait(2000);
     // verify data binding on all pages in deploy mode
     cy.latestDeployPreview();
-    cy.readTabledataPublish("0", "1").then((cellData) => {
+    cy.readTableV2dataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
     cy.get(".t--page-switch-tab")
       .contains(`${pageName} Copy`)
       .click({ force: true });
-    cy.readTabledataPublish("0", "1").then((cellData) => {
+    cy.readTableV2dataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
     cy.get(".t--page-switch-tab").contains(`${newPage}`).click({ force: true });
@@ -365,13 +365,13 @@ describe("Git sync apps", function () {
     cy.get(".t--page-switch-tab")
       .contains(`${pageName}`)
       .click({ force: true });
-    cy.readTabledataPublish("0", "1").then((cellData) => {
+    cy.readTableV2dataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
     cy.get(".t--page-switch-tab")
       .contains(`${pageName} Copy`)
       .click({ force: true });
-    cy.readTabledataPublish("0", "1").then((cellData) => {
+    cy.readTableV2dataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
     cy.get(".t--page-switch-tab").contains(`${newPage}`).click({ force: true });
