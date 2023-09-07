@@ -40,9 +40,9 @@ describe("InputV2 widget tests - continuation", function () {
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
       "Hello! How are you?",
     );
-    agHelper.AssertAttribute(
+    agHelper.AssertText(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
-      "value",
+      "val",
       "Hello! How",
     );
 
@@ -129,16 +129,16 @@ describe("InputV2 widget tests - continuation", function () {
 
     //Validate functionality of arrows
     agHelper.GetNClick(widgetLocators.inputWidgetStepUp);
-    agHelper.AssertAttribute(
+    agHelper.AssertText(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
-      "value",
-      0,
+      "val",
+      "0",
     );
     agHelper.GetNClick(widgetLocators.inputWidgetStepDown);
-    agHelper.AssertAttribute(
+    agHelper.AssertText(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
-      "value",
-      -1,
+      "val",
+      "-1",
     );
   });
 

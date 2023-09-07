@@ -9,7 +9,21 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("InputV2 widget tests", function () {
-  let testcases;
+  let testcases,
+    multilineData = `[
+    {
+      "label": "Blue",
+      "value": "Blue"
+    },
+    {
+      "label": "Green",
+      "value": "Green"
+    },
+    {
+      "label": "Red",
+      "value": "RED"
+    }
+  ]`;
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2);
   });
@@ -19,6 +33,13 @@ describe("InputV2 widget tests", function () {
       "Data type",
       "Single-line text",
     );
+    propPane.AssertPropertiesDropDownValues("Data type", [
+      "Single-line text",
+      "Multi-line text",
+      "Number",
+      "Password",
+      "Email",
+    ]);
 
     //Assert that it doesn't display textarea for single line text
     agHelper.AssertElementAbsence(
@@ -49,9 +70,9 @@ describe("InputV2 widget tests", function () {
     agHelper.AssertElementAbsence(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " textarea",
     );
-    agHelper.AssertAttribute(
+    agHelper.AssertText(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
-      "value",
+      "val",
       "Enter input",
     );
     agHelper.AssertCSS(
@@ -67,29 +88,16 @@ describe("InputV2 widget tests", function () {
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
       "!@#$56&*().,:",
     );
-    agHelper.AssertAttribute(
+    agHelper.AssertText(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
-      "value",
+      "val",
       "!@#$56&*().,:",
     );
 
     //Assert widget height after text input
     agHelper.ClearNType(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
-      `[
-      {
-        "label": "Blue",
-        "value": "Blue"
-      },
-      {
-        "label": "Green",
-        "value": "Green"
-      },
-      {
-        "label": "Red",
-        "value": "RED"
-      }
-    ]`,
+      multilineData,
     );
     agHelper.AssertCSS(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
@@ -151,38 +159,12 @@ describe("InputV2 widget tests", function () {
     //Validate text formatting
     agHelper.ClearNType(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " textarea",
-      `[
-      {
-        "label": "Blue",
-        "value": "Blue"
-      },
-      {
-        "label": "Green",
-        "value": "Green"
-      },
-      {
-        "label": "Red",
-        "value": "RED"
-      }
-    ]`,
+      multilineData,
     );
     agHelper.AssertText(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " textarea",
       "text",
-      `[
-      {
-        "label": "Blue",
-        "value": "Blue"
-      },
-      {
-        "label": "Green",
-        "value": "Green"
-      },
-      {
-        "label": "Red",
-        "value": "RED"
-      }
-    ]`,
+      multilineData,
     );
 
     //Assert widget height after text input
@@ -207,25 +189,25 @@ describe("InputV2 widget tests", function () {
     //Max
     propPane.UpdatePropertyFieldValue("Max", "1000000");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.INPUT_V2));
-    agHelper.AssertAttribute(
+    agHelper.AssertText(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
-      "value",
-      0,
+      "val",
+      "0",
     );
 
     //Validate characters, decimals & negative numbers
     testcases = [
       {
         input: "!@#$56&*(),:",
-        expected: 56,
+        expected: "56",
       },
       {
         input: "0.12356578909",
-        expected: 0.12356578909,
+        expected: "0.12356578909",
       },
       {
         input: "-0.12356578909",
-        expected: -0.12356578909,
+        expected: "-0.12356578909",
       },
     ];
     testcases.forEach((testcase) => {
@@ -233,9 +215,9 @@ describe("InputV2 widget tests", function () {
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
         testcase.input,
       );
-      agHelper.AssertAttribute(
+      agHelper.AssertText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
-        "value",
+        "val",
         testcase.expected,
       );
     });
@@ -272,10 +254,10 @@ describe("InputV2 widget tests", function () {
     //Default value
     propPane.UpdatePropertyFieldValue("Default value", "1234");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.INPUT_V2));
-    agHelper.AssertAttribute(
+    agHelper.AssertText(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
-      "value",
-      1234,
+      "val",
+      "1234",
     );
 
     //Validate password is masked
@@ -310,9 +292,9 @@ describe("InputV2 widget tests", function () {
     //Default value
     propPane.UpdatePropertyFieldValue("Default value", "test@gmail.com");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.INPUT_V2));
-    agHelper.AssertAttribute(
+    agHelper.AssertText(
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
-      "value",
+      "val",
       "test@gmail.com",
     );
 
@@ -327,9 +309,9 @@ describe("InputV2 widget tests", function () {
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
         email,
       );
-      agHelper.AssertAttribute(
+      agHelper.AssertText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
-        "value",
+        "val",
         email,
       );
       agHelper.AssertContains(
@@ -351,9 +333,9 @@ describe("InputV2 widget tests", function () {
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
         email,
       );
-      agHelper.AssertAttribute(
+      agHelper.AssertText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
-        "value",
+        "val",
         email,
       );
       agHelper.AssertPopoverTooltip("Invalid input");

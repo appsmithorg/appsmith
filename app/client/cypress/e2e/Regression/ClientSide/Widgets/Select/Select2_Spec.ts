@@ -42,8 +42,7 @@ describe("Select widget tests", function () {
 
     //Width
     agHelper.AssertCSS(
-      widgetLocators.selectWidgetLabel +
-        "//parent::span/parent::span/parent::div",
+      widgetLocators.selectWidgetLabelContainer,
       "width",
       "59.765625px",
     );
@@ -59,8 +58,7 @@ describe("Select widget tests", function () {
     agHelper.AssertCSS(widgetLocators.selectWidgetLabel, "margin-right", "5px");
     agHelper.AssertCSS(widgetLocators.selectWidgetLabel, "text-align", "right");
     agHelper.AssertCSS(
-      widgetLocators.selectWidgetLabel +
-        "//parent::span/parent::span/parent::div",
+      widgetLocators.selectWidgetLabelContainer,
       "width",
       "129.65625px",
     );
@@ -129,9 +127,11 @@ describe("Select widget tests", function () {
     agHelper.AssertExistingToggleState("Disabled", "false");
     propPane.EnterJSContext("Disabled", "{{(45>55)?false:true}}", true, true);
     deployMode.DeployApp();
-    agHelper
-      .GetElement(widgetLocators.selectWidgetBtn)
-      .should("have.attr", "disabled");
+    agHelper.AssertElementEnabledDisabled(
+      widgetLocators.selectWidgetBtn,
+      0,
+      true,
+    );
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Select1", "Widgets");
     propPane.EnterJSContext("Disabled", "", false);

@@ -84,6 +84,8 @@ export const WIDGETSKIT = {
   dividerHorizontal: "[data-testid=dividerHorizontal]",
   selectWidgetBtn: ".select-button",
   selectWidgetLabel: '//label[contains(@class,"select-label")]',
+  selectWidgetLabelContainer:
+    '//label[contains(@class,"select-label")]//parent::span/parent::span/parent::div',
   widgetNameTag: "span.t--widget-name",
   selectWidgetFilter: ".select-popover-wrapper .bp3-input-group input",
   selectWidgetClear: "[data-testid='selectbutton.btn.cancel']",
