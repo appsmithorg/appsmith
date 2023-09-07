@@ -1,5 +1,5 @@
 import type { FetchPageResponse } from "api/PageApi";
-import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetConfigProps } from "WidgetProvider/constants";
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import { WidgetOperations } from "widgets/BaseWidget";
 import type { RenderMode } from "constants/WidgetConstants";
@@ -13,8 +13,8 @@ import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import defaultTemplate from "templates/default";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { transformDSL } from "./DSLMigrations";
-import type { WidgetType } from "./WidgetFactory";
-import type { DSLWidget } from "widgets/constants";
+import type { WidgetType } from "../WidgetProvider/factory";
+import type { DSLWidget } from "WidgetProvider/constants";
 import type { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";

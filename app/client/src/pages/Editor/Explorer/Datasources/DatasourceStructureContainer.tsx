@@ -12,7 +12,7 @@ import type { ReactElement } from "react";
 import React, { memo, useEffect, useState, useContext, useMemo } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import DatasourceStructure from "./DatasourceStructure";
-import { Input, Text } from "design-system";
+import { SearchInput, Text } from "design-system";
 import styled from "styled-components";
 import { getIsFetchingDatasourceStructure } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
@@ -138,16 +138,9 @@ const Container = (props: Props) => {
     }
 
     const tables = new Set();
-    const columns = new Set();
 
-    flatStructure.forEach((structure) => {
+    flatStructure.forEach((structure: string) => {
       const segments = structure.split("~");
-      // if the value is present in the columns, add the column and its parent table.
-      if (!!segments[1] && segments[1].toLowerCase().includes(value)) {
-        tables.add(segments[0]);
-        columns.add(segments[1]);
-        return;
-      }
 
       // if the value is present in the table but not in the columns, add the table
       if (segments[0].toLowerCase().includes(value)) {
@@ -156,20 +149,10 @@ const Container = (props: Props) => {
       }
     });
 
-    const filteredDastasourceStructure = props.datasourceStructure.tables
-      .map((structure) => ({
-        ...structure,
-        columns:
-          // if the size of the columns set is 0, then simply default to the entire column
-          columns.size === 0
-            ? structure.columns
-            : structure.columns.filter((column) => columns.has(column.name)),
-        keys:
-          columns.size === 0
-            ? structure.keys
-            : structure.keys.filter((key) => columns.has(key.name)),
-      }))
-      .filter((table) => tables.has(table.name));
+    const filteredDastasourceStructure =
+      props.datasourceStructure.tables.filter((table) =>
+        tables.has(table.name),
+      );
 
     setDatasourceStructure({ tables: filteredDastasourceStructure });
 
@@ -185,8 +168,9 @@ const Container = (props: Props) => {
         <>
           {props.context !== DatasourceStructureContext.EXPLORER && (
             <DatasourceStructureSearchContainer>
-              <Input
+              <SearchInput
                 className="datasourceStructure-search"
+                endIcon="close"
                 onChange={(value) => handleOnChange(value)}
                 placeholder={createMessage(
                   DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
