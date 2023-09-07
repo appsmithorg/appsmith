@@ -603,9 +603,19 @@ export default class DataTreeEvaluator {
     let nonDynamicFieldValidationOrderSet = new Set<string>();
 
     for (const fullPath of subTreeSortOrder) {
+      const { entityName, propertyPath } =
+        getEntityNameAndPropertyPath(fullPath);
       if (pathsToSkipFromEval.includes(fullPath)) continue;
-
-      if (!isDynamicLeaf(localUnEvalTree, fullPath, configTree)) {
+      // Remove hack after profiling
+      if (
+        !isDynamicLeaf(localUnEvalTree, fullPath, configTree) ||
+        isJSObjectFunction(
+          localUnEvalTree,
+          entityName,
+          propertyPath,
+          configTree,
+        )
+      ) {
         /**
          * Store fullPath in nonDynamicFieldValidationOrderSet,
          * if the non dynamic value changes to trigger revalidation.
