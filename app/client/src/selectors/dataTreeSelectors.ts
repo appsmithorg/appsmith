@@ -24,6 +24,7 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
+import { getCurrentAppPositioningType } from "./editorSelectors";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -37,6 +38,7 @@ export const getUnevaluatedDataTree = createSelector(
   getSelectedAppThemeProperties,
   getMetaWidgets,
   getIsMobileBreakPoint,
+  getCurrentAppPositioningType,
   (
     actions,
     jsActions,
@@ -49,6 +51,7 @@ export const getUnevaluatedDataTree = createSelector(
     selectedAppThemeProperty,
     metaWidgets,
     isMobile,
+    appPositioningType,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -63,6 +66,7 @@ export const getUnevaluatedDataTree = createSelector(
       theme: selectedAppThemeProperty,
       metaWidgets,
       isMobile,
+      appPositioningType,
     });
   },
 );

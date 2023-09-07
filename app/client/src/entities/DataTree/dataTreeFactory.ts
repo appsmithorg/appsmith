@@ -22,8 +22,7 @@ import type {
   WidgetConfig,
 } from "./types";
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { Positioning } from "layoutSystems/autolayout/utils/constants";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity
@@ -80,6 +79,7 @@ type DataTreeSeed = {
   theme: AppTheme["properties"];
   metaWidgets: MetaWidgetsReduxState;
   isMobile: boolean;
+  appPositioningType: AppPositioningTypes;
 };
 
 export type DataTreeEntityConfig =
@@ -100,6 +100,7 @@ export class DataTreeFactory {
   static create({
     actions,
     appData,
+    appPositioningType,
     editorConfigs,
     isMobile,
     jsActions,
@@ -139,14 +140,11 @@ export class DataTreeFactory {
 
     const startWidgets = performance.now();
 
-    const isAutoLayout =
-      widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Vertical;
-
     Object.values(widgets).forEach((widget) => {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
-        isAutoLayout,
+        appPositioningType === AppPositioningTypes.AUTO,
         isMobile,
       );
 
