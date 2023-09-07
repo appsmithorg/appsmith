@@ -58,7 +58,7 @@ describe("SMTP datasource test cases using ted", function () {
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
     });
-    agHelper.WaitUntilToastDisappear(
+    agHelper.ValidateToastMessage(
       "Couldn't find a valid recipient address. Please check your action configuration",
     );
     // verify an error is thrown when sender address is not added
@@ -68,7 +68,7 @@ describe("SMTP datasource test cases using ted", function () {
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
     });
-    agHelper.WaitUntilToastDisappear(
+    agHelper.ValidateToastMessage(
       "Couldn't find a valid sender address. Please check your action configuration",
     );
   });
@@ -92,5 +92,15 @@ describe("SMTP datasource test cases using ted", function () {
     cy.get("button").contains("1 files selected");
     agHelper.ClickButton("Run query");
     agHelper.ValidateToastMessage("Sent the email successfully");
+    // cy.exec("exim -bp", { failOnNonZeroExit: false }).then((result) => {
+    //   const { stdout, stderr, code } = result;
+
+    //   // Log the command output
+    //   cy.log("exim -bp stdout:", stdout); // result is empty
+    //   cy.log("exim -bp stderr:", stderr);
+    //   cy.log("exim -bp result:", result);
+    //   expect(code).to.eq(0); //(0 indicates success)
+    //   //expect(stdout).to.contain("qwerty@appsmith.com");//not working here since stdout is empty
+    // });
   });
 });
