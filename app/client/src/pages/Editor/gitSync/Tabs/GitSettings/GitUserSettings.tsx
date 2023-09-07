@@ -4,6 +4,7 @@ import {
   AUTHOR_EMAIL,
   AUTHOR_NAME,
   GIT_USER_SETTINGS_TITLE,
+  UPDATE_CONFIG,
   USE_DEFAULT_CONFIGURATION,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -272,7 +273,7 @@ const GitUserSettings = () => {
         </InputContainer>
         <div>
           <Button isDisabled={!isSubmitAllowed} size="md" type="submit">
-            Update config
+            {createMessage(UPDATE_CONFIG)}
           </Button>
         </div>
       </form>

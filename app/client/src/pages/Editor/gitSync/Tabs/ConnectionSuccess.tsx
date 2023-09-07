@@ -1,4 +1,10 @@
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import {
+  GIT_CONNECT_SUCCESS_MESSAGE,
+  GIT_CONNECT_SUCCESS_TITLE,
+  START_USING_GIT,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { Button, Icon, ModalBody, ModalFooter, Text } from "design-system";
 import { GitSyncModalTab } from "entities/GitSync";
 import React from "react";
@@ -41,18 +47,15 @@ function ConnectionSuccess() {
           <TitleContainer>
             <StyledIcon color="#059669" name="oval-check" size="lg" />
             <TitleText kind="heading-s" renderAs="h3">
-              Successfully connected to your git remote repository
+              {createMessage(GIT_CONNECT_SUCCESS_TITLE)}
             </TitleText>
           </TitleContainer>
-          <Text renderAs="p">
-            Now you can start collaborating with your team members by committing
-            ,merging and deploying your app
-          </Text>
+          <Text renderAs="p">{createMessage(GIT_CONNECT_SUCCESS_MESSAGE)}</Text>
         </Container>
       </ModalBody>
       <ModalFooter>
         <Button onClick={handleClose} size="md">
-          Start using git
+          {createMessage(START_USING_GIT)}
         </Button>
       </ModalFooter>
     </>

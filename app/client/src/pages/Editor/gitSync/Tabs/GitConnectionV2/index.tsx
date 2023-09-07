@@ -13,8 +13,14 @@ import { importAppFromGit } from "actions/gitSyncActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsImportingApplicationViaGit } from "selectors/gitSyncSelectors";
 import {
-  CONNECTING_REPO,
-  IMPORTING_APP_FROM_GIT,
+  ADD_DEPLOY_KEY_STEP,
+  CHOOSE_A_GIT_PROVIDER_STEP,
+  CONFIGURE_GIT,
+  CONNECT_GIT,
+  GENERATE_SSH_KEY_STEP,
+  GIT_CONNECT_WAITING,
+  GIT_IMPORT_WAITING,
+  PREVIOUS_STEP,
   createMessage,
 } from "@appsmith/constants/messages";
 import GitSyncStatusbar from "../../components/Statusbar";
@@ -57,24 +63,24 @@ const StatusbarWrapper = styled.div`
 const steps = [
   {
     key: GIT_CONNECT_STEPS.CHOOSE_PROVIDER,
-    text: "Choose a git provider",
+    text: createMessage(CHOOSE_A_GIT_PROVIDER_STEP),
   },
   {
     key: GIT_CONNECT_STEPS.GENERATE_SSH_KEY,
-    text: "Generate SSH key",
+    text: createMessage(GENERATE_SSH_KEY_STEP),
   },
   {
     key: GIT_CONNECT_STEPS.ADD_DEPLOY_KEY,
-    text: "Add deploy key",
+    text: createMessage(ADD_DEPLOY_KEY_STEP),
   },
 ];
 
 const possibleSteps = steps.map((s) => s.key);
 
 const nextStepText = {
-  [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: "Configure git",
-  [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: "Generate SSH key",
-  [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: "Connect git",
+  [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: createMessage(CONFIGURE_GIT),
+  [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: createMessage(GENERATE_SSH_KEY_STEP),
+  [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: createMessage(CONNECT_GIT),
 };
 
 interface FormDataState {
@@ -224,7 +230,7 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
             <GitSyncStatusbar
               completed={!loading}
               message={createMessage(
-                isImport ? IMPORTING_APP_FROM_GIT : CONNECTING_REPO,
+                isImport ? GIT_IMPORT_WAITING : GIT_CONNECT_WAITING,
               )}
               period={4}
             />
@@ -251,7 +257,7 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
             size="md"
             startIcon="arrow-left-s-line"
           >
-            Previous Step
+            {createMessage(PREVIOUS_STEP)}
           </Button>
         )}
       </StyledModalFooter>

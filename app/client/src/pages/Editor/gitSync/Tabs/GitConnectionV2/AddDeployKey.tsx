@@ -23,7 +23,16 @@ import {
 import styled from "styled-components";
 import { CopyButton } from "../../components/CopyButton";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { COPY_SSH_KEY, createMessage } from "@appsmith/constants/messages";
+import {
+  ADD_DEPLOY_KEY_STEP_TITLE,
+  CONSENT_ADDED_DEPLOY_KEY,
+  COPY_SSH_KEY,
+  ERROR_SSH_KEY_MISCONF_MESSAGE,
+  ERROR_SSH_KEY_MISCONF_TITLE,
+  HOW_TO_ADD_DEPLOY_KEY,
+  READ_DOCS,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { useSSHKeyPair } from "../../hooks";
 import type { GitProvider } from "./ChooseGitProvider";
 import { GIT_DEMO_GIF } from "./constants";
@@ -231,12 +240,10 @@ function AddDeployKey({
         connectErrorResponse?.responseMeta?.error?.code === "AE-GIT-4032" && (
           <ErrorCallout kind="error">
             <Text kind="heading-xs" renderAs="h3">
-              SSH key misconfiguration
+              {createMessage(ERROR_SSH_KEY_MISCONF_TITLE)}
             </Text>
             <Text renderAs="p">
-              It seems that your SSH key hasn&apos;t been added to your
-              repository. To proceed, please revisit the steps below and
-              configure your SSH key correctly.
+              {createMessage(ERROR_SSH_KEY_MISCONF_MESSAGE)}
             </Text>
           </ErrorCallout>
         )}
@@ -244,7 +251,7 @@ function AddDeployKey({
       <WellContainer>
         <WellTitleContainer>
           <WellTitle kind="heading-s" renderAs="h3">
-            Add deploy key & give write access
+            {createMessage(ADD_DEPLOY_KEY_STEP_TITLE)}
           </WellTitle>
           <Button
             href={
@@ -258,7 +265,7 @@ function AddDeployKey({
             target="_blank"
           >
             {" "}
-            Read docs
+            {createMessage(READ_DOCS)}
           </Button>
         </WellTitleContainer>
 
@@ -315,7 +322,7 @@ function AddDeployKey({
           <Collapsible isOpen>
             <CollapsibleHeader arrowPosition="end">
               <Icon name="play-circle-line" size="md" />
-              <Text>How to paste SSH Key in repo and give write access</Text>
+              <Text>{createMessage(HOW_TO_ADD_DEPLOY_KEY)}</Text>
             </CollapsibleHeader>
             <CollapsibleContent>
               <DemoImage
@@ -331,9 +338,7 @@ function AddDeployKey({
         onChange={(v) => onChange({ isAddedDeployKey: v })}
       >
         <CheckboxTextContainer>
-          <Text renderAs="p">
-            I&apos;ve added deploy key and gave it write access
-          </Text>
+          <Text renderAs="p">{createMessage(CONSENT_ADDED_DEPLOY_KEY)}</Text>
           <Text color="var(--ads-v2-color-red-600)" renderAs="p">
             &nbsp;*
           </Text>

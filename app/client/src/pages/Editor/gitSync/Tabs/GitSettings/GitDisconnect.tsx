@@ -1,4 +1,9 @@
-import { DANGER_ZONE, createMessage } from "@appsmith/constants/messages";
+import {
+  DANGER_ZONE,
+  DISCONNECT_GIT,
+  DISCONNECT_GIT_MESSAGE,
+  createMessage,
+} from "@appsmith/constants/messages";
 import {
   setDisconnectingGitApplication,
   setIsDisconnectGitModalOpen,
@@ -61,16 +66,12 @@ function GitDisconnect() {
       <BodyContainer>
         <BodyInnerContainer>
           <Text kind="heading-xs" renderAs="p">
-            Disconnect Git
+            {createMessage(DISCONNECT_GIT)}
           </Text>
-          <Text renderAs="p">
-            Once you disconnect from a repository, there is no going back.
-            <br />
-            Please be certain.
-          </Text>
+          <Text renderAs="p">{createMessage(DISCONNECT_GIT_MESSAGE)}</Text>
         </BodyInnerContainer>
         <Button kind="error" onClick={handleDisconnect} size="md">
-          Disconnect Git
+          {createMessage(DISCONNECT_GIT)}
         </Button>
       </BodyContainer>
     </Container>

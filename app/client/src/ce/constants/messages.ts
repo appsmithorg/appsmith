@@ -822,7 +822,7 @@ export const IS_MERGING = () => "Merging changes...";
 
 export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
-export const CONNECT_GIT = () => "Connect Git";
+export const CONNECT_GIT = () => "Connect git";
 export const CONNECT_GIT_BETA = () => "Connect Git (Beta)";
 export const RETRY = () => "Retry";
 export const CREATE_NEW_BRANCH = () => "Create new branch";
@@ -976,6 +976,59 @@ export const ERROR_GIT_AUTH_FAIL = () =>
 export const ERROR_GIT_INVALID_REMOTE = () =>
   "Either the remote repository doesn't exist or is unreachable.";
 // GIT ERRORS end
+
+// Git Connect V2
+export const CHOOSE_A_GIT_PROVIDER_STEP = () => "Choose a git provider";
+export const GENERATE_SSH_KEY_STEP = () => "Generate SSH key";
+export const ADD_DEPLOY_KEY_STEP = () => "Add deploy key";
+
+export const CHOOSE_GIT_PROVIDER_QUESTION = () =>
+  "To begin with, choose your git service provider";
+export const IS_EMPTY_REPO_QUESTION = () =>
+  "Do you have an existing empty repository to connect to git?";
+export const HOW_TO_CREATE_EMPTY_REPO = () => "How to create a new repository?";
+export const IMPORT_APP_IF_NOT_EMPTY = () =>
+  "If you already have an app connected to git, you can import it to the workspace.";
+export const I_HAVE_EXISTING_REPO = () =>
+  "I have an existing appsmith app connected to git";
+export const ERROR_REPO_NOT_EMPTY_TITLE = () =>
+  "The repo you added isn&apos;t empty";
+export const ERROR_REPO_NOT_EMPTY_MESSAGE = () =>
+  "Kindly create a new repository and provide its remote SSH URL here. We require an empty repository to continue.";
+export const READ_DOCS = () => "Read Docs";
+export const COPY_SSH_URL_MESSAGE = () =>
+  "In your repo, copy the Remote SSH URL & paste it in the input field below.";
+export const REMOTE_URL_INPUT_LABEL = () => "Remote SSH URL";
+export const HOW_TO_COPY_REMOTE_URL = () =>
+  "How to copy & paste SSH remote URL";
+export const ERROR_SSH_KEY_MISCONF_TITLE = () => "SSH key misconfiguration";
+export const ERROR_SSH_KEY_MISCONF_MESSAGE = () =>
+  "It seems that your SSH key hasn&apos;t been added to your repository. To proceed, please revisit the steps below and configure your SSH key correctly.";
+export const ADD_DEPLOY_KEY_STEP_TITLE = () =>
+  "Add deploy key & give write access";
+export const HOW_TO_ADD_DEPLOY_KEY = () =>
+  "How to paste SSH Key in repo and give write access?";
+export const CONSENT_ADDED_DEPLOY_KEY = () =>
+  "I've added deploy key and gave it write access";
+export const PREVIOUS_STEP = () => "Previous step";
+export const GIT_CONNECT_SUCCESS_TITLE = () =>
+  "Successfully connected to your git remote repository";
+export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
+  "Now you can start collaborating with your team members by committing, merging and deploying your app";
+export const START_USING_GIT = () => "Start using git";
+
+export const GIT_AUTHOR = () => "Git author";
+export const DISCONNECT_GIT = () => "Disconnect git";
+export const DISCONNECT_GIT_MESSAGE = () =>
+  "Once you delete a repository, there is no going back. Please be certain.";
+export const NEED_EMPTY_REPO_MESSAGE = () =>
+  "You need an empty repository to connect to Git on Appsmith, please create one on your Git service provider to continue.";
+export const GIT_IMPORT_WAITING = () =>
+  "Please wait while we import the app...";
+export const GIT_CONNECT_WAITING = () =>
+  "Please wait while we connect to git...";
+// Git Connect V2 end
+
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>

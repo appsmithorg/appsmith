@@ -19,7 +19,14 @@ import {
 } from "design-system";
 import { isValidGitRemoteUrl } from "../../utils";
 import {
+  COPY_SSH_URL_MESSAGE,
+  ERROR_REPO_NOT_EMPTY_MESSAGE,
+  ERROR_REPO_NOT_EMPTY_TITLE,
+  GENERATE_SSH_KEY_STEP,
+  HOW_TO_COPY_REMOTE_URL,
   PASTE_SSH_URL_INFO,
+  READ_DOCS,
+  REMOTE_URL_INPUT_LABEL,
   createMessage,
 } from "@appsmith/constants/messages";
 import type { GitProvider } from "./ChooseGitProvider";
@@ -59,18 +66,17 @@ function GenerateSSH({
         connectErrorResponse?.responseMeta?.error?.code === "AE-GIT-4033" && (
           <ErrorCallout kind="error">
             <Text kind="heading-xs" renderAs="h3">
-              The repo you added isn&apos;t empty
+              {createMessage(ERROR_REPO_NOT_EMPTY_TITLE)}
             </Text>
             <Text renderAs="p">
-              Kindly create a new repository and provide its remote SSH URL
-              here. We require an empty repository to continue.
+              {createMessage(ERROR_REPO_NOT_EMPTY_MESSAGE)}
             </Text>
           </ErrorCallout>
         )}
       <WellContainer>
         <WellTitleContainer>
           <WellTitle kind="heading-s" renderAs="h3">
-            Generate SSH key
+            {createMessage(GENERATE_SSH_KEY_STEP)}
           </WellTitle>
           <Button
             href="https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository"
@@ -81,19 +87,16 @@ function GenerateSSH({
             target="_blank"
           >
             {" "}
-            Read docs
+            {createMessage(READ_DOCS)}
           </Button>
         </WellTitleContainer>
-        <WellText renderAs="p">
-          In your empty repo, copy the SSH remote URL & paste it in the input
-          field below.
-        </WellText>
+        <WellText renderAs="p">{createMessage(COPY_SSH_URL_MESSAGE)}</WellText>
         <FieldContainer>
           <Input
             data-testid="git-connect-remote-url-input"
             errorMessage={isInvalid ? createMessage(PASTE_SSH_URL_INFO) : ""}
             isRequired
-            label="SSH remote URL"
+            label={createMessage(REMOTE_URL_INPUT_LABEL)}
             onChange={handleChange}
             placeholder="git@example.com:user/repository.git"
             size="md"
@@ -104,7 +107,7 @@ function GenerateSSH({
           <Collapsible isOpen>
             <CollapsibleHeader arrowPosition="end">
               <Icon name="play-circle-line" size="md" />
-              <Text>How to copy & paste SSH remote URL</Text>
+              <Text>{createMessage(HOW_TO_COPY_REMOTE_URL)}</Text>
             </CollapsibleHeader>
             <CollapsibleContent>
               <DemoImage

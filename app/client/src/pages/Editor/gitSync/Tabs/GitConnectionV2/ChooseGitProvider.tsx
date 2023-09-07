@@ -31,6 +31,16 @@ import history from "utils/history";
 import noop from "lodash/noop";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import {
+  CHOOSE_A_GIT_PROVIDER_STEP,
+  CHOOSE_GIT_PROVIDER_QUESTION,
+  HOW_TO_CREATE_EMPTY_REPO,
+  IMPORT_APP_IF_NOT_EMPTY,
+  IS_EMPTY_REPO_QUESTION,
+  I_HAVE_EXISTING_REPO,
+  NEED_EMPTY_REPO_MESSAGE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;
@@ -87,13 +97,13 @@ function ChooseGitProvider({
       <WellContainer>
         <WellTitleContainer>
           <WellTitle kind="heading-s" renderAs="h3">
-            Choose a git provider
+            {createMessage(CHOOSE_A_GIT_PROVIDER_STEP)}
           </WellTitle>
         </WellTitleContainer>
         <WellInnerContainer>
           <FieldContainer>
             <FieldQuestion renderAs="p">
-              i. To begin with choose a git provider{" "}
+              i. {createMessage(CHOOSE_GIT_PROVIDER_QUESTION)}{" "}
               <Text color="var(--ads-v2-color-red-600)">*</Text>
             </FieldQuestion>
             <FieldControl>
@@ -144,7 +154,7 @@ function ChooseGitProvider({
                 renderAs="p"
                 style={{ opacity: !value?.gitProvider ? 0.5 : 1 }}
               >
-                ii. Do you have an existing empty repository to connect to git?{" "}
+                ii. {createMessage(IS_EMPTY_REPO_QUESTION)}{" "}
                 <Text color="var(--ads-v2-color-red-600)">*</Text>
               </FieldQuestion>
               <FieldControl>
@@ -170,7 +180,7 @@ function ChooseGitProvider({
               <Collapsible isOpen>
                 <CollapsibleHeader arrowPosition="end">
                   <Icon name="play-circle-line" size="md" />
-                  <Text>How to create a new repository?</Text>
+                  <Text>{createMessage(HOW_TO_CREATE_EMPTY_REPO)}</Text>
                 </CollapsibleHeader>
                 <CollapsibleContent>
                   <DemoImage
@@ -181,6 +191,13 @@ function ChooseGitProvider({
                   />
                 </CollapsibleContent>
               </Collapsible>
+            )}
+          {!isImport &&
+            value?.gitProvider === "others" &&
+            value?.gitEmptyRepoExists === "no" && (
+              <Callout kind="warning">
+                {createMessage(NEED_EMPTY_REPO_MESSAGE)}
+              </Callout>
             )}
         </WellInnerContainer>
       </WellContainer>
@@ -193,8 +210,7 @@ function ChooseGitProvider({
               : []
           }
         >
-          If you choose to use an existing repository, then you should try to
-          import the app via git
+          {createMessage(IMPORT_APP_IF_NOT_EMPTY)}
         </Callout>
       ) : null}
       {isImport && (
@@ -203,9 +219,7 @@ function ChooseGitProvider({
           onChange={(v) => onChange({ gitExistingRepoExists: v })}
         >
           <CheckboxTextContainer>
-            <Text renderAs="p">
-              I have an existing appsmith app connected to git
-            </Text>
+            <Text renderAs="p">{createMessage(I_HAVE_EXISTING_REPO)}</Text>
             <Text color="var(--ads-v2-color-red-600)" renderAs="p">
               &nbsp;*
             </Text>
