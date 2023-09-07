@@ -26,6 +26,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -368,5 +369,46 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         List<String> usernames = users.stream().map(User::getUsername).toList();
         return bulkUnassignFromUsers(permissionGroup, users)
                 .flatMap(permissionGroup1 -> sendEventUserRemovedFromRole(permissionGroup, usernames));
+    }
+
+    @Override
+    public Mono<Boolean> leaveExplicitlyAssignedOwnRole(String permissionGroupId) {
+
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser();
+
+        Mono<PermissionGroup> permissionGroupMono = repository.findById(permissionGroupId);
+
+        return Mono.zip(currentUserMono, permissionGroupMono)
+                .flatMap(tuple -> {
+                    User currentUser = tuple.getT1();
+                    PermissionGroup permissionGroup = tuple.getT2();
+
+                    String userId = currentUser.getId();
+
+                    if (!StringUtils.hasLength(userId)) {
+                        return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
+                    }
+
+                    Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
+
+                    if (!assignedToUserIds.contains(userId)) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.USER_NOT_ASSIGNED_TO_ROLE,
+                                currentUser.getUsername(),
+                                permissionGroup.getName()));
+                    }
+
+                    assignedToUserIds.remove(userId);
+
+                    Update updateObj = new Update();
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+
+                    updateObj.set(path, assignedToUserIds);
+
+                    return Mono.zip(
+                            repository.updateById(permissionGroupId, updateObj),
+                            cleanPermissionGroupCacheForUsers(List.of(userId)));
+                })
+                .map(tuple -> TRUE);
     }
 }

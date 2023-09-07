@@ -108,6 +108,15 @@ public enum AppsmithError {
             "User doesn''t belong to this workspace",
             ErrorType.INTERNAL_ERROR,
             null),
+
+    USER_NOT_ASSIGNED_TO_ROLE(
+            400,
+            AppsmithErrorCode.USER_NOT_ASSIGNED_TO_ROLE.getCode(),
+            "User {0} has not been assigned role {1}",
+            AppsmithErrorAction.DEFAULT,
+            "User has not been assigned to this role",
+            ErrorType.ARGUMENT_ERROR,
+            null),
     NO_CONFIGURATION_FOUND_IN_DATASOURCE(
             400,
             AppsmithErrorCode.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getCode(),
