@@ -7,6 +7,7 @@ import noop from "lodash/noop";
 export const useGitConnect = () => {
   const dispatch = useDispatch();
 
+  const [errResponse, setErrResponse] = useState();
   const [isConnectingToGit, setIsConnectingToGit] = useState(false);
 
   const connectToGit = useCallback(
@@ -15,6 +16,7 @@ export const useGitConnect = () => {
       { onErrorCallback = noop, onSuccessCallback = noop } = {},
     ) => {
       setIsConnectingToGit(true);
+      setErrResponse(undefined);
       // Here after the ssh key pair generation, we fetch the application data again and on success of it
       dispatch(
         connectToGitInit({
@@ -23,8 +25,9 @@ export const useGitConnect = () => {
             onSuccessCallback(data);
             setIsConnectingToGit(false);
           },
-          onErrorCallback: (e) => {
-            onErrorCallback(e);
+          onErrorCallback: (err, response) => {
+            onErrorCallback(err, response);
+            setErrResponse(response);
             setIsConnectingToGit(false);
           },
         }),
@@ -36,5 +39,6 @@ export const useGitConnect = () => {
   return {
     isConnectingToGit,
     connectToGit,
+    connectErrorResponse: errResponse,
   };
 };

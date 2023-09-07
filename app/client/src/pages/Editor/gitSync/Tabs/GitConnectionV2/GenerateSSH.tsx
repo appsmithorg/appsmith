@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   DemoImage,
+  ErrorCallout,
   FieldContainer,
   WellContainer,
   WellText,
@@ -30,9 +31,14 @@ interface GenerateSSHState {
 interface GenerateSSHProps {
   onChange: (args: Partial<GenerateSSHState>) => void;
   value: Partial<GenerateSSHState>;
+  connectErrorResponse?: any;
 }
 
-function GenerateSSH({ onChange = noop, value = {} }: GenerateSSHProps) {
+function GenerateSSH({
+  onChange = noop,
+  value = {},
+  connectErrorResponse,
+}: GenerateSSHProps) {
   const [isTouched, setIsTouched] = useState(false);
   const isInvalid =
     isTouched &&
@@ -46,6 +52,19 @@ function GenerateSSH({ onChange = noop, value = {} }: GenerateSSHProps) {
 
   return (
     <div>
+      {/* hardcoding messages because server doesn't support feature flag. Will change this later */}
+      {connectErrorResponse &&
+        connectErrorResponse?.responseMeta?.error?.code === "AE-GIT-4033" && (
+          <ErrorCallout kind="error">
+            <Text kind="heading-xs" renderAs="h3">
+              The repo you added isn&apos;t empty
+            </Text>
+            <Text renderAs="p">
+              Kindly create a new repository and provide its remote SSH URL
+              here. We require an empty repository to continue.
+            </Text>
+          </ErrorCallout>
+        )}
       <WellContainer>
         <WellTitle>
           <Text kind="heading-s">Generate SSH key</Text>

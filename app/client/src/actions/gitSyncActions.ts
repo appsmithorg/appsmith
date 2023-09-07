@@ -1,4 +1,7 @@
-import type { ReduxActionWithCallbacks } from "@appsmith/constants/ReduxActionConstants";
+import type {
+  ReduxAction,
+  ReduxActionWithCallbacks,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -64,14 +67,14 @@ export type ConnectToGitResponse = {
 type ConnectToGitRequestParams = {
   payload: ConnectToGitPayload;
   onSuccessCallback?: (payload: ConnectToGitResponse) => void;
-  onErrorCallback?: (error: string) => void;
+  onErrorCallback?: (error: any, response?: any) => void;
 };
 
-export type ConnectToGitReduxAction = ReduxActionWithCallbacks<
-  ConnectToGitPayload,
-  ConnectToGitResponse,
-  string
->;
+export interface ConnectToGitReduxAction
+  extends ReduxAction<ConnectToGitPayload> {
+  onSuccessCallback?: (response: ConnectToGitResponse) => void;
+  onErrorCallback?: (error: Error, response?: any) => void;
+}
 
 export const connectToGitInit = ({
   onErrorCallback,

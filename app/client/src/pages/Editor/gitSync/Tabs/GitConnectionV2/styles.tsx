@@ -1,4 +1,4 @@
-import { Text } from "design-system";
+import { Callout, Text } from "design-system";
 import styled from "styled-components";
 
 export const WellContainer = styled.div`
@@ -6,6 +6,7 @@ export const WellContainer = styled.div`
   border-radius: 4px;
   background-color: #f1f5f9;
   margin-bottom: 16px;
+  overflow-y: auto;
 `;
 
 export const WellTitle = styled.h3`
@@ -35,4 +36,8 @@ export const DemoImage = styled.img`
   object-fit: cover;
   object-position: 50% 0;
   background-color: var(--ads-color-black-200);
+`;
+
+export const ErrorCallout = styled(Callout)`
+  margin-bottom: 16px;
 `;

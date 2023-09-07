@@ -234,7 +234,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     }
   } catch (error) {
     if (action.onErrorCallback) {
-      action.onErrorCallback(error as string);
+      action.onErrorCallback(error as Error, response);
     }
 
     const isRepoLimitReachedError: boolean = yield call(
@@ -861,7 +861,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
     }
   } catch (error) {
     if (action.onErrorCallback) {
-      action.onErrorCallback(error as string);
+      action.onErrorCallback(error as Error, response);
     }
 
     const isRepoLimitReachedError: boolean = yield call(

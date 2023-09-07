@@ -92,7 +92,8 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
   );
   const currentIndex = steps.findIndex((s) => s.key === activeStep);
 
-  const { connectToGit, isConnectingToGit } = useGitConnect();
+  const { connectErrorResponse, connectToGit, isConnectingToGit } =
+    useGitConnect();
 
   const isDisabled = {
     [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: !isImport
@@ -130,11 +131,23 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
           };
           if (formData.remoteUrl) {
             if (!isImport) {
-              connectToGit({
-                remoteUrl: formData.remoteUrl,
-                gitProfile,
-                isDefaultProfile: true,
-              });
+              connectToGit(
+                {
+                  remoteUrl: formData.remoteUrl,
+                  gitProfile,
+                  isDefaultProfile: true,
+                },
+                {
+                  onErrorCallback: (err: Error, errResponse?: any) => {
+                    // AE-GIT-4033 is repo not empty error
+                    if (
+                      errResponse?.responseMeta?.error?.code === "AE-GIT-4033"
+                    ) {
+                      setActiveStep(GIT_CONNECT_STEPS.GENERATE_SSH_KEY);
+                    }
+                  },
+                },
+              );
             } else {
               dispatch(
                 importAppFromGit({
@@ -156,7 +169,8 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
   const stepProps = {
     onChange: handleChange,
     value: formData,
-    isImport: isImport,
+    isImport,
+    connectErrorResponse,
   };
 
   const loading =

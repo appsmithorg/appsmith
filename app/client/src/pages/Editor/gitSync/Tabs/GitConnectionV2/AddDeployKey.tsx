@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   DemoImage,
+  ErrorCallout,
   FieldContainer,
   WellContainer,
   WellText,
@@ -97,12 +98,14 @@ interface AddDeployKeyProps {
   onChange: (args: Partial<AddDeployKeyState>) => void;
   value: Partial<AddDeployKeyState>;
   isImport?: boolean;
+  connectErrorResponse?: any;
 }
 
 function AddDeployKey({
   onChange = noop,
   value = {},
   isImport = false,
+  connectErrorResponse,
 }: AddDeployKeyProps) {
   const [fetched, setFetched] = useState(false);
   const [sshKeyType, setSshKeyType] = useState<string>();
@@ -166,6 +169,34 @@ function AddDeployKey({
 
   return (
     <div>
+      {connectErrorResponse &&
+        connectErrorResponse?.responseMeta?.error?.code !== "AE-GIT-4033" &&
+        connectErrorResponse?.responseMeta?.error?.code !== "AE-GIT-4032" && (
+          <ErrorCallout kind="error">
+            <Text kind="heading-xs" renderAs="h3">
+              {connectErrorResponse?.responseMeta?.error?.errorType}
+            </Text>
+            <Text renderAs="p">
+              {connectErrorResponse?.responseMeta?.error?.message}
+            </Text>
+          </ErrorCallout>
+        )}
+
+      {/* hardcoding message because server doesn't support feature flag. Will change this later */}
+      {connectErrorResponse &&
+        connectErrorResponse?.responseMeta?.error?.code === "AE-GIT-4032" && (
+          <ErrorCallout kind="error">
+            <Text kind="heading-xs" renderAs="h3">
+              SSH key misconfiguration
+            </Text>
+            <Text renderAs="p">
+              It seems that your SSH key hasn&apos;t been added to your
+              repository. To proceed, please revisit the steps below and
+              configure your SSH key correctly.
+            </Text>
+          </ErrorCallout>
+        )}
+
       <WellContainer>
         <WellTitle>
           <Text kind="heading-s">Add deploy key & give write access</Text>
