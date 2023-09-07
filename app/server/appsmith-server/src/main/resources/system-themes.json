@@ -3,6 +3,7 @@
     "name": "Default-New",
     "displayName": "Modern",
     "config": {
+      "order": 1,
       "colors": {
         "primaryColor": "#553DE9",
         "backgroundColor": "#F8FAFC"
@@ -417,6 +418,7 @@
     "name": "Classic",
     "displayName": "Classic",
     "config": {
+      "order": 2,
       "colors": {
         "primaryColor": "#16a34a",
         "backgroundColor": "#F6F6F6"
@@ -827,6 +829,7 @@
     "name": "Sunrise",
     "displayName": "Sunrise",
     "config": {
+      "order": 3,
       "colors": {
         "primaryColor": "#ef4444",
         "backgroundColor": "#fff1f2"
@@ -1236,6 +1239,7 @@
     "name": "Rounded",
     "displayName": "Water Lily",
     "config": {
+      "order": 4,
       "colors": {
         "primaryColor": "#db2777",
         "backgroundColor": "#fdf2f8"
@@ -1641,6 +1645,7 @@
     "name": "Pacific",
     "displayName": "Pacific",
     "config": {
+      "order": 5,
       "colors": {
         "primaryColor": "#0891b2",
         "backgroundColor": "#ecfeff"
@@ -2046,6 +2051,7 @@
     "name": "Earth",
     "displayName": "Earth",
     "config": {
+      "order": 6,
       "colors": {
         "primaryColor": "#3b82f6",
         "backgroundColor": "#eff6ff"
@@ -2451,6 +2457,7 @@
     "name": "Pampas",
     "displayName": "Pampas",
     "config": {
+      "order": 7,
       "colors": {
         "primaryColor": "#059669",
         "backgroundColor": "#ecfdf5"
@@ -2856,6 +2863,7 @@
     "name": "Sharp",
     "displayName": "Moon",
     "config": {
+      "order": 8,
       "colors": {
         "primaryColor": "#64748b",
         "backgroundColor": "#f8fafc"
@@ -3261,6 +3269,7 @@
     "name": "Default",
     "displayName": "Modern",
     "config": {
+      "order": 9,
       "isDeprecated": true,
       "colors": {
         "primaryColor": "#553DE9",

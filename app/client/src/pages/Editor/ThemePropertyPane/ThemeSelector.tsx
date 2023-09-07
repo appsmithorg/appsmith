@@ -41,7 +41,8 @@ function ThemeSelector() {
    */
   const systemThemes = themes
     .filter((theme) => theme.isSystemTheme === true)
-    .filter((theme) => !theme.config.isDeprecated);
+    .filter((theme) => !theme.config.isDeprecated)
+    .sort((a, b) => a.config.order - b.config.order);
 
   return (
     <div className="relative">
