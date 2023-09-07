@@ -102,7 +102,7 @@ const Container = styled.section<{
 function CanvasContainer(props: CanvasContainerProps) {
   const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
   const dispatch = useDispatch();
-  const { isPreviewMode, shouldShowSnapShotBanner } = props;
+  const { isPreviewMode } = props;
 
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
@@ -169,7 +169,7 @@ function CanvasContainer(props: CanvasContainerProps) {
    * - 2. top bar (header with preview/share/deploy buttons)
    * - 3. bottom bar (footer with debug/logs buttons)
    */
-  const topMargin = shouldShowSnapShotBanner ? "4rem" : "0rem";
+  const topMargin = "0rem";
   const bottomBarHeight = isPreviewMode ? "0px" : theme.bottomBarHeight;
   const smallHeaderHeight = showCanvasTopSection
     ? theme.smallHeaderHeight
@@ -192,17 +192,13 @@ function CanvasContainer(props: CanvasContainerProps) {
         }
         className={classNames({
           [`${getCanvasClassName()} scrollbar-thin`]: true,
-          "mt-0": shouldShowSnapShotBanner || !shouldHaveTopMargin,
-          "mt-4":
-            !shouldShowSnapShotBanner &&
-            (showCanvasTopSection || showAnonymousDataPopup),
+          "mt-0": !shouldHaveTopMargin,
+          "mt-4": showCanvasTopSection || showAnonymousDataPopup,
           "mt-2":
-            !shouldShowSnapShotBanner &&
             shouldHaveTopMargin &&
             !showCanvasTopSection &&
             !isPreviewingNavigation &&
             !showAnonymousDataPopup,
-          "mt-24": shouldShowSnapShotBanner,
         })}
         id={"canvas-viewport"}
         isAppSettingsPaneWithNavigationTabOpen={

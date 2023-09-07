@@ -119,6 +119,7 @@ const QuerySidebar = (props: Props) => {
   return (
     <PagePaneContainer
       addItems={addOperations}
+      addItemsTitle="Create a new query on..."
       editor={editor}
       listItems={sortedActionList}
       onAddClick={addItemClick}
