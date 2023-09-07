@@ -24,7 +24,6 @@ import { setEvalContext } from "../evaluate";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 import { errorModifier } from "../errorModifier";
 import { generateOptimisedUpdatesAndSetPrevState } from "../helpers";
-import DataStore from "../DataStore";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
@@ -251,6 +250,5 @@ export function clearCache() {
   dataTreeEvaluator = undefined;
   clearAllIntervals();
   JSObjectCollection.clear();
-  DataStore.clear();
   return true;
 }
