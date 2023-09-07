@@ -82,6 +82,26 @@ export const WIDGETSKIT = {
   styleOrangeIcon: ".rounded-full",
   dividerVertical: "[data-testid=dividerVertical]",
   dividerHorizontal: "[data-testid=dividerHorizontal]",
+  selectWidgetBtn: ".select-button",
+  selectWidgetLabel: '//label[contains(@class,"select-label")]',
+  selectWidgetLabelContainer:
+    '//label[contains(@class,"select-label")]//parent::span/parent::span/parent::div',
+  widgetNameTag: "span.t--widget-name",
+  selectWidgetFilter: ".select-popover-wrapper .bp3-input-group input",
+  selectWidgetClear: "[data-testid='selectbutton.btn.cancel']",
+  selectWidgetWidthPlusBtn: ".ads-v2-input__input-section-icon-end",
+  selectWidgetPlaceholder: (value: string) =>
+    `//span[contains(@title,'${value}')]`,
+  textWidgetLink: (link: string) => `//a[@href='${link}']`,
+  textWidgetContainer: ".t--text-widget-container",
+  inputWidgetLabel: ".t--input-widget-label",
+  inputWidgetUnMaskPassword: '[name="eye-on"]',
+  inputWidgetMaskPassword: '[name="eye-off"]',
+  inputWidgetWrapper: ".text-input-wrapper",
+  inputWidgetStepUp:
+    "//*[contains(@class, 'bp3-icon-chevron-up')]//parent::button",
+  inputWidgetStepDown:
+    "//*[contains(@class, 'bp3-icon-chevron-down')]//parent::button",
 };
 type ValueOf<T> = T[keyof T];
 
