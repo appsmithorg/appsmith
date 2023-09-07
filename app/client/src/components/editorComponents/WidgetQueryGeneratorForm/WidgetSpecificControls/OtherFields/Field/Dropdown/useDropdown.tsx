@@ -10,7 +10,8 @@ import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import { StyledImage } from "./styles";
 import { FieldOptionsType } from "./types";
 import type { DropdownOptionType } from "../../../../types";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
+
 import {
   createMessage,
   NO_CONNECTABLE_WIDGET_FOUND,

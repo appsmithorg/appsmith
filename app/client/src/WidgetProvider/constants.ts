@@ -98,6 +98,7 @@ export type WidgetMethods = {
   getSnipingModeUpdates?: GetSnipingModeUpdates;
   getCanvasHeightOffset?: GetCanvasHeightOffset;
   getEditorCallouts?: GetEditorCallouts;
+  getOneClickBindingConnectableWidgetConfig?: GetOneClickBindingConnectableWidgetConfig;
 };
 
 type GetEditorCallouts = (props: WidgetProps) => WidgetCallout[];
@@ -114,6 +115,7 @@ export type WidgetCallout = {
 
 export type GetQueryGenerationConfig = (
   widgetProps: WidgetProps,
+  formConfig?: WidgetQueryGenerationFormConfig,
 ) => WidgetQueryGenerationConfig;
 
 export type GetPropertyUpdatesForQueryBinding = (
@@ -121,6 +123,10 @@ export type GetPropertyUpdatesForQueryBinding = (
   widget: WidgetProps,
   formConfig: WidgetQueryGenerationFormConfig,
 ) => Record<string, unknown>;
+
+export type GetOneClickBindingConnectableWidgetConfig = (
+  widgetProps: WidgetProps,
+) => string;
 
 export type GetSnipingModeUpdates = (
   propValueMap: Record<"data" | "run", string>,

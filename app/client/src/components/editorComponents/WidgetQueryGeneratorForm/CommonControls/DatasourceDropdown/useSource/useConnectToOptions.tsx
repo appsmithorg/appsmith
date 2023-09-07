@@ -4,7 +4,7 @@ import {
   getActionsForCurrentPage,
   getCurrentPageWidgets,
 } from "selectors/entitiesSelector";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DatasourceImage, ImageWrapper } from "../../../styles";
 import { getDatatype } from "utils/AppsmithUtils";

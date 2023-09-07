@@ -111,14 +111,17 @@ export default abstract class MySQL extends BaseQueryGenerator {
       formConfig.primaryColumn,
     );
 
+    const dataIdentifier = formConfig.dataIdentifier;
+    const primaryKey = formConfig.primaryColumn || dataIdentifier;
+
     return {
       type: QUERY_TYPE.UPDATE,
       name: `Update_${removeSpecialChars(formConfig.tableName)}`,
       payload: {
         body: `UPDATE ${formConfig.tableName} SET ${columns
           .map((column) => `${column}= '{{${value}.${column}}}'`)
-          .join(", ")} WHERE ${formConfig.primaryColumn}= '{{${where}.${
-          formConfig.primaryColumn
+          .join(", ")} WHERE ${primaryKey}= '{{${where}.${
+          dataIdentifier || formConfig.primaryColumn
         }}}';`,
       },
       dynamicBindingPathList: [

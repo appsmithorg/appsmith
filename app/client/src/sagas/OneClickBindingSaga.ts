@@ -117,7 +117,7 @@ function* BindWidgetToDatasource(
       widget.type,
     );
 
-    const widgetQueryGenerationConfig = getQueryGenerationConfig(
+    const widgetQueryGenerationConfig = getQueryGenerationConfig?.(
       widget,
       action.payload,
     );
