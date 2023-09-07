@@ -108,10 +108,30 @@ function ChooseGitProvider({
                 orientation="horizontal"
                 value={value?.gitProvider}
               >
-                <Radio value="github">Github</Radio>
-                <Radio value="gitlab">Gitlab</Radio>
-                <Radio value="bitbucket">Bitbucket</Radio>
-                <Radio value="others">Others</Radio>
+                <Radio
+                  data-testid="t--git-provider-radio-github"
+                  value="github"
+                >
+                  Github
+                </Radio>
+                <Radio
+                  data-testid="t--git-provider-radio-gitlab"
+                  value="gitlab"
+                >
+                  Gitlab
+                </Radio>
+                <Radio
+                  data-testid="t--git-provider-radio-bitbucket"
+                  value="bitbucket"
+                >
+                  Bitbucket
+                </Radio>
+                <Radio
+                  data-testid="t--git-provider-radio-others"
+                  value="others"
+                >
+                  Others
+                </Radio>
               </RadioGroup>
             </FieldControl>
           </FieldContainer>
@@ -131,8 +151,12 @@ function ChooseGitProvider({
                   orientation="horizontal"
                   value={value?.gitEmptyRepoExists}
                 >
-                  <Radio value="yes">Yes</Radio>
-                  <Radio value="no">No</Radio>
+                  <Radio data-testid="t--existing-empty-repo-yes" value="yes">
+                    Yes
+                  </Radio>
+                  <Radio data-testid="t--existing-empty-repo-no" value="no">
+                    No
+                  </Radio>
                 </RadioGroup>
               </FieldControl>
             </FieldContainer>

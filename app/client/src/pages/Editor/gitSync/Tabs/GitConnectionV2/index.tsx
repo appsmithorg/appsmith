@@ -196,6 +196,7 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
         )}
         {!loading && (
           <Button
+            data-testid="t--git-connect-next-button"
             endIcon={
               currentIndex < steps.length - 1 ? "arrow-right-s-line" : undefined
             }
