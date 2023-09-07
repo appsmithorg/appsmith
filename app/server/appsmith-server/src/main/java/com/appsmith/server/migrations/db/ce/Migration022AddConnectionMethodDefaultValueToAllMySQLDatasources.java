@@ -46,25 +46,31 @@ public class Migration022AddConnectionMethodDefaultValueToAllMySQLDatasources {
          *
          * ref: sec 5.4 in https://docs.spring.io/spring-data/data-document/docs/current/reference/html/
          */
-        mysqlDatasources.parallelStream()
-                .map(Datasource::getId)
-                .forEach(id -> {
-                    List<DatasourceStorage> datasourceStorageList = fetchAllDomainObjectsUsingId(id, mongoTemplate,
-                            QDatasourceStorage.datasourceStorage.datasourceId
-                            , DatasourceStorage.class);
-                    datasourceStorageList.stream()
-                            .forEach(datasourceStorage -> {
-                                List<Property> properties = datasourceStorage.getDatasourceConfiguration().getProperties();
-                                if(isEmpty(properties)) {
-                                    properties = new ArrayList<>();
-                                    properties.add(null);
-                                    datasourceStorage.getDatasourceConfiguration().setProperties(properties);
-                                }
+        mysqlDatasources.parallelStream().map(Datasource::getId).forEach(id -> {
+            List<DatasourceStorage> datasourceStorageList = fetchAllDomainObjectsUsingId(
+                    id, mongoTemplate, QDatasourceStorage.datasourceStorage.datasourceId, DatasourceStorage.class);
+            datasourceStorageList.stream()
+                    .filter(datasourceStorage -> datasourceStorage.getDatasourceConfiguration() != null)
+                    .forEach(datasourceStorage -> {
+                        List<Property> properties =
+                                datasourceStorage.getDatasourceConfiguration().getProperties();
+                        if (isEmpty(properties)) {
+                            properties = new ArrayList<>();
+                            properties.add(null);
+                            datasourceStorage.getDatasourceConfiguration().setProperties(properties);
+                        }
 
-                                properties.add(new Property("Connection method", "STANDARD"));
-                                mongoTemplate.save(datasourceStorage);
-                            });
-                });
+                        /**
+                         * This condition should make sure that no matter how many times the regression is run, it
+                         * will update the properties list only if it has not been updated by this migration before.
+                         * This should prove helpful in case there is any migration failure.
+                         */
+                        if (properties.size() == 1) {
+                            properties.add(new Property("Connection method", "STANDARD"));
+                        }
 
+                        mongoTemplate.save(datasourceStorage);
+                    });
+        });
     }
 }

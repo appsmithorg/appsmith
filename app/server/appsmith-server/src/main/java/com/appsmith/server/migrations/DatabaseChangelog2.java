@@ -112,10 +112,8 @@ import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
-import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.getUpdatedDynamicBindingPathList;
@@ -2545,7 +2543,7 @@ public class DatabaseChangelog2 {
      * @param mongoTemplate
      * @param cacheableRepositoryHelper
      */
-    @ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true)
+    /*@ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true)
     public void updateSuperUsers(
             MongoTemplate mongoTemplate,
             CacheableRepositoryHelper cacheableRepositoryHelper,
@@ -2600,7 +2598,7 @@ public class DatabaseChangelog2 {
 
         Update update = new Update().set(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), userIds);
         mongoTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);
-    }
+    }*/
 
     @ChangeSet(order = "034", id = "update-bad-theme-state", author = "")
     public void updateBadThemeState(
