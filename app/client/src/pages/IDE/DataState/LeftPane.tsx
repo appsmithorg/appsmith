@@ -12,11 +12,9 @@ import ListSubTitle from "../components/ListSubTitle";
 import { Button } from "design-system";
 import { PluginType } from "../../../entities/Action";
 import AddDatasourceModal from "./AddDatasourceModal";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 const DataLeftPane = () => {
   const [openAddModal, setOpenAddModal] = useState(false);
-  const workspace = useSelector(getCurrentAppWorkspace);
   const { appWideDS, otherDS } = useAppWideAndOtherDatasource();
   const params = useParams<{ appId: string; dataId?: string }>();
   const plugins = useSelector(getPlugins);
@@ -76,8 +74,6 @@ const DataLeftPane = () => {
         isOpen={openAddModal}
         onBack={() => setOpenAddModal(false)}
       />
-      <ListSubTitle title={"Datasources used in this app"} />
-      <ListView items={items} onClick={onItemClick} />
       <ListSubTitle
         rightIcon={
           <Button
@@ -87,9 +83,11 @@ const DataLeftPane = () => {
             startIcon={"plus"}
           />
         }
-        title={`Other datasources in ${workspace.name}`}
+        title={"Datasources in your workspace"}
       />
       <ListView items={otherItems} onClick={onItemClick} />
+      <ListSubTitle title={`Datasources used in this app`} />
+      <ListView items={items} onClick={onItemClick} />
     </div>
   );
 };
