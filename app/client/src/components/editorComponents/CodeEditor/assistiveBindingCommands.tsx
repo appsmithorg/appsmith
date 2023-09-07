@@ -171,12 +171,37 @@ export const generateAssistiveBindingCommands = (
   const jsActionEntities = entitiesForSuggestions.filter((suggestion: any) => {
     return suggestion.type === ENTITY_TYPE.JSACTION;
   });
+  // const suggestionsJSAction = jsActionEntities.flatMap((suggestion: any) => {
+  //   const name = suggestion.name;
+  //   const children = suggestion.children;
+  //   return Object.keys(children).map((key: string) => {
+  //     return {
+  //       text: `{{${name}.${key}}}`,
+  //       displayText: `${name}.${key}`,
+  //       className: "CodeMirror-commands",
+  //       data: suggestion,
+  //       triggerCompletionsPostPick: false,
+  //       render: (element: HTMLElement, self: any, data: any) => {
+  //         const icon = JsFileIconV2();
+  //         ReactDOM.render(
+  //           <Command icon={icon} name={data.displayText} />,
+  //           element,
+  //         );
+  //       },
+  //     };
+  //   });
+  // });
+
   const suggestionsJSAction = jsActionEntities.flatMap((suggestion: any) => {
     const name = suggestion.name;
     const children = suggestion.children;
     return Object.keys(children).map((key: string) => {
+      const isFunction = children[key].isfunction;
+      const text = isFunction
+        ? `{{${name}.${key}.data}}`
+        : `{{${name}.${key}}}`;
       return {
-        text: `{{${name}.${key}}}`,
+        text: text,
         displayText: `${name}.${key}`,
         className: "CodeMirror-commands",
         data: suggestion,

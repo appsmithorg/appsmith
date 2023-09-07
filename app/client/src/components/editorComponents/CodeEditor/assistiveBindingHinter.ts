@@ -72,9 +72,7 @@ export const assistiveBindingHinter: HintHelper = (
       // const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
       if (value.length < 3 && value !== PARTIAL_BINDING) return false;
-      // show binding suggestions hinter
       const searchText = value === PARTIAL_BINDING ? "" : value;
-      // const list = generateQuickCommands(
       const list = generateAssistiveBindingCommands(
         filterEntityListForSuggestion,
         currentEntityType,
@@ -87,7 +85,7 @@ export const assistiveBindingHinter: HintHelper = (
           enableAIAssistance,
         },
       );
-      //ASSISTIVE_JS_BINDING_TRIGGERED when not empty
+
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       // const { data, render, ...rest } = selected; DELETE
       // const { ENTITY_TYPE, name, pluginType } = data as any; DELETE
@@ -96,7 +94,7 @@ export const assistiveBindingHinter: HintHelper = (
       AnalyticsUtil.logEvent("ASSISTIVE_JS_BINDING_TRIGGERED", {
         query: value,
         suggestedOptionCount: list.filter(
-          (item) => item.className === "CodeMirror-command-header",
+          (item) => item.className === "CodeMirror-commands",
         ).length,
         entityType: entityInfo.entityType,
       });
@@ -139,14 +137,14 @@ export const assistiveBindingHinter: HintHelper = (
 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { data } = selected;
-            const { ENTITY_TYPE, entityName } = data as any;
+            const { name, type } = data as any;
             const jsLexicalName: string | undefined =
-              selected.displayText?.replace(entityName + ".", ""); //name of the variable of functions in JSAction
+              selected.displayText?.replace(name + ".", ""); //name of the variable of functions in JSAction
             const selectedOptionType: string | undefined =
-              ENTITY_TYPE !== "JSACTION"
-                ? entitiesForNavigation?.[entityName]?.actionType
+              type !== "JSACTION"
+                ? entitiesForNavigation?.[name]?.actionType
                 : jsLexicalName !== undefined &&
-                  entitiesForNavigation?.[entityName]?.children?.[jsLexicalName]
+                  entitiesForNavigation?.[name]?.children?.[jsLexicalName]
                     .isfunction === true
                 ? "JSFunction"
                 : "JSVariable";
