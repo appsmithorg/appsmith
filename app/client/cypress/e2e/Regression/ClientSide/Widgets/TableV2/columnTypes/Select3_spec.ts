@@ -64,14 +64,13 @@ describe("Table widget v2: select column displayAs property test", function () {
    * COMPUTED VALUE AND ABSENCE ========
    * 3. Check that select options value are being present on table when displayAs = value
    * 4. Check that select options label are being present for that respective value when displayAs = label
-   * 7. When computed value is not present in the select options then we show the error in the select option field with the row number where the error has occured. = TODO
+   * 7. When computed value is not present in the select options then we show the error in the select option field with the row number where the error has occured
    * 8. When computed value is not present in the select options and displayAs = label, then table cell should show empty cell.
    * 9. When computed value is not present in the select options and displayAs = value, then table cell should have that select' value property.
    *
    * MISC ========
    * 10. For new added row, there are no validations of computed value = Manual
-   * 11. When display as is set to value, we show the computed value as it is even if labels are missing
-   * 12. When computed value is not select options, we show error in computed value but still the parsed=select options = TODO
+   * 11. When display as is set to value, we show the computed value as it is even if labels are missing = DONE
    * 13. Check if the sorting, filtering and searching is happening based on the select cell's value property. = Manual
    */
   it("1. Check if property displayAs, helperText are visible", function () {
@@ -139,6 +138,8 @@ describe("Table widget v2: select column displayAs property test", function () {
 
     agHelper.SelectDropdownList("Column type", "Plain text");
     table.EditTableCell(1, 5, "27");
+    // Click on the save button
+    agHelper.GetNClickByContains(table._tableRowColumnData(1, 8, "v2"), "Save");
     agHelper.SelectDropdownList("Column type", "Select");
 
     table.ReadTableRowColumnData(1, 5, "v2").then(($cellData) => {
@@ -151,16 +152,15 @@ describe("Table widget v2: select column displayAs property test", function () {
       expect($cellData).to.eq("27");
     });
 
-    // TODO(Keyur): Check validation error in select option
-    // agHelper.GetNClick(
-    //   `${propPane._propertyControl("options")}.t--property-control-wrapper`,
-    //   0,
-    //   true,
-    //   3500,
-    // );
-    // agHelper.VerifyEvaluatedErrorMessage(
-    //   "Computed Value at row: [2] is not present in the select options.",
-    // );
+    agHelper
+      .GetElement(`${propPane._propertyControl("options")}`)
+      .then(($elem: any) => {
+        agHelper.FocusCodeInput($elem);
+      });
+
+    agHelper.VerifyEvaluatedErrorMessage(
+      "Computed Value at row: [2] is not present in the select options.",
+    );
   });
 
   it("4. Check that while editing cell's value is changed to label or value of select options based on displayAs property", () => {
@@ -210,6 +210,4 @@ describe("Table widget v2: select column displayAs property test", function () {
       expect(value).to.equal(`[  "1",  "27",  "3",  "6",  "4"]`);
     });
   });
-
-  it("5. Check");
 });
