@@ -1,0 +1,62 @@
+package com.appsmith.server.migrations.db.ce;
+
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.helpers.CollectionUtils;
+import io.mongock.api.annotations.ChangeUnit;
+import io.mongock.api.annotations.Execution;
+import io.mongock.api.annotations.RollbackExecution;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+
+import java.util.Optional;
+
+import static com.appsmith.server.migrations.utils.CompatibilityUtils.optimizeQueryForNoCursorTimeout;
+
+@Slf4j
+@RequiredArgsConstructor
+@ChangeUnit(order = "022", id = "remove-unassign-permission-from-workspace-dev-viewer-roles")
+public class Migration022RemoveUnassignPermissionFromUnnecessaryRoles {
+
+    private final MongoTemplate mongoTemplate;
+
+    @RollbackExecution
+    public void rollbackExecution() {}
+
+    @Execution
+    public void executeMigration() {
+
+        // Fetch all default workspace roles except administrators
+        Criteria workspaceDeveloperAndAppViewerRolesCriteria = new Criteria()
+                .andOperator(
+                        Criteria.where("defaultDomainType").is(Workspace.class.getSimpleName()),
+                        Criteria.where("name").not().regex("^Administrator - .*"));
+
+        Query optimizedQueryForInterestingPermissionGroups = optimizeQueryForNoCursorTimeout(
+                mongoTemplate, new Query(workspaceDeveloperAndAppViewerRolesCriteria), PermissionGroup.class);
+
+        mongoTemplate.stream(optimizedQueryForInterestingPermissionGroups, PermissionGroup.class)
+                .forEach(permissionGroup -> {
+                    if (CollectionUtils.isNullOrEmpty(permissionGroup.getPolicies())) {
+                        return;
+                    }
+
+                    Optional<Policy> optionalUnassignPolicy = permissionGroup.getPolicies().stream()
+                            .filter(policy -> policy.getPermission().equals("unassign:permissionGroups"))
+                            .findFirst();
+
+                    if (!optionalUnassignPolicy.isPresent()) {
+                        return;
+                    }
+
+                    Policy unAssignPolicy = optionalUnassignPolicy.get();
+                    unAssignPolicy.getPermissionGroups().remove(permissionGroup.getId());
+
+                    mongoTemplate.save(permissionGroup);
+                });
+    }
+}
