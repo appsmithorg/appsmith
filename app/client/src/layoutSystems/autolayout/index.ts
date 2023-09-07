@@ -4,7 +4,7 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { AutoLayoutEditorWraper } from "./editor/AutoLayoutEditorWraper";
 import { AutoLayoutViewerWrapper } from "./viewer/AutoLayoutViewerWrapper";
-import { getAutoLayoutComponentDimensions } from "utils/ComponentSizeUtils";
+import { getAutoLayoutComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
 
 /**
  * getAutoLayoutDimensionsConfig

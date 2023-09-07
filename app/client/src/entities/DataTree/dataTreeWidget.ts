@@ -15,7 +15,7 @@ import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
 import { error } from "loglevel";
-import { getComponentDimensions } from "utils/ComponentSizeUtils";
+import { getComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
 
 /**
  *
