@@ -2,7 +2,6 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
-import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -14,14 +13,17 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import {
+  GRID_DENSITY_MIGRATION_V1,
+  MinimumPopupRows,
+} from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 import MultiSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import {
   defaultValueExpressionPrefix,
   getDefaultValueExpressionSuffix,
@@ -39,39 +41,129 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
   WidgetState
 > {
-  static getQueryGenerationConfig(widget: WidgetProps) {
+  static type = "MULTI_SELECT_WIDGET_V2";
+
+  static getConfig() {
     return {
-      select: {
-        where: `${widget.widgetName}.filterText`,
+      name: "MultiSelect",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.SELECT],
+      needsMeta: true,
+      searchTags: ["dropdown", "tags"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 4,
+        defaultValue: DynamicHeight.FIXED,
+        active: true,
       },
     };
   }
 
-  static getPropertyUpdatesForQueryBinding(
-    queryConfig: WidgetQueryConfig,
-    widget: WidgetProps,
-    formConfig: WidgetQueryGenerationFormConfig,
-  ) {
-    let modify;
-
-    if (queryConfig.select) {
-      modify = {
-        sourceData: queryConfig.select.data,
-        optionLabel: formConfig.aliases.find((d) => d.name === "label")?.alias,
-        optionValue: formConfig.aliases.find((d) => d.name === "value")?.alias,
-        defaultOptionValue: "",
-        serverSideFiltering: true,
-        onFilterUpdate: queryConfig.select.run,
-      };
-    }
-
+  static getDefaults() {
     return {
-      modify,
+      rows: 7,
+      columns: 20,
+      animateLoading: true,
+      labelText: "Label",
+      labelPosition: LabelPosition.Top,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      labelTextSize: "0.875rem",
+      sourceData: [
+        { name: "Blue", code: "BLUE" },
+        { name: "Green", code: "GREEN" },
+        { name: "Red", code: "RED" },
+      ],
+      optionLabel: "name",
+      optionValue: "code",
+      widgetName: "MultiSelect",
+      isFilterable: true,
+      serverSideFiltering: false,
+      defaultOptionValue: ["GREEN", "RED"],
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
+      placeholderText: "Select option(s)",
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+        labelTextSize: "0.875rem",
+      },
+      defaults: {
+        rows: 6.6,
+      },
+      autoDimension: {
+        height: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "160px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
+  static getMethods() {
+    return {
+      getQueryGenerationConfig(widget: WidgetProps) {
+        return {
+          select: {
+            where: `${widget.widgetName}.filterText`,
+          },
+        };
+      },
+      getPropertyUpdatesForQueryBinding(
+        queryConfig: WidgetQueryConfig,
+        widget: WidgetProps,
+        formConfig: WidgetQueryGenerationFormConfig,
+      ) {
+        let modify;
+
+        if (queryConfig.select) {
+          modify = {
+            sourceData: queryConfig.select.data,
+            optionLabel: formConfig.aliases.find((d) => d.name === "label")
+              ?.alias,
+            optionValue: formConfig.aliases.find((d) => d.name === "value")
+              ?.alias,
+            defaultOptionValue: "",
+            serverSideFiltering: true,
+            onFilterUpdate: queryConfig.select.run,
+          };
+        }
+
+        return {
+          modify,
+        };
+      },
     };
   }
 
@@ -803,10 +895,6 @@ class MultiSelectWidget extends BaseWidget<
       });
     }
   };
-
-  static getWidgetType(): WidgetType {
-    return "MULTI_SELECT_WIDGET_V2";
-  }
 }
 export interface OptionValue {
   label: string;

@@ -22,7 +22,7 @@ export type ExtraDef = Record<string, Def | string>;
 
 import type { JSActionEntityConfig } from "entities/DataTree/types";
 import type { Variable } from "entities/JSCollection";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { shouldAddSetter } from "workers/Evaluation/evaluate";
 
 // Def names are encoded with information about the entity

@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j</artifactId>
-            <version>3.8.0</version>
+            <version>${org.pf4j.version}</version>
         </dependency>
 
         <dependency>

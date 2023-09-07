@@ -4,24 +4,101 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isString, xor } from "lodash";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 
 import { LabelPosition } from "components/constants";
 import type { TextSize } from "constants/WidgetConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import type { OptionProps } from "../component";
 import SwitchGroupComponent from "../component";
-import type { AutocompletionDefinitions } from "widgets/constants";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
   WidgetState
 > {
+  static type = "SWITCH_GROUP_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Switch Group", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.TOGGLES],
+      needsMeta: true, // Defines if this widget adds any meta properties
+      isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 3,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      widgetName: "SwitchGroup",
+      rows: 6,
+      columns: 26,
+      options: [
+        { label: "Blue", value: "BLUE" },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
+      ],
+      defaultSelectedValues: ["BLUE"],
+      isDisabled: false,
+      isRequired: false,
+      isInline: true,
+      isVisible: true,
+      animateLoading: true,
+      alignment: Alignment.LEFT,
+      labelText: "Label",
+      labelPosition: LabelPosition.Top,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      version: 1,
+      labelTextSize: "0.875rem",
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+      },
+      defaults: {
+        columns: 14,
+        rows: 7,
+      },
+      autoDimension: {
+        height: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "240px",
+              minHeight: "70px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -434,10 +511,6 @@ class SwitchGroupWidget extends BaseWidget<
       }}`,
       value: `{{this.selectedValues}}`,
     };
-  }
-
-  static getWidgetType(): string {
-    return "SWITCH_GROUP_WIDGET";
   }
 
   componentDidUpdate(prevProps: SwitchGroupWidgetProps): void {

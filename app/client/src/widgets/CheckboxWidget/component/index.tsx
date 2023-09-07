@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
-import { AlignWidgetTypes } from "widgets/constants";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
