@@ -2,14 +2,14 @@ import { MAX_MODAL_WIDTH_FROM_MAIN_WIDTH } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { getCanvasWidth } from "selectors/editorSelectors";
 
-export const useModalWidth = () => {
+export const useMaxModalWidth = () => {
   const mainCanvasWidth = useSelector(getCanvasWidth);
-  const getMaxModalWidth = () => {
-    return (mainCanvasWidth || 0) * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH;
-  };
-
+  return (mainCanvasWidth || 0) * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH;
+};
+export const useModalWidth = () => {
+  const maxModalWidth = useMaxModalWidth();
   const getModalWidth = (width: number) => {
-    return Math.min(getMaxModalWidth(), width);
+    return Math.min(maxModalWidth, width);
   };
   return getModalWidth;
 };

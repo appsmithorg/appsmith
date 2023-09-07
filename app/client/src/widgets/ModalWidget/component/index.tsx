@@ -62,6 +62,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const modalContentRef: RefObject<HTMLDivElement> =
     useRef<HTMLDivElement>(null);
   const getModalWidth = useModalWidth();
+  const modalWidth = getModalWidth(props.width);
   const dispatch = useDispatch();
   const isTableFilterPaneVisible = useSelector(
     (state: AppState) => state.ui.tableFilterPane.isVisible,
@@ -107,7 +108,7 @@ export default function ModalComponent(props: ModalComponentProps) {
 
     childData.containerStyle = "none";
     childData.minHeight = props.height;
-    childData.rightColumn = getModalWidth(props.width) + WIDGET_PADDING * 2;
+    childData.rightColumn = modalWidth + WIDGET_PADDING * 2;
 
     childData.positioning = props.positioning;
     childData.alignment = props.alignment;

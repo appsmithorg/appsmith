@@ -21,7 +21,11 @@ export const AutoLayoutEditorModalOnion = (props: BaseWidgetProps) => {
   return (
     <AutoLayoutWidgetComponent {...props}>
       <ModalOverlayLayer {...props} isEditMode>
-        <ModalResizableLayer {...props}>
+        <ModalResizableLayer
+          enableHorizontalResize
+          enableVerticalResize={false}
+          widgetProps={props}
+        >
           <WidgetNameLayer
             componentWidth={props.componentWidth}
             detachFromLayout={props.detachFromLayout}
