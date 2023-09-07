@@ -810,8 +810,16 @@ export class DataSources {
     this.agHelper.AssertContains("datasource updated");
   }
 
+  public ShowAllDatasources() {
+    this.agHelper.GetElement(this.locator._body).then(($body) => {
+      if ($body.find(this._selectedActiveTab).length == 0) {
+        this.agHelper.ClickButton("Show all datasources");
+      }
+    });
+  }
+
   public ClickActiveTabDSContextMenu(datasourceName: string) {
-    this.NavigateToActiveTab();
+    this.ShowAllDatasources();
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .parents(this._datasourceCard)
