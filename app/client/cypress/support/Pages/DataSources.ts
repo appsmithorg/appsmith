@@ -1,13 +1,13 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
-import { WALKTHROUGH_TEST_PAGE } from "../Constants";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
   Mongo: "MongoDB",
   MySql: "MySQL",
   UnAuthenticatedGraphQL: "GraphQL API",
+  AuthenticatedGraph: "Authenticated GraphQL API",
   MsSql: "Microsoft SQL Server",
   Airtable: "Airtable",
   ArangoDB: "ArangoDB",
@@ -270,6 +270,9 @@ export class DataSources {
   _s3MaxFileSizeAlert = "//p[@role='alert']";
   _entityExplorerID = (dsName: string) =>
     "[data-testid='t--entity-item-" + dsName + "']";
+  _stagingTab = "[data-testid='t--ds-data-filter-Staging']";
+  _graphQlDsFromRightPane = (dsName: string) =>
+    "//div/span[text() ='" + dsName + "']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -684,12 +687,32 @@ export class DataSources {
 
   public FillUnAuthenticatedGraphQLDSForm(
     environment = this.dataManager.defaultEnviorment,
+    enterOrSelectUrl: "enter" | "select" = "enter",
+    dsNameToSelect = "",
   ) {
     this.agHelper.GetNClick(this._createBlankGraphQL);
-    this.apiPage.EnterURL(
+    cy.get("@guid").then((uid) => {
+      this.agHelper.RenameWithInPane("GraphQL_API" + "_" + uid, true);
+
+      if (enterOrSelectUrl == "enter")
+        this.apiPage.EnterURL(
+          this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
+        );
+      else if (enterOrSelectUrl == "select")
+        this.agHelper.GetNClick(this._graphQlDsFromRightPane(dsNameToSelect));
+
+      this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
+      cy.wrap("GraphQL_API" + "_" + uid).as("dsName");
+    });
+  }
+
+  public FillAuthenticatedGrapgQLURL(
+    environment = this.dataManager.defaultEnviorment,
+  ) {
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
       this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
     );
-    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
   }
 
   public CreateNFillAuthenticatedGraphQLDSForm(
@@ -698,12 +721,7 @@ export class DataSources {
     hValue: string,
     environment = this.dataManager.defaultEnviorment,
   ) {
-    this.NavigateToDSCreateNew();
-    this.CreatePlugIn("Authenticated GraphQL API");
-    this.agHelper.TypeText(
-      this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
-      this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
-    );
+    this.FillAuthenticatedGrapgQLURL(environment);
 
     this.agHelper.UpdateInputValue(this._graphQLHeaderKey, hKey);
     this.agHelper.UpdateInputValue(this._graphQLHeaderValue, hValue);
@@ -737,7 +755,7 @@ export class DataSources {
     );
   }
 
-  public fillTwilioDSForm(environment = this.dataManager.defaultEnviorment) {
+  public FillTwilioDSForm(environment = this.dataManager.defaultEnviorment) {
     this.ValidateNSelectDropdown("Authentication type", "", "Basic auth");
     this.agHelper.UpdateInputValue(
       this._username,
@@ -1211,6 +1229,7 @@ export class DataSources {
       | "Mongo"
       | "MySql"
       | "UnAuthenticatedGraphQL"
+      | "AuthenticatedGraph"
       | "MsSql"
       | "Airtable"
       | "ArangoDB"
@@ -1268,16 +1287,19 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "Redis")
           this.FillRedisDSForm(environment);
         else if (DataSourceKVP[dsType] == "S3") this.FillS3DSForm();
-        else if (DataSourceKVP[dsType] == "Twilio") this.fillTwilioDSForm();
+        else if (DataSourceKVP[dsType] == "Twilio") this.FillTwilioDSForm();
+        else if (DataSourceKVP[dsType] == "Authenticated GraphQL API")
+          this.FillAuthenticatedGrapgQLURL();
 
         if (testNSave) {
           this.TestSaveDatasource();
         } else {
           this.SaveDatasource();
         }
-      } else if (DataSourceKVP[dsType] == "GraphQL API")
+        cy.wrap(dataSourceName).as("dsName");
+      } else if (DataSourceKVP[dsType] == "GraphQL API") {
         this.FillUnAuthenticatedGraphQLDSForm(environment);
-      cy.wrap(dataSourceName).as("dsName");
+      }
     });
   }
 
@@ -1432,16 +1454,12 @@ export class DataSources {
 
   public FilterAndVerifyDatasourceSchemaBySearch(
     search: string,
-    filterBy?: "table" | "column",
+    expectedTableName = search,
   ) {
     this.agHelper.Sleep(2500); //for query editor to load
     this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
     this.agHelper.Sleep(); //for search result to load
-    if (filterBy === "column") {
-      this.VerifyColumnSchemaOnQueryEditor(search);
-    } else if (filterBy === "table") {
-      this.VerifyTableSchemaOnQueryEditor(search);
-    }
+    this.VerifyTableSchemaOnQueryEditor(expectedTableName);
   }
 
   public AssertDSDialogVisibility(isVisible = true) {

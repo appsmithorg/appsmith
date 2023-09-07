@@ -19,7 +19,7 @@ import type {
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
-import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import { RESIZE_BORDER_BUFFER } from "resizable/common";
 
 export type AutoLayoutProps = {
