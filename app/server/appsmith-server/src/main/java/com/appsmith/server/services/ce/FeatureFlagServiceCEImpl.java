@@ -1,7 +1,13 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.MigrationStatus;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -24,6 +30,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -51,7 +60,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private Mono<Boolean> checkAll(String featureName, User user) {
         Boolean check = check(featureName, user);
 
-        if (Boolean.TRUE.equals(check)) {
+        if (TRUE.equals(check)) {
             return Mono.just(true);
         }
 
@@ -165,17 +174,18 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                                 // call to fetch the flags fails for some reason
                                 // 3. Get the diff and update the flags with pending migrations to be used to run
                                 // migrations selectively
-                                return cacheableFeatureFlagHelper
-                                        .fetchCachedTenantFeatures(defaultTenant.getId())
-                                        .flatMap(existingCachedFlags -> migrationFeatureFlagHelper
-                                                .refreshTenantFeatures(defaultTenant, existingCachedFlags)
-                                                .map(latestFlags ->
-                                                        migrationFeatureFlagHelper.getUpdatedFlagsWithPendingMigration(
-                                                                defaultTenant, latestFlags, existingCachedFlags)))
+                                return migrationFeatureFlagHelper
+                                        .getUpdatedFlagsWithPendingMigration(defaultTenant)
                                         .flatMap(featureFlagWithPendingMigrations -> {
-                                            defaultTenant
-                                                    .getTenantConfiguration()
-                                                    .setFeaturesWithPendingMigration(featureFlagWithPendingMigrations);
+                                            TenantConfiguration tenantConfig =
+                                                    defaultTenant.getTenantConfiguration() == null
+                                                            ? new TenantConfiguration()
+                                                            : defaultTenant.getTenantConfiguration();
+                                            tenantConfig.setFeaturesWithPendingMigration(
+                                                    featureFlagWithPendingMigrations);
+                                            if (!featureFlagWithPendingMigrations.isEmpty()) {
+                                                tenantConfig.setMigrationStatus(MigrationStatus.PENDING);
+                                            }
                                             return tenantService.update(defaultTenant.getId(), defaultTenant);
                                         });
                             }
@@ -192,5 +202,34 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 .getDefaultTenantId()
                 .flatMap(cacheableFeatureFlagHelper::fetchCachedTenantFeatures)
                 .map(CachedFeatures::getFeatures);
+    }
+
+    @Override
+    public Mono<Tenant> checkAndExecuteMigrationsForFeatureFlag(Tenant tenant) {
+        if (tenant.getTenantConfiguration() == null
+                || tenant.getTenantConfiguration().getFeaturesWithPendingMigration() == null) {
+            return Mono.just(tenant);
+        }
+        Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
+                tenant.getTenantConfiguration().getFeaturesWithPendingMigration();
+
+        Set<FeatureFlagEnum> featureFlagSet = featureMigrationTypeMap.keySet();
+        FeatureFlagEnum featureFlagEnum = featureFlagSet.stream().findFirst().orElse(null);
+        return migrationFeatureFlagHelper
+                .checkAndExecuteMigrationsForFeatureFlag(tenant, featureFlagEnum)
+                .flatMap(isSuccessful -> {
+                    if (TRUE.equals(isSuccessful)) {
+                        featureMigrationTypeMap.remove(featureFlagEnum);
+                        if (CollectionUtils.isNullOrEmpty(featureMigrationTypeMap)) {
+                            tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.EXECUTED);
+                        } else {
+                            tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.IN_PROGRESS);
+                        }
+                        return tenantService
+                                .update(tenant.getId(), tenant)
+                                .flatMap(this::checkAndExecuteMigrationsForFeatureFlag);
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.IO_ERROR));
+                });
     }
 }

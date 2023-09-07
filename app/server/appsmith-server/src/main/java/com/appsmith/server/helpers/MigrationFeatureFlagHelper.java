@@ -2,10 +2,12 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -14,12 +16,29 @@ import java.util.Map;
 
 import static com.appsmith.server.constants.FeatureMigrationType.DISABLE;
 import static com.appsmith.server.constants.FeatureMigrationType.ENABLE;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class MigrationFeatureFlagHelper {
 
     private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
+
+    /**
+     *  1. Fetch current/saved feature flags from cache
+     *  2. Force update the tenant flags keeping existing flags as fallback in case the API call to fetch the flags fails for some reason
+     *  3. Get the diff and update the flags with pending migrations to be used to run migrations selectively
+     */
+    public Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(Tenant defaultTenant) {
+
+        return cacheableFeatureFlagHelper
+                .fetchCachedTenantFeatures(defaultTenant.getId())
+                .flatMap(existingCachedFlags -> this.refreshTenantFeatures(defaultTenant, existingCachedFlags)
+                        .map(latestFlags -> this.getUpdatedFlagsWithPendingMigration(
+                                defaultTenant, latestFlags, existingCachedFlags)));
+    }
 
     /**
      * Method to force update the tenant level feature flags. This will be utilised in scenarios where we don't want
@@ -28,7 +47,7 @@ public class MigrationFeatureFlagHelper {
      * @param tenant    tenant for which the feature flags need to be updated
      * @return          Cached features
      */
-    public Mono<CachedFeatures> refreshTenantFeatures(Tenant tenant, CachedFeatures existingCachedFeatures) {
+    private Mono<CachedFeatures> refreshTenantFeatures(Tenant tenant, CachedFeatures existingCachedFeatures) {
         /*
         1. Force update the flag
             a. Evict the cache
@@ -67,7 +86,7 @@ public class MigrationFeatureFlagHelper {
      * @param existingCachedFlags       Flags which are already stored in cache
      * @return                          updated tenant with the required flags with pending migrations
      */
-    public Map<FeatureFlagEnum, FeatureMigrationType> getUpdatedFlagsWithPendingMigration(
+    private Map<FeatureFlagEnum, FeatureMigrationType> getUpdatedFlagsWithPendingMigration(
             Tenant tenant, CachedFeatures latestFlags, CachedFeatures existingCachedFlags) {
 
         // 1. Check if there are any diffs for the feature flags
@@ -111,5 +130,48 @@ public class MigrationFeatureFlagHelper {
             }
         });
         return commonFlags;
+    }
+
+    public Mono<Boolean> checkAndExecuteMigrationsForFeatureFlag(Tenant tenant, FeatureFlagEnum featureFlagEnum) {
+
+        TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+        if (featureFlagEnum == null
+                || tenantConfiguration == null
+                || CollectionUtils.isNullOrEmpty(tenantConfiguration.getFeaturesWithPendingMigration())) {
+            return Mono.just(TRUE);
+        }
+        return isMigrationRequired(tenant, featureFlagEnum).flatMap(isMigrationRequired -> {
+            if (FALSE.equals(isMigrationRequired)) {
+                return Mono.just(TRUE);
+            }
+            return this.executeMigrationsBasedOnFeatureFlag(tenant, featureFlagEnum);
+        });
+    }
+
+    private Mono<Boolean> isMigrationRequired(Tenant tenant, FeatureFlagEnum featureFlagEnum) {
+        Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
+                tenant.getTenantConfiguration().getFeaturesWithPendingMigration();
+        if (CollectionUtils.isNullOrEmpty(featureMigrationTypeMap)) {
+            return Mono.just(FALSE);
+        }
+        return cacheableFeatureFlagHelper
+                .fetchCachedTenantFeatures(tenant.getId())
+                .map(cachedFeatures -> {
+                    Map<String, Boolean> featureFlags = cachedFeatures.getFeatures();
+                    if (featureFlags.containsKey(featureFlagEnum.name())) {
+                        return (TRUE.equals(featureFlags.get(featureFlagEnum.name()))
+                                        && FeatureMigrationType.ENABLE.equals(
+                                                featureMigrationTypeMap.get(featureFlagEnum)))
+                                || (FALSE.equals(featureFlags.get(featureFlagEnum.name()))
+                                        && FeatureMigrationType.DISABLE.equals(
+                                                featureMigrationTypeMap.get(featureFlagEnum)));
+                    }
+                    return FALSE;
+                });
+    }
+
+    private Mono<Boolean> executeMigrationsBasedOnFeatureFlag(Tenant tenant, FeatureFlagEnum featureFlagEnum) {
+        // TODO implement migrations as per the supported features in license plan
+        return Mono.just(TRUE);
     }
 }
