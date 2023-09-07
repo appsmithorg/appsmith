@@ -334,6 +334,7 @@ function AddDeployKey({
         )}
       </WellContainer>
       <Checkbox
+        data-testid="t--added-deploy-key-checkbox"
         isSelected={value?.isAddedDeployKey}
         onChange={(v) => onChange({ isAddedDeployKey: v })}
       >

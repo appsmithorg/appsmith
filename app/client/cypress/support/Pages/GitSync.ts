@@ -160,11 +160,13 @@ export class GitSync {
     }
   }
 
-  private providerRadioGithub = "[data-testid='t--git-provider-radio-github']";
-  private existingEmptyRepoYes =
-    "[data-testid='t--git-existing-empty-repo-yes']";
+  private providerRadioOthers = "[data-testid='t--git-provider-radio-others']";
+  private existingEmptyRepoYes = "[data-testid='t--existing-empty-repo-yes']";
   private gitConnectNextBtn = "[data-testid='t--git-connect-next-button']";
   private remoteUrlInput = "[data-testid='git-connect-remote-url-input']";
+  private addedDeployKeyCheckbox =
+    "[data-testid='t--added-deploy-key-checkbox']";
+  private startUsingGitButton = "[data-testid='t--start-using-git-button']";
 
   CreateNConnectToGitV2(
     repoName = "Repo",
@@ -175,27 +177,21 @@ export class GitSync {
     cy.get("@guid").then((uid) => {
       repoName += uid;
       this.CreateTestGiteaRepo(repoName, privateFlag);
-      //this.CreateLocalGithubRepo(repoName);
       this.AuthorizeKeyToGiteaV2(repoName, assertConnect);
-      // cy.get("@remoteUrl").then((remoteUrl: any) => {
-      //   this.AuthorizeLocalGitSSH(remoteUrl);
-      // });
       cy.wrap(repoName).as("gitRepoName");
     });
   }
 
-  public AuthorizeKeyToGiteaV2(
-    repo: string,
-    assertConnect = true,
-    // importFlow = false,
-  ) {
+  public AuthorizeKeyToGiteaV2(repo: string, assertConnect = true) {
     let generatedKey;
 
     cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
       `generateKey-${repo}`,
     );
 
-    this.agHelper.GetNClick(this.providerRadioGithub);
+    this.OpenGitSyncModal();
+
+    this.agHelper.GetNClick(this.providerRadioOthers);
     this.agHelper.GetNClick(this.existingEmptyRepoYes);
     this.agHelper.GetNClick(this.gitConnectNextBtn);
     this.agHelper.AssertAttribute(
@@ -209,18 +205,6 @@ export class GitSync {
     );
     this.agHelper.GetNClick(this.gitConnectNextBtn);
 
-    // if (!importFlow) {
-    //   this.OpenGitSyncModal();
-    // cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-    //   `generateKey-${repo}`,
-    // );
-    // } else {
-    //   cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
-    //     `generateKey-${repo}`,
-    //   );
-    // }
-
-    // this.agHelper.ClickButton("Generate key");
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       cy.wait(`@generateKey-${repo}`).then((result: any) => {
@@ -244,19 +228,13 @@ export class GitSync {
         });
       });
     });
-    // this.agHelper.GetNClick(this._useDefaultConfig); //Uncheck the Use default configuration
-    // this.agHelper.TypeText(
-    //   this._gitConfigNameInput,
-    //   "testusername",
-    //  // `{selectall}${testUsername}`,
-    // );
-    // this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
-
+    this.agHelper.GetNClick(this.addedDeployKeyCheckbox, 0, true);
     this.agHelper.GetNClick(this.gitConnectNextBtn);
 
     if (assertConnect) {
       this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
-      // this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
+      this.agHelper.GetNClick(this.startUsingGitButton);
+      this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
       this.CloseGitSyncModal();
     }
   }

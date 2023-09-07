@@ -1,6 +1,8 @@
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
+let repoName: any;
+
 describe("Git Connect V2", function () {
   before(() => {
     _.agHelper.GenerateUUID();
@@ -14,9 +16,15 @@ describe("Git Connect V2", function () {
     featureFlagIntercept({
       release_git_connect_v2_enabled: true,
     });
+
     _.gitSync.CreateNConnectToGitV2();
-    featureFlagIntercept({
-      release_git_connect_v2_enabled: false,
+
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
     });
+  });
+
+  after(() => {
+    _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });
