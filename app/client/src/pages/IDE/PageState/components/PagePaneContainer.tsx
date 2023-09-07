@@ -10,7 +10,7 @@ const PaneTitleBar = styled.div`
   padding: 4px 8px;
   border-bottom: 1px solid #fbe6dc;
   display: grid;
-  grid-template-columns: 40px 1fr 60px;
+  grid-template-columns: auto 1fr 60px;
   height: 32px;
   align-content: center;
   border-bottom: 1px solid #fbe6dc;
@@ -63,6 +63,7 @@ const Tab = styled.div`
 
 type Props = {
   editor: React.ReactNode;
+  addItemsTitle?: string;
   addItems?: Array<Item>;
   titleItemCounts?: number;
   listItems?: Array<Item>;
@@ -92,26 +93,33 @@ const PagePaneContainer = (props: Props) => {
     setPageState(TabState.EDIT);
   }, []);
 
+  const PaneTitleBarLeft = () => {
+    if (pageState === TabState.EDIT) {
+      return (
+        <Button
+          isIconButton
+          kind={"secondary"}
+          onClick={() => {
+            if (props.addItems) {
+              setPageState(TabState.ADD);
+            } else if (props.onAddClick) {
+              props.onAddClick();
+            }
+          }}
+          startIcon={"plus"}
+        />
+      );
+    } else if (pageState === TabState.ADD && props.addItemsTitle) {
+      return <Text kind="heading-xs">{props.addItemsTitle}</Text>;
+    }
+    return <div />;
+  };
+
   return (
     <div className="h-full">
       <PaneTitleBar>
         {/*LEFT ICON start*/}
-        {pageState === TabState.EDIT ? (
-          <Button
-            isIconButton
-            kind={"secondary"}
-            onClick={() => {
-              if (props.addItems) {
-                setPageState(TabState.ADD);
-              } else if (props.onAddClick) {
-                props.onAddClick();
-              }
-            }}
-            startIcon={"plus"}
-          />
-        ) : (
-          <div />
-        )}
+        <PaneTitleBarLeft />
         {/*LEFT ICON end*/}
         {/*TABS start*/}
         {pageState === TabState.EDIT ? (

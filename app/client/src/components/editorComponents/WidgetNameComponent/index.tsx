@@ -50,7 +50,6 @@ const PositionStyle = styled.div<{
       ? `${-1 * WidgetNameComponentHeight + 1 + props.positionOffset[0]}px`
       : `calc(100% - ${1 + props.positionOffset[0]}px)`};
   height: ${WidgetNameComponentHeight}px;
-  right: ${(props) => props.positionOffset[1]}px;
   z-index: ${Layers.widgetName};
 `;
 

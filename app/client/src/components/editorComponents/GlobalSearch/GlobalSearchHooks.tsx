@@ -50,7 +50,7 @@ export const useFilteredFileOperations = (query = "") => {
     (plugin) => plugin.type === PluginType.API,
   );
   const newApiActionIdx = actionOperations.findIndex(
-    (op) => op.title === "New blank API",
+    (op) => op.title === "API",
   );
   if (newApiActionIdx > -1) {
     actionOperations[newApiActionIdx].pluginId = restApiPlugin?.id;
@@ -148,7 +148,7 @@ export const getFilteredAndSortedFileOperations = (
 
   // map into operations
   const dsOperations = datasources.map((ds) => ({
-    title: `New ${ds.name} query`,
+    title: `${ds.name}`,
     shortTitle: `${ds.name} query`,
     desc: `Create a query in ${ds.name}`,
     pluginId: ds.pluginId,
