@@ -910,7 +910,7 @@ public class MongoPlugin extends BasePlugin {
 
             return Flux.from(database.listCollectionNames())
                     .filter(collectionName -> {
-                        if (isMock && isFlagEnabled) {
+                        if (isMock != null && isMock && isFlagEnabled != null && isFlagEnabled) {
                             return collectionName.equals(MOCK_DB_MOVIES_COLLECTION_NAME);
                         }
                         return true;
