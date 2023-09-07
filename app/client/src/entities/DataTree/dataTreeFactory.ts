@@ -23,6 +23,7 @@ import type {
 } from "./types";
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { Positioning } from "layoutSystems/autolayout/utils/constants";
 
 export type UnEvalTreeEntityObject =
@@ -139,19 +140,20 @@ export class DataTreeFactory {
 
     const startWidgets = performance.now();
 
-    const isAutoLayout =
-      widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Vertical;
-
     Object.values(widgets).forEach((widget) => {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
-        isAutoLayout,
-        isMobile,
       );
 
       dataTree[widget.widgetName] = unEvalEntity;
-
+      if (
+        widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Vertical
+      ) {
+        dataTree[widget.widgetName].appPositioningType =
+          AppPositioningTypes.AUTO;
+      }
+      dataTree[widget.widgetName].isMobile = isMobile;
       configTree[widget.widgetName] = configEntity;
     });
 
