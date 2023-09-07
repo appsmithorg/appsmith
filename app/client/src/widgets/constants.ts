@@ -30,7 +30,7 @@ export type WidgetSizeConfig = {
 
 type ResizableValues = { vertical?: boolean; horizontal?: boolean };
 type ResizableOptions = ResizableValues | ((props: any) => ResizableValues);
-type AutoDimensionValues = { width?: boolean; height?: boolean };
+export type AutoDimensionValues = { width?: boolean; height?: boolean };
 export type AutoDimensionOptions =
   | AutoDimensionValues
   | ((props: any) => AutoDimensionValues);
