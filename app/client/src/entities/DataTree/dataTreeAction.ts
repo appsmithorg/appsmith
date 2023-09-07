@@ -54,7 +54,9 @@ export const generateDataTreeAction = (
       actionId: action.config.id,
       run: {},
       clear: {},
-      data: action.data ? action.data.body : undefined,
+      // Data is always set to undefined in the unevalTree
+      // Action data is handled in the DataStore class
+      data: undefined,
       isLoading: action.isLoading,
       responseMeta: {
         statusCode: action.data?.statusCode,

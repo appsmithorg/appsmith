@@ -64,11 +64,6 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.DELETE_ACTION_SUCCESS,
   ReduxActionTypes.COPY_ACTION_SUCCESS,
   ReduxActionTypes.MOVE_ACTION_SUCCESS,
-  ReduxActionTypes.RUN_ACTION_SUCCESS,
-  ReduxActionErrorTypes.RUN_ACTION_ERROR,
-  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
-  ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
-  ReduxActionTypes.CLEAR_ACTION_RESPONSE,
   // JS Actions
   ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
   ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
@@ -79,7 +74,6 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
   ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
   ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS,
-  ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
