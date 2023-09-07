@@ -16,7 +16,7 @@ const oneClickBinding = new OneClickBinding();
 describe("JSONForm widget one click binding feature", () => {
   let datasourceName: string;
 
-  it("Connect to a table widget", () => {
+  it("1.Connect to a table widget", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 600, 400);
 

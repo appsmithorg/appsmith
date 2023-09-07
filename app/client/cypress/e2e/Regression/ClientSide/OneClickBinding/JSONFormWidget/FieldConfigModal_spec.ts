@@ -5,12 +5,13 @@ import {
   entityExplorer,
   dataSources,
   draggableWidgets,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const oneClickBinding = new OneClickBinding();
 
 describe("JSONForm widget one click binding feature", () => {
-  it("tests select/unselect fields for json form widget", () => {
+  it("1.tests select/unselect fields for json form widget", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 450, 200);
 
     entityExplorer.NavigateToSwitcher("Explorer");
@@ -61,12 +62,12 @@ describe("JSONForm widget one click binding feature", () => {
 
     // Assert that the selected columns are present in the form
     selectedColumns.forEach((column) => {
-      agHelper.AssertElementExist(`[data-rbd-draggable-id=${column}]`);
+      agHelper.AssertElementExist(locators._draggableFieldConfig(column));
     });
 
     // Assert that the deselected columns are not present in the form
     deselectColumns.forEach((column) => {
-      agHelper.AssertElementAbsence(`[data-rbd-draggable-id=${column}]`);
+      agHelper.AssertElementAbsence(locators._draggableFieldConfig(column));
     });
   });
 });

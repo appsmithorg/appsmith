@@ -287,4 +287,6 @@ export class CommonLocators {
   _walkthrough_overlay = `.t--walkthrough-overlay`;
   _jsonFormSubmitBtn = ".t--jsonform-submit-btn";
   _jsonFormResetBtn = ".t--jsonform-reset-btn";
+  _draggableFieldConfig = (fieldName: string) =>
+    `[data-rbd-draggable-id=${fieldName}]`;
 }

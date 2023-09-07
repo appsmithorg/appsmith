@@ -103,7 +103,6 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
                   valueOption?.data.connectionMode ||
                   DatasourceConnectionMode.READ_ONLY,
               });
-
               if (valueOption?.id) {
                 switch (pluginsPackageNamesMap[pluginId]) {
                   case PluginPackageName.GOOGLE_SHEETS:

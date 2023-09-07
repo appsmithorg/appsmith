@@ -97,7 +97,10 @@ export function useColumns(alias: string, isSearcheable: boolean) {
         return {
           name: column.value,
           type: "string",
-          isSelected: true,
+          isSelected:
+            column.name === primaryColumn
+              ? !excludePrimaryColumnFromQueryGeneration
+              : column?.isSelected === undefined || column?.isSelected,
         };
       });
     } else if (isArray(columns)) {

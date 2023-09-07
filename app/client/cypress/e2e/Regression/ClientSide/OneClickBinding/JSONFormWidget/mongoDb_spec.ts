@@ -14,7 +14,7 @@ const oneClickBinding = new OneClickBinding();
 
 describe("JSONForm widget one click binding feature", () => {
   let datasourceName: string;
-  it("Create flow: should check that queries are created and bound to jsonform widget properly", () => {
+  it("1.Create flow: should check that queries are created and bound to jsonform widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 450, 200);
 
     entityExplorer.NavigateToSwitcher("Explorer");
@@ -57,11 +57,11 @@ describe("JSONForm widget one click binding feature", () => {
     ];
 
     columns.forEach((column) => {
-      agHelper.AssertElementExist(`[data-rbd-draggable-id=${column}]`);
+      agHelper.AssertElementExist(locators._draggableFieldConfig(column));
     });
   });
 
-  it("Update flow: should check that queries are created and bound to table jsonform widget properly ", () => {
+  it("2.Update flow: should check that queries are created and bound to table jsonform widget properly ", () => {
     entityExplorer.AddNewPage("New blank page");
 
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
