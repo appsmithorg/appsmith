@@ -1,8 +1,4 @@
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  layoutConfigurations,
-  type WidgetType,
-} from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { isArray } from "lodash";
@@ -17,13 +13,17 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DraftValueType } from "rc-select/lib/Select";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { MinimumPopupWidthInPercentage } from "widgets/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import MultiSelectComponent from "../component";
 import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import IconSVG from "../icon.svg";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { layoutConfigurations } from "constants/WidgetConstants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -54,6 +54,45 @@ class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
   WidgetState
 > {
+  static type = "MULTI_SELECT_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "MultiSelect",
+      iconSVG: IconSVG,
+      needsMeta: true,
+      hideCard: true,
+      isDeprecated: true,
+      replacement: "MULTI_SELECT_WIDGET_V2",
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 7,
+      columns: 20,
+      animateLoading: true,
+      labelText: "Label",
+      labelPosition: LabelPosition.Left,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      options: [
+        { label: "Blue", value: "BLUE" },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
+      ],
+      widgetName: "MultiSelect",
+      serverSideFiltering: false,
+      defaultOptionValue: ["GREEN"],
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
+      placeholderText: "Select option(s)",
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -546,10 +585,6 @@ class MultiSelectWidget extends BaseWidget<
       });
     }
   };
-
-  static getWidgetType(): WidgetType {
-    return "MULTI_SELECT_WIDGET";
-  }
 }
 
 export interface DropdownOption {

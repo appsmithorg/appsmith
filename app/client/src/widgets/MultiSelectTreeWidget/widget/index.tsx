@@ -2,11 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
-import {
-  layoutConfigurations,
-  type TextSize,
-  type WidgetType,
-} from "constants/WidgetConstants";
+import type { TextSize } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
@@ -20,7 +16,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { MinimumPopupWidthInPercentage } from "widgets/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -28,7 +24,13 @@ import {
 } from "widgets/WidgetUtils";
 import MultiTreeSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import IconSVG from "../icon.svg";
+
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -58,6 +60,99 @@ class MultiSelectTreeWidget extends BaseWidget<
   MultiSelectTreeWidgetProps,
   WidgetState
 > {
+  static type = "MULTI_SELECT_TREE_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Multi TreeSelect",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.SELECT],
+      needsMeta: true,
+      searchTags: ["dropdown", "multiselecttree"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 3,
+        defaultValue: DynamicHeight.FIXED,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 7,
+      columns: 20,
+      mode: "SHOW_ALL",
+      animateLoading: true,
+      options: [
+        {
+          label: "Blue",
+          value: "BLUE",
+          children: [
+            {
+              label: "Dark Blue",
+              value: "DARK BLUE",
+            },
+            {
+              label: "Light Blue",
+              value: "LIGHT BLUE",
+            },
+          ],
+        },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
+      ],
+      widgetName: "MultiTreeSelect",
+      defaultOptionValue: ["GREEN"],
+      version: 1,
+      isVisible: true,
+      isRequired: false,
+      isDisabled: false,
+      allowClear: false,
+      expandAll: false,
+      placeholderText: "Select option(s)",
+      labelText: "Label",
+      labelPosition: LabelPosition.Top,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      labelTextSize: "0.875rem",
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+        labelTextSize: "0.875rem",
+      },
+      defaults: {
+        rows: 6.6,
+      },
+      autoDimension: {
+        height: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "160px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -673,10 +768,6 @@ class MultiSelectTreeWidget extends BaseWidget<
       });
     }
   };
-
-  static getWidgetType(): WidgetType {
-    return "MULTI_SELECT_TREE_WIDGET";
-  }
 }
 
 export interface DropdownOption {

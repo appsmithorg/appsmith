@@ -11,31 +11,60 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import type { CSSProperties } from "react";
 import React from "react";
 import { getCanvasClassName } from "utils/generators";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import WidgetFactory from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import WidgetFactory from "WidgetProvider/factory";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import ContainerWidget from "widgets/ContainerWidget/widget";
-import type { CanvasWidgetStructure, DSLWidget } from "./constants";
+import type {
+  CanvasWidgetStructure,
+  DSLWidget,
+  WidgetDefaultProps,
+} from "../WidgetProvider/constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import type { AutocompletionDefinitions } from "widgets/constants";
 import FlexBoxComponent from "../layoutSystems/autolayout/common/flexCanvas/FlexBoxComponent";
 import { AutoCanvasDraggingArena } from "layoutSystems/autolayout/editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
 import { FixedCanvasDraggingArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
 import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { SetterConfig } from "entities/AppTheming";
 
 class CanvasWidget extends ContainerWidget {
+  static type = "CANVAS_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Canvas",
+      hideCard: true,
+      eagerRender: true,
+    };
+  }
+
+  static getDefaults(): WidgetDefaultProps {
+    return {
+      rows: 0,
+      columns: 0,
+      widgetName: "Canvas",
+      version: 1,
+      detachFromLayout: true,
+      flexLayers: [],
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [];
-  }
-  static getWidgetType() {
-    return "CANVAS_WIDGET";
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {};
+  }
+
+  static getSetterConfig(): SetterConfig | null {
+    return null;
   }
 
   getCanvasProps(): DSLWidget & { minHeight: number } {
@@ -232,29 +261,5 @@ class CanvasWidget extends ContainerWidget {
     return {};
   }
 }
-
-export const CONFIG = {
-  type: CanvasWidget.getWidgetType(),
-  name: "Canvas",
-  hideCard: true,
-  eagerRender: true,
-  defaults: {
-    rows: 0,
-    columns: 0,
-    widgetName: "Canvas",
-    version: 1,
-    detachFromLayout: true,
-    flexLayers: [],
-    responsiveBehavior: ResponsiveBehavior.Fill,
-    minWidth: FILL_WIDGET_MIN_WIDTH,
-  },
-  properties: {
-    derived: CanvasWidget.getDerivedPropertiesMap(),
-    default: CanvasWidget.getDefaultPropertiesMap(),
-    meta: CanvasWidget.getMetaPropertiesMap(),
-    config: CanvasWidget.getPropertyPaneConfig(),
-    autocompleteDefinitions: CanvasWidget.getAutocompleteDefinitions(),
-  },
-};
 
 export default CanvasWidget;

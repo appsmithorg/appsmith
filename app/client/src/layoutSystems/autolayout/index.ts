@@ -1,5 +1,5 @@
 import { isFunction } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { AutoLayoutEditorWraper } from "./editor/AutoLayoutEditorWraper";

@@ -7,6 +7,16 @@ import { closeTableFilterPane } from "actions/widgetActions";
 import { Colors } from "constants/Colors";
 import { getCanvasClassName } from "utils/generators";
 import { scrollCSS } from "widgets/WidgetUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { RenderMode } from "constants/WidgetConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import WidgetFactory from "WidgetProvider/factory";
+import { useModalWidth } from "./useModalWidth";
+import type {
+  Alignment,
+  Positioning,
+  Spacing,
+} from "layoutSystems/autolayout/utils/constants";
 
 const Content = styled.div<{ $scroll: boolean }>`
   overflow-x: hidden;
@@ -31,20 +41,28 @@ export type ModalComponentProps = {
   isOpen: boolean;
   onClose: (e: any) => void;
   onModalClose?: () => void;
-  children: ReactNode;
+  modalChildrenProps: WidgetProps[];
   className?: string;
   canEscapeKeyClose: boolean;
   scrollContents: boolean;
   widgetId: string;
   background?: string;
   borderRadius?: string;
+  height: number;
+  width: number;
+  renderMode: RenderMode;
+  shouldScrollContents: boolean;
+  positioning?: Positioning;
+  spacing?: Spacing;
+  alignment?: Alignment;
 };
 
 /* eslint-disable react/display-name */
 export default function ModalComponent(props: ModalComponentProps) {
   const modalContentRef: RefObject<HTMLDivElement> =
     useRef<HTMLDivElement>(null);
-
+  const getModalWidth = useModalWidth();
+  const modalWidth = getModalWidth(props.width);
   const dispatch = useDispatch();
   const isTableFilterPaneVisible = useSelector(
     (state: AppState) => state.ui.tableFilterPane.isVisible,
@@ -82,7 +100,33 @@ export default function ModalComponent(props: ModalComponentProps) {
       dispatch(closeTableFilterPane());
     }
   }, [props.isOpen]);
+  const renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
+    const childData = { ...childWidgetData };
+    childData.parentId = props.widgetId;
 
+    childData.canExtend = props.shouldScrollContents;
+
+    childData.containerStyle = "none";
+    childData.minHeight = props.height;
+    childData.rightColumn = modalWidth + WIDGET_PADDING * 2;
+
+    childData.positioning = props.positioning;
+    childData.alignment = props.alignment;
+    childData.spacing = props.spacing;
+    return WidgetFactory.createWidget(childData, props.renderMode);
+  };
+  const getChildren = (): ReactNode => {
+    if (
+      props.height &&
+      props.width &&
+      props.modalChildrenProps &&
+      props.modalChildrenProps.length > 0
+    ) {
+      const children = props.modalChildrenProps.filter(Boolean);
+      return children.length > 0 && children.map(renderChildWidget);
+    }
+  };
+  const children = getChildren();
   return (
     <Wrapper
       $background={props.background}
@@ -96,7 +140,7 @@ export default function ModalComponent(props: ModalComponentProps) {
         ref={modalContentRef}
         tabIndex={0}
       >
-        {props.children}
+        {children}
       </Content>
     </Wrapper>
   );
