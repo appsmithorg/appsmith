@@ -125,7 +125,7 @@ public enum AppsmithErrorCode {
     INVALID_EMAIL_VERIFICATION("AE-EMV-4098", "Invalid email verification request"),
 
     INVALID_METHOD_LEVEL_ANNOTATION_USAGE("AE-APP-4094", "Invalid usage for custom annotation"),
-    FEATURE_FLAG_MIGRATION_FAILURE("AE-APP-5018", "Feature flag based migration error"),
+    FEATURE_FLAG_MIGRATION_FAILURE("AE-APP-5045", "Feature flag based migration error"),
     ;
     private final String code;
     private final String description;
