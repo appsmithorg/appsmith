@@ -1,13 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import type { ReactNode } from "react";
+import styled from "styled-components";
 import { Flex } from "@design-system/widgets";
 import { useSelector } from "react-redux";
 
-// import {
-//   previewModeSelector,
-//   snipingModeSelector,
-// } from "selectors/editorSelectors";
-// import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
+import { snipingModeSelector } from "selectors/editorSelectors";
+import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import {
@@ -16,33 +14,41 @@ import {
   isWidgetSelected,
 } from "selectors/widgetSelectors";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
 import { RenderModes } from "constants/WidgetConstants";
-import type { AutoLayoutProps } from "layoutSystems/common/utils/commonTypes";
+import type { FlexComponentProps } from "layoutSystems/anvil/utils/autoLayoutTypes";
 
-export type AnvilFlexComponentProps = AutoLayoutProps & {
+export type AnvilFlexComponentProps = FlexComponentProps & {
   hasAutoWidth: boolean;
   hasAutoHeight: boolean;
   widgetSize?: { [key: string]: Record<string, string | number> };
 };
 
+const FlexComponentWrapper = styled.button`
+  padding: 0;
+  border: none;
+  outline: none;
+  font: inherit;
+  color: inherit;
+  background: none;
+`;
+
 export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
-  // const isSnipingMode = useSelector(snipingModeSelector);
-  // const isPreviewMode = useSelector(previewModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
   const isResizing = useSelector(getIsResizing);
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const isSelected = useSelector(isWidgetSelected(props.widgetId));
   const isCurrentWidgetResizing = isResizing && isSelected;
   const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
 
-  // const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
-  // const onClickFn = useCallback(
-  //   (e) => {
-  //     clickToSelectWidget(e);
-  //   },
-  //   [props.widgetId, clickToSelectWidget],
-  // );
+  const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
+  const onClickFn = useCallback(
+    (e) => {
+      clickToSelectWidget(e);
+    },
+    [props.widgetId, clickToSelectWidget],
+  );
 
   const { onHoverZIndex } = usePositionedContainerZIndex(
     isDropTarget,
@@ -51,9 +57,9 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     isSelected,
   );
 
-  // const stopEventPropagation = (e: any) => {
-  //   !isSnipingMode && e.stopPropagation();
-  // };
+  const stopEventPropagation = (e: any) => {
+    !isSnipingMode && e.stopPropagation();
+  };
 
   const className = useMemo(
     () =>
@@ -61,18 +67,8 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
         props.widgetId
       } ${widgetTypeClassname(
         props.widgetType,
-      )} t--widget-${props.widgetName.toLowerCase()} ${
-        props.responsiveBehavior === ResponsiveBehavior.Fill
-          ? "fill-widget"
-          : "hug-widget"
-      }`,
-    [
-      props.parentId,
-      props.responsiveBehavior,
-      props.widgetId,
-      props.widgetType,
-      props.widgetName,
-    ],
+      )} t--widget-${props.widgetName.toLowerCase()}`,
+    [props.parentId, props.widgetId, props.widgetType, props.widgetName],
   );
 
   const wrappedChildren = (children: ReactNode) =>
@@ -130,16 +126,19 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
   }, [onHoverZIndex]);
 
   return (
-    <Flex
-      alignSelf={props.flexVerticalAlignment}
+    <FlexComponentWrapper
       className={className}
-      isContainer
-      // onClick={stopEventPropagation}
-      // onClickCapture={onClickFn}
-      style={styleProps}
-      {...flexProps}
+      onClick={stopEventPropagation}
+      onClickCapture={onClickFn}
     >
-      {wrappedChildren(props.children)}
-    </Flex>
+      <Flex
+        alignSelf={props.flexVerticalAlignment}
+        isContainer
+        style={styleProps}
+        {...flexProps}
+      >
+        {wrappedChildren(props.children)}
+      </Flex>
+    </FlexComponentWrapper>
   );
 };
