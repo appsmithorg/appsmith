@@ -124,7 +124,7 @@ import {
   fetchJSCollectionsForPageSuccess,
 } from "actions/jsActionActions";
 
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { builderURL } from "RouteBuilder";
 import { failFastApiCalls, waitForWidgetConfigBuild } from "./InitSagas";
@@ -1377,5 +1377,6 @@ export default function* pageSagas() {
     ),
     takeEvery(ReduxActionTypes.SET_PREVIEW_MODE_INIT, setPreviewModeInitSaga),
     takeLatest(ReduxActionTypes.REFRESH_THE_APP, refreshTheApp),
+    takeLatest(ReduxActionTypes.CLEAR_CACHE, clearEvalCache),
   ]);
 }

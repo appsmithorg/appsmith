@@ -1,6 +1,5 @@
 import React from "react";
 import type { WidgetState } from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
 import type { PhoneInputComponentProps } from "../component";
 import PhoneInputComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -10,7 +9,7 @@ import {
   createMessage,
   FIELD_REQUIRED_ERROR,
 } from "@appsmith/constants/messages";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import {
   getCountryCode,
   ISDCodeDropdownOptions,
@@ -25,13 +24,20 @@ import type { CountryCode } from "libphonenumber-js";
 import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { LabelPosition } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { getDefaultISDCode } from "../component/ISDCodeDropdown";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export function defaultValueValidation(
   value: any,
@@ -73,6 +79,70 @@ class PhoneInputWidget extends BaseInputWidget<
   PhoneInputWidgetProps,
   WidgetState
 > {
+  static type = "PHONE_INPUT_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Phone Input",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.INPUTS],
+      needsMeta: true,
+      searchTags: ["call"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 3,
+        defaultValue: DynamicHeight.FIXED,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      ...BaseInputWidget.getDefaults(),
+      widgetName: "PhoneInput",
+      version: 1,
+      rows: 7,
+      labelPosition: LabelPosition.Top,
+      defaultDialCode: getDefaultISDCode().dial_code,
+      allowDialCodeChange: false,
+      allowFormatting: true,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+        labelTextSize: "0.875rem",
+      },
+      defaults: {
+        rows: 6.6,
+      },
+      autoDimension: {
+        height: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "160px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [
@@ -437,10 +507,6 @@ class PhoneInputWidget extends BaseInputWidget<
         {...conditionalProps}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "PHONE_INPUT_WIDGET";
   }
 }
 

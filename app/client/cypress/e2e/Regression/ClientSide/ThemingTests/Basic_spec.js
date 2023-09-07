@@ -141,7 +141,7 @@ describe("App Theming funtionality", function () {
     //Change the font //Commenting below since expanded by default
     //cy.contains("Font").click({ force: true });
 
-    cy.get(".rc-select-selection-search-input").then(($elem) => {
+    _.agHelper.GetNClick(".rc-select-selection-search-input").then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
       cy.get(".rc-virtual-list-holder div")
@@ -200,7 +200,7 @@ describe("App Theming funtionality", function () {
     // cy.contains("Font")
     //   .click({ force: true })
     //   .wait(200);//Commenting below since expanded by default
-    cy.get(".rc-select-selection-search-input").then(($elem) => {
+    _.agHelper.GetNClick(".rc-select-selection-search-input").then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
       cy.get(".rc-virtual-list-holder div")
