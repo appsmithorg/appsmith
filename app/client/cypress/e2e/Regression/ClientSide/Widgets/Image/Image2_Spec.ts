@@ -147,35 +147,7 @@ describe("Image widget tests", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
   });
 
-  it("6. Validate enable rotation property", function () {
-    agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.AssertElementAbsence(widgetLocators.imageRotateClockwiseBtn);
-    deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Image1", "Widgets");
-    agHelper.AssertExistingToggleState("Enable rotation", "false");
-    propPane.TogglePropertyState("Enable rotation", "On");
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.Sleep(2000); //for widget to settle loading
-    agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.AssertElementVisibility(widgetLocators.imageRotateClockwiseBtn);
-    agHelper.AssertElementVisibility(
-      widgetLocators.imageRotateAntiClockwiseBtn,
-    );
-    agHelper.GetHoverNClick(widgetLocators.imageRotateClockwiseBtn);
-    agHelper.AssertCSS(
-      widgetLocators.image,
-      "transform",
-      "matrix(0, 1, -1, 0, 0, 0)",
-    );
-    agHelper.GetHoverNClick(widgetLocators.imageRotateAntiClockwiseBtn);
-    agHelper.AssertCSS(
-      widgetLocators.image,
-      "transform",
-      "matrix(1, 0, 0, 1, 0, 0)",
-    );
-  });
-
-  it("7. Verify image styles", function () {
+  it("6. Verify image styles", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Image1", "Widgets");
     propPane.MoveToTab("Style");
@@ -203,7 +175,7 @@ describe("Image widget tests", function () {
     );
   });
 
-  it("8. Validate OnClick Event", function () {
+  it("7. Validate OnClick Event", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Image1", "Widgets");
     propPane.EnterJSContext(
@@ -225,6 +197,34 @@ describe("Image widget tests", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.ValidateToastMessage("Image Clicked! (NEW)");
+  });
+
+  it("8. Validate enable rotation property", function () {
+    agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
+    agHelper.AssertElementAbsence(widgetLocators.imageRotateClockwiseBtn);
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("Image1", "Widgets");
+    agHelper.AssertExistingToggleState("Enable rotation", "false");
+    propPane.TogglePropertyState("Enable rotation", "On");
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
+    agHelper.Sleep(2000); //for widget to settle loading
+    agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
+    agHelper.AssertElementVisibility(widgetLocators.imageRotateClockwiseBtn);
+    agHelper.AssertElementVisibility(
+      widgetLocators.imageRotateAntiClockwiseBtn,
+    );
+    agHelper.GetHoverNClick(widgetLocators.imageRotateClockwiseBtn);
+    agHelper.AssertCSS(
+      widgetLocators.image,
+      "transform",
+      "matrix(0, 1, -1, 0, 0, 0)",
+    );
+    agHelper.GetHoverNClick(widgetLocators.imageRotateAntiClockwiseBtn);
+    agHelper.AssertCSS(
+      widgetLocators.image,
+      "transform",
+      "matrix(1, 0, 0, 1, 0, 0)",
+    );
   });
 
   it("9. Verify image download", function () {
