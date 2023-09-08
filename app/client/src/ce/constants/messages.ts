@@ -822,7 +822,7 @@ export const IS_MERGING = () => "Merging changes...";
 
 export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
-export const CONNECT_GIT = () => "Connect git";
+export const CONNECT_GIT = () => "Connect Git";
 export const CONNECT_GIT_BETA = () => "Connect Git (Beta)";
 export const RETRY = () => "Retry";
 export const CREATE_NEW_BRANCH = () => "Create new branch";
@@ -1027,6 +1027,7 @@ export const GIT_IMPORT_WAITING = () =>
   "Please wait while we import the app...";
 export const GIT_CONNECT_WAITING = () =>
   "Please wait while we connect to git...";
+export const CONNECT_GIT_TEXT = () => "Connect git";
 // Git Connect V2 end
 
 export const NAV_DESCRIPTION = () =>
