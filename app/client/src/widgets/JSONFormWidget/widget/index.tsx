@@ -269,8 +269,8 @@ class JSONFormWidget extends BaseWidget<
 
         dynamicPropertyPathList.push({ key: "sourceData" });
         return {
-          modify,
-          dynamicUpdates: {
+          modify: {
+            ...modify,
             dynamicPropertyPathList,
           },
         };
@@ -530,7 +530,6 @@ class JSONFormWidget extends BaseWidget<
 
     const prevSourceData = this.getPreviousSourceData(prevProps);
     const currSourceData = this.props?.sourceData;
-    const prevDynamicPropertyPathList = prevProps?.dynamicPropertyPathList;
 
     const computedSchema = computeSchema({
       currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,
@@ -539,7 +538,6 @@ class JSONFormWidget extends BaseWidget<
       prevSourceData,
       widgetName: this.props.widgetName,
       fieldThemeStylesheets: this.props.childStylesheet,
-      prevDynamicPropertyPathList,
     });
     const {
       dynamicPropertyPathList,

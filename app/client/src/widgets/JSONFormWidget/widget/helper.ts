@@ -262,15 +262,10 @@ export const computeSchema = ({
   prevSchema = {},
   prevSourceData,
   widgetName,
-  prevDynamicPropertyPathList,
 }: ComputeSchemaProps): ComputedSchema => {
   // Hot path - early exit
 
-  if (
-    isEmpty(currSourceData) ||
-    (equal(prevSourceData, currSourceData) &&
-      equal(prevDynamicPropertyPathList, currentDynamicPropertyPathList))
-  ) {
+  if (isEmpty(currSourceData) || equal(prevSourceData, currSourceData)) {
     return {
       status: ComputedSchemaStatus.UNCHANGED,
       schema: prevSchema,
