@@ -4,12 +4,7 @@ import {
   deployMode,
   entityExplorer,
   propPane,
-  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
-
-import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
-import { OneClickBinding } from "../../OneClickBinding/spec_utility";
-const oneClickBinding = new OneClickBinding();
 
 describe("Multi Select widget Tests", function () {
   before(() => {

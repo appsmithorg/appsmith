@@ -6,6 +6,7 @@ import {
   propPane,
   apiPage,
   dataSources,
+  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Tree Select widget Tests", function () {
@@ -44,7 +45,7 @@ describe("Tree Select widget Tests", function () {
     entityExplorer.SelectEntityByName("TreeSelect1", "Widgets");
     propPane.TogglePropertyState("required", "On");
     propPane.UpdatePropertyFieldValue("Default selected value", "");
-    agHelper.AssertElementEnabledDisabled(".bp3-button", 1);
+    agHelper.AssertElementEnabledDisabled(locators._buttonInDeployedMode, 1);
     // Binding with Button
     propPane.ToggleJSMode("required", true);
     propPane.UpdatePropertyFieldValue(
@@ -53,9 +54,17 @@ describe("Tree Select widget Tests", function () {
     );
     entityExplorer.SelectEntityByName("Button3", "Widgets");
     propPane.TogglePropertyState("disabled", "On");
-    agHelper.AssertElementEnabledDisabled(".bp3-button", 1, false);
+    agHelper.AssertElementEnabledDisabled(
+      locators._buttonInDeployedMode,
+      1,
+      false,
+    );
     propPane.TogglePropertyState("disabled", "Off");
-    agHelper.AssertElementEnabledDisabled(".bp3-button", 1, true);
+    agHelper.AssertElementEnabledDisabled(
+      locators._buttonInDeployedMode,
+      1,
+      true,
+    );
   });
 
   it("2. Verify placeholder", function () {
@@ -63,7 +72,7 @@ describe("Tree Select widget Tests", function () {
     propPane.UpdatePropertyFieldValue("Options", "");
     propPane.UpdatePropertyFieldValue("Placeholder", "Select new option");
     agHelper.AssertText(
-      ".rc-tree-select-selection-placeholder",
+      locators._treeSelectPlaceholder,
       "text",
       "Select new option",
     );
@@ -73,7 +82,7 @@ describe("Tree Select widget Tests", function () {
     entityExplorer.SelectEntityByName("TreeSelect1", "Widgets");
     propPane.UpdatePropertyFieldValue("Placeholder", "{{Text2.text}}");
     agHelper.AssertText(
-      ".rc-tree-select-selection-placeholder",
+      locators._treeSelectPlaceholder,
       "text",
       "Select value",
     );
@@ -82,7 +91,7 @@ describe("Tree Select widget Tests", function () {
   it("3. Verify expand all by default", function () {
     propPane.UpdatePropertyFieldValue("Options", options);
     propPane.TogglePropertyState("expandallbydefault", "On");
-    agHelper.GetNClick(".t--widget-singleselecttreewidget");
+    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.TREESELECT));
     agHelper.AssertElementExist(locators._dropDownMultiTreeValue("Dark Blue"));
   });
 
@@ -141,7 +150,7 @@ describe("Tree Select widget Tests", function () {
     agHelper.GetNClick(
       `${locators._widgetInDeployed("singleselecttreewidget")}`,
     );
-    agHelper.AssertElementExist(".rc-tree-select-tree-title");
+    agHelper.AssertElementExist(locators._treeSelectTitle);
   });
 
   it("6. Verify onOptionChange", () => {
@@ -154,7 +163,7 @@ describe("Tree Select widget Tests", function () {
 
     dataSources.StartDataSourceRoutes();
     agHelper
-      .GetElement(".datasources .t--entity-add-btn")
+      .GetElement(locators._newDataSourceBtn)
       .last()
       .click({ force: true });
     dataSources.NavigateToDSCreateNew();
@@ -174,7 +183,7 @@ describe("Tree Select widget Tests", function () {
     propPane.UpdatePropertyFieldValue("Options", options);
     propPane.SelectPlatformFunction("onOptionChange", "Execute a query");
     agHelper.GetNClick(`${locators._dropDownValue("Query1")}`, 0, true);
-    agHelper.GetNClick(".action-callback-add .ads-v2-button", 0, true);
+    agHelper.GetNClick(locators._callbackAddBtn, 0, true);
     agHelper.GetNClick(locators._dropDownValue("Show alert"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
@@ -256,16 +265,14 @@ describe("Tree Select widget Tests", function () {
     deployMode.DeployApp();
     agHelper.GetNClick(`${locators._widgetInDeployed("checkbox1")}`);
     agHelper.AssertExistingCheckedState(
-      "//label[contains(@class, 'bp3-checkbox')]//input",
+      locators._checkboxInDeployedMode,
       "false",
     );
     agHelper.GetNClick(
       `${locators._widgetInDeployed("singleselecttreewidget")}`,
     );
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
-    agHelper.AssertExistingCheckedState(
-      "//label[contains(@class, 'bp3-checkbox')]//input",
-    );
+    agHelper.AssertExistingCheckedState(locators._checkboxInDeployedMode);
     deployMode.NavigateBacktoEditor();
 
     // Modal
@@ -273,8 +280,8 @@ describe("Tree Select widget Tests", function () {
     entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
     propPane.ToggleJSMode("onOptionChange", false);
     propPane.SelectPlatformFunction("onOptionChange", "Show modal");
-    agHelper.GetNClick(".t--open-dropdown-Select-modal");
-    agHelper.GetNClick(".t--create-modal-btn");
+    agHelper.GetNClick(propPane._actionOpenDropdownSelectModal);
+    agHelper.GetNClick(propPane._createModalButton);
     agHelper.AssertElementVisibility(locators._modal);
     agHelper.GetNClick(locators._closeModal, 0, true);
     deployMode.DeployApp();
@@ -320,32 +327,5 @@ describe("Tree Select widget Tests", function () {
       cy.wrap(iframe).find("#target").should("have.text", "Test");
     });
     deployMode.NavigateBacktoEditor();
-
-    // // Get Geolocation
-    // entityExplorer.SelectEntityByName("Form1", "Widgets");
-    // entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
-    // propPane.ToggleJSMode("onOptionChange", true);
-    // propPane.UpdatePropertyFieldValue("onOptionChange", `{{appsmith.geolocation.getCurrentPosition(appsmith.geolocation.getCurrentPosition(location => {
-    //     console.log(location);
-    //   }));}}`)
-    // agHelper.GetNClick(`${locators._widgetInDeployed("singleselecttreewidget")}`);
-    // agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
-
-    // // Watch Geolocation
-    // propPane.UpdatePropertyFieldValue("onOptionChange", "{{appsmith.geolocation.watchPosition();}}");
-    // entityExplorer.SelectEntityByName("Input1", "Widgets");
-    // propPane.SelectPropertiesDropDown("Data Type", "Multi-line text");
-    // propPane.UpdatePropertyFieldValue("Default value", "{{appsmith.geolocation.currentPosition}}");
-    // agHelper.GetElement(`${locators._widgetInDeployed("inputwidgetv2")} textarea`).should("contain.text", `{\n  "coords"`);
-
-    // // Stop Geolocation
-    // entityExplorer.SelectEntityByName("Form1", "Widgets");
-    // entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
-    // propPane.UpdatePropertyFieldValue("onOptionChange", "{{appsmith.geolocation.clearWatch();}}");
-    // deployMode.DeployApp();
-    // agHelper.GetNClick(`${locators._widgetInDeployed("singleselecttreewidget")}`);
-    // agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
-    // agHelper.ValidateToastMessage("No location watch active");
-    // deployMode.NavigateBacktoEditor();
   });
 });
