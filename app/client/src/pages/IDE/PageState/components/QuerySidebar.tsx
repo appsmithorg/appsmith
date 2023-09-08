@@ -113,11 +113,15 @@ const QuerySidebar = (props: Props) => {
 
   useLayoutEffect(() => {
     if (!actionId) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      listItemClick(toListActions[0]);
+      if (toListActions.length) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        listItemClick(toListActions[0]);
+      } else {
+        dispatch(setIdePageTabState(TabState.LIST));
+      }
     }
-  }, [actionId]);
+  }, [actionId, toListActions.length]);
 
   let editor: React.ReactNode = <div />;
 
