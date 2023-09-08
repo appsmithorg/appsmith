@@ -17,6 +17,7 @@ export const DataSourceKVP = {
   Oracle: "Oracle",
   S3: "S3",
   Twilio: "Twilio",
+  SMTP: "SMTP",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -80,6 +81,8 @@ export class DataSources {
   _activeDS = "[data-testid='active-datasource-name']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
+  _addSuggestedExisting = "t--suggested-widget-existing";
+  _addSuggestedAddNew = "t--suggested-widget-add-new";
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
   _createQuery = ".t--create-query";
@@ -116,7 +119,7 @@ export class DataSources {
   _generatePageBtn = "[data-testid=t--generate-page-form-submit]";
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
-  _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
+  _selectedActiveTab = "button[aria-selected='true'] " + this._activeTab;
   _contextMenuDSReviewPage = "[data-testid='t--context-menu-trigger']";
   _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
@@ -186,8 +189,13 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
-  private _suggestedWidget = (widgetType: string) =>
-    ".t--suggested-widget-" + widgetType + "";
+
+  private _suggestedWidget = (widgetType: string, parentClass: string) =>
+    "//div[contains(@class, '" +
+    parentClass +
+    "')]//div[contains(@class, 't--suggested-widget-" +
+    widgetType +
+    "')]";
 
   private _curlTextArea =
     "//label[text()='Paste CURL Code Here']/parent::form/div";
@@ -527,10 +535,11 @@ export class DataSources {
       this._port,
       this.dataManager.dsValues[environment].mongo_port.toString(),
     );
-    this.agHelper.ClearNType(
-      this._databaseName,
-      this.dataManager.dsValues[environment].mongo_databaseName,
-    );
+    this.agHelper.ClearTextField(this._databaseName);
+    const databaseName = shouldAddTrailingSpaces
+      ? this.dataManager.dsValues[environment].mongo_databaseName + "  "
+      : this.dataManager.dsValues[environment].mongo_databaseName;
+    this.agHelper.TypeText(this._databaseName, databaseName);
   }
 
   public FillMySqlDSForm(
@@ -809,8 +818,24 @@ export class DataSources {
     this.agHelper.AssertContains("datasource updated");
   }
 
+  public ShowAllDatasources() {
+    this.agHelper.GetElement(this.locator._body).then(($body) => {
+      if ($body.find(this._selectedActiveTab).length === 0) {
+        this.agHelper.ClickButton("Show all datasources");
+      }
+    });
+  }
+
   public ClickActiveTabDSContextMenu(datasourceName: string) {
-    this.NavigateToActiveTab();
+    this.agHelper.GetElement(this.locator._body).then(($body) => {
+      if (
+        $body.find(this.locator._visibleTextSpan("Show all datasources", true))
+          .length !== 0
+      ) {
+        this.ShowAllDatasources();
+      } else this.NavigateToActiveTab();
+    });
+
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .parents(this._datasourceCard)
@@ -903,7 +928,7 @@ export class DataSources {
 
   public NavigateToActiveTab() {
     this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if ($body.find(this._selectedActiveTab).length == 0) {
+      if ($body.find(this._selectedActiveTab).length === 0) {
         this.NavigateToDSCreateNew();
         this.agHelper.GetNClick(this._activeTab, 0, true);
       }
@@ -1454,16 +1479,12 @@ export class DataSources {
 
   public FilterAndVerifyDatasourceSchemaBySearch(
     search: string,
-    filterBy?: "table" | "column",
+    expectedTableName = search,
   ) {
     this.agHelper.Sleep(2500); //for query editor to load
     this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
     this.agHelper.Sleep(); //for search result to load
-    if (filterBy === "column") {
-      this.VerifyColumnSchemaOnQueryEditor(search);
-    } else if (filterBy === "table") {
-      this.VerifyTableSchemaOnQueryEditor(search);
-    }
+    this.VerifyTableSchemaOnQueryEditor(expectedTableName);
   }
 
   public AssertDSDialogVisibility(isVisible = true) {
@@ -1691,17 +1712,24 @@ export class DataSources {
     );
   }
 
-  public AddSuggestedWidget(widget: Widgets, force = false, index = 0) {
+  public AddSuggestedWidget(
+    widget: Widgets,
+    parentClass = this._addSuggestedAddNew,
+    force = false,
+    index = 0,
+  ) {
     switch (widget) {
       case Widgets.Dropdown:
-        this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("SELECT_WIDGET", parentClass),
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.SELECT),
         );
         break;
       case Widgets.Table:
         this.agHelper.GetNClick(
-          this._suggestedWidget("TABLE_WIDGET_V2"),
+          this._suggestedWidget("TABLE_WIDGET_V2", parentClass),
           index,
           force,
         );
@@ -1710,13 +1738,17 @@ export class DataSources {
         );
         break;
       case Widgets.Chart:
-        this.agHelper.GetNClick(this._suggestedWidget("CHART_WIDGET"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("CHART_WIDGET", parentClass),
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.CHART),
         );
         break;
       case Widgets.Text:
-        this.agHelper.GetNClick(this._suggestedWidget("TEXT_WIDGET"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("TEXT_WIDGET", parentClass),
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TEXT),
         );
