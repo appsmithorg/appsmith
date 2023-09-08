@@ -112,3 +112,6 @@ export const hasDeleteActionPermission = (permissions: string[] = []) =>
 
 export const hasExecuteActionPermission = (permissions: string[] = []) =>
   isPermitted(permissions, PERMISSION_TYPE.EXECUTE_ACTIONS);
+
+export const hasAuditLogsReadPermission = (permissions: string[] = []) =>
+  isPermitted(permissions, PERMISSION_TYPE.READ_AUDIT_LOGS);

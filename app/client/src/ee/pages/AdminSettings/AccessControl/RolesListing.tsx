@@ -6,7 +6,7 @@ import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
 import { HighlightText } from "design-system-old";
 import { PageHeader } from "./PageHeader";
-import { BottomSpace } from "pages/Settings/components";
+import { BottomSpace, LoaderContainer } from "pages/AdminSettings/components";
 import {
   AclWrapper,
   DefaultRolesToggle,
@@ -45,7 +45,6 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { LoaderContainer } from "pages/Settings/components";
 import { Icon, Spinner } from "design-system";
 
 const CellContainer = styled.div`

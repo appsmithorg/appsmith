@@ -28,7 +28,7 @@ import {
   getApplicationSearchKeyword,
 } from "@appsmith/selectors/applicationSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import PageWrapper from "@appsmith/pages/common/PageWrapper";
+import PageWrapper from "pages/common/PageWrapper";
 
 export interface EE_ApplicationProps extends CE_Applications.ApplicationProps {
   showBanner: boolean;

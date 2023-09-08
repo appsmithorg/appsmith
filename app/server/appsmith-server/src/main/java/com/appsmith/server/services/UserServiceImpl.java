@@ -125,7 +125,6 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
             UserGroupRepository userGroupRepository,
             PolicyGenerator policyGenerator,
             ProvisionUtils provisionUtils) {
-
         super(
                 scheduler,
                 validator,

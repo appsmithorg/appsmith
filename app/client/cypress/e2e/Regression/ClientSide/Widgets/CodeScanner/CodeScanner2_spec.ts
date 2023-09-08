@@ -51,7 +51,7 @@ describe("Code scanner widget tests", () => {
     propPane.TogglePropertyState("Disabled", "Off");
 
     //Animate loading property - JS convertible
-    agHelper.AssertExistingToggleState("animateloading", "true");
+    agHelper.AssertExistingToggleState("Animate loading", "true");
     propPane.EnterJSContext(
       "Animate loading",
       "{{(45>55)?false:true}}",
@@ -63,8 +63,8 @@ describe("Code scanner widget tests", () => {
       "{{(45>55)?false:true}}",
     );
     propPane.EnterJSContext("Animate loading", "", false);
-    propPane.ToggleJSMode("animateloading", false);
-    propPane.TogglePropertyState("animateloading", "On");
+    propPane.ToggleJSMode("Animate loading", false);
+    propPane.TogglePropertyState("Animate loading", "On");
   });
 
   it(
@@ -135,7 +135,7 @@ describe("Code scanner widget tests", () => {
     propPane.TogglePropertyState("Disabled", "Off");
 
     //Animate loading property - JS convertible
-    agHelper.AssertExistingToggleState("animateloading", "true");
+    agHelper.AssertExistingToggleState("Animate loading", "true");
     propPane.EnterJSContext(
       "Animate loading",
       "{{(45>55)?false:true}}",
@@ -147,7 +147,7 @@ describe("Code scanner widget tests", () => {
       "{{(45>55)?false:true}}",
     );
     propPane.EnterJSContext("Animate loading", "", false, true);
-    propPane.ToggleJSMode("animateloading", false);
+    propPane.ToggleJSMode("Animate loading", false);
 
     // Text & tooltip properties
     agHelper.AssertElementVisibility(widgetLocators.codeScannerScanButton);
@@ -255,23 +255,23 @@ describe("Code scanner widget tests", () => {
   });
 
   //skipping below test as it is not able to scan this code in CI even after 60Sec of wait, works fine in local - Need to be picked later
-  it.skip("8. Validate scanning broken/damaged QR code.", () => {
-    //Open the Code Scanner modal and Scan broken/damaged QR code using fake webcam video
-    cy.task("changeVideoSource", "brokenQRCode.y4m");
-    agHelper.RefreshPage("viewPage");
-    agHelper.AssertElementVisibility(widgetLocators.codeScannerNewScanButton);
-    agHelper.GetNClick(widgetLocators.codeScannerNewScanButton, 0, true);
-    agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);
+  // it("8. Validate scanning broken/damaged QR code.", () => {
+  //   //Open the Code Scanner modal and Scan broken/damaged QR code using fake webcam video
+  //   cy.task("changeVideoSource", "brokenQRCode.y4m");
+  //   agHelper.RefreshPage("viewPage");
+  //   agHelper.AssertElementVisibility(widgetLocators.codeScannerNewScanButton);
+  //   agHelper.GetNClick(widgetLocators.codeScannerNewScanButton, 0, true);
+  //   agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);
 
-    //Verify that the scanned data is correctly displayed on the app's screen
-    agHelper.AssertElementAbsence(widgetLocators.codeScannerModal, 60000);
-    agHelper.ValidateToastMessage("Code scanned using click to scan mode!");
-    agHelper.AssertText(
-      locators._widgetInDeployed(draggableWidgets.TEXT),
-      "text",
-      "http://en.m.wikipedia.org",
-    );
-  });
+  //   //Verify that the scanned data is correctly displayed on the app's screen
+  //   agHelper.AssertElementAbsence(widgetLocators.codeScannerModal, 60000);
+  //   agHelper.ValidateToastMessage("Code scanned using click to scan mode!");
+  //   agHelper.AssertText(
+  //     locators._widgetInDeployed(draggableWidgets.TEXT),
+  //     "text",
+  //     "http://en.m.wikipedia.org",
+  //   );
+  // });
 
   it("9. Validate scanning high density QR code.", () => {
     //Open the Code Scanner modal and Scan high density QR code using fake webcam video

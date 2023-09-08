@@ -107,14 +107,24 @@ jobs:
         if: steps.run_result.outputs.run_result == 'failedtest'
         working-directory: app/client
         run: |
-          echo "failed_spec_env<<EOF" >> $GITHUB_ENV
-          while IFS= read -r line
-          do
-            spec_name=$(echo $line | awk -F'/' '{print $NF}')
-            failed_spec_env=$(find . -name $spec_name | sed 's|./||')
-            echo "$failed_spec_env" >> $GITHUB_ENV
-          done < ~/failed_spec_ci/failed_spec_ci
-          echo "EOF" >> $GITHUB_ENV
+          failed_spec_env=""
+          while IFS= read -r line || [ -n "$line" ]; do
+              file_path=$(echo "$line" | awk -F'/' '{print $(NF-1)"/"$NF}')
+              spec_name=$(echo "$file_path" | awk -F'/' '{print $NF}')
+              failed_spec=$(find . -name "$spec_name" | sed 's|./||')
+              if [ "$(echo "$failed_spec" | wc -l)" -eq 1 ]; then
+                  failed_spec_env="$failed_spec_env,$failed_spec"
+              else
+                for file in $failed_spec; do
+                    new_file_path=$(echo "$file" | awk -F'/' '{print $(NF-1)"/"$NF}')
+                    if [ "$new_file_path" == "$file_path" ]; then
+                        failed_spec_env="$failed_spec_env,$file"
+                    fi
+                done
+              fi
+          done < ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          failed_spec_env=${failed_spec_env#,}
+          echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV
 
       - if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         run: echo "Starting full run" && exit 0
@@ -256,8 +266,6 @@ jobs:
         uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
@@ -305,6 +313,7 @@ jobs:
           TAG: ${{ github.event_name }}
           BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
           THIS_RUNNER: ${{ strategy.job-index }}
+          TOTAL_RUNNERS: ${{ strategy.job-total }}
           CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
           CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
           CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
@@ -313,17 +322,9 @@ jobs:
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
           browser: ${{ env.BROWSER_PATH }}
-          record: true
           install: false
-          parallel: true
           config-file: cypress_ci_hosted.config.ts
-          group: "Chrome-Fat Container tests"
-          spec: |
-            cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts
-            cypress/e2e/GSheet/**/**/*
           working-directory: app/client
-          # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
       # In case of second attempt only run failed specs
@@ -333,8 +334,6 @@ jobs:
         uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
@@ -381,6 +380,7 @@ jobs:
           TAG: ${{ github.event_name }}
           BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
           THIS_RUNNER: ${{ strategy.job-index }}
+          CYPRESS_SPECS: ${{ env.failed_spec_env }}
           CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
           CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
           CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
@@ -389,16 +389,23 @@ jobs:
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
           browser: ${{ env.BROWSER_PATH }}
-          record: true
           install: false
-          parallel: true
           config-file: cypress_ci_hosted.config.ts
-          group: "Chrome-Fat Container tests"
-          spec: ${{ env.failed_spec_env }}
           working-directory: app/client
-          # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
+
+      - name: Rename reports 
+        if: always()
+        run: |
+          mkdir -p ~/results
+          mv ${{ github.workspace }}/app/client/results ~/results/${{ matrix.job }}
+
+      - name: Upload cypress report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: results-${{github.run_attempt}}
+          path: ~/results
 
       # Set status = failedtest
       - name: Set fail if there are test failures
@@ -437,15 +444,15 @@ jobs:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}
-      
+
       - name: get cypress url dashboard url
         id: dashboard_url
         if: always()
         run: |
           if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-            echo "url=${{ steps.cypress_test.outputs.resultsUrl }}" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
           elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-            echo "url=${{ steps.cypress_test_failedtest.outputs.resultsUrl }}" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
           fi
 
       - name: Generate slack message
@@ -468,13 +475,13 @@ jobs:
         env:
           SLACK_CHANNEL: cypresspushworkflow
           SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
-          SLACK_ICON_EMOJI: ':bell:'
+          SLACK_ICON_EMOJI: ":bell:"
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
-          SLACK_TITLE: 'Result:'
+          SLACK_TITLE: "Result:"
           SLACK_USERNAME: Cloud-Hosted Tests
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
           MSG_MINIMAL: Ref,Event,Commit
-          SLACK_FOOTER: 'Appsmith CI runs'
+          SLACK_FOOTER: "Appsmith CI runs"
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure

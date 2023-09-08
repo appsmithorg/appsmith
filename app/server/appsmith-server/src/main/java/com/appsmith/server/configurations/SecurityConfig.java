@@ -290,7 +290,7 @@ public class SecurityConfig {
     }
 
     /**
-     * This code has been partially duplicated from {@link org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfiguration}'s
+     * This code has been partially duplicated from {@link org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfiguration}
      * {@code authenticationManager()} method. This was done because creating a bean for {@link ApiKeyAuthenticationManager} was overriding the authentication manager
      * being used by the {@link ServerHttpSecurity} bean. This lead to a break in the current authentication which are currently implemented.
      *

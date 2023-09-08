@@ -1,28 +1,21 @@
-import {
-  TokenTable,
-  StyledTable,
-  StyledSquarePreview,
-} from "@design-system/storybook";
+import React from "react";
+import { StyledTable } from "@design-system/storybook";
 import { Meta } from "@storybook/addon-docs";
-import { useTheme, ThemeProvider } from "@design-system/theming";
+import { ColorTable } from "@design-system/storybook";
 
 <Meta title="Design-system/Theme/Tokens/Color" />
 
 # Color
 
-Color is a crucial element in any design system. It communicates
-information, creates hierarchy, and evokes emotions. Therefore, it is
-essential to establish a consistent and meaningful color palette for
-your design system.
+WDS generates a full harmonious color scheme used in Widgets from a single color input `seed` and a set of additional props (currently only `colorMode` that can be `dark` or `light`).
 
-## Semantic Color Naming Strategy
+Colors are generated in [OkLCh](https://bottosson.github.io/posts/oklab/) color space using [color.js](https://colorjs.io/docs/spaces#oklch) to ensure perceptual uniformity when producing colors from the seed. This achieves monochromatic color harmony between UI elements.
 
-This naming schema is for the most part inspired by the one shown in The
-hardest part about building dark mode is that people think it’s easy
-talk by [Hassan and Jacob Miller at Figma Config 2022](https://www.youtube.com/watch?v=1DTnojio89Y&t=454s).
-This enables flexibility and focuses on deriving these tokens from a
-starting seed rather than assuming those can be hand-picked by a
-designer.
+To ensure visibility of critical UI elements we're checking key colors' conformance to [APCA](https://github.com/Myndex/SAPC-APCA).
+
+## Color token naming
+
+Tokens are named using four-part schema. Every part of the name except `type` is optional. Suffixes describe visual function of the color in the UI.
 
 <StyledTable>
   <thead>
@@ -37,36 +30,24 @@ designer.
     <tr>
       <td>bg</td>
       <td>accent</td>
-      <td>regular (default)</td>
-      <td>resting (default)</td>
+      <td>subtle</td>
+      <td>hover</td>
     </tr>
     <tr>
       <td>fg</td>
       <td>neutral</td>
-      <td>strong</td>
-      <td>hover</td>
-    </tr>
-    <tr>
-      <td>bd</td>
-      <td>content</td>
-      <td>subtle</td>
+      <td></td>
       <td>active</td>
     </tr>
     <tr>
-      <td></td>
-      <td>assistive</td>
-      <td></td>
-      <td>disabled</td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>negative</td>
+      <td>bd</td>
+      <td>positive</td>
       <td></td>
       <td>focus</td>
     </tr>
     <tr>
       <td></td>
-      <td>positive</td>
+      <td>negative</td>
       <td></td>
       <td></td>
     </tr>
@@ -82,71 +63,123 @@ designer.
       <td></td>
       <td></td>
     </tr>
+    <tr>
+      <td></td>
+      <td>assistive</td>
+      <td></td>
+      <td></td>
+    </tr>
   </tbody>
 </StyledTable>
 
-## Background Tokens Table
+### Type
 
-export const Background = () => {
-  const { theme } = useTheme();
-  const { color } = theme;
-  return (
-    <ThemeProvider theme={theme}>
-      <TokenTable prefix="color" filter="bg" tokens={color}>
-        {(cssVar) => (
-          <StyledSquarePreview
-            style={{
-              background: cssVar,
-            }}
-          />
-        )}
-      </TokenTable>
-    </ThemeProvider>
-  );
-};
+Type defines how the color is going to be applied to UI elements.
 
-<Background />
+`bg` (backgrounds) are surfaces of color.
 
-## Foreground Tokens Table
+`fg` (foregrounds) are content elements (text and icons) on top of colored surfaces. Minimal APCA contrast of `60` to satisfy accessibility requirement.
 
-export const Foreground = () => {
-  const { theme } = useTheme();
-  const { color } = theme;
-  return (
-    <ThemeProvider theme={theme}>
-      <TokenTable prefix="color" filter="fg" tokens={color}>
-        {(cssVar) => (
-          <StyledSquarePreview
-            style={{
-              background: cssVar,
-            }}
-          />
-        )}
-      </TokenTable>
-    </ThemeProvider>
-  );
-};
+`bd` (borders) are separators. Borders can be subtle with lower contrast requirement of `25`.
 
-<Foreground />
+<ColorTable filter={["bg-neutral", "fg-neutral", "bd-neutral"]} />
 
-### Border Tokens Table
+### Role
 
-export const Border = () => {
-  const { theme } = useTheme();
-  const { color } = theme;
-  return (
-    <ThemeProvider theme={theme}>
-      <TokenTable prefix="color" filter="bd" tokens={color}>
-        {(cssVar) => (
-          <StyledSquarePreview
-            style={{
-              background: cssVar,
-            }}
-          />
-        )}
-      </TokenTable>
-    </ThemeProvider>
-  );
-};
+#### No role
 
-<Border />
+Absence of role suffix signifies default application.
+
+Main background color `bg` is applied to the canvas. In dark mode it is extremely dark shade of user-set seed color. In light mode it is extremely light tint of user-set seed color. This ensures harmonious combination with main accents and neutrals.
+
+Default content color `fg` is applied to text and icons. In light mode it is dark shade of user-set seed color. In dark mode it is light tint of user-set seed color.
+
+Focus outline `bd-focus` is applied as an outline around interactive elements when they receive keyboard-focus.
+
+<ColorTable filter={["bg", "fg", "bd-focus"]} />
+
+#### Accent
+
+Accent colors indicate high prominence. They are as close to the seed as possible given accessibility requirements for their type and a requirement for `bgAccent` to be visible on top of `bg`.
+
+<ColorTable filter={["bg-accent", "fg-accent", "bd-accent"]} />
+
+#### Neutral
+
+Neutral colors have less prominence than accent. Unless the seed is completely achromatic they contain small amounts of chroma to produce harmony with accents.
+
+<ColorTable filter={["bg-neutral", "fg-neutral", "bd-neutral"]} />
+
+#### Semaphore (positive, negative, warning)
+
+Three roles to use for color-coding conventional types of highlights in the UI. They start from preselected values and are checked for being too similar to seed and accent. In case of a clash they are adjusted to less resemble accent colors.
+
+<ColorTable
+  filter={["bg-accent", "bg-positive", "bg-negative", "bg-warning"]}
+/>
+
+#### on\*
+
+Used for naming foreground and border colors that are intended to be displayed on top of specific backgrounds, e.g. `onPositive`, `onAccent`.
+
+<ColorTable
+  filter={[
+    "fg-on-accent",
+    "fg-on-positive",
+    "fg-on-negative",
+    "fg-on-warning",
+    "fg-on-assistive",
+    "fg-on-neutral",
+    "fg-on-assistive",
+  ]}
+/>
+
+#### Assistive
+
+Used for high-contrast assistive elements, e.g. a tooltip.
+
+<ColorTable filter={["bg-assistive"]} />
+
+### Prominence
+
+If no prominence is specified the default looks of the color are assumed. If subtle prominence is specified less saturated and contrasting variation of color is produced.
+
+<ColorTable
+  filter={["bg-accent", "bg-accent-subtle", "bg-neutral", "bg-neutral-subtle"]}
+/>
+
+### State
+
+#### No state
+
+If no state is specified, a resting state of UI element is assumed.
+
+<ColorTable filter={["bg-accent", "bg-neutral", "bg-positive"]} />
+
+#### Hover
+
+Slightly lighter than the resting state to produce the effect of moving closer to the viewer / inspection.
+
+<ColorTable
+  filter={["bg-accent-hover", "bg-neutral-hover", "bg-positive-hover"]}
+/>
+
+#### Active
+
+Slightly darker than the resting state to produce the effect of moving further from the viewer / being pushed down.
+
+<ColorTable
+  filter={["bg-accent-active", "bg-neutral-active", "bg-positive-active"]}
+/>
+
+## Background Tokens
+
+<ColorTable isExactMatch={false} filter={["bg"]} />
+
+## Foreground Tokens
+
+<ColorTable isExactMatch={false} filter={["fg"]} />
+
+### Border Tokens
+
+<ColorTable isExactMatch={false} filter={["bd"]} />

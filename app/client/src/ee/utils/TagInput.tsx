@@ -262,7 +262,10 @@ function TagInputComponent(props: TagInputProps) {
       setSuggestions(props.suggestions);
     }
 
-    if (/^[a-zA-Z0-9`!@#$%^&*()_+\-=\[\]{};':"\\|.<>\/?~]+$/.test(e.key)) {
+    if (
+      /^[a-zA-Z0-9`!@#$%^&*()_+\-=\[\]{};':"\\|.<>\/?~]+$/.test(e.key) &&
+      !(currentValue.length < 2 && e.key === "Backspace")
+    ) {
       setShowSuggestions(true);
     } else {
       setShowSuggestions(false);

@@ -5,7 +5,7 @@ import {
   SettingsHeader,
   SettingsSubHeader,
   Wrapper,
-} from "pages/Settings/components";
+} from "pages/AdminSettings/components";
 import SCIM from "assets/images/scim.png";
 import styled from "styled-components";
 import { Button, Divider, Icon, Text } from "design-system";

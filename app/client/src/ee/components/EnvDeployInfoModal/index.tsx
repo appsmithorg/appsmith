@@ -14,6 +14,7 @@ import {
   setWorkspaceIdForImport,
 } from "@appsmith/actions/applicationActions";
 import {
+  getCurrentEnvName,
   getUserPreferenceFromStorage,
   setUserPreferenceInStorage,
 } from "@appsmith/utils/Environments";
@@ -64,6 +65,9 @@ export const EnvDeployInfoModal = () => {
   }, [isPublishing, publishTriggered]);
 
   const handleClose = useCallback(() => {
+    AnalyticsUtil.logEvent("CANCEL_DEPLOY_WITHOUT_GIT", {
+      currentEnvName: getCurrentEnvName(),
+    });
     dispatch(hideEnvironmentDeployInfoModal());
     dispatch(setWorkspaceIdForImport(""));
     if (isPublishing) {
@@ -121,6 +125,14 @@ export const EnvDeployInfoModal = () => {
     return null;
   }
 
+  const onToggleCheckbox = (checked: boolean) => {
+    checked &&
+      AnalyticsUtil.logEvent("DEPLOY_WITH_GIT_DISMISS_ENV_MESSAGE", {
+        currentEnvName: getCurrentEnvName(),
+      });
+    setPreferenceChecked(checked);
+  };
+
   const renderFooter = () => {
     return (
       <Footer>
@@ -128,7 +140,7 @@ export const EnvDeployInfoModal = () => {
           <Checkbox
             data-testid="t--env-info-dismiss-checkbox"
             isSelected={preferenceChecked}
-            onChange={(isSelected: boolean) => setPreferenceChecked(isSelected)}
+            onChange={onToggleCheckbox}
           >
             {createMessage(ENV_INFO_MODAL_CHECKBOX_LABEL)}
           </Checkbox>

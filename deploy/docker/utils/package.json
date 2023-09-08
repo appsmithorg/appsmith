@@ -20,7 +20,7 @@
     "@aws-sdk/client-s3": "^3.135.0",
     "cli-progress": "^3.11.2",
     "dotenv": "10.0.0",
-    "mongodb": "^5.7.0",
+    "mongodb": "^5.8.0",
     "nodemailer": "6.7.5",
     "readline-sync": "1.4.10",
     "shelljs": "0.8.5"

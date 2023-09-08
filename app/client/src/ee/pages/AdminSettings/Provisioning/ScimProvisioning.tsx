@@ -25,10 +25,10 @@ import {
   SettingsHeader,
   SettingsSubHeader,
   Wrapper,
-} from "pages/Settings/components";
+} from "pages/AdminSettings/components";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import { PROVISIONING_SETUP_DOC } from "constants/ThirdPartyConstants";
-import CopyUrlForm from "pages/Settings/FormGroup/CopyUrlForm";
+import CopyUrlForm from "pages/AdminSettings/FormGroup/CopyUrlForm";
 import { getProvisioningDetails } from "@appsmith/selectors/provisioningSelectors";
 import {
   fetchProvisioningStatus,

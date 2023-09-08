@@ -102,7 +102,7 @@ public class FeatureFlagServiceTest {
 
         Mockito.when(instanceConfig.isAirgapEnabled()).thenReturn(true);
 
-        Mono<Map<String, Boolean>> currentTenantFeaturesMono = featureFlagService.getCurrentTenantFeatures();
+        Mono<Map<String, Boolean>> currentTenantFeaturesMono = featureFlagService.getTenantFeatures();
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
         StepVerifier.create(currentTenantFeaturesMono.then(hasKeyMono))
                 .assertNext(isKeyPresent -> {

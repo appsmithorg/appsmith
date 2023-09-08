@@ -11,7 +11,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import testdata from "../../../../../fixtures/testdata.json";
 
-describe.skip("Video widget tests", function () {
+describe("Video widget tests", function () {
   before(() => {
     homePage.NavigateToHome();
     //Contains video widget expanded to specific size such that all the buttons in it are visible & camera widget(video)
@@ -48,6 +48,7 @@ describe.skip("Video widget tests", function () {
     propPane.TypeTextIntoField("URL", testdata.videoUrl);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.VIDEO));
+    agHelper.Sleep(2000);
     agHelper.GetElement(widgetLocators.iFrame).then(($iframe) => {
       const doc = $iframe.contents();
       const video = doc.find(widgetLocators.video);
@@ -189,13 +190,18 @@ describe.skip("Video widget tests", function () {
     propPane.SelectColorFromColorPicker("backgroundcolor", 9);
     agHelper.ContainsNClick("Medium");
     propPane.EnterJSContext("Border radius", "1.5rem");
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
-    agHelper.AssertCSS(
-      widgetLocators.video,
-      "background-color",
-      "rgb(252, 165, 165)",
-    );
-
+    agHelper
+      .GetWidgetCSSFrAttribute(widgetLocators.video, "background-color")
+      .then((backgroundcolor) => {
+        deployMode.DeployApp(
+          locators._widgetInDeployed(draggableWidgets.VIDEO),
+        );
+        agHelper.AssertCSS(
+          widgetLocators.video,
+          "background-color",
+          backgroundcolor,
+        );
+      });
     agHelper.AssertCSS(
       widgetLocators.video,
       "box-shadow",
