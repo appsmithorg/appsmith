@@ -10,8 +10,8 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 /**
  * AutoDimensionObserverLayer
  *
- * Component provides specific implementation for onDimensionUpdate and
- * provides minWidth and minHeight props for AutoLayoutDimensionObserver.
+ * Component provides access to apis of EditorContext(updateWidgetDimension) and
+ * also computes minWidth and minHeight props from autoDimensionConfig of a widget to supply for AutoLayoutDimensionObserver.
  *
  */
 
