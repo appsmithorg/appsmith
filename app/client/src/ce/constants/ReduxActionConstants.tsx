@@ -34,6 +34,8 @@ const ActionSelectorReduxActionTypes = {
 const IDEReduxActionTypes = {
   SET_IDE_SIDEBAR_WIDTH: "SET_IDE_SIDEBAR_WIDTH",
   SET_IDE_PAGE_NAV: "SET_IDE_PAGE_NAV",
+  SET_RECENT_QUERY_LIST: "SET_RECENT_QUERY_LIST",
+  SET_RECENT_JS_LIST: "SET_RECENT_JS_LIST",
 };
 
 const ActionTypes = {

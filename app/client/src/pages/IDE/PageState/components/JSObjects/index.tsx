@@ -2,16 +2,14 @@ import React, { useCallback } from "react";
 import { jsCollectionIdURL } from "RouteBuilder";
 import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
-import { selectFilesForExplorer } from "selectors/entitiesSelector";
 import history, { NavigationMethod } from "utils/history";
 import JSEditor from "./JSEditor";
 import PagePaneContainer from "../PagePaneContainer";
 import { createNewJSCollection } from "actions/jsPaneActions";
-import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import { getIdeSidebarWidth } from "pages/IDE/ideSelector";
+import { getIdeSidebarWidth, getRecentJsList } from "pages/IDE/ideSelector";
 import styled from "styled-components";
-import { useIDEPageRecent } from "../../../hooks";
 import { importSvg } from "design-system-old";
+import type { Item } from "../../../components/ListView";
 
 const DataIcon = importSvg(
   () => import("pages/IDE/assets/icons/no-jsobjects.svg"),
@@ -36,19 +34,11 @@ function JSObjects(props: Props) {
   const addItemClick = useCallback(() => {
     dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
   }, []);
-  const allJSActions = useSelector(selectFilesForExplorer);
-  const toListActions = allJSActions
-    .filter((a: any) => {
-      return a.type === "JS";
-    })
-    .map((a: any) => ({
-      name: a.entity.name,
-      key: a.entity.id,
-      type: a.type,
-      icon: JsFileIconV2(16, 16),
-    }));
-
-  const [sortedList] = useIDEPageRecent(toListActions, collectionId);
+  const sortedJsList: Item[] = useSelector(getRecentJsList);
+  const toListActions = sortedJsList.map((a: any) => ({
+    ...a,
+    selected: a.key === collectionId,
+  }));
 
   const listItemClick = useCallback((a) => {
     history.push(
@@ -77,8 +67,8 @@ function JSObjects(props: Props) {
         buttonText: "New JS Object",
       }}
       editor={editor}
-      listItems={sortedList}
-      listStateTitle={`JS Objects in this page (${sortedList.length})`}
+      listItems={toListActions}
+      listStateTitle={`JS Objects in this page (${toListActions.length})`}
       onAddClick={addItemClick}
       onListClick={listItemClick}
       titleItemCounts={4}

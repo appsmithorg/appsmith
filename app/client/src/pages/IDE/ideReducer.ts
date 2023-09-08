@@ -1,10 +1,13 @@
 import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { Item } from "./components/ListView";
 
 export interface IDEReduxState {
   sidebarWidth: number;
   pageNavState: PageNavState;
+  queryList: Item[];
+  jsList: Item[];
 }
 
 export enum IDEAppState {
@@ -24,6 +27,8 @@ export enum PageNavState {
 const initialState: IDEReduxState = {
   sidebarWidth: 300,
   pageNavState: PageNavState.UI,
+  queryList: [],
+  jsList: [],
 };
 
 const ideReducer = createReducer(initialState, {
@@ -38,6 +43,18 @@ const ideReducer = createReducer(initialState, {
     action: ReduxAction<PageNavState>,
   ): IDEReduxState => {
     return { ...state, pageNavState: action.payload };
+  },
+  [ReduxActionTypes.SET_RECENT_QUERY_LIST]: (
+    state: IDEReduxState,
+    action: ReduxAction<Item[]>,
+  ): IDEReduxState => {
+    return { ...state, queryList: action.payload };
+  },
+  [ReduxActionTypes.SET_RECENT_JS_LIST]: (
+    state: IDEReduxState,
+    action: ReduxAction<Item[]>,
+  ): IDEReduxState => {
+    return { ...state, jsList: action.payload };
   },
 });
 
