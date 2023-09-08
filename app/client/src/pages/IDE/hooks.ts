@@ -27,7 +27,6 @@ export const useIDENavState = (): [
  * if the current item is not in the top 4, add it and return the new list
  * if the current item is already in the top 4, no change to list
  **/
-
 export const useIDEPageRecent = (
   items: Item[],
   currentItemId?: string,
@@ -62,7 +61,7 @@ export const useIDEPageRecent = (
         sortedItems,
         (r) => r.key === currentItemId,
       );
-      if (indexOfCurrentItem > 3) {
+      if (indexOfCurrentItem > 3 || indexOfCurrentItem === -1) {
         setSortedItems(newSortedList);
       }
     }
