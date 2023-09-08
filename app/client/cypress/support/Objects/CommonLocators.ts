@@ -81,7 +81,8 @@ export class CommonLocators {
     item +
     "']/ancestor::div[@role='menuitem']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
-  _visibleTextSpan = (spanText: string) => `//span[text()="` + spanText + `"]`;
+  _visibleTextSpan = (spanText: string, isCss = false) =>
+    isCss ? `span:contains("${spanText}")` : `//span[text()="${spanText}"]`;
   _openWidget = ".widgets .t--entity-add-btn";
   _dropHere = ".t--drop-target";
   _editPage = "[data-testid=onboarding-tasks-datasource-text], .t--drop-target";
@@ -297,4 +298,5 @@ export class CommonLocators {
   _newDataSourceBtn = ".datasources .t--entity-add-btn";
   _callbackAddBtn = ".action-callback-add .ads-v2-button";
   _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
+  _textInside = ".bp3-ui-text span";
 }
