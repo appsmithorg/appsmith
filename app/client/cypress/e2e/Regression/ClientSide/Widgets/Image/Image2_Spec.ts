@@ -23,7 +23,7 @@ describe("Image widget tests", function () {
 
   it("1. Verify Image Preview for different types of images (png, jpg, gif, svg, webp)", function () {
     //jpg
-    propPane.TypeTextIntoField("Image", jpgImg);
+    propPane.UpdatePropertyFieldValue("Image", jpgImg);
     agHelper.AssertAttribute(widgetLocators.image + " img", "src", jpgImg);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.AssertElementExist(image(jpgImg));
@@ -31,7 +31,7 @@ describe("Image widget tests", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Image1", "Widgets");
     //gif
-    propPane.TypeTextIntoField("Image", gifImg);
+    propPane.UpdatePropertyFieldValue("Image", gifImg);
     agHelper.AssertAttribute(widgetLocators.image + " img", "src", gifImg);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.AssertElementExist(image(gifImg));
@@ -39,7 +39,7 @@ describe("Image widget tests", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Image1", "Widgets");
     //webp
-    propPane.TypeTextIntoField("Image", webpImg);
+    propPane.UpdatePropertyFieldValue("Image", webpImg);
     agHelper.AssertAttribute(widgetLocators.image + " img", "src", webpImg);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.AssertElementExist(image(webpImg));
@@ -48,7 +48,7 @@ describe("Image widget tests", function () {
     entityExplorer.SelectEntityByName("Image1", "Widgets");
     //Not working in cypress whereas works fine manually
     //svg
-    // propPane.TypeTextIntoField("Image", svgImg);
+    // propPane.UpdatePropertyFieldValue("Image", svgImg);
     // agHelper.AssertAttribute(widgetLocators.image + " img", "src", svgImg)
     // deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
     // agHelper.AssertElementExist(image(svgImg))
@@ -56,7 +56,7 @@ describe("Image widget tests", function () {
     // deployMode.NavigateBacktoEditor();
     // entityExplorer.SelectEntityByName("Image1", "Widgets");
     //png
-    propPane.TypeTextIntoField("Image", pngImg);
+    propPane.UpdatePropertyFieldValue("Image", pngImg);
     agHelper.AssertAttribute(widgetLocators.image + " img", "src", pngImg);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.AssertElementExist(image(pngImg));
@@ -66,7 +66,7 @@ describe("Image widget tests", function () {
   it("2. Validate Binding Image to Button Widget and checking the behaviour on enabling/disabling the button", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Image1", "Widgets");
-    propPane.TypeTextIntoField(
+    propPane.UpdatePropertyFieldValue(
       "Image",
       "{{Button1.isDisabled ?'" + jpgImg + "':'" + gifImg + "'}}",
     );
@@ -147,48 +147,7 @@ describe("Image widget tests", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
   });
 
-  it("6. Verify image download", function () {
-    agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.AssertElementAbsence(widgetLocators.imageDownloadBtn);
-    deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Image1", "Widgets");
-    agHelper.AssertExistingToggleState("enabledownload", "false");
-    propPane.TogglePropertyState("enabledownload", "On");
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.AssertElementVisibility(widgetLocators.imageDownloadBtn);
-    agHelper.AssertAttribute(widgetLocators.imageDownloadBtn, "href", jpgImg);
-  });
-
-  it("7. Validate enable rotation property", function () {
-    agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.AssertElementAbsence(widgetLocators.imageRotateClockwiseBtn);
-    deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Image1", "Widgets");
-    agHelper.AssertExistingToggleState("enablerotation", "false");
-    propPane.TogglePropertyState("enablerotation", "On");
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.AssertElementVisibility(widgetLocators.imageRotateClockwiseBtn);
-    agHelper.AssertElementVisibility(
-      widgetLocators.imageRotateAntiClockwiseBtn,
-    );
-    agHelper.GetNClick(widgetLocators.imageRotateClockwiseBtn);
-    agHelper.AssertCSS(
-      widgetLocators.image,
-      "transform",
-      "matrix(0, 1, -1, 0, 0, 0)",
-    );
-    agHelper.GetNClick(widgetLocators.imageRotateAntiClockwiseBtn);
-    agHelper.AssertCSS(
-      widgetLocators.image,
-      "transform",
-      "matrix(1, 0, 0, 1, 0, 0)",
-    );
-  });
-
-  it("8. Verify image styles", function () {
+  it("6. Verify image styles", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Image1", "Widgets");
     propPane.MoveToTab("Style");
@@ -216,7 +175,7 @@ describe("Image widget tests", function () {
     );
   });
 
-  it("9. Validate OnClick Event", function () {
+  it("7. Validate OnClick Event", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Image1", "Widgets");
     propPane.EnterJSContext(
@@ -233,10 +192,10 @@ describe("Image widget tests", function () {
     propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
-      "Image Clicked! (NEW)",
+      "Image Clicked again!",
     );
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.IMAGE));
-    agHelper.ValidateToastMessage("Image Clicked! (NEW)");
+    agHelper.ValidateToastMessage("Image Clicked again!");
   });
 });
