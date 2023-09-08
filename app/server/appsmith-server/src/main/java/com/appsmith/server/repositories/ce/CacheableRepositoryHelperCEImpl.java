@@ -34,17 +34,14 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 @Component
 public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelperCE {
     private final ReactiveMongoOperations mongoOperations;
-    private final Map<String, User> tenantAnonymousUserMap;
+    private static final Map<String, User> tenantAnonymousUserMap = new HashMap<>();
 
-    private Set<String> anonymousUserPermissionGroupIds;
+    private static Set<String> anonymousUserPermissionGroupIds = null;
 
-    private String defaultTenantId;
+    private static String defaultTenantId = null;
 
     public CacheableRepositoryHelperCEImpl(ReactiveMongoOperations mongoOperations) {
         this.mongoOperations = mongoOperations;
-        this.defaultTenantId = null;
-        this.tenantAnonymousUserMap = new HashMap<>();
-        anonymousUserPermissionGroupIds = null;
     }
 
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
