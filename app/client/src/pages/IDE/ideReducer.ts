@@ -6,8 +6,16 @@ import type { Item } from "./components/ListView";
 export interface IDEReduxState {
   sidebarWidth: number;
   pageNavState: PageNavState;
+  pageTabState: TabState;
+  showAddDatasourceModal: boolean;
   queryList: Item[];
   jsList: Item[];
+}
+
+export enum TabState {
+  ADD = "ADD",
+  EDIT = "EDIT",
+  LIST = "LIST",
 }
 
 export enum IDEAppState {
@@ -27,6 +35,8 @@ export enum PageNavState {
 const initialState: IDEReduxState = {
   sidebarWidth: 300,
   pageNavState: PageNavState.UI,
+  pageTabState: TabState.EDIT,
+  showAddDatasourceModal: false,
   queryList: [],
   jsList: [],
 };
@@ -43,6 +53,18 @@ const ideReducer = createReducer(initialState, {
     action: ReduxAction<PageNavState>,
   ): IDEReduxState => {
     return { ...state, pageNavState: action.payload };
+  },
+  [ReduxActionTypes.SET_IDE_PAGE_TAB_STATE]: (
+    state: IDEReduxState,
+    action: ReduxAction<TabState>,
+  ): IDEReduxState => {
+    return { ...state, pageTabState: action.payload };
+  },
+  [ReduxActionTypes.SHOW_ADD_DATASOURCE_MODAL]: (
+    state: IDEReduxState,
+    action: ReduxAction<boolean>,
+  ): IDEReduxState => {
+    return { ...state, showAddDatasourceModal: action.payload };
   },
   [ReduxActionTypes.SET_RECENT_QUERY_LIST]: (
     state: IDEReduxState,

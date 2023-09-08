@@ -20,6 +20,7 @@ import { resetEditorRequest } from "actions/initActions";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { Spinner } from "design-system";
+import AddDatasourceModal from "./DataState/AddDatasourceModal";
 
 const Body = styled.div<{ leftPaneWidth: number }>`
   height: calc(100vh - 40px);
@@ -81,6 +82,7 @@ const IDE = function () {
         <TemplatesModal />
         <ImportedApplicationSuccessModal />
         <ReconnectDatasourceModal />
+        <AddDatasourceModal />
       </GlobalHotKeys>
     </div>
   );
