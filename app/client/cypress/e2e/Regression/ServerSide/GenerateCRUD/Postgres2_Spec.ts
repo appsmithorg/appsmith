@@ -74,6 +74,11 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
+    entityExplorer.SelectEntityByName("CreateVessels");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 
   it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Vessels", () => {
