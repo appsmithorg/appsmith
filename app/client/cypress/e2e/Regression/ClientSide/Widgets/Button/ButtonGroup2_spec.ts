@@ -25,7 +25,7 @@ describe("Button Group Widget Test", function () {
       .children()
       .should("have.length", 4);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    entityExplorer.SelectEntityByName("ButtonGroup11");
     agHelper.GetNClick(table._deleteColumn, 3);
     deployMode.DeployApp();
     agHelper
@@ -53,7 +53,7 @@ describe("Button Group Widget Test", function () {
     deployMode.DeployApp();
     agHelper.ClickButton("More");
     agHelper.AssertElementExist(
-      buttongroupwidgetlocators.buttonMenuOptions("Option1"),
+      buttongroupwidgetlocators.buttonMenuOptions("Option11"),
     );
     agHelper.AssertElementExist(
       buttongroupwidgetlocators.buttonMenuOptions("Option2"),
@@ -70,7 +70,7 @@ describe("Button Group Widget Test", function () {
     deployMode.DeployApp();
     agHelper.ClickButton("More");
     agHelper.AssertElementExist(
-      buttongroupwidgetlocators.buttonMenuOptions("Option1"),
+      buttongroupwidgetlocators.buttonMenuOptions("Option11"),
     );
     agHelper.AssertElementExist(
       buttongroupwidgetlocators.buttonMenuOptions("Option2"),
@@ -119,7 +119,7 @@ describe("Button Group Widget Test", function () {
     agHelper.ClickButton("More");
     // assert option 1 is not visible as its visibility set to false
     agHelper.AssertElementAbsence(
-      buttongroupwidgetlocators.buttonMenuOptions("Option 1"),
+      buttongroupwidgetlocators.buttonMenuOptions("Option 11"),
     );
     agHelper.AssertElementExist(
       buttongroupwidgetlocators.buttonMenuOptions("Option 2"),
@@ -128,7 +128,7 @@ describe("Button Group Widget Test", function () {
   });
 
   it("4. Assert button group options - single and menu disability ", function () {
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    entityExplorer.SelectEntityByName("ButtonGroup11");
     deployMode.DeployApp();
     agHelper.AssertElementExist(buttongroupwidgetlocators.buttongroup);
     deployMode.NavigateBacktoEditor();
@@ -155,7 +155,7 @@ describe("Button Group Widget Test", function () {
   it("5. Assert On click button group ", function () {
     entityExplorer.DragNDropWidget(draggableWidgets.MODAL, 250, 250);
     agHelper.ClickButton("Close");
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    entityExplorer.SelectEntityByName("ButtonGroup11");
     agHelper.GetNClick(buttongroupwidgetlocators.buttonSettingInPropPane, 0);
     propPane.EnterJSContext("onClick", "{{showModal('Modal1')}}");
     deployMode.DeployApp();
