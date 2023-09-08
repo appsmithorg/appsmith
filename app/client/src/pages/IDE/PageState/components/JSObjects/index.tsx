@@ -11,6 +11,11 @@ import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getIdeSidebarWidth } from "pages/IDE/ideSelector";
 import styled from "styled-components";
 import { useIDEPageRecent } from "../../../hooks";
+import { importSvg } from "design-system-old";
+
+const DataIcon = importSvg(
+  () => import("pages/IDE/assets/icons/no-jsobjects.svg"),
+);
 
 const Wrapper = styled.div<{ width: number }>`
   height: 100%;
@@ -65,6 +70,12 @@ function JSObjects(props: Props) {
 
   return (
     <PagePaneContainer
+      blankState={{
+        image: DataIcon,
+        description:
+          "Use javascript to transform your data or write business logic",
+        buttonText: "New JS Object",
+      }}
       editor={editor}
       listItems={sortedList}
       listStateTitle={`JS Objects in this page (${sortedList.length})`}

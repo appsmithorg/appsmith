@@ -15,6 +15,11 @@ import ApiEditor from "../../../Editor/APIEditor";
 import PagePaneContainer from "./PagePaneContainer";
 import { getPluginIcon } from "../../../Editor/Explorer/ExplorerIcons";
 import { useIDEPageRecent } from "../../hooks";
+import { importSvg } from "design-system-old";
+
+const DataIcon = importSvg(
+  () => import("pages/IDE/assets/icons/no-queries.svg"),
+);
 
 type Props = RouteComponentProps<{
   appId: string;
@@ -120,6 +125,11 @@ const QuerySidebar = (props: Props) => {
     <PagePaneContainer
       addItems={addOperations}
       addStateTitle="Create a new query on..."
+      blankState={{
+        image: DataIcon,
+        description: "You have data. Write your first query.",
+        buttonText: "New query",
+      }}
       editor={editor}
       listItems={sortedActionList}
       listStateTitle={`Queries in this page (${sortedActionList.length})`}

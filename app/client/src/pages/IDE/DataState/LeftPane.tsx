@@ -51,11 +51,12 @@ const DataLeftPane = () => {
     );
   };
   return (
-    <div>
+    <div className="h-full">
       <AddDatasourceModal
         isOpen={openAddModal}
         onBack={() => setOpenAddModal(false)}
       />
+
       <ListSubTitle
         rightIcon={
           <Button

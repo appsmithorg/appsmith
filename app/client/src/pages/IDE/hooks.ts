@@ -50,6 +50,7 @@ export const useIDEPageRecent = (
     return 0;
   });
   useEffect(() => {
+    if (newSortedList.length === 0) return;
     if (sortedItems.length === 0) {
       setSortedItems(newSortedList);
     }

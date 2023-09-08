@@ -110,7 +110,7 @@ const LeftPane = () => {
           </div>
         </StyledResizer>
       )}
-      <div>
+      <div className="h-full">
         <Switch>
           <SentryRoute component={DataLeftPane} exact path={IDE_DATA_PATH} />
           <SentryRoute
