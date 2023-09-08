@@ -1,8 +1,10 @@
 package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.AnalyticsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,10 +25,13 @@ public class LogoutSuccessHandlerCE implements ServerLogoutSuccessHandler {
 
     private final ObjectMapper objectMapper;
     private final AnalyticsService analyticsService;
+    private final RateLimitService rateLimitService;
 
-    public LogoutSuccessHandlerCE(ObjectMapper objectMapper, AnalyticsService analyticsService) {
+    public LogoutSuccessHandlerCE(
+            ObjectMapper objectMapper, AnalyticsService analyticsService, RateLimitService rateLimitService) {
         this.objectMapper = objectMapper;
         this.analyticsService = analyticsService;
+        this.rateLimitService = rateLimitService;
     }
 
     @Override
@@ -42,8 +47,12 @@ public class LogoutSuccessHandlerCE implements ServerLogoutSuccessHandler {
             String responseStr = objectMapper.writeValueAsString(responseBody);
             DataBuffer buffer =
                     exchange.getResponse().bufferFactory().allocateBuffer().write(responseStr.getBytes());
+
+            User loggedInUser = (User) authentication.getPrincipal();
+            rateLimitService.resetCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, loggedInUser.getEmail());
+
             return analyticsService
-                    .sendObjectEvent(AnalyticsEvents.LOGOUT, (User) authentication.getPrincipal())
+                    .sendObjectEvent(AnalyticsEvents.LOGOUT, loggedInUser)
                     .then(response.writeWith(Mono.just(buffer)));
         } catch (JsonProcessingException e) {
             log.error("Unable to write to response json. Cause: ", e);

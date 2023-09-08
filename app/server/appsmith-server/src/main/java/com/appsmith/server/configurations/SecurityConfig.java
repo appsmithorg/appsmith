@@ -238,7 +238,7 @@ public class SecurityConfig {
                         .authorizedClientRepository(new ClientUserRepository(userService, commonConfig)))
                 .logout()
                 .logoutUrl(Url.LOGOUT_URL)
-                .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
+                .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService, rateLimitService))
                 .and()
                 .build();
     }
