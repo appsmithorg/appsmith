@@ -127,6 +127,7 @@ describe("JSONForm widget one click binding feature", () => {
 
     agHelper.Sleep(2000);
 
+    // reloading because we don't create select query with json form, so we need to reload the page to get the updated data
     cy.reload();
 
     entityExplorer.NavigateToSwitcher("Widgets");
