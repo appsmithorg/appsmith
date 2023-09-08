@@ -131,6 +131,31 @@ const PagePaneContainer = (props: Props) => {
     return <div />;
   };
 
+  const PaneTitleBarRight = () => {
+    if (pageState === TabState.EDIT) {
+      if (showMore) {
+        return (
+          <Button
+            kind="secondary"
+            onClick={() => dispatch(setIdePageTabState(TabState.LIST))}
+          >
+            more
+          </Button>
+        );
+      }
+      return null;
+    }
+    return (
+      <Button
+        className="justify-self-end"
+        isIconButton
+        kind={"secondary"}
+        onClick={onClose}
+        startIcon={"close"}
+      />
+    );
+  };
+
   const PaneListView = () => {
     if (pageState === TabState.LIST) {
       if (!!props.listItems?.length) {
@@ -171,22 +196,7 @@ const PagePaneContainer = (props: Props) => {
         )}
         {/*TABS end*/}
         {/*RIGHT ICON start*/}
-        {pageState === TabState.EDIT && showMore ? (
-          <Button
-            kind="secondary"
-            onClick={() => dispatch(setIdePageTabState(TabState.LIST))}
-          >
-            more
-          </Button>
-        ) : (
-          <Button
-            className="justify-self-end"
-            isIconButton
-            kind={"secondary"}
-            onClick={onClose}
-            startIcon={"close"}
-          />
-        )}
+        <PaneTitleBarRight />
         {/*RIGHT ICON end*/}
       </PaneTitleBar>
       <Body>
