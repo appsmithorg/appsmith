@@ -9,12 +9,6 @@ const Container = styled.div`
   align-items: center;
 `;
 
-// const StepContainer = styled.div`
-//   display: flex;
-//   align-items: center;
-//   cursor: pointer;
-// `;
-
 const StepButton = styled(Button)`
   display: flex;
   align-items: center;
