@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useLayoutEffect, useMemo } from "react";
 import type { RouteComponentProps } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getPlugins } from "../../../../selectors/entitiesSelector";
@@ -77,7 +77,7 @@ const QuerySidebar = (props: Props) => {
     },
     [fileOperations],
   );
-  const toListActions = actions.map((action) => ({
+  const toListActions: Item[] = actions.map((action) => ({
     ...action,
     selected: action.key === actionId,
   }));
@@ -99,6 +99,14 @@ const QuerySidebar = (props: Props) => {
     },
     [plugins],
   );
+
+  useLayoutEffect(() => {
+    if (!actionId) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      listItemClick(toListActions[0]);
+    }
+  }, [actionId]);
 
   let editor: React.ReactNode = <div />;
 

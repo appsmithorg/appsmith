@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useLayoutEffect } from "react";
 import { jsCollectionIdURL } from "RouteBuilder";
 import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
@@ -49,6 +49,12 @@ function JSObjects(props: Props) {
       { invokedBy: NavigationMethod.EntityExplorer },
     );
   }, []);
+
+  useLayoutEffect(() => {
+    if (!collectionId) {
+      listItemClick(toListActions[0]);
+    }
+  }, [collectionId]);
 
   const editor = collectionId ? (
     <Wrapper width={leftPaneWidth}>
