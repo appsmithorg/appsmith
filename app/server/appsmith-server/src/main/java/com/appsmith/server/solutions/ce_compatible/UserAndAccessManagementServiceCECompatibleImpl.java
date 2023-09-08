@@ -1,5 +1,7 @@
 package com.appsmith.server.solutions.ce_compatible;
 
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -10,6 +12,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.ce.UserAndAccessManagementServiceCEImpl;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 @Component
 public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAccessManagementServiceCEImpl
@@ -32,5 +35,10 @@ public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAcces
                 userService,
                 emailSender,
                 permissionGroupPermission);
+    }
+
+    @Override
+    public Mono<Boolean> deleteProvisionUser(String userId) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

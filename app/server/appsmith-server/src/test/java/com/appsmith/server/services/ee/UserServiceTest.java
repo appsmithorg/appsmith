@@ -11,11 +11,13 @@ import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserGroupService;
@@ -25,8 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
@@ -86,6 +90,9 @@ public class UserServiceTest {
     @Autowired
     TenantService tenantService;
 
+    @MockBean
+    FeatureFlagService featureFlagService;
+
     User api_user = null;
     User admin_user = null;
 
@@ -95,6 +102,7 @@ public class UserServiceTest {
 
     @BeforeEach
     public void setup() {
+        mockFeatureFlag(FeatureFlagEnum.license_audit_logs_enabled, false);
 
         api_user = userRepository.findByEmail("api_user").block();
 
@@ -113,6 +121,10 @@ public class UserServiceTest {
             superAdminPermissionGroupId =
                     userUtils.getSuperAdminPermissionGroup().block().getId();
         }
+    }
+
+    private void mockFeatureFlag(FeatureFlagEnum featureFlagEnum, boolean value) {
+        Mockito.when(featureFlagService.check(Mockito.eq(featureFlagEnum))).thenReturn(Mono.just(value));
     }
 
     @Test
@@ -323,6 +335,7 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void createProvisionedUser_checkUserPermissions() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "createProvisionedUser_checkUserPermissions";
         String instanceAdminRoleId = userUtils
                 .getSuperAdminPermissionGroup()
@@ -373,6 +386,7 @@ public class UserServiceTest {
                 .doesNotContain(instanceAdminRoleId, userManagementRoleId);
 
         userRepository.deleteById(createdProvisionedUser.getId()).block();
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
@@ -393,6 +407,7 @@ public class UserServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void deleteProvisionedUserAsInstanceAdmin_throwUnauthorisedError() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "deleteProvisionedUserAsInstanceAdmin_throwUnauthorisedError";
 
         User user = new User();
@@ -401,17 +416,19 @@ public class UserServiceTest {
 
         AppsmithException unauthorisedException = assertThrows(AppsmithException.class, () -> {
             userAndAccessManagementService
-                    .deleteUser(createdUser.getResource().getId())
+                    .deleteProvisionUser(createdUser.getResource().getId())
                     .block();
         });
         assertThat(unauthorisedException.getMessage()).isEqualTo(AppsmithError.UNAUTHORIZED_ACCESS.getMessage());
 
         userRepository.deleteById(createdUser.getResource().getId()).block();
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails("api_user")
     public void createRegularUser_convertToProvisionUser_deleteUser_throwUnauthorisedError() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "createRegularUser_convertToProvisionUser_deleteUser_throwUnauthorisedError";
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
@@ -484,17 +501,19 @@ public class UserServiceTest {
 
         AppsmithException unauthorisedException = assertThrows(AppsmithException.class, () -> {
             userAndAccessManagementService
-                    .deleteUser(updatedProvisionedUser.getResource().getId())
+                    .deleteProvisionUser(updatedProvisionedUser.getResource().getId())
                     .block();
         });
         assertThat(unauthorisedException.getMessage()).isEqualTo(AppsmithError.UNAUTHORIZED_ACCESS.getMessage());
 
         userRepository.deleteById(updatedProvisionedUser.getResource().getId()).block();
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails("provisioningUser")
     public void createRegularUser_convertToProvisionUser_deleteUserWithProvisioningRole_deleteUserSuccessfully() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName =
                 "createRegularUser_convertToProvisionUser_deleteUserWithProvisioningRole_deleteUserSuccessfully";
         PermissionGroup instanceAdminRole =
@@ -551,15 +570,17 @@ public class UserServiceTest {
                 .doesNotContain(instanceAdminRole.getId(), userManagementRoleId);
 
         userAndAccessManagementService
-                .deleteUser(updatedProvisionedUser.getResource().getId())
+                .deleteProvisionUser(updatedProvisionedUser.getResource().getId())
                 .block();
         User deletedUser = userRepository.findById(createdUser.getId()).block();
         assertThat(deletedUser).isNull();
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void createProvisionedUser_RegularUser_getAllUsersShouldReturnBoth_toApiUser() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "createProvisionedUser_RegularUser_getAllUsersShouldReturnBoth_toApiUser";
         User user1 = new User();
         user1.setEmail(testName + "_Regular@appsmith.com");
@@ -581,11 +602,13 @@ public class UserServiceTest {
                 .filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Provisioned@appsmith.com"))
                 .findAny();
         assertThat(provisionUserFetched.isPresent()).isTrue();
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void createProvisionedUser_RegularUser_getAllUsersShouldReturnBoth_toProvisioningUser() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "createProvisionedUser_RegularUser_getAllUsersShouldReturnBoth_toProvisioningUser";
         User user1 = new User();
         user1.setEmail(testName + "_Regular@appsmith.com");
@@ -607,11 +630,13 @@ public class UserServiceTest {
                 .filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Provisioned@appsmith.com"))
                 .findAny();
         assertThat(provisionUserFetched.isPresent()).isTrue();
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void createProvisionedUser_updateEmail_shouldHaveSameUserId_nameShouldNotGetUpdated() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "createProvisionedUser_updateEmail_shouldHaveSameUserId";
         User user = new User();
         user.setEmail(testName + "_Provisioned@appsmith.com");
@@ -635,11 +660,13 @@ public class UserServiceTest {
         assertThat(userWithUpdatedEmail.getName()).isEqualTo(testName);
         assertThat(((User) updatedProvisionUser.getResource()).getEmail())
                 .isEqualToIgnoringCase(testName + "_UpdatedProvisioned@appsmith.com");
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void createProvisionedUser_updateName_shouldHaveSameUserId_nameShouldGetUpdated() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "createProvisionedUser_updateName_shouldHaveSameUserId_nameShouldGetUpdated";
         User user = new User();
         user.setEmail(testName + "_Provisioned@appsmith.com");
@@ -662,5 +689,6 @@ public class UserServiceTest {
         assertThat(userWithEmail.getName()).isEqualTo(testName + "_updated");
         assertThat(((User) updatedProvisionUser.getResource()).getEmail())
                 .isEqualToIgnoringCase(testName + "_Provisioned@appsmith.com");
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 }

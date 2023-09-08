@@ -20,6 +20,7 @@ import com.appsmith.server.dtos.ProvisionStatusDTO;
 import com.appsmith.server.enums.ProvisionStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApiKeyRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -31,15 +32,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -108,6 +112,9 @@ class ProvisionServiceImplTest {
     @Autowired
     EncryptionService encryptionService;
 
+    @MockBean
+    FeatureFlagService featureFlagService;
+
     private License defaultLicense;
 
     @BeforeEach
@@ -116,6 +123,12 @@ class ProvisionServiceImplTest {
         userUtils.makeSuperUser(List.of(apiUser)).block();
         Tenant tenant = tenantService.getDefaultTenant().block();
         defaultLicense = tenant.getTenantConfiguration().getLicense();
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
     }
 
     @AfterEach
@@ -123,6 +136,7 @@ class ProvisionServiceImplTest {
         Tenant tenant = tenantService.getDefaultTenant().block();
         tenant.getTenantConfiguration().setLicense(defaultLicense);
         tenantService.save(tenant).block();
+        Mockito.when(featureFlagService.check(Mockito.any())).thenReturn(Mono.just(Boolean.FALSE));
     }
 
     private void setTenantLicenseAsSelfServe() {
@@ -156,6 +170,10 @@ class ProvisionServiceImplTest {
         Tenant tenant = tenantService.getDefaultTenant().block();
         tenant.getTenantConfiguration().setLicense(null);
         tenantService.save(tenant).block();
+    }
+
+    private void mockFeatureFlag(FeatureFlagEnum featureFlagEnum, boolean value) {
+        Mockito.when(featureFlagService.check(Mockito.eq(featureFlagEnum))).thenReturn(Mono.just(value));
     }
 
     @Test

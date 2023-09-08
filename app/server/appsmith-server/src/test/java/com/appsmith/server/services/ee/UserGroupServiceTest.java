@@ -16,9 +16,11 @@ import com.appsmith.server.dtos.UserGroupUpdateDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserGroupService;
@@ -29,8 +31,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -89,6 +93,9 @@ public class UserGroupServiceTest {
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
 
+    @MockBean
+    FeatureFlagService featureFlagService;
+
     User api_user = null;
     User admin_user = null;
 
@@ -98,6 +105,7 @@ public class UserGroupServiceTest {
 
     @BeforeEach
     public void setup() {
+        mockFeatureFlag(FeatureFlagEnum.license_audit_logs_enabled, false);
 
         api_user = userRepository.findByEmail("api_user").block();
 
@@ -116,6 +124,10 @@ public class UserGroupServiceTest {
             superAdminPermissionGroupId =
                     userUtils.getSuperAdminPermissionGroup().block().getId();
         }
+    }
+
+    private void mockFeatureFlag(FeatureFlagEnum featureFlagEnum, boolean value) {
+        Mockito.when(featureFlagService.check(Mockito.eq(featureFlagEnum))).thenReturn(Mono.just(value));
     }
 
     @Test
@@ -926,6 +938,7 @@ public class UserGroupServiceTest {
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void createProvisionedGroup_checkPermissions() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "createProvisionedGroup_checkPermissions";
         String instanceAdminRoleId = userUtils
                 .getSuperAdminPermissionGroup()
@@ -971,6 +984,7 @@ public class UserGroupServiceTest {
         assertThat(deleteUserGroupPolicy.get().getPermissionGroups()).containsExactly(provisioningRoleId);
         assertThat(addUsersToUserGroupPolicy.get().getPermissionGroups()).containsExactly(provisioningRoleId);
         assertThat(removeUsersFromUserGroupPolicy.get().getPermissionGroups()).containsExactly(provisioningRoleId);
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
@@ -991,6 +1005,7 @@ public class UserGroupServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void deleteProvisionedUserGroupAsInstanceAdmin_throwUnauthorisedError() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "deleteProvisionedUserGroupAsInstanceAdmin_throwUnauthorisedError";
 
         UserGroup userGroup = new UserGroup();
@@ -999,16 +1014,20 @@ public class UserGroupServiceTest {
                 userGroupService.createProvisionGroup(userGroup).block();
 
         AppsmithException unauthorisedException = assertThrows(AppsmithException.class, () -> {
-            userGroupService.archiveById(createdUserGroup.getResource().getId()).block();
+            userGroupService
+                    .archiveProvisionGroupById(createdUserGroup.getResource().getId())
+                    .block();
         });
         assertThat(unauthorisedException.getMessage()).isEqualTo(AppsmithError.UNAUTHORIZED_ACCESS.getMessage());
 
         userRepository.deleteById(createdUserGroup.getResource().getId()).block();
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails("api_user")
     public void createProvisionedUserGroup_RegularUserGroup_getAllUserGroupsShouldReturnBoth_toApiUser() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "createProvisionedUserGroup_RegularUserGroup_getAllUserGroupsShouldReturnBoth_toApiUser";
 
         UserGroup userGroup_provisioning = new UserGroup();
@@ -1031,11 +1050,13 @@ public class UserGroupServiceTest {
                 .findAny();
         assertThat(regularGroup.isPresent()).isTrue();
         assertThat(provisionGroup.isPresent()).isTrue();
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails("provisioningUser")
     public void createProvisionedUserGroup_RegularUserGroup_getAllUserGroupsShouldReturnBoth_toProvisioningUser() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName =
                 "createProvisionedUserGroup_RegularUserGroup_getAllUserGroupsShouldReturnProvisioningUserGroup_toProvisioningUser";
 
@@ -1061,11 +1082,13 @@ public class UserGroupServiceTest {
                 .findAny();
         assertThat(regularGroup.isPresent()).isFalse();
         assertThat(provisionGroup.isPresent()).isTrue();
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails("provisioningUser")
     public void removeDeletedUserFromUserGroup_shouldReturnEmptyList_shouldNotUpdateUserGroup() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "removeDeletedUserFromUserGroup_shouldReturnEmptyList_shouldNotUpdateUserGroup";
         User user1 = new User();
         user1.setEmail(testName + "_provisioned_user1@appsmith.com");
@@ -1148,11 +1171,13 @@ public class UserGroupServiceTest {
                 (UserGroup) provisionedUserGroupPostRemovingExistingUser.getResource();
         assertThat(provisionedUserGroupResourcePostRemovingExistingUser.getUsers())
                 .isEmpty();
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails("provisioningUser")
     public void inviteInvalidUserIdToUserGroup_shouldReturnEmptyList_shouldNotUpdateUserGroup() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "inviteInvalidUserIdToUserGroup_shouldReturnEmptyList_shouldNotUpdateUserGroup";
         User user1 = new User();
         user1.setEmail(testName + "_provisioned_user1@appsmith.com");
@@ -1197,11 +1222,13 @@ public class UserGroupServiceTest {
                 (UserGroup) provisionedUserGroupPostRemovingDeletedUser.getResource();
         assertThat(provisionedUserGroupResourcePostRemovingDeletedUser.getUsers())
                 .containsExactlyInAnyOrder(provisionedUser1.getResource().getId());
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void testIsProvisionedOnUsersIsSetTrueWhenReturningGroups() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "testIsProvisionedOnUsersIsSetTrueWhenReturningGroups";
         User user1 = new User();
         user1.setEmail(testName + "user1@appsmith.com");
@@ -1241,6 +1268,7 @@ public class UserGroupServiceTest {
                 .get();
         assertThat(uc1.isProvisioned()).isTrue();
         assertThat(uc2.isProvisioned()).isFalse();
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
@@ -1309,6 +1337,7 @@ public class UserGroupServiceTest {
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void testUpdateGroups_sendNullUserInUpdate() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "testUpdateGroups_sendNullUserInUpdate";
         User user1 = new User();
         user1.setEmail(testName + "_provisioned_user1@appsmith.com");
@@ -1367,11 +1396,13 @@ public class UserGroupServiceTest {
         assertThat(provisionedUserGroupResourcePostUpdate3.getName())
                 .isEqualTo(testName + "_provisionedGroup" + "_updated2");
         assertThat(provisionedUserGroupResourcePostUpdate3.getUsers()).isEmpty();
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void testUpdateProvisionGroup_updateName() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "testUpdateProvisionGroup_updateName";
 
         User user1 = new User();
@@ -1411,11 +1442,13 @@ public class UserGroupServiceTest {
                 .containsExactlyInAnyOrder(
                         provisionedUser1.getResource().getId(),
                         provisionedUser2.getResource().getId());
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void testUpdateProvisionGroup_updateUserListWithOneMoreUser() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "testUpdateProvisionGroup_updateUserListWithOneMoreUser";
 
         User user1 = new User();
@@ -1455,11 +1488,13 @@ public class UserGroupServiceTest {
                 .containsExactlyInAnyOrder(
                         provisionedUser1.getResource().getId(),
                         provisionedUser2.getResource().getId());
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void testUpdateProvisionGroup_updateUserListWithOneLessUser() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "testUpdateProvisionGroup_updateUserListWithOneLessUser";
 
         User user1 = new User();
@@ -1497,11 +1532,13 @@ public class UserGroupServiceTest {
         assertThat(updatedUserGroup.getName()).isEqualTo(testName + "_provisionedGroup");
         assertThat(updatedUserGroup.getUsers())
                 .containsExactlyInAnyOrder(provisionedUser1.getResource().getId());
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void testUpdateProvisionGroup_updateUserListWithCompletelyDifferentList() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "testUpdateProvisionGroup_updateUserListWithCompletelyDifferentList";
 
         User user1 = new User();
@@ -1553,11 +1590,13 @@ public class UserGroupServiceTest {
                 .containsExactlyInAnyOrder(
                         provisionedUser3.getResource().getId(),
                         provisionedUser4.getResource().getId());
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void testUpdateProvisionGroup_updateUserListWithOneDifferentUser() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "testUpdateProvisionGroup_updateUserListWithOneDifferentUser";
 
         User user1 = new User();
@@ -1604,11 +1643,13 @@ public class UserGroupServiceTest {
                 .containsExactlyInAnyOrder(
                         provisionedUser3.getResource().getId(),
                         provisionedUser1.getResource().getId());
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void testUpdateProvisionGroup_updateNameDescriptionAndUsersList_testRaceCondition() {
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
         String testName = "testUpdateProvisionGroup_updateNameDescriptionAndUsersList_testRaceCondition";
 
         User user1 = new User();
@@ -1656,5 +1697,6 @@ public class UserGroupServiceTest {
                 .containsExactlyInAnyOrder(
                         provisionedUser3.getResource().getId(),
                         provisionedUser1.getResource().getId());
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
     }
 }

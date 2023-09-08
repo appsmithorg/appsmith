@@ -3,21 +3,18 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
-import com.appsmith.server.dtos.PagedDomain;
-import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
-import com.appsmith.server.dtos.UserGroupUpdateDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
-import org.springframework.util.MultiValueMap;
+import com.appsmith.server.services.ce_compatible.UserGroupServiceCECompatible;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Set;
 
-public interface UserGroupService extends CrudService<UserGroup, String> {
+public interface UserGroupService extends UserGroupServiceCECompatible {
 
     Mono<UserGroupDTO> createGroup(UserGroup userGroup);
 
@@ -41,16 +38,4 @@ public interface UserGroupService extends CrudService<UserGroup, String> {
     Flux<UserGroupCompactDTO> findAllGroupsForUser(String userId);
 
     Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(User user, Set<String> groupIds);
-
-    Mono<ProvisionResourceDto> updateProvisionGroup(String id, UserGroupUpdateDTO resource);
-
-    Mono<ProvisionResourceDto> getProvisionGroup(String groupId);
-
-    Mono<PagedDomain<ProvisionResourceDto>> getProvisionGroups(MultiValueMap<String, String> queryParams);
-
-    Mono<ProvisionResourceDto> createProvisionGroup(UserGroup userGroup);
-
-    Mono<List<UserGroupDTO>> removeUsersFromProvisionGroup(UsersForGroupDTO removeUsersFromGroupDTO);
-
-    Mono<List<UserGroupDTO>> addUsersToProvisionGroup(UsersForGroupDTO addUsersFromGroupDTO);
 }
