@@ -7,6 +7,7 @@ export const WellContainer = styled.div`
   background-color: var(--ads-color-background-secondary);
   margin-bottom: 16px;
   overflow-y: auto;
+  max-height: calc(100vh - 540px);
 `;
 
 export const WellTitleContainer = styled.div`

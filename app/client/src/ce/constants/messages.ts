@@ -994,7 +994,7 @@ export const IMPORT_APP_IF_NOT_EMPTY = () =>
 export const I_HAVE_EXISTING_REPO = () =>
   "I have an existing appsmith app connected to git";
 export const ERROR_REPO_NOT_EMPTY_TITLE = () =>
-  "The repo you added isn&apos;t empty";
+  "The repo you added isn't empty";
 export const ERROR_REPO_NOT_EMPTY_MESSAGE = () =>
   "Kindly create a new repository and provide its remote SSH URL here. We require an empty repository to continue.";
 export const READ_DOCS = () => "Read Docs";
@@ -1005,7 +1005,7 @@ export const HOW_TO_COPY_REMOTE_URL = () =>
   "How to copy & paste SSH remote URL";
 export const ERROR_SSH_KEY_MISCONF_TITLE = () => "SSH key misconfiguration";
 export const ERROR_SSH_KEY_MISCONF_MESSAGE = () =>
-  "It seems that your SSH key hasn&apos;t been added to your repository. To proceed, please revisit the steps below and configure your SSH key correctly.";
+  "It seems that your SSH key hasn't been added to your repository. To proceed, please revisit the steps below and configure your SSH key correctly.";
 export const ADD_DEPLOY_KEY_STEP_TITLE = () =>
   "Add deploy key & give write access";
 export const HOW_TO_ADD_DEPLOY_KEY = () =>

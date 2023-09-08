@@ -118,7 +118,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
             {modalTitle[activeTabKey] || gitMetadata?.repoName}
           </ModalHeader>
           <EnvInfoHeader />
-          <ReconnectSSHError />
+          {isGitConnected && <ReconnectSSHError />}
           {possibleMenuOptions.includes(activeTabKey) && (
             <Menu
               activeTabKey={activeTabKey}
