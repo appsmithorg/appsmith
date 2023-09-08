@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
@@ -11,6 +12,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -71,8 +73,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final FeatureFlagService featureFlagService;
     private final CommonConfig commonConfig;
     private final UserIdentifierService userIdentifierService;
+    private final RateLimitService rateLimitService;
     private final TenantService tenantService;
-
     private final UserService userService;
 
     private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
@@ -264,6 +266,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
         Mono<Void> redirectionMono = null;
         User user = (User) authentication.getPrincipal();
+        rateLimitService.resetCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, user.getEmail());
         String originHeader =
                 webFilterExchange.getExchange().getRequest().getHeaders().getOrigin();
 
@@ -310,9 +313,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                     .then(handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup));
                         });
             } else {
-                redirectionMono = userService
-                        .sendWelcomeEmail(user, originHeader)
-                        .then(handleOAuth2Redirect(webFilterExchange, null, isFromSignup));
+                redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
             }
         } else {
             // form type signup/login handler

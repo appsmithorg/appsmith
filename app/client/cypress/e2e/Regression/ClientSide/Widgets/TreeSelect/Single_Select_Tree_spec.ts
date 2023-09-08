@@ -1,7 +1,7 @@
-const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
+import formWidgetsPage from "../../../../../locators/FormWidgets.json";
+import publish from "../../../../../locators/publishWidgetspage.json";
+import commonlocators from "../../../../../locators/commonlocators.json";
+import widgetsPage from "../../../../../locators/Widgets.json";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
