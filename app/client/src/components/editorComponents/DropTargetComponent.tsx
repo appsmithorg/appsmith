@@ -39,6 +39,12 @@ import {
 } from "widgets/WidgetUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { importSvg } from "design-system-old";
+import BlankState from "pages/IDE/components/BlankState";
+
+const DataIcon = importSvg(
+  () => import("pages/IDE/assets/icons/no-widgets.svg"),
+);
 
 type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -64,9 +70,14 @@ const StyledDropTarget = styled.div`
 
 function Onboarding() {
   return (
-    <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
-      Drag and drop a widget here
-    </h2>
+    <div className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center">
+      <div>
+        <BlankState
+          description="Add some widgets to the canvas to start building your UI"
+          image={DataIcon}
+        />
+      </div>
+    </div>
   );
 }
 

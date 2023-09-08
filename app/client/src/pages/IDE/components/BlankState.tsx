@@ -5,8 +5,8 @@ import { Button, Text } from "design-system";
 export type BlankStateProps = {
   image: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   description: string;
-  buttonText: string;
-  onClick: () => void;
+  buttonText?: string;
+  onClick?: () => void;
 };
 
 const Wrapper = styled.div`
@@ -24,9 +24,11 @@ function BlankState(props: BlankStateProps) {
       <Text className="text-center" color="#4C5664" kind="body-s">
         {props.description}
       </Text>
-      <Button className="mt-5" onClick={props.onClick}>
-        {props.buttonText}
-      </Button>
+      {props.buttonText && props.onClick && (
+        <Button className="mt-5" onClick={props.onClick}>
+          {props.buttonText}
+        </Button>
+      )}
     </Wrapper>
   );
 }
