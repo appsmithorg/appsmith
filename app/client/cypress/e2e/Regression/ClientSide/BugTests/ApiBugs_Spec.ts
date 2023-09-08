@@ -8,6 +8,8 @@ import {
   dataManager,
   propPane,
   table,
+  draggableWidgets,
+  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
@@ -37,7 +39,7 @@ describe("API Bugs", function () {
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiObjectUrl,
     );
     apiPage.RunAPI();
-    dataSources.AddSuggestedWidget(Widgets.Table, false, -1);
+    dataSources.AddSuggestedWidget(Widgets.Table);
     table.WaitUntilTableLoad(0, 0, "v2");
     propPane.ValidatePropertyFieldValue("Table data", "{{Api2.data.users}}");
   });
@@ -85,5 +87,43 @@ describe("API Bugs", function () {
       key: "records",
       value: "4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}",
     });
+  });
+
+  it("5. Bug 26897, Invalid binding of table data when used existing suggested widgets for an action returning object & array", function () {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+    entityExplorer.NavigateToSwitcher("Explorer");
+
+    // Case where api returns array response
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+      "ARRAY_RESPONSE",
+    );
+    apiPage.RunAPI();
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      dataSources._addSuggestedExisting,
+    );
+    debuggerHelper.AssertErrorCount(0);
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.AssertPropertiesDropDownCurrentValue(
+      "Table data",
+      "ARRAY_RESPONSE",
+    );
+
+    // Create API so that it returns object response
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiObjectUrl,
+      "OBJECT_RESPONSE",
+    );
+    apiPage.RunAPI();
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      dataSources._addSuggestedExisting,
+    );
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.ValidatePropertyFieldValue(
+      "Table data",
+      "{{OBJECT_RESPONSE.data.users}}",
+    );
   });
 });
