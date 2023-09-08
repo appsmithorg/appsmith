@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { Item } from "./components/ListView";
 import type { PageNavState, TabState } from "./ideReducer";
 
 export const setIdeSidebarWidth = (width: number) => {
@@ -28,3 +29,12 @@ export const showAddDatasourceModal = (show: boolean) => {
     payload: show,
   };
 };
+export const setRecentQueryList = (list: Item[]) => ({
+  type: ReduxActionTypes.SET_RECENT_QUERY_LIST,
+  payload: list,
+});
+
+export const setRecentJsList = (list: Item[]) => ({
+  type: ReduxActionTypes.SET_RECENT_JS_LIST,
+  payload: list,
+});

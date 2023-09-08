@@ -25,7 +25,9 @@ import { getAction, getPlugin } from "selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { has } from "lodash";
-import { IDEAppState } from "../pages/IDE/ideReducer";
+import { IDEAppState, PageNavState } from "../pages/IDE/ideReducer";
+import { matchPath } from "react-router";
+import { IDE_PAGE_NAV_PATH } from "../constants/routes";
 
 export function* contextSwitchingSaga(
   currentPath: string,
@@ -172,13 +174,19 @@ function shouldSetState(
   }
   const prevFocusEntityInfo = identifyIDEEntityFromPath(prevPath);
   const currFocusEntityInfo = identifyIDEEntityFromPath(currPath);
+  const match = matchPath<{ pageNav: PageNavState }>(
+    currPath,
+    IDE_PAGE_NAV_PATH,
+  );
+  const pageNav = match?.params.pageNav;
 
   // While switching from selected widget state to canvas,
   // it should not be restored stored state for canvas
   return !(
     prevFocusEntityInfo.entity === FocusEntity.PROPERTY_PANE &&
-    currFocusEntityInfo.entity === FocusEntity.CANVAS &&
-    prevFocusEntityInfo.pageId === currFocusEntityInfo.pageId
+    currFocusEntityInfo.entity === FocusEntity.PAGE &&
+    prevFocusEntityInfo.pageId === currFocusEntityInfo.pageId &&
+    pageNav === PageNavState.UI
   );
 }
 
