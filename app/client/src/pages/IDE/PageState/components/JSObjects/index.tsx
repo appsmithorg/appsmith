@@ -12,6 +12,9 @@ import { getIdeSidebarWidth } from "pages/IDE/ideSelector";
 import styled from "styled-components";
 import { useIDEPageRecent } from "../../../hooks";
 import { importSvg } from "design-system-old";
+import BlankState from "pages/IDE/components/BlankState";
+import { setIdePageTabState } from "pages/IDE/ideActions";
+import { TabState } from "pages/IDE/ideReducer";
 
 const DataIcon = importSvg(
   () => import("pages/IDE/assets/icons/no-jsobjects.svg"),
@@ -70,12 +73,19 @@ function JSObjects(props: Props) {
 
   return (
     <PagePaneContainer
-      blankState={{
-        image: DataIcon,
-        description:
-          "Use javascript to transform your data or write business logic",
-        buttonText: "New JS Object",
-      }}
+      blankState={
+        <BlankState
+          buttonText="New JS Object"
+          description={
+            "Use javascript to transform your data or write business logic"
+          }
+          image={DataIcon}
+          onClick={() => {
+            addItemClick();
+            dispatch(setIdePageTabState(TabState.EDIT));
+          }}
+        />
+      }
       editor={editor}
       listItems={sortedList}
       listStateTitle={`JS Objects in this page (${sortedList.length})`}

@@ -34,6 +34,8 @@ const ActionSelectorReduxActionTypes = {
 const IDEReduxActionTypes = {
   SET_IDE_SIDEBAR_WIDTH: "SET_IDE_SIDEBAR_WIDTH",
   SET_IDE_PAGE_NAV: "SET_IDE_PAGE_NAV",
+  SET_IDE_PAGE_TAB_STATE: "SET_IDE_PAGE_TAB_STATE",
+  SHOW_ADD_DATASOURCE_MODAL: "SHOW_ADD_DATASOURCE_MODAL",
 };
 
 const ActionTypes = {
