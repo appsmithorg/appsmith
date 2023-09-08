@@ -47,7 +47,7 @@ public interface FeatureFlagServiceCE {
      * To get all features of the current tenant.
      * @return Mono of Map
      */
-    Mono<Map<String, Boolean>> getCurrentTenantFeatures();
+    Mono<Map<String, Boolean>> getTenantFeatures();
 
     /**
      * To force update all features of the current tenant.
