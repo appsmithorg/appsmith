@@ -3,9 +3,12 @@ import { importSvg } from "design-system-old";
 import WidgetCard from "pages/Editor/WidgetCard";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getWidgetCards } from "selectors/editorSelectors";
+import { getCurrentPageId, getWidgetCards } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { setIdeSidebarWidth } from "../ideActions";
+import { pageEntityUrl } from "RouteBuilder";
+import history from "utils/history";
+import { PageNavState } from "../ideReducer";
 
 const DataIcon = importSvg(
   () => import("pages/IDE/assets/icons/database-2-line.svg"),
@@ -106,12 +109,21 @@ const AddNewCards = () => {
 
 const WidgetPane = () => {
   const cards = useSelector(getWidgetCards);
+  const currentPageId = useSelector(getCurrentPageId);
 
   return (
     <div>
       <div className="flex justify-between mt-6">
         <Text kind="heading-xs">Drag & Drop widgets on the canvas</Text>
-        <Link onClick={() => null}>View all</Link>
+        <Link
+          onClick={() => {
+            history.push(
+              pageEntityUrl({ pageId: currentPageId || "" }, PageNavState.UI),
+            );
+          }}
+        >
+          View all
+        </Link>
       </div>
 
       <CardList>
