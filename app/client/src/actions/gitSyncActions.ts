@@ -14,6 +14,7 @@ import type {
   GitRemoteStatusData,
 } from "reducers/uiReducers/gitSyncReducer";
 import type { ResponseMeta } from "api/ApiResponses";
+import { noop } from "lodash";
 
 export type GitStatusParams = {
   compareRemote?: boolean;
@@ -180,8 +181,13 @@ export const fetchGitStatusSuccess = (payload: GitStatusData) => ({
   payload,
 });
 
-export const fetchGitRemoteStatusInit = () => ({
+export const fetchGitRemoteStatusInit = ({
+  onSuccessCallback = noop,
+  onErrorCallback = noop,
+} = {}) => ({
   type: ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_INIT,
+  onSuccessCallback,
+  onErrorCallback,
 });
 
 export const fetchGitRemoteStatusSuccess = (payload: GitRemoteStatusData) => ({

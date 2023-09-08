@@ -30,6 +30,7 @@ import GitSettings from "../Tabs/GitSettings";
 import { GitSyncModalTab } from "entities/GitSync";
 import ConnectionSuccess from "../Tabs/ConnectionSuccess";
 import styled from "styled-components";
+import ReconnectSSHError from "../components/ReconnectSSHError";
 
 const StyledModalContent = styled(ModalContent)`
   & {
@@ -118,6 +119,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
         <StyledModalContent data-testid="t--git-sync-modal">
           <ModalHeader>{modalTitle[activeTabKey]}</ModalHeader>
           <EnvInfoHeader />
+          <ReconnectSSHError />
           {possibleMenuOptions.includes(activeTabKey) && (
             <Menu
               activeTabKey={activeTabKey}
