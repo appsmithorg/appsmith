@@ -19,7 +19,7 @@ const DataIcon = importSvg(
 
 const Wrapper = styled.div<{ width: number }>`
   height: 100%;
-  width: ${(props) => props.width}px;
+  width: ${(props) => props.width - 6}px;
   overflow: hidden;
 `;
 

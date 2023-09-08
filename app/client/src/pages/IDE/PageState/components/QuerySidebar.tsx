@@ -16,6 +16,8 @@ import PagePaneContainer from "./PagePaneContainer";
 import { getPluginIcon } from "../../../Editor/Explorer/ExplorerIcons";
 import { useIDEPageRecent } from "../../hooks";
 import { importSvg } from "design-system-old";
+import { getIdeSidebarWidth } from "pages/IDE/ideSelector";
+import styled from "styled-components";
 
 const DataIcon = importSvg(
   () => import("pages/IDE/assets/icons/no-queries.svg"),
@@ -27,10 +29,18 @@ type Props = RouteComponentProps<{
   actionId?: string;
 }>;
 
+const Wrapper = styled.div<{ width: number }>`
+  height: 100%;
+  display: flex;
+  width: ${(props) => props.width - 6}px;
+  overflow: hidden;
+`;
+
 const QuerySidebar = (props: Props) => {
   const dispatch = useDispatch();
   const { actionId, pageId } = props.match.params;
   const actions = useSelector(getActionsForCurrentPage);
+  const leftPaneWidth = useSelector(getIdeSidebarWidth);
   const supportedActions = actions.filter(
     (a) => a.config.pluginType !== PluginType.SAAS,
   );
@@ -108,9 +118,9 @@ const QuerySidebar = (props: Props) => {
   if (actionId && action) {
     if (action.config.pluginType === PluginType.DB) {
       editor = (
-        <div className="h-full flex">
+        <Wrapper width={leftPaneWidth}>
           <QueryEditor actionId={actionId} pageId={pageId} />
-        </div>
+        </Wrapper>
       );
     } else if (action.config.pluginType === PluginType.API) {
       editor = (
