@@ -138,7 +138,7 @@ public class ChatServiceImpl implements ChatService {
         FeatureFlagEnum featureFlagEnum = FeatureFlagEnum.ask_ai;
         if (type == ChatGenerationType.SQL) {
             featureFlagEnum = FeatureFlagEnum.ask_ai_sql;
-        } else if (type == ChatGenerationType.JS_FUNC) {
+        } else if (type == ChatGenerationType.JS_EXPR) {
             featureFlagEnum = FeatureFlagEnum.ask_ai_js;
         }
         return featureFlagEnum;
