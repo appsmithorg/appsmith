@@ -205,11 +205,13 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     table.NavigateToNextPage(true, "v2"); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
+    table.SelectTableRow(0, 0, true, "v2");
     table.WaitUntilTableLoad(0, 0, "v2"); //page 2
     agHelper.AssertElementVisibility(locators._jsonFormWidget); // JSON form should be present
 
     table.NavigateToNextPage(true, "v2"); //page 3
     agHelper.Sleep(3000); //wait for table navigation to take effect!
+    table.SelectTableRow(0, 0, true, "v2");
     table.WaitForTableEmpty("v2"); //page 3
     agHelper.AssertElementAbsence(locators._jsonFormWidget); //JSON form also should not be present
 
@@ -319,11 +321,13 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     table.NavigateToNextPage(true, "v2"); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
+    table.SelectTableRow(0, 0, true, "v2");
     table.WaitUntilTableLoad(0, 0, "v2"); //page 2 //newly inserted record would have pushed the existing record to next page!
     agHelper.AssertElementVisibility(locators._jsonFormWidget); //JSON form should be present
 
     table.NavigateToPreviousPage(true, "v2");
     agHelper.Sleep(3000); //wait for table navigation to take effect!
+    table.SelectTableRow(0, 0, true, "v2");
     table.WaitUntilTableLoad(0, 0, "v2");
 
     dataSources.AssertJSONFormHeader(0, 0, "store_id", "2105");

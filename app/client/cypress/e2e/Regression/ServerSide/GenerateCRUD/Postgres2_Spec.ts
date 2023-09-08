@@ -355,7 +355,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); // for delete to take effect!
-    table.AssertSelectedRow(0); //Control going back to 1st row in table
+    table.SelectTableRow(0, 0, true, "v2");
     dataSources.AssertJSONFormHeader(0, 0, "ship_id");
   });
 
@@ -376,6 +376,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     table.NavigateToNextPage(true, "v2"); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
+    table.SelectTableRow(0, 0, true, "v2");
     table.WaitForTableEmpty("v2"); //page 2
     agHelper.AssertElementAbsence(locators._jsonFormWidget); //JSON form also should not be present
 
@@ -383,6 +384,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     table.NavigateToPreviousPage(true, "v2");
     agHelper.Sleep(3000); //wait for table navigation to take effect!
+    table.SelectTableRow(0, 0, true, "v2");
     table.WaitUntilTableLoad(0, 0, "v2");
   });
 
@@ -581,6 +583,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     table.NavigateToPreviousPage(true, "v2");
     agHelper.Sleep(3000); //wait for table navigation to take effect!
+    table.SelectTableRow(0, 0, true, "v2");
     table.WaitUntilTableLoad(0, 0, "v2");
 
     dataSources.AssertJSONFormHeader(0, 0, "ship_id", "159180");
@@ -594,7 +597,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Confirm");
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
-    table.AssertSelectedRow(0); //Control going back to 1st row in table
+    table.SelectTableRow(0, 0, true, "v2");
 
     table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).not.eq("159180"); //Deleted record Store_ID
