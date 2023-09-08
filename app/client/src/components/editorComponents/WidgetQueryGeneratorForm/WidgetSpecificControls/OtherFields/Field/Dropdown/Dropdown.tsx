@@ -1,5 +1,10 @@
 import React from "react";
-import { ErrorMessage, Label, SelectWrapper } from "../../../../styles";
+import {
+  ErrorMessage,
+  FieldHint,
+  Label,
+  SelectWrapper,
+} from "../../../../styles";
 import { Select } from "design-system";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import type { OtherField } from "../../../../types";
@@ -30,6 +35,7 @@ export function OneClickDropdownFieldControl(
     handleClear,
     handleSelect,
     label,
+    message,
     renderOptions,
     selected,
   } = useDropdown(dropdownProps);
@@ -59,7 +65,8 @@ export function OneClickDropdownFieldControl(
       >
         {renderOptions()}
       </Select>
-      <ErrorMessage>{error}</ErrorMessage>
+      {error && <ErrorMessage>{error}</ErrorMessage>}
+      <FieldHint>{message}</FieldHint>
     </SelectWrapper>
   );
 }

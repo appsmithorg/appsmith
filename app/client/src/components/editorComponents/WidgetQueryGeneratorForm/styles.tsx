@@ -78,8 +78,16 @@ export const LabelWrapper = styled.div`
 
 export const EditFieldsButton = styled(Button)`
   cursor: pointer;
+
   span,
   svg {
     color: var(--ads-v2-color-fg-brand) !important;
   }
+`;
+
+export const FieldHint = styled.div`
+  font-size: 12px;
+  line-height: 14px;
+  color: var(--ads-v2-color-fg-subtle);
+  margin-top: 5px;
 `;

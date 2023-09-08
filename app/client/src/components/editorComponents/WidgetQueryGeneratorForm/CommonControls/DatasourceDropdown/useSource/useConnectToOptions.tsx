@@ -141,7 +141,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
         // If the widget is connectable to the current widget, return the option
         if (getOneClickBindingConnectableWidgetConfig) {
           // This is the path we bind to the sourceData field Ex: `{{Table1.selectedRow}}`
-          const widgetBindPath =
+          const { widgetBindPath } =
             getOneClickBindingConnectableWidgetConfig(currWidget);
           return {
             id: widgetId,

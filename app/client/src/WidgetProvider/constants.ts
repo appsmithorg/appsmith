@@ -126,9 +126,14 @@ export type GetPropertyUpdatesForQueryBinding = (
 
 type SnipingModeSupportedKeys = "data" | "run" | "isDynamicPropertyPath";
 
+type OneClickBindingConnectableWidgetConfig = {
+  widgetBindPath: string;
+  message: string;
+};
+
 export type GetOneClickBindingConnectableWidgetConfig = (
   widgetProps: WidgetProps,
-) => string;
+) => OneClickBindingConnectableWidgetConfig;
 
 export type GetSnipingModeUpdates = (
   propValueMap: Record<SnipingModeSupportedKeys, string | boolean>,
@@ -199,6 +204,7 @@ export enum FileDataTypes {
 }
 
 export type AlignWidget = "LEFT" | "RIGHT";
+
 export enum AlignWidgetTypes {
   LEFT = "LEFT",
   RIGHT = "RIGHT",

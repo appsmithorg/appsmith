@@ -7,6 +7,7 @@ export interface DropdownOptionType {
   icon?: JSX.Element;
   onSelect?: (value: string, option: DropdownOptionType) => void;
   data?: any;
+  message?: string;
 }
 
 export interface Alias {

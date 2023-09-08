@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import { Option } from "design-system";
 import { DropdownOption } from "../../../../CommonControls/DatasourceDropdown/DropdownOption";
 import { WidgetQueryGeneratorFormContext } from "../../../../index";
@@ -44,25 +44,26 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
     options: fieldOptions,
     optionType,
   } = props;
+  const [message, setMessage] = useState("");
 
   const currentPageWidgets = useSelector(getCurrentPageWidgets);
   const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
   const { disabled, options: columns } = useColumns("", false);
 
   const configName = `otherFields.${name}`;
-
   const widgetOptions: DropdownOptionType[] = Object.entries(currentPageWidgets)
     .map(([widgetId, widget]) => {
       const { getOneClickBindingConnectableWidgetConfig } =
         WidgetFactory.getWidgetMethods(widget.type);
       if (getOneClickBindingConnectableWidgetConfig) {
-        const widgetBindPath =
+        const { message, widgetBindPath } =
           getOneClickBindingConnectableWidgetConfig(widget);
         return {
           id: widgetId,
           value: widgetBindPath,
           label: widget.widgetName,
           icon: <StyledImage alt="widget-icon" src={widget.iconSVG} />,
+          message,
         };
       }
       return null;
@@ -96,6 +97,9 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
     );
     if (option) {
       onSelect(value);
+      if (option.message) {
+        setMessage(option.message);
+      }
     }
   };
 
@@ -152,5 +156,6 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
     defaultValue: getDefaultDropdownValue(),
     selected,
     disabled,
+    message,
   };
 }
