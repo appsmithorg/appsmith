@@ -4,13 +4,13 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserForManagementDTO;
-import com.appsmith.server.solutions.ce.UserAndAccessManagementServiceCE;
+import com.appsmith.server.solutions.ce_compatible.UserAndAccessManagementServiceCECompatible;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface UserAndAccessManagementService extends UserAndAccessManagementServiceCE {
+public interface UserAndAccessManagementService extends UserAndAccessManagementServiceCECompatible {
     Mono<List<UserForManagementDTO>> getAllUsers(MultiValueMap<String, String> queryParams);
 
     Mono<UserForManagementDTO> getUserById(String userId);
