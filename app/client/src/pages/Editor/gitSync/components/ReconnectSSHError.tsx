@@ -5,6 +5,15 @@ import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { useSSHKeyPair } from "../hooks";
 import copy from "copy-to-clipboard";
+import {
+  COPIED_SSH_KEY,
+  COPY_SSH_KEY,
+  ERROR_SSH_RECONNECT_MESSAGE,
+  ERROR_SSH_RECONNECT_OPTION1,
+  ERROR_SSH_RECONNECT_OPTION2,
+  NO_COPIED_SSH_KEY,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const NumberedList = styled.ol`
   list-style-type: decimal;
@@ -35,9 +44,9 @@ function ReconnectSSHError() {
   const handleClickOnCopy = () => {
     if (SSHKeyPair) {
       copy(SSHKeyPair);
-      toast.show("Copied SSH key", { kind: "success" });
+      toast.show(createMessage(COPIED_SSH_KEY), { kind: "success" });
     } else {
-      toast.show("Could not copy SSH key", { kind: "error" });
+      toast.show(createMessage(NO_COPIED_SSH_KEY), { kind: "error" });
     }
   };
 
@@ -54,23 +63,17 @@ function ReconnectSSHError() {
         kind="error"
         links={[
           {
-            children: "Copy SSH Key",
+            children: createMessage(COPY_SSH_KEY),
             onClick: handleClickOnCopy,
             startIcon: "copy-control",
             isDisabled: fetchingSSHKeyPair,
           },
         ]}
       >
-        <Text renderAs="p">
-          We couldn&apos;t connect to the repo due to a missing deploy key. You
-          can fix this in two ways:
-        </Text>
+        <Text renderAs="p">{createMessage(ERROR_SSH_RECONNECT_MESSAGE)}</Text>
         <NumberedList>
-          <li>Copy the SSH key below and add it to your repository.</li>
-          <li>
-            If you want to connect a new repository, you can disconnect and do
-            that instead.
-          </li>
+          <li>{createMessage(ERROR_SSH_RECONNECT_OPTION1)}</li>
+          <li>{createMessage(ERROR_SSH_RECONNECT_OPTION2)}</li>
         </NumberedList>
       </StyledCallout>
     );

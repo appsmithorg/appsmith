@@ -40,13 +40,13 @@ interface GenerateSSHState {
 interface GenerateSSHProps {
   onChange: (args: Partial<GenerateSSHState>) => void;
   value: Partial<GenerateSSHState>;
-  connectErrorResponse?: any;
+  errorData?: any;
 }
 
 function GenerateSSH({
   onChange = noop,
   value = {},
-  connectErrorResponse,
+  errorData,
 }: GenerateSSHProps) {
   const [isTouched, setIsTouched] = useState(false);
   const isInvalid =
@@ -62,17 +62,16 @@ function GenerateSSH({
   return (
     <>
       {/* hardcoding messages because server doesn't support feature flag. Will change this later */}
-      {connectErrorResponse &&
-        connectErrorResponse?.responseMeta?.error?.code === "AE-GIT-4033" && (
-          <ErrorCallout kind="error">
-            <Text kind="heading-xs" renderAs="h3">
-              {createMessage(ERROR_REPO_NOT_EMPTY_TITLE)}
-            </Text>
-            <Text renderAs="p">
-              {createMessage(ERROR_REPO_NOT_EMPTY_MESSAGE)}
-            </Text>
-          </ErrorCallout>
-        )}
+      {errorData && errorData?.responseMeta?.error?.code === "AE-GIT-4033" && (
+        <ErrorCallout kind="error">
+          <Text kind="heading-xs" renderAs="h3">
+            {createMessage(ERROR_REPO_NOT_EMPTY_TITLE)}
+          </Text>
+          <Text renderAs="p">
+            {createMessage(ERROR_REPO_NOT_EMPTY_MESSAGE)}
+          </Text>
+        </ErrorCallout>
+      )}
       <WellContainer>
         <WellTitleContainer>
           <WellTitle kind="heading-s" renderAs="h3">

@@ -141,7 +141,7 @@ interface AddDeployKeyProps {
   onChange: (args: Partial<AddDeployKeyState>) => void;
   value: Partial<AddDeployKeyState>;
   isImport?: boolean;
-  connectErrorResponse?: any;
+  errorData?: any;
   connectLoading?: boolean;
 }
 
@@ -149,7 +149,7 @@ function AddDeployKey({
   onChange = noop,
   value = {},
   isImport = false,
-  connectErrorResponse,
+  errorData,
   connectLoading = false,
 }: AddDeployKeyProps) {
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
@@ -222,31 +222,28 @@ function AddDeployKey({
 
   return (
     <>
-      {connectErrorResponse &&
-        connectErrorResponse?.responseMeta?.error?.code !== "AE-GIT-4033" &&
-        connectErrorResponse?.responseMeta?.error?.code !== "AE-GIT-4032" && (
+      {errorData &&
+        errorData?.responseMeta?.error?.code !== "AE-GIT-4033" &&
+        errorData?.responseMeta?.error?.code !== "AE-GIT-4032" && (
           <ErrorCallout kind="error">
             <Text kind="heading-xs" renderAs="h3">
-              {connectErrorResponse?.responseMeta?.error?.errorType}
+              {errorData?.responseMeta?.error?.errorType}
             </Text>
-            <Text renderAs="p">
-              {connectErrorResponse?.responseMeta?.error?.message}
-            </Text>
+            <Text renderAs="p">{errorData?.responseMeta?.error?.message}</Text>
           </ErrorCallout>
         )}
 
       {/* hardcoding message because server doesn't support feature flag. Will change this later */}
-      {connectErrorResponse &&
-        connectErrorResponse?.responseMeta?.error?.code === "AE-GIT-4032" && (
-          <ErrorCallout kind="error">
-            <Text kind="heading-xs" renderAs="h3">
-              {createMessage(ERROR_SSH_KEY_MISCONF_TITLE)}
-            </Text>
-            <Text renderAs="p">
-              {createMessage(ERROR_SSH_KEY_MISCONF_MESSAGE)}
-            </Text>
-          </ErrorCallout>
-        )}
+      {errorData && errorData?.responseMeta?.error?.code === "AE-GIT-4032" && (
+        <ErrorCallout kind="error">
+          <Text kind="heading-xs" renderAs="h3">
+            {createMessage(ERROR_SSH_KEY_MISCONF_TITLE)}
+          </Text>
+          <Text renderAs="p">
+            {createMessage(ERROR_SSH_KEY_MISCONF_MESSAGE)}
+          </Text>
+        </ErrorCallout>
+      )}
 
       <WellContainer>
         <WellTitleContainer>

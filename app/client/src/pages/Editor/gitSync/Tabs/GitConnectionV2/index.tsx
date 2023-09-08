@@ -98,6 +98,7 @@ interface GitConnectionV2Props {
 }
 
 function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
+  const [errorData, setErrorData] = useState<any>();
   const isImportingViaGit = useSelector(getIsImportingApplicationViaGit);
   const dispatch = useDispatch();
 
@@ -119,8 +120,7 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
   );
   const currentIndex = steps.findIndex((s) => s.key === activeStep);
 
-  const { connectErrorResponse, connectToGit, isConnectingToGit } =
-    useGitConnect();
+  const { connectToGit, isConnectingToGit } = useGitConnect();
 
   const isDisabled = {
     [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: !isImport
@@ -170,13 +170,12 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
                   isDefaultProfile: true,
                 },
                 {
-                  onErrorCallback: (err: Error, errResponse?: any) => {
+                  onErrorCallback: (err: Error, response?: any) => {
                     // AE-GIT-4033 is repo not empty error
-                    if (
-                      errResponse?.responseMeta?.error?.code === "AE-GIT-4033"
-                    ) {
+                    if (response?.responseMeta?.error?.code === "AE-GIT-4033") {
                       setActiveStep(GIT_CONNECT_STEPS.GENERATE_SSH_KEY);
                     }
+                    setErrorData(response);
                   },
                 },
               );
@@ -192,6 +191,9 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
                     gitProfile,
                     isDefaultProfile: true,
                   },
+                  onErrorCallback(error, response) {
+                    setErrorData(response);
+                  },
                 }),
               );
             }
@@ -206,7 +208,7 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
     onChange: handleChange,
     value: formData,
     isImport,
-    connectErrorResponse,
+    errorData,
   };
 
   const loading =

@@ -835,7 +835,6 @@ export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
 export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
   "git@example.com:user/repository.git";
 export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
-export const COPIED_SSH_KEY = () => "Copied SSH key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
   "Please enter a valid SSH URL of your repository";
@@ -1030,6 +1029,15 @@ export const GIT_IMPORT_WAITING = () =>
 export const GIT_CONNECT_WAITING = () =>
   "Please wait while we connect to git...";
 export const CONNECT_GIT_TEXT = () => "Connect git";
+
+export const ERROR_SSH_RECONNECT_MESSAGE = () =>
+  "We couldn't connect to the repo due to a missing deploy key. You can fix this in two ways:";
+export const ERROR_SSH_RECONNECT_OPTION1 = () =>
+  "Copy the SSH key below and add it to your repository.";
+export const ERROR_SSH_RECONNECT_OPTION2 = () =>
+  "If you want to connect a new repository, you can disconnect and do that instead.";
+export const COPIED_SSH_KEY = () => "Copied SSH key";
+export const NO_COPIED_SSH_KEY = () => "Could not copy SSH key";
 // Git Connect V2 end
 
 export const NAV_DESCRIPTION = () =>
