@@ -2,7 +2,7 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 import type { Point } from "utils/autoLayout/highlightSelectionUtils";
 import { getHighlightPayload } from "utils/autoLayout/highlightSelectionUtils";

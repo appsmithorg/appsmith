@@ -39,7 +39,7 @@ import {
   updateListWidgetPropertiesOnChildDelete,
 } from "./WidgetOperationUtils";
 import { showUndoRedoToast } from "utils/replayHelpers";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   inGuidedTour,
   isExploringSelector,
