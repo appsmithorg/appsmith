@@ -1385,10 +1385,23 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
 
+        // get the root application
+        Mono<Application> rootAppMono = getApplicationById(defaultApplicationId);
+
         // If the user is trying to check out remote branch, create a new branch if the branch does not exist already
         if (branchName.startsWith("origin/")) {
             String finalBranchName = branchName.replaceFirst("origin/", "");
-            return listBranchForApplication(defaultApplicationId, false, branchName)
+            return addFileLock(defaultApplicationId)
+                    .then(rootAppMono)
+                    .flatMap(application -> {
+                        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                        Path repoPath = Paths.get(
+                                application.getWorkspaceId(),
+                                gitApplicationMetadata.getDefaultApplicationId(),
+                                gitApplicationMetadata.getRepoName());
+                        return gitExecutor.listBranches(repoPath);
+                    })
+                    .flatMap(branchList -> releaseFileLock(defaultApplicationId).thenReturn(branchList))
                     .flatMap(gitBranchDTOList -> {
                         long branchMatchCount = gitBranchDTOList.stream()
                                 .filter(gitBranchDTO ->
@@ -1406,7 +1419,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     });
         }
 
-        return getApplicationById(defaultApplicationId)
+        return rootAppMono
                 .flatMap(application -> {
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
