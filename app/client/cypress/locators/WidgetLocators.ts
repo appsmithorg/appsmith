@@ -75,9 +75,9 @@ export const WIDGETSKIT = {
   image: "div[data-testid=styledImage]",
   imageDownloadBtn: "//a[@data-testid='t--image-download']",
   imageRotateAntiClockwiseBtn:
-    "//a[@data-testid='t--image-download']//parent::div/a[1]",
+    "//div[contains(@class, 't--widget-imagewidget')]//a[1]",
   imageRotateClockwiseBtn:
-    "//a[@data-testid='t--image-download']//parent::div/a[2]",
+    "//div[contains(@class, 't--widget-imagewidget')]//a[2]",
   styleResetBtn: ".reset-button",
   styleOrangeIcon: ".rounded-full",
   dividerVertical: "[data-testid=dividerVertical]",
