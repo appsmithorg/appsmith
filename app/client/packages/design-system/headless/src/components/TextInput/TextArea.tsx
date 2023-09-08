@@ -8,10 +8,8 @@ import { useControlledState } from "@react-stately/utils";
 import { useTextField } from "@react-aria/textfield";
 import type { StyleProps } from "@react-types/shared";
 
-type MyOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-
 export interface TextAreaProps
-  extends MyOmit<
+  extends Omit<
       SpectrumTextFieldProps,
       keyof StyleProps | "icon" | "isQuiet" | "necessityIndicator"
     >,
