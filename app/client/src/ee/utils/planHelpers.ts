@@ -9,3 +9,9 @@ export const isAuditLogsEnabled = (featureFlags: FeatureFlags) => {
 export const isUserSessionLimitEnabled = (featureFlags: FeatureFlags) => {
   return featureFlags?.license_session_limit_enabled;
 };
+
+export const isProgramaticAccessControlEnabled = (
+  featureFlags: FeatureFlags,
+) => {
+  return featureFlags?.license_pac_enabled;
+};
