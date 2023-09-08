@@ -9,6 +9,7 @@ import com.appsmith.external.models.ActionProvider;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
@@ -28,7 +29,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionViewDTO;
-import com.appsmith.server.dtos.LayoutActionUpdateDTO;
+import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ce.ImportActionResultDTO;
@@ -1246,9 +1247,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      */
     @Override
     public Mono<Boolean> updateActionsExecuteOnLoad(
-            List<ActionDTO> onLoadActions,
+            List<Executable> onLoadActions,
             String pageId,
-            List<LayoutActionUpdateDTO> actionUpdates,
+            List<LayoutExecutableUpdateDTO> actionUpdates,
             List<String> messages) {
 
         List<ActionDTO> toUpdateActions = new ArrayList<>();
@@ -1293,7 +1294,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             .collect(Collectors.toSet());
 
                     Set<String> newOnLoadActionNames =
-                            onLoadActions.stream().map(ActionDTO::getValidName).collect(Collectors.toSet());
+                            onLoadActions.stream().map(Executable::getValidName).collect(Collectors.toSet());
 
                     // Calculate the actions which would need to be updated from execute on load TRUE to FALSE.
                     Set<String> turnedOffActionNames = new HashSet<>();
@@ -1356,20 +1357,20 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 });
     }
 
-    private List<LayoutActionUpdateDTO> addActionUpdatesForActionNames(
+    private List<LayoutExecutableUpdateDTO> addActionUpdatesForActionNames(
             List<ActionDTO> pageActions, Set<String> actionNames) {
 
         return pageActions.stream()
                 .filter(pageAction -> actionNames.contains(pageAction.getValidName()))
                 .map(pageAction -> {
-                    LayoutActionUpdateDTO layoutActionUpdateDTO = new LayoutActionUpdateDTO();
-                    layoutActionUpdateDTO.setId(pageAction.getId());
-                    layoutActionUpdateDTO.setName(pageAction.getValidName());
-                    layoutActionUpdateDTO.setCollectionId(pageAction.getCollectionId());
-                    layoutActionUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
-                    layoutActionUpdateDTO.setDefaultActionId(
+                    LayoutExecutableUpdateDTO layoutExecutableUpdateDTO = new LayoutExecutableUpdateDTO();
+                    layoutExecutableUpdateDTO.setId(pageAction.getId());
+                    layoutExecutableUpdateDTO.setName(pageAction.getValidName());
+                    layoutExecutableUpdateDTO.setCollectionId(pageAction.getCollectionId());
+                    layoutExecutableUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
+                    layoutExecutableUpdateDTO.setDefaultActionId(
                             pageAction.getDefaultResources().getActionId());
-                    return layoutActionUpdateDTO;
+                    return layoutExecutableUpdateDTO;
                 })
                 .collect(Collectors.toList());
     }

@@ -1,18 +1,20 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.EntityDependencyNode;
 import com.appsmith.external.models.EntityReferenceType;
+import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.domains.ActionDependencyEdge;
-import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.domains.ExecutionDependencyEdge;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.solutions.ActionPermission;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,135 +76,139 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * !!!WARNING!!! : This function edits the parameters edges, actionsUsedInDSL and flatPageLoadActions
      * and the same are used by the caller function for further processing.
      *
-     * @param pageId                   : Argument used for fetching actions in this page
-     * @param evaluatedVersion         : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
-     * @param widgetNames              : Set of widget names which SHOULD have been populated before calling this function.
-     * @param edges                    : Set where this function adds all the relationships (dependencies) between actions
-     * @param widgetDynamicBindingsMap : A map of widget path and the set of dynamic binding words in the mustache at the
-     *                                 path in the widget (populated by the function `extractAllWidgetNamesAndDynamicBindingsFromDSL`
-     *                                 <p>
-     *                                 Example : If Table1's field tableData contains a mustache : {{Api1.data}}, the entry in the map would look like :
-     *                                 Map.entry("Table1.tableData", Set.of("Api1.data"))
-     * @param flatPageLoadActions      : A flat list of on page load actions (Not in the sequence in which these actions
-     *                                 would be called on page load)
-     * @param actionsUsedInDSL         : Set where this function adds all the actions directly used in the DSL
+     * @param providedPageId                    : Argument used for fetching actions in this page
+     * @param providedEvaluatedVersion          : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
+     * @param providedWidgetNames               : Set of widget names which SHOULD have been populated before calling this function.
+     * @param calculatedEdges                   : Set where this function adds all the relationships (dependencies) between actions
+     * @param providedWidgetDynamicBindingsMap  : A map of widget path and the set of dynamic binding words in the mustache at the
+     *                                          path in the widget (populated by the function `extractAllWidgetNamesAndDynamicBindingsFromDSL`
+     *                                          <p>
+     *                                          Example : If Table1's field tableData contains a mustache : {{Api1.data}}, the entry in the map would look like :
+     *                                          Map.entry("Table1.tableData", Set.of("Api1.data"))
+     * @param calculatedFlatPageLoadExecutables : A flat list of on page load actions (Not in the sequence in which these actions
+     *                                          would be called on page load)
+     * @param calculatedExecutablesUsedInDSL    : Set where this function adds all the actions directly used in the DSL
      * @return Returns page load actions which is a list of sets of actions. Inside a set, all actions can be executed
      * in parallel. But one set of actions MUST finish execution before the next set of actions can be executed
      * in the list.
      */
-    public Mono<List<Set<DslActionDTO>>> findAllOnLoadActions(
-            String pageId,
-            Integer evaluatedVersion,
-            Set<String> widgetNames,
-            Set<ActionDependencyEdge> edges,
-            Map<String, Set<String>> widgetDynamicBindingsMap,
-            List<ActionDTO> flatPageLoadActions,
-            Set<String> actionsUsedInDSL) {
+    public Mono<List<Set<DslExecutableDTO>>> findAllOnLoadExecutables(
+            String providedPageId,
+            Integer providedEvaluatedVersion,
+            Set<String> providedWidgetNames,
+            Set<ExecutionDependencyEdge> calculatedEdges,
+            Map<String, Set<String>> providedWidgetDynamicBindingsMap,
+            List<Executable> calculatedFlatPageLoadExecutables,
+            Set<String> calculatedExecutablesUsedInDSL) {
 
-        Set<String> onPageLoadActionSet = new HashSet<>();
-        Set<String> explicitUserSetOnLoadActions = new HashSet<>();
-        Set<String> bindingsFromActions = new HashSet<>();
+        Set<String> calculatedOnPageLoadExecutableSet = new HashSet<>();
+        Set<String> calculatedExplicitUserSetOnLoadExecutables = new HashSet<>();
+        Set<String> calculatedBindingsFromExecutables = new HashSet<>();
 
-        // Function `extractAndSetActionBindingsInGraphEdges` updates this map to keep a track of all the actions which
-        // have been discovered while walking the actions to ensure that we don't end up in a recursive infinite loop
-        // in case of a cyclical relationship between actions (and not specific paths) and helps us exit at the
-        // appropriate
-        // junction.
+        // Function `extractAndSetExecutableBindingsInGraphEdges` updates this map to keep a track of all the
+        // executables which
+        // have been discovered while walking the executables to ensure that we don't end up in a recursive infinite
+        // loop
+        // in case of a cyclical relationship between executables (and not specific paths) and helps us exit at the
+        // appropriate junction.
         // e.g : Consider the following relationships :
         // Api1.actionConfiguration.body <- Api2.data.users[0].name
         // Api2.actionConfiguration.url <- Api1.actionConfiguration.url
         // In the above case, the two actions depend on each other without there being a real cyclical dependency.
-        Map<String, EntityDependencyNode> actionsFoundDuringWalk = new HashMap<>();
+        Map<String, EntityDependencyNode> executablesFoundDuringWalk = new HashMap<>();
 
-        Flux<ActionDTO> allActionsByPageIdFlux = newActionService
-                .findByPageIdAndViewMode(pageId, false, actionPermission.getEditPermission())
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+        Flux<Executable> allExecutablesByPageIdFlux = getAllExecutablesByPageIdFlux(providedPageId);
+
+        Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono = allExecutablesByPageIdFlux
+                .collectMap(Executable::getValidName, executable -> executable)
                 .cache();
 
-        Mono<Map<String, ActionDTO>> actionNameToActionMapMono = allActionsByPageIdFlux
-                .collectMap(ActionDTO::getValidName, action -> action)
-                .cache();
-
-        Mono<Set<String>> actionsInPageMono = allActionsByPageIdFlux
-                .map(ActionDTO::getValidName)
+        Mono<Set<String>> executablesInPageMono = allExecutablesByPageIdFlux
+                .map(Executable::getValidName)
                 .collect(Collectors.toSet())
                 .cache();
 
-        Set<EntityDependencyNode> actionBindingsInDsl = new HashSet<>();
-        Mono<Set<ActionDependencyEdge>> directlyReferencedActionsAddedToGraphMono = addDirectlyReferencedActionsToGraph(
-                edges,
-                actionsUsedInDSL,
-                bindingsFromActions,
-                actionsFoundDuringWalk,
-                widgetDynamicBindingsMap,
-                actionNameToActionMapMono,
-                actionBindingsInDsl,
-                evaluatedVersion);
+        Set<EntityDependencyNode> calculatedExecutableBindingsInDsl = new HashSet<>();
+        Mono<Set<ExecutionDependencyEdge>> directlyReferencedExecutablesToGraphMono =
+                addDirectlyReferencedExecutablesToGraph(
+                        calculatedEdges,
+                        calculatedExecutablesUsedInDSL,
+                        calculatedBindingsFromExecutables,
+                        executablesFoundDuringWalk,
+                        providedWidgetDynamicBindingsMap,
+                        providedExecutableNameToExecutableMapMono,
+                        calculatedExecutableBindingsInDsl,
+                        providedEvaluatedVersion);
 
         // This following `createAllEdgesForPageMono` publisher traverses the actions and widgets to add all possible
         // edges between all possible entity paths
 
         // First find all the actions in the page whose name matches the possible entity names found in the bindings in
         // the widget
-        Mono<Set<ActionDependencyEdge>> createAllEdgesForPageMono = directlyReferencedActionsAddedToGraphMono
+        Mono<Set<ExecutionDependencyEdge>> createAllEdgesForPageMono = directlyReferencedExecutablesToGraphMono
                 // Add dependencies of all on page load actions set by the user in the graph
                 .flatMap(updatedEdges -> addExplicitUserSetOnLoadActionsToGraph(
-                        pageId,
+                        providedPageId,
                         updatedEdges,
-                        explicitUserSetOnLoadActions,
-                        actionsFoundDuringWalk,
-                        bindingsFromActions,
-                        actionNameToActionMapMono,
-                        actionBindingsInDsl,
-                        evaluatedVersion))
+                        calculatedExplicitUserSetOnLoadExecutables,
+                        executablesFoundDuringWalk,
+                        calculatedBindingsFromExecutables,
+                        providedExecutableNameToExecutableMapMono,
+                        calculatedExecutableBindingsInDsl,
+                        providedEvaluatedVersion))
                 // For all the actions found so far, recursively walk the dynamic bindings of the actions to find more
                 // relationships with other actions (& widgets)
-                .flatMap(updatedEdges -> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(
+                .flatMap(updatedEdges -> recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
                         updatedEdges,
-                        actionsFoundDuringWalk,
-                        bindingsFromActions,
-                        actionNameToActionMapMono,
-                        evaluatedVersion))
+                        executablesFoundDuringWalk,
+                        calculatedBindingsFromExecutables,
+                        providedExecutableNameToExecutableMapMono,
+                        providedEvaluatedVersion))
                 // At last, add all the widget relationships to the graph as well.
-                .zipWith(actionsInPageMono)
+                .zipWith(executablesInPageMono)
                 .flatMap(tuple -> {
-                    Set<ActionDependencyEdge> updatedEdges = tuple.getT1();
-                    return addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap, evaluatedVersion);
+                    Set<ExecutionDependencyEdge> updatedEdges = tuple.getT1();
+                    return addWidgetRelationshipToGraph(
+                            updatedEdges, providedWidgetDynamicBindingsMap, providedEvaluatedVersion);
                 });
 
         // Create a graph given edges
         Mono<DirectedAcyclicGraph<String, DefaultEdge>> createGraphMono = Mono.zip(
-                        actionsInPageMono, createAllEdgesForPageMono)
+                        executablesInPageMono, createAllEdgesForPageMono)
                 .map(tuple -> {
                     Set<String> allActions = tuple.getT1();
-                    Set<ActionDependencyEdge> updatedEdges = tuple.getT2();
-                    return constructDAG(allActions, widgetNames, updatedEdges, actionBindingsInDsl);
+                    Set<ExecutionDependencyEdge> updatedEdges = tuple.getT2();
+                    return constructDAG(
+                            allActions, providedWidgetNames, updatedEdges, calculatedExecutableBindingsInDsl);
                 })
                 .cache();
 
         // Generate on page load schedule
         Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono = Mono.zip(
-                        actionNameToActionMapMono, createGraphMono)
+                        providedExecutableNameToExecutableMapMono, createGraphMono)
                 .map(tuple -> {
-                    Map<String, ActionDTO> actionNameToActionMap = tuple.getT1();
+                    Map<String, Executable> executableNameToExecutableMap = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
 
                     return computeOnPageLoadActionsSchedulingOrder(
-                            graph, onPageLoadActionSet, actionNameToActionMap, explicitUserSetOnLoadActions);
+                            graph,
+                            calculatedOnPageLoadExecutableSet,
+                            executableNameToExecutableMap,
+                            calculatedExplicitUserSetOnLoadExecutables);
                 })
                 .map(onPageLoadActionsSchedulingOrder -> {
                     // Find all explicitly turned on actions which haven't found their way into the scheduling order
                     // This scenario would happen if an explicitly turned on for page load action does not have any
                     // relationships in the page with any widgets/actions.
                     Set<String> pageLoadActionNames = new HashSet<>();
-                    pageLoadActionNames.addAll(onPageLoadActionSet);
-                    pageLoadActionNames.addAll(explicitUserSetOnLoadActions);
-                    pageLoadActionNames.removeAll(onPageLoadActionSet);
+                    pageLoadActionNames.addAll(calculatedOnPageLoadExecutableSet);
+                    pageLoadActionNames.addAll(calculatedExplicitUserSetOnLoadExecutables);
+                    pageLoadActionNames.removeAll(calculatedOnPageLoadExecutableSet);
 
                     // If any of the explicitly set on page load actions havent been added yet, add them to the 0th set
                     // of actions set since no relationships were found with any other appsmith entity
                     if (!pageLoadActionNames.isEmpty()) {
-                        onPageLoadActionSet.addAll(pageLoadActionNames);
+                        calculatedOnPageLoadExecutableSet.addAll(pageLoadActionNames);
 
                         // In case there are no page load actions, initialize the 0th set of page load actions list.
                         if (onPageLoadActionsSchedulingOrder.isEmpty()) {
@@ -216,22 +222,34 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 });
 
         // Transform the schedule order into client feasible DTO
-        Mono<List<Set<DslActionDTO>>> computeCompletePageLoadActionScheduleMono =
+        Mono<List<Set<DslExecutableDTO>>> computeCompletePageLoadExecutableScheduleMono =
                 filterAndTransformSchedulingOrderToDTO(
-                                onPageLoadActionSet, actionNameToActionMapMono, computeOnPageLoadScheduleNamesMono)
+                                calculatedOnPageLoadExecutableSet,
+                                providedExecutableNameToExecutableMapMono,
+                                computeOnPageLoadScheduleNamesMono)
                         .cache();
 
         // With the final on page load scheduling order, also set the on page load actions which would be updated
         // by the caller function
-        Mono<List<ActionDTO>> flatPageLoadActionsMono = computeCompletePageLoadActionScheduleMono
-                .then(actionNameToActionMapMono)
-                .map(actionMap -> {
-                    onPageLoadActionSet.stream()
-                            .forEach(actionName -> flatPageLoadActions.add(actionMap.get(actionName)));
-                    return flatPageLoadActions;
+        Mono<List<Executable>> flatPageLoadERxecutablesMono = computeCompletePageLoadExecutableScheduleMono
+                .then(providedExecutableNameToExecutableMapMono)
+                .map(executableMap -> {
+                    calculatedOnPageLoadExecutableSet.stream()
+                            .forEach(executableName ->
+                                    calculatedFlatPageLoadExecutables.add(executableMap.get(executableName)));
+                    return calculatedFlatPageLoadExecutables;
                 });
 
-        return createGraphMono.then(flatPageLoadActionsMono).then(computeCompletePageLoadActionScheduleMono);
+        return createGraphMono.then(flatPageLoadERxecutablesMono).then(computeCompletePageLoadExecutableScheduleMono);
+    }
+
+    @Override
+    public Flux<Executable> getAllExecutablesByPageIdFlux(String providedPageId) {
+        return newActionService
+                .findByPageIdAndViewMode(providedPageId, false, actionPermission.getEditPermission())
+                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .map(actionDTO -> (Executable) actionDTO)
+                .cache();
     }
 
     /**
@@ -246,39 +264,39 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * Next it creates a new schedule order consisting of DslActionDTO instead of just action names.
      *
      * @param onPageLoadActionSet
-     * @param actionNameToActionMapMono
+     * @param providedExecutableNameToExecutableMapMono
      * @param computeOnPageLoadScheduleNamesMono
      * @return
      */
-    private Mono<List<Set<DslActionDTO>>> filterAndTransformSchedulingOrderToDTO(
+    private Mono<List<Set<DslExecutableDTO>>> filterAndTransformSchedulingOrderToDTO(
             Set<String> onPageLoadActionSet,
-            Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+            Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono,
             Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono) {
 
-        return Mono.zip(computeOnPageLoadScheduleNamesMono, actionNameToActionMapMono)
+        return Mono.zip(computeOnPageLoadScheduleNamesMono, providedExecutableNameToExecutableMapMono)
                 .map(tuple -> {
                     List<Set<String>> onPageLoadActionsSchedulingOrder = tuple.getT1();
-                    Map<String, ActionDTO> actionMap = tuple.getT2();
+                    Map<String, Executable> executableMap = tuple.getT2();
 
-                    List<Set<DslActionDTO>> onPageLoadActions = new ArrayList<>();
+                    List<Set<DslExecutableDTO>> onPageLoadExecutables = new ArrayList<>();
 
                     for (Set<String> names : onPageLoadActionsSchedulingOrder) {
-                        Set<DslActionDTO> actionsInLevel = new HashSet<>();
+                        Set<DslExecutableDTO> executablesInLevel = new HashSet<>();
 
                         for (String name : names) {
-                            ActionDTO action = actionMap.get(name);
-                            if (hasUserSetActionToNotRunOnPageLoad(action)) {
+                            Executable executable = executableMap.get(name);
+                            if (hasUserSetExecutableToNotRunOnPageLoad(executable)) {
                                 onPageLoadActionSet.remove(name);
                             } else {
-                                actionsInLevel.add(getDslAction(action));
+                                executablesInLevel.add(executable.getDslExecutable());
                             }
                         }
 
-                        onPageLoadActions.add(actionsInLevel);
+                        onPageLoadExecutables.add(executablesInLevel);
                     }
 
-                    return onPageLoadActions.stream()
-                            .filter(setOfActions -> !setOfActions.isEmpty())
+                    return onPageLoadExecutables.stream()
+                            .filter(setOfExecutables -> !setOfExecutables.isEmpty())
                             .collect(Collectors.toList());
                 });
     }
@@ -288,14 +306,16 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * We'll be able to find valid action references only at this point. For widgets, we just assume that all
      * references are possible candidates
      *
-     * @param actionNameToActionMapMono : This map is used to filter only valid action references in bindings
-     * @param bindings                  : The set of bindings to find references from
-     * @param evalVersion               : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
+     * @param providedExecutableNameToExecutableMapMono : This map is used to filter only valid action references in bindings
+     * @param bindings                                  : The set of bindings to find references from
+     * @param evalVersion                               : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
      * @return A set of any possible reference found in the binding that qualifies as a global entity reference
      */
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
-            Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<String> bindings, int evalVersion) {
-        return getPossibleEntityReferences(actionNameToActionMapMono, bindings, evalVersion, null);
+            Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono,
+            Set<String> bindings,
+            int evalVersion) {
+        return getPossibleEntityReferences(providedExecutableNameToExecutableMapMono, bindings, evalVersion, null);
     }
 
     /**
@@ -303,24 +323,24 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * However, here we are assuming that the call came from when we were trying to analyze the DSL.
      * For such cases, we also want to capture entity references that would be qualified to run on page load first.
      *
-     * @param actionNameToActionMapMono : This map is used to filter only valid action references in bindings
-     * @param bindings                  : The set of bindings to find references from
-     * @param evalVersion               : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
-     * @param bindingsInDsl             : All references are also added to this set if they should be qualified to run on page load first.
+     * @param providedExecutableNameToExecutableMono : This map is used to filter only valid action references in bindings
+     * @param bindings                               : The set of bindings to find references from
+     * @param evalVersion                            : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
+     * @param bindingsInDsl                          : All references are also added to this set if they should be qualified to run on page load first.
      * @return A set of any possible reference found in the binding that qualifies as a global entity reference
      */
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
-            Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+            Mono<Map<String, Executable>> providedExecutableNameToExecutableMono,
             Set<String> bindings,
             int evalVersion,
             Set<EntityDependencyNode> bindingsInDsl) {
         // We want to be finding both type of references
         final int entityTypes = ACTION_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
 
-        return actionNameToActionMapMono
+        return providedExecutableNameToExecutableMono
                 .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion))
                 .map(tuple -> {
-                    Map<String, ActionDTO> actionMap = tuple.getT1();
+                    Map<String, Executable> executableMap = tuple.getT1();
                     // For each binding, here we receive a set of possible references to global entities
                     // At this point we're guaranteed that these references are made to possible variables,
                     // but we do not know if those entities exist in the global namespace yet
@@ -328,27 +348,22 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
                     Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
 
-                    // From these references, we will try to validate action references at this point
+                    // From these references, we will try to validate executable references at this point
                     // Each identified node is already annotated with the expected type of entity we need to search for
                     bindingToPossibleParentMap.entrySet().stream().forEach(entry -> {
-                        Set<EntityDependencyNode> bindingsWithActionReference = new HashSet<>();
+                        Set<EntityDependencyNode> bindingsWithExecutableReference = new HashSet<>();
                         entry.getValue().stream().forEach(binding -> {
                             // For each possible reference node, check if the reference was to an action
-                            ActionDTO actionDTO = actionMap.get(binding.getValidEntityName());
+                            Executable executable = executableMap.get(binding.getValidEntityName());
 
-                            if (actionDTO != null) {
+                            if (executable != null) {
                                 // If it was, and had been identified as the same type of action as what exists in this
                                 // app,
-                                if ((PluginType.JS.equals(actionDTO.getPluginType())
-                                                && EntityReferenceType.JSACTION.equals(
-                                                        binding.getEntityReferenceType()))
-                                        || (!PluginType.JS.equals(actionDTO.getPluginType())
-                                                && EntityReferenceType.ACTION.equals(
-                                                        binding.getEntityReferenceType()))) {
+                                if (isValidExecutableReferenceInBinding(binding, executable)) {
                                     // Copy over some data from the identified action, this ensures that we do not have
                                     // to query the DB again later
-                                    binding.setActionDTO(actionDTO);
-                                    bindingsWithActionReference.add(binding);
+                                    binding.setExecutable(executable);
+                                    bindingsWithExecutableReference.add(binding);
                                     // Only if this is not a direct JS function call,
                                     // add it to a possible on page load action call.
                                     // This discards the following type:
@@ -371,13 +386,22 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                             }
                         });
 
-                        if (!bindingsWithActionReference.isEmpty() && bindingsInDsl != null) {
-                            bindingsInDsl.addAll(bindingsWithActionReference);
+                        if (!bindingsWithExecutableReference.isEmpty() && bindingsInDsl != null) {
+                            bindingsInDsl.addAll(bindingsWithExecutableReference);
                         }
                     });
 
                     return possibleEntitiesReferences;
                 });
+    }
+
+    protected boolean isValidExecutableReferenceInBinding(EntityDependencyNode binding, Executable executable) {
+        if (executable instanceof ActionDTO actionDTO) {
+            return (PluginType.JS.equals(actionDTO.getPluginType())
+                            && EntityReferenceType.JSACTION.equals(binding.getEntityReferenceType()))
+                    || (!PluginType.JS.equals(actionDTO.getPluginType())
+                            && EntityReferenceType.ACTION.equals(binding.getEntityReferenceType()));
+        } else return false;
     }
 
     /**
@@ -404,26 +428,26 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * !!! WARNING !!! : This function updates actionsUsedInDSL set which is used to store all the directly referenced
      * actions in the DSL.
      *
-     * @param edges
-     * @param actionsUsedInDSL
-     * @param bindingsFromActions
-     * @param actionsFoundDuringWalk
-     * @param widgetDynamicBindingsMap
-     * @param actionNameToActionMapMono
-     * @param actionBindingsInDsl
-     * @param evalVersion
+     * @param calculatedEdges
+     * @param calculatedExecutablesUsedInDSL
+     * @param calculatedBindingsFromExecutables
+     * @param calculatedExecutablesFoundDuringWalk
+     * @param providedWidgetDynamicBindingsMap
+     * @param providedExecutableNameToExecutableMapMono
+     * @param calculatedExecutableBindingsInDsl
+     * @param providedEvalVersion
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> addDirectlyReferencedActionsToGraph(
-            Set<ActionDependencyEdge> edges,
-            Set<String> actionsUsedInDSL,
-            Set<String> bindingsFromActions,
-            Map<String, EntityDependencyNode> actionsFoundDuringWalk,
-            Map<String, Set<String>> widgetDynamicBindingsMap,
-            Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-            Set<EntityDependencyNode> actionBindingsInDsl,
-            int evalVersion) {
-        return Flux.fromIterable(widgetDynamicBindingsMap.entrySet())
+    private Mono<Set<ExecutionDependencyEdge>> addDirectlyReferencedExecutablesToGraph(
+            Set<ExecutionDependencyEdge> calculatedEdges,
+            Set<String> calculatedExecutablesUsedInDSL,
+            Set<String> calculatedBindingsFromExecutables,
+            Map<String, EntityDependencyNode> calculatedExecutablesFoundDuringWalk,
+            Map<String, Set<String>> providedWidgetDynamicBindingsMap,
+            Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono,
+            Set<EntityDependencyNode> calculatedExecutableBindingsInDsl,
+            int providedEvalVersion) {
+        return Flux.fromIterable(providedWidgetDynamicBindingsMap.entrySet())
                 .flatMap(entry -> {
                     String widgetName = entry.getKey();
                     // For each widget in the DSL that has a dynamic binding,
@@ -433,7 +457,10 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                             new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
                     Set<String> bindingsInWidget = entry.getValue();
                     return getPossibleEntityReferences(
-                                    actionNameToActionMapMono, bindingsInWidget, evalVersion, actionBindingsInDsl)
+                                    providedExecutableNameToExecutableMapMono,
+                                    bindingsInWidget,
+                                    providedEvalVersion,
+                                    calculatedExecutableBindingsInDsl)
                             .flatMapMany(Flux::fromIterable)
                             // Add dependencies of the actions found in the DSL in the graph
                             // We are ignoring the widget references at this point
@@ -442,32 +469,33 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                                 if (EntityReferenceType.ACTION.equals(possibleEntity.getEntityReferenceType())
                                         || EntityReferenceType.JSACTION.equals(
                                                 possibleEntity.getEntityReferenceType())) {
-                                    edges.add(new ActionDependencyEdge(possibleEntity, widgetDependencyNode));
+                                    calculatedEdges.add(
+                                            new ExecutionDependencyEdge(possibleEntity, widgetDependencyNode));
                                     // This action is directly referenced in the DSL. This action is an ideal candidate
                                     // for on page load
-                                    actionsUsedInDSL.add(possibleEntity.getValidEntityName());
-                                    ActionDTO actionDTO = possibleEntity.getActionDTO();
+                                    calculatedExecutablesUsedInDSL.add(possibleEntity.getValidEntityName());
+                                    ActionDTO actionDTO = (ActionDTO) possibleEntity.getExecutable();
                                     return newActionService
                                             .fillSelfReferencingDataPaths(actionDTO)
                                             .map(newActionDTO -> {
-                                                possibleEntity.setActionDTO(newActionDTO);
+                                                possibleEntity.setExecutable(newActionDTO);
                                                 return newActionDTO;
                                             })
                                             .flatMap(newActionDTO -> extractAndSetActionBindingsInGraphEdges(
                                                     possibleEntity,
-                                                    edges,
-                                                    bindingsFromActions,
-                                                    actionNameToActionMapMono,
-                                                    actionsFoundDuringWalk,
+                                                    calculatedEdges,
+                                                    calculatedBindingsFromExecutables,
+                                                    providedExecutableNameToExecutableMapMono,
+                                                    calculatedExecutablesFoundDuringWalk,
                                                     null,
-                                                    evalVersion))
+                                                    providedEvalVersion))
                                             .thenReturn(possibleEntity);
                                 }
                                 return Mono.just(possibleEntity);
                             });
                 })
                 .collectList()
-                .thenReturn(edges);
+                .thenReturn(calculatedEdges);
     }
 
     /**
@@ -495,7 +523,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
     private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(
             Set<String> actionNames,
             Set<String> widgetNames,
-            Set<ActionDependencyEdge> edges,
+            Set<ExecutionDependencyEdge> edges,
             Set<EntityDependencyNode> actionBindingsInDsl) {
 
         DirectedAcyclicGraph<String, DefaultEdge> actionSchedulingGraph = new DirectedAcyclicGraph<>(DefaultEdge.class);
@@ -505,7 +533,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
             actionSchedulingGraph.addVertex(actionBindingInDsl.getReferenceString());
         }
 
-        Set<ActionDependencyEdge> implicitParentChildEdges = new HashSet<>();
+        Set<ExecutionDependencyEdge> implicitParentChildEdges = new HashSet<>();
 
         // Remove any edge which contains an unknown entity - aka neither a known action nor a known widget
         // Note : appsmith world objects like `appsmith` would also count as an unknown here.
@@ -554,7 +582,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 })
                 .collect(Collectors.toSet());
 
-        Set<ActionDependencyEdge> actionDataFromConfigurationEdges = new HashSet<>();
+        Set<ExecutionDependencyEdge> actionDataFromConfigurationEdges = new HashSet<>();
 
         edges.stream().forEach(edge -> {
             addImplicitActionConfigurationDependency(edge.getSourceNode(), actionDataFromConfigurationEdges);
@@ -565,7 +593,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
         // Now add the relationship aka when a child gets updated, the parent should get updated as well. Aka
         // parent depends on the child.
-        for (ActionDependencyEdge edge : edges) {
+        for (ExecutionDependencyEdge edge : edges) {
             EntityDependencyNode source = edge.getSourceNode();
             EntityDependencyNode target = edge.getTargetNode();
 
@@ -578,7 +606,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         edges.addAll(implicitParentChildEdges);
 
         // Now create the graph from all the edges.
-        for (ActionDependencyEdge edge : edges) {
+        for (ExecutionDependencyEdge edge : edges) {
 
             String source = edge.getSourceNode().getReferenceString();
             String target = edge.getTargetNode().getReferenceString();
@@ -610,7 +638,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param actionDataFromConfigurationEdges
      */
     private void addImplicitActionConfigurationDependency(
-            EntityDependencyNode entityDependencyNode, Set<ActionDependencyEdge> actionDataFromConfigurationEdges) {
+            EntityDependencyNode entityDependencyNode, Set<ExecutionDependencyEdge> actionDataFromConfigurationEdges) {
         if (Set.of(EntityReferenceType.ACTION, EntityReferenceType.JSACTION)
                 .contains(entityDependencyNode.getEntityReferenceType())) {
             if (entityDependencyNode.isValidDynamicBinding()) {
@@ -619,9 +647,9 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                         entityDependencyNode.getValidEntityName(),
                         entityDependencyNode.getValidEntityName() + ".actionConfiguration",
                         entityDependencyNode.getIsFunctionCall(),
-                        entityDependencyNode.getActionDTO());
+                        entityDependencyNode.getExecutable());
                 actionDataFromConfigurationEdges.add(
-                        new ActionDependencyEdge(sourceDependencyNode, entityDependencyNode));
+                        new ExecutionDependencyEdge(sourceDependencyNode, entityDependencyNode));
             }
         }
     }
@@ -633,15 +661,15 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * actions which depend on one or more of the actions which were executed from the 0th index set and so on.
      * Breadth First level by level traversal is used to compute each set of such independent actions.
      *
-     * @param dag                   : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
+     * @param dag                                   : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
      * @param onPageLoadActionSet
-     * @param actionNameToActionMap : All the action names for the page
+     * @param providedExecutableNameToExecutableMap : All the action names for the page
      * @return
      */
     private List<Set<String>> computeOnPageLoadActionsSchedulingOrder(
             DirectedAcyclicGraph<String, DefaultEdge> dag,
             Set<String> onPageLoadActionSet,
-            Map<String, ActionDTO> actionNameToActionMap,
+            Map<String, Executable> providedExecutableNameToExecutableMap,
             Set<String> explicitUserSetOnLoadActions) {
         Map<String, Integer> pageLoadActionAndLevelMap = new HashMap<>();
         List<Set<String>> onPageLoadActions = new ArrayList<>();
@@ -663,8 +691,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 onPageLoadActions.add(new HashSet<>());
             }
 
-            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(
-                    actionNameToActionMap,
+            Set<String> actionsFromBinding = executableCandidatesForPageLoadFromBinding(
+                    providedExecutableNameToExecutableMap,
                     vertex,
                     pageLoadActionAndLevelMap,
                     onPageLoadActions,
@@ -691,11 +719,11 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      *
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(
-            Set<ActionDependencyEdge> edges,
+    private Mono<Set<ExecutionDependencyEdge>> recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
+            Set<ExecutionDependencyEdge> edges,
             Map<String, EntityDependencyNode> actionsFoundDuringWalk,
             Set<String> dynamicBindings,
-            Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+            Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono,
             int evalVersion) {
         if (dynamicBindings == null || dynamicBindings.isEmpty()) {
             return Mono.just(edges);
@@ -707,24 +735,24 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
         // First fetch all the actions in the page whose name matches the words found in all the dynamic bindings
         Mono<List<EntityDependencyNode>> findAndAddActionsInBindingsMono = getPossibleEntityReferences(
-                        actionNameToActionMapMono, dynamicBindings, evalVersion)
+                        providedExecutableNameToExecutableMapMono, dynamicBindings, evalVersion)
                 .flatMapMany(Flux::fromIterable)
                 // Add dependencies of the actions found in the DSL in the graph.
                 .flatMap(possibleEntity -> {
                     if (Set.of(EntityReferenceType.JSACTION, EntityReferenceType.ACTION)
                             .contains(possibleEntity.getEntityReferenceType())) {
-                        ActionDTO actionDTO = possibleEntity.getActionDTO();
+                        ActionDTO actionDTO = (ActionDTO) possibleEntity.getExecutable();
                         return newActionService
                                 .fillSelfReferencingDataPaths(actionDTO)
                                 .map(newActionDTO -> {
-                                    possibleEntity.setActionDTO(newActionDTO);
+                                    possibleEntity.setExecutable(newActionDTO);
                                     return newActionDTO;
                                 })
                                 .then(extractAndSetActionBindingsInGraphEdges(
                                         possibleEntity,
                                         edges,
                                         newBindings,
-                                        actionNameToActionMapMono,
+                                        providedExecutableNameToExecutableMapMono,
                                         actionsFoundDuringWalk,
                                         null,
                                         evalVersion))
@@ -738,8 +766,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         return findAndAddActionsInBindingsMono.flatMap(entityDependencyNodes -> {
             // Now that the next set of bindings have been found, find recursively all actions by these names
             // and their bindings
-            return recursivelyAddActionsAndTheirDependentsToGraphFromBindings(
-                    edges, actionsFoundDuringWalk, newBindings, actionNameToActionMapMono, evalVersion);
+            return recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
+                    edges, actionsFoundDuringWalk, newBindings, providedExecutableNameToExecutableMapMono, evalVersion);
         });
     }
 
@@ -761,13 +789,13 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param bindingsFromActions
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> addExplicitUserSetOnLoadActionsToGraph(
+    private Mono<Set<ExecutionDependencyEdge>> addExplicitUserSetOnLoadActionsToGraph(
             String pageId,
-            Set<ActionDependencyEdge> edges,
+            Set<ExecutionDependencyEdge> edges,
             Set<String> explicitUserSetOnLoadActions,
             Map<String, EntityDependencyNode> actionsFoundDuringWalk,
             Set<String> bindingsFromActions,
-            Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+            Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono,
             Set<EntityDependencyNode> actionBindingsInDsl,
             int evalVersion) {
 
@@ -791,7 +819,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                                     entityDependencyNode,
                                     edges,
                                     bindingsFromActions,
-                                    actionNameToActionMapMono,
+                                    providedExecutableNameToExecutableMapMono,
                                     actionsFoundDuringWalk,
                                     actionBindingsInDsl,
                                     evalVersion)
@@ -814,52 +842,51 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      *
      * @param edges
      * @param entityDependencyNode
-     * @param bindingsFromActions
-     * @param actionsFoundDuringWalk
+     * @param bindingsFromExecutables
+     * @param executablesFoundDuringWalk
      */
     private Mono<Void> extractAndSetActionBindingsInGraphEdges(
             EntityDependencyNode entityDependencyNode,
-            Set<ActionDependencyEdge> edges,
-            Set<String> bindingsFromActions,
-            Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-            Map<String, EntityDependencyNode> actionsFoundDuringWalk,
+            Set<ExecutionDependencyEdge> edges,
+            Set<String> bindingsFromExecutables,
+            Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono,
+            Map<String, EntityDependencyNode> executablesFoundDuringWalk,
             Set<EntityDependencyNode> bindingsInDsl,
             int evalVersion) {
 
-        ActionDTO action = entityDependencyNode.getActionDTO();
+        Executable executable = entityDependencyNode.getExecutable();
 
         // Check if the action has been deleted in unpublished state. If yes, ignore it.
-        if (action.getDeletedAt() != null) {
+        if (executable.getDeletedAt() != null) {
             return Mono.empty().then();
         }
 
         String name = entityDependencyNode.getValidEntityName();
 
-        if (actionsFoundDuringWalk.containsKey(name)) {
+        if (executablesFoundDuringWalk.containsKey(name)) {
             // This action has already been found in our walk. Ignore this.
             return Mono.empty().then();
         }
-        actionsFoundDuringWalk.put(name, entityDependencyNode);
+        executablesFoundDuringWalk.put(name, entityDependencyNode);
 
-        Map<String, Set<String>> actionBindingMap = getActionBindingMap(action);
+        Map<String, Set<String>> executableBindingsMap = getExecutableBindingsMap(executable);
 
         Set<String> allBindings = new HashSet<>();
-        actionBindingMap.values().stream().forEach(bindings -> allBindings.addAll(bindings));
+        executableBindingsMap.values().stream().forEach(bindings -> allBindings.addAll(bindings));
 
         // TODO : Throw an error on action save when bindings from dynamic binding path list do not match the json path
-        // keys
-        //  and get the client to recompute the dynamic binding path list and try again.
-        if (!allBindings.containsAll(action.getJsonPathKeys())) {
-            Set<String> invalidBindings = new HashSet<>(action.getJsonPathKeys());
+        //   keys and get the client to recompute the dynamic binding path list and try again.
+        if (!allBindings.containsAll(executable.getJsonPathKeys())) {
+            Set<String> invalidBindings = new HashSet<>(executable.getJsonPathKeys());
             invalidBindings.removeAll(allBindings);
             log.error(
                     "Invalid dynamic binding path list for action id {}. Not taking the following bindings in "
                             + "consideration for computing on page load actions : {}",
-                    action.getId(),
+                    executable.getId(),
                     invalidBindings);
         }
 
-        Set<String> bindingPaths = actionBindingMap.keySet();
+        Set<String> bindingPaths = executableBindingsMap.keySet();
 
         return Flux.fromIterable(bindingPaths)
                 .flatMap(bindingPath -> {
@@ -868,17 +895,17 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                             entityDependencyNode.getValidEntityName(),
                             bindingPath,
                             null,
-                            action);
+                            executable);
                     return getPossibleEntityReferences(
-                                    actionNameToActionMapMono,
-                                    actionBindingMap.get(bindingPath),
+                                    providedExecutableNameToExecutableMapMono,
+                                    executableBindingsMap.get(bindingPath),
                                     evalVersion,
                                     bindingsInDsl)
                             .flatMapMany(Flux::fromIterable)
                             .map(relatedDependencyNode -> {
-                                bindingsFromActions.add(relatedDependencyNode.getReferenceString());
-                                ActionDependencyEdge edge =
-                                        new ActionDependencyEdge(relatedDependencyNode, actionDependencyNode);
+                                bindingsFromExecutables.add(relatedDependencyNode.getReferenceString());
+                                ExecutionDependencyEdge edge =
+                                        new ExecutionDependencyEdge(relatedDependencyNode, actionDependencyNode);
                                 edges.add(edge);
                                 return relatedDependencyNode;
                             })
@@ -897,8 +924,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param widgetBindingMap
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> addWidgetRelationshipToGraph(
-            Set<ActionDependencyEdge> edges, Map<String, Set<String>> widgetBindingMap, int evalVersion) {
+    private Mono<Set<ExecutionDependencyEdge>> addWidgetRelationshipToGraph(
+            Set<ExecutionDependencyEdge> edges, Map<String, Set<String>> widgetBindingMap, int evalVersion) {
         final int entityTypes = WIDGET_ENTITY_REFERENCES;
         // This part will ensure that we are discovering widget to widget relationships.
         return Flux.fromIterable(widgetBindingMap.entrySet())
@@ -919,8 +946,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                                 EntityDependencyNode entityDependencyNode = new EntityDependencyNode(
                                         EntityReferenceType.WIDGET, widgetName, widgetPath, null, null);
                                 entry.getValue().stream().forEach(widgetDependencyNode -> {
-                                    ActionDependencyEdge edge =
-                                            new ActionDependencyEdge(widgetDependencyNode, entityDependencyNode);
+                                    ExecutionDependencyEdge edge =
+                                            new ExecutionDependencyEdge(widgetDependencyNode, entityDependencyNode);
                                     edges.add(edge);
                                 });
                             });
@@ -930,8 +957,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 .then(Mono.just(edges));
     }
 
-    private boolean hasUserSetActionToNotRunOnPageLoad(ActionDTO unpublishedAction) {
-        if (TRUE.equals(unpublishedAction.getUserSetOnLoad()) && !TRUE.equals(unpublishedAction.getExecuteOnLoad())) {
+    private boolean hasUserSetExecutableToNotRunOnPageLoad(Executable executable) {
+        if (TRUE.equals(executable.getUserSetOnLoad()) && !TRUE.equals(executable.getExecuteOnLoad())) {
             return true;
         }
 
@@ -945,13 +972,14 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param action
      * @return
      */
-    private Map<String, Set<String>> getActionBindingMap(ActionDTO action) {
+    private <T extends Executable> Map<String, Set<String>> getExecutableBindingsMap(T action) {
 
         List<Property> dynamicBindingPathList = action.getDynamicBindingPathList();
         Map<String, Set<String>> completePathToDynamicBindingMap = new HashMap<>();
 
-        Map<String, Object> configurationObj = objectMapper.convertValue(action.getActionConfiguration(), Map.class);
-        Set<String> selfReferencingDataPaths = action.getActionConfiguration().getSelfReferencingDataPaths();
+        Map<String, Object> configurationObj = objectMapper.convertValue(
+                action.getExecutableConfiguration(), new TypeReference<HashMap<String, Object>>() {});
+        Set<String> selfReferencingDataPaths = action.getSelfReferencingDataPaths();
         if (dynamicBindingPathList != null) {
             // Each of these might have nested structures, so we iterate through them to find the leaf node for each
             for (Property x : dynamicBindingPathList) {
@@ -1011,7 +1039,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     Boolean isBindingPresentInString = MustacheHelper.laxIsBindingPresentInString((String) parent);
                     // We found the path. But if the path has mustache bindings, record the same in the map
                     // In case
-                    if (isBindingPresentInString || PluginType.JS.equals(action.getPluginType())) {
+                    if (isBindingPresentInString || action.hasExtractableBinding()) {
                         Set<String> mustacheKeysFromFields;
                         // Stricter extraction of dynamic bindings
                         if (isBindingPresentInString) {
@@ -1023,7 +1051,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                             mustacheKeysFromFields = Set.of((String) parent);
                         }
 
-                        String completePath = action.getValidName() + ".actionConfiguration." + fieldPath;
+                        String completePath = action.getCompleteDynamicBindingPath(fieldPath);
                         if (completePathToDynamicBindingMap.containsKey(completePath)) {
                             Set<String> mustacheKeysForWidget = completePathToDynamicBindingMap.get(completePath);
                             mustacheKeysFromFields.addAll(mustacheKeysForWidget);
@@ -1049,8 +1077,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param entityDependencyNode
      * @return
      */
-    private Set<ActionDependencyEdge> generateParentChildRelationships(EntityDependencyNode entityDependencyNode) {
-        Set<ActionDependencyEdge> edges = new HashSet<>();
+    private Set<ExecutionDependencyEdge> generateParentChildRelationships(EntityDependencyNode entityDependencyNode) {
+        Set<ExecutionDependencyEdge> edges = new HashSet<>();
 
         String parent;
 
@@ -1064,8 +1092,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                         entityDependencyNode.getValidEntityName(),
                         parent,
                         entityDependencyNode.getIsFunctionCall(),
-                        entityDependencyNode.getActionDTO());
-                edges.add(new ActionDependencyEdge(entityDependencyNode, parentDependencyNode));
+                        entityDependencyNode.getExecutable());
+                edges.add(new ExecutionDependencyEdge(entityDependencyNode, parentDependencyNode));
                 entityDependencyNode = parentDependencyNode;
             } catch (IllegalStateException | IndexOutOfBoundsException e) {
                 // No matches being found. Break out of infinite loop
@@ -1085,14 +1113,14 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * - If sync function, ignore. This is because client would execute the same during dynamic binding eval
      * - If async function, it is a candidate only if the data for the function is referred in the dynamic binding.
      *
-     * @param actionNameToActionMap
+     * @param providedExecutableNameToExecutableMap
      * @param vertex
      * @param pageLoadActionsLevelMap
      * @param existingPageLoadActions
      * @return
      */
-    private Set<String> actionCandidatesForPageLoadFromBinding(
-            Map<String, ActionDTO> actionNameToActionMap,
+    private Set<String> executableCandidatesForPageLoadFromBinding(
+            Map<String, Executable> providedExecutableNameToExecutableMap,
             String vertex,
             Map<String, Integer> pageLoadActionsLevelMap,
             List<Set<String>> existingPageLoadActions,
@@ -1105,7 +1133,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         for (String entity : possibleParents) {
 
             // if this generated entity name from the binding matches an action name check for its eligibility
-            if (actionNameToActionMap.containsKey(entity)) {
+            if (providedExecutableNameToExecutableMap.containsKey(entity)) {
 
                 Boolean isCandidateForPageLoad = TRUE;
 
@@ -1121,9 +1149,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 } else {
                     validBinding = entity + "." + "data";
                 }
-
-                // If the reference is to a sync JS function, discard it from the scheduling order
-                ActionDTO actionDTO = actionNameToActionMap.get(entity);
 
                 if (!vertex.contains(validBinding)) {
                     isCandidateForPageLoad = FALSE;
@@ -1144,29 +1169,5 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         }
 
         return onPageLoadCandidates;
-    }
-
-    private DslActionDTO getDslAction(ActionDTO actionDTO) {
-
-        DslActionDTO dslActionDTO = new DslActionDTO();
-
-        dslActionDTO.setId(actionDTO.getId());
-        dslActionDTO.setPluginType(actionDTO.getPluginType());
-        dslActionDTO.setJsonPathKeys(actionDTO.getJsonPathKeys());
-        dslActionDTO.setName(actionDTO.getValidName());
-        dslActionDTO.setCollectionId(actionDTO.getCollectionId());
-        dslActionDTO.setClientSideExecution(actionDTO.getClientSideExecution());
-        dslActionDTO.setConfirmBeforeExecute(actionDTO.getConfirmBeforeExecute());
-        if (actionDTO.getDefaultResources() != null) {
-            dslActionDTO.setDefaultActionId(actionDTO.getDefaultResources().getActionId());
-            dslActionDTO.setDefaultCollectionId(actionDTO.getDefaultResources().getCollectionId());
-        }
-
-        if (actionDTO.getActionConfiguration() != null) {
-            dslActionDTO.setTimeoutInMillisecond(
-                    actionDTO.getActionConfiguration().getTimeoutInMillisecond());
-        }
-
-        return dslActionDTO;
     }
 }

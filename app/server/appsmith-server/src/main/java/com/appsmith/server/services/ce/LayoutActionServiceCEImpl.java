@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.AppsmithEventContext;
@@ -9,19 +10,19 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.ActionDependencyEdge;
+import com.appsmith.server.domains.ExecutionDependencyEdge;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
-import com.appsmith.server.dtos.DslActionDTO;
-import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ce.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -718,10 +719,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         }
 
         Set<String> actionNames = new HashSet<>();
-        Set<ActionDependencyEdge> edges = new HashSet<>();
-        Set<String> actionsUsedInDSL = new HashSet<>();
-        List<ActionDTO> flatmapPageLoadActions = new ArrayList<>();
-        List<LayoutActionUpdateDTO> actionUpdates = new ArrayList<>();
+        Set<ExecutionDependencyEdge> edges = new HashSet<>();
+        Set<String> executablesUsedInDSL = new HashSet<>();
+        List<Executable> flatmapPageLoadExecutables = new ArrayList<>();
+        List<LayoutExecutableUpdateDTO> executableUpdates = new ArrayList<>();
         List<String> messages = new ArrayList<>();
 
         AtomicReference<Boolean> validOnPageLoadActions = new AtomicReference<>(Boolean.TRUE);
@@ -729,15 +730,15 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         // setting the layoutOnLoadActionActionErrors to empty to remove the existing errors before new DAG calculation.
         layout.setLayoutOnLoadActionErrors(new ArrayList<>());
 
-        Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
-                .findAllOnLoadActions(
+        Mono<List<Set<DslExecutableDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
+                .findAllOnLoadExecutables(
                         pageId,
                         evaluatedVersion,
                         widgetNames,
                         edges,
                         widgetDynamicBindingsMap,
-                        flatmapPageLoadActions,
-                        actionsUsedInDSL)
+                        flatmapPageLoadExecutables,
+                        executablesUsedInDSL)
                 .onErrorResume(AppsmithException.class, error -> {
                     log.info(error.getMessage());
                     validOnPageLoadActions.set(FALSE);
@@ -753,17 +754,17 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         // First update the actions and set execute on load to true
         JSONObject finalDsl = dsl;
         return allOnLoadActionsMono
-                .flatMap(allOnLoadActions -> {
+                .flatMap(allOnLoadExecutables -> {
                     // If there has been an error (e.g. cyclical dependency), then dont update any actions.
                     // This is so that unnecessary updates don't happen to actions while the page is in invalid state.
                     if (!validOnPageLoadActions.get()) {
-                        return Mono.just(allOnLoadActions);
+                        return Mono.just(allOnLoadExecutables);
                     }
                     // Update these actions to be executed on load, unless the user has touched the executeOnLoad
                     // setting for this
                     return newActionService
-                            .updateActionsExecuteOnLoad(flatmapPageLoadActions, pageId, actionUpdates, messages)
-                            .thenReturn(allOnLoadActions);
+                            .updateActionsExecuteOnLoad(flatmapPageLoadExecutables, pageId, executableUpdates, messages)
+                            .thenReturn(allOnLoadExecutables);
                 })
                 .zipWith(newPageService
                         .findByIdAndLayoutsId(pageId, layoutId, pagePermission.getEditPermission(), false)
@@ -773,7 +774,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                 pageId + ", " + layoutId))))
                 // Now update the page layout with the page load actions and the graph.
                 .flatMap(tuple -> {
-                    List<Set<DslActionDTO>> onLoadActions = tuple.getT1();
+                    List<Set<DslExecutableDTO>> onLoadActions = tuple.getT1();
                     PageDTO page = tuple.getT2();
 
                     List<Layout> layoutList = page.getLayouts();
@@ -786,7 +787,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             // in the layout for re-use to avoid computing DAG unnecessarily.
                             layout.setLayoutOnLoadActions(onLoadActions);
                             layout.setAllOnPageLoadActionNames(actionNames);
-                            layout.setActionsUsedInDynamicBindings(actionsUsedInDSL);
+                            layout.setActionsUsedInDynamicBindings(executablesUsedInDSL);
                             // The below field is to ensure that we record if the page load actions computation was
                             // valid
                             // when last stored in the database.
@@ -818,7 +819,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 })
                 .flatMap(savedLayout -> {
                     LayoutDTO layoutDTO = generateResponseDTO(savedLayout);
-                    layoutDTO.setActionUpdates(actionUpdates);
+                    layoutDTO.setActionUpdates(executableUpdates);
                     layoutDTO.setMessages(messages);
 
                     return sendUpdateLayoutAnalyticsEvent(pageId, layoutId, finalDsl, true, null)
@@ -879,7 +880,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         layoutDTO.setDsl(layout.getDsl());
         layoutDTO.setScreen(layout.getScreen());
         layoutDTO.setLayoutOnLoadActions(layout.getLayoutOnLoadActions());
-        layoutDTO.setLayoutOnLoadActionErrors(layout.getLayoutOnLoadActionErrors());
+        layoutDTO.setLayoutOnLoadExecutableErrors(layout.getLayoutOnLoadActionErrors());
         layoutDTO.setUserPermissions(layout.getUserPermissions());
 
         return layoutDTO;

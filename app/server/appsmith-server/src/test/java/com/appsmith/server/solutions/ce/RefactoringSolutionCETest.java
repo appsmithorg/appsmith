@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -15,7 +16,6 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
@@ -304,7 +304,7 @@ class RefactoringSolutionCETest {
                 .assertNext(updatedAction -> {
                     assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("PostNameChange");
 
-                    DslActionDTO actionDTO = postNameChangeLayout
+                    DslExecutableDTO actionDTO = postNameChangeLayout
                             .getLayoutOnLoadActions()
                             .get(0)
                             .iterator()
@@ -378,7 +378,7 @@ class RefactoringSolutionCETest {
                 .assertNext(updatedAction -> {
                     assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("PostNameChange");
 
-                    DslActionDTO actionDTO = postNameChangeLayout
+                    DslExecutableDTO actionDTO = postNameChangeLayout
                             .getLayoutOnLoadActions()
                             .get(0)
                             .iterator()
@@ -576,7 +576,7 @@ class RefactoringSolutionCETest {
                 .assertNext(updatedAction -> {
                     assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("newName");
 
-                    DslActionDTO actionDTO = postNameChangeLayout
+                    DslExecutableDTO actionDTO = postNameChangeLayout
                             .getLayoutOnLoadActions()
                             .get(0)
                             .iterator()
