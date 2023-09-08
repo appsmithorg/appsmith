@@ -92,7 +92,6 @@ import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import {
-  getCurrentEnvironment,
   isStorageEnvironmentCreated,
   onUpdateFilterSuccess,
 } from "@appsmith/utils/Environments";
@@ -142,7 +141,6 @@ interface ReduxStateProps {
   initialValue: Datasource | ApiDatasourceForm | undefined;
   showDebugger: boolean;
   featureFlags?: FeatureFlags;
-  currentEnvironment: string;
   isEnabledForDSViewModeSchema: boolean;
   isPluginAllowedToPreviewData: boolean;
 }
@@ -290,8 +288,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       this.props.initializeFormWithDefaults(this.props.pluginType);
     }
 
-    // console.log("hereee", prevProps, this.props);
-
     // if the datasource id changes, we need to reset the required fields and configDetails
     if (this.props.datasourceId !== prevProps.datasourceId) {
       this.setState({
@@ -417,7 +413,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             DatasourceComponentTypes.RestAPIDatasourceForm &&
           isHidden(
             (this.props.formData as Datasource).datasourceStorages[
-              this.props.currentEnvironment
+              this.getEnvironmentId()
             ],
             currentConfig.hidden,
             this.props?.featureFlags,
@@ -455,7 +451,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           DatasourceComponentTypes.RestAPIDatasourceForm &&
         isHidden(
           (this.props.formData as Datasource).datasourceStorages[
-            this.props.currentEnvironment
+            this.getEnvironmentId()
           ],
           currentConfig.hidden,
           this.props?.featureFlags,
@@ -1093,7 +1089,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   );
 
   const featureFlags = selectFeatureFlags(state);
-  const currentEnvironment = getCurrentEnvironment();
 
   //   A/B feature flag for datasource view mode preview data.
   const isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
@@ -1109,7 +1104,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     canCreateDatasourceActions,
     canDeleteDatasource,
     canManageDatasource,
-    currentEnvironment,
     datasourceButtonConfiguration,
     datasourceId,
     pluginImage: getPluginImages(state)[pluginId],
