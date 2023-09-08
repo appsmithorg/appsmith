@@ -144,6 +144,7 @@ public enum AppsmithErrorCode {
     DATASOURCE_STORAGE_NOT_CONFIGURED("AE-APP-4041", "Datasource not configured"),
     HMAC_GENERATION_EXCEPTION("AE-MAC-4000", "HMAC signature generation failed"),
     TENANT_DOWNGRADE_EXCEPTION("AE-LIC-4000", "Tenant downgrade to free plan failed"),
+    KNOWLEDGE_BASE_EXCEPTION("AE-KB-5000", "Knowledge base exception"),
     ;
     private final String code;
     private final String description;
