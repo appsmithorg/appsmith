@@ -109,7 +109,7 @@ export const EditorWrapper = styled.div<{
         `} */
       ${(props) => props.isFocused && `clip-path: unset !important;`}
       font-family: ${(props) => props.theme.fonts.code};
-      font-size: ${(props) => (props.isReadOnly ? "12px" : "13px")};
+      font-size: ${(props) => (props.isReadOnly ? "12px" : "12px")};
       border: 1px solid
         ${(props) => {
           switch (true) {
