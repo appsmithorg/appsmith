@@ -11,14 +11,24 @@ import history, { NavigationMethod } from "../../../../utils/history";
 import ApiEditor from "../../../Editor/APIEditor";
 import PagePaneContainer from "./PagePaneContainer";
 import { getPluginIcon } from "../../../Editor/Explorer/ExplorerIcons";
-
+import { useIDEDatasources } from "../../hooks";
 import { importSvg } from "design-system-old";
 import { getIdeSidebarWidth, getRecentQueryList } from "pages/IDE/ideSelector";
 import styled from "styled-components";
+import BlankState from "pages/IDE/components/BlankState";
+import {
+  setIdePageTabState,
+  showAddDatasourceModal,
+} from "pages/IDE/ideActions";
+import { TabState } from "pages/IDE/ideReducer";
+import { datasourcesEditorURL } from "RouteBuilder";
 import type { Item } from "../../components/ListView";
 
-const DataIcon = importSvg(
+const QueriesIcon = importSvg(
   () => import("pages/IDE/assets/icons/no-queries.svg"),
+);
+const DatasourcesIcon = importSvg(
+  () => import("pages/IDE/assets/icons/no-datasources.svg"),
 );
 
 type Props = RouteComponentProps<{
@@ -38,6 +48,7 @@ const QuerySidebar = (props: Props) => {
   const dispatch = useDispatch();
   const { actionId, pageId } = props.match.params;
   const actions: Item[] = useSelector(getRecentQueryList);
+  const datasources = useIDEDatasources();
   const leftPaneWidth = useSelector(getIdeSidebarWidth);
   const action = find(actions, (action) => action.key === actionId);
   const plugins = useSelector(getPlugins);
@@ -126,15 +137,34 @@ const QuerySidebar = (props: Props) => {
     }
   }
 
+  const blankState = datasources.length ? (
+    <BlankState
+      buttonText={"New query"}
+      description={"You have data. Write your first query."}
+      image={QueriesIcon}
+      onClick={() => {
+        dispatch(setIdePageTabState(TabState.ADD));
+      }}
+    />
+  ) : (
+    <BlankState
+      buttonText="New Datasource"
+      description={
+        "Experience the power of Appsmith by connecting to your data"
+      }
+      image={DatasourcesIcon}
+      onClick={() => {
+        history.push(datasourcesEditorURL({ pageId }));
+        dispatch(showAddDatasourceModal(true));
+      }}
+    />
+  );
+
   return (
     <PagePaneContainer
       addItems={addOperations}
       addStateTitle="Create a new query on..."
-      blankState={{
-        image: DataIcon,
-        description: "You have data. Write your first query.",
-        buttonText: "New query",
-      }}
+      blankState={blankState}
       editor={editor}
       listItems={toListActions}
       listStateTitle={`Queries in this page (${toListActions.length})`}

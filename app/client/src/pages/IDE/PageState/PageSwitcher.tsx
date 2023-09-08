@@ -110,13 +110,13 @@ const PageSwitcher = () => {
     return (
       <PageSwitchOverlay width={paneWidth}>
         <SwitchMode>
-          <Text kind="heading-s">Pages({pageList.length})</Text>
+          <Text kind="heading-s">Pages ({pageList.length})</Text>
           <Button
             isIconButton
             kind="secondary"
             onClick={() => setSwitchMode(false)}
             size="sm"
-            startIcon="cross"
+            startIcon="close"
           />
         </SwitchMode>
         <PageList width={paneWidth}>
