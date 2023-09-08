@@ -164,7 +164,7 @@ export const INVITE_TAB = () => "Invite";
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
   `Invalid email address(es) found`;
 export const INVITE_USERS_VALIDATION_ROLE_EMPTY = () => `Please select a role`;
-
+export const APPLICATION_INVITE = () => "Application Invite";
 export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = () =>
   `Comma separated emails`;
 export const INVITE_USERS_ROLE_SELECT_PLACEHOLDER = () => `Select role`;
