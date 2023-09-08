@@ -16,7 +16,7 @@ import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEdit
 import type { SlashCommandPayload } from "entities/Action";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
-export const commandsHelper: HintHelper = (editor, data: DataTree) => {
+export const slashCommandHintHelper: HintHelper = (editor, data: DataTree) => {
   let entitiesForSuggestions: any[] = [];
 
   Object.keys(data).forEach((entityName) => {

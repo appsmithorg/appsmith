@@ -17,6 +17,7 @@ import { generateReactKey } from "utils/generators";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import ColorPickerComponent from "./ColorPickerComponentV2";
+import { assistiveBindingHinter } from "components/editorComponents/CodeEditor/assistiveBindingHinter";
 
 const Wrapper = styled.div`
   background-color: var(--ads-v2-color-bg-subtle);
@@ -144,6 +145,7 @@ function DataControlComponent(props: RenderComponentProps) {
           dataTreePath={`${dataTreePath}.seriesName`}
           evaluatedValue={evaluated?.seriesName}
           expected={expectedSeriesName}
+          hinting={[assistiveBindingHinter]}
           input={{
             value: item.seriesName,
             onChange: (
@@ -193,6 +195,7 @@ function DataControlComponent(props: RenderComponentProps) {
           dataTreePath={`${dataTreePath}.data`}
           evaluatedValue={evaluated?.data}
           expected={expectedSeriesData}
+          hinting={[assistiveBindingHinter]}
           input={{
             value: item.data,
             onChange: (

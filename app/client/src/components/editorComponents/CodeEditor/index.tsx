@@ -67,7 +67,7 @@ import {
   NAVIGATE_TO_ATTRIBUTE,
 } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import {
-  bindingHint,
+  bindingHintHelper,
   sqlHint,
 } from "components/editorComponents/CodeEditor/hintHelpers";
 
@@ -91,8 +91,7 @@ import {
   removeEventFromHighlightedElement,
   removeNewLineCharsIfRequired,
 } from "./codeEditorUtils";
-import { commandsHelper } from "./commandsHelper";
-import { assistiveBindingHinter } from "./assistiveBindingHinter";
+import { slashCommandHintHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
@@ -273,15 +272,15 @@ const getEditorIdentifier = (props: EditorProps): string => {
 };
 
 class CodeEditor extends Component<Props, State> {
+  hintHelper: HintHelper[] = [
+    bindingHintHelper,
+    slashCommandHintHelper,
+    sqlHint.hinter,
+  ];
   static defaultProps = {
     marking: [entityMarker],
-    hinting: [
-      bindingHint,
-      commandsHelper,
-      sqlHint.hinter,
-      assistiveBindingHinter, // better to end all hinters with Hinter suffix. TODO: Refactor hinter names
-    ],
     lineCommentString: "//",
+    hinting: [],
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
@@ -471,7 +470,7 @@ class CodeEditor extends Component<Props, State> {
         this.hinters = CodeEditor.startAutocomplete(
           editor,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          this.props.hinting!, // ! since defaultProps are set
+          [...this.hintHelper, ...this.props.hinting!], // ! since defaultProps are set
           this.props.dynamicData,
           this.props.entitiesForNavigation, // send navigation here
         );

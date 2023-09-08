@@ -13,7 +13,7 @@ import { isEmpty, isString } from "lodash";
 import type { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
 import { getHintDetailsFromClassName } from "./utils/sqlHint";
 
-export const bindingHint: HintHelper = (editor) => {
+export const bindingHintHelper: HintHelper = (editor) => {
   editor.setOption("extraKeys", {
     // @ts-expect-error: Types are not available
     ...editor.options.extraKeys,
