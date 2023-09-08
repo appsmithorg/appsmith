@@ -929,7 +929,7 @@ export class AggregateHelper extends ReusableHelper {
   public AssertAttribute(
     selector: string,
     attribName: string,
-    attribValue: string,
+    attribValue: any,
     index = 0,
   ) {
     return this.GetElement(selector)
@@ -940,7 +940,7 @@ export class AggregateHelper extends ReusableHelper {
   public AssertProperty(
     selector: string,
     propName: string,
-    propValue: boolean,
+    propValue: any,
     index = 0,
   ) {
     return this.GetElement(selector)
@@ -1636,7 +1636,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public AssertClassExists(selector: string, className: string) {
-    cy.get(selector).should("have.class", className);
+    this.GetElement(selector).should("have.class", className);
   }
 
   //Not used:

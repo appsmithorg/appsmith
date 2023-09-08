@@ -14,20 +14,12 @@
     <name>reactiveCaching</name>
 
     <properties>
-        <org.pf4j.version>3.8.0</org.pf4j.version>
         <org.projectlombok.version>1.18.22</org.projectlombok.version>
         <org.testcontainers.junit-jupiter.version>1.17.2</org.testcontainers.junit-jupiter.version>
         <uk.co.jemos.podam.podam.version>7.2.11.RELEASE</uk.co.jemos.podam.podam.version>
-        <!--        <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>-->
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.pf4j</groupId>
-            <artifactId>pf4j</artifactId>
-            <version>${org.pf4j.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>

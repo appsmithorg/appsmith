@@ -7,6 +7,7 @@ export const DataSourceKVP = {
   Mongo: "MongoDB",
   MySql: "MySQL",
   UnAuthenticatedGraphQL: "GraphQL API",
+  AuthenticatedGraph: "Authenticated GraphQL API",
   MsSql: "Microsoft SQL Server",
   Airtable: "Airtable",
   ArangoDB: "ArangoDB",
@@ -79,6 +80,8 @@ export class DataSources {
   _activeDS = "[data-testid='active-datasource-name']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
+  _addSuggestedExisting = "t--suggested-widget-existing";
+  _addSuggestedAddNew = "t--suggested-widget-add-new";
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
   _createQuery = ".t--create-query";
@@ -185,8 +188,13 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
-  private _suggestedWidget = (widgetType: string) =>
-    ".t--suggested-widget-" + widgetType + "";
+
+  private _suggestedWidget = (widgetType: string, parentClass: string) =>
+    "//div[contains(@class, '" +
+    parentClass +
+    "')]//div[contains(@class, 't--suggested-widget-" +
+    widgetType +
+    "')]";
 
   private _curlTextArea =
     "//label[text()='Paste CURL Code Here']/parent::form/div";
@@ -269,6 +277,9 @@ export class DataSources {
   _s3MaxFileSizeAlert = "//p[@role='alert']";
   _entityExplorerID = (dsName: string) =>
     "[data-testid='t--entity-item-" + dsName + "']";
+  _stagingTab = "[data-testid='t--ds-data-filter-Staging']";
+  _graphQlDsFromRightPane = (dsName: string) =>
+    "//div/span[text() ='" + dsName + "']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -683,17 +694,32 @@ export class DataSources {
 
   public FillUnAuthenticatedGraphQLDSForm(
     environment = this.dataManager.defaultEnviorment,
+    enterOrSelectUrl: "enter" | "select" = "enter",
+    dsNameToSelect = "",
   ) {
     this.agHelper.GetNClick(this._createBlankGraphQL);
     cy.get("@guid").then((uid) => {
       this.agHelper.RenameWithInPane("GraphQL_API" + "_" + uid, true);
 
-      this.apiPage.EnterURL(
-        this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
-      );
+      if (enterOrSelectUrl == "enter")
+        this.apiPage.EnterURL(
+          this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
+        );
+      else if (enterOrSelectUrl == "select")
+        this.agHelper.GetNClick(this._graphQlDsFromRightPane(dsNameToSelect));
+
       this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
       cy.wrap("GraphQL_API" + "_" + uid).as("dsName");
     });
+  }
+
+  public FillAuthenticatedGrapgQLURL(
+    environment = this.dataManager.defaultEnviorment,
+  ) {
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
+      this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
+    );
   }
 
   public CreateNFillAuthenticatedGraphQLDSForm(
@@ -702,12 +728,7 @@ export class DataSources {
     hValue: string,
     environment = this.dataManager.defaultEnviorment,
   ) {
-    this.NavigateToDSCreateNew();
-    this.CreatePlugIn("Authenticated GraphQL API");
-    this.agHelper.TypeText(
-      this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
-      this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
-    );
+    this.FillAuthenticatedGrapgQLURL(environment);
 
     this.agHelper.UpdateInputValue(this._graphQLHeaderKey, hKey);
     this.agHelper.UpdateInputValue(this._graphQLHeaderValue, hValue);
@@ -741,7 +762,7 @@ export class DataSources {
     );
   }
 
-  public fillTwilioDSForm(environment = this.dataManager.defaultEnviorment) {
+  public FillTwilioDSForm(environment = this.dataManager.defaultEnviorment) {
     this.ValidateNSelectDropdown("Authentication type", "", "Basic auth");
     this.agHelper.UpdateInputValue(
       this._username,
@@ -1214,6 +1235,7 @@ export class DataSources {
       | "Mongo"
       | "MySql"
       | "UnAuthenticatedGraphQL"
+      | "AuthenticatedGraph"
       | "MsSql"
       | "Airtable"
       | "ArangoDB"
@@ -1271,7 +1293,9 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "Redis")
           this.FillRedisDSForm(environment);
         else if (DataSourceKVP[dsType] == "S3") this.FillS3DSForm();
-        else if (DataSourceKVP[dsType] == "Twilio") this.fillTwilioDSForm();
+        else if (DataSourceKVP[dsType] == "Twilio") this.FillTwilioDSForm();
+        else if (DataSourceKVP[dsType] == "Authenticated GraphQL API")
+          this.FillAuthenticatedGrapgQLURL();
 
         if (testNSave) {
           this.TestSaveDatasource();
@@ -1436,16 +1460,12 @@ export class DataSources {
 
   public FilterAndVerifyDatasourceSchemaBySearch(
     search: string,
-    filterBy?: "table" | "column",
+    expectedTableName = search,
   ) {
     this.agHelper.Sleep(2500); //for query editor to load
     this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
     this.agHelper.Sleep(); //for search result to load
-    if (filterBy === "column") {
-      this.VerifyColumnSchemaOnQueryEditor(search);
-    } else if (filterBy === "table") {
-      this.VerifyTableSchemaOnQueryEditor(search);
-    }
+    this.VerifyTableSchemaOnQueryEditor(expectedTableName);
   }
 
   public AssertDSDialogVisibility(isVisible = true) {
@@ -1673,17 +1693,24 @@ export class DataSources {
     );
   }
 
-  public AddSuggestedWidget(widget: Widgets, force = false, index = 0) {
+  public AddSuggestedWidget(
+    widget: Widgets,
+    parentClass = this._addSuggestedAddNew,
+    force = false,
+    index = 0,
+  ) {
     switch (widget) {
       case Widgets.Dropdown:
-        this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("SELECT_WIDGET", parentClass),
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.SELECT),
         );
         break;
       case Widgets.Table:
         this.agHelper.GetNClick(
-          this._suggestedWidget("TABLE_WIDGET_V2"),
+          this._suggestedWidget("TABLE_WIDGET_V2", parentClass),
           index,
           force,
         );
@@ -1692,13 +1719,17 @@ export class DataSources {
         );
         break;
       case Widgets.Chart:
-        this.agHelper.GetNClick(this._suggestedWidget("CHART_WIDGET"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("CHART_WIDGET", parentClass),
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.CHART),
         );
         break;
       case Widgets.Text:
-        this.agHelper.GetNClick(this._suggestedWidget("TEXT_WIDGET"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("TEXT_WIDGET", parentClass),
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TEXT),
         );
