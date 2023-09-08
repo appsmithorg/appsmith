@@ -2,7 +2,10 @@ import React, { useEffect, useMemo } from "react";
 import { Space } from "../../components/StyledComponents";
 import {
   AUTHOR_EMAIL,
+  AUTHOR_EMAIL_CANNOT_BE_EMPTY,
   AUTHOR_NAME,
+  AUTHOR_NAME_CANNOT_BE_EMPTY,
+  FORM_VALIDATION_INVALID_EMAIL,
   GIT_USER_SETTINGS_TITLE,
   UPDATE_CONFIG,
   USE_DEFAULT_CONFIGURATION,
@@ -134,8 +137,14 @@ const GitUserSettings = () => {
   const globalConfig = useSelector(getGlobalGitConfig);
   const localConfig = useSelector(getLocalGitConfig);
 
-  const { control, handleSubmit, register, setValue, watch } =
-    useForm<AuthorInfo>();
+  const {
+    control,
+    formState: { errors },
+    handleSubmit,
+    register,
+    setValue,
+    watch,
+  } = useForm<AuthorInfo>();
 
   const useGlobalProfile = watch("useGlobalProfile");
   const authorName = watch("authorName");
@@ -234,16 +243,15 @@ const GitUserSettings = () => {
           {!loading ? (
             <Input
               data-testid="t--git-user-settings-author-name-input"
-              // errorMessage={
-              //   nameInvalid ? createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY) : ""
-              // }
+              errorMessage={errors?.authorName?.message}
               isReadOnly={useGlobalProfile}
-              // isValid={!nameInvalid}
+              isValid={!errors?.authorName}
               label={createMessage(AUTHOR_NAME)}
-              // isLoading={isFetchingConfig}
               size="md"
               type="text"
-              {...register("authorName", { required: true })}
+              {...register("authorName", {
+                required: createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY),
+              })}
               // onChange is overwritten with setValue
               onChange={(v) => setValue("authorName", v)}
             />
@@ -255,15 +263,19 @@ const GitUserSettings = () => {
           {!loading ? (
             <Input
               data-testid="t--git-user-settings-author-email-input"
-              // errorMessage={
-              //   emailInvalid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : ""
-              // }
+              errorMessage={errors?.authorEmail?.message}
               isReadOnly={useGlobalProfile}
-              // isValid={!emailInvalid}
+              isValid={!errors?.authorEmail}
               label={createMessage(AUTHOR_EMAIL)}
               size="md"
-              type="email"
-              {...register("authorEmail", { required: true })}
+              // type="email"
+              {...register("authorEmail", {
+                required: createMessage(AUTHOR_EMAIL_CANNOT_BE_EMPTY),
+                pattern: {
+                  value: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+                  message: createMessage(FORM_VALIDATION_INVALID_EMAIL),
+                },
+              })}
               // onChange is overwritten with setValue
               onChange={(v) => setValue("authorEmail", v)}
             />
