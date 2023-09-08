@@ -184,7 +184,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); // for delete to take effect!
-    table.AssertSelectedRow(0); //Control going back to 1st row in table
+    table.SelectTableRow(0, 0, true, "v2");
     dataSources.AssertJSONFormHeader(0, 0, "store_id");
   });
 
@@ -338,7 +338,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Delete to reflect!
-    table.AssertSelectedRow(0); //Control going back to 1st row in table
+    table.SelectTableRow(0, 0, true, "v2");
     table.ReadTableRowColumnData(0, 0, "v2", 200).then(($cellData) => {
       expect($cellData).not.eq("2105"); //Deleted record Store_ID
     });
