@@ -67,7 +67,7 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, set, uniq } from "lodash";
+import _, { cloneDeep, get, isString, set, uniq } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
@@ -183,6 +183,7 @@ import {
   LayoutDirection,
 } from "utils/autoLayout/constants";
 import localStorage from "utils/localStorage";
+import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -585,6 +586,11 @@ export function* setWidgetDynamicPropertySaga(
   };
 
   widget = yield call(handleUpdateWidgetDynamicProperty, widget, update);
+
+  const propertyValue = get(widget, propertyPath);
+  if (!propertyValue && isDynamic) {
+    set(widget, propertyPath, EMPTY_BINDING);
+  }
 
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
