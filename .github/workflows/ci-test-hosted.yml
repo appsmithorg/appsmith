@@ -329,7 +329,7 @@ jobs:
 
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
-        if: steps.run_result.outputs.run_result == 'failedtest'
+        if: steps.run_result.outputs.run_result == 'failedtest' && env.failed_spec_env != ''
         id: cypress_test_failedtest
         uses: cypress-io/github-action@v5
         env:

@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.CommonConfig;
@@ -11,22 +11,25 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.ce_compatible.UserServiceCECompatibleImpl;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.services.ce.UserServiceCEImpl;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
 
-@Slf4j
 @Service
-public class UserServiceImpl extends UserServiceCECompatibleImpl implements UserService {
-
-    public UserServiceImpl(
+public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements UserServiceCECompatible {
+    public UserServiceCECompatibleImpl(
             Scheduler scheduler,
             Validator validator,
             MongoConverter mongoConverter,
