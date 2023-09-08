@@ -470,7 +470,7 @@ function ReconnectDatasourceModal() {
   }, [importedApplication, queryIsImport]);
 
   useEffect(() => {
-    if (pageId && appId && datasources.length) {
+    if (pageId) {
       // TODO: Update route params here
       setAppURL(
         builderURL({
@@ -478,7 +478,7 @@ function ReconnectDatasourceModal() {
         }),
       );
     }
-  }, [pageId, appId, datasources]);
+  }, [pageId]);
 
   // checking of full configured
   useEffect(() => {
