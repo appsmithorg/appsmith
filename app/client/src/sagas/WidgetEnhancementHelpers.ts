@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { select } from "redux-saga/effects";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { getWidgets } from "./selectors";
 
 /*
