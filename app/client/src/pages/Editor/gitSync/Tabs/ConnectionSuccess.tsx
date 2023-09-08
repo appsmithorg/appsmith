@@ -8,8 +8,10 @@ import {
 import { Button, Icon, ModalBody, ModalFooter, Text } from "design-system";
 import { GitSyncModalTab } from "entities/GitSync";
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div``;
 
@@ -29,6 +31,7 @@ const StyledIcon = styled(Icon)`
 `;
 
 function ConnectionSuccess() {
+  const gitMetadata = useSelector(getCurrentAppGitMetaData);
   const dispatch = useDispatch();
 
   const handleClose = () => {
@@ -38,6 +41,9 @@ function ConnectionSuccess() {
         tab: GitSyncModalTab.DEPLOY,
       }),
     );
+    AnalyticsUtil.logEvent("GS_START_USING_GIT", {
+      repoUrl: gitMetadata?.remoteUrl,
+    });
   };
 
   return (

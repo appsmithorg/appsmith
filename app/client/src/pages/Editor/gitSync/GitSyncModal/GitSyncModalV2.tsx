@@ -17,9 +17,7 @@ import {
   CONFIGURE_GIT,
   createMessage,
   DEPLOY,
-  DEPLOY_YOUR_APPLICATION,
   MERGE,
-  MERGE_CHANGES,
   SETTINGS_GIT,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -31,9 +29,10 @@ import { GitSyncModalTab } from "entities/GitSync";
 import ConnectionSuccess from "../Tabs/ConnectionSuccess";
 import styled from "styled-components";
 import ReconnectSSHError from "../components/ReconnectSSHError";
+import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 
 const StyledModalContent = styled(ModalContent)`
-  & {
+  &&& {
     width: 640px;
     transform: none !important;
     top: 100px;
@@ -42,11 +41,8 @@ const StyledModalContent = styled(ModalContent)`
   }
 `;
 
-export const modalTitle = {
+export const modalTitle: Partial<{ [K in GitSyncModalTab]: string }> = {
   [GitSyncModalTab.GIT_CONNECTION]: createMessage(CONFIGURE_GIT),
-  [GitSyncModalTab.DEPLOY]: createMessage(DEPLOY_YOUR_APPLICATION),
-  [GitSyncModalTab.MERGE]: createMessage(MERGE_CHANGES),
-  [GitSyncModalTab.SETTINGS]: createMessage(SETTINGS_GIT),
 };
 
 const menuOptions = [
@@ -71,6 +67,7 @@ interface GitSyncModalV2Props {
 }
 
 function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
+  const gitMetadata = useSelector(getCurrentAppGitMetaData);
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);
 
@@ -117,7 +114,9 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
         open={isModalOpen}
       >
         <StyledModalContent data-testid="t--git-sync-modal">
-          <ModalHeader>{modalTitle[activeTabKey]}</ModalHeader>
+          <ModalHeader>
+            {modalTitle[activeTabKey] || gitMetadata?.repoName}
+          </ModalHeader>
           <EnvInfoHeader />
           <ReconnectSSHError />
           {possibleMenuOptions.includes(activeTabKey) && (

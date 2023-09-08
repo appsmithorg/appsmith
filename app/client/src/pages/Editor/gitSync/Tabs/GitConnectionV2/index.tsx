@@ -24,6 +24,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import GitSyncStatusbar from "../../components/Statusbar";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface StyledModalFooterProps {
   loading?: boolean;
@@ -144,10 +145,15 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
       switch (activeStep) {
         case GIT_CONNECT_STEPS.CHOOSE_PROVIDER: {
           setActiveStep(GIT_CONNECT_STEPS.GENERATE_SSH_KEY);
+          AnalyticsUtil.logEvent("GS_CONFIGURE_GIT");
           break;
         }
         case GIT_CONNECT_STEPS.GENERATE_SSH_KEY: {
           setActiveStep(GIT_CONNECT_STEPS.ADD_DEPLOY_KEY);
+          AnalyticsUtil.logEvent("GS_GENERATE_KEY_BUTTON_CLICK", {
+            repoUrl: formData?.remoteUrl,
+            connectFlow: "v2",
+          });
           break;
         }
         case GIT_CONNECT_STEPS.ADD_DEPLOY_KEY: {
@@ -173,6 +179,10 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
                     }
                   },
                 },
+              );
+              AnalyticsUtil.logEvent(
+                "GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK",
+                { repoUrl: formData?.remoteUrl, connectFlow: "v2" },
               );
             } else {
               dispatch(

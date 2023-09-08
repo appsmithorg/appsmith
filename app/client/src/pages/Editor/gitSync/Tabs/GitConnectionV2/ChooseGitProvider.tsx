@@ -41,6 +41,7 @@ import {
   NEED_EMPTY_REPO_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;
@@ -87,6 +88,7 @@ function ChooseGitProvider({
         tab: GitSyncModalTab.GIT_CONNECTION,
       }),
     );
+    AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_DURING_GC");
   };
 
   const hasCreateNewApplicationPermission =
