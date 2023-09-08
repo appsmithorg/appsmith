@@ -8,7 +8,6 @@ import {
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
-let datasourceName;
 
 describe("Addwidget from Query and bind with other widgets", function () {
   before(() => {
