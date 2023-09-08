@@ -4,6 +4,8 @@ import { Button, Text } from "design-system";
 import type { Item } from "../../components/ListView";
 import ListView from "../../components/ListView";
 import classNames from "classnames";
+import type { BlankStateProps } from "pages/IDE/components/BlankState";
+import BlankState from "pages/IDE/components/BlankState";
 
 const PaneTitleBar = styled.div`
   background-color: #fff8f8;
@@ -64,6 +66,7 @@ const Tab = styled.div`
 type Props = {
   editor: React.ReactNode;
   addStateTitle?: string;
+  blankState?: Omit<BlankStateProps, "onClick">;
   listStateTitle?: string;
   addItems?: Array<Item>;
   titleItemCounts?: number;
@@ -131,6 +134,33 @@ const PagePaneContainer = (props: Props) => {
     return <div />;
   };
 
+  const PaneListView = () => {
+    if (pageState === TabState.LIST) {
+      if (!!props.listItems?.length) {
+        return <ListView items={props.listItems} onClick={onListClick} />;
+      } else {
+        if (props.blankState) {
+          return (
+            <div className="h-full w-full flex">
+              <BlankState
+                {...props.blankState}
+                onClick={() => {
+                  if (props.addItems) {
+                    setPageState(TabState.ADD);
+                  } else if (props.onAddClick) {
+                    props.onAddClick();
+                    setPageState(TabState.EDIT);
+                  }
+                }}
+              />
+            </div>
+          );
+        }
+      }
+    }
+    return null;
+  };
+
   return (
     <div className="h-full">
       <PaneTitleBar>
@@ -177,9 +207,7 @@ const PagePaneContainer = (props: Props) => {
         {pageState === TabState.ADD && props.addItems?.length && (
           <ListView items={props.addItems} onClick={onAddClick} />
         )}
-        {pageState === TabState.LIST && props.listItems?.length && (
-          <ListView items={props.listItems} onClick={onListClick} />
-        )}
+        <PaneListView />
         {pageState === TabState.EDIT && props.editor}
       </Body>
     </div>
