@@ -1,10 +1,17 @@
 import { isFunction } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { AutoLayoutEditorWraper } from "./editor/AutoLayoutEditorWraper";
 import { AutoLayoutViewerWrapper } from "./viewer/AutoLayoutViewerWrapper";
 
+/**
+ * getAutoLayoutDimensionsConfig
+ *
+ * utiltiy function to fetch and process widget specific autoDimensionConfig(specific to Auto Layout Layout system)
+ * stored on the autoLayoutConfigMap.
+ *
+ */
 const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
   let autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
     props.type,
@@ -17,6 +24,13 @@ const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
   }
   return autoDimensionConfig;
 };
+
+/**
+ * getAutoLayoutComponentDimensions
+ *
+ * utiltiy function to compute a widgets dimensions in Auto layout system
+ *
+ */
 
 const getAutoLayoutComponentDimensions = ({
   bottomRow,
@@ -57,7 +71,14 @@ const getAutoLayoutComponentDimensions = ({
   };
 };
 
-const getAutoLayoutSystemProps = (props: BaseWidgetProps) => {
+/**
+ * getAutoLayoutSystemPropsEnhancer
+ *
+ * utiltiy function to enhance BaseWidgetProps with Auto Layout system specific props
+ *
+ */
+
+const getAutoLayoutSystemPropsEnhancer = (props: BaseWidgetProps) => {
   const autoDimensionConfig = getAutoLayoutDimensionsConfig(props);
   const { componentHeight, componentWidth } =
     getAutoLayoutComponentDimensions(props);
@@ -69,7 +90,15 @@ const getAutoLayoutSystemProps = (props: BaseWidgetProps) => {
   };
 };
 
-export const getAutoLayoutSystemWrapper = (renderMode: RenderModes) => {
+/**
+ * getAutoLayoutSystemWrapper
+ *
+ * utiltiy function to return the auto layout system wrapper based on render mode.
+ * wrapper is the component that wraps around a widget to provide layouting ability and enable editing experience.
+ *
+ */
+
+const getAutoLayoutSystemWrapper = (renderMode: RenderModes) => {
   if (renderMode === RenderModes.CANVAS) {
     return AutoLayoutEditorWraper;
   } else {
@@ -77,9 +106,17 @@ export const getAutoLayoutSystemWrapper = (renderMode: RenderModes) => {
   }
 };
 
+/**
+ * getAutoLayoutSystem
+ *
+ * utiltiy function to return the auto layout system config for
+ * wrapper based on render mode and property enhancer funciton
+ *
+ */
+
 export function getAutoLayoutSystem(renderMode: RenderModes) {
   return {
     LayoutSystemWrapper: getAutoLayoutSystemWrapper(renderMode),
-    propertyEnhancer: getAutoLayoutSystemProps,
+    propertyEnhancer: getAutoLayoutSystemPropsEnhancer,
   };
 }

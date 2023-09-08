@@ -14,8 +14,7 @@ describe("Layout System HOC's Tests", () => {
     it("Layout system hoc should return Fixed Editor for FIXED positioing and CANVAS render mode", () => {
       const widget = InputWidget;
       const HOC = withLayoutSystemHOC(widget);
-      const widgetProps =
-        WidgetTypeFactories[InputWidget.getWidgetType()].build();
+      const widgetProps = WidgetTypeFactories[InputWidget.type].build();
       jest
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
@@ -33,9 +32,7 @@ describe("Layout System HOC's Tests", () => {
     it("Layout system hoc should return Fixed Modal Editor for FIXED positioing and CANVAS render mode", () => {
       const widget = ModalWidget;
       const HOC = withLayoutSystemHOC(widget);
-      const widgetProps = WidgetTypeFactories[
-        ModalWidget.getWidgetType()
-      ].build({
+      const widgetProps = WidgetTypeFactories[ModalWidget.type].build({
         isVisible: true,
       });
       jest
@@ -58,8 +55,7 @@ describe("Layout System HOC's Tests", () => {
     it("Layout system hoc should return no wrapper for CANVAS WIDGET for FIXED positioing and CANVAS render mode", () => {
       const widget = CanvasWidget;
       const HOC = withLayoutSystemHOC(widget);
-      const widgetProps =
-        WidgetTypeFactories[CanvasWidget.getWidgetType()].build();
+      const widgetProps = WidgetTypeFactories[CanvasWidget.type].build();
       jest
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
@@ -77,9 +73,7 @@ describe("Layout System HOC's Tests", () => {
     it("Layout system hoc should return Fixed Modal Viewer for FIXED positioing and PAGE render mode", () => {
       const widget = ModalWidget;
       const HOC = withLayoutSystemHOC(widget);
-      const widgetProps = WidgetTypeFactories[
-        ModalWidget.getWidgetType()
-      ].build({
+      const widgetProps = WidgetTypeFactories[ModalWidget.type].build({
         isVisible: true,
       });
       jest
@@ -102,8 +96,7 @@ describe("Layout System HOC's Tests", () => {
     it("Layout system hoc should return Fixed Viewer for FIXED positioing and PAGE render mode", () => {
       const widget = InputWidget;
       const HOC = withLayoutSystemHOC(widget);
-      const widgetProps =
-        WidgetTypeFactories[InputWidget.getWidgetType()].build();
+      const widgetProps = WidgetTypeFactories[InputWidget.type].build();
       jest
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
@@ -122,8 +115,7 @@ describe("Layout System HOC's Tests", () => {
     it("Layout system hoc should return no wrapper for CANVAS WIDGET for FIXED positioing and PAGE render mode", () => {
       const widget = CanvasWidget;
       const HOC = withLayoutSystemHOC(widget);
-      const widgetProps =
-        WidgetTypeFactories[CanvasWidget.getWidgetType()].build();
+      const widgetProps = WidgetTypeFactories[CanvasWidget.type].build();
       jest
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
@@ -143,8 +135,7 @@ describe("Layout System HOC's Tests", () => {
     it("Layout system hoc should return Auto Layout Editor for AUTO positioing and CANVAS render mode", () => {
       const widget = InputWidget;
       const HOC = withLayoutSystemHOC(widget);
-      const widgetProps =
-        WidgetTypeFactories[InputWidget.getWidgetType()].build();
+      const widgetProps = WidgetTypeFactories[InputWidget.type].build();
       jest
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
@@ -163,9 +154,7 @@ describe("Layout System HOC's Tests", () => {
     it("Layout system hoc should return Auto Modal Editor for AUTO positioing and CANVAS render mode", () => {
       const widget = ModalWidget;
       const HOC = withLayoutSystemHOC(widget);
-      const widgetProps = WidgetTypeFactories[
-        ModalWidget.getWidgetType()
-      ].build({
+      const widgetProps = WidgetTypeFactories[ModalWidget.type].build({
         isVisible: true,
       });
       jest
@@ -189,8 +178,7 @@ describe("Layout System HOC's Tests", () => {
     it("Layout system hoc should return no wrapper for CANVAS WIDGET for AUTO positioing and CANVAS render mode", () => {
       const widget = CanvasWidget;
       const HOC = withLayoutSystemHOC(widget);
-      const widgetProps =
-        WidgetTypeFactories[CanvasWidget.getWidgetType()].build();
+      const widgetProps = WidgetTypeFactories[CanvasWidget.type].build();
       jest
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
@@ -209,9 +197,7 @@ describe("Layout System HOC's Tests", () => {
     it("Layout system hoc should return Auto Modal Viewer for AUTO positioing and PAGE render mode", () => {
       const widget = ModalWidget;
       const HOC = withLayoutSystemHOC(widget);
-      const widgetProps = WidgetTypeFactories[
-        ModalWidget.getWidgetType()
-      ].build({
+      const widgetProps = WidgetTypeFactories[ModalWidget.type].build({
         isVisible: true,
       });
       jest
@@ -235,8 +221,7 @@ describe("Layout System HOC's Tests", () => {
     it("Layout system hoc should return Auto Viewer for Auto positioing and PAGE render mode", () => {
       const widget = InputWidget;
       const HOC = withLayoutSystemHOC(widget);
-      const widgetProps =
-        WidgetTypeFactories[InputWidget.getWidgetType()].build();
+      const widgetProps = WidgetTypeFactories[InputWidget.type].build();
       jest
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
@@ -256,8 +241,7 @@ describe("Layout System HOC's Tests", () => {
     it("Layout system hoc should return no wrapper for CANVAS WIDGET for Auto positioing and PAGE render mode", () => {
       const widget = CanvasWidget;
       const HOC = withLayoutSystemHOC(widget);
-      const widgetProps =
-        WidgetTypeFactories[CanvasWidget.getWidgetType()].build();
+      const widgetProps = WidgetTypeFactories[CanvasWidget.type].build();
       jest
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);

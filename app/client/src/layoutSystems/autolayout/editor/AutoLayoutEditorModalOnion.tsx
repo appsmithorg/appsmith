@@ -8,11 +8,24 @@ import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import { get } from "lodash";
 
+/**
+ * AutoLayoutEditorModalOnion
+ *
+ * Component that wraps the BaseWidget implementation of Modal Widget with Editor specific wrappers
+ * needed in Auto Layout.
+ *
+ * @returns Enhanced Modal Widget
+ */
+
 export const AutoLayoutEditorModalOnion = (props: BaseWidgetProps) => {
   return (
     <AutoLayoutWidgetComponent {...props}>
       <ModalOverlayLayer {...props} isEditMode>
-        <ModalResizableLayer {...props}>
+        <ModalResizableLayer
+          enableHorizontalResize
+          enableVerticalResize={false}
+          widgetProps={props}
+        >
           <WidgetNameLayer
             componentWidth={props.componentWidth}
             detachFromLayout={props.detachFromLayout}

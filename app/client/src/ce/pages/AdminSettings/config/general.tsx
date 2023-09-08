@@ -16,6 +16,8 @@ import BrandingBadge from "pages/AppViewer/BrandingBadge";
 import { TagInput } from "design-system-old";
 import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
+import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";
+import { formatEmbedSettings } from "pages/Applications/EmbedSnippet/Utils/utils";
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "instanceName",
@@ -83,11 +85,28 @@ export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
   textSuffix: <BrandingBadge />,
 };
 
-export enum AppsmithFrameAncestorsSetting {
-  ALLOW_EMBEDDING_EVERYWHERE = "ALLOW_EMBEDDING_EVERYWHERE",
-  LIMIT_EMBEDDING = "LIMIT_EMBEDDING",
-  DISABLE_EMBEDDING_EVERYWHERE = "DISABLE_EMBEDDING_EVERYWHERE",
-}
+export const APPSMITH_SINGLE_USER_PER_SESSION_SETTING: Setting = {
+  id: "singleSessionPerUserEnabled",
+  name: "singleSessionPerUserEnabled",
+  category: SettingCategories.GENERAL,
+  controlType: SettingTypes.CHECKBOX,
+  label: "User session limit",
+  text: "Limit users to a single active session",
+  isFeatureEnabled: false,
+  isDisabled: () => true,
+};
+
+export const APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING: Setting = {
+  id: "showRolesAndGroups",
+  name: "showRolesAndGroups",
+  category: SettingCategories.GENERAL,
+  controlType: SettingTypes.CHECKBOX,
+  label: "Programmatic access control",
+  text: "Access roles and user groups in code for conditional business logic",
+  isFeatureEnabled: false,
+  isDisabled: () => true,
+};
+
 export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
   id: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
   name: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
@@ -121,22 +140,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
       },
     ],
   },
-  format: (value: string) => {
-    if (value === "*") {
-      return {
-        value: AppsmithFrameAncestorsSetting.ALLOW_EMBEDDING_EVERYWHERE,
-      };
-    } else if (value === "'none'") {
-      return {
-        value: AppsmithFrameAncestorsSetting.DISABLE_EMBEDDING_EVERYWHERE,
-      };
-    } else {
-      return {
-        value: AppsmithFrameAncestorsSetting.LIMIT_EMBEDDING,
-        additionalData: value ? value.replaceAll(" ", ",") : "",
-      };
-    }
-  },
+  format: formatEmbedSettings,
   parse: (value: { value: string; additionalData?: any }) => {
     // Retrieve values from local storage while switching to limit by url option
     const sources = isUndefined(value.additionalData)
@@ -180,6 +184,8 @@ export const config: AdminConfigType = {
     APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING,
     APPSMITH_DISABLE_TELEMETRY_SETTING,
     APPSMITH_HIDE_WATERMARK_SETTING,
+    APPSMITH_SINGLE_USER_PER_SESSION_SETTING,
+    APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
   ],
 } as AdminConfigType;

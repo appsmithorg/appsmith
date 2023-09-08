@@ -12,6 +12,7 @@ import { setAutoCanvasResizing } from "actions/autoLayoutActions";
 import styled from "styled-components";
 import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "utils/hooks/useDynamicAppLayout";
 import { importSvg } from "design-system-old";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
 const CanvasResizerIcon = importSvg(
   () => import("assets/icons/ads/app-icons/canvas-resizer.svg"),
@@ -71,7 +72,7 @@ export function CanvasResizer({
   const ref = useRef(null);
   const dispatch = useDispatch();
   useEffect(() => {
-    const ele: any = document.getElementById("canvas-viewport");
+    const ele: any = document.getElementById(CANVAS_VIEWPORT);
 
     if (isPageInitiated && appPositioningType === AppPositioningTypes.AUTO) {
       const buffer = isPreviewMode ? AUTOLAYOUT_RESIZER_WIDTH_BUFFER : 0;

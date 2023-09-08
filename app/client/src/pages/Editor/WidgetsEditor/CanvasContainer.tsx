@@ -36,6 +36,7 @@ import type { AppState } from "@appsmith/reducers";
 import { CanvasResizer } from "layoutSystems/autolayout/canvasResizer/CanvasResizer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -204,7 +205,7 @@ function CanvasContainer(props: CanvasContainerProps) {
             !showAnonymousDataPopup,
           "mt-24": shouldShowSnapShotBanner,
         })}
-        id={"canvas-viewport"}
+        id={CANVAS_VIEWPORT}
         isAppSettingsPaneWithNavigationTabOpen={
           isAppSettingsPaneWithNavigationTabOpen
         }

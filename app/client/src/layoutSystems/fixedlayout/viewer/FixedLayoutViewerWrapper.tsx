@@ -4,14 +4,17 @@ import { FixedLayoutViewerWidgetOnion } from "./FixedLayoutViewerWidgetOnion";
 import { FixedLayoutViewerModalOnion } from "./FixedLayoutViewerModalOnion";
 
 export const FixedLayoutViewerWrapper = (props: WidgetProps) => {
-  //Widget Onion
+  /**
+   * @constant WidgetOnion
+   *
+   * Widget Onion here refers to the Layers surrounding a widget just like layers in an onion.
+   */
   const WidgetOnion = useMemo(() => {
     return props.type === "MODAL_WIDGET"
       ? FixedLayoutViewerModalOnion
       : FixedLayoutViewerWidgetOnion;
   }, [props.type]);
   const canvasWidget = props.type === "CANVAS_WIDGET";
-  //Canvas_Onion
   if (canvasWidget) {
     return props.children;
   }

@@ -1,4 +1,5 @@
 import React, { useContext, useMemo } from "react";
+import type { ReactNode } from "react";
 import { get, omit } from "lodash";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -8,10 +9,8 @@ import type { AppState } from "@appsmith/reducers";
 import { Classes } from "@blueprintjs/core";
 import { ModalResizable } from "layoutSystems/common/resizer/ModalResizable";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import { MAX_MODAL_WIDTH_FROM_MAIN_WIDTH } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { getWidgetByID } from "sagas/selectors";
-import { getCanvasWidth } from "selectors/editorSelectors";
 import {
   BottomHandleStyles,
   LeftHandleStyles,
@@ -19,20 +18,37 @@ import {
   TopHandleStyles,
 } from "./ResizeStyledComponents";
 import type { UIElementSize } from "./ResizableUtils";
+import { useModalWidth } from "widgets/ModalWidget/component/useModalWidth";
+import {
+  previewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 const minSize = 100;
 
-export const ModalResizableLayer = (props: BaseWidgetProps) => {
-  const { updateWidget } = useContext(EditorContext);
-  const widget = useSelector(getWidgetByID(props.widgetId));
-  const disabledResizeHandles = get(props, "disabledResizeHandles", []);
-  const mainCanvasWidth = useSelector(getCanvasWidth);
-  const getMaxModalWidth = () => {
-    return (mainCanvasWidth || 0) * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH;
-  };
+/**
+ * ModalResizableLayer
+ *
+ * Component that enhances props suplied to ModalResizable
+ * Provides widget specific implementations of onStart and onStop props of ModalResizable.
+ *
+ */
 
-  const getModalWidth = (width: number) => {
-    return Math.min(getMaxModalWidth(), width);
-  };
+export const ModalResizableLayer = ({
+  children,
+  enableHorizontalResize,
+  enableVerticalResize,
+  widgetProps,
+}: {
+  widgetProps: BaseWidgetProps;
+  enableVerticalResize: boolean;
+  enableHorizontalResize: boolean;
+  children: ReactNode;
+}) => {
+  const { updateWidget } = useContext(EditorContext);
+  const widget = useSelector(getWidgetByID(widgetProps.widgetId));
+  const disabledResizeHandles = get(widgetProps, "disabledResizeHandles", []);
+  const getModalWidth = useModalWidth();
+  const modalWidth = getModalWidth(widgetProps.width);
   const onModalResize = (dimensions: UIElementSize) => {
     const newDimensions = {
       height: Math.max(minSize, dimensions.height),
@@ -40,15 +56,15 @@ export const ModalResizableLayer = (props: BaseWidgetProps) => {
     };
 
     if (
-      newDimensions.height !== props.height &&
-      isAutoHeightEnabledForWidget(props)
+      newDimensions.height !== widgetProps.height &&
+      isAutoHeightEnabledForWidget(widgetProps)
     )
       return;
 
     const canvasWidgetId =
       widget.children && widget.children.length > 0 ? widget.children[0] : "";
     updateWidget &&
-      updateWidget("MODAL_RESIZE", props.widgetId, {
+      updateWidget("MODAL_RESIZE", widgetProps.widgetId, {
         ...newDimensions,
         canvasWidgetId,
       });
@@ -79,18 +95,21 @@ export const ModalResizableLayer = (props: BaseWidgetProps) => {
   const onResizeStart = () => {
     setIsResizing && !isResizing && setIsResizing(true);
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
-      widgetName: props.widgetName,
+      widgetName: widgetProps.widgetName,
       widgetType: "MODAL_WIDGET",
     });
   };
+  const isPreviewMode = useSelector(previewModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
+  const enableResizing = !isSnipingMode && !isPreviewMode;
   return (
     <ModalResizable
       allowResize
       className={Classes.OVERLAY_CONTENT}
-      componentHeight={props.height || 0}
-      componentWidth={props.width || 0}
-      enableHorizontalResize
-      enableVerticalResize={false}
+      componentHeight={widgetProps.height || 0}
+      componentWidth={modalWidth}
+      enableHorizontalResize={enableResizing && enableHorizontalResize}
+      enableVerticalResize={enableResizing && enableVerticalResize}
       handles={handles}
       isColliding={() => false}
       onStart={onResizeStart}
@@ -98,9 +117,9 @@ export const ModalResizableLayer = (props: BaseWidgetProps) => {
       resizeDualSides
       showLightBorder
       snapGrid={{ x: 1, y: 1 }}
-      widgetId={props.widgetId}
+      widgetId={widgetProps.widgetId}
     >
-      {props.children}
+      {children}
     </ModalResizable>
   );
 };

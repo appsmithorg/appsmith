@@ -1,4 +1,6 @@
 import React, { useCallback } from "react";
+import type { ReactNode } from "react";
+
 import styled from "styled-components";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,8 +33,16 @@ const SnipeableWrapper = styled.div<{ isFocused: boolean }>`
 type SnipeableComponentProps = {
   widgetId: string;
   type: string;
-  children: any; // If children is set as ReactNode need to wrap the child with framgent to provide a JSX.Element so setting children as any
+  children: ReactNode;
 };
+
+/**
+ * SnipeableComponent
+ *
+ * Component that enhances the widget in sniping mode state.
+ * Makes sure the widget is focused on Hover and allows the widget to be snipped on clicking on it.
+ *
+ */
 
 function SnipeableComponent(props: SnipeableComponentProps) {
   const { focusWidget } = useWidgetSelection();
@@ -78,7 +88,8 @@ function SnipeableComponent(props: SnipeableComponentProps) {
       {props.children}
     </SnipeableWrapper>
   ) : (
-    props.children
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    <>{props.children}</>
   );
 }
 

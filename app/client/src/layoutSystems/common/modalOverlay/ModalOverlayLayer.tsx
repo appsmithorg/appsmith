@@ -10,6 +10,7 @@ import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { useMaxModalWidth } from "widgets/ModalWidget/component/useModalWidth";
 const Container = styled.div<{
   width?: number;
   height?: number;
@@ -50,7 +51,7 @@ const Container = styled.div<{
           if (props.maxWidth) return `${props.maxWidth}px`;
 
           if (props.isEditMode)
-            return `calc(95% - ${props.theme.sidebarWidth}))`;
+            return `calc(95% - ${props.theme.sidebarWidth})`;
 
           return `95%`;
         }};
@@ -123,11 +124,11 @@ export function ModalOverlayLayer(props: BaseWidgetProps) {
       },
     });
     dispatch(selectWidgetInitAction(SelectionRequestType.Empty));
-    // TODO(abhinav): Create a static property with is a map of widget properties
-    // Populate the map on widget load
     e.stopPropagation();
     e.preventDefault();
   };
+
+  const maxModalWidth = useMaxModalWidth();
 
   return (
     <ComponentContainerWrapper isEditMode={props.isEditMode}>
@@ -147,7 +148,7 @@ export function ModalOverlayLayer(props: BaseWidgetProps) {
           height={props.height}
           isEditMode={props.isEditMode}
           left={props.left}
-          maxWidth={props.maxWidth}
+          maxWidth={maxModalWidth}
           minSize={props.minSize}
           right={props.bottom}
           smallHeaderHeight={theme.smallHeaderHeight}

@@ -7,16 +7,24 @@ import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
+/**
+ * AutoDimensionObserverLayer
+ *
+ * Component provides specific implementation for onDimensionUpdate and
+ * provides minWidth and minHeight props for AutoLayoutDimensionObserver.
+ *
+ */
+
 export const AutoDimensionObserverLayer = (props: BaseWidgetProps) => {
   const editorContext = useContext(EditorContext);
   const { updateWidgetDimension } = editorContext;
   const { autoDimensionConfig } = props;
-  const shouldObserveWidth = isFunction(autoDimensionConfig)
+  const shouldObserveWidth = !!(isFunction(autoDimensionConfig)
     ? autoDimensionConfig(props).width
-    : autoDimensionConfig?.width;
-  const shouldObserveHeight = isFunction(autoDimensionConfig)
+    : autoDimensionConfig?.width);
+  const shouldObserveHeight = !!(isFunction(autoDimensionConfig)
     ? autoDimensionConfig(props).height
-    : autoDimensionConfig?.height;
+    : autoDimensionConfig?.height);
 
   if (!shouldObserveHeight && !shouldObserveWidth) return props.children;
 
@@ -41,8 +49,8 @@ export const AutoDimensionObserverLayer = (props: BaseWidgetProps) => {
       minHeight={minHeight ?? 0}
       minWidth={minWidth ?? 0}
       onDimensionUpdate={onDimensionUpdate}
-      shouldObserveHeight={shouldObserveHeight || false}
-      shouldObserveWidth={shouldObserveWidth || false}
+      shouldObserveHeight={shouldObserveHeight}
+      shouldObserveWidth={shouldObserveWidth}
       type={props.type}
       width={props.componentWidth}
     >

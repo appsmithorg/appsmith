@@ -12,6 +12,7 @@ type TRootActionProps = {
   propertyName: string;
   widgetName: string;
   widgetType: string;
+  dataTreePath: string | undefined;
 };
 
 export default function Action(props: TRootActionProps) {
@@ -41,6 +42,7 @@ export default function Action(props: TRootActionProps) {
     <ActionTree
       actionBlock={action}
       className={`${props.index === 0 ? "mt-1" : "mt-2"}`}
+      dataTreePath={props.dataTreePath}
       id={id}
       level={0}
       onChange={handleChange}

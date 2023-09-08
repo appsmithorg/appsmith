@@ -3,6 +3,13 @@ import { FixedLayoutEditorWrapper } from "./editor/FixedLayoutEditorWrapper";
 import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
+/**
+ * getFixedLayoutComponentDimensions
+ *
+ * utiltiy function to compute a widgets dimensions in Fixed layout system
+ *
+ */
+
 const getFixedLayoutComponentDimensions = ({
   bottomRow,
   leftColumn,
@@ -17,26 +24,54 @@ const getFixedLayoutComponentDimensions = ({
   };
 };
 
-const getFixedLayoutSystemProps = (props: BaseWidgetProps) => {
+const getLabelWidth = (props: BaseWidgetProps) => {
+  return (Number(props.labelWidth) || 0) * props.parentColumnSpace;
+};
+
+/**
+ * getFixedLayoutSystemPropsEnhancer
+ *
+ * utiltiy function to enhance BaseWidgetProps with Fixed Layout system specific props
+ *
+ */
+const getFixedLayoutSystemPropsEnhancer = (props: BaseWidgetProps) => {
   const { componentHeight, componentWidth } =
     getFixedLayoutComponentDimensions(props);
+  const labelComponentWidth = getLabelWidth(props);
+
   return {
     ...props,
     componentHeight,
     componentWidth,
+    labelComponentWidth,
   };
 };
 
-export const getFixedLayoutSystemWrapper = (renderMode: RenderModes) => {
+/**
+ * getFixedLayoutSystemWrapper
+ *
+ * utiltiy function to return the fixed layout system wrapper based on render mode.
+ * wrapper is the component that wraps around a widget to provide layouting ability and enable editing experience.
+ *
+ */
+const getFixedLayoutSystemWrapper = (renderMode: RenderModes) => {
   if (renderMode === RenderModes.CANVAS) {
     return FixedLayoutEditorWrapper;
   } else {
     return FixedLayoutViewerWrapper;
   }
 };
+
+/**
+ * getFixedLayoutSystem
+ *
+ * utiltiy function to return the fixed layout system config for
+ * wrapper based on render mode and property enhancer funciton
+ *
+ */
 export function getFixedLayoutSystem(renderMode: RenderModes) {
   return {
     LayoutSystemWrapper: getFixedLayoutSystemWrapper(renderMode),
-    propertyEnhancer: getFixedLayoutSystemProps,
+    propertyEnhancer: getFixedLayoutSystemPropsEnhancer,
   };
 }
