@@ -292,6 +292,7 @@ export class CommonLocators {
   _position = (value: string) => `//*[@data-value='${value}']`;
   _alignment = (value: string) => `//*[@data-value='${value}']`;
   _borderRadius = (value: string) => `//*[@data-value='${value}']`;
+  _textInside = ".bp3-ui-text span";
   _jsonFormSubmitBtn = ".t--jsonform-submit-btn";
   _jsonFormResetBtn = ".t--jsonform-reset-btn";
   _draggableFieldConfig = (fieldName: string) =>
