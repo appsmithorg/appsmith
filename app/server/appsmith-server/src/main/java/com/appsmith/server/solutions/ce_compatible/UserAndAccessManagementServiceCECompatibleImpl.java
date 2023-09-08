@@ -1,4 +1,4 @@
-package com.appsmith.server.solutions;
+package com.appsmith.server.solutions.ce_compatible;
 
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
@@ -7,16 +7,14 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ce_compatible.UserAndAccessManagementServiceCECompatibleImpl;
-import lombok.extern.slf4j.Slf4j;
+import com.appsmith.server.solutions.PermissionGroupPermission;
+import com.appsmith.server.solutions.ce.UserAndAccessManagementServiceCEImpl;
 import org.springframework.stereotype.Component;
 
 @Component
-@Slf4j
-public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCECompatibleImpl
-        implements UserAndAccessManagementService {
-
-    public UserAndAccessManagementServiceImpl(
+public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAccessManagementServiceCEImpl
+        implements UserAndAccessManagementServiceCECompatible {
+    public UserAndAccessManagementServiceCECompatibleImpl(
             SessionUserService sessionUserService,
             PermissionGroupService permissionGroupService,
             WorkspaceService workspaceService,
@@ -25,7 +23,6 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
             UserService userService,
             EmailSender emailSender,
             PermissionGroupPermission permissionGroupPermission) {
-
         super(
                 sessionUserService,
                 permissionGroupService,
