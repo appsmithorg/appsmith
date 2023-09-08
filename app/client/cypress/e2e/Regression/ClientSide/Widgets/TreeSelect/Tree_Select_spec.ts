@@ -1,6 +1,6 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-const explorer = require("../../../../../locators/explorerlocators.json");
-const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+import explorer from "../../../../../locators/explorerlocators.json";
+import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 
 describe("Tree Select Widget", function () {
   before(() => {
