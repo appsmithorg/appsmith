@@ -72,9 +72,8 @@ public class Migration022AddConnectionMethodDefaultValueToAllMySQLDatasources {
                          */
                         if (properties.size() == 1) {
                             properties.add(new Property("Connection method", "STANDARD"));
+                            mongoTemplate.save(datasourceStorage);
                         }
-
-                        mongoTemplate.save(datasourceStorage);
                     });
         });
     }
