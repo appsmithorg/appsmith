@@ -1,7 +1,5 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Widgets/Select/TreeSelect_1_spec.ts
-cypress/e2e/Regression/ClientSide/Widgets/Multiselect/MultiSelect5_spec.ts
-
+cypress/e2e/Regression/ClientSide/Widgets/TreeSelect/TreeSelect_2_spec.ts
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
 
