@@ -5,6 +5,9 @@ import type { DefaultOptionType } from "rc-select/lib/Select";
 import type { OtherField } from "../../../../types";
 import { useDropdown } from "./useDropdown";
 
+/* OneClickDropdownFieldControl - this component is specific to one click binding control and renders the dropdown control
+ * This is just a presentational component and all the logic is handled by the useDropdown hook
+ *  */
 export function OneClickDropdownFieldControl(
   props: OtherField & {
     id: string;

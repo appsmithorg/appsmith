@@ -30,21 +30,32 @@ import type {
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/constants";
 
 import IconSVG from "../icon.svg";
 
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { RenderModes, WIDGET_TAGS } from "constants/WidgetConstants";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { toast } from "design-system";
+import {
+  createMessage,
+  ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
+  ONSUBMIT_NOT_CONFIGURED_MESSAGE,
+} from "../constants/messages";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -53,18 +64,6 @@ const SUBMIT_BUTTON_DEFAULT_STYLES = {
 const RESET_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.SECONDARY,
 };
-import type {
-  WidgetQueryConfig,
-  WidgetQueryGenerationFormConfig,
-} from "WidgetQueryGenerators/types";
-import { RenderModes } from "constants/WidgetConstants";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { toast } from "design-system";
-import {
-  createMessage,
-  ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
-  ONSUBMIT_NOT_CONFIGURED_MESSAGE,
-} from "../constants/messages";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -306,6 +305,7 @@ class JSONFormWidget extends BaseWidget<
       ],
     };
   }
+
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }
@@ -530,8 +530,7 @@ class JSONFormWidget extends BaseWidget<
 
     const prevSourceData = this.getPreviousSourceData(prevProps);
     const currSourceData = this.props?.sourceData;
-    const prevDynamicPropertyPathList =
-      prevProps?.dynamicPropertyPathList || [];
+    const prevDynamicPropertyPathList = prevProps?.dynamicPropertyPathList;
 
     const computedSchema = computeSchema({
       currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,

@@ -58,12 +58,21 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
     const availableDatasources = datasources.filter(({ pluginId }) =>
       WidgetQueryGeneratorRegistry.has(pluginsPackageNamesMap[pluginId]),
     );
+    let filteredDatasources = availableDatasources;
 
+    /* Exclude Gsheets from datasource options till this gets resolved https://github.com/appsmithorg/appsmith/issues/27102*/
+    if (widget.type === "JSON_FORM_WIDGET") {
+      filteredDatasources = availableDatasources.filter((datasource) => {
+        return (
+          pluginsPackageNamesMap[datasource.pluginId] !==
+          PluginPackageName.GOOGLE_SHEETS
+        );
+      });
+    }
     let datasourceOptions: DropdownOptionType[] = [];
-
-    if (availableDatasources.length) {
+    if (filteredDatasources.length) {
       datasourceOptions = datasourceOptions.concat(
-        availableDatasources.map((datasource) => ({
+        filteredDatasources.map((datasource) => ({
           id: datasource.id,
           label: datasource.name,
           value: datasource.name,
@@ -148,12 +157,10 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
             /*
              * remove mocks from which the user has already created the source.
              */
-            const datasource: Datasource | undefined =
-              availableDatasources.find(
-                (d) =>
-                  pluginsPackageNamesMap[d.pluginId] === packageName &&
-                  d.isMock,
-              );
+            const datasource: Datasource | undefined = filteredDatasources.find(
+              (d) =>
+                pluginsPackageNamesMap[d.pluginId] === packageName && d.isMock,
+            );
 
             return !datasource;
           })

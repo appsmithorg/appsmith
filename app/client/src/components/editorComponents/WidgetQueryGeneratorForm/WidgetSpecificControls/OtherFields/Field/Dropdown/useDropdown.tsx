@@ -28,6 +28,14 @@ export type OneClickDropdownFieldProps = {
   allowClear?: boolean;
 };
 
+/* useDropdown hook - this hook is specific to one click binding control and handles all the logic for the dropdown
+ * This hook is used to get the options for the dropdown based on the optionType provided by the widget's control config
+ * The options are fetched from the following sources:
+ * 1. Custom options - options provided by the user in the widget's control config
+ * 2. Columns - options fetched from the columns of the selected datasource
+ * 3. Widgets - options fetched from the connectable widgets present on the page
+ * The selected option is then stored in the widget's config with the key "otherFields.<fieldName>"
+ *  */
 export function useDropdown(props: OneClickDropdownFieldProps) {
   const {
     defaultValue,

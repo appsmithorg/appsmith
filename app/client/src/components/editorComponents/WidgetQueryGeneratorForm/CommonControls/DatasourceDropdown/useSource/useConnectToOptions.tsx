@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import {
   getActionsForCurrentPage,
   getCurrentPageWidgets,
+  getPluginIdPackageNamesMap,
 } from "selectors/entitiesSelector";
 import WidgetFactory from "WidgetProvider/factory";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -12,6 +13,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { DropdownOptionType } from "../../../types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
+import { PluginPackageName } from "entities/Action";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -63,7 +65,10 @@ interface ConnectToOptionsProps {
   widget: WidgetProps;
 }
 
-function useQueryOptions(props: ConnectToOptionsProps) {
+/*
+ * useConnectToOptions hook - this returns the dropdown options to connect to a query or a connectable widget.
+ *  */
+function useConnectToOptions(props: ConnectToOptionsProps) {
   const {
     addBinding,
     expectedType,
@@ -73,10 +78,23 @@ function useQueryOptions(props: ConnectToOptionsProps) {
   } = useContext(WidgetQueryGeneratorFormContext);
 
   const queries = useSelector(getActionsForCurrentPage);
+  const pluginsPackageNamesMap = useSelector(getPluginIdPackageNamesMap);
+
   const { pluginImages, widget } = props;
 
+  let filteredQueries = queries;
+  /* Exclude Gsheets from query options till this gets resolved https://github.com/appsmithorg/appsmith/issues/27102*/
+  if (widget.type === "JSON_FORM_WIDGET") {
+    filteredQueries = queries.filter((query) => {
+      return (
+        pluginsPackageNamesMap[query.config.pluginId] !==
+        PluginPackageName.GOOGLE_SHEETS
+      );
+    });
+  }
+
   const queryOptions = useMemo(() => {
-    return sortQueries(queries, expectedType).map((query) => ({
+    return sortQueries(filteredQueries, expectedType).map((query) => ({
       id: query.config.id,
       label: query.config.name,
       value: `{{${query.config.name}.data}}`,
@@ -108,17 +126,21 @@ function useQueryOptions(props: ConnectToOptionsProps) {
         });
       },
     }));
-  }, [queries, pluginImages, addBinding]);
+  }, [filteredQueries, pluginImages, addBinding]);
 
   const currentPageWidgets = useSelector(getCurrentPageWidgets);
 
   const widgetOptions = useMemo(() => {
     if (!isConnectableToWidget) return [];
+    // Get widgets from the current page
     return Object.entries(currentPageWidgets)
       .map(([widgetId, currWidget]) => {
+        // Get the widget config for the current widget
         const { getOneClickBindingConnectableWidgetConfig } =
           WidgetFactory.getWidgetMethods(currWidget.type);
+        // If the widget is connectable to the current widget, return the option
         if (getOneClickBindingConnectableWidgetConfig) {
+          // This is the path we bind to the sourceData field Ex: `{{Table1.selectedRow}}`
           const widgetBindPath =
             getOneClickBindingConnectableWidgetConfig(currWidget);
           return {
@@ -158,4 +180,4 @@ function useQueryOptions(props: ConnectToOptionsProps) {
   return { queryOptions, widgetOptions };
 }
 
-export default useQueryOptions;
+export default useConnectToOptions;

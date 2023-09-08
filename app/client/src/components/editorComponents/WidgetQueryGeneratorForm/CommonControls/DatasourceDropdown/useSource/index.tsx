@@ -51,6 +51,15 @@ function getDropdownConstants(variant?: string) {
   }
 }
 
+/*
+ * One click binding's sourceData control lets you connect to
+ * 1. Datasource
+ * 2. Query
+ * 3. Sample data
+ * 4. Widget
+ *
+ * And this hook returns the dropdown options for the same. Takes searchText as input to filter.
+ *  */
 export function useSource(searchText: string) {
   const {
     config,

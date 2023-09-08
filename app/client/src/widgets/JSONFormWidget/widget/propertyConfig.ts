@@ -170,25 +170,26 @@ export const contentConfig = [
         label: "Source data",
         controlType: "ONE_CLICK_BINDING_CONTROL",
         controlConfig: {
-          showEditFieldsModal: true,
-          datasourceDropdownVariant: DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS,
-          actionButtonCtaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT),
-          excludePrimaryColumnFromQueryGeneration: true,
-          isConnectableToWidget: true,
+          showEditFieldsModal: true, // Shows edit field modals button in the datasource table control
+          datasourceDropdownVariant: DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS, // Decides the variant of the datasource dropdown which alters the text and some options
+          actionButtonCtaText: createMessage(JSON_FORM_CONNECT_BUTTON_TEXT), // CTA text for the connect action button in property pane
+          excludePrimaryColumnFromQueryGeneration: true, // Excludes the primary column from the query generation by default
+          isConnectableToWidget: true, // Whether this widget can be connected to another widget like Table,List etc
           alertMessage: {
-            success: createMessage(SUCCESSFULL_BINDING_MESSAGE),
+            success: createMessage(SUCCESSFULL_BINDING_MESSAGE), // Alert message to show when the binding is successful
           },
+          /* other form config options like create or update flow, get default values from widget and data identifier to be used in the generated query as primary key*/
           otherFields: [
             {
               label: "Form Type",
               name: "formType",
               fieldType: FieldType.SELECT,
-              optionType: FieldOptionsType.CUSTOM,
+              optionType: FieldOptionsType.CUSTOM, // Dropdown options can be custom ( options provided by the widget config like Line 193 ) or widgets ( connectable widgets in the page ) or columns ( columns from the datasource )
               isRequired: true,
               getDefaultValue: () => {
                 return "create";
               },
-              allowClear: false,
+              allowClear: false, // whether the dropdown should have a clear option
               options: [
                 {
                   label: "Create records",
@@ -202,6 +203,7 @@ export const contentConfig = [
                 },
               ],
               isVisible: (config: Record<string, any>) => {
+                // Whether the field should be visible or not based on the config
                 return config?.tableName !== "";
               },
             },
@@ -218,7 +220,7 @@ export const contentConfig = [
             {
               label: "Data Identifier",
               name: "dataIdentifier",
-              isDataIdentifier: true,
+              isDataIdentifier: true, // Whether the field is a data identifier or not
               fieldType: FieldType.SELECT,
               optionType: FieldOptionsType.COLUMNS,
               isRequired: true,

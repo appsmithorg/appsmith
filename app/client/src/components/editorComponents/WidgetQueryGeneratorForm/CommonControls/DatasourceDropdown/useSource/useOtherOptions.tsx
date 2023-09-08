@@ -19,6 +19,9 @@ interface OtherOptionsProps {
   widget: WidgetProps;
 }
 
+/*
+ *  useOtherOptions hook - this returns dropdown options to connect to a new datasource,sample data or write json schema etc.
+ * */
 function useOtherOptions(props: OtherOptionsProps) {
   const {
     addBinding,
@@ -94,7 +97,7 @@ function useOtherOptions(props: OtherOptionsProps) {
         label: createMessage(DATASOURCE_DROPDOWN_OPTIONS.WRITE_JSON_SCHEMA),
         value: "writeJsonSchema",
         onSelect: () => {
-          addBinding("{}", true);
+          addBinding("", true);
 
           updateConfig({
             datasource: "",
