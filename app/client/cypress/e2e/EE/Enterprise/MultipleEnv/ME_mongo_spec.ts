@@ -124,9 +124,10 @@ describe(
       agHelper.Sleep(2000);
       // verify genertae crud option is not present on prod
       multipleEnv.SwitchEnv(prodEnv);
-      dataSources.AssertDSActive(meDSStagingOnlyName);
+      dataSources.NavigateToActiveTab();
       dataSources.AssertReconnectDS(meDSStagingOnlyName);
     });
+
     it("5. Deploy the app, check for modal and check table response for both envs", function () {
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
