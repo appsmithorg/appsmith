@@ -12,7 +12,6 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -51,7 +50,7 @@ public class PreAuth implements WebFilter {
         return exchange.getFormData().flatMap(formData -> {
             String username = formData.getFirst(FieldName.USERNAME.toString());
             if (username != null && !username.isEmpty()) {
-                return Mono.just(URLDecoder.decode(username, StandardCharsets.UTF_8));
+                return Mono.just(username);
             }
 
             return Mono.just("");
