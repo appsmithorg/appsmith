@@ -1,4 +1,4 @@
-import { Divider, Text } from "design-system";
+import { Button, Divider, Text } from "design-system";
 import noop from "lodash/noop";
 import React, { Fragment } from "react";
 import styled from "styled-components";
@@ -9,10 +9,27 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const StepContainer = styled.div`
+// const StepContainer = styled.div`
+//   display: flex;
+//   align-items: center;
+//   cursor: pointer;
+// `;
+
+const StepButton = styled(Button)`
   display: flex;
   align-items: center;
-  cursor: pointer;
+
+  .ads-v2-button__content {
+    padding: 4px;
+  }
+
+  .ads-v2-button__content-children {
+    font-weight: var(--ads-v2-font-weight-bold);
+  }
+
+  .ads-v2-button__content-children > * {
+    font-weight: var(--ads-v2-font-weight-bold);
+  }
 `;
 
 interface StepNumberProps {
@@ -78,20 +95,22 @@ function Steps({
         return (
           <Fragment key={step.key}>
             {index > 0 && <StepLine />}
-            <StepContainer
+            <StepButton
+              kind="tertiary"
               onClick={() => {
                 if (index < activeIndex) {
                   onActiveKeyChange(step.key);
                 }
               }}
               role="button"
+              size="md"
               style={{ opacity: index > activeIndex ? 0.6 : 1 }}
             >
               <StepNumber active={step.key === activeKey}>
                 {index + 1}
               </StepNumber>
               <StepText>{step.text}</StepText>
-            </StepContainer>
+            </StepButton>
           </Fragment>
         );
       })}

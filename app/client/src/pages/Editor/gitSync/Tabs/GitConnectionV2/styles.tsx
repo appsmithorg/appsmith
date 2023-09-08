@@ -4,7 +4,7 @@ import styled from "styled-components";
 export const WellContainer = styled.div`
   padding: 16px;
   border-radius: 4px;
-  background-color: #f1f5f9;
+  background-color: var(--ads-color-background-secondary);
   margin-bottom: 16px;
   overflow-y: auto;
 `;
