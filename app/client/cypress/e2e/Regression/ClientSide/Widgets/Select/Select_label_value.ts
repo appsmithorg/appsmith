@@ -7,7 +7,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select Widget Functionality", function () {
-  it("Add new Select widget", () => {
+  it("Validate select widget data - source data , label key , value key, default selected value ", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 450, 200);
     agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
       expect($selectedValue).to.eq("Green");
@@ -17,9 +17,7 @@ describe("Select Widget Functionality", function () {
       expect($selectedValue).to.eq("Blue");
       expect($selectedValue).not.to.contain("Green");
     });
-    propPane.ToggleJSMode("sourcedata");
-
-    propPane.UpdatePropertyFieldValue(
+    propPane.EnterJSContext(
       "Source Data",
       `[
       {
@@ -36,17 +34,11 @@ describe("Select Widget Functionality", function () {
         "3": "red"
       }
     ]`,
+      true,
     );
+    propPane.AssertPropertiesDropDownValues("Label key", ["1", "2", "3"]);
 
-    agHelper.GetNClick(propPane._selectPropDropdown("labelkey"));
-    ["1", "2", "3"].forEach((d) => {
-      agHelper.AssertElementExist(propPane._dropDownValue(d));
-    });
-
-    agHelper.GetNClick(propPane._selectPropDropdown("valuekey"), 0, true);
-    ["1", "2", "3"].forEach((d) => {
-      agHelper.AssertElementExist(propPane._dropDownValue(d));
-    });
+    propPane.AssertPropertiesDropDownValues("Value key", ["1", "2", "3"]);
 
     propPane.UpdatePropertyFieldValue(
       "Source Data",
@@ -65,16 +57,9 @@ describe("Select Widget Functionality", function () {
       }
     ]`,
     );
+    propPane.AssertPropertiesDropDownValues("Label key", ["test1", "test2"]);
 
-    agHelper.GetNClick(propPane._selectPropDropdown("label"));
-    ["test1", "test2"].forEach((d) => {
-      agHelper.AssertElementExist(propPane._dropDownValue(d));
-    });
-
-    agHelper.GetNClick(propPane._selectPropDropdown("value"), 0, true);
-    ["test1", "test2"].forEach((d) => {
-      agHelper.AssertElementExist(propPane._dropDownValue(d));
-    });
+    propPane.AssertPropertiesDropDownValues("Value key", ["test1", "test2"]);
 
     propPane.SelectPropertiesDropDown("label", "test1");
 
@@ -105,7 +90,7 @@ describe("Select Widget Functionality", function () {
       agHelper.AssertText(locators._textInside, "text", d.text);
     });
 
-    (cy as any).openPropertyPane("selectwidget");
+    entityExplorer.SelectEntityByName("Select1");
 
     propPane.SelectPropertiesDropDown("label", "test2");
 
