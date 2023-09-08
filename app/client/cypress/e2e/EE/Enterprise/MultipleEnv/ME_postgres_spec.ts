@@ -146,6 +146,7 @@ describe(
       dataSources.NavigateFromActiveDS(meDatasourceName, false);
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "city");
+      agHelper.GetNClick(dataSources._generatePageBtn);
       agHelper.ClickButton("Generate page");
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       agHelper.ValidateToastMessage("Successfully generated a page");
