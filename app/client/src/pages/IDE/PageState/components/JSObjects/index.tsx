@@ -55,9 +55,13 @@ function JSObjects(props: Props) {
 
   useLayoutEffect(() => {
     if (!collectionId) {
-      listItemClick(toListActions[0]);
+      if (toListActions.length) {
+        listItemClick(toListActions[0]);
+      } else {
+        dispatch(setIdePageTabState(TabState.LIST));
+      }
     }
-  }, [collectionId]);
+  }, [collectionId, toListActions.length]);
 
   const editor = collectionId ? (
     <Wrapper width={leftPaneWidth}>
