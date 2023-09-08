@@ -90,6 +90,7 @@ function Steps({
           <Fragment key={step.key}>
             {index > 0 && <StepLine />}
             <StepButton
+              isDisabled={index > activeIndex}
               kind="tertiary"
               onClick={() => {
                 if (index < activeIndex) {
