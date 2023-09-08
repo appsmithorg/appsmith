@@ -8,8 +8,6 @@ import type {
 import { Text } from "../../Text";
 import { StyledTextArea } from "./index.styled";
 
-// type MyOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-
 export interface TextAreaProps extends HeadlessTextAreaProps {
   /** loading state for the input */
   isLoading?: boolean;

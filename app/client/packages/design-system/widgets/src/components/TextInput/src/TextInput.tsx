@@ -11,8 +11,6 @@ import { IconButton } from "../../IconButton";
 import { EyeOffIcon } from "./icons/EyeOffIcon";
 import { StyledTextInput } from "./index.styled";
 
-// type MyOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-
 const ICON_SIZE = 16;
 
 export interface TextInputProps extends HeadlessTextInputProps {

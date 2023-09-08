@@ -2,8 +2,6 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import type { InputWidgetProps } from "widgets/InputWidgetV2/widget";
-import { isInputTypeEmailOrPassword } from "widgets/InputWidgetV2/widget/Utilities";
 
 import type { BaseInputWidgetProps } from "./types";
 
@@ -185,24 +183,6 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
-      },
-      {
-        propertyName: "shouldAllowAutofill",
-        label: "Allow autofill",
-        helpText: "Allow users to autofill values from browser",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-        hidden: (props: InputWidgetProps) => {
-          //should be shown for only inputWidgetV2 and for email or password input types
-          return !(
-            isInputTypeEmailOrPassword(props?.inputType) &&
-            props.type === "INPUT_WIDGET_V3"
-          );
-        },
-        dependencies: ["inputType"],
       },
       {
         propertyName: "allowFormatting",

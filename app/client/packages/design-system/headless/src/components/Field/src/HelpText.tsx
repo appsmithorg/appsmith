@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import type { HTMLAttributes } from "react";
 import { useDOMRef } from "@react-spectrum/utils";
 import type { DOMRef, SpectrumHelpTextProps } from "@react-types/shared";
@@ -10,7 +10,7 @@ interface HelpTextProps extends Omit<SpectrumHelpTextProps, "showErrorIcon"> {
   errorMessageProps?: HTMLAttributes<HTMLElement>;
 }
 
-function HelpText(props: HelpTextProps, ref: DOMRef<HTMLDivElement>) {
+function _HelpText(props: HelpTextProps, ref: DOMRef<HTMLDivElement>) {
   const {
     description,
     descriptionProps,
@@ -36,5 +36,4 @@ function HelpText(props: HelpTextProps, ref: DOMRef<HTMLDivElement>) {
   );
 }
 
-const _HelpText = React.forwardRef(HelpText);
-export { _HelpText as HelpText };
+export const HelpText = forwardRef(_HelpText);

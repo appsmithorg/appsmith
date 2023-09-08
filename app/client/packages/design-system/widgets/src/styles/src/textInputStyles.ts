@@ -19,12 +19,11 @@ export const textInputStyles = css<HeadlessTextInputProps>`
     font-family: inherit;
     flex-grow: 1;
 
-    &:-webkit-autofill,
-    &:-webkit-autofill:hover,
-    &:-webkit-autofill:focus,
-    &:-webkit-autofill:active {
+    &:autofill,
+    &:autofill:hover,
+    &:autofill:focus,
+    &:autofill:active {
       font-size: initial;
-      -webkit-box-shadow: 0 0 0 30px var(--color-bg) inset !important;
     }
 
     &:focus {
