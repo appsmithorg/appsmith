@@ -70,16 +70,20 @@ public class MigrationFeatureFlagHelper {
     }
 
     /**
-     * Method to check the diffs between the existing feature flags and the latest flags pulled from CS. If there are any diffs save the flags with required migration types:
+     * Method to check the diffs between the existing feature flags and the latest flags pulled from CS. If there are
+     * any diffs save the flags with required migration types:
      * Flag transitions:
      * 1. false -> true : Migration to enable the feature flag
      * 2. true -> false : Migration to disable the feature flag
-     * 3. There is a scenario when the migrations will be blocked on user input and may end up in a scenario where we just have to remove the entry as migration is no longer needed:
-     *      Step 1: Feature enabled and the enable migration is registered
-     *      Step 2: Migration gets executed on server as no input from the user is required here
-     *      Step 3: License expires which results in feature getting disabled so migration entry gets registered with disable type
-     *      Step 4: As the migration will be blocked by the user input for downgrade migration DB state will be maintained
-     *      Step 5: User adds the valid key or renews the subscription again which results in enabling the feature and ends up in nullifying the effect for step 3
+     * 3. There is a scenario when the migrations will be blocked on user input and may end up in a case where we just
+     * have to remove the entry as migration it's no longer needed:
+     *      Step 1: Feature gets enabled by adding a valid licence and enable migration gets registered
+     *      Step 2: License expires which results in feature getting disabled so migration entry gets registered with
+     *              disable type (This will happen via cron to check the license status)
+     *      Step 3: As the migration will be blocked by the user input for downgrade migration, DB state will be
+     *              maintained
+     *      Step 4: User adds the valid key or renews the subscription again which results in enabling the feature and
+     *              ends up in nullifying the effect for step 2
      *
      * @param tenant                    Tenant for which the feature flag migrations stats needs to be stored
      * @param latestFlags               Latest flags pulled in from CS
@@ -91,12 +95,12 @@ public class MigrationFeatureFlagHelper {
 
         // 1. Check if there are any diffs for the feature flags
         // 2. Update the flags for pending migration within provided tenant object
-        Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigrationLatest = new HashMap<>();
+        Map<FeatureFlagEnum, FeatureMigrationType> featureDiffsWithMigrationType = new HashMap<>();
         Map<String, Boolean> existingFeatureMap = existingCachedFlags.getFeatures();
         latestFlags.getFeatures().forEach((key, value) -> {
             if (value != null && !value.equals(existingFeatureMap.get(key))) {
                 try {
-                    featuresWithPendingMigrationLatest.put(
+                    featureDiffsWithMigrationType.put(
                             FeatureFlagEnum.valueOf(key), Boolean.TRUE.equals(value) ? ENABLE : DISABLE);
                 } catch (Exception e) {
                     // Ignore IllegalArgumentException as all the feature flags are not added on
@@ -104,32 +108,44 @@ public class MigrationFeatureFlagHelper {
                 }
             }
         });
-        return getUpdatedFlagsWithPendingMigration(featuresWithPendingMigrationLatest, tenant);
+        return getUpdatedFlagsWithPendingMigration(featureDiffsWithMigrationType, tenant);
     }
 
     private Map<FeatureFlagEnum, FeatureMigrationType> getUpdatedFlagsWithPendingMigration(
-            Map<FeatureFlagEnum, FeatureMigrationType> featureFlagsForPendingMigrationsLatest, Tenant dbTenant) {
+            Map<FeatureFlagEnum, FeatureMigrationType> latestFeatureDiffsWithMigrationType, Tenant dbTenant) {
 
         Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigrationDB =
                 dbTenant.getTenantConfiguration().getFeaturesWithPendingMigration();
 
-        Map<FeatureFlagEnum, FeatureMigrationType> commonFlags = new HashMap<>(featureFlagsForPendingMigrationsLatest);
+        Map<FeatureFlagEnum, FeatureMigrationType> updatedFlagsForMigrations =
+                new HashMap<>(featuresWithPendingMigrationDB);
 
-        commonFlags.forEach((featureFlagEnum, featureMigrationType) -> {
-            if (featuresWithPendingMigrationDB.containsKey(featureFlagEnum)
-                    && !featureMigrationType.equals(featuresWithPendingMigrationDB.get(featureFlagEnum))) {
+        // We should expect the following state after the latest run:
+        // featuresWithPendingMigrationDB       => {feature1 : enable, feature2 : disable}
+        // latestFeatureDiffsWithMigrationType  => {feature1 : enable, feature2 : enable, feature3 : disable}
+        // updatedFlagsForMigrations            => {feature1 : enable, feature3 : disable}
+
+        updatedFlagsForMigrations.forEach((featureFlagEnum, featureMigrationType) -> {
+            if (latestFeatureDiffsWithMigrationType.containsKey(featureFlagEnum)
+                    && !featureMigrationType.equals(latestFeatureDiffsWithMigrationType.get(featureFlagEnum))) {
                 /*
-                Scenario when the migrations will be blocked on user input and may end up in a scenario where we just have to remove the entry as migration is no longer needed:
-                Step 1: Feature enabled and the enable migration is registered
-                Step 2: Migration gets executed on server as no input from the user is required here
-                Step 3: License expires which results in feature getting disabled so migration entry gets registered with disable type
-                Step 4: As the migration will be blocked by the user input for downgrade migration DB state will be maintained
-                Step 5: User adds the valid key or renews the subscription again which results in enabling the feature and ends up in nullifying the effect for step 3
+                Scenario when the migrations will be blocked on user input and may end up in a case where we just have
+                to remove the entry as migration it's no longer needed:
+                    Step 1: Feature gets enabled by adding a valid licence and enable migration gets registered
+                    Step 2: License expires which results in feature getting disabled so migration entry gets registered
+                            with disable type (This will happen via cron to check the license status)
+                    Step 3: As the migration will be blocked by the user input for downgrade migration, DB state will be
+                            maintained
+                    Step 4: User adds the valid key or renews the subscription again which results in enabling the
+                            feature and ends up in nullifying the effect for step 2
                  */
-                commonFlags.remove(featureFlagEnum);
+                updatedFlagsForMigrations.remove(featureFlagEnum);
+                latestFeatureDiffsWithMigrationType.remove(featureFlagEnum);
             }
         });
-        return commonFlags;
+        // Add the latest flags which were not part of earlier check.
+        updatedFlagsForMigrations.putAll(latestFeatureDiffsWithMigrationType);
+        return updatedFlagsForMigrations;
     }
 
     public Mono<Boolean> checkAndExecuteMigrationsForFeatureFlag(Tenant tenant, FeatureFlagEnum featureFlagEnum) {

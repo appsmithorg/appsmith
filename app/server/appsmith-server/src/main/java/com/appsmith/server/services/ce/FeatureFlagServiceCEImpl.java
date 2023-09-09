@@ -181,12 +181,21 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                                                     defaultTenant.getTenantConfiguration() == null
                                                             ? new TenantConfiguration()
                                                             : defaultTenant.getTenantConfiguration();
-                                            tenantConfig.setFeaturesWithPendingMigration(
-                                                    featureFlagWithPendingMigrations);
-                                            if (!featureFlagWithPendingMigrations.isEmpty()) {
-                                                tenantConfig.setMigrationStatus(MigrationStatus.PENDING);
+                                            // We expect the featureFlagWithPendingMigrations to be empty hence
+                                            // verifying for null
+                                            if (featureFlagWithPendingMigrations != null
+                                                    && !featureFlagWithPendingMigrations.equals(
+                                                            tenantConfig.getFeaturesWithPendingMigration())) {
+                                                tenantConfig.setFeaturesWithPendingMigration(
+                                                        featureFlagWithPendingMigrations);
+                                                if (!featureFlagWithPendingMigrations.isEmpty()) {
+                                                    tenantConfig.setMigrationStatus(MigrationStatus.PENDING);
+                                                } else {
+                                                    tenantConfig.setMigrationStatus(MigrationStatus.COMPLETED);
+                                                }
+                                                return tenantService.update(defaultTenant.getId(), defaultTenant);
                                             }
-                                            return tenantService.update(defaultTenant.getId(), defaultTenant);
+                                            return Mono.just(defaultTenant);
                                         });
                             }
                         }))
