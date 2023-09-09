@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import globby from "globby";
 import minimatch from "minimatch";
-import { exec } from "child_process";
 
 const fs = require("fs/promises");
 
