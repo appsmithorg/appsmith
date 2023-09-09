@@ -184,7 +184,7 @@ async function cypressHooks(on, config) {
     console.log("AFTER SPEC SPEC DETAILS ------->", spec);
     console.log(
       "AFTER SPEC RUN RESULTS STRINGYFY ------->",
-      JSON.parse(JSON.stringify(results)),
+      JSON.parse(results),
     );
     specData.testCount = results.stats.tests;
     specData.passes = results.stats.passes;
@@ -192,7 +192,7 @@ async function cypressHooks(on, config) {
     specData.pending = results.stats.pending;
     specData.skipped = results.stats.skipped;
     specData.status = results.stats.failures > 0 ? "fail" : "pass";
-    specData.duration = results.stats.wallClockDuration;
+    specData.duration = results.stats.duration;
 
     const dbClient = await configureDbClient().connect();
     try {
