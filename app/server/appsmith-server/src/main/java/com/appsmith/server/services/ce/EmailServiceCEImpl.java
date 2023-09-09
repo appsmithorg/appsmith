@@ -28,11 +28,12 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         Map<String, String> params = new HashMap<>();
         params.put(RESET_URL, resetUrl);
         return this.enrichParams(params)
-                .flatMap(updatedParams -> emailSender.sendMail(
-                        email,
-                        String.format(FORGOT_PASSWORD_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
-                        FORGOT_PASSWORD_TEMPLATE_CE,
-                        updatedParams));
+                .flatMap(enrichedParams -> this.enrichWithBrandParams(enrichedParams, originHeader)
+                        .flatMap(updatedParams -> emailSender.sendMail(
+                                email,
+                                String.format(FORGOT_PASSWORD_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
+                                getForgotPasswordTemplate(),
+                                updatedParams)));
     }
 
     @Override
@@ -53,8 +54,9 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         Map<String, String> params = getInviteToWorkspaceEmailParams(
                 workspaceInvitedTo, invitingUser, inviteUrl, assignedPermissionGroup.getName(), isNewUser);
         return this.enrichParams(params)
-                .flatMap(updatedParams -> emailSender.sendMail(
-                        invitedUser.getEmail(), emailSubject, INVITE_WORKSPACE_TEMPLATE_CE, updatedParams));
+                .flatMap(enrichedParams -> this.enrichWithBrandParams(enrichedParams, originHeader)
+                        .flatMap(updatedParams -> emailSender.sendMail(
+                                invitedUser.getEmail(), emailSubject, getWorkspaceInviteTemplate(), updatedParams)));
     }
 
     @Override
@@ -86,12 +88,24 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                         updatedParams));
     }
 
-    private Mono<Map<String, String>> enrichParams(Map<String, String> params) {
+    protected Mono<Map<String, String>> enrichParams(Map<String, String> params) {
         return tenantService.getDefaultTenant().map(tenant -> {
             final TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
             params.put(INSTANCE_NAME, StringUtils.defaultIfEmpty(tenantConfiguration.getInstanceName(), "Appsmith"));
             return params;
         });
+    }
+
+    protected Mono<Map<String, String>> enrichWithBrandParams(Map<String, String> params, String origin) {
+        return Mono.just(params);
+    }
+
+    protected String getForgotPasswordTemplate() {
+        return FORGOT_PASSWORD_TEMPLATE_CE;
+    }
+
+    protected String getWorkspaceInviteTemplate() {
+        return INVITE_WORKSPACE_TEMPLATE_CE;
     }
 
     private Map<String, String> getInviteToWorkspaceEmailParams(
