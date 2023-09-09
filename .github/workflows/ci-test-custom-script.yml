@@ -360,8 +360,8 @@ jobs:
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
             if [[ '${{env.EVENT_COMMITS}}' == 'null' ]]; then 
-              COMMIT_INFO_MESSAGE=$(echo ${{ github.event_name }} | perl -pe 's/(^|_)./uc($&)/ge;s/_//g')
-              echo COMMIT_INFO_MESSAGE="${{ COMMIT_INFO_MESSAGE} by ${{ env.COMMIT_INFO_AUTHOR }}" >> $GITHUB_ENV
+              echo "COMMIT_INFO_MESSAGE=$(echo ${{ github.event_name }} | perl -pe 's/(^|_)./uc($&)/ge;s/_//g')" >> $GITHUB_ENV
+              echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE} by ${{ env.COMMIT_INFO_AUTHOR }}" >> $GITHUB_ENV
             else
               echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
             fi
