@@ -61,7 +61,7 @@ ENV APPSMITH_CLOUD_SERVICES_BASE_URL=${APPSMITH_CLOUD_SERVICES_BASE_URL}
 ARG APPSMITH_SEGMENT_CE_KEY
 ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
 #Create the plugins directory
-RUN mkdir -p ./backend ./editor ./rts ./backend/plugins ./templates ./utils
+RUN mkdir -p ./editor ./rts ./backend/plugins
 
 COPY deploy/docker/fs /
 
@@ -75,7 +75,7 @@ COPY ./app/client/build editor/
 # Add RTS - Application Layer
 COPY ./app/client/packages/rts/package.json ./app/client/packages/rts/dist rts/
 
-RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . \
+RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
   && chmod 0644 /etc/cron.d/* \
   && chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh /watchtower-hooks/*.sh \
   # Disable setuid/setgid bits for the files inside container.
