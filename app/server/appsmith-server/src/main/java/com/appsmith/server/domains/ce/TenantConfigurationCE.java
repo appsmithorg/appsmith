@@ -39,7 +39,7 @@ public class TenantConfigurationCE {
     // Field to be used to track the status of migrations during upgrade and downgrade workflows. Downgrade migrations
     // are gated by user consent whereas upgrade can be triggered immediately and depending upon the status client
     // blocks the user access to the instance
-    MigrationStatus migrationStatus = MigrationStatus.EXECUTED;
+    MigrationStatus migrationStatus = MigrationStatus.COMPLETED;
 
     // Field to store the list of features for which the migrations are pending. This will be used to store the diffs of
     // the feature flags. This can happen for 2 reasons:

@@ -221,7 +221,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                     if (TRUE.equals(isSuccessful)) {
                         featureMigrationTypeMap.remove(featureFlagEnum);
                         if (CollectionUtils.isNullOrEmpty(featureMigrationTypeMap)) {
-                            tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.EXECUTED);
+                            tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.COMPLETED);
                         } else {
                             tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.IN_PROGRESS);
                         }
