@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useCallback, useMemo } from "react";
 import type { ReactNode } from "react";
 import styled from "styled-components";
@@ -25,13 +26,19 @@ export type AnvilFlexComponentProps = FlexComponentProps & {
   widgetSize?: { [key: string]: Record<string, string | number> };
 };
 
-const FlexComponentWrapper = styled.button`
+const FlexComponentWrapper = styled.button<{ onHoverZIndex: number }>`
   padding: 0;
   border: none;
   outline: none;
   font: inherit;
   color: inherit;
   background: none;
+  width: -webkit-fill-available;
+  position: relative;
+
+  &:hover {
+    z-index: ${({ onHoverZIndex }) => onHoverZIndex};
+  }
 `;
 
 export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
@@ -79,7 +86,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     );
 
   const isFillWidget = props.responsiveBehavior === ResponsiveBehavior.Fill;
-
+  console.log("####", { props });
   const flexProps: FlexProps = useMemo(() => {
     return {
       alignSelf: props.flexVerticalAlignment,
@@ -89,9 +96,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
       height:
         props.hasAutoHeight || isCurrentWidgetResizing
           ? "auto"
-          : props.componentHeight,
-      maxHeight: { ...props.widgetSize?.maxHeight },
-      maxWidth: { ...props.widgetSize?.maxWidth },
+          : props.componentHeight.toString(),
       minHeight: { ...props.widgetSize?.minHeight },
       // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
       minWidth: {
@@ -103,7 +108,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
       width:
         isFillWidget || props.hasAutoWidth || isCurrentWidgetResizing
           ? "auto"
-          : props.componentWidth,
+          : props.componentWidth.toString(),
     };
   }, [
     isCurrentWidgetResizing,
@@ -115,28 +120,25 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     props.flexVerticalAlignment,
     props.widgetSize,
   ]);
-
-  const styleProps: React.CSSProperties = useMemo(() => {
-    return {
-      position: "relative",
-      "&:hover": {
-        zIndex: onHoverZIndex + " !important",
-      },
-    };
-  }, [onHoverZIndex]);
+  console.log("####", { flexProps });
+  // const styleProps: React.CSSProperties = useMemo(() => {
+  //   return {};
+  //   return {
+  //     position: "static",
+  //     "&:hover": {
+  //       zIndex: onHoverZIndex + " !important",
+  //     },
+  //   };
+  // }, [onHoverZIndex]);
 
   return (
     <FlexComponentWrapper
       className={className}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
+      onHoverZIndex={onHoverZIndex}
     >
-      <Flex
-        alignSelf={props.flexVerticalAlignment}
-        isContainer
-        style={styleProps}
-        {...flexProps}
-      >
+      <Flex alignSelf={props.flexVerticalAlignment} {...flexProps}>
         {wrappedChildren(props.children)}
       </Flex>
     </FlexComponentWrapper>

@@ -1,3 +1,4 @@
+import { GridDefaults } from "constants/WidgetConstants";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 export const getAutoLayoutComponentDimensions = ({
@@ -49,6 +50,28 @@ export const getFixedLayoutComponentDimensions = ({
   return {
     componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
     componentHeight: (bottomRow - topRow) * parentRowSpace,
+  };
+};
+
+export const getAnvilComponentDimensions = ({
+  bottomRow,
+  height,
+  leftColumn,
+  rightColumn,
+  topRow,
+  width,
+}: BaseWidgetProps) => {
+  /**
+   * Anvil widgets are part of a fluid layout.
+   * Component width is calculated as a percentage of the grid width.
+   * Component height is calculated in pixels.
+   */
+  return {
+    componentWidth:
+      width ||
+      ((rightColumn - leftColumn) * 100) / GridDefaults.DEFAULT_GRID_COLUMNS,
+    componentHeight:
+      height || (bottomRow - topRow) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   };
 };
 

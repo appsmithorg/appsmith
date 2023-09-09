@@ -419,8 +419,8 @@ export interface WidgetBaseProps {
   suppressAutoComplete?: boolean;
   suppressDebuggerError?: boolean;
   disallowCopy?: boolean;
-  componentHeight: number;
-  componentWidth: number;
+  componentHeight?: number;
+  componentWidth?: number;
   /**
    * The keys of the props mentioned here would always be picked from the canvas widget
    * rather than the evaluated values in withWidgetProps HOC.
@@ -465,6 +465,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   appPositioningType?: AppPositioningTypes;
   widthInPercentage?: number; // Stores the widget's width set by the user
   mobileWidthInPercentage?: number;
+  width?: number;
 }
 
 export const WIDGET_DISPLAY_PROPS = {

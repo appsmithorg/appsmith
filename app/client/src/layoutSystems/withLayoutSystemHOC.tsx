@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { RenderModes } from "constants/WidgetConstants";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -20,6 +21,7 @@ const getLayoutSystem = (
   renderMode: RenderModes,
   appPositioningType: AppPositioningTypes,
 ): LayoutSystem => {
+  console.log("####", { appPositioningType });
   switch (appPositioningType) {
     case AppPositioningTypes.ANVIL:
       return getAnvilSystem(renderMode);
@@ -41,7 +43,7 @@ const LayoutSystemWrapper = ({
   const appPositioningType = useSelector(getAppPositioningType);
   const { LayoutSystemWrapper, propertyEnhancer } = getLayoutSystem(
     renderMode,
-    appPositioningType,
+    AppPositioningTypes.ANVIL || appPositioningType,
   );
   const enhancedProperties = propertyEnhancer(widgetProps);
   return (

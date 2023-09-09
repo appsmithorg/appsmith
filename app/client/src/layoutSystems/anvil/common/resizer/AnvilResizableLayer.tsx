@@ -6,5 +6,5 @@ export const AnvileResizableLayer = (props: BaseWidgetProps) => {
     return props.children;
   }
   // TODO: Does anvil need a new ResizableComponent?
-  return <div>{props.children}</div>;
+  return <div className="w-full h-full">{props.children}</div>;
 };
