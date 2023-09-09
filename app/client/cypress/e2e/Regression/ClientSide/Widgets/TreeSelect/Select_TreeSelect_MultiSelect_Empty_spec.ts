@@ -1,4 +1,4 @@
-const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 describe("MultiSelect, Tree Select and Multi Tree Select Widget Empty Options Functionality", function () {
   before(() => {
