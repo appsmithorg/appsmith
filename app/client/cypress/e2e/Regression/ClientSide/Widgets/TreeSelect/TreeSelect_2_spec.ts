@@ -41,7 +41,7 @@ describe("Tree Select widget Tests", function () {
       }
     ]`;
 
-  it("1. Verify required", function () {
+  it("1. Verify required field", function () {
     entityExplorer.SelectEntityByName("TreeSelect1", "Widgets");
     propPane.TogglePropertyState("required", "On");
     propPane.UpdatePropertyFieldValue("Default selected value", "");
@@ -153,14 +153,12 @@ describe("Tree Select widget Tests", function () {
     agHelper.AssertElementExist(locators._treeSelectTitle);
   });
 
-  it("6. Verify onOptionChange", () => {
+  it("6. Verify onOptionChange with query", () => {
     entityExplorer.DragDropWidgetNVerify("checkboxwidget", 300, 600);
     entityExplorer.DragDropWidgetNVerify("inputwidgetv2", 500, 700);
     entityExplorer.DragDropWidgetNVerify("iframewidget", 550, 800);
-
     // Execute the query
     let postgresDatasourceName: any;
-
     dataSources.StartDataSourceRoutes();
     agHelper
       .GetElement(locators._newDataSourceBtn)
@@ -197,7 +195,9 @@ describe("Tree Select widget Tests", function () {
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
     agHelper.ValidateToastMessage("Success");
     deployMode.NavigateBacktoEditor();
+  });
 
+  it("7. Verify onOptionChange with Navigate To", () => {
     // Navigate To
     entityExplorer.SelectEntityByName("Form1", "Widgets");
     entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
@@ -214,7 +214,9 @@ describe("Tree Select widget Tests", function () {
     agHelper.AssertURL("yahoo.com");
     agHelper.BrowserNavigation(-1);
     deployMode.NavigateBacktoEditor();
+  });
 
+  it("8. Verify onOptionChange with Alert", () => {
     // Alert
     entityExplorer.SelectEntityByName("Form1", "Widgets");
     entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
@@ -229,7 +231,9 @@ describe("Tree Select widget Tests", function () {
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
     agHelper.ValidateToastMessage("Option Changed");
     deployMode.NavigateBacktoEditor();
+  });
 
+  it("9. Verify onOptionChange with download", () => {
     // Download
     entityExplorer.SelectEntityByName("Form1", "Widgets");
     entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
@@ -244,17 +248,9 @@ describe("Tree Select widget Tests", function () {
     );
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
     agHelper.ValidateToastMessage("Download Success");
+  });
 
-    // Copy to clipboard
-    // propPane.UpdatePropertyFieldValue("onOptionChange", "{{copyToClipboard('Test');}}");
-    // deployMode.DeployApp();
-    // agHelper.GetNClick(`${locators._widgetInDeployed("singleselecttreewidget")}`);
-    // agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
-    // agHelper.GetNClick(".bp3-input")
-    // agHelper.TypeTextWithoutWait("body", `{${agHelper._modifierKey}}{v}`);
-    // agHelper.AssertText(".bp3-input", "val", "Test");
-    // deployMode.NavigateBacktoEditor();
-
+  it("10. Verify onOptionChange with Reset", () => {
     // Reset Widget
     entityExplorer.SelectEntityByName("Form1", "Widgets");
     entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
@@ -274,7 +270,9 @@ describe("Tree Select widget Tests", function () {
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
     agHelper.AssertExistingCheckedState(locators._checkboxInDeployedMode);
     deployMode.NavigateBacktoEditor();
+  });
 
+  it("11. Verify onOptionChange with Modal", () => {
     // Modal
     entityExplorer.SelectEntityByName("Form1", "Widgets");
     entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
@@ -294,7 +292,9 @@ describe("Tree Select widget Tests", function () {
     agHelper.Sleep(3000);
     agHelper.AssertElementAbsence(locators._modal);
     deployMode.NavigateBacktoEditor();
+  });
 
+  it("12. Verify onOptionChange with iframe", () => {
     // Postmessage for iframe
     entityExplorer.SelectEntityByName("Iframe1", "Widgets");
     propPane.UpdatePropertyFieldValue(
