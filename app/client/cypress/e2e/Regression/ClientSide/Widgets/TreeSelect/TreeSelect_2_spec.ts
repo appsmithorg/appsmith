@@ -295,7 +295,7 @@ describe("Tree Select widget Tests", function () {
   });
 
   it("12. Verify onOptionChange with iframe", () => {
-    // Postmessage for iframe
+    // Postmessage on iframe
     entityExplorer.SelectEntityByName("Iframe1", "Widgets");
     propPane.UpdatePropertyFieldValue(
       "srcDoc",
