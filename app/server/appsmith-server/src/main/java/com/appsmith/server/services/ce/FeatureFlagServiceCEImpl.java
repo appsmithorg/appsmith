@@ -213,10 +213,15 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 .map(CachedFeatures::getFeatures);
     }
 
+    /**
+     * This function checks if there are any pending migrations for a feature flag and executes them.
+     * @param tenant    tenant for which the migrations need to be executed
+     * @return          tenant with migrations executed
+     */
     @Override
     public Mono<Tenant> checkAndExecuteMigrationsForFeatureFlag(Tenant tenant) {
         if (tenant.getTenantConfiguration() == null
-                || tenant.getTenantConfiguration().getFeaturesWithPendingMigration() == null) {
+                || CollectionUtils.isNullOrEmpty(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())) {
             return Mono.just(tenant);
         }
         Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
