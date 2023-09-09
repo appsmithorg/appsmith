@@ -184,7 +184,7 @@ async function cypressHooks(on, config) {
     console.log("AFTER SPEC SPEC DETAILS ------->", spec);
     console.log(
       "AFTER SPEC RUN RESULTS STRINGYFY ------->",
-      JSON.parse(results),
+      JSON.stringify(results),
     );
     specData.testCount = results.stats.tests;
     specData.passes = results.stats.passes;
