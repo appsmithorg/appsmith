@@ -182,10 +182,9 @@ async function cypressHooks(on, config) {
 
   await on("after:spec", async (spec, results) => {
     console.log("AFTER SPEC SPEC DETAILS ------->", spec);
-    console.log("AFTER SPEC RUN RESULTS ------->", results);
     console.log(
       "AFTER SPEC RUN RESULTS STRINGYFY ------->",
-      JSON.stringify(results),
+      JSON.parse(JSON.stringify(results)),
     );
     specData.testCount = results.stats.tests;
     specData.passes = results.stats.passes;
