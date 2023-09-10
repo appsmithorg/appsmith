@@ -10,7 +10,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.ce.UserServiceCEImpl;
+import com.appsmith.server.services.ce_compatible.UserServiceCECompatibleImpl;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
@@ -23,7 +23,7 @@ import reactor.core.scheduler.Scheduler;
 
 @Slf4j
 @Service
-public class UserServiceImpl extends UserServiceCEImpl implements UserService {
+public class UserServiceImpl extends UserServiceCECompatibleImpl implements UserService {
 
     public UserServiceImpl(
             Scheduler scheduler,

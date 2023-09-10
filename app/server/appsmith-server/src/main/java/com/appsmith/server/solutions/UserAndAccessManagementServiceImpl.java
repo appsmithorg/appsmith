@@ -8,13 +8,13 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ce.UserAndAccessManagementServiceCEImpl;
+import com.appsmith.server.solutions.ce_compatible.UserAndAccessManagementServiceCECompatibleImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCEImpl
+public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCECompatibleImpl
         implements UserAndAccessManagementService {
 
     public UserAndAccessManagementServiceImpl(
