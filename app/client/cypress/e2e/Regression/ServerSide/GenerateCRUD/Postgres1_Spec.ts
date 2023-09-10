@@ -97,7 +97,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
 
     GenerateCRUDNValidateDeployPage(
       "VINET",
-      "1996-07-04T00:00:00+05:30",
+      "1996-07-04T00:00:00+00:00",
       "1996-08-01",
       "order_id",
     );

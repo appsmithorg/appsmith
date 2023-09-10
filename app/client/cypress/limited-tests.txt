@@ -1,8 +1,12 @@
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-cypress/e2e/Regression/ServerSide/GenerateCRUD/MySQL2_Spec.ts
 cypress/e2e/Regression/ServerSide/GenerateCRUD/Postgres2_Spec.ts
-cypress/e2e/Regression/ServerSide/QueryPane/Postgres_Spec.js
+cypress/e2e/Regression/ServerSide/QueryPane/S3_1_spec.js
+cypress/e2e/Regression/ServerSide/GenerateCRUD/MongoURI_Spec.ts
+cypress/e2e/Regression/ServerSide/GenerateCRUD/Mongo_Spec.ts
+cypress/e2e/Regression/ServerSide/GenerateCRUD/MySQL2_Spec.ts
+cypress/e2e/Regression/ServerSide/GenerateCRUD/Postgres1_Spec.ts
+cypress/e2e/Regression/ServerSide/QueryPane/Mongo_Spec.ts
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*

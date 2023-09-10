@@ -376,7 +376,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     table.NavigateToNextPage(true, "v2"); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.SelectTableRow(0, 0, true, "v2");
     table.WaitForTableEmpty("v2"); //page 2
     agHelper.AssertElementAbsence(locators._jsonFormWidget); //JSON form also should not be present
 
@@ -384,7 +383,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     table.NavigateToPreviousPage(true, "v2");
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.SelectTableRow(0, 0, true, "v2");
     table.WaitUntilTableLoad(0, 0, "v2");
   });
 
