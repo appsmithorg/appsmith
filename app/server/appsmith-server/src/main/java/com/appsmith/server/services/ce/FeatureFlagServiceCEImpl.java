@@ -1,13 +1,10 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -29,7 +26,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static java.lang.Boolean.TRUE;
 
@@ -202,30 +198,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      * @return          tenant with migrations executed
      */
     @Override
-    public Mono<Tenant> checkAndExecuteMigrationsForFeatureFlag(Tenant tenant) {
-        if (tenant.getTenantConfiguration() == null
-                || CollectionUtils.isNullOrEmpty(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())) {
-            return Mono.just(tenant);
-        }
-        Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
-                tenant.getTenantConfiguration().getFeaturesWithPendingMigration();
-
-        Set<FeatureFlagEnum> featureFlagSet = featureMigrationTypeMap.keySet();
-        FeatureFlagEnum featureFlagEnum = featureFlagSet.stream().findFirst().orElse(null);
-        return migrationFeatureFlagHelper
-                .checkAndExecuteMigrationsForFeatureFlag(tenant, featureFlagEnum)
-                .flatMap(isSuccessful -> {
-                    if (TRUE.equals(isSuccessful)) {
-                        featureMigrationTypeMap.remove(featureFlagEnum);
-                        if (CollectionUtils.isNullOrEmpty(featureMigrationTypeMap)) {
-                            tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.COMPLETED);
-                        } else {
-                            tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.IN_PROGRESS);
-                        }
-                        return tenantService.save(tenant).flatMap(this::checkAndExecuteMigrationsForFeatureFlag);
-                    }
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.FeatureFlagMigrationFailure, featureFlagEnum, ""));
-                });
+    public Mono<Tenant> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant) {
+        return tenantService.checkAndExecuteMigrationsForTenantFeatureFlags(tenant);
     }
 }
