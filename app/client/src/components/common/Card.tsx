@@ -386,7 +386,9 @@ function Card({
           )}
         </Wrapper>
         <CardFooter>
-          <ModifiedDataComponent>{editedByText}</ModifiedDataComponent>
+          <ModifiedDataComponent className="t--application-edited-text">
+            {editedByText}
+          </ModifiedDataComponent>
           {Boolean(moreActionItems.length) && !isMobile && contextMenu}
         </CardFooter>
       </NameWrapper>

@@ -85,6 +85,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
   const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
 
   const handleMultipleDelete = () => {
+    setShowConfirmationModal(false);
     dispatch({
       type: ReduxActionTypes.DELETE_MULTIPLE_APPS_INIT,
     });
@@ -123,6 +124,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
       {isEnabledMultipleSelection && (
         <MultipleDeleteWrapper>
           <Button
+            className="t--delete-multiple-application"
             isLoading={deleteMultipleApplicationObject.isDeleting}
             onClick={() => setShowConfirmationModal(true)}
             size="sm"
@@ -131,6 +133,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
             Delete
           </Button>
           <Button
+            className="t--cancel-multiple-application-delete"
             kind="secondary"
             onClick={handleCancelMultipleDelete}
             size="sm"

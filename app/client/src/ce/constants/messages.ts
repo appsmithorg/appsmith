@@ -217,6 +217,8 @@ export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 export const DELETING_APPLICATION = () => `Deleting application...`;
 export const DELETING_MULTIPLE_APPLICATION = () =>
   `Deleting multiple applications...`;
+export const NO_PERMISSION_TO_SELECT_FOR_DELETE = () =>
+  `You don't have permission to delete this application`;
 
 export const DELETING_MULTIPLE_APPLICATION_MODAL_TITLE = () =>
   `Delete Confirmation`;

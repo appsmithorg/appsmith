@@ -89,6 +89,9 @@ export class HomePage {
     "']/ancestor::div[contains(@class, 't--application-card')]";
   private _applicationContextMenu = (applicationName: string) =>
     this._appCard(applicationName) + "//button[@aria-haspopup='menu']";
+  private _applicationEditedText = (applicationName: string) =>
+    this._appCard(applicationName) +
+    "//div[contains(@class, 't--application-edited-text')]";
   private _forkApp = '[data-testid="t--fork-app"]';
   private _deleteApp = '[data-testid="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-testid="t--delete"]';
@@ -118,6 +121,9 @@ export class HomePage {
   private useCaseDropdown = ".setup-dropdown:last";
   private dropdownOption = ".rc-select-item-option:first";
   private roleUsecaseSubmit = ".t--get-started-button";
+  _deleteMultipleAppBtn = ".t--delete-multiple-application";
+  _deleteMultipleAppCancelBtn = ".t--cancel-multiple-application-delete";
+  _multipleSelectedApplication = ".t--application-card-selected";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -633,5 +639,16 @@ export class HomePage {
         this.NavigateToHome();
       }
     });
+  }
+
+  public SelectMultipleApplicationToDelete(applicationName: string) {
+    this.agHelper.GetNClick(
+      this._applicationEditedText(applicationName),
+      0,
+      false,
+      500,
+      false,
+      true,
+    );
   }
 }

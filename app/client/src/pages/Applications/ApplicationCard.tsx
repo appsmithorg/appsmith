@@ -56,6 +56,10 @@ import { addItemsInContextMenu } from "@appsmith/utils";
 import { getCurrentUser } from "actions/authActions";
 import Card from "components/common/Card";
 import { generateEditedByText } from "./helpers";
+import {
+  NO_PERMISSION_TO_SELECT_FOR_DELETE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -487,13 +491,13 @@ export function ApplicationCard(props: ApplicationCardProps) {
   );
 
   const handleMultipleSelection = (event: any) => {
-    if (!hasDeletePermission) {
-      toast.show("You don't have permission to delete this application", {
-        kind: "error",
-      });
-      return;
-    }
     if ((event as MouseEvent).ctrlKey || (event as MouseEvent).metaKey) {
+      if (!hasDeletePermission) {
+        toast.show(createMessage(NO_PERMISSION_TO_SELECT_FOR_DELETE), {
+          kind: "error",
+        });
+        return;
+      }
       dispatch({
         type: ReduxActionTypes.DELETE_MULTIPLE_APPS_TOGGLE,
         payload: { id: applicationId },
