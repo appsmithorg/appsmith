@@ -70,8 +70,8 @@ export const assistiveBindingHinter: HintHelper = (
       );
 
       const str = editor.getLine(editor.lastLine());
-      const words = str.split(" ");
-      const value = words[words.length - 1]; //last word
+      const words = str.split(/[\s]+/);
+      const value = words[words.length - 1]; //last word after any white spaces
 
       if (value.length < 3 && value !== PARTIAL_BINDING) return false;
       const searchText = value === PARTIAL_BINDING ? "" : value;
