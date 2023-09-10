@@ -5,8 +5,10 @@ import {
   apiPage,
   dataSources,
   debuggerHelper,
-  tedTestConfig,
+  dataManager,
   propPane,
+  table,
+  draggableWidgets,
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
@@ -15,47 +17,31 @@ import {
   ERROR_ACTION_EXECUTE_FAIL,
   createMessage,
 } from "../../../../support/Objects/CommonErrorMessages";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
-import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 
 describe("API Bugs", function () {
   before(() => {
-    featureFlagIntercept(
-      {
-        ab_ds_binding_enabled: false,
-      },
-      false,
-    );
     agHelper.RefreshPage();
   });
+
   it("1. Bug 14037, 25432: User gets an error even when table widget is added from the API page successfully", function () {
     // Case where api returns array response
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
-      "Api1",
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     apiPage.RunAPI();
     dataSources.AddSuggestedWidget(Widgets.Table);
     debuggerHelper.AssertErrorCount(0);
-    agHelper.AssertElementExist(
-      oneClickBindingLocator.dropdownOptionSelector("Api1"),
-    );
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Api1");
 
-    // Edit the API so that it returns object response
-    entityExplorer.SelectEntityByName("Api1", "Queries/JS");
-    apiPage.EnterURL(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiObjectUrl,
+    // Create another API so that it returns object response
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiObjectUrl,
     );
     apiPage.RunAPI();
     dataSources.AddSuggestedWidget(Widgets.Table);
-    agHelper.Sleep(500);
-    propPane.ValidatePropertyFieldValue("Table data", "{{Api1.data.users}}");
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Api1",
-      action: "Delete",
-      entityType: entityItems.Api,
-    });
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.ValidatePropertyFieldValue("Table data", "{{Api2.data.users}}");
   });
 
   it("2. Bug 16377, When Api url has dynamic binding expressions, ensure the url and path derived is not corrupting Api execution", function () {
@@ -78,7 +64,7 @@ describe("API Bugs", function () {
 
   it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
       "FirstAPI",
       10000,
       "POST",
@@ -101,5 +87,43 @@ describe("API Bugs", function () {
       key: "records",
       value: "4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}",
     });
+  });
+
+  it("5. Bug 26897, Invalid binding of table data when used existing suggested widgets for an action returning object & array", function () {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+    entityExplorer.NavigateToSwitcher("Explorer");
+
+    // Case where api returns array response
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+      "ARRAY_RESPONSE",
+    );
+    apiPage.RunAPI();
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      dataSources._addSuggestedExisting,
+    );
+    debuggerHelper.AssertErrorCount(0);
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.AssertPropertiesDropDownCurrentValue(
+      "Table data",
+      "ARRAY_RESPONSE",
+    );
+
+    // Create API so that it returns object response
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiObjectUrl,
+      "OBJECT_RESPONSE",
+    );
+    apiPage.RunAPI();
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      dataSources._addSuggestedExisting,
+    );
+    table.WaitUntilTableLoad(0, 0, "v2");
+    propPane.ValidatePropertyFieldValue(
+      "Table data",
+      "{{OBJECT_RESPONSE.data.users}}",
+    );
   });
 });

@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
@@ -80,6 +81,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission);
 
     Mono<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
+
+    Mono<UpdateResult> updateDatasourceNameInActions(Datasource datasource);
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 }

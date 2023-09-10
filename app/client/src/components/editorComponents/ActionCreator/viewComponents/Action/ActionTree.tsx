@@ -53,6 +53,7 @@ export default function ActionTree(props: {
   widgetName: string;
   propertyName: string;
   widgetType: string;
+  dataTreePath: string | undefined;
 }) {
   const { id } = props;
   const [actionBlock, setActionBlock] = React.useState(props.actionBlock);
@@ -175,6 +176,7 @@ export default function ActionTree(props: {
     <div className={props.className}>
       <ActionSelector
         action={actionBlock}
+        dataTreePath={props.dataTreePath}
         id={id}
         level={props.level}
         onChange={props.onChange}
@@ -258,6 +260,7 @@ export default function ActionTree(props: {
                       <ActionTree
                         actionBlock={cActionBlock}
                         className="mt-0"
+                        dataTreePath={props.dataTreePath}
                         id={`${id}_${blockType}_${index}`}
                         isLastBlock={index === callbacks.length - 1}
                         key={`${id}_${blockType}_${index}`}

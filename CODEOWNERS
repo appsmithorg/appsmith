@@ -201,13 +201,38 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/**/Datasour
 app/server/appsmith-server/src/main/java/com/appsmith/server/exceptions/AppsmithError* @nidhi-nair @sondermanish @tkappsmith
 
 # Team Managers pod
-app/client/src/ce/* @ankitakinger
-app/client/src/ee/* @ankitakinger
-app/client/src/pages/Settings/* @ankitakinger
-app/client/cypress/e2e/Regression/Enterprise/* @ankitakinger
-app/client/cypress/e2e/Regression/EE/Enterprise/* @ankitakinger
-app/client/cypress/e2e/Regression/ClientSide/AdminSettings/* @ankitakinger
-app/client/cypress/e2e/Regression/ClientSide/Google/* @ankitakinger
-app/client/cypress/e2e/Regression/ClientSide/Github/* @ankitakinger
-app/client/cypress/e2e/Regression/ClientSide/FormLogin/* @ankitakinger
-app/client/cypress/e2e/Regression/ClientSide/Auditlogs/* @ankitakinger
+app/client/src/ce/**/* @ankitakinger
+app/client/src/ee/**/* @ankitakinger
+app/client/src/ce/entities/FeatureFlag.ts @hetunandu
+app/client/src/ee/entities/FeatureFlag.ts @hetunandu
+app/client/src/ce/constants/messages*
+app/client/src/ee/constants/messages*
+app/client/src/ce/utils/analyticsUtilTypes.ts
+app/client/src/ee/utils/analyticsUtilTypes.ts
+app/client/src/pages/Settings/**/* @ankitakinger
+app/client/cypress/e2e/Regression/Enterprise/**/* @ankitakinger
+app/client/cypress/e2e/Regression/EE/Enterprise/**/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/AdminSettings/**/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/Google/**/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/Github/**/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/FormLogin/**/* @ankitakinger
+app/client/cypress/e2e/Regression/ClientSide/Auditlogs/**/* @ankitakinger
+
+#FE pod
+app/client/src/actions/evaluationActions.ts @ApekshaBhosale
+app/client/src/ce/entities/DataTree/**/* @ApekshaBhosale
+app/client/src/ce/entities/DependencyMap/**/* @ApekshaBhosale
+app/client/src/ce/entities/workers/**/* @ApekshaBhosale
+app/client/src/ee/entities/DataTree* @ApekshaBhosale
+app/client/src/ee/entities/workers/**/* @ApekshaBhosale
+app/client/src/sagas/EvaluationsSaga.ts @ApekshaBhosale
+app/client/src/sagas/EvalWorkerActionSagas.ts @ApekshaBhosale
+app/client/src/sagas/LintingSagas.ts @ApekshaBhosale
+app/client/src/sagas/PostEvaluationSags.ts @ApekshaBhosale
+app/client/src/sagas/PostLintingSagas.ts @ApekshaBhosale
+app/client/src/workers/**/* @ApekshaBhosale
+app/client/src/sagas/JSLibrarySaga.ts @ApekshaBhosale
+app/client/src/ce/ActionExecution/ActionExecutionSagas.ts @ApekshaBhosale
+app/client/src/ee/ActionExecution/ActionExecutionSagas.ts @ApekshaBhosale
+app/client/src/ce/JSFunctionExecutionSaga.ts @ApekshaBhosale
+app/client/src/ee/JSFunctionExecutionSaga.ts @ApekshaBhosale

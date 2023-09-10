@@ -11,6 +11,8 @@ const {
   addMatchImageSnapshotPlugin,
 } = require("cypress-image-snapshot/plugin");
 const { tagify } = require("cypress-tags");
+const { cypressHooks } = require("../scripts/cypress-hooks");
+const { cypressSplit } = require("../cypress-split");
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -28,7 +30,7 @@ const { tagify } = require("cypress-tags");
  * @type {Cypress.PluginConfig}
  */
 
-module.exports = (on, config) => {
+module.exports = async (on, config) => {
   // on("task", {
   //   isFileExist,
   // });
@@ -212,6 +214,11 @@ module.exports = (on, config) => {
       return null;
     },
   });
+
+  if (process.env["RUNID"]) {
+    config = await cypressSplit(on, config);
+    cypressHooks(on, config);
+  }
 
   return config;
 };

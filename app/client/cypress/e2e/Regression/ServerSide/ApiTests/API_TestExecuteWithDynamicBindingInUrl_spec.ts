@@ -3,7 +3,7 @@ import {
   agHelper,
   jsEditor,
   entityItems,
-  tedTestConfig,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test API execution with dynamic binding in URL - Bug #24218", () => {
@@ -15,7 +15,7 @@ describe("Test API execution with dynamic binding in URL - Bug #24218", () => {
         myVar2: {},
         myFun1 () {
           storeValue("api_url", "${
-            tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl
+            dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl
           }");
         },
         myFun2: async function() {

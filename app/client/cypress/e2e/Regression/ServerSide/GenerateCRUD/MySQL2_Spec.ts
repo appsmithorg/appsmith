@@ -397,7 +397,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.AssertContains("Successfully generated a page");
     //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
     assertHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
     table.WaitUntilTableLoad();
@@ -415,7 +415,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
 
     //Validating loaded JSON form
-    cy.xpath(locators._spanButton("Update")).then((selector) => {
+    cy.xpath(locators._buttonByText("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {

@@ -16,7 +16,7 @@ import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import moment from "moment";
 import { isDynamicValue } from "./DynamicBindingUtils";
 import type { ApiResponse } from "api/ApiResponses";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import * as Sentry from "@sentry/react";
 import { matchPath } from "react-router";
 import {
@@ -781,11 +781,11 @@ export function extractColorsFromString(widgets: CanvasWidgetsReduxState) {
 /**
  * validate color string
  *
- * @returns {boolean} true if string is valid color or includes url
+ * @returns {boolean} true if empty string or includes url or is valid color
  * @param color
  */
 export function isValidColor(color: string) {
-  return color?.includes("url") || validateColor(color);
+  return color?.includes("url") || validateColor(color) || isEmptyOrNill(color);
 }
 
 /*

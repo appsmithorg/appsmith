@@ -7,7 +7,7 @@ import {
 
 describe("JS to non-JS mode in Action Selector", () => {
   before(() => {
-    agHelper.AddDsl("promisesBtnDsl", locators._spanButton("Submit"));
+    agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
   });
 
   it("10. Bug 23167 - Message field in PostMessage should accept all type of values", () => {

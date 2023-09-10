@@ -4,6 +4,7 @@ import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.ce.FeaturesRequestDTO;
@@ -13,11 +14,13 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagIdentityTraits;
+import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -28,33 +31,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
+
 @Slf4j
+@RequiredArgsConstructor
 public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHelperCE {
-    private final TenantService tenantService;
 
+    private final TenantRepository tenantRepository;
     private final ConfigService configService;
-
     private final CloudServicesConfig cloudServicesConfig;
-
     private final CommonConfig commonConfig;
-
     private final UserIdentifierService userIdentifierService;
     private final ReleaseNotesService releaseNotesService;
-
-    public CacheableFeatureFlagHelperCEImpl(
-            TenantService tenantService,
-            ConfigService configService,
-            CloudServicesConfig cloudServicesConfig,
-            CommonConfig commonConfig,
-            UserIdentifierService userIdentifierService,
-            ReleaseNotesService releaseNotesService) {
-        this.tenantService = tenantService;
-        this.configService = configService;
-        this.cloudServicesConfig = cloudServicesConfig;
-        this.commonConfig = commonConfig;
-        this.userIdentifierService = userIdentifierService;
-        this.releaseNotesService = releaseNotesService;
-    }
 
     @Cache(cacheName = "featureFlag", key = "{#userIdentifier}")
     @Override
@@ -65,6 +53,12 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
             cachedFlags.setFlags(flags);
             return Mono.just(cachedFlags);
         });
+    }
+
+    @Cache(cacheName = "featureFlag", key = "{#userIdentifier}")
+    @Override
+    public Mono<CachedFlags> updateUserCachedFlags(String userIdentifier, CachedFlags cachedFlags) {
+        return Mono.just(cachedFlags);
     }
 
     private Mono<Map<String, Object>> getUserDefaultTraits(User user) {
@@ -104,11 +98,12 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     private Mono<Map<String, Boolean>> forceAllRemoteFeatureFlagsForUser(String userIdentifier, User user) {
         Mono<String> instanceIdMono = configService.getInstanceId();
         // TODO: Convert to current tenant when the feature is enabled
-        Mono<String> defaultTenantIdMono = tenantService.getDefaultTenantId();
-        return Mono.zip(instanceIdMono, defaultTenantIdMono, getUserDefaultTraits(user))
+        Mono<Tenant> defaultTenantMono = tenantRepository.findBySlug(DEFAULT);
+        return Mono.zip(instanceIdMono, defaultTenantMono, getUserDefaultTraits(user))
                 .flatMap(objects -> {
+                    String tenantId = objects.getT2().getId();
                     return this.getRemoteFeatureFlagsByIdentity(new FeatureFlagIdentityTraits(
-                            objects.getT1(), objects.getT2(), Set.of(userIdentifier), objects.getT3()));
+                            objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3()));
                 })
                 .map(newValue -> newValue.get(userIdentifier));
     }
@@ -122,7 +117,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
      */
     private Mono<Map<String, Map<String, Boolean>>> getRemoteFeatureFlagsByIdentity(
             FeatureFlagIdentityTraits featureFlagIdentityTraits) {
-        return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
+        return WebClientUtils.create(cloudServicesConfig.getBaseUrlWithSignatureVerification())
                 .post()
                 .uri("/api/v1/feature-flags")
                 .body(BodyInserters.fromValue(featureFlagIdentityTraits))
@@ -148,44 +143,25 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     }
 
     /**
-     * To fetch the tenant current features via cache
-     * @param tenantId Id of the tenant
-     * @return Mono of CachedFeatures
-     */
-    @Cache(cacheName = "tenantCurrentFeatures", key = "{#tenantId}")
-    @Override
-    public Mono<CachedFeatures> fetchCachedTenantCurrentFeatures(String tenantId) {
-        // TODO: Add logic to fetch default or current features from persistent storage
-        // TODO: Store the current features to DB for safe storage
-        // TODO: Update cache and persistent storage with newFeatures when migration is applied
-        return Mono.empty();
-    }
-
-    /**
-     * To evict the tenant current features cache
-     * @param tenantId Id of the tenant
-     * @return Mono of Void
-     */
-    @CacheEvict(cacheName = "tenantCurrentFeatures", key = "{#tenantId}")
-    @Override
-    public Mono<Void> evictCachedTenantCurrentFeatures(String tenantId) {
-        return Mono.empty();
-    }
-
-    /**
      * To fetch the tenant new features via cache
      * @param tenantId Id of the tenant
      * @return Mono of CachedFeatures
      */
     @Cache(cacheName = "tenantNewFeatures", key = "{#tenantId}")
     @Override
-    public Mono<CachedFeatures> fetchCachedTenantNewFeatures(String tenantId) {
+    public Mono<CachedFeatures> fetchCachedTenantFeatures(String tenantId) {
         return this.forceAllRemoteFeaturesForTenant(tenantId).flatMap(flags -> {
             CachedFeatures cachedFeatures = new CachedFeatures();
             cachedFeatures.setRefreshedAt(Instant.now());
             cachedFeatures.setFeatures(flags);
             return Mono.just(cachedFeatures);
         });
+    }
+
+    @Cache(cacheName = "tenantNewFeatures", key = "{#tenantId}")
+    @Override
+    public Mono<CachedFeatures> updateCachedTenantFeatures(String tenantId, CachedFeatures cachedFeatures) {
+        return Mono.just(cachedFeatures);
     }
 
     /**
@@ -195,7 +171,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
      */
     @CacheEvict(cacheName = "tenantNewFeatures", key = "{#tenantId}")
     @Override
-    public Mono<Void> evictCachedTenantNewFeatures(String tenantId) {
+    public Mono<Void> evictCachedTenantFeatures(String tenantId) {
         return Mono.empty();
     }
 
@@ -217,16 +193,19 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     return featuresRequestDTO;
                 })
                 .flatMap(this::getRemoteFeaturesForTenant)
-                .map(featuresMap -> featuresMap.getFeatures());
+                .map(responseDTO -> CollectionUtils.isNullOrEmpty(responseDTO.getFeatures())
+                        ? new HashMap<>()
+                        : responseDTO.getFeatures());
     }
 
     /**
-     * To get all tenant features from Cloud Services
+     * To get all tenant features from Cloud Services.
      * @param featuresRequestDTO FeaturesRequestDTO
      * @return Mono of Map
      */
+    @Override
     public Mono<FeaturesResponseDTO> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO) {
-        return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
+        return WebClientUtils.create(cloudServicesConfig.getBaseUrlWithSignatureVerification())
                 .post()
                 .uri("/api/v1/business-features")
                 .body(BodyInserters.fromValue(featuresRequestDTO))
@@ -244,7 +223,8 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                         e -> !(e instanceof AppsmithException),
                         e -> new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage()))
                 .onErrorResume(error -> {
-                    log.debug("Received error from CS while fetching features: {}", error.getMessage());
+                    log.error("Received error from CS while fetching features: {}", error.getMessage(), error);
+                    // Don't throw the exception as the downstream method expects a valid response even if API fails
                     return Mono.just(new FeaturesResponseDTO());
                 });
     }

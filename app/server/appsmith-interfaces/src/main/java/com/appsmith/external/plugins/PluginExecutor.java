@@ -8,6 +8,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.TriggerRequestDTO;
@@ -21,6 +22,7 @@ import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -312,5 +314,24 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
 
     default Mono<DatasourceConfiguration> getDatasourceMetadata(DatasourceConfiguration datasourceConfiguration) {
         return Mono.just(datasourceConfiguration);
+    }
+
+    /**
+     * This method is supposed to provide help with any update required to template queries that are used to create
+     * the actual select, updated, insert etc. queries as part of the generate CRUD page feature. Any plugin that
+     * needs special handling should override this method. e.g. in case of the S3 plugin some special handling is
+     * required because (a) it uses UQI config form (b) it has concept of bucket instead of table.
+     */
+    default Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(
+            List<ActionConfiguration> actionConfigurationList, Object... args) {
+        return Mono.empty();
+    }
+
+    /*
+     * This method returns ActionConfiguration required in order to fetch preview data,
+     * that needs to be shown on datasource review page.
+     */
+    default ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
+        return null;
     }
 }

@@ -43,7 +43,7 @@ import {
   MediaCaptureActionTypes,
   MediaCaptureStatusTypes,
 } from "../constants";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
 import { getVideoConstraints } from "../../utils";

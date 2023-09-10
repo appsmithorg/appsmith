@@ -10,7 +10,7 @@ import type {
   IPanelStack,
   PropertyPaneNavigationConfig,
 } from "../types";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   getPropertyPanePanelNavigationConfig,
   getSectionId,

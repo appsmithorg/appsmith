@@ -95,6 +95,10 @@ import {
   onUpdateFilterSuccess,
 } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConstants";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -130,6 +134,8 @@ interface ReduxStateProps {
   defaultKeyValueArrayConfig: Array<string>;
   initialValue: Datasource | ApiDatasourceForm | undefined;
   showDebugger: boolean;
+  isEnabledForDSViewModeSchema: boolean;
+  isPluginAllowedToPreviewData: boolean;
 }
 
 const Form = styled.div`
@@ -155,18 +161,17 @@ export const DSEditorWrapper = styled.div`
 `;
 
 export const CalloutContainer = styled.div<{
-  isSideBarPresent: boolean;
+  viewMode: boolean;
 }>`
-  width: 30vw; 
+  width: 30vw;
   margin-top: 24px;
-  margin-left ${(props) => (props.isSideBarPresent ? "24px" : "0px")}
+  margin-left: ${(props) => (!props.viewMode ? "24px" : "0px")};
 `;
 
 export type DatasourceFilterState = {
   id: string;
   name: string;
   userPermissions: string[];
-  showFilterPane: boolean;
 };
 
 /*
@@ -226,7 +231,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         id: DEFAULT_ENV_ID,
         name: "",
         userPermissions: [],
-        showFilterPane: false,
       },
       unblock: () => {
         return undefined;
@@ -503,12 +507,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     }
   }
 
-  updateFilter = (
-    id: string,
-    name: string,
-    userPermissions: string[],
-    showFilterPane: boolean,
-  ) => {
+  updateFilter = (id: string, name: string, userPermissions: string[]) => {
     if (id.length > 0 && this.state.filterParams.id !== id) {
       if (
         !isEmpty(this.props.formData) &&
@@ -519,36 +518,18 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           showDialog: true,
           switchFilterBlocked: true,
           navigation: () => {
-            this.updateFilterSuccess(id, name, userPermissions, showFilterPane);
+            this.updateFilterSuccess(id, name, userPermissions);
           },
         });
         return false;
       } else {
         this.props.resetForm(this.props.formName);
       }
-      return this.updateFilterSuccess(
-        id,
-        name,
-        userPermissions,
-        showFilterPane,
-      );
+      return this.updateFilterSuccess(id, name, userPermissions);
     } else if (
       !isStorageEnvironmentCreated(this.props.formData as Datasource, id)
     ) {
-      return this.updateFilterSuccess(
-        id,
-        name,
-        userPermissions,
-        showFilterPane,
-      );
-    } else if (showFilterPane !== this.state.filterParams.showFilterPane) {
-      // In case just the viewmode changes but the id remains the same
-      this.setState({
-        filterParams: {
-          ...this.state.filterParams,
-          showFilterPane,
-        },
-      });
+      return this.updateFilterSuccess(id, name, userPermissions);
     }
     return true;
   };
@@ -557,7 +538,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     id: string,
     name: string,
     userPermissions: string[],
-    showFilterPane: boolean,
   ) => {
     onUpdateFilterSuccess(id);
     const { datasourceStorages } = this.props.datasource as Datasource;
@@ -610,14 +590,19 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         },
       });
     }
-
+    AnalyticsUtil.logEvent("SWITCH_ENVIRONMENT", {
+      fromEnvId: this.state.filterParams.id,
+      toEnvId: id,
+      fromEnvName: this.state.filterParams.name,
+      toEnvName: name,
+      mode: "CONFIGURATION",
+    });
     // This is the event that changes the filter and updates the datasource
     this.setState({
       filterParams: {
         id,
         name,
         userPermissions,
-        showFilterPane,
       },
     });
     this.blockRoutes();
@@ -663,7 +648,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   // function to render toast message.
   renderToast() {
-    const { datasource } = this.props;
+    const { datasource, viewMode } = this.props;
     const environmentId = this.getEnvironmentId() || "";
     const path = `datasourceStorages.${environmentId}.toastMessage`;
     const toastMessage = this.decodeToastMessage(
@@ -673,7 +658,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     );
     if (toastMessage.message)
       return (
-        <CalloutContainer isSideBarPresent={!!this.state.filterParams.name}>
+        <CalloutContainer viewMode={viewMode}>
           <Callout
             isClosable
             kind={toastMessage.kind as CalloutKind}
@@ -732,7 +717,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             pageId={pageId}
             pluginName={pluginName}
             pluginPackageName={pluginPackageName}
-            showFilterComponent={this.state.filterParams.showFilterPane}
           />
           {this.renderSaveDisacardModal()}
         </>
@@ -750,11 +734,12 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           formData={formData}
           formName={DATASOURCE_DB_FORM}
           hiddenHeader={isInsideReconnectModal}
+          isEnabledForDSViewModeSchema={this.props.isEnabledForDSViewModeSchema}
+          isPluginAllowedToPreviewData={this.props.isPluginAllowedToPreviewData}
           isSaving={isSaving}
           pageId={pageId}
           pluginType={pluginType}
           setupConfig={this.setupConfig}
-          showFilterComponent={this.state.filterParams.showFilterPane}
           viewMode={viewMode && !isInsideReconnectModal}
         />
         {this.renderSaveDisacardModal()}
@@ -793,8 +778,10 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       formData,
       history,
       isDeleting,
+      isEnabledForDSViewModeSchema,
       isInsideReconnectModal,
       isNewDatasource,
+      isPluginAllowedToPreviewData,
       isPluginAuthorized,
       isSaving,
       isTesting,
@@ -855,6 +842,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             datasourceId={datasourceId}
             isDeleting={isDeleting}
             isNewDatasource={isNewDatasource}
+            isNewQuerySecondaryButton={
+              isEnabledForDSViewModeSchema && isPluginAllowedToPreviewData
+            }
             isPluginAuthorized={isPluginAuthorized}
             pluginImage={pluginImage}
             pluginName={pluginName}
@@ -867,7 +857,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           <ResizerContentContainer className="db-form-resizer-content">
             <DSEditorWrapper>
               <DSDataFilter
-                datasourceId={datasourceId}
                 filterId={this.state.filterParams.id}
                 isInsideReconnectModal={!!isInsideReconnectModal}
                 pluginName={pluginName}
@@ -899,7 +888,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                     pluginPackageName={pluginPackageName}
                     pluginType={pluginType as PluginType}
                     setDatasourceViewMode={setDatasourceViewMode}
-                    showFilterComponent={this.state.filterParams.showFilterPane}
                     triggerSave={triggerSave}
                     viewMode={viewMode}
                   />
@@ -999,6 +987,16 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId,
   );
 
+  //   A/B feature flag for datasource view mode preview data.
+  const isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.ab_gsheet_schema_enabled,
+  );
+
+  // should plugin be able to preview data
+  const isPluginAllowedToPreviewData =
+    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "");
+
   return {
     canCreateDatasourceActions,
     canDeleteDatasource,
@@ -1016,6 +1014,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource,
+    isEnabledForDSViewModeSchema,
+    isPluginAllowedToPreviewData,
     pageId: props.pageId ?? props.match?.params?.pageId,
     viewMode,
     pluginType: plugin?.type ?? "",

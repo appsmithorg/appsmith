@@ -4,9 +4,13 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -171,5 +175,81 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 })
                 .switchIfEmpty(fetchAndStoreNewStructureMono)
                 .defaultIfEmpty(new DatasourceStructure());
+    }
+
+    @Override
+    public Mono<ActionExecutionResult> getSchemaPreviewData(
+            String datasourceId, String environmentId, Template queryTemplate) {
+        return datasourceService
+                .findById(datasourceId, datasourcePermission.getExecutePermission())
+                .zipWhen(datasource -> datasourceService.getTrueEnvironmentId(
+                        datasource.getWorkspaceId(),
+                        environmentId,
+                        datasource.getPluginId(),
+                        environmentPermission.getExecutePermission()))
+                .flatMap(tuple -> {
+                    Datasource datasource = tuple.getT1();
+                    String trueEnvironmentId = tuple.getT2();
+                    return datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
+                            datasource, trueEnvironmentId);
+                })
+                .flatMap(datasourceStorage -> getSchemaPreviewData(datasourceStorage, queryTemplate))
+                .onErrorMap(e -> {
+                    if (!(e instanceof AppsmithPluginException)) {
+                        return new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_GET_PREVIEW_DATA_ERROR, e.getMessage());
+                    }
+
+                    return e;
+                })
+                .onErrorResume(error -> {
+                    ActionExecutionResult result = new ActionExecutionResult();
+                    result.setErrorInfo(error);
+                    return Mono.just(result);
+                });
+    }
+
+    private Mono<ActionExecutionResult> getSchemaPreviewData(
+            DatasourceStorage datasourceStorage, Template queryTemplate) {
+        if (Boolean.FALSE.equals(datasourceStorage.getIsValid())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE));
+        }
+
+        return pluginExecutorHelper
+                .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())))
+                .flatMap(pluginExecutor -> {
+                    ActionConfiguration actionConfig = ((PluginExecutor<Object>) pluginExecutor)
+                            .getSchemaPreviewActionConfig(queryTemplate, datasourceStorage.getIsMock());
+                    // actionConfig will be null for plugins which do not have this functionality yet
+                    // Currently its only implemented for PostgreSQL, to be added subsequently for MySQL as well
+                    if (actionConfig != null) {
+                        return datasourceContextService.retryOnce(
+                                datasourceStorage, resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
+                                        .executeParameterized(
+                                                resourceContext.getConnection(),
+                                                null,
+                                                datasourceStorage.getDatasourceConfiguration(),
+                                                actionConfig));
+                    } else {
+                        return Mono.error(
+                                new AppsmithPluginException(AppsmithPluginError.PLUGIN_UNSUPPORTED_OPERATION));
+                    }
+                })
+                .onErrorMap(
+                        StaleConnectionException.class,
+                        error -> new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Appsmith server found a secondary stale connection. Please reach out to appsmith "
+                                        + "customer support to resolve this."))
+                .onErrorMap(e -> {
+                    log.error("In the datasourceStorage fetching preview data error mode.", e);
+                    if (!(e instanceof AppsmithPluginException)) {
+                        return new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_GET_PREVIEW_DATA_ERROR, e.getMessage());
+                    }
+                    return e;
+                });
     }
 }

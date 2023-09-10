@@ -862,7 +862,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ClickButton("Got it");
     deployMode.DeployApp();
 
     //Validating loaded table
@@ -878,7 +878,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
 
     //Validating loaded JSON form
-    cy.xpath(locators._spanButton("Update")).then((selector) => {
+    cy.xpath(locators._buttonByText("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {

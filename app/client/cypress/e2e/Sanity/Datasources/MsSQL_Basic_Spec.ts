@@ -8,7 +8,7 @@ import {
   draggableWidgets,
   entityExplorer,
   table,
-  tedTestConfig,
+  dataManager,
   locators,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
@@ -90,12 +90,6 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       dataSources.RunQuery();
     });
     //agHelper.ActionContextMenuWithInPane("Delete"); Since next case can continue in same template
-    featureFlagIntercept(
-      {
-        ab_ds_binding_enabled: false,
-      },
-      false,
-    );
     agHelper.RefreshPage();
   });
 
@@ -260,15 +254,15 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       agHelper.WaitUntilAllToastsDisappear();
       agHelper.UpdateInputValue(
         dataSources._host,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mssql_host,
+        dataManager.dsValues[dataManager.defaultEnviorment].mssql_host,
       );
       agHelper.UpdateInputValue(
         dataSources._username,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mssql_username,
+        dataManager.dsValues[dataManager.defaultEnviorment].mssql_username,
       );
       agHelper.UpdateInputValue(
         dataSources._password,
-        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mssql_password,
+        dataManager.dsValues[dataManager.defaultEnviorment].mssql_password,
       );
       agHelper.GetNClick(locators._visibleTextSpan("Read only"));
       dataSources.ValidateNSelectDropdown(

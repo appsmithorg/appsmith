@@ -57,11 +57,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
     dataSources.RunQueryNVerifyResponseViews();
-    agHelper.ActionContextMenuWithInPane({
-      action: "Delete",
-      entityType: entityItems.Query,
-    });
-
     entityExplorer.ExpandCollapseEntity("Datasources");
     entityExplorer.ExpandCollapseEntity(dsName);
     entityExplorer.ActionContextMenuByEntityName({
@@ -82,6 +77,11 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
+    entityExplorer.SelectEntityByName("CreateVessels");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 
   it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Vessels", () => {
@@ -93,7 +93,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     assertHelper.AssertNetworkStatus("@getActions", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
     deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
 
@@ -131,7 +131,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
 
     //Validating loaded JSON form
-    cy.xpath(locators._spanButton("Update")).then((selector) => {
+    cy.xpath(locators._buttonByText("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
@@ -197,7 +197,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertElementVisibility(
       locators._visibleTextDiv("This field is required"),
     );
-    cy.xpath(locators._spanButton("Update") + "/parent::div").should(
+    cy.xpath(locators._buttonByText("Update") + "/parent::div").should(
       "have.attr",
       "disabled",
     );
@@ -455,12 +455,12 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     //Checking Required field validations
     deployMode.ClearJSONFieldValue("Shipname", 0);
-    cy.xpath(locators._spanButton("Submit") + "/parent::div").should(
+    cy.xpath(locators._buttonByText("Submit") + "/parent::div").should(
       "have.attr",
       "disabled",
     );
     deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 0);
-    cy.xpath(locators._spanButton("Submit") + "/parent::div").should(
+    cy.xpath(locators._buttonByText("Submit") + "/parent::div").should(
       "not.have.attr",
       "disabled",
     );
@@ -531,7 +531,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertElementVisibility(
       locators._visibleTextDiv("This field is required"),
     );
-    cy.xpath(locators._spanButton("Submit") + "/parent::div").should(
+    cy.xpath(locators._buttonByText("Submit") + "/parent::div").should(
       "have.attr",
       "disabled",
     );

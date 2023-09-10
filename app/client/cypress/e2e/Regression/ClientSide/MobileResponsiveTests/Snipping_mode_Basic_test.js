@@ -1,15 +1,13 @@
-const queryLocators = require("../../../../locators/QueryEditor.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 
 let datasourceName;
 
 describe("Add widget - Postgress DataSource", function () {
   beforeEach(() => {
-    cy.startRoutesForDatasource();
-    cy.createPostgresDatasource();
-    cy.get("@saveDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
+    _.dataSources.CreateDataSource("Postgres");
+    cy.get("@dsName").then(($dsName) => {
+      datasourceName = $dsName;
     });
   });
 
@@ -22,9 +20,7 @@ describe("Add widget - Postgress DataSource", function () {
     _.dataSources.EnterQuery("select * from public.configs");
     cy.WaitAutoSave();
     cy.runQuery();
-    cy.get(queryEditor.suggestedTableWidget).click();
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("Table1");
+    _.dataSources.AddSuggestedWidget(Widgets.Table);
     cy.isSelectRow(1);
     cy.readTableV2dataPublish("1", "0").then((tabData) => {
       cy.log("the value is " + tabData);

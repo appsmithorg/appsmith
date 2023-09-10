@@ -52,6 +52,44 @@ export const initLocalstorage = () => {
   });
 };
 
+export const addIndexedDBKey = (key, value) => {
+  cy.window().then((window) => {
+    // Opening the database
+    const request = window.indexedDB.open("Appsmith", 2);
+
+    // Handling database opening success
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+
+      // Creating a transaction to access the object store : keyvaluepairs
+      const transaction = db.transaction(["keyvaluepairs"], "readwrite");
+      const objectStore = transaction.objectStore("keyvaluepairs");
+
+      // Adding the key
+      const addRequest = objectStore.put(value, key);
+
+      // Handling add success
+      addRequest.onsuccess = () => {
+        console.log("Key added successfully");
+        // Closing the database connection
+        db.close();
+      };
+
+      // Handling add error
+      addRequest.onerror = (event) => {
+        console.log("Error adding key:", event.target.error);
+        // Closing the database connection
+        db.close();
+      };
+    };
+
+    // Handling database opening error
+    request.onerror = (event) => {
+      console.log("Error opening database:", event.target.error);
+    };
+  });
+};
+
 // Cypress.Commands.add("goToEditFromPublish", () => {
 //   cy.url().then((url) => {
 //     const urlObject = new URL(url);
@@ -846,7 +884,7 @@ Cypress.Commands.add("changeButtonColor", (buttonColor) => {
   cy.get(widgetsPage.buttonColor)
     .click({ force: true })
     .clear()
-    .type(buttonColor);
+    .type(buttonColor, { delay: 0 });
   deployMode.DeployApp();
   cy.get(widgetsPage.widgetBtn).should(
     "have.css",
@@ -1203,77 +1241,59 @@ Cypress.Commands.add("ValidatePublishTableV2Data", (value) => {
   });
 });
 
-Cypress.Commands.add(
-  "ValidatePaginateResponseUrlData",
-  (runTestCss, isNext) => {
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get(".t--entity-name").contains("Api2").click({ force: true });
-    cy.wait(3000);
-    cy.NavigateToPaginationTab();
-    cy.RunAPI();
-    cy.get(ApiEditor.apiPaginationNextTest).click();
-    cy.wait("@postExecute");
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.get(runTestCss).click();
-    cy.wait("@postExecute").then((interception) => {
-      let valueToTest = JSON.stringify(
-        interception.response.body.data.body[0].name,
-      );
+Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
+  cy.CheckAndUnfoldEntityItem("Queries/JS");
+  cy.get(".t--entity-name").contains("Api2").click({ force: true });
+  cy.wait(3000);
+  cy.NavigateToPaginationTab();
+  cy.RunAPI();
+  cy.get(ApiEditor.apiPaginationNextTest).click();
+  cy.wait("@postExecute");
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.get(runTestCss).click();
+  cy.wait(2000);
+  cy.xpath("//div[@class='tr'][1]//div[@class='td'][6]//span")
+    .invoke("text")
+    .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       cy.get(".t--entity-name").contains("Table1").click({ force: true });
       cy.isSelectRow(0);
-      if (isNext) {
-        cy.wait("@postExecute").then((interception) => {
-          valueToTest = JSON.stringify(
-            interception.response.body.data.body[0].name,
-          );
-        });
-      }
       cy.readTabledata("0", "5").then((tabData) => {
         const tableData = tabData;
-        expect(`\"${tableData}\"`).to.equal(valueToTest);
+        expect(tableData).to.equal(valueToTest);
       });
     });
-  },
-);
+});
 
-Cypress.Commands.add(
-  "ValidatePaginateResponseUrlDataV2",
-  (runTestCss, isNext) => {
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get(".t--entity-name").contains("Api2").click({ force: true });
-    cy.wait(3000);
-    cy.NavigateToPaginationTab();
-    cy.RunAPI();
-    cy.get(ApiEditor.apiPaginationNextTest).click();
-    cy.wait("@postExecute");
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.get(runTestCss).click();
-    cy.wait("@postExecute").then((interception) => {
-      let valueToTest = JSON.stringify(
-        interception.response.body.data.body[0].name,
-      );
+Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
+  cy.CheckAndUnfoldEntityItem("Queries/JS");
+  cy.get(".t--entity-name").contains("Api2").click({ force: true });
+  cy.wait(3000);
+  cy.NavigateToPaginationTab();
+  cy.RunAPI();
+  cy.get(ApiEditor.apiPaginationNextTest).click();
+  cy.wait("@postExecute");
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.get(runTestCss).click();
+  cy.wait(2000);
+  cy.xpath("//div[@class='tr'][1]//div[@class='td'][6]//span")
+    .invoke("text")
+    .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       cy.get(".t--entity-name").contains("Table1").click({ force: true });
+      cy.wait(2000);
       cy.isSelectRow(0);
-      if (isNext) {
-        cy.wait("@postExecute").then((interception) => {
-          valueToTest = JSON.stringify(
-            interception.response.body.data.body[0].name,
-          );
-        });
-      }
       cy.readTableV2data("0", "5").then((tabData) => {
         const tableData = tabData;
-        expect(`\"${tableData}\"`).to.equal(valueToTest);
+        cy.log(valueToTest);
+        expect(tableData).to.equal(valueToTest);
       });
     });
-  },
-);
+});
 
 Cypress.Commands.add("ValidatePaginationInputData", (valueToTest) => {
   cy.isSelectRow(0);
@@ -2183,7 +2203,7 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 });
 
 Cypress.Commands.add("skipSignposting", () => {
-  onboarding.closeIntroModal();
+  onboarding.skipSignposting();
 });
 
 Cypress.Commands.add("stubPricingPage", () => {

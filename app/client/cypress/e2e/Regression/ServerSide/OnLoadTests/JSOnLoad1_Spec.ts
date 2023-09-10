@@ -8,6 +8,7 @@ import {
   dataSources,
   table,
   entityItems,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 let dsName: any, jsName: any;
 
@@ -60,7 +61,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       jsEditor.ConfirmationClick("Yes");
       agHelper.Sleep(1000);
     });
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("2");
     });
@@ -111,7 +112,7 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   //Skipping due to - "tableData":"ERROR: invalid input syntax for type smallint: "{}""
-  it.skip("4. Tc 53 - Verify OnPage Load - Enabled & Disabling - Before Function calling for JSOBject", function () {
+  it("4. Tc 53 - Verify OnPage Load - Enabled & Disabling - Before Function calling for JSOBject", function () {
     entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
     //jsEditor.RunJSObj(); //Even running JS functin before delpoying does not help
@@ -123,7 +124,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     );
     // assert that on view mode, we don't get "successful run" toast message for onpageload actions
     agHelper.AssertElementAbsence(locators._specificToast("ran successfully")); //failed toast is appearing hence skipping
-    agHelper.AssertNetworkExecutionSuccess("@postExecute");
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("2");
     });

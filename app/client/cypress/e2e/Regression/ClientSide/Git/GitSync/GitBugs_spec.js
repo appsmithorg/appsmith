@@ -4,7 +4,7 @@ import homePageLocators from "../../../../../locators/HomePage";
 import {
   agHelper,
   entityExplorer,
-  tedTestConfig,
+  dataManager,
   gitSync,
   homePage,
   jsEditor,
@@ -286,7 +286,7 @@ describe("Git sync Bug #10773", function () {
           `generateKey-${repoName}`,
         );
         cy.get(gitSyncLocators.gitRepoInput).type(
-          `{selectAll}${tedTestConfig.GITEA_API_URL_TED}/${repoName}.git`,
+          `{selectAll}${dataManager.GITEA_API_URL_TED}/${repoName}.git`,
         );
         // abort git flow after generating key
         cy.get(gitSyncLocators.closeGitSyncModal).click();

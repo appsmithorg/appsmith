@@ -15,7 +15,7 @@ import type {
 } from "../constants";
 import { ActionUpdateDependency } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { dateFormatOptions } from "widgets/constants";
+import { dateFormatOptions } from "WidgetProvider/constants";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { Colors } from "constants/Colors";
@@ -95,8 +95,9 @@ export const isValidType = (value: string) =>
     moment(value, format, true).isValid(),
   );
 
-const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: string) =>
-  !schemaItem.isRequired || Boolean(value?.trim());
+const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: unknown) =>
+  !schemaItem.isRequired ||
+  (typeof value === "string" && Boolean(value?.trim()));
 
 function DateField({
   fieldClassName,
