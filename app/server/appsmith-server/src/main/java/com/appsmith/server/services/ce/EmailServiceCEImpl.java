@@ -1,7 +1,10 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.*;
+import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.TenantService;
 import org.apache.commons.lang3.StringUtils;
@@ -83,7 +86,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         return this.enrichParams(params)
                 .flatMap(updatedParams -> emailSender.sendMail(
                         user.getEmail(),
-                        INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT,
+                        String.format(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
                         INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE,
                         updatedParams));
     }
