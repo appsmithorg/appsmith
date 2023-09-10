@@ -37,6 +37,8 @@ export type NavigationData = {
   isMock?: boolean;
   datasourceId?: string;
   actionType?: string;
+  widgetType?: string;
+  value?: boolean | string;
 };
 export type EntityNavigationData = Record<string, NavigationData>;
 
@@ -120,6 +122,7 @@ export const getEntitiesForNavigation = createSelector(
         type: ENTITY_TYPE.WIDGET,
         url: widgetURL({ pageId, selectedWidgets: [widget.widgetId] }),
         children: result?.childNavData || {},
+        widgetType: widget.type,
       });
     });
     if (

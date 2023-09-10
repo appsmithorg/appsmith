@@ -9,6 +9,7 @@ const _Flex = (props: FlexProps, ref: React.Ref<HTMLDivElement>) => {
     alignItems,
     alignSelf,
     children,
+    className,
     columnGap,
     direction,
     flex,
@@ -38,6 +39,7 @@ const _Flex = (props: FlexProps, ref: React.Ref<HTMLDivElement>) => {
     paddingRight,
     paddingTop,
     rowGap,
+    style,
     width,
     wrap,
   } = props;
@@ -77,8 +79,10 @@ const _Flex = (props: FlexProps, ref: React.Ref<HTMLDivElement>) => {
         $rowGap={rowGap}
         $width={width}
         $wrap={wrap}
+        className={className}
         id={id}
         ref={ref}
+        style={style}
       >
         {children}
       </StyledFlex>

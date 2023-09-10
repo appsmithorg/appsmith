@@ -2,7 +2,6 @@ import React, { lazy, Suspense } from "react";
 
 import Skeleton from "components/utils/Skeleton";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -25,7 +24,11 @@ import {
   MapTypes,
 } from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const MapChartComponent = lazy(() =>
   retryPromise(
@@ -63,6 +66,66 @@ const updateDataSet = (
 };
 
 class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
+  static type = "MAP_CHART_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Map Chart", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.DISPLAY],
+      needsMeta: true, // Defines if this widget adds any meta properties
+      isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+      searchTags: ["graph", "visuals", "visualisations"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 32,
+      columns: 24,
+      widgetName: "MapChart",
+      version: 1,
+      mapType: MapTypes.WORLD,
+      mapTitle: "Global Population",
+      showLabels: true,
+      data: dataSetForWorld,
+      colorRange: [
+        {
+          minValue: 0.5,
+          maxValue: 1.0,
+          code: "#FFD74D",
+        },
+        {
+          minValue: 1.0,
+          maxValue: 2.0,
+          code: "#FB8C00",
+        },
+        {
+          minValue: 2.0,
+          maxValue: 3.0,
+          code: "#E65100",
+        },
+      ],
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -355,10 +418,6 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     return {
       selectedDataPoint: undefined,
     };
-  }
-
-  static getWidgetType(): WidgetType {
-    return "MAP_CHART_WIDGET";
   }
 
   static getStylesheetConfig(): Stylesheet {

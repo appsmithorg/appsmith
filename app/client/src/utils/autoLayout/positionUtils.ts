@@ -28,8 +28,8 @@ import {
   setDimensions,
 } from "./flexWidgetUtils";
 import { getCanvasDimensions } from "./AutoLayoutUtils";
-import WidgetFactory from "utils/WidgetFactory";
-import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+import WidgetFactory from "WidgetProvider/factory";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import { isFunction } from "lodash";
 import {
   getComputedHeight,

@@ -16,6 +16,7 @@ export const createNavData = (general: {
   datasourceId?: string;
   isMock?: boolean;
   actionType?: string;
+  widgetType?: string;
 }): NavigationData => {
   return {
     name: general.name,
@@ -30,5 +31,6 @@ export const createNavData = (general: {
     datasourceId: general.datasourceId,
     isMock: general.isMock,
     actionType: general.actionType,
+    widgetType: general.widgetType,
   };
 };

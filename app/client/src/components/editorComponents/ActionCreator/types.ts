@@ -52,6 +52,7 @@ export type TextViewProps = ViewProps & {
   index?: number;
   additionalAutoComplete?: AdditionalDynamicDataTree;
   toolTip?: string;
+  dataTreePath?: string | undefined;
 };
 
 export type TabViewProps = Omit<ViewProps, "get" | "set"> & SwitcherProps;
@@ -77,6 +78,7 @@ export type ActionCreatorProps = {
   propertyName: string;
   widgetType: string;
   widgetName: string;
+  dataTreePath: string | undefined;
 };
 
 export type Field = {
@@ -114,6 +116,7 @@ export type FieldProps = {
   navigateToSwitches: Array<SwitchType>;
   activeTabApiAndQueryCallback: SwitchType;
   apiAndQueryCallbackTabSwitches: SwitchType[];
+  dataTreePath?: string | undefined;
 };
 
 export type FieldGroupProps = Omit<

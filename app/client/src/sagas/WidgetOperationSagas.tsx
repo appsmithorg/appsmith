@@ -67,8 +67,8 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, get, isString, set, uniq } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
+import _, { cloneDeep, isString, set, uniq } from "lodash";
+import WidgetFactory from "WidgetProvider/factory";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
@@ -169,7 +169,7 @@ import {
 } from "./WidgetBlueprintSagas";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { BlueprintOperationTypes } from "widgets/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { toast } from "design-system";
 
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";

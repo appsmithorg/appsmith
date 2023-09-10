@@ -433,7 +433,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
   });
 
-  it("6. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
+  it("6. Verify Adding Suggested widget with specific name functionality - S3 ", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     dataSources.NavigateFromActiveDS(datasourceName, true);
     agHelper.GetObjectName().then(($queryName) => {
@@ -441,10 +441,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
       agHelper.UpdateCodeInput(formControls.s3BucketName, bucketName);
       dataSources.RunQuery();
-      agHelper.ClickButton("Select widget"); //Binding to dragDropped table
-      agHelper.AssertElementVisibility(dataSources._snippingBanner);
-      agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.TABLE));
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      dataSources.AddSuggestedWidget(
+        Widgets.Table,
+        dataSources._addSuggestedExisting,
+      );
+
       propPane.DeleteWidgetDirectlyFromPropertyPane();
       entityExplorer.SelectEntityByName($queryName, "Queries/JS");
       agHelper.ActionContextMenuWithInPane({
