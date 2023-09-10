@@ -64,6 +64,29 @@ export const CUSTOM_ECHART_FEATURE_FLAG =
 export const FUSION_CHART_DEPRECATION_FLAG =
   FEATURE_FLAG["deprecate_custom_fusioncharts_enabled"];
 
+export const THREE_D_CHART_CONFIGS = [
+  "globe",
+  "geo3D",
+  "mapbox3D",
+  "grid3D",
+  "xAxis3D",
+  "yAxis3D",
+  "zAxis3D",
+];
+
+export const THREE_D_CHART_SERIES_TYPES = [
+  "scatter3D",
+  "bar3D",
+  "line3D",
+  "lines3D",
+  "map3D",
+  "surface",
+  "polygons3D",
+  "scatterGL",
+  "graphGL",
+  "flowGL",
+];
+
 export const CUSTOM_CHART_TYPES = [
   "area2d",
   "bar2d",

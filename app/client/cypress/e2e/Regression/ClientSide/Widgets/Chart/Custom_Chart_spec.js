@@ -1,4 +1,5 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
+const publicWidgetsPage = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
@@ -151,8 +152,8 @@ describe("Chart Widget Functionality around custom chart feature", function () {
       "customechartsconfiguration",
       `{{${JSON.stringify(this.dataSet.Custom3DEChartConfig)}}}`,
     );
-    cy.matchImageSnapshot("3DCustomECharts");
     _.deployMode.DeployApp();
+    cy.get(publicWidgetsPage.chartWidget).matchImageSnapshot("3DCustomECharts");
   });
 
   afterEach(() => {

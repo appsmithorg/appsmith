@@ -1,5 +1,9 @@
 import { get } from "lodash";
 import type { ChartType, ChartSelectedDataPoint } from "../constants";
+import {
+  THREE_D_CHART_CONFIGS,
+  THREE_D_CHART_SERIES_TYPES,
+} from "../constants";
 import { omit, cloneDeep } from "lodash";
 
 export const parseOnDataPointClickParams = (evt: any, chartType: ChartType) => {
@@ -88,52 +92,27 @@ export const getTextWidth = (text: string, font: string) => {
 }
 
 export const is3DChart = (chartConfig: Record<string, unknown>) => {
-  const threeDConfigs = [
-    "globe",
-    "geo3D",
-    "mapbox3D",
-    "grid3D",
-    "xAxis3D",
-    "yAxis3D",
-    "zAxis3D",
-  ];
+  const chartConfigKeys = Object.keys(chartConfig);
 
-  const keys = Object.keys(chartConfig);
-
-  for (const key of keys) {
-    if (threeDConfigs.includes(key)) {
-      return true;
-    }
+  const threeDConfigPresent = chartConfigKeys.some((key) =>
+    THREE_D_CHART_CONFIGS.includes(key),
+  );
+  if (threeDConfigPresent) {
+    return true;
   }
 
   const seriesConfig = chartConfig.series;
   if (Array.isArray(seriesConfig)) {
-    const filtered3DSeriesTypes = seriesConfig.filter((series) => {
-      return isSeriesConfig3D(series);
-    });
-    return filtered3DSeriesTypes.length > 0;
+    return seriesConfig.some((series) => isSeriesConfig3D(series));
   } else {
     return isSeriesConfig3D(seriesConfig);
   }
 };
 
 const isSeriesConfig3D = (seriesConfig: unknown) => {
-  const threeDSeriesTypes = [
-    "scatter3D",
-    "bar3D",
-    "line3D",
-    "lines3D",
-    "map3D",
-    "surface",
-    "polygons3D",
-    "scatterGL",
-    "graphGL",
-    "flowGL",
-  ];
-
-  if (typeof seriesConfig == "object") {
+  if (seriesConfig && typeof seriesConfig == "object") {
     const seriesType = (seriesConfig as Record<string, unknown>).type as string;
-    return threeDSeriesTypes.includes(seriesType);
+    return THREE_D_CHART_SERIES_TYPES.includes(seriesType);
   } else {
     return false;
   }
