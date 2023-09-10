@@ -15,7 +15,7 @@ import type {
 } from "../constants";
 import { ActionUpdateDependency } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { dateFormatOptions } from "widgets/constants";
+import { dateFormatOptions } from "WidgetProvider/constants";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { Colors } from "constants/Colors";

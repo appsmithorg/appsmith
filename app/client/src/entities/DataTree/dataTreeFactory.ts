@@ -12,7 +12,7 @@ import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsRed
 import type { AppTheme } from "entities/AppTheming";
 import log from "loglevel";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetConfigProps } from "WidgetProvider/constants";
 import type {
   ActionDispatcher,
   ActionEntityConfig,

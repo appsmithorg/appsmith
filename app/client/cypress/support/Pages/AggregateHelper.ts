@@ -929,7 +929,7 @@ export class AggregateHelper extends ReusableHelper {
   public AssertAttribute(
     selector: string,
     attribName: string,
-    attribValue: string,
+    attribValue: any,
     index = 0,
   ) {
     return this.GetElement(selector)
@@ -940,7 +940,7 @@ export class AggregateHelper extends ReusableHelper {
   public AssertProperty(
     selector: string,
     propName: string,
-    propValue: boolean,
+    propValue: any,
     index = 0,
   ) {
     return this.GetElement(selector)
@@ -1629,6 +1629,14 @@ export class AggregateHelper extends ReusableHelper {
           expect(editorCursor.line).to.equal(cursor.line);
         });
       });
+  }
+
+  public GetAttribute(selector: string, attribName: string, index = 0) {
+    return this.GetElement(selector).eq(index).invoke("attr", attribName);
+  }
+
+  public AssertClassExists(selector: string, className: string) {
+    this.GetElement(selector).should("have.class", className);
   }
 
   //Not used:
