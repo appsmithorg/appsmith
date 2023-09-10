@@ -17,7 +17,6 @@ import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserIdentifierService;
-import com.appsmith.server.solutions.ce.ScheduledTaskCEImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
@@ -50,12 +49,6 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final MigrationFeatureFlagHelper migrationFeatureFlagHelper;
     private final long featureFlagCacheTimeMin = 120;
-
-    /**
-     * To avoid race condition keep the refresh rate lower than cron execution interval {@link ScheduledTaskCEImpl}
-     * to update the tenant level feature flags
-     */
-    private final long tenantFeaturesCacheTimeMin = 115;
 
     private Mono<Boolean> checkAll(String featureName, User user) {
         Boolean check = check(featureName, user);
@@ -162,43 +155,33 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     public Mono<Void> getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations() {
         return tenantService
                 .getDefaultTenant()
-                .flatMap(defaultTenant -> cacheableFeatureFlagHelper
-                        .fetchCachedTenantFeatures(defaultTenant.getId())
-                        .flatMap(cachedFeatures -> {
-                            if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
-                                    < this.tenantFeaturesCacheTimeMin) {
-                                return Mono.just(cachedFeatures);
-                            } else {
-                                // 1. Fetch current/saved feature flags from cache
-                                // 2. Force update the tenant flags keeping existing flags as fallback in case the API
-                                // call to fetch the flags fails for some reason
-                                // 3. Get the diff and update the flags with pending migrations to be used to run
-                                // migrations selectively
-                                return migrationFeatureFlagHelper
-                                        .getUpdatedFlagsWithPendingMigration(defaultTenant)
-                                        .flatMap(featureFlagWithPendingMigrations -> {
-                                            TenantConfiguration tenantConfig =
-                                                    defaultTenant.getTenantConfiguration() == null
-                                                            ? new TenantConfiguration()
-                                                            : defaultTenant.getTenantConfiguration();
-                                            // We expect the featureFlagWithPendingMigrations to be empty hence
-                                            // verifying for null
-                                            if (featureFlagWithPendingMigrations != null
-                                                    && !featureFlagWithPendingMigrations.equals(
-                                                            tenantConfig.getFeaturesWithPendingMigration())) {
-                                                tenantConfig.setFeaturesWithPendingMigration(
-                                                        featureFlagWithPendingMigrations);
-                                                if (!featureFlagWithPendingMigrations.isEmpty()) {
-                                                    tenantConfig.setMigrationStatus(MigrationStatus.PENDING);
-                                                } else {
-                                                    tenantConfig.setMigrationStatus(MigrationStatus.COMPLETED);
-                                                }
-                                                return tenantService.update(defaultTenant.getId(), defaultTenant);
-                                            }
-                                            return Mono.just(defaultTenant);
-                                        });
-                            }
-                        }))
+                .flatMap(defaultTenant ->
+                        // 1. Fetch current/saved feature flags from cache
+                        // 2. Force update the tenant flags keeping existing flags as fallback in case the API
+                        //    call to fetch the flags fails for some reason
+                        // 3. Get the diff and update the flags with pending migrations to be used to run
+                        //    migrations selectively
+                        migrationFeatureFlagHelper
+                                .getUpdatedFlagsWithPendingMigration(defaultTenant)
+                                .flatMap(featureFlagWithPendingMigrations -> {
+                                    TenantConfiguration tenantConfig = defaultTenant.getTenantConfiguration() == null
+                                            ? new TenantConfiguration()
+                                            : defaultTenant.getTenantConfiguration();
+                                    // We expect the featureFlagWithPendingMigrations to be empty hence
+                                    // verifying only for null
+                                    if (featureFlagWithPendingMigrations != null
+                                            && !featureFlagWithPendingMigrations.equals(
+                                                    tenantConfig.getFeaturesWithPendingMigration())) {
+                                        tenantConfig.setFeaturesWithPendingMigration(featureFlagWithPendingMigrations);
+                                        if (!featureFlagWithPendingMigrations.isEmpty()) {
+                                            tenantConfig.setMigrationStatus(MigrationStatus.PENDING);
+                                        } else {
+                                            tenantConfig.setMigrationStatus(MigrationStatus.COMPLETED);
+                                        }
+                                        return tenantService.update(defaultTenant.getId(), defaultTenant);
+                                    }
+                                    return Mono.just(defaultTenant);
+                                }))
                 .then();
     }
 
@@ -239,9 +222,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                         } else {
                             tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.IN_PROGRESS);
                         }
-                        return tenantService
-                                .update(tenant.getId(), tenant)
-                                .flatMap(this::checkAndExecuteMigrationsForFeatureFlag);
+                        return tenantService.save(tenant).flatMap(this::checkAndExecuteMigrationsForFeatureFlag);
                     }
                     return Mono.error(
                             new AppsmithException(AppsmithError.FeatureFlagMigrationFailure, featureFlagEnum, ""));

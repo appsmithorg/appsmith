@@ -180,4 +180,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
         return clientTenant;
     }
+
+    @Override
+    public Mono<Tenant> save(Tenant tenant) {
+        return repository.save(tenant);
+    }
 }
