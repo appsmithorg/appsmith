@@ -160,4 +160,22 @@ describe("is3DChart", () => {
 
     expect(is3DChart(config)).toEqual(false);
   });
+
+  it("returns false if none of the 3D fields is present and series config is null", () => {
+    const config: Record<string, unknown> = {
+      source: {},
+      series: null,
+    };
+
+    expect(is3DChart(config)).toEqual(false);
+  });
+
+  it("returns false if none of the 3D fields is present and series type is null", () => {
+    const config: Record<string, unknown> = {
+      source: {},
+      series: {},
+    };
+
+    expect(is3DChart(config)).toEqual(false);
+  });
 });
