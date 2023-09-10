@@ -1,0 +1,36 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "appsmith-efs-guardian"
+  },
+  "spec": {
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "name": "appsmith-efs-guardian",
+            "image": "ubuntu",
+            "command": ["/bin/bash"],
+            "args": [],
+            "volumeMounts": [
+              {
+                "name": "appsmith-efs-dp-volume",
+                "mountPath": "/appsmith-stacks"
+              }
+            ]
+          }
+        ],
+        "restartPolicy": "OnFailure",
+        "volumes": [
+          {
+            "name": "appsmith-efs-dp-volume",
+            "persistentVolumeClaim": {
+              "claimName": "appsmith-efs-dp-guardian-claim"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
