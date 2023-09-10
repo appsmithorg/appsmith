@@ -89,8 +89,6 @@ export const assistiveBindingHinter: HintHelper = (
       );
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      // const { data, render, ...rest } = selected; DELETE
-      // const { ENTITY_TYPE, name, pluginType } = data as any; DELETE
       if (!list.length) return false;
 
       AnalyticsUtil.logEvent("ASSISTIVE_JS_BINDING_TRIGGERED", {
