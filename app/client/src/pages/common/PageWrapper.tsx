@@ -3,7 +3,12 @@ import React from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import { Banner } from "@appsmith/utils/licenseHelpers";
-import { getPageTitle, useHtmlPageTitle } from "@appsmith/utils";
+import {
+  getHTMLPageTitle,
+  getPageTitle,
+} from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export const Wrapper = styled.section<{ isFixed?: boolean }>`
   ${(props) =>
@@ -59,12 +64,19 @@ export type PageWrapperProps = {
 
 export function PageWrapper(props: PageWrapperProps) {
   const { isFixed = false, isSavable = false } = props;
-  const titleSuffix = useHtmlPageTitle();
+  const isBrandingEnabled = useFeatureFlag(
+    FEATURE_FLAG.license_branding_enabled,
+  );
+  const htmlPageTitleMethod = getHTMLPageTitle(isBrandingEnabled);
+  const titleSuffix = htmlPageTitleMethod();
+
+  const getPageTitleMethod = getPageTitle(isBrandingEnabled);
+
   return (
     <Wrapper isFixed={isFixed}>
       <Banner />
       <Helmet>
-        <title>{getPageTitle(props.displayName, titleSuffix)}</title>
+        <title>{getPageTitleMethod(props.displayName, titleSuffix)}</title>
       </Helmet>
       <PageBody isSavable={isSavable}>{props.children}</PageBody>
     </Wrapper>

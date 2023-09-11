@@ -14,7 +14,7 @@ import {
   pushToArray,
   concatWithArray,
 } from "./helpers";
-import WidgetFactory from "./WidgetFactory";
+import WidgetFactory from "../WidgetProvider/factory";
 import * as Sentry from "@sentry/react";
 import { Colors } from "constants/Colors";
 
