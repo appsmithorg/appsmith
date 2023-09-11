@@ -20,7 +20,7 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { Icon, Text } from "design-system";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource;
 }
@@ -129,7 +129,7 @@ function ApiAuthentication(props: Props): JSX.Element {
 const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
   const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
-  const currentEnvironment = getCurrentEnvironment();
+  const currentEnvironment = getCurrentEnvironmentId(state);
   let datasourceMerged: EmbeddedRestDatasource = datasourceFromAction;
   if (datasourceFromAction && "id" in datasourceFromAction) {
     const datasourceFromDataSourceList = state.entities.datasources.list.find(
