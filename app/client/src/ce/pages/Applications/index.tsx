@@ -44,10 +44,7 @@ import {
   TextType,
 } from "design-system-old";
 import { Divider, Icon } from "design-system";
-import {
-  setShowAppInviteUsersDialog,
-  updateApplication,
-} from "@appsmith/actions/applicationActions";
+import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import PerformanceTracker, {
@@ -546,10 +543,6 @@ export function ApplicationsSection(props: any) {
     });
   };
 
-  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
-    dispatch(setShowAppInviteUsersDialog(isOpen));
-  }, []);
-
   let updatedWorkspaces;
   if (!isLoadingResources) {
     updatedWorkspaces = userWorkspaces;
@@ -659,7 +652,6 @@ export function ApplicationsSection(props: any) {
                     {canInviteToWorkspace && !isMobile && (
                       <FormDialogComponent
                         Form={WorkspaceInviteUsersForm}
-                        onOpenOrClose={handleFormOpenOrClose}
                         placeholder={createMessage(
                           INVITE_USERS_PLACEHOLDER,
                           cloudHosting,
