@@ -803,11 +803,10 @@ export class DataSources {
     } else {
       this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
     }
+  }
 
-    // cy.wait("@saveDatasource")
-    //     .then((xhr) => {
-    //         cy.log(JSON.stringify(xhr.response!.body));
-    //     }).should("have.nested.property", "response.body.responseMeta.status", 200);
+  public AssertSaveDSButtonDisability(isDisabled = true) {
+    this.agHelper.AssertElementEnabledDisabled(this._saveDs, 0, isDisabled);
   }
 
   public AuthAPISaveAndAuthorize() {
