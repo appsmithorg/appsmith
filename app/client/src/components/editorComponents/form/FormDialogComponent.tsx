@@ -14,7 +14,6 @@ type FormDialogComponentProps = {
   message?: string;
   Form: any;
   onClose?: () => void;
-  onOpenOrClose?: (isOpen: boolean) => void;
   applicationId?: string;
   placeholder?: string;
   hideDefaultTrigger?: boolean;
@@ -29,7 +28,6 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
 
   const setIsOpen = (isOpen: boolean) => {
     setIsModalOpenState(isOpen);
-    props.onOpenOrClose && props.onOpenOrClose(isOpen);
   };
 
   const onOpenChange = (isOpen: boolean) => {
