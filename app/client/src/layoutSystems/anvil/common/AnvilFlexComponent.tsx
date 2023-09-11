@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { useCallback, useMemo } from "react";
 import type { ReactNode } from "react";
 import styled from "styled-components";
@@ -17,7 +16,7 @@ import {
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
-import { RenderModes } from "constants/WidgetConstants";
+import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import type { FlexComponentProps } from "layoutSystems/anvil/utils/autoLayoutTypes";
 
 export type AnvilFlexComponentProps = FlexComponentProps & {
@@ -26,6 +25,7 @@ export type AnvilFlexComponentProps = FlexComponentProps & {
   widgetSize?: { [key: string]: Record<string, string | number> };
 };
 
+// Using a button to wrap the widget to ensure that accessibility features are included by default.
 const FlexComponentWrapper = styled.button<{ onHoverZIndex: number }>`
   padding: 0;
   border: none;
@@ -33,7 +33,8 @@ const FlexComponentWrapper = styled.button<{ onHoverZIndex: number }>`
   font: inherit;
   color: inherit;
   background: none;
-  width: -webkit-fill-available;
+  height: 100%;
+  width: 100%;
   position: relative;
 
   &:hover {
@@ -86,7 +87,21 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     );
 
   const isFillWidget = props.responsiveBehavior === ResponsiveBehavior.Fill;
-  console.log("####", { props });
+
+  const updateMinWidth = (
+    config: Record<string, string | number> | undefined,
+  ): Record<string, string | number> | undefined => {
+    if (!config)
+      return isFillWidget ? { base: "100%", "480px": "" } : undefined;
+    if (!isFillWidget) return config;
+    const minWidth = config["base"];
+    return {
+      ...config,
+      base: "100%",
+      "480px": config["480px"] || minWidth,
+    };
+  };
+
   const flexProps: FlexProps = useMemo(() => {
     return {
       alignSelf: props.flexVerticalAlignment,
@@ -97,14 +112,24 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
         props.hasAutoHeight || isCurrentWidgetResizing
           ? "auto"
           : props.componentHeight.toString(),
-      minHeight: { ...props.widgetSize?.minHeight },
+      maxHeight:
+        props.widgetSize?.maxHeight &&
+        Object.keys(props.widgetSize?.maxHeight).length
+          ? { ...props.widgetSize?.maxHeight }
+          : undefined,
+      maxWidth:
+        props.widgetSize?.maxWidth &&
+        Object.keys(props.widgetSize?.maxWidth).length
+          ? { ...props.widgetSize?.maxWidth }
+          : undefined,
+      minHeight:
+        props.widgetSize?.minHeight &&
+        Object.keys(props.widgetSize?.minHeight).length
+          ? { ...props.widgetSize?.minHeight }
+          : undefined,
       // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
-      minWidth: {
-        ...props.widgetSize?.minWidth,
-        base: isFillWidget
-          ? "100%"
-          : props.widgetSize?.minWidth["base"] || undefined,
-      },
+      minWidth: updateMinWidth(props.widgetSize?.minWidth),
+      padding: WIDGET_PADDING + "px",
       width:
         isFillWidget || props.hasAutoWidth || isCurrentWidgetResizing
           ? "auto"
@@ -120,27 +145,17 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     props.flexVerticalAlignment,
     props.widgetSize,
   ]);
-  console.log("####", { flexProps });
-  // const styleProps: React.CSSProperties = useMemo(() => {
-  //   return {};
-  //   return {
-  //     position: "static",
-  //     "&:hover": {
-  //       zIndex: onHoverZIndex + " !important",
-  //     },
-  //   };
-  // }, [onHoverZIndex]);
 
   return (
-    <FlexComponentWrapper
-      className={className}
-      onClick={stopEventPropagation}
-      onClickCapture={onClickFn}
-      onHoverZIndex={onHoverZIndex}
-    >
-      <Flex alignSelf={props.flexVerticalAlignment} {...flexProps}>
+    <Flex alignSelf={props.flexVerticalAlignment} {...flexProps}>
+      <FlexComponentWrapper
+        className={className}
+        onClick={stopEventPropagation}
+        onClickCapture={onClickFn}
+        onHoverZIndex={onHoverZIndex}
+      >
         {wrappedChildren(props.children)}
-      </Flex>
-    </FlexComponentWrapper>
+      </FlexComponentWrapper>
+    </Flex>
   );
 };

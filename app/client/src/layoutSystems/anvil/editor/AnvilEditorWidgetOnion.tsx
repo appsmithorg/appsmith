@@ -4,7 +4,7 @@ import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponent";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
 import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
-import { AnvileResizableLayer } from "../common/resizer/AnvilResizableLayer";
+import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
 import { FlexVerticalAlignment } from "../utils/constants";
 
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
@@ -45,11 +45,11 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
           type={props.type}
           widgetId={props.widgetId}
         >
-          <AnvileResizableLayer {...props}>
+          <AnvilResizableLayer {...props}>
             <AnvilWidgetComponent {...props}>
               {props.children}
             </AnvilWidgetComponent>
-          </AnvileResizableLayer>
+          </AnvilResizableLayer>
         </DraggableComponent>
       </SnipeableComponent>
     </AnvilFlexComponent>

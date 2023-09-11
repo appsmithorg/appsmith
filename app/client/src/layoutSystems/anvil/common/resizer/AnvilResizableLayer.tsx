@@ -1,7 +1,7 @@
 import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
-export const AnvileResizableLayer = (props: BaseWidgetProps) => {
+export const AnvilResizableLayer = (props: BaseWidgetProps) => {
   if (props.resizeDisabled || props.type === "SKELETON_WIDGET") {
     return props.children;
   }

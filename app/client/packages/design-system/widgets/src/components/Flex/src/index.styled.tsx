@@ -211,7 +211,6 @@ const flexWrapValue = (
 
 const cssVarValue = (value: string) => {
   if (value == null) return;
-  console.log("####", { value });
   if (value.includes("spacing") || value.includes("sizing")) {
     return `var(--${value})`;
   }
