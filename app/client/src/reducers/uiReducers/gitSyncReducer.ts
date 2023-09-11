@@ -24,7 +24,7 @@ const initialState: GitSyncReducerState = {
   localGitConfig: { authorEmail: "", authorName: "" },
 
   isFetchingLocalGitConfig: false,
-  isFetchingGitConfig: false,
+  isFetchingGlobalGitConfig: false,
 
   isMerging: false,
   tempRemoteUrl: "",
@@ -124,7 +124,7 @@ const gitSyncReducer = createReducer(initialState, {
     state: GitSyncReducerState,
   ) => ({
     ...state,
-    isFetchingGitConfig: true,
+    isFetchingGlobalGitConfig: true,
     connectError: null,
     commitAndPushError: null,
     pullError: null,
@@ -135,7 +135,7 @@ const gitSyncReducer = createReducer(initialState, {
     state: GitSyncReducerState,
   ) => ({
     ...state,
-    isFetchingGitConfig: true,
+    isFetchingGlobalGitConfig: true,
     connectError: null,
     commitAndPushError: null,
     pullError: null,
@@ -148,7 +148,7 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     globalGitConfig: action.payload,
-    isFetchingGitConfig: false,
+    isFetchingGlobalGitConfig: false,
   }),
   [ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_SUCCESS]: (
     state: GitSyncReducerState,
@@ -156,19 +156,19 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     globalGitConfig: action.payload,
-    isFetchingGitConfig: false,
+    isFetchingGlobalGitConfig: false,
   }),
   [ReduxActionErrorTypes.UPDATE_GLOBAL_GIT_CONFIG_ERROR]: (
     state: GitSyncReducerState,
   ) => ({
     ...state,
-    isFetchingGitConfig: false,
+    isFetchingGlobalGitConfig: false,
   }),
   [ReduxActionErrorTypes.FETCH_GLOBAL_GIT_CONFIG_ERROR]: (
     state: GitSyncReducerState,
   ) => ({
     ...state,
-    isFetchingGitConfig: false,
+    isFetchingGlobalGitConfig: false,
   }),
   [ReduxActionTypes.FETCH_BRANCHES_INIT]: (state: GitSyncReducerState) => ({
     ...state,
@@ -644,7 +644,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   isCommitSuccessful: boolean;
 
   fetchingBranches: boolean;
-  isFetchingGitConfig: boolean;
+  isFetchingGlobalGitConfig: boolean;
   isFetchingLocalGitConfig: boolean;
 
   isFetchingGitStatus: boolean;

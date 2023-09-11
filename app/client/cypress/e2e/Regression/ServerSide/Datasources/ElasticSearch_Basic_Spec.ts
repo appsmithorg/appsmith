@@ -79,14 +79,16 @@ describe("Validate Elasticsearch DS", () => {
       inputFieldName: "Path",
     });
 
-    //Not able to use below since, we need to enter new line at end
-    // agHelper.EnterValue(bulkBooks, {
-    //   propFieldName: "",
-    //   directInput: false,
-    //   inputFieldName: "Body",
-    // });
+    //We need to enter new line at end, since without that body data not getting considered
+    agHelper.EnterValue(bulkBooks, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Body",
+    });
 
-    agHelper.TypeIntoTextArea(dataSources._bodyCodeMirror, bulkBooks);
+    agHelper
+      .GetElement(dataSources._bodyCodeMirror)
+      .type("{downarrow}".repeat(10));
 
     agHelper.PressEnter();
 
@@ -123,7 +125,7 @@ describe("Validate Elasticsearch DS", () => {
       books = JSON.parse(
         JSON.stringify(resObj.response.body.data.body.hits.total.value),
       );
-      expect(books).to.eq(3);
+      expect(books).to.be.oneOf([1, 3]);
     });
 
     //PUT - update

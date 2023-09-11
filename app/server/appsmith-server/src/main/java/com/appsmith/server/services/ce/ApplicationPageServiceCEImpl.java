@@ -50,6 +50,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.common.base.Strings;
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -1141,7 +1142,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }
-                    Mono<UpdateResult> publishPagesMono =
+                    Mono<List<BulkWriteResult>> publishPagesMono =
                             newPageService.publishPages(editedPageIds, pagePermission.getEditPermission());
 
                     // Archive the deleted pages and save the application changes and then return the pages so that
@@ -1151,7 +1152,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
-        Mono<UpdateResult> publishActionsMono =
+        Mono<List<BulkWriteResult>> publishActionsMono =
                 newActionService.publishActions(applicationId, actionPermission.getEditPermission());
 
         // this is a map of pluginType to count of actions for that pluginType, required for analytics
