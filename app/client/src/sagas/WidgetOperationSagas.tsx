@@ -92,7 +92,7 @@ import {
 } from "entities/Widget/utils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import {
   addChildToPastedFlexLayers,
   getFlexLayersForSelectedWidgets,
@@ -100,7 +100,7 @@ import {
   getNewFlexLayers,
   isStack,
   pasteWidgetInFlexLayers,
-} from "../utils/autoLayout/AutoLayoutUtils";
+} from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type {
   CopiedWidgetGroup,
   NewPastePositionVariables,
@@ -176,12 +176,12 @@ import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,
-} from "utils/autoLayout/positionUtils";
-import { getWidgetWidth } from "utils/autoLayout/flexWidgetUtils";
+} from "layoutSystems/autolayout/utils/positionUtils";
+import { getWidgetWidth } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import {
   FlexLayerAlignment,
   LayoutDirection,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import localStorage from "utils/localStorage";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {

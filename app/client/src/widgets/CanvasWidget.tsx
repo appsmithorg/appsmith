@@ -2,14 +2,11 @@ import {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
-} from "utils/autoLayout/constants";
-import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+} from "layoutSystems/autolayout/utils/constants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import type { CSSProperties } from "react";
 import React from "react";
@@ -27,6 +24,10 @@ import type {
 } from "../WidgetProvider/constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import FlexBoxComponent from "../layoutSystems/autolayout/common/flexCanvas/FlexBoxComponent";
+import { AutoCanvasDraggingArena } from "layoutSystems/autolayout/editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
+import { FixedCanvasDraggingArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
+import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
 
@@ -134,19 +135,34 @@ class CanvasWidget extends ContainerWidget {
       <ContainerComponent {...props}>
         {props.renderMode === RenderModes.CANVAS && (
           <>
-            <CanvasDraggingArena
-              {...this.getSnapSpaces()}
-              alignItems={props.alignItems}
-              canExtend={props.canExtend}
-              direction={direction}
-              dropDisabled={!!props.dropDisabled}
-              noPad={this.props.noPad}
-              parentId={props.parentId}
-              snapRows={snapRows}
-              useAutoLayout={this.props.useAutoLayout}
-              widgetId={props.widgetId}
-              widgetName={props.widgetName}
-            />
+            {
+              //Temporary change, will have better separation logic with Canvas onion implementation
+              !this.props.useAutoLayout ? (
+                <FixedCanvasDraggingArena
+                  {...this.getSnapSpaces()}
+                  canExtend={props.canExtend}
+                  dropDisabled={!!props.dropDisabled}
+                  noPad={this.props.noPad}
+                  parentId={props.parentId}
+                  snapRows={snapRows}
+                  widgetId={props.widgetId}
+                  widgetName={props.widgetName}
+                />
+              ) : (
+                <AutoCanvasDraggingArena
+                  {...this.getSnapSpaces()}
+                  alignItems={props.alignItems}
+                  canExtend={props.canExtend}
+                  direction={direction}
+                  dropDisabled={!!props.dropDisabled}
+                  noPad={this.props.noPad}
+                  parentId={props.parentId}
+                  snapRows={snapRows}
+                  widgetId={props.widgetId}
+                  widgetName={props.widgetName}
+                />
+              )
+            }
             <CanvasSelectionArena
               {...this.getSnapSpaces()}
               canExtend={props.canExtend}
@@ -224,8 +240,10 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  getCanvasView() {
-    if (!this.props.dropDisabled) {
+  getWidgetView() {
+    //ToDo(Ashok): Make sure Layout Factory takes care of render mode based widget view.
+    // untill then this part of the widget will have a abstraction leak.
+    if (!this.props.dropDisabled && this.props.renderMode === "CANVAS") {
       return this.renderAsDropTarget();
     }
     return this.getPageView();

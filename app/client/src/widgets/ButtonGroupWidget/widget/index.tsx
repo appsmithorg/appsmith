@@ -16,7 +16,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { klona as clone } from "klona/full";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
@@ -769,8 +769,8 @@ class ButtonGroupWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
-    const { componentWidth } = this.getComponentDimensions();
+  getWidgetView() {
+    const { componentWidth } = this.props;
     const minPopoverWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
     return (

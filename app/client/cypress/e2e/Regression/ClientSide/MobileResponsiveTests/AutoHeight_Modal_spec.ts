@@ -2,7 +2,7 @@ import { WIDGET_PADDING } from "../../../../../src/constants/WidgetConstants";
 import {
   MOBILE_ROW_GAP,
   ROW_GAP,
-} from "../../../../../src/utils/autoLayout/constants";
+} from "../../../../../src/layoutSystems/autolayout/utils/constants";
 import {
   agHelper,
   autoLayout,

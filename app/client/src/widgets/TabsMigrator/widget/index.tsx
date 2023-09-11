@@ -36,7 +36,7 @@ class TabsMigratorWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return null;
   }
   static getPropertyPaneConfig() {

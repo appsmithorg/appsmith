@@ -296,7 +296,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const { maxZoomLevel, objectFit } = this.props;
     return (
       <ImageComponent

@@ -1,35 +1,43 @@
 import React from "react";
-import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { RenderMode } from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
-import { get } from "lodash";
-import type { Alignment, Spacing } from "utils/autoLayout/constants";
-import { Positioning } from "utils/autoLayout/constants";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import type {
+  Alignment,
+  Spacing,
+} from "layoutSystems/autolayout/utils/constants";
+import { Positioning } from "layoutSystems/autolayout/utils/constants";
+import { generateClassName } from "utils/generators";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import ModalComponent from "../component";
+import { get } from "lodash";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type {
+  AutocompletionDefinitions,
+  FlattenedWidgetProps,
+} from "WidgetProvider/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import ConnectedModal from "./connectModal";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "MODAL_WIDGET";
@@ -443,33 +451,63 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     canEscapeKeyClose: false,
   };
 
-  getView(editMode: boolean) {
+  getModalVisibility() {
+    if (this.props.selectedWidgetAncestry) {
+      return (
+        this.props.selectedWidgetAncestry.includes(this.props.widgetId) ||
+        !!this.props.isVisible
+      );
+    }
+    return !!this.props.isVisible;
+  }
+
+  onModalClose = () => {
+    if (this.props.onClose) {
+      super.executeAction({
+        triggerPropertyName: "onClose",
+        dynamicString: this.props.onClose,
+        event: {
+          type: EventType.ON_MODAL_CLOSE,
+        },
+      });
+    }
+  };
+
+  closeModal = (e: any) => {
+    this.props.updateWidgetMetaProperty("isVisible", false);
+    this.selectWidgetRequest(SelectionRequestType.Empty);
+    // TODO(abhinav): Create a static property with is a map of widget properties
+    // Populate the map on widget load
+    e.stopPropagation();
+    e.preventDefault();
+  };
+
+  makeModalComponent() {
     return (
-      <ConnectedModal
-        editMode={editMode}
-        executeAction={(actionPayload: ExecuteTriggerPayload) => {
-          super.executeAction(actionPayload);
-        }}
-        getErrorCount={this.getErrorCount}
-        selectWidgetRequest={this.selectWidgetRequest}
-        updateWidget={(
-          operationName: string,
-          widgetId: string,
-          widgetProperties: any,
-        ) => {
-          this.updateWidget(operationName, widgetId, widgetProperties);
-        }}
-        {...this.props}
+      <ModalComponent
+        alignment={this.props.alignment}
+        background={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
+        canEscapeKeyClose={!!this.props.canEscapeKeyClose}
+        className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
+        height={this.props.height}
+        isOpen={this.getModalVisibility()}
+        modalChildrenProps={this.props.children || []}
+        onClose={this.closeModal}
+        onModalClose={this.onModalClose}
+        positioning={this.props.positioning}
+        renderMode={this.props.renderMode}
+        scrollContents={!!this.props.shouldScrollContents}
+        shouldScrollContents={!!this.props.shouldScrollContents}
+        spacing={this.props.spacing}
+        widgetId={this.props.widgetId}
+        width={this.props.width}
       />
     );
   }
 
-  getCanvasView() {
-    return this.getView(true);
-  }
-
-  getPageView() {
-    return this.getView(false);
+  getWidgetView() {
+    return this.makeModalComponent();
   }
 }
 export interface ModalWidgetProps extends WidgetProps {
