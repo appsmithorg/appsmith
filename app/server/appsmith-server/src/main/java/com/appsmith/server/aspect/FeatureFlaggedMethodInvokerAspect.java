@@ -78,7 +78,7 @@ public class FeatureFlaggedMethodInvokerAspect {
             Object service = applicationContext
                     .getBeansOfType(targetSuperClass)
                     .get(getSpringDefaultBeanName(targetSuperClass.getSimpleName()));
-            Method superMethod = targetSuperClass.getDeclaredMethod(method.getName(), method.getParameterTypes());
+            Method superMethod = targetSuperClass.getMethod(method.getName(), method.getParameterTypes());
             return superMethod.invoke(service, joinPoint.getArgs());
         } catch (Throwable e) {
             String errorMessage = "Exception while invoking super class method";
