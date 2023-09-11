@@ -31,14 +31,7 @@ describe("MySQL Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable"); //Creating query from EE overlay
     dataSources.RunQuery();
 
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer(inputData.tableName),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName);
 
     //Creating SELECT query
     entityExplorer.ActionTemplateMenuByEntityName(

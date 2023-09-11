@@ -293,12 +293,7 @@ describe("Validate Mongo query commands", function () {
 
   it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
     let id;
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(`${datasourceName}`);
-    cy.get("[data-testid='t--entity-item-listingAndReviews']")
-      .find(".t--template-menu-trigger")
-      .click({ force: true });
-
+    dataSources.AssertTableInVirtuosoList(datasourceName, "listingAndReviews");
     entityExplorer.ActionTemplateMenuByEntityName("listingAndReviews", "Find");
 
     cy.get(`${formControls.mongoCollection} .rc-select-selection-item`)
