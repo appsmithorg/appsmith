@@ -25,7 +25,7 @@ import static java.lang.Boolean.TRUE;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class MigrationFeatureFlagHelper {
+public class FeatureFlagMigrationHelper {
 
     private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
 
@@ -33,7 +33,7 @@ public class MigrationFeatureFlagHelper {
      * To avoid race condition keep the refresh rate lower than cron execution interval {@link ScheduledTaskCEImpl}
      * to update the tenant level feature flags
      */
-    private static final long tenantFeaturesCacheTimeMin = 115;
+    private static final long TENANT_FEATURES_CACHE_TIME_MIN = 115;
 
     public Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration(Tenant defaultTenant) {
         return getUpdatedFlagsWithPendingMigration(defaultTenant, FALSE);
@@ -58,7 +58,7 @@ public class MigrationFeatureFlagHelper {
                 .fetchCachedTenantFeatures(tenant.getId())
                 .zipWhen(existingCachedFlags -> {
                     if (existingCachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
-                                    < tenantFeaturesCacheTimeMin
+                                    < TENANT_FEATURES_CACHE_TIME_MIN
                             && !forceUpdate) {
                         return Mono.just(existingCachedFlags);
                     }

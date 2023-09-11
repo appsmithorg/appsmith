@@ -9,7 +9,7 @@ import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.helpers.MigrationFeatureFlagHelper;
+import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -43,7 +43,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
 
-    private final MigrationFeatureFlagHelper migrationFeatureFlagHelper;
+    private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
     private final long featureFlagCacheTimeMin = 120;
 
     private Mono<Boolean> checkAll(String featureName, User user) {
@@ -157,7 +157,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                         //    call to fetch the flags fails for some reason
                         // 3. Get the diff and update the flags with pending migrations to be used to run
                         //    migrations selectively
-                        migrationFeatureFlagHelper
+                        featureFlagMigrationHelper
                                 .getUpdatedFlagsWithPendingMigration(defaultTenant)
                                 .flatMap(featureFlagWithPendingMigrations -> {
                                     TenantConfiguration tenantConfig = defaultTenant.getTenantConfiguration() == null

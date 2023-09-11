@@ -11,7 +11,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.helpers.MigrationFeatureFlagHelper;
+import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -38,7 +38,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final EnvManager envManager;
 
-    private final MigrationFeatureFlagHelper migrationFeatureFlagHelper;
+    private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
     public TenantServiceCEImpl(
             Scheduler scheduler,
@@ -49,11 +49,11 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
-            MigrationFeatureFlagHelper migrationFeatureFlagHelper) {
+            FeatureFlagMigrationHelper featureFlagMigrationHelper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
-        this.migrationFeatureFlagHelper = migrationFeatureFlagHelper;
+        this.featureFlagMigrationHelper = featureFlagMigrationHelper;
     }
 
     @Override
@@ -201,6 +201,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
      * @param tenant    tenant for which the migrations need to be executed
      * @return          tenant with migrations executed
      */
+    // TODO Write test for thisw method by mocking featureFlagMigrationHelper
     @Override
     public Mono<Tenant> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant) {
         if (tenant.getTenantConfiguration() == null
@@ -212,7 +213,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
         FeatureFlagEnum featureFlagEnum =
                 featureMigrationTypeMap.keySet().stream().findFirst().orElse(null);
-        return migrationFeatureFlagHelper
+        return featureFlagMigrationHelper
                 .checkAndExecuteMigrationsForFeatureFlag(tenant, featureFlagEnum)
                 .flatMap(isSuccessful -> {
                     if (TRUE.equals(isSuccessful)) {

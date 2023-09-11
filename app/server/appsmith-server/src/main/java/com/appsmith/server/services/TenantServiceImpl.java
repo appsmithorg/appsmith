@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.helpers.MigrationFeatureFlagHelper;
+import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import com.appsmith.server.solutions.EnvManager;
@@ -23,7 +23,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
-            MigrationFeatureFlagHelper migrationFeatureFlagHelper) {
+            FeatureFlagMigrationHelper featureFlagMigrationHelper) {
         super(
                 scheduler,
                 validator,
@@ -33,6 +33,6 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 analyticsService,
                 configService,
                 envManager,
-                migrationFeatureFlagHelper);
+                featureFlagMigrationHelper);
     }
 }
