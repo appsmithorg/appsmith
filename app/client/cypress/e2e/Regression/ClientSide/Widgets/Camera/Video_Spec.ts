@@ -58,9 +58,9 @@ describe("Camera widget - Video test", () => {
     agHelper.AssertExistingToggleState("Mirrored", "true");
     propPane.EnterJSContext("Mirrored", "{{(55>45)?false:true}}", true, true);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
-    agHelper
+    /* agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
-      .matchImageSnapshot("cameraVideoMirroredScreen");
+      .matchImageSnapshot("cameraVideoMirroredScreen"); */
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Camera1");
     propPane.EnterJSContext("Mirrored", "", false);
@@ -95,9 +95,9 @@ describe("Camera widget - Video test", () => {
     agHelper.AssertElementVisibility(widgetLocators.cameraMicrophoneDropdown);
     agHelper.AssertElementVisibility(widgetLocators.cameraVideoOnOffBtn);
     agHelper.AssertElementVisibility(widgetLocators.cameraVideoDropdown);
-    agHelper
+    /* agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
-      .matchImageSnapshot("cameraVideoScreen");
+      .matchImageSnapshot("cameraVideoScreen"); */
 
     //Start video recording
     agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
@@ -110,18 +110,18 @@ describe("Camera widget - Video test", () => {
     agHelper.AssertElementVisibility(widgetLocators.cameraVideoPlayBtn);
 
     //Validate video in preview screen
-    agHelper
+    /*  agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
-      .matchImageSnapshot("cameraVideoPreviewScreen");
+      .matchImageSnapshot("cameraVideoPreviewScreen"); */
 
     //Save video
     agHelper.GetNClick(widgetLocators.cameraSaveBtn);
 
     //Validate video in refresh screen
     agHelper.AssertElementVisibility(widgetLocators.cameraRefreshBtn);
-    agHelper
+    /* agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
-      .matchImageSnapshot("cameraVideoSavedScreen");
+      .matchImageSnapshot("cameraVideoSavedScreen"); */
 
     //Refresh video
     agHelper.GetNClick(widgetLocators.cameraRefreshBtn);

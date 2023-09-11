@@ -394,7 +394,7 @@ jobs:
           working-directory: app/client
           env: "NODE_ENV=development"
 
-      - name: Rename reports
+      - name: Rename reports 
         if: always()
         run: |
           mkdir -p ~/results

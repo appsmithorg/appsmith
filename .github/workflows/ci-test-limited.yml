@@ -570,7 +570,7 @@ jobs:
           name: dockerlogs
           path: ~/dockerlogs
 
-      - name: Rename reports
+      - name: Rename reports 
         if: always()
         run: |
           mkdir -p ~/results
