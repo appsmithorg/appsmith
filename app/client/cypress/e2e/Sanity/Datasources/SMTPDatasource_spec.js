@@ -118,7 +118,7 @@ describe("SMTP datasource test cases using ted", function () {
       //cy.log("res.body.stderr" + res.body.stderr);
       cy.log("res.status" + JSON.stringify(res.status));
       // expect(stdout).to.contain("qwerty@appsmith.com");
-      // expect(res.status).equal(100);
+      expect(res.status).equal(100);
     });
   });
 });
