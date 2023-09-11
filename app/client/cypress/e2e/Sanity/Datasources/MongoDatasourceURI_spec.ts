@@ -1,4 +1,8 @@
-import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  dataManager,
+  dataSources,
+} from "../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 
@@ -17,6 +21,22 @@ describe("Create, test, save then delete a mongo datasource using URI", function
 
       dataSources.FillMongoDatasourceFormWithURI();
       dataSources.TestSaveDatasource(true);
+      dataSources.DeleteDatasouceFromActiveTab(dsName);
+    });
+  });
+
+  it("2. Create Mongo DS with Training space in Host, Database name & Verify connection", function () {
+    dataSources.NavigateToDSCreateNew();
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      // using CreatePlugIn function instead of CreateDatasource,
+      // because I do not need to fill the datasource form and use the same default data
+      dataSources.CreatePlugIn("MongoDB");
+      dsName = "Mongo" + uid;
+      agHelper.RenameWithInPane(dsName, false);
+
+      dataSources.FillMongoDSForm(dataManager.defaultEnviorment, true);
+      dataSources.TestSaveDatasource();
       dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
   });
