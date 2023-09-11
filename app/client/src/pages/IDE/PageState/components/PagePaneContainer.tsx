@@ -95,7 +95,10 @@ const PagePaneContainer = (props: Props) => {
   }, []);
 
   const showMore = useMemo(() => {
-    return !!props.listItems && props.listItems?.length > 4;
+    return (
+      !!props.listItems &&
+      props.listItems?.length > (props.titleItemCounts ?? 4)
+    );
   }, [props.listItems]);
 
   const onClose = useCallback(() => {
@@ -134,12 +137,15 @@ const PagePaneContainer = (props: Props) => {
   const PaneTitleBarRight = () => {
     if (pageState === TabState.EDIT) {
       if (showMore) {
+        const { listItems = [], titleItemCounts = 0 } = props;
+        const howManyMore = listItems.length - titleItemCounts;
+
         return (
           <Button
             kind="secondary"
             onClick={() => dispatch(setIdePageTabState(TabState.LIST))}
           >
-            more
+            {howManyMore > 0 && `${howManyMore} `}more
           </Button>
         );
       }
