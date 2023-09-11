@@ -1,10 +1,7 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useLayoutEffect, useMemo } from "react";
 import type { RouteComponentProps } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getActionsForCurrentPage,
-  getPlugins,
-} from "../../../../selectors/entitiesSelector";
+import { getPlugins } from "../../../../selectors/entitiesSelector";
 import { find, keyBy } from "lodash";
 import { PluginType } from "../../../../entities/Action";
 import QueryEditor from "../../../Editor/QueryEditor";
@@ -14,7 +11,25 @@ import history, { NavigationMethod } from "../../../../utils/history";
 import ApiEditor from "../../../Editor/APIEditor";
 import PagePaneContainer from "./PagePaneContainer";
 import { getPluginIcon } from "../../../Editor/Explorer/ExplorerIcons";
-import { useIDEPageRecent } from "../../hooks";
+import { useIDEDatasources } from "../../hooks";
+import { importSvg } from "design-system-old";
+import { getIdeSidebarWidth, getRecentQueryList } from "pages/IDE/ideSelector";
+import styled from "styled-components";
+import BlankState from "pages/IDE/components/BlankState";
+import {
+  setIdePageTabState,
+  showAddDatasourceModal,
+} from "pages/IDE/ideActions";
+import { TabState } from "pages/IDE/ideReducer";
+import { datasourcesEditorURL } from "RouteBuilder";
+import type { Item } from "../../components/ListView";
+
+const QueriesIcon = importSvg(
+  () => import("pages/IDE/assets/icons/no-queries.svg"),
+);
+const DatasourcesIcon = importSvg(
+  () => import("pages/IDE/assets/icons/no-datasources.svg"),
+);
 
 type Props = RouteComponentProps<{
   appId: string;
@@ -22,17 +37,20 @@ type Props = RouteComponentProps<{
   actionId?: string;
 }>;
 
+const Wrapper = styled.div<{ width: number }>`
+  height: 100%;
+  display: flex;
+  width: ${(props) => props.width - 6}px;
+  overflow: hidden;
+`;
+
 const QuerySidebar = (props: Props) => {
   const dispatch = useDispatch();
   const { actionId, pageId } = props.match.params;
-  const actions = useSelector(getActionsForCurrentPage);
-  const supportedActions = actions.filter(
-    (a) => a.config.pluginType !== PluginType.SAAS,
-  );
-  const action = find(
-    supportedActions,
-    (action) => action.config.id === actionId,
-  );
+  const actions: Item[] = useSelector(getRecentQueryList);
+  const datasources = useIDEDatasources();
+  const leftPaneWidth = useSelector(getIdeSidebarWidth);
+  const action = find(actions, (action) => action.key === actionId);
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const fileOperations = useFilteredFileOperations();
@@ -70,15 +88,10 @@ const QuerySidebar = (props: Props) => {
     },
     [fileOperations],
   );
-  const toListActions = supportedActions.map((action) => ({
-    name: action.config.name,
-    key: action.config.id,
-    type: action.config.pluginType,
-    pluginId: action.config.pluginId,
-    icon: getPluginIcon(pluginGroups[action.config.pluginId]),
+  const toListActions: Item[] = actions.map((action) => ({
+    ...action,
+    selected: action.key === actionId,
   }));
-
-  const [sortedActionList] = useIDEPageRecent(toListActions, actionId);
 
   const listItemClick = useCallback(
     (a: { type?: PluginType; key: string; pluginId: string; name: string }) => {
@@ -98,30 +111,67 @@ const QuerySidebar = (props: Props) => {
     [plugins],
   );
 
+  useLayoutEffect(() => {
+    if (!actionId) {
+      if (toListActions.length) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        listItemClick(toListActions[0]);
+      } else {
+        dispatch(setIdePageTabState(TabState.LIST));
+      }
+    }
+  }, [actionId, toListActions.length]);
+
   let editor: React.ReactNode = <div />;
 
   if (actionId && action) {
-    if (action.config.pluginType === PluginType.DB) {
+    if (action.pluginType === PluginType.DB) {
       editor = (
-        <div className="h-full flex">
+        <Wrapper width={leftPaneWidth}>
           <QueryEditor actionId={actionId} pageId={pageId} />
-        </div>
+        </Wrapper>
       );
-    } else if (action.config.pluginType === PluginType.API) {
+    } else if (action.pluginType === PluginType.API) {
       editor = (
         <div className="h-full">
-          <ApiEditor match={{ params: { apiId: action.config.id, pageId } }} />
+          <ApiEditor match={{ params: { apiId: actionId, pageId } }} />
         </div>
       );
     }
   }
 
+  const blankState = datasources.length ? (
+    <BlankState
+      buttonText={"New query"}
+      description={"You have data. Write your first query."}
+      image={QueriesIcon}
+      onClick={() => {
+        dispatch(setIdePageTabState(TabState.ADD));
+      }}
+    />
+  ) : (
+    <BlankState
+      buttonText="New Datasource"
+      description={
+        "Experience the power of Appsmith by connecting to your data"
+      }
+      image={DatasourcesIcon}
+      onClick={() => {
+        history.push(datasourcesEditorURL({ pageId }));
+        dispatch(showAddDatasourceModal(true));
+      }}
+    />
+  );
+
   return (
     <PagePaneContainer
       addItems={addOperations}
-      addItemsTitle="Create a new query on..."
+      addStateTitle="Create a new query on..."
+      blankState={blankState}
       editor={editor}
-      listItems={sortedActionList}
+      listItems={toListActions}
+      listStateTitle={`Queries in this page (${toListActions.length})`}
       onAddClick={addItemClick}
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore

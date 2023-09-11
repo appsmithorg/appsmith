@@ -64,7 +64,7 @@ export function getQueryStringfromObject(
 export const datasourcesEditorURL = (props: URLBuilderParams): string =>
   urlBuilder.build({
     ...props,
-    suffix: "datasource",
+    ideState: IDEAppState.Data,
   });
 
 export const datasourcesEditorIdURL = (

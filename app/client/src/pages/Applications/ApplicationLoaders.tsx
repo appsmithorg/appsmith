@@ -107,14 +107,7 @@ export const loadingUserWorkspaces = [
   {
     workspace: {
       id: "loadingWorkspaceId2",
-      userPermissions: [
-        "read:workspaces",
-        "manage:workspaceApplications",
-        "inviteUsers:workspace",
-        "manage:workspaces",
-        "publish:workspaceApplications",
-        "read:workspaceApplications",
-      ],
+      userPermissions: ["read:workspaces", "read:workspaceApplications"],
       name: "loadingWorkspaceName2",
       workspaceSettings: [],
       plugins: [

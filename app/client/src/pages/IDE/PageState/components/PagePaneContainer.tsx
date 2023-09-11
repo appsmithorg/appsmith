@@ -1,9 +1,13 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Button, Text } from "design-system";
 import type { Item } from "../../components/ListView";
 import ListView from "../../components/ListView";
 import classNames from "classnames";
+import { getIdePageTabState } from "pages/IDE/ideSelector";
+import { useDispatch, useSelector } from "react-redux";
+import { TabState } from "pages/IDE/ideReducer";
+import { setIdePageTabState } from "pages/IDE/ideActions";
 
 const PaneTitleBar = styled.div`
   background-color: #fff8f8;
@@ -63,7 +67,9 @@ const Tab = styled.div`
 
 type Props = {
   editor: React.ReactNode;
-  addItemsTitle?: string;
+  addStateTitle?: string;
+  blankState?: React.ReactNode;
+  listStateTitle?: string;
   addItems?: Array<Item>;
   titleItemCounts?: number;
   listItems?: Array<Item>;
@@ -71,26 +77,21 @@ type Props = {
   onListClick?: (item: Item) => void;
 };
 
-enum TabState {
-  ADD = "ADD",
-  EDIT = "EDIT",
-  LIST = "LIST",
-}
-
 const PagePaneContainer = (props: Props) => {
-  const [pageState, setPageState] = useState<TabState>(TabState.EDIT);
+  const pageState = useSelector(getIdePageTabState);
+  const dispatch = useDispatch();
   const onAddClick = useCallback((item: Item) => {
     if (props.onAddClick) {
       props.onAddClick(item);
     }
-    setPageState(TabState.EDIT);
+    dispatch(setIdePageTabState(TabState.EDIT));
   }, []);
 
   const onListClick = useCallback((item: Item) => {
     if (props.onListClick) {
       props.onListClick(item);
     }
-    setPageState(TabState.EDIT);
+    dispatch(setIdePageTabState(TabState.EDIT));
   }, []);
 
   const showMore = useMemo(() => {
@@ -100,9 +101,9 @@ const PagePaneContainer = (props: Props) => {
   const onClose = useCallback(() => {
     // close button can appear in the edit state where there isn't a more button
     if (pageState === TabState.EDIT) {
-      setPageState(TabState.LIST);
+      dispatch(setIdePageTabState(TabState.LIST));
     } else {
-      setPageState(TabState.EDIT);
+      dispatch(setIdePageTabState(TabState.EDIT));
     }
   }, [pageState]);
 
@@ -114,7 +115,7 @@ const PagePaneContainer = (props: Props) => {
           kind={"secondary"}
           onClick={() => {
             if (props.addItems) {
-              setPageState(TabState.ADD);
+              dispatch(setIdePageTabState(TabState.ADD));
             } else if (props.onAddClick) {
               props.onAddClick();
             }
@@ -122,10 +123,50 @@ const PagePaneContainer = (props: Props) => {
           startIcon={"plus"}
         />
       );
-    } else if (pageState === TabState.ADD && props.addItemsTitle) {
-      return <Text kind="heading-xs">{props.addItemsTitle}</Text>;
+    } else if (pageState === TabState.ADD && props.addStateTitle) {
+      return <Text kind="heading-xs">{props.addStateTitle}</Text>;
+    } else if (pageState === TabState.LIST && props.listStateTitle) {
+      return <Text kind="heading-xs">{props.listStateTitle}</Text>;
     }
     return <div />;
+  };
+
+  const PaneTitleBarRight = () => {
+    if (pageState === TabState.EDIT) {
+      if (showMore) {
+        return (
+          <Button
+            kind="secondary"
+            onClick={() => dispatch(setIdePageTabState(TabState.LIST))}
+          >
+            more
+          </Button>
+        );
+      }
+      return null;
+    }
+    return (
+      <Button
+        className="justify-self-end"
+        isIconButton
+        kind={"secondary"}
+        onClick={onClose}
+        startIcon={"close"}
+      />
+    );
+  };
+
+  const PaneListView = () => {
+    if (pageState === TabState.LIST) {
+      if (!!props.listItems?.length) {
+        return <ListView items={props.listItems} onClick={onListClick} />;
+      } else {
+        if (props.blankState) {
+          return <div className="h-full w-full flex">{props.blankState}</div>;
+        }
+      }
+    }
+    return null;
   };
 
   return (
@@ -155,28 +196,14 @@ const PagePaneContainer = (props: Props) => {
         )}
         {/*TABS end*/}
         {/*RIGHT ICON start*/}
-        {pageState === TabState.EDIT && showMore ? (
-          <Button kind="secondary" onClick={() => setPageState(TabState.LIST)}>
-            more
-          </Button>
-        ) : (
-          <Button
-            className="justify-self-end"
-            isIconButton
-            kind={"secondary"}
-            onClick={onClose}
-            startIcon={"close"}
-          />
-        )}
+        <PaneTitleBarRight />
         {/*RIGHT ICON end*/}
       </PaneTitleBar>
       <Body>
         {pageState === TabState.ADD && props.addItems?.length && (
           <ListView items={props.addItems} onClick={onAddClick} />
         )}
-        {pageState === TabState.LIST && props.listItems?.length && (
-          <ListView items={props.listItems} onClick={onListClick} />
-        )}
+        <PaneListView />
         {pageState === TabState.EDIT && props.editor}
       </Body>
     </div>

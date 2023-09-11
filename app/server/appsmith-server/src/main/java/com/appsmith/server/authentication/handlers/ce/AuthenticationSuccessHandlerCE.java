@@ -315,9 +315,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                     .then(handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup));
                         });
             } else {
-                redirectionMono = userService
-                        .sendWelcomeEmail(user, originHeader)
-                        .then(handleOAuth2Redirect(webFilterExchange, null, isFromSignup));
+                redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
             }
         } else {
             // form type signup/login handler

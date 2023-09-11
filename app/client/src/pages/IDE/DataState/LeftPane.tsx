@@ -1,46 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import ListView from "../components/ListView";
-import { useAppWideAndOtherDatasource } from "../../Editor/Explorer/hooks";
-import { getPluginIcon } from "../../Editor/Explorer/ExplorerIcons";
-import { getPlugins } from "../../../selectors/entitiesSelector";
-import { useSelector } from "react-redux";
-import { keyBy } from "lodash";
 import history from "../../../utils/history";
 import { datasourcesEditorIdURL } from "RouteBuilder";
 import { useParams } from "react-router";
 import ListSubTitle from "../components/ListSubTitle";
 import { Button } from "design-system";
-import { PluginType } from "../../../entities/Action";
-import AddDatasourceModal from "./AddDatasourceModal";
+import { useIDEDatasources } from "../hooks";
+import { useDispatch } from "react-redux";
+import { showAddDatasourceModal } from "../ideActions";
 
 const DataLeftPane = () => {
-  const [openAddModal, setOpenAddModal] = useState(false);
-  const { otherDS } = useAppWideAndOtherDatasource();
   const params = useParams<{ appId: string; dataId?: string }>();
-  const plugins = useSelector(getPlugins);
-  const pluginByKey = keyBy(plugins, "id");
+  const datasources = useIDEDatasources();
+  const dispatch = useDispatch();
   useEffect(() => {
     if (params.dataId) {
-      setOpenAddModal(false);
+      dispatch(showAddDatasourceModal(false));
     }
   }, [params.dataId]);
-  const otherItems = otherDS
-    .filter((item) => {
-      const plugin = pluginByKey[item.pluginId];
-      if (plugin) {
-        return plugin.type !== PluginType.SAAS;
-      }
-      return false;
-    })
-    .map((item) => {
-      const plugin = pluginByKey[item.pluginId];
-      return {
-        key: item.id,
-        name: item.name,
-        icon: getPluginIcon(plugin),
-        selected: item.id === params.dataId,
-      };
-    });
   const onItemClick = (item: any) => {
     history.push(
       datasourcesEditorIdURL({
@@ -51,23 +28,19 @@ const DataLeftPane = () => {
     );
   };
   return (
-    <div>
-      <AddDatasourceModal
-        isOpen={openAddModal}
-        onBack={() => setOpenAddModal(false)}
-      />
+    <div className="h-full">
       <ListSubTitle
         rightIcon={
           <Button
             isIconButton
             kind="tertiary"
-            onClick={() => setOpenAddModal(true)}
+            onClick={() => dispatch(showAddDatasourceModal(true))}
             startIcon={"plus"}
           />
         }
         title={"Datasources in your workspace"}
       />
-      <ListView items={otherItems} onClick={onItemClick} />
+      <ListView items={datasources} onClick={onItemClick} />
     </div>
   );
 };

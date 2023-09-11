@@ -1,20 +1,26 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useLayoutEffect } from "react";
 import { jsCollectionIdURL } from "RouteBuilder";
 import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
-import { selectFilesForExplorer } from "selectors/entitiesSelector";
 import history, { NavigationMethod } from "utils/history";
 import JSEditor from "./JSEditor";
 import PagePaneContainer from "../PagePaneContainer";
 import { createNewJSCollection } from "actions/jsPaneActions";
-import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import { getIdeSidebarWidth } from "pages/IDE/ideSelector";
+import { getIdeSidebarWidth, getRecentJsList } from "pages/IDE/ideSelector";
 import styled from "styled-components";
-import { useIDEPageRecent } from "../../../hooks";
+import { importSvg } from "design-system-old";
+import BlankState from "pages/IDE/components/BlankState";
+import { setIdePageTabState } from "pages/IDE/ideActions";
+import { TabState } from "pages/IDE/ideReducer";
+import type { Item } from "../../../components/ListView";
+
+const DataIcon = importSvg(
+  () => import("pages/IDE/assets/icons/no-jsobjects.svg"),
+);
 
 const Wrapper = styled.div<{ width: number }>`
   height: 100%;
-  width: ${(props) => props.width}px;
+  width: ${(props) => props.width - 6}px;
   overflow: hidden;
 `;
 
@@ -31,19 +37,11 @@ function JSObjects(props: Props) {
   const addItemClick = useCallback(() => {
     dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
   }, []);
-  const allJSActions = useSelector(selectFilesForExplorer);
-  const toListActions = allJSActions
-    .filter((a: any) => {
-      return a.type === "JS";
-    })
-    .map((a: any) => ({
-      name: a.entity.name,
-      key: a.entity.id,
-      type: a.type,
-      icon: JsFileIconV2(16, 16),
-    }));
-
-  const [sortedList] = useIDEPageRecent(toListActions, collectionId);
+  const sortedJsList: Item[] = useSelector(getRecentJsList);
+  const toListActions = sortedJsList.map((a: any) => ({
+    ...a,
+    selected: a.key === collectionId,
+  }));
 
   const listItemClick = useCallback((a) => {
     history.push(
@@ -55,6 +53,16 @@ function JSObjects(props: Props) {
     );
   }, []);
 
+  useLayoutEffect(() => {
+    if (!collectionId) {
+      if (toListActions.length) {
+        listItemClick(toListActions[0]);
+      } else {
+        dispatch(setIdePageTabState(TabState.LIST));
+      }
+    }
+  }, [collectionId, toListActions.length]);
+
   const editor = collectionId ? (
     <Wrapper width={leftPaneWidth}>
       <JSEditor />
@@ -65,8 +73,22 @@ function JSObjects(props: Props) {
 
   return (
     <PagePaneContainer
+      blankState={
+        <BlankState
+          buttonText="New JS Object"
+          description={
+            "Use javascript to transform your data or write business logic"
+          }
+          image={DataIcon}
+          onClick={() => {
+            addItemClick();
+            dispatch(setIdePageTabState(TabState.EDIT));
+          }}
+        />
+      }
       editor={editor}
-      listItems={sortedList}
+      listItems={toListActions}
+      listStateTitle={`JS Objects in this page (${toListActions.length})`}
       onAddClick={addItemClick}
       onListClick={listItemClick}
       titleItemCounts={4}

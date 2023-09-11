@@ -131,7 +131,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   }, [isWalkthroughOpened]);
 
   return (
-    <div className="relative">
+    <div className="relative h-full">
       {/* PROPERTY PANE */}
       <div
         className={classNames({

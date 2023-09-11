@@ -37,12 +37,13 @@ const Container = styled.div`
 const SwitchMode = styled.div`
   display: grid;
   grid-template-columns: 1fr 40px;
-  background-color: #fbe6dc;
+  background-color: #fff8f8;
   flex: 1;
   height: 100%;
   align-items: center;
   padding: 5px;
   border-radius: 4px;
+  border-bottom: 1px solid #fbe6dc;
 `;
 
 const PageList = styled.div<{ width: number }>`
@@ -109,12 +110,13 @@ const PageSwitcher = () => {
     return (
       <PageSwitchOverlay width={paneWidth}>
         <SwitchMode>
-          <Text kind="heading-s">Pages({pageList.length})</Text>
+          <Text kind="heading-s">Pages ({pageList.length})</Text>
           <Button
-            endIcon="cross"
-            kind="tertiary"
+            isIconButton
+            kind="secondary"
             onClick={() => setSwitchMode(false)}
             size="sm"
+            startIcon="close"
           />
         </SwitchMode>
         <PageList width={paneWidth}>

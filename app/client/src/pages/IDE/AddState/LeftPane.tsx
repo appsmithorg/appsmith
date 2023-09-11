@@ -3,9 +3,13 @@ import { importSvg } from "design-system-old";
 import WidgetCard from "pages/Editor/WidgetCard";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getWidgetCards } from "selectors/editorSelectors";
+import { getCurrentPageId, getWidgetCards } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { setIdeSidebarWidth } from "../ideActions";
+import { setIdePageTabState, setIdeSidebarWidth } from "../ideActions";
+import { datasourcesEditorURL, pageEntityUrl } from "RouteBuilder";
+import history from "utils/history";
+import { PageNavState, TabState } from "../ideReducer";
+import { createNewJSCollection } from "actions/jsPaneActions";
 
 const DataIcon = importSvg(
   () => import("pages/IDE/assets/icons/database-2-line.svg"),
@@ -80,21 +84,39 @@ const DataMainEmptyState = () => {
 };
 
 const AddNewCards = () => {
+  const currentPageId = useSelector(getCurrentPageId);
+  const dispatch = useDispatch();
+
   return (
     <AddNewCardWrapper>
-      <NewCard>
+      <NewCard
+        onClick={() => {
+          history.push(datasourcesEditorURL({ pageId: currentPageId }));
+        }}
+      >
         <IconWrapper backgroundColor={"#ECFDF5"}>
           <DataIcon fill="#059669" height={"24px"} />
         </IconWrapper>
         <Text kind="heading-xs">New Datasource</Text>
       </NewCard>
-      <NewCard>
+      <NewCard
+        onClick={() => {
+          history.push(
+            pageEntityUrl({ pageId: currentPageId }, PageNavState.QUERIES),
+          );
+          dispatch(setIdePageTabState(TabState.ADD));
+        }}
+      >
         <IconWrapper backgroundColor={"#EFF6FF"}>
           <QueriesIcon fill="#2D6BF4" />
         </IconWrapper>
         <Text kind="heading-xs">New Query/Api</Text>
       </NewCard>
-      <NewCard>
+      <NewCard
+        onClick={() => {
+          dispatch(createNewJSCollection(currentPageId, "ENTITY_EXPLORER"));
+        }}
+      >
         <IconWrapper backgroundColor={"transparent"}>
           <Icon name="js-yellow" size="lg" />
         </IconWrapper>
@@ -106,12 +128,21 @@ const AddNewCards = () => {
 
 const WidgetPane = () => {
   const cards = useSelector(getWidgetCards);
+  const currentPageId = useSelector(getCurrentPageId);
 
   return (
     <div>
       <div className="flex justify-between mt-6">
         <Text kind="heading-xs">Drag & Drop widgets on the canvas</Text>
-        <Link onClick={() => null}>View all</Link>
+        <Link
+          onClick={() => {
+            history.push(
+              pageEntityUrl({ pageId: currentPageId || "" }, PageNavState.UI),
+            );
+          }}
+        >
+          View all
+        </Link>
       </div>
 
       <CardList>

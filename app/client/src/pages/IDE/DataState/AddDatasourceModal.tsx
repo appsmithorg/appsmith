@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { Button, Modal, ModalBody, ModalContent, Text } from "design-system";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { getCurrentApplication } from "../../../selectors/editorSelectors";
 import styled from "styled-components";
 import { thinScrollbar } from "../../../constants/DefaultTheme";
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -10,11 +9,8 @@ import NewApiScreen from "../../Editor/IntegrationEditor/NewApi";
 import MockDataSources from "../../Editor/IntegrationEditor/MockDataSources";
 import NewQueryScreen from "../../Editor/IntegrationEditor/NewQuery";
 import { getMockDatasources } from "../../../selectors/entitiesSelector";
-
-type Props = {
-  isOpen: boolean;
-  onBack: () => void;
-};
+import { showAddDatasourceModalSelector } from "../ideSelector";
+import { showAddDatasourceModal } from "../ideActions";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -124,19 +120,23 @@ function CreateNewDatasource({
   );
 }
 
-const AddDatasourceModal = (props: Props) => {
+const AddDatasourceModal = () => {
   const workspace = useSelector(getCurrentAppWorkspace);
-  const appDetails = useSelector(getCurrentApplication);
+  const openAddModal = useSelector(showAddDatasourceModalSelector);
+  const dispatch = useDispatch();
+
+  const onBack = () => {
+    dispatch(showAddDatasourceModal(false));
+  };
+
   return (
-    <Modal open={props.isOpen}>
+    <Modal open={openAddModal}>
       <ModalContent style={{ width: "75vw" }}>
         <div className="flex align-center justify-between">
-          <Text kind="heading-m">
-            {workspace.name} &bull; {appDetails?.name}
-          </Text>
+          <Text kind="heading-m">{workspace.name}</Text>
           <Button
             kind="secondary"
-            onClick={props.onBack}
+            onClick={onBack}
             size="md"
             startIcon={"arrow-left-line"}
           >
