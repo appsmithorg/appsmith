@@ -80,7 +80,62 @@ describe("Assistive Binding", function () {
     // After selecting "Api1", expect "{{Api1.data}}" in binding
     propPane.ValidatePropertyFieldValue("Label", "{{Api1.data}}");
   });
-  it("3. Works correctly when user toggles JS", () => {
+  it("3. Shows hints after every white space", () => {
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.TypeTextIntoField("Label", "JSo JSo");
+    // Assert that hints show up when length of text after any previous blank space is equal to or greater than 3
+    agHelper.AssertElementExist(locators._hints);
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.TypeTextIntoField("Label", "JSo tab\tJSo");
+    // Assert that hints show up when length of text after any previous tab is equal to or greater than 3
+    agHelper.AssertElementExist(locators._hints);
+    propPane.TypeTextIntoField("Label", "JSo \nJSo");
+    // Assert that hints show up when length of text after any previous new line is equal to or greater than 3
+    agHelper.AssertElementExist(locators._hints);
+  });
+
+  it("4. Selects correct value and inserts in right place when hint is selected after whitespace ", () => {
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.TypeTextIntoField("Label", "JSo JSo");
+    agHelper.GetNClickByContains(locators._hints, "JSObject1.myFun1");
+    // After selecting "JSObject1.myFun1", expect "JSo {{JSObject1.myFun1.data}}" in binding
+    propPane.ValidatePropertyFieldValue(
+      "Label",
+      "JSo {{JSObject1.myFun1.data}}",
+    );
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.TypeTextIntoField("Label", "JSo tab\tJSo");
+    agHelper.GetNClickByContains(locators._hints, "JSObject1.myFun1");
+    // After selecting "JSObject1.myFun1", expect "JSo tab {{JSObject1.myFun1.data}}" in binding
+    propPane.ValidatePropertyFieldValue(
+      "Label",
+      "JSo tab {{JSObject1.myFun1.data}}",
+    );
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.TypeTextIntoField("Label", `JSo \nJSo`);
+    agHelper.GetNClickByContains(locators._hints, "JSObject1.myFun1");
+    // After selecting "JSObject1.myFun1", expect `JSo \n{{JSObject1.myFun1.data}}` in binding
+    propPane.ValidatePropertyFieldValue(
+      "Label",
+      `JSo 
+    {{JSObject1.myFun1.data}}`,
+    );
+  });
+
+  it("5. Partial binding {} syntax is replaced with correct values ", () => {
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.TypeTextIntoField("Label", "{");
+    agHelper.GetNClickByContains(locators._hints, "JSObject1.myFun1");
+    // After selecting "JSObject1.myFun1", expect "{{JSObject1.myFun1.data}}" in binding
+    propPane.ValidatePropertyFieldValue("Label", "{{JSObject1.myFun1.data}}");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.TypeTextIntoField("Label", "{");
+    agHelper.GetNClickByContains(locators._hints, "New binding");
+    // After selecting "New binding", expect "{{}}" in binding
+    propPane.ValidatePropertyFieldValue("Label", "{{}}");
+  });
+
+  it("6. Works correctly when user toggles JS", () => {
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.ToggleJSMode("onClick");
     propPane.ValidatePropertyFieldValue("onClick", "{{}}");
