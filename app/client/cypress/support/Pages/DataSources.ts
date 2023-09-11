@@ -262,9 +262,9 @@ export class DataSources {
   ) =>
     "//span[text()='" +
     fieldName +
-    "']/ancestor::div[@type='CANVAS_WIDGET'][1]//div[@data-widgetname-cy='" +
+    "']/ancestor::div[@type='CANVAS_WIDGET'][1]//div[contains(@data-widgetname-cy,'" +
     type +
-    "Icon']";
+    "Icon')]";
   _s3EditFileName =
     "[data-widgetname-cy='update_file_name'] div[data-testid='input-container']";
   _s3MaxFileSizeAlert = "//p[@role='alert']";

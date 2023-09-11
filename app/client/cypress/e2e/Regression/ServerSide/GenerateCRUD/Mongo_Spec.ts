@@ -38,7 +38,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
     GenerateCRUDNValidateDeployPage(
       "58f56171ee9d4bd5e610d655",
-      "None",
+      "Pidgey Candy",
       `["Psychic"]`,
       0,
     );

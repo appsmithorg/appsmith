@@ -15,6 +15,7 @@ import {
   table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import { WIDGET, getWidgetSelector } from "../../../../locators/WidgetLocators";
 
 describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function () {
   let bucketName = "assets-test--appsmith",
@@ -116,8 +117,10 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
     agHelper.Sleep(2000);
 
-    //Verifying DeleteFile icon from UI
+    // Click on the Image widget of the searched item to select the item
+    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
 
+    //Verifying DeleteFile icon from UI
     DeleteS3FileFromUI(fixturePath);
 
     //Upload: 2 - Bug verification 9201
@@ -156,6 +159,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //Verifies bug # 9922
 
     cy.wait(3000);
+    // Click on the Image widget of the searched item to select the item
+    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
+
     //Verifying DeleteFile from UI
     DeleteS3FileFromUI(fixturePath);
 
@@ -278,6 +284,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       1,
     );
 
+    // Click on the Image widget of the searched item to select the item
+    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
+
     //Attempt Delete & Confirm from UI
     DeleteS3FileFromUI(fixturePath);
 
@@ -348,8 +357,13 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       3,
     );
 
+    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
     DeleteS3FileFromUI(bulkyId + "/Georgia.jpeg", false);
+
+    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
     DeleteS3FileFromUI(bulkyId + "/Maine.jpeg", false);
+
+    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
     DeleteS3FileFromUI(bulkyId + "/NewJersey.jpeg", true);
 
     deployMode.NavigateBacktoEditor();

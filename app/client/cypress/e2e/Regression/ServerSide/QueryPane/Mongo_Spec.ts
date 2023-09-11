@@ -43,8 +43,8 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     GenerateCRUDNValidateDeployPage(
       "58f56189ee9d4bd5e610d6ec",
-      `{"self":{"href":"http://api.tvmaze.com/episodes/40646"}}`,
-      "1994-09-22T20:00:00-04:00",
+      `{"self":{"href":"http://api.tvmaze.com/episodes/40663"}}`,
+      "1995-03-02T20:00:00-05:00",
       0,
     );
 
