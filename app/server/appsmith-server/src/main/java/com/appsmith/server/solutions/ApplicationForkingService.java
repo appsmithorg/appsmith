@@ -1,5 +1,5 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.solutions.ce_compatible.ApplicationForkingServiceCeCompatible;
+import com.appsmith.server.solutions.ce.ApplicationForkingServiceCE;
 
-public interface ApplicationForkingService extends ApplicationForkingServiceCeCompatible {}
+public interface ApplicationForkingService extends ApplicationForkingServiceCE {}

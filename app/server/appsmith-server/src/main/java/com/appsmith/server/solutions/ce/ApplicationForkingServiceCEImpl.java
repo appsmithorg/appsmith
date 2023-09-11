@@ -20,7 +20,7 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,7 +30,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Slf4j
-@Component
+@Service
 public class ApplicationForkingServiceCEImpl implements ApplicationForkingServiceCE {
 
     private final ApplicationService applicationService;
