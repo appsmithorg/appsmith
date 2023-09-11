@@ -245,23 +245,31 @@ jobs:
           ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
           fetch-depth: 0
 
+      - name: Print versions of tools
+        run: |
+          set -o errexit
+          set -o xtrace
+          aws --version || true
+          kubectl version || true
+          helm version || true
+
       - name: Install mongosh
         run: |
+          curl -fsSL https://pgp.mongodb.com/server-6.0.asc \
+            | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
+          echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" \
+            | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
           sudo apt-get update
-          sudo apt-get install -y wget gnupg
-          wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-          sudo apt-get update
-          sudo apt-get install -y mongodb-mongosh
+          sudo apt-get install --yes mongodb-mongosh
+          echo "MongoSH version: $(mongosh --version)"
 
       - name: Install relevant packages
         run: |
-          which aws
-          sudo apt update -q && sudo apt install -y curl unzip less jq
-          curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/linux/amd64/kubectl && \
-          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
-          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && \
-          chmod 700 get_helm.sh; ./get_helm.sh
+          set -o errexit
+          # We still need Kubectl v1.23. Once we up the cluster version, we can get rid of this step.
+          curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/linux/amd64/kubectl
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          kubectl version || true
 
       - name: Deploy Helm chart
         env:
@@ -280,7 +288,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_URL: ${{ secrets.DB_URL }}
           DP_EFS_ID: ${{ secrets.APPSMITH_DP_EFS_ID }}
-          REDIS_URL: ${{ secrets.APPSMITH_DP_REDIS_URL }}          
+          REDIS_URL: ${{ secrets.APPSMITH_DP_REDIS_URL }}
         run: |
           echo "environment variables set to deploy the image" $IMAGE_HASH
           /bin/bash ./scripts/deploy_preview.sh
