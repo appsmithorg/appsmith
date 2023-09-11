@@ -122,8 +122,10 @@ export type GetPropertyUpdatesForQueryBinding = (
   formConfig: WidgetQueryGenerationFormConfig,
 ) => Record<string, unknown>;
 
+type SnipingModeSupportedKeys = "data" | "run" | "isDynamicPropertyPath";
+
 export type GetSnipingModeUpdates = (
-  propValueMap: Record<"data" | "run", string>,
+  propValueMap: Record<SnipingModeSupportedKeys, string | boolean>,
 ) => Array<PropertyUpdates>;
 
 export type GetCanvasHeightOffset = (widgetProps: WidgetProps) => number;
@@ -400,7 +402,10 @@ export type ThemeProp = {
   theme: Theme;
 };
 
-export type SnipingModeProperty = Record<"data" | "run", string>;
+export type SnipingModeProperty = Record<
+  SnipingModeSupportedKeys,
+  string | boolean
+>;
 
 export enum DefaultMobileCameraTypes {
   FRONT = "user",

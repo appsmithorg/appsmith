@@ -3,6 +3,16 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { AutoLayoutViewerModalOnion } from "./AutoLayoutViewerModalOnion";
 import { AutoLayoutViewerWidgetOnion } from "./AutoLayoutViewerWidgetOnion";
 
+/**
+ * AutoLayoutViewerWrapper
+ *
+ * Component that wraps a BaseWidget implementation of a widget with viewer(Deployed Application Viewer) specific layers of Auto Layout System.
+ * check out AutoLayoutViewerWidgetOnion and AutoLayoutViewerModalOnion to further understand what they implement under the hood.
+ *
+ * @param props
+ * @returns Enhanced BaseWidget with Viewer specific Layers.
+ */
+
 export const AutoLayoutViewerWrapper = (props: WidgetProps) => {
   /**
    * @constant WidgetOnion
