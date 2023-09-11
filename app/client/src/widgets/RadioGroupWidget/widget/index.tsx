@@ -19,10 +19,9 @@ import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import RadioGroupComponent from "../component";
 import type { RadioOption } from "../constants";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import IconSVG from "../icon.svg";
-
 import type {
   SnipingModeProperty,
   PropertyUpdates,
@@ -688,7 +687,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
       alignment,
       bottomRow,
@@ -707,7 +706,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       widgetId,
     } = this.props;
 
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     return (
       <RadioGroupComponent
