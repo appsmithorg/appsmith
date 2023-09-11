@@ -23,7 +23,7 @@ app/client/tsconfig.json @KelvinOm
 app/client/tsconfig.path.json @KelvinOm
 
 # App viewers pod
-app/client/src/widgets/* @appsmithorg/app-viewers @rajatagrawal
+app/client/src/widgets/* @appsmithorg/app-viewers
 app/client/cypress/e2e/Regression/ClientSide/Widgets/* @rajatagrawal
 app/client/src/components/propertyControls/* @appsmithorg/app-viewers
 app/client/src/sagas/OneClickBindingSaga.ts @sbalaji1192 @berzerkeer
