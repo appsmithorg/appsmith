@@ -395,13 +395,13 @@ jobs:
           env: "NODE_ENV=development"
 
       - name: Rename reports
-        if: always()
+        if: failure() && env.failed_spec_env != ''
         run: |
           mkdir -p ~/results
           mv ${{ github.workspace }}/app/client/results ~/results/${{ matrix.job }}
 
       - name: Upload cypress report
-        if: always()
+        if: failure() && env.failed_spec_env != ''
         uses: actions/upload-artifact@v3
         with:
           name: results-${{github.run_attempt}}
