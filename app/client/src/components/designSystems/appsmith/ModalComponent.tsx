@@ -111,7 +111,7 @@ export function ModalComponent(props: ModalComponentProps) {
         bottom={props.bottom}
         height={props.height}
         left={props.left}
-        right={props.bottom}
+        right={props.right}
         top={props.top}
         width={props.width}
         zIndex={props.zIndex !== undefined ? props.zIndex : Layers.modalWidget}

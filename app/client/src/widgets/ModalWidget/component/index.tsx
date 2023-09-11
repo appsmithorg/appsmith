@@ -292,7 +292,7 @@ export default function ModalComponent(props: ModalComponentProps) {
           left={props.left}
           maxWidth={props.maxWidth}
           minSize={props.minSize}
-          right={props.bottom}
+          right={props.right}
           smallHeaderHeight={theme.smallHeaderHeight}
           top={props.top}
           width={props.width}
