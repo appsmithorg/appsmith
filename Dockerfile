@@ -58,6 +58,8 @@ RUN rm -rf \
 VOLUME [ "/appsmith-stacks" ]
 
 # ------------------------------------------------------------------------
+ENV TMP /tmp/appsmith
+
 # Add backend server - Application Layer
 ARG JAR_FILE=./app/server/dist/server-*.jar
 ARG PLUGIN_JARS=./app/server/dist/plugins/*.jar
