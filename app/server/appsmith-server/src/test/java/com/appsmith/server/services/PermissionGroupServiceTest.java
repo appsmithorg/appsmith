@@ -63,7 +63,7 @@ public class PermissionGroupServiceTest {
                 .get();
 
         Mono<Boolean> leaveRoleMono = permissionGroupService
-                .leaveExplicitlyAssignedOwnRole(adminPermissionGroup.getId())
+                .leaveExplicitlyAssignedSelfRole(adminPermissionGroup.getId())
                 .cache();
 
         Mono<PermissionGroup> permissionGroupMono = permissionGroupService.findById(adminPermissionGroup.getId());
@@ -98,7 +98,7 @@ public class PermissionGroupServiceTest {
                 permissionGroupService.create(testPermissionGroup).block();
 
         Mono<Boolean> leaveRoleMono = permissionGroupService
-                .leaveExplicitlyAssignedOwnRole(createdPermissionGroup.getId())
+                .leaveExplicitlyAssignedSelfRole(createdPermissionGroup.getId())
                 .cache();
 
         Mono<PermissionGroup> permissionGroupMono = permissionGroupService.findById(createdPermissionGroup.getId());

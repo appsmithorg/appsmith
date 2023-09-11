@@ -64,5 +64,5 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
 
     Mono<PermissionGroup> bulkUnAssignFromUserAndSendEvent(PermissionGroup permissionGroup, List<User> users);
 
-    Mono<Boolean> leaveExplicitlyAssignedOwnRole(String permissionGroupId);
+    Mono<Boolean> leaveExplicitlyAssignedSelfRole(String permissionGroupId);
 }

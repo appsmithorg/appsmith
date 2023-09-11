@@ -372,7 +372,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     }
 
     @Override
-    public Mono<Boolean> leaveExplicitlyAssignedOwnRole(String permissionGroupId) {
+    public Mono<Boolean> leaveExplicitlyAssignedSelfRole(String permissionGroupId) {
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
