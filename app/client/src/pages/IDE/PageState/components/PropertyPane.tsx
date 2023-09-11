@@ -45,6 +45,7 @@ const PropertyPaneSidebar = (
     <PagePaneContainer
       editor={<PropertyPaneContainer />}
       listItems={toListWidgets}
+      listStateTitle={`Widgets on this page (${toListWidgets.length})`}
       onAddClick={addItemClick}
       onListClick={listItemClick}
       titleItemCounts={1}

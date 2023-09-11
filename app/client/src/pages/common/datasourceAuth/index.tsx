@@ -9,6 +9,7 @@ import {
   createDatasourceFromForm,
   toggleSaveActionFlag,
   updateDatasourceAuthState,
+  setDatasourceViewMode,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -35,7 +36,6 @@ import {
   getCurrentEnvName,
   getCurrentEditingEnvID,
 } from "@appsmith/utils/Environments";
-
 interface Props {
   datasource: Datasource;
   formData: Datasource | ApiDatasourceForm;
@@ -269,6 +269,12 @@ function DatasourceAuth({
     // if datasource is not used to generate a page
     if (datasource.id === TEMP_DATASOURCE_ID) {
       dispatch(createDatasourceFromForm(getSanitizedFormData()));
+      dispatch(
+        setDatasourceViewMode({
+          viewMode: true,
+          datasourceId,
+        }),
+      );
     } else {
       dispatch(
         updateDatasource(
