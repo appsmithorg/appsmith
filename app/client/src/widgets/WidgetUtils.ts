@@ -13,7 +13,7 @@ import {
 } from "components/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Theme } from "constants/DefaultTheme";
-import type { PropertyUpdates } from "widgets/constants";
+import type { PropertyUpdates } from "WidgetProvider/constants";
 import {
   CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
@@ -30,7 +30,7 @@ import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getLocale } from "utils/helpers";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetPositionProps, WidgetProps } from "./BaseWidget";
-import { rgbaMigrationConstantV56 } from "./constants";
+import { rgbaMigrationConstantV56 } from "../WidgetProvider/constants";
 import type { ContainerWidgetProps } from "./ContainerWidget/widget";
 import type { SchemaItem } from "./JSONFormWidget/constants";
 import { WIDGET_COMPONENT_BOUNDARY_CLASS } from "constants/componentClassNameConstants";

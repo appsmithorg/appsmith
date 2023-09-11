@@ -18,7 +18,7 @@ import {
   isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import type {
   DataTree,
   DataTreeEntity,

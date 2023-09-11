@@ -10,7 +10,7 @@ import {
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getDataTree, getConfigTree } from "selectors/dataTreeSelectors";
 import type {
