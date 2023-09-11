@@ -54,12 +54,10 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import {
-  getCurrentEnvironment,
-  isEnvironmentValid,
-} from "@appsmith/utils/Environments";
+import { isEnvironmentValid } from "@appsmith/utils/Environments";
 import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { isString } from "lodash";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -590,7 +588,7 @@ const mapStateToProps = (
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
   let datasourceMerged = datasourceFromAction || {};
   let datasourceFromDataSourceList: Datasource | undefined;
-  const currentEnvironment = getCurrentEnvironment();
+  const currentEnvironment = getCurrentEnvironmentId(state);
   // Todo: fix this properly later in #2164
   if (datasourceFromAction && "id" in datasourceFromAction) {
     datasourceFromDataSourceList = getDatasource(
