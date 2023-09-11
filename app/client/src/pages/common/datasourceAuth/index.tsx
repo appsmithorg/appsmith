@@ -35,10 +35,7 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
-import {
-  getCurrentEnvName,
-  getCurrentEditingEnvID,
-} from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 
 interface Props {
   datasource: Datasource;
@@ -167,6 +164,8 @@ function DatasourceAuth({
     datasourcePermissions,
   );
 
+  const currentEnvDetails = useSelector(getCurrentEnvironmentDetails);
+
   // hooks
   const dispatch = useDispatch();
   const location = useLocation();
@@ -236,7 +235,7 @@ function DatasourceAuth({
   }, [triggerSave]);
   const isAuthorized =
     datasource?.datasourceStorages && authType === AuthType.OAUTH2
-      ? datasource?.datasourceStorages[getCurrentEditingEnvID()]
+      ? datasource?.datasourceStorages[currentEnvDetails.editingId]
           ?.datasourceConfiguration?.authentication?.isAuthorized
       : datasource?.datasourceStorages[currentEnvironment]
           ?.datasourceConfiguration?.authentication?.authenticationStatus ===
@@ -251,7 +250,7 @@ function DatasourceAuth({
       appId: applicationId,
       datasourceId: datasourceId,
       environmentId: currentEnvironment,
-      environmentName: getCurrentEnvName(),
+      environmentName: currentEnvDetails.name,
       pluginName: pluginName,
     });
     dispatch(testDatasource(getSanitizedFormData()));
@@ -264,7 +263,7 @@ function DatasourceAuth({
       pageId: pageId,
       appId: applicationId,
       environmentId: currentEnvironment,
-      environmentName: getCurrentEnvName(),
+      environmentName: currentEnvDetails.name,
       pluginName: pluginName || "",
       pluginPackageName: pluginPackageName || "",
     });

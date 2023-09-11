@@ -2,10 +2,10 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import type { DropdownOptionType } from "../../../types";
 import {
-  getCurrentEnvironment,
   getEnvironmentConfiguration,
   isEnvironmentValid,
 } from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { DatasourceImage, ImageWrapper } from "../../../styles";
 import {
   type Datasource,
@@ -48,6 +48,7 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
   const pluginsPackageNamesMap = useSelector(getPluginIdPackageNamesMap);
   const mockDatasources: MockDatasource[] = useSelector(getMockDatasources);
   const workspaceId = useSelector(getCurrentWorkspaceId);
+  const currentEnvironment: string = useSelector(getCurrentEnvironmentId);
   const plugins = useSelector(getPlugins);
   const isDatasourceLoading = useSelector(getDatasourceLoading);
 
@@ -78,12 +79,12 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
           value: datasource.name,
           data: {
             pluginId: datasource.pluginId,
-            isValid: isEnvironmentValid(datasource, getCurrentEnvironment()),
+            isValid: isEnvironmentValid(datasource, currentEnvironment),
             pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
             isSample: false,
             connectionMode: getEnvironmentConfiguration(
               datasource,
-              getCurrentEnvironment(),
+              currentEnvironment,
             )?.connection?.mode,
           },
           icon: (
