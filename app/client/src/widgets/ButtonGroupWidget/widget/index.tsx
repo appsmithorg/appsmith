@@ -772,7 +772,7 @@ class ButtonGroupWidget extends BaseWidget<
   getWidgetView() {
     const { componentWidth } = this.props;
     const minPopoverWidth =
-      MinimumPopupWidthInPercentage *
+      (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
 
     return (

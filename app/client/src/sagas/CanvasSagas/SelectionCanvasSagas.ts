@@ -14,7 +14,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { getWidgets } from "sagas/selectors";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import type { SelectedArenaDimensions } from "layoutSystems/common/CanvasArenas/ArenaTypes";
+import type { SelectedArenaDimensions } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
 
 interface StartingSelectionState {
   lastSelectedWidgets: string[];

@@ -70,7 +70,7 @@ export function AutoLayoutResizable(props: ResizableProps) {
  * AutoLayoutResizableComponent
  *
  * Component that renders the resizing handles of a widget in Auto Layout Editor.
- * It also handles the component dimension and position updation based on where it is aligned in the parent layer.
+ * It also handles the component dimension and position updation based on where it is aligned in the parent layer(AutoLayoutLayer).
  *
  */
 

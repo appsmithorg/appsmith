@@ -780,7 +780,7 @@ class MultiSelectWidget extends BaseWidget<
   getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const minDropDownWidth =
-      MinimumPopupWidthInPercentage *
+      (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
     const values = this.mergeLabelAndValue();

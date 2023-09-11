@@ -2,15 +2,18 @@ import React, { useMemo } from "react";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { AutoLayoutEditorWidgetOnion } from "./AutoLayoutEditorWidgetOnion";
 import { AutoLayoutEditorModalOnion } from "./AutoLayoutEditorModalOnion";
+
 /**
- * AutoLayoutEditorWraper
+ * AutoLayoutEditorWrapper
  *
- * Component that wraps a BaseWidget implementation of a widget with editor specific layers of Auto Layout System
+ * Component that wraps a BaseWidget implementation of a widget with editor specific layers of Auto Layout System.
+ * check out AutoLayoutEditorWidgetOnion and AutoLayoutEditorModalOnion to further understand what they implement under the hood.
  *
  * @param props
  * @returns Enhanced BaseWidget with Editor specific Layers.
  */
-export const AutoLayoutEditorWraper = (props: WidgetProps) => {
+
+export const AutoLayoutEditorWrapper = (props: WidgetProps) => {
   /**
    * @constant WidgetOnion
    *
