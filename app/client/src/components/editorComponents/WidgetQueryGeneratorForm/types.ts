@@ -25,7 +25,7 @@ export interface OtherField {
   options?: DropdownOptionType[];
   isVisible?: (config: any) => boolean;
   onSelect?: (value: string, option: DefaultOptionType) => void;
-  getDefaultValue?: (config?: any) => string;
+  getDefaultValue?: (options?: Record<string, unknown>) => string;
   defaultValue?: string;
   allowClear?: boolean;
   isDataIdentifier?: boolean;

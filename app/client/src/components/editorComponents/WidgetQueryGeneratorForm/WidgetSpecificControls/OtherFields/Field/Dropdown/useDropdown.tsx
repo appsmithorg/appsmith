@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Option } from "design-system";
 import { DropdownOption } from "../../../../CommonControls/DatasourceDropdown/DropdownOption";
 import { WidgetQueryGeneratorFormContext } from "../../../../index";
@@ -51,6 +57,17 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
   const { disabled, options: columns } = useColumns("", false);
 
   const configName = `otherFields.${name}`;
+
+  useEffect(() => {
+    updateDefaultValue();
+  }, [defaultValue]);
+
+  const updateDefaultValue = useCallback(() => {
+    if (defaultValue) {
+      updateConfig(configName, defaultValue);
+    }
+  }, [name, defaultValue]);
+
   const widgetOptions: DropdownOptionType[] = Object.entries(currentPageWidgets)
     .map(([widgetId, widget]) => {
       const { getOneClickBindingConnectableWidgetConfig } =
@@ -105,12 +122,6 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
 
   const selectedValue = get(config, configName);
 
-  const getDefaultDropdownValue = useCallback(() => {
-    if (!selectedValue && defaultValue) {
-      updateConfig(configName, defaultValue);
-    }
-  }, [name, selectedValue, defaultValue]);
-
   const selected = useMemo(() => {
     if (selectedValue) {
       const option = (options as DropdownOptionType[]).find(
@@ -153,7 +164,6 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
     handleClear,
     handleSelect,
     renderOptions,
-    defaultValue: getDefaultDropdownValue(),
     selected,
     disabled,
     message,

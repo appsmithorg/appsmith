@@ -1,14 +1,15 @@
 import { BaseQueryGenerator } from "../BaseQueryGenerator";
 import { formatDialect, mysql } from "sql-formatter";
-import { QUERY_TYPE } from "../types";
 import type {
+  ActionConfigurationSQL,
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
-  ActionConfigurationSQL,
 } from "../types";
+import { QUERY_TYPE } from "../types";
 import { removeSpecialChars } from "utils/helpers";
 import without from "lodash/without";
 import { DatasourceConnectionMode } from "entities/Datasource";
+
 export default abstract class MySQL extends BaseQueryGenerator {
   private static buildSelect(
     widgetConfig: WidgetQueryGenerationConfig,
@@ -111,17 +112,14 @@ export default abstract class MySQL extends BaseQueryGenerator {
       formConfig.primaryColumn,
     );
 
-    const dataIdentifier = formConfig.dataIdentifier;
-    const primaryKey = formConfig.primaryColumn || dataIdentifier;
-
     return {
       type: QUERY_TYPE.UPDATE,
       name: `Update_${removeSpecialChars(formConfig.tableName)}`,
       payload: {
         body: `UPDATE ${formConfig.tableName} SET ${columns
           .map((column) => `${column}= '{{${value}.${column}}}'`)
-          .join(", ")} WHERE ${primaryKey}= '{{${where}.${
-          dataIdentifier || formConfig.primaryColumn
+          .join(", ")} WHERE ${formConfig.primaryColumn}= '{{${where}.${
+          formConfig.primaryColumn
         }}}';`,
       },
       dynamicBindingPathList: [

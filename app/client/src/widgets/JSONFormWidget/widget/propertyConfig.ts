@@ -224,8 +224,8 @@ export const contentConfig = [
               fieldType: FieldType.SELECT,
               optionType: FieldOptionsType.COLUMNS,
               isRequired: true,
-              getDefaultValue: (config: Record<string, any>) => {
-                return config?.primaryColumn;
+              getDefaultValue: (options: Record<string, unknown>) => {
+                return options?.primaryColumn;
               },
               isVisible: (config: Record<string, any>) => {
                 return config?.otherFields?.formType === "edit";

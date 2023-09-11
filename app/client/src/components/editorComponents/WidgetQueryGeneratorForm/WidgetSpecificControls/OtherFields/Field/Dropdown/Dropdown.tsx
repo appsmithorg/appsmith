@@ -29,7 +29,6 @@ export function OneClickDropdownFieldControl(
   };
 
   const {
-    defaultValue,
     disabled,
     error,
     handleClear,
@@ -46,7 +45,7 @@ export function OneClickDropdownFieldControl(
       <Select
         allowClear={dropdownProps.allowClear}
         data-testid={`t--one-click-binding-column-${props.id}`}
-        defaultValue={defaultValue}
+        defaultValue={selected}
         dropdownStyle={{
           minWidth: "350px",
           maxHeight: "300px",
