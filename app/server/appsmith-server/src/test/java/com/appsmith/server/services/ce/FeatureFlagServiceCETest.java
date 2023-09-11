@@ -6,8 +6,10 @@ import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.TenantService;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.conf.XmlParser;
@@ -16,9 +18,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
@@ -33,6 +37,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.appsmith.server.constants.FeatureMigrationType.DISABLE;
+import static com.appsmith.server.constants.FeatureMigrationType.ENABLE;
+import static com.appsmith.server.constants.MigrationStatus.COMPLETED;
+import static com.appsmith.server.constants.MigrationStatus.PENDING;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -58,6 +67,12 @@ public class FeatureFlagServiceCETest {
 
     @SpyBean
     CacheManager cacheManager;
+
+    @MockBean
+    FeatureFlagMigrationHelper featureFlagMigrationHelper;
+
+    @Autowired
+    TenantService tenantService;
 
     @BeforeEach
     void setup() {
@@ -225,6 +240,65 @@ public class FeatureFlagServiceCETest {
         // Assert key is evicted from cache
         StepVerifier.create(evictCache.then(hasKeyMono))
                 .assertNext(Assertions::assertFalse)
+                .verifyComplete();
+    }
+
+    @Test
+    public void
+            getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations_emptyMapForPendingMigration_statesUpdate() {
+
+        Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
+                .thenReturn(Mono.just(new HashMap<>()));
+
+        featureFlagService
+                .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
+                .block();
+        StepVerifier.create(tenantService.getDefaultTenant())
+                .assertNext(tenant -> {
+                    assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
+                            .isEqualTo(new HashMap<>());
+                    assertThat(tenant.getTenantConfiguration().getMigrationStatus())
+                            .isEqualTo(COMPLETED);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void
+            getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations_disableMigration_statesUpdate() {
+
+        Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
+                .thenReturn(Mono.just(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE, DISABLE)));
+
+        featureFlagService
+                .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
+                .block();
+        StepVerifier.create(tenantService.getDefaultTenant())
+                .assertNext(tenant -> {
+                    assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
+                            .isEqualTo(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE, DISABLE));
+                    assertThat(tenant.getTenantConfiguration().getMigrationStatus())
+                            .isEqualTo(PENDING);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations_enableMigration_statesUpdate() {
+
+        Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
+                .thenReturn(Mono.just(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE, ENABLE)));
+
+        featureFlagService
+                .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
+                .block();
+        StepVerifier.create(tenantService.getDefaultTenant())
+                .assertNext(tenant -> {
+                    assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
+                            .isEqualTo(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE, ENABLE));
+                    assertThat(tenant.getTenantConfiguration().getMigrationStatus())
+                            .isEqualTo(PENDING);
+                })
                 .verifyComplete();
     }
 

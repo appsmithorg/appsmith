@@ -154,9 +154,7 @@ class FeatureFlagMigrationHelperTest {
         Mono<Boolean> resultMono =
                 featureFlagMigrationHelper.checkAndExecuteMigrationsForFeatureFlag(defaultTenant, null);
         StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertThat(result).isTrue();
-                })
+                .assertNext(result -> assertThat(result).isTrue())
                 .verifyComplete();
     }
 
@@ -177,9 +175,7 @@ class FeatureFlagMigrationHelperTest {
         Mono<Boolean> resultMono =
                 featureFlagMigrationHelper.checkAndExecuteMigrationsForFeatureFlag(defaultTenant, TENANT_TEST_FEATURE);
         StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertThat(result).isTrue();
-                })
+                .assertNext(result -> assertThat(result).isTrue())
                 .verifyComplete();
     }
 }

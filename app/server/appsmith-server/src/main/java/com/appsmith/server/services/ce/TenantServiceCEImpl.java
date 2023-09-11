@@ -201,7 +201,6 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
      * @param tenant    tenant for which the migrations need to be executed
      * @return          tenant with migrations executed
      */
-    // TODO Write test for thisw method by mocking featureFlagMigrationHelper
     @Override
     public Mono<Tenant> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant) {
         if (tenant.getTenantConfiguration() == null

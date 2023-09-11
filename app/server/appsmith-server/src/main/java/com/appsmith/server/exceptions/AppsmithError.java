@@ -964,7 +964,7 @@ public enum AppsmithError {
     FeatureFlagMigrationFailure(
             500,
             AppsmithErrorCode.FEATURE_FLAG_MIGRATION_FAILURE.getCode(),
-            "Migration failed for feature with flag {0}, error: {1}",
+            "Migration failed for feature flag {0}, error: {1}",
             AppsmithErrorAction.DEFAULT,
             "Migration failed",
             ErrorType.INTERNAL_ERROR,
