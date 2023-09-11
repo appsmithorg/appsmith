@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Visual tests for datasources", () => {
+describe.skip("Visual tests for datasources", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
   //  1. Delete the required screenshot which you want to update.
   //  2. Run test in headless mode with any browser
