@@ -46,7 +46,7 @@ export function getHintDetailsFromClassName(
   }
 }
 
-const MAX_NUMBER_OF_SQL_HINTS = 100;
+const MAX_NUMBER_OF_SQL_HINTS = 200;
 
 export function filterCompletions(completions: Hints) {
   completions.list = completions.list.slice(0, MAX_NUMBER_OF_SQL_HINTS);
