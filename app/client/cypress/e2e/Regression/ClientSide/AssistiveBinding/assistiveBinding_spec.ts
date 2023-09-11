@@ -117,8 +117,7 @@ describe("Assistive Binding", function () {
     // After selecting "JSObject1.myFun1", expect `JSo \n{{JSObject1.myFun1.data}}` in binding
     propPane.ValidatePropertyFieldValue(
       "Label",
-      `JSo 
-    {{JSObject1.myFun1.data}}`,
+      `JSo {{JSObject1.myFun1.data}}`,
     );
   });
 
