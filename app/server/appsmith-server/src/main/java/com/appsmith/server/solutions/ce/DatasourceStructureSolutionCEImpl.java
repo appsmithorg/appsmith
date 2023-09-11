@@ -115,14 +115,14 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 })
                 .flatMap(tuple -> {
                     PluginExecutor pluginExecutor = tuple.getT1();
-                    Boolean isFlagEnabled = tuple.getT2();
+                    Boolean isMongoSchemaEnabledForMockDB = tuple.getT2();
                     return datasourceContextService.retryOnce(
                             datasourceStorage, resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
                                     .getStructure(
                                             resourceContext.getConnection(),
                                             datasourceStorage.getDatasourceConfiguration(),
                                             datasourceStorage.getIsMock(),
-                                            isFlagEnabled));
+                                            isMongoSchemaEnabledForMockDB));
                 })
                 .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
                 .onErrorMap(

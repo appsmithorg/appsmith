@@ -901,7 +901,7 @@ public class MongoPlugin extends BasePlugin {
                 MongoClient mongoClient,
                 DatasourceConfiguration datasourceConfiguration,
                 Boolean isMock,
-                Boolean isFlagEnabled) {
+                Boolean isMongoSchemaEnabledForMockDB) {
             final DatasourceStructure structure = new DatasourceStructure();
             List<DatasourceStructure.Table> tables = new ArrayList<>();
             structure.setTables(tables);
@@ -910,7 +910,7 @@ public class MongoPlugin extends BasePlugin {
 
             return Flux.from(database.listCollectionNames())
                     .filter(collectionName -> {
-                        if (isMock != null && isMock && isFlagEnabled != null && isFlagEnabled) {
+                        if (isMock == true && isMongoSchemaEnabledForMockDB == true) {
                             return collectionName.equals(MOCK_DB_MOVIES_COLLECTION_NAME);
                         }
                         return true;
