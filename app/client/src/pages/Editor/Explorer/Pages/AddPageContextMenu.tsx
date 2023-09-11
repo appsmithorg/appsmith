@@ -28,9 +28,9 @@ import {
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
 import {
-  layoutSystemFeatures,
+  LayoutSystemFeatures,
   useLayoutSystemFeatures,
-} from "pages/Editor/useLayoutSystemFeatures";
+} from "layoutSystems/common/useLayoutSystemFeatures";
 
 const Wrapper = styled.div`
   .title {
@@ -60,7 +60,7 @@ function AddPageContextMenu({
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
   const [enableForkingFromTemplates] = checkLayoutSystemFeatures([
-    layoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
+    LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
   ]);
 
   const ContextMenuItems = useMemo(() => {

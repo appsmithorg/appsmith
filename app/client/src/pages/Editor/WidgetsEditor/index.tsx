@@ -27,7 +27,7 @@ import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSele
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import Guide from "../GuidedTour/Guide";
-import MainCanvasWrapper from "./MainCanvasWrapper";
+import MainContainerWrapper from "./MainContainerWrapper";
 import EmptyCanvasPrompts from "./EmptyCanvasPrompts";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { PageViewWrapper } from "pages/AppViewer/AppPage.styled";
@@ -212,7 +212,7 @@ function WidgetsEditor() {
                   <SnapShotBannerCTA />
                 </div>
               )}
-              <MainCanvasWrapper
+              <MainContainerWrapper
                 currentPageId={currentPageId}
                 isAppSettingsPaneWithNavigationTabOpen={
                   AppSettingsTabs.Navigation === appSettingsPaneContext?.type

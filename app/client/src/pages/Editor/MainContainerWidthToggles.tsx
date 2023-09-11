@@ -73,7 +73,10 @@ const options = AppsmithLayouts.map((layout, index) => ({
   value: layout.type,
 }));
 
-export function MainCanvasLayoutControl() {
+/**
+ * OldName: MainContainerLayoutControl
+ */
+export function MainContainerWidthToggles() {
   const dispatch = useDispatch();
   const appId = useSelector(getCurrentApplicationId);
   const appLayout = useSelector(getCurrentApplicationLayout);

@@ -4,6 +4,9 @@ import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 
+/**
+ * OldName: PropertyPaneContainer
+ */
 function PropertyPaneWrapper() {
   const dispatch = useDispatch();
   const propertyPaneWidth = useSelector(getPropertyPaneWidth);

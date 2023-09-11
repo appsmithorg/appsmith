@@ -7,13 +7,13 @@ import { Button, Tooltip } from "design-system";
 
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
-import { MainCanvasLayoutControl } from "../MainCanvasLayoutControl";
+import { MainContainerWidthToggles } from "../MainContainerWidthToggles";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  layoutSystemFeatures,
+  LayoutSystemFeatures,
   useLayoutSystemFeatures,
-} from "../useLayoutSystemFeatures";
+} from "../../../layoutSystems/common/useLayoutSystemFeatures";
 
 const Title = styled.p`
   color: var(--ads-v2-color-fg);
@@ -31,7 +31,7 @@ export function CanvasPropertyPane() {
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
   const [enableLayoutControl] = checkLayoutSystemFeatures([
-    layoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL,
+    LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL,
   ]);
 
   return (
@@ -45,7 +45,7 @@ export function CanvasPropertyPane() {
           {enableLayoutControl && (
             <>
               <Title className="text-sm">Canvas size</Title>
-              <MainCanvasLayoutControl />
+              <MainContainerWidthToggles />
             </>
           )}
           <ConversionButton />

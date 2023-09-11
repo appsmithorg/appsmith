@@ -49,7 +49,11 @@ const AutoLayoutCanvasResizer = styled.div`
     }
   }
 `;
-export function MainCanvasResizer({
+
+/**
+ * OldName: CanvasResizer
+ */
+export function MainContainerResizer({
   currentPageId,
   enableMainCanvasResizer,
   heightWithTopMargin,

@@ -2,28 +2,25 @@ import { useSelector } from "react-redux";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { getCurrentAppPositioningType } from "selectors/editorSelectors";
 
-//This file will be eventually moved to layoutSystems folder once the base widget separation PR is merged
-export const layoutSystemFeatures = {
-  ENABLE_MAIN_CANVAS_RESIZER: "ENABLE_MAIN_CANVAS_RESIZER", //enable main canvas resizer
-  ENABLE_FORKING_FROM_TEMPLATES: "ENABLE_FORKING_FROM_TEMPLATES", //enable forking pages from template directly inside apps
-  ENABLE_CANVAS_LAYOUT_CONTROL: "ENABLE_CANVAS_LAYOUT_CONTROL", //enables layout control option in property pane
-};
+export enum LayoutSystemFeatures {
+  ENABLE_MAIN_CONTAINER_RESIZER = "ENABLE_MAIN_CONTAINER_RESIZER", //enable main canvas resizer
+  ENABLE_FORKING_FROM_TEMPLATES = "ENABLE_FORKING_FROM_TEMPLATES", //enable forking pages from template directly inside apps
+  ENABLE_CANVAS_LAYOUT_CONTROL = "ENABLE_CANVAS_LAYOUT_CONTROL", //enables layout control option in property pane
+}
 
 const FIXED_LAYOUT_FEATURES = {
-  [layoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES]: true,
-  [layoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: true,
-};
+  [LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES]: true,
+  [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: true,
+} as Record<LayoutSystemFeatures, boolean>;
 
 const AUTO_LAYOUT_FEATURES = {
-  [layoutSystemFeatures.ENABLE_MAIN_CANVAS_RESIZER]: true,
-};
+  [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: true,
+} as Record<LayoutSystemFeatures, boolean>;
 
 export const useLayoutSystemFeatures = () => {
   const appPositioningType = useSelector(getCurrentAppPositioningType);
 
-  let currentFeatureSet: {
-    [x: string]: boolean;
-  } = {};
+  let currentFeatureSet = {} as Record<LayoutSystemFeatures, boolean>;
 
   switch (appPositioningType) {
     case AppPositioningTypes.FIXED:
@@ -38,7 +35,7 @@ export const useLayoutSystemFeatures = () => {
    * This method checks if the features requested in the method,
    * can be enabled for the given particular layout type
    */
-  return (checkFeaturesArray: string[]) => {
+  return (checkFeaturesArray: LayoutSystemFeatures[]) => {
     const featuresArray: boolean[] = [];
 
     for (const checkFeature of checkFeaturesArray) {

@@ -23,9 +23,9 @@ import { deleteCanvasCardsState } from "actions/editorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { Icon } from "design-system";
 import {
-  layoutSystemFeatures,
+  LayoutSystemFeatures,
   useLayoutSystemFeatures,
-} from "../useLayoutSystemFeatures";
+} from "../../../layoutSystems/common/useLayoutSystemFeatures";
 
 const Wrapper = styled.div`
   margin: ${(props) =>
@@ -82,6 +82,16 @@ type EmptyCanvasPromptsProps = {
   isPreviewMode: boolean;
 };
 
+/**
+ * OldName: CanvasTopSection
+ */
+/**
+ * This Component encompasses the prompts for empty canvas
+ * prompts like generate crud app or import from template
+ * @param props Object that contains
+ * @prop isPreviewMode, boolean to indicate preview mode
+ * @returns
+ */
 function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
   const dispatch = useDispatch();
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
@@ -91,7 +101,7 @@ function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
   const [enableForkingFromTemplates] = checkLayoutSystemFeatures([
-    layoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
+    LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
   ]);
 
   useEffect(() => {

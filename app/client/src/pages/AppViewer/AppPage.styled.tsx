@@ -1,5 +1,8 @@
 import styled from "styled-components";
 
+/**
+ * OldName: PageViewContainer
+ */
 export const PageViewWrapper = styled.div<{
   hasPinnedSidebar: boolean;
   sidebarWidth: number;

@@ -31,13 +31,13 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import type { AppState } from "@appsmith/reducers";
-import { MainCanvasResizer } from "widgets/mainCanvasResizer";
+import { MainContainerResizer } from "widgets/MainContainerResizer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 import {
-  layoutSystemFeatures,
+  LayoutSystemFeatures,
   useLayoutSystemFeatures,
-} from "../useLayoutSystemFeatures";
+} from "../../../layoutSystems/common/useLayoutSystemFeatures";
 
 type MainCanvasWrapperProps = {
   isPreviewMode: boolean;
@@ -102,7 +102,21 @@ const Wrapper = styled.section<{
   }
 `;
 
-function MainCanvasWrapper(props: MainCanvasWrapperProps) {
+/**
+ * OldName: CanvasContainer
+ */
+/**
+ * This Component encompasses/wraps the center section of the editor
+ * That involves mainly the main container and main container resizer
+ * @param props object that contains
+ * @prop isPreviewMode, boolean to indicate preview mode
+ * @prop shouldShowSnapShotBanner, boolean to indicate if snapshot is shown
+ * @prop navigationHeight, height of navigation header in pixels
+ * @prop isAppSettingsPaneWithNavigationTabOpen, boolean to indicate if app setting navigation ta is open
+ * @prop currentPageId, current page id in string
+ * @returns
+ */
+function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
   const dispatch = useDispatch();
   const { currentPageId, isPreviewMode, shouldShowSnapShotBanner } = props;
@@ -126,8 +140,8 @@ function MainCanvasWrapper(props: MainCanvasWrapperProps) {
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
-  const [enableMainCanvasResizer] = checkLayoutSystemFeatures([
-    layoutSystemFeatures.ENABLE_MAIN_CANVAS_RESIZER,
+  const [enableMainContainerResizer] = checkLayoutSystemFeatures([
+    LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER,
   ]);
 
   useEffect(() => {
@@ -156,7 +170,7 @@ function MainCanvasWrapper(props: MainCanvasWrapperProps) {
     node = (
       <Canvas
         canvasWidth={canvasWidth}
-        enableMainCanvasResizer={enableMainCanvasResizer}
+        enableMainCanvasResizer={enableMainContainerResizer}
         pageId={params.pageId}
         widgetsStructure={widgetsStructure}
       />
@@ -188,7 +202,7 @@ function MainCanvasWrapper(props: MainCanvasWrapperProps) {
   return (
     <>
       <Wrapper
-        $enableMainCanvasResizer={enableMainCanvasResizer}
+        $enableMainCanvasResizer={enableMainContainerResizer}
         background={
           isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
             ? isWDSV2Enabled
@@ -236,9 +250,9 @@ function MainCanvasWrapper(props: MainCanvasWrapperProps) {
         )}
         {node}
       </Wrapper>
-      <MainCanvasResizer
+      <MainContainerResizer
         currentPageId={currentPageId}
-        enableMainCanvasResizer={enableMainCanvasResizer}
+        enableMainCanvasResizer={enableMainContainerResizer}
         heightWithTopMargin={heightWithTopMargin}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         isPreviewMode={isPreviewMode}
@@ -248,4 +262,4 @@ function MainCanvasWrapper(props: MainCanvasWrapperProps) {
   );
 }
 
-export default MainCanvasWrapper;
+export default MainContainerWrapper;
