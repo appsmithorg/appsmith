@@ -26,7 +26,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getCurrentActions,
   getJSCollectionFromName,
-  getJSCollectionsForCurrentPage,
+  getCurrentJSCollections,
 } from "@appsmith/selectors/entitiesSelector";
 import {
   getModalDropdownList,
@@ -544,7 +544,7 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
   });
   const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const actions = useSelector(getCurrentActions);
-  const jsActions = useSelector(getJSCollectionsForCurrentPage);
+  const jsActions = useSelector(getCurrentJSCollections);
 
   // this function gets all the Queries/API's/JS Objects and attaches it to actionList
   return getApiQueriesAndJSActionOptionsWithChildren(

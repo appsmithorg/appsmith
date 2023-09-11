@@ -506,8 +506,8 @@ export const widgetsExistCurrentPage = createSelector(
   },
 );
 
-// Note: getJSCollectionsForCurrentPage (returns a new object everytime)
-export const getJSCollectionsForCurrentPage = createSelector(
+// Note: getCurrentJSCollections (returns a new object everytime)
+export const getCurrentJSCollections = createSelector(
   getCurrentPageId,
   getJSCollections,
   (pageId, actions) => {
@@ -518,7 +518,7 @@ export const getJSCollectionsForCurrentPage = createSelector(
 
 export const getJSCollectionFromName = createSelector(
   [
-    getJSCollectionsForCurrentPage,
+    getCurrentJSCollections,
     (_state: AppState, JSObjectName: string) => JSObjectName,
   ],
   (jsCollections, JSObjectName) => {
@@ -871,7 +871,7 @@ export const getDatasourceLoading = (state: AppState) => {
 
 export const selectFilesForExplorer = createSelector(
   getCurrentActions,
-  getJSCollectionsForCurrentPage,
+  getCurrentJSCollections,
   selectDatasourceIdToNameMap,
   (actions, jsActions, datasourceIdToNameMap) => {
     const files = [...actions, ...jsActions].reduce((acc, file) => {
@@ -1030,7 +1030,7 @@ export const getJSCollectionParseErrors = (
 export const getNumberOfEntitiesInCurrentPage = createSelector(
   getCanvasWidgets,
   getCurrentActions,
-  getJSCollectionsForCurrentPage,
+  getCurrentJSCollections,
   (widgets, actions, jsCollections) => {
     return (
       Object.keys(widgets).length - 1 + actions.length + jsCollections.length
@@ -1111,7 +1111,7 @@ export const selectActionByName = (actionName: string) =>
   });
 
 export const selectJSCollectionByName = (collectionName: string) =>
-  createSelector(getJSCollectionsForCurrentPage, (collections) => {
+  createSelector(getCurrentJSCollections, (collections) => {
     return collections.find(
       (collection) => collection.config.name === collectionName,
     );
