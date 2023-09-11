@@ -292,4 +292,5 @@ export class CommonLocators {
   _position = (value: string) => `//*[@data-value='${value}']`;
   _alignment = (value: string) => `//*[@data-value='${value}']`;
   _borderRadius = (value: string) => `//*[@data-value='${value}']`;
+  _textInside = ".bp3-ui-text span";
 }
