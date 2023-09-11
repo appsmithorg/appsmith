@@ -14,7 +14,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { nestDSL } from "@shared/dsl";
 
 export const useMockDsl = (dsl: any, mode?: APP_MODE) => {

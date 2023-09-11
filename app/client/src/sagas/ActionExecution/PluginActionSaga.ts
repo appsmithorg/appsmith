@@ -117,7 +117,7 @@ import {
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { APP_MODE } from "entities/App";
-import { FileDataTypes } from "widgets/constants";
+import { FileDataTypes } from "WidgetProvider/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
 import {
   ActionValidationError,
@@ -153,11 +153,11 @@ import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPage } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
 import { softRefreshDatasourceStructure } from "actions/datasourceActions";
-import {
-  getCurrentEnvName,
-  getCurrentEnvironment,
-} from "@appsmith/utils/Environments";
 import { changeQuery } from "actions/queryPaneActions";
+import {
+  getCurrentEnvironmentDetails,
+  getCurrentEnvironmentName,
+} from "@appsmith/selectors/environmentSelectors";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -520,6 +520,10 @@ export default function* executePluginActionTriggerSaga(
   const datasource: Datasource = yield select(getDatasource, datasourceId);
   const plugin: Plugin = yield select(getPlugin, action?.pluginId);
   const currentApp: ApplicationPayload = yield select(getCurrentApplication);
+
+  const currentEnvDetails: { id: string; name: string } = yield select(
+    getCurrentEnvironmentDetails,
+  );
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
     type: action?.pluginType,
     name: action?.name,
@@ -527,8 +531,8 @@ export default function* executePluginActionTriggerSaga(
     appId: currentApp.id,
     appMode: appMode,
     appName: currentApp.name,
-    environmentId: getCurrentEnvironment(),
-    environmentName: getCurrentEnvName(),
+    environmentId: currentEnvDetails.id,
+    environmentName: currentEnvDetails.name,
     isExampleApp: currentApp.appIsExample,
     pluginName: plugin?.name,
     datasourceId: datasourceId,
@@ -567,7 +571,7 @@ export default function* executePluginActionTriggerSaga(
           iconId: action.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           text: `Execution failed with status ${payload.statusCode}`,
-          environmentName: getCurrentEnvName() || "",
+          environmentName: currentEnvDetails.name,
           source: {
             type: ENTITY_TYPE.ACTION,
             name: action.name,
@@ -601,8 +605,8 @@ export default function* executePluginActionTriggerSaga(
       appId: currentApp.id,
       appMode: appMode,
       appName: currentApp.name,
-      environmentId: getCurrentEnvironment(),
-      environmentName: getCurrentEnvName(),
+      environmentId: currentEnvDetails.id,
+      environmentName: currentEnvDetails.name,
       isExampleApp: currentApp.appIsExample,
       pluginName: plugin?.name,
       datasourceId: datasourceId,
@@ -630,8 +634,8 @@ export default function* executePluginActionTriggerSaga(
       appId: currentApp.id,
       appMode: appMode,
       appName: currentApp.name,
-      environmentId: getCurrentEnvironment(),
-      environmentName: getCurrentEnvName(),
+      environmentId: currentEnvDetails.id,
+      environmentName: currentEnvDetails.name,
       isExampleApp: currentApp.appIsExample,
       pluginName: plugin?.name,
       datasourceId: datasourceId,
@@ -743,6 +747,10 @@ function* runActionSaga(
       yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }
   }
+
+  const currentEnvDetails: { id: string; name: string } = yield select(
+    getCurrentEnvironmentDetails,
+  );
   const actionObject = shouldBeDefined<Action>(
     yield select(getAction, actionId),
     `action not found for id - ${actionId}`,
@@ -897,7 +905,7 @@ function* runActionSaga(
           id: actionId,
           iconId: actionObject.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-          environmentName: getCurrentEnvName() || "",
+          environmentName: currentEnvDetails.name,
           text: `Execution failed${
             payload.statusCode ? ` with status ${payload.statusCode}` : ""
           }`,
@@ -933,8 +941,8 @@ function* runActionSaga(
     AnalyticsUtil.logEvent(failureEventName, {
       actionId,
       actionName: actionObject.name,
-      environmentId: getCurrentEnvironment(),
-      environmentName: getCurrentEnvName(),
+      environmentId: currentEnvDetails.id,
+      environmentName: currentEnvDetails.name,
       pageName: pageName,
       apiType: "INTERNAL",
       datasourceId: datasource?.id,
@@ -956,8 +964,8 @@ function* runActionSaga(
   AnalyticsUtil.logEvent(eventName, {
     actionId,
     actionName: actionObject.name,
-    environmentId: getCurrentEnvironment(),
-    environmentName: getCurrentEnvName(),
+    environmentId: currentEnvDetails.id,
+    environmentName: currentEnvDetails.name,
     pageName: pageName,
     responseTime: payload.duration,
     apiType: "INTERNAL",
@@ -1061,6 +1069,9 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
+  const currentEnvDetails: { id: string; name: string } = yield select(
+    getCurrentEnvironmentDetails,
+  );
   if (pageAction.hasOwnProperty("collectionId")) {
     yield call(executeOnPageLoadJSAction, pageAction);
   } else {
@@ -1086,8 +1097,8 @@ function* executePageLoadAction(pageAction: PageAction) {
       appId: currentApp.id,
       onPageLoad: true,
       appName: currentApp.name,
-      environmentId: getCurrentEnvironment(),
-      environmentName: getCurrentEnvName(),
+      environmentId: currentEnvDetails.id,
+      environmentName: currentEnvDetails.name,
       isExampleApp: currentApp.appIsExample,
       pluginName: plugin?.name,
       datasourceId: datasourceId,
@@ -1130,7 +1141,7 @@ function* executePageLoadAction(pageAction: PageAction) {
             id: pageAction.id,
             iconId: action.pluginId,
             logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-            environmentName: getCurrentEnvName() || "",
+            environmentName: currentEnvDetails.name,
             text: `Execution failed with status ${payload.statusCode}`,
             source: {
               type: ENTITY_TYPE.ACTION,
@@ -1175,8 +1186,8 @@ function* executePageLoadAction(pageAction: PageAction) {
         appId: currentApp.id,
         onPageLoad: true,
         appName: currentApp.name,
-        environmentId: getCurrentEnvironment(),
-        environmentName: getCurrentEnvName(),
+        environmentId: currentEnvDetails.id,
+        environmentName: currentEnvDetails.name,
         isExampleApp: currentApp.appIsExample,
         pluginName: plugin?.name,
         datasourceId: datasourceId,
@@ -1194,8 +1205,8 @@ function* executePageLoadAction(pageAction: PageAction) {
         appId: currentApp.id,
         onPageLoad: true,
         appName: currentApp.name,
-        environmentId: getCurrentEnvironment(),
-        environmentName: getCurrentEnvName(),
+        environmentId: currentEnvDetails.id,
+        environmentName: currentEnvDetails.name,
         isExampleApp: currentApp.appIsExample,
         pluginName: plugin?.name,
         datasourceId: datasourceId,
@@ -1525,7 +1536,8 @@ function* softRefreshActionsSaga() {
   if (isQueryPane) {
     yield put(changeQuery(isQueryPane.params.queryId));
   }
-  toast.show(createMessage(SWITCH_ENVIRONMENT_SUCCESS, getCurrentEnvName()), {
+  const currentEnvName: string = yield select(getCurrentEnvironmentName);
+  toast.show(createMessage(SWITCH_ENVIRONMENT_SUCCESS, currentEnvName), {
     kind: "success",
   });
 }

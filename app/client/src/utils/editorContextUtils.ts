@@ -4,10 +4,7 @@ import {
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
 } from "@appsmith/constants/forms";
-import {
-  DB_NOT_SUPPORTED,
-  getCurrentEnvironment,
-} from "@appsmith/utils/Environments";
+import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
 import { diff } from "deep-diff";
 import { PluginName, PluginPackageName, PluginType } from "entities/Action";
 import type {
@@ -104,7 +101,7 @@ export function getPropertyControlFocusElement(
 export function isDatasourceAuthorizedForQueryCreation(
   datasource: Datasource,
   plugin: Plugin,
-  currentEnvironment = getCurrentEnvironment(),
+  currentEnvironment: string,
   validStatusArr: Array<AuthenticationStatus> = [AuthenticationStatus.SUCCESS],
 ): boolean {
   if (!datasource || !datasource.hasOwnProperty("datasourceStorages"))

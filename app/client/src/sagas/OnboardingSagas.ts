@@ -51,7 +51,7 @@ import {
 } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getNextWidgetName } from "./WidgetOperationUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { generateReactKey } from "utils/generators";
 import { RenderModes } from "constants/WidgetConstants";
 import log from "loglevel";
@@ -63,7 +63,7 @@ import {
   updateApplicationLayout,
 } from "@appsmith/actions/applicationActions";
 import { setPreviewModeAction } from "actions/editorActions";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import {

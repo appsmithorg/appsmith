@@ -125,10 +125,10 @@ import {
   keysOfNavigationSetting,
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { generateReactKey } from "utils/generators";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -880,7 +880,7 @@ export function* fetchUnconfiguredDatasourceList(
 }
 
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
-  let currentEnvironment = getCurrentEnvironment();
+  let currentEnvironment: string = yield select(getCurrentEnvironmentId);
   if (!datasource.datasourceStorages.hasOwnProperty(currentEnvironment)) {
     // if the currentEnvironemnt is not present for use here, take the first key from datasourceStorages
     currentEnvironment = Object.keys(datasource.datasourceStorages)[0];

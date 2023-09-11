@@ -48,11 +48,11 @@ import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 import {
   isEnvironmentConfigured,
-  getCurrentEnvironment,
   doesAnyDsConfigExist,
   DB_NOT_SUPPORTED,
 } from "@appsmith/utils/Environments";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -202,7 +202,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
 
-  const currentEnv = getCurrentEnvironment();
+  const currentEnv = useSelector(getCurrentEnvironmentId);
 
   const editDatasource = useCallback(() => {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");
@@ -264,6 +264,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   const isDSAuthorizedForQueryCreation = isDatasourceAuthorizedForQueryCreation(
     datasource,
     plugin,
+    currentEnv,
   );
 
   const showReconnectButton = !(
@@ -272,7 +273,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   );
 
   const showCreateNewActionButton = envSupportedDs
-    ? doesAnyDsConfigExist(datasource, currentEnv)
+    ? doesAnyDsConfigExist(datasource)
     : true;
 
   return (

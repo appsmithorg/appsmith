@@ -76,10 +76,10 @@ import { AppThemingMode } from "selectors/appThemingSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { startFormEvaluations } from "@appsmith/actions/evaluationActions";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -317,7 +317,7 @@ function* replayActionSaga(
    * Update all the diffs in the action object.
    * We need this for debugger logs, dynamicBindingPathList and to call relevant APIs */
 
-  const currentEnvironment = getCurrentEnvironment();
+  const currentEnvironment: string = yield select(getCurrentEnvironmentId);
   const plugins: Plugin[] = yield select(getPlugins);
   const uiComponent = getUIComponent(replayEntity.pluginId, plugins);
   const datasource: Datasource | undefined = yield select(

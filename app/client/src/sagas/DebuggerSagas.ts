@@ -63,10 +63,7 @@ import {
   isAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import {
-  getCurrentEnvName,
-  getCurrentEnvironment,
-} from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -488,14 +485,17 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
       // Log analytics for new error messages
       //errorID has timestamp for 1:1 mapping with new and resolved errors
       if (errorMessages.length && errorLog) {
+        const currentEnvDetails: { id: string; name: string } = yield select(
+          getCurrentEnvironmentDetails,
+        );
         yield all(
           errorMessages.map((errorMessage) =>
             put({
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
                 ...analyticsPayload,
-                environmentId: getCurrentEnvironment(),
-                environmentName: getCurrentEnvName(),
+                environmentId: currentEnvDetails.id,
+                environmentName: currentEnvDetails.name,
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
                 errorId: errorLog.id + "_" + errorLog.timestamp,
                 errorMessage: errorMessage.message,
@@ -510,6 +510,9 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
     } else {
       const updatedErrorMessages = messages ?? [];
       const existingErrorMessages = currentDebuggerErrors[id].messages ?? [];
+      const currentEnvDetails: { id: string; name: string } = yield select(
+        getCurrentEnvironmentDetails,
+      );
       // Log new error messages
       yield all(
         updatedErrorMessages.map((updatedErrorMessage) => {
@@ -526,8 +529,8 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
                 ...analyticsPayload,
-                environmentId: getCurrentEnvironment(),
-                environmentName: getCurrentEnvName(),
+                environmentId: currentEnvDetails.id,
+                environmentName: currentEnvDetails.name,
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
                 errorId: errorLog.id + "_" + errorLog.timestamp,
                 errorMessage: updatedErrorMessage.message,
@@ -555,8 +558,8 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
                 ...analyticsPayload,
-                environmentId: getCurrentEnvironment(),
-                environmentName: getCurrentEnvName(),
+                environmentId: currentEnvDetails.id,
+                environmentName: currentEnvDetails.name,
                 eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
                 errorId:
                   currentDebuggerErrors[id].id +
@@ -618,6 +621,9 @@ function* deleteDebuggerErrorLogsSaga(
     });
 
     if (errorMessages) {
+      const currentEnvDetails: { id: string; name: string } = yield select(
+        getCurrentEnvironmentDetails,
+      );
       //errorID has timestamp for 1:1 mapping with new and resolved errors
       yield all(
         errorMessages.map((errorMessage) => {
@@ -625,8 +631,8 @@ function* deleteDebuggerErrorLogsSaga(
             type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
             payload: {
               ...analyticsPayload,
-              environmentId: getCurrentEnvironment(),
-              environmentName: getCurrentEnvName(),
+              environmentId: currentEnvDetails.id,
+              environmentName: currentEnvDetails.name,
               eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
               errorId: error.id + "_" + error.timestamp,
               errorMessage: errorMessage.message,
