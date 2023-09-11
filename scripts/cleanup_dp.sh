@@ -39,10 +39,10 @@ for i in $deployed_charts
     echo $pr_state
     if [[ $pr_state == "MERGED" || $pr_state == "CLOSED" ]]
     then
-      helm uninstall $i -n $i
       mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$i?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
       pod_name=$(kubectl get pods -n $i -o json | jq '.items[0].metadata.name' | tr -d '"')
       kubectl exec $pod_name -n $i -- bash -c "rm -rf /appsmith-stacks/*"
+      helm uninstall $i -n $i
       kubectl delete ns $i || true
       kubectl patch pv $i-appsmith -p '{"metadata":{"finalizers":null}}' || true
       kubectl delete pv $i-appsmith --grace-period=0 --force || true
