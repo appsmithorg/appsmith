@@ -6,6 +6,8 @@ export const publishCommunityTemplate = (payload: {
   useCases: string[];
   authorEmail: string;
   authorName: string;
+  shouldUpdateEmail: boolean;
+  shouldUpdateName: boolean;
 }) => ({
   type: ReduxActionTypes.COMMUNITY_TEMPLATE_PUBLISH_INIT,
   payload,

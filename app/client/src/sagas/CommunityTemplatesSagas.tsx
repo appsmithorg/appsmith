@@ -18,8 +18,18 @@ import type {
 import TemplatesAPI from "api/TemplatesApi";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import type { UpdateUserRequest } from "@appsmith/api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
 
 const isAirgappedInstance = isAirgapped();
+
+function* updateUserDetails(payload: PublishCommunityTemplatePayload) {
+  if (!payload.shouldUpdateEmail && !payload.shouldUpdateName) return;
+  const request: UpdateUserRequest = {};
+  payload.shouldUpdateEmail && (request.email = payload.authorEmail);
+  payload.shouldUpdateName && (request.name = payload.authorName);
+  yield call(UserApi.updateUser, request);
+}
 
 function* handleFailure(error: unknown) {
   const payload: ErrorActionPayload = {
@@ -36,16 +46,24 @@ function* handleFailure(error: unknown) {
   });
 }
 
+type PublishCommunityTemplatePayload = {
+  title: string;
+  headline: string;
+  description: string;
+  useCases: string[];
+  authorEmail: string;
+  authorName: string;
+  shouldUpdateEmail: boolean;
+  shouldUpdateName: boolean;
+};
+
 function* publishCommunityTemplateSaga(
-  action: ReduxAction<{
-    title: string;
-    headline: string;
-    description: string;
-    useCases: string[];
-    authorEmail: string;
-    authorName: string;
-  }>,
+  action: ReduxAction<PublishCommunityTemplatePayload>,
 ) {
+  try {
+    yield call(updateUserDetails, action.payload);
+  } catch (error) {}
+
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const workspaceId: string = yield select(getCurrentWorkspaceId);
@@ -55,6 +73,10 @@ function* publishCommunityTemplateSaga(
       branchName: "",
       ...action.payload,
     };
+    if ("authorName" in requestObj) delete requestObj.authorName;
+    if ("shouldUpdateEmail" in requestObj) delete requestObj.shouldUpdateEmail;
+    if ("shouldUpdateName" in requestObj) delete requestObj.shouldUpdateName;
+
     const response: PublishCommunityTemplateResponse = yield call(
       TemplatesAPI.publishCommunityTemplate,
       applicationId,
