@@ -20,6 +20,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { UpdateUserRequest } from "@appsmith/api/UserApi";
 import UserApi from "@appsmith/api/UserApi";
+import type { PublishCommunityTemplatePayload } from "actions/communityTemplateActions";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -46,17 +47,6 @@ function* handleFailure(error: unknown) {
   });
 }
 
-type PublishCommunityTemplatePayload = {
-  title: string;
-  headline: string;
-  description: string;
-  useCases: string[];
-  authorEmail: string;
-  authorName: string;
-  shouldUpdateEmail: boolean;
-  shouldUpdateName: boolean;
-};
-
 function* publishCommunityTemplateSaga(
   action: ReduxAction<PublishCommunityTemplatePayload>,
 ) {
@@ -70,7 +60,6 @@ function* publishCommunityTemplateSaga(
     const requestObj: PublishCommunityTemplateRequest = {
       applicationId,
       workspaceId,
-      branchName: "",
       ...action.payload,
     };
     if ("authorName" in requestObj) delete requestObj.authorName;

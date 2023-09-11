@@ -89,6 +89,8 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
         authorName,
         shouldUpdateEmail: !!currentUser?.email,
         shouldUpdateName: !!currentUser?.name,
+        branchName:
+          currentApplication?.gitApplicationMetadata?.branchName || "",
       }),
     );
   };

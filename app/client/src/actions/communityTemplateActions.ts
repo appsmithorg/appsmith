@@ -1,5 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-export const publishCommunityTemplate = (payload: {
+
+export type PublishCommunityTemplatePayload = {
   title: string;
   headline: string;
   description: string;
@@ -8,7 +9,11 @@ export const publishCommunityTemplate = (payload: {
   authorName: string;
   shouldUpdateEmail: boolean;
   shouldUpdateName: boolean;
-}) => ({
+  branchName: string;
+};
+export const publishCommunityTemplate = (
+  payload: PublishCommunityTemplatePayload,
+) => ({
   type: ReduxActionTypes.COMMUNITY_TEMPLATE_PUBLISH_INIT,
   payload,
 });
