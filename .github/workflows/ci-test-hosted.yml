@@ -122,7 +122,7 @@ jobs:
                     fi
                 done
               fi
-          done < ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          done < ~/failed_spec_ci
           failed_spec_env=${failed_spec_env#,}
           echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV
 
