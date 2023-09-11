@@ -57,11 +57,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
     dataSources.RunQueryNVerifyResponseViews();
-    agHelper.ActionContextMenuWithInPane({
-      action: "Delete",
-      entityType: entityItems.Query,
-    });
-
     dataSources.AssertTableInVirtuosoList(dsName, "public.vessels");
   });
 
