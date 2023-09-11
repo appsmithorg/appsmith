@@ -1931,6 +1931,8 @@ export class DataSources {
           this.agHelper
             .GetNClick(this._dsVirtuosoElement(dsName))
             .then((parentElement) => {
+              const heightOfParentElement = parentElement.outerHeight() || 0;
+
               // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element accordion is collapsed by default.
               const containerElement = parentElement.find(
                 '[data-test-id="virtuoso-item-list"]',
@@ -1940,16 +1942,19 @@ export class DataSources {
                   "",
                 10,
               );
-              // Index of the table present in the array of tables which will determine the presence of element inside the parent container
-              let offset = indexOfTable * elementHeight;
               // Total height of the parent container holding the tables in the dom normally without virtualization rendering
               const totalScroll = tables.length * elementHeight;
-              const scrollPercent = (offset / (totalScroll || 1)) * 100;
-              this.agHelper.ScrollToXY(
-                this._dsVirtuosoElement(dsName),
-                0,
-                `${scrollPercent}%`,
-              );
+              if (heightOfParentElement < totalScroll) {
+                // Index of the table present in the array of tables which will determine the presence of element inside the parent container
+                let offset = indexOfTable * elementHeight;
+                const scrollPercent = (offset / (totalScroll || 1)) * 100;
+                this.agHelper.ScrollToXY(
+                  this._dsVirtuosoElement(dsName),
+                  0,
+                  `${scrollPercent}%`,
+                );
+              }
+
               this.agHelper.AssertElementExist(
                 `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`,
               );
