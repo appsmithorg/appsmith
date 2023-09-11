@@ -253,7 +253,6 @@ function ConnectGitPlaceholder() {
 
                 dispatch(
                   setIsGitSyncModalOpen({
-                    isDeploying: false,
                     isOpen: true,
                     tab: GitSyncModalTab.GIT_CONNECTION,
                   }),
@@ -298,7 +297,6 @@ export default function QuickGitActions() {
         setIsGitSyncModalOpen({
           isOpen: true,
           tab: GitSyncModalTab.DEPLOY,
-          isDeploying: false,
         }),
       );
       AnalyticsUtil.logEvent("GS_DEPLOY_GIT_MODAL_TRIGGERED", {

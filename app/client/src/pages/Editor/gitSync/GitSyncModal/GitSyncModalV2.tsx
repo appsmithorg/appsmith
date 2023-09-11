@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import {
   getActiveGitSyncModalTab,
+  getIsDeploying,
   getIsGitConnected,
   getIsGitSyncModalOpen,
 } from "selectors/gitSyncSelectors";
@@ -70,6 +71,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
   const gitMetadata = useSelector(getCurrentAppGitMetaData);
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);
+  const isDeploying = useSelector(getIsDeploying);
 
   let activeTabKey = useSelector(getActiveGitSyncModalTab);
   if (!isGitConnected && activeTabKey !== GitSyncModalTab.GIT_CONNECTION) {
@@ -93,7 +95,13 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
           source: `${activeTabKey}_TAB`,
         });
       }
-      dispatch(setIsGitSyncModalOpen({ isOpen: isModalOpen, tab: tabKey }));
+      dispatch(
+        setIsGitSyncModalOpen({
+          isOpen: isModalOpen,
+          tab: tabKey,
+          isDeploying,
+        }),
+      );
     },
     [dispatch, setIsGitSyncModalOpen, isModalOpen],
   );

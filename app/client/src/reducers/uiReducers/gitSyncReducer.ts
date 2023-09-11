@@ -51,6 +51,7 @@ const gitSyncReducer = createReducer(initialState, {
     }>,
   ) => {
     const activeGitSyncModalTab = action.payload.tab;
+    const isDeploying = action.payload.isDeploying || false;
 
     return {
       ...state,
@@ -63,7 +64,7 @@ const gitSyncReducer = createReducer(initialState, {
       mergeError: null,
       pullFailed: false, // reset conflicts when the modal is opened
       gitImportError: null,
-      isDeploying: action.payload.isDeploying,
+      isDeploying,
     };
   },
   [ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT]: (state: GitSyncReducerState) => ({

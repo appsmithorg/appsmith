@@ -23,7 +23,7 @@ export type GitStatusParams = {
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
   tab?: GitSyncModalTab;
-  isDeploying: boolean;
+  isDeploying?: boolean;
 }) => {
   return {
     type: ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN,
@@ -281,11 +281,8 @@ export const setShowRepoLimitErrorModal = (payload: boolean) => ({
   payload,
 });
 
-export const showConnectGitModal = (isDeploying: boolean) => ({
+export const showConnectGitModal = () => ({
   type: ReduxActionTypes.SHOW_CONNECT_GIT_MODAL,
-  payload: {
-    isDeploying,
-  },
 });
 
 export const revokeGit = () => ({

@@ -404,7 +404,6 @@ const mapDispatchToProps = (dispatch: any) => {
         setIsGitSyncModalOpen({
           isOpen: true,
           tab: GitSyncModalTab.DEPLOY,
-          isDeploying: false,
         }),
       ),
     hideInstaller: () => dispatch(toggleInstaller(false)),

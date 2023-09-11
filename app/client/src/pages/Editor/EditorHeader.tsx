@@ -304,7 +304,7 @@ export function EditorHeader() {
   const handleClickDeploy = useCallback(
     (fromDeploy?: boolean) => {
       if (isGitConnected) {
-        dispatch(showConnectGitModal(true));
+        dispatch(showConnectGitModal());
         AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
           source: fromDeploy
             ? "Deploy button"

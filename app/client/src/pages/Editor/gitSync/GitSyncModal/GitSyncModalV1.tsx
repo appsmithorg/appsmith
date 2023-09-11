@@ -70,7 +70,7 @@ function GitSyncModalV1(props: { isImport?: boolean }) {
   const activeTabKey = useSelector(getActiveGitSyncModalTab);
 
   const handleClose = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen({ isOpen: false, isDeploying: false }));
+    dispatch(setIsGitSyncModalOpen({ isOpen: false }));
     dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
 

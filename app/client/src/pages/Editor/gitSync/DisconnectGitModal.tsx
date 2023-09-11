@@ -52,7 +52,6 @@ function DisconnectGitModal() {
     dispatch(setIsDisconnectGitModalOpen(false));
     dispatch(
       setIsGitSyncModalOpen({
-        isDeploying: false,
         isOpen: true,
         tab: isGitConnectV2Enabled
           ? GitSyncModalTab.SETTINGS
