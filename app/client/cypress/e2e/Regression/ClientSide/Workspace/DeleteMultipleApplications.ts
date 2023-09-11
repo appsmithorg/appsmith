@@ -26,7 +26,6 @@ const UnableToDeleteWorkspace = {
 
 describe("Delete workspace test spec", function () {
   before(() => {
-    homePage.NavigateToHome();
     homePage.CreateNewWorkspace(
       MultipleDeleteFirstWorkspace.workspaceName,
       true,
