@@ -7,11 +7,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.ApplicationImportDTO;
-import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.ApplicationTemplate;
-import com.appsmith.server.dtos.CommunityTemplateDTO;
-import com.appsmith.server.dtos.CommunityTemplateUploadDTO;
+import com.appsmith.server.dtos.*;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -361,17 +357,35 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .findById(applicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
                     application.setForkingEnabled(true);
-                    application.setIsPublic(true);
                     application.setIsCommunityTemplate(true);
+
                     return applicationService.update(applicationId, application, branchId);
                 });
     }
 
     @Override
-    public Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource) {
+    public Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource, Boolean dryRun) {
+        if (dryRun) {
+            return importExportApplicationService
+                    .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
+                    .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
+                    .flatMap(application -> {
+                        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+                        applicationAccessDTO.setPublicAccess(true);
+                        return applicationService.changeViewAccess(
+                                application.getId(), resource.getBranchName(), applicationAccessDTO);
+                    });
+        }
+
         return importExportApplicationService
                 .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
                 .flatMap(appJson -> uploadCommunityTemplateToCS(createCommunityTemplateUploadDTO(appJson, resource)))
-                .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()));
+                .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
+                .flatMap(application -> {
+                    ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+                    applicationAccessDTO.setPublicAccess(true);
+                    return applicationService.changeViewAccess(
+                            application.getId(), resource.getBranchName(), applicationAccessDTO);
+                });
     }
 }
