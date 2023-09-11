@@ -80,6 +80,7 @@ class FeatureFlaggedMethodInvokerAspectTest {
         StepVerifier.create(resultMono).expectNext(EE_RESPONSE).verifyComplete();
     }
 
+    // This passes as the field is being set by `testComponent`
     @Test
     void testClassLevelVariable() {
         testComponent.setFieldWithExplicitSetter();
@@ -89,6 +90,8 @@ class FeatureFlaggedMethodInvokerAspectTest {
         StepVerifier.create(resultMono).expectNext("ce_testField").verifyComplete();
     }
 
+    // This fails as the field remains null in `testComponent` as the `ceEeDiffMethod` does not update the field in
+    // Impl class but the same gets updated in CEImpl class
     @Test
     void testClassLevelVariable_test() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.TENANT_TEST_FEATURE)))

@@ -25,12 +25,4 @@ public class TestComponentImpl extends TestComponentCECompatibleImpl implements 
     public Mono<String> eeCeCompatibleDiffMethod() {
         return Mono.just("ee_impl_method");
     }
-
-    @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.TENANT_TEST_FEATURE)
-    public Mono<String> getterForFieldWithExplicitSetter() {
-        return this.getFieldWithExplicitSetter() == null
-                ? Mono.just("ee_testField")
-                : Mono.just(this.getFieldWithExplicitSetter());
-    }
 }

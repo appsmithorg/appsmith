@@ -11,11 +11,4 @@ public class TestComponentCECompatibleImpl extends TestComponentCEImpl implement
     public Mono<String> eeCeCompatibleDiffMethod() {
         return Mono.just("ce_compatible_impl_method");
     }
-
-    @Override
-    public Mono<String> getterForFieldWithExplicitSetter() {
-        return this.getFieldWithExplicitSetter() == null
-                ? Mono.just("ceCompatible_testField")
-                : Mono.just(this.getFieldWithExplicitSetter());
-    }
 }
