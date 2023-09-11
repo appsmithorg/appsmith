@@ -60,7 +60,7 @@ function AppInviteUsersForm(props: any) {
   const [isCopied, setIsCopied] = useState(false);
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
   const currentWorkspace = useWorkspace(currentWorkspaceId);
-  const userWorkspacePermissions = currentWorkspace.userPermissions ?? [];
+  const userWorkspacePermissions = currentWorkspace?.userPermissions ?? [];
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
   const canInviteToApplication = hasInviteUserToApplicationPermission([
     ...userWorkspacePermissions,
