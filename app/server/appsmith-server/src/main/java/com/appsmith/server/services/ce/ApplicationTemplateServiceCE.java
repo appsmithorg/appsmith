@@ -27,5 +27,5 @@ public interface ApplicationTemplateServiceCE {
 
     Mono<ApplicationTemplate> getFilters();
 
-    Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource, Boolean dryRun);
+    Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource);
 }

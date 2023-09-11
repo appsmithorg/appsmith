@@ -89,7 +89,7 @@ public class ApplicationTemplateServiceTest {
         communityTemplateDTO.setUseCases(List.of("uc1", "uc2"));
         communityTemplateDTO.setAuthorEmail("test@user.com");
 
-        StepVerifier.create(applicationTemplateService.publishAsCommunityTemplate(communityTemplateDTO, false))
+        StepVerifier.create(applicationTemplateService.publishAsCommunityTemplate(communityTemplateDTO))
                 .assertNext(updatedApplication -> {
                     assertThat(updatedApplication.getIsCommunityTemplate()).isTrue();
                     assertThat(updatedApplication.getForkingEnabled()).isTrue();

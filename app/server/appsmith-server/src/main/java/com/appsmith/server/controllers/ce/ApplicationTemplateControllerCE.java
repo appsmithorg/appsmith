@@ -100,7 +100,7 @@ public class ApplicationTemplateControllerCE {
     public Mono<ResponseDTO<Application>> publishAsCommunityTemplate(
             @RequestBody(required = true) CommunityTemplateDTO resource) {
         return applicationTemplateService
-                .publishAsCommunityTemplate(resource, false)
+                .publishAsCommunityTemplate(resource)
                 .map(template -> new ResponseDTO<>(HttpStatus.OK.value(), template, null));
     }
 }
