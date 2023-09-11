@@ -17,6 +17,14 @@ const AUTO_LAYOUT_FEATURES = {
   [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: true,
 } as Record<LayoutSystemFeatures, boolean>;
 
+/**
+ * This Hook is mainly written to be used as a central control to enable
+ * layout specific features based on the type of current layout.
+ * This way the components using it need not be aware of what layout it is on
+ *
+ * @returns This hook returns a method, which can be used to get a boolean corresponding to the feature supplied as argument.
+ * The boolean will indicate if the feature is enabled for the current layout
+ */
 export const useLayoutSystemFeatures = () => {
   const appPositioningType = useSelector(getCurrentAppPositioningType);
 
