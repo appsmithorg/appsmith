@@ -79,4 +79,13 @@ class FeatureFlaggedMethodInvokerAspectTest {
         Mono<String> resultMono = testComponent.ceEeDiffMethod();
         StepVerifier.create(resultMono).expectNext(EE_RESPONSE).verifyComplete();
     }
+
+    @Test
+    void testClassLevelVariable() {
+        testComponent.setTestField();
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.TENANT_TEST_FEATURE)))
+                .thenReturn(Mono.just(true));
+        Mono<String> resultMono = testComponent.methodWithSideEffect();
+        StepVerifier.create(resultMono).expectNext("ce_testField").verifyComplete();
+    }
 }

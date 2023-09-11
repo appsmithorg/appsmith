@@ -9,4 +9,8 @@ public interface TestComponentCE {
     // Method to test the case where the CE and EE interfaces have the same method name but different return types
     // and no implementations in  CE compatible class
     Mono<String> ceEeDiffMethod();
+
+    void setTestField();
+
+    Mono<String> methodWithSideEffect();
 }
