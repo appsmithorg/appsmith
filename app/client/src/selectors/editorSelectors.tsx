@@ -625,11 +625,11 @@ const generateOccupiedSpacesMap = (
   widgets: CanvasWidgetsReduxState,
   fetchNow = true,
   dimensionMap = DefaultDimensionMap,
-): { [containerWidgetId: string]: WidgetSpace[] } | undefined => {
+): { [containerWidgetId: string]: WidgetSpace[] } => {
   const occupiedSpaces: {
     [containerWidgetId: string]: WidgetSpace[];
   } = {};
-  if (!fetchNow) return;
+  if (!fetchNow) return {};
   // Get all widgets with type "CONTAINER_WIDGET" and has children
   const containerWidgets: FlattenedWidgetProps[] = Object.values(
     widgets,
@@ -656,7 +656,7 @@ const generateOccupiedSpacesMap = (
     });
   }
   // Return undefined if there are no occupiedSpaces.
-  return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
+  return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : {};
 };
 
 // returns occupied spaces

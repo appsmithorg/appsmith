@@ -67,7 +67,7 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
     }
   };
 
-  getPageView() {
+  getWidgetView() {
     return (
       <IconWrapper>
         <IconComponent
