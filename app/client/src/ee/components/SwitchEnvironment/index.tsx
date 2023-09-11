@@ -3,17 +3,17 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import { connect, useDispatch, useSelector } from "react-redux";
-import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
+import type {
+  CurrentEnvironmentDetails,
+  EnvironmentType,
+} from "@appsmith/reducers/environmentReducer";
 import {
   getEnvironmentsWithPermission,
   getDefaultEnvironment,
+  getCurrentEnvironmentId,
 } from "@appsmith/selectors/environmentSelectors";
 import { Option, Select, Text, toast } from "design-system";
-import {
-  ENVIRONMENT_ID_LOCAL_STORAGE_KEY,
-  ENVIRONMENT_QUERY_KEY,
-  updateLocalStorage,
-} from "@appsmith/utils/Environments";
+import { ENVIRONMENT_QUERY_KEY } from "@appsmith/utils/Environments";
 import { softRefreshActions } from "actions/pluginActionActions";
 import {
   START_SWITCH_ENVIRONMENT,
@@ -24,6 +24,10 @@ import { isDatasourceInViewMode } from "selectors/ui";
 import { useLocation } from "react-router";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { saveCurrentEnvironment } from "utils/storage";
+import { setCurrentEnvironment } from "@appsmith/actions/environmentAction";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 const Wrapper = styled.div`
   display: flex;
@@ -41,11 +45,13 @@ export type SwitchEnvironmentProps = {
   defaultEnvironment?: EnvironmentType;
   environmentList: Array<EnvironmentType>;
   viewMode?: boolean;
+  setCurrentEnvDetails: (currentEnvDetails: CurrentEnvironmentDetails) => void;
 };
 
 const SwitchEnvironment = ({
   defaultEnvironment,
   environmentList,
+  setCurrentEnvDetails,
   viewMode,
 }: SwitchEnvironmentProps) => {
   const [diableSwitchEnvironment, setDiableSwitchEnvironment] = useState(false);
@@ -53,6 +59,8 @@ const SwitchEnvironment = ({
   const [selectedEnv, setSelectedEnv] = useState(defaultEnvironment);
   // Fetching feature flags from the store and checking if the feature is enabled
   const allowedToRender = useSelector(datasourceEnvEnabled);
+  const appId: string = useSelector(getCurrentApplicationId);
+  const workspaceId: string = useSelector(getCurrentWorkspaceId);
   const dispatch = useDispatch();
   const location = useLocation();
   //listen to url change and disable switch environment if datasource page is open
@@ -67,7 +75,7 @@ const SwitchEnvironment = ({
   const isDatasourceViewMode = useSelector(isDatasourceInViewMode);
 
   useEffect(() => {
-    !!selectedEnv && updateLocalStorage(selectedEnv.name, selectedEnv.id);
+    !!selectedEnv && saveCurrentEnvironment(selectedEnv.id, appId);
   }, [environmentList.length]);
 
   // function to set the selected environment
@@ -83,7 +91,13 @@ const SwitchEnvironment = ({
       const queryParams = new URLSearchParams(window.location.search);
       // Set new or modify existing parameter value.
       queryParams.set(ENVIRONMENT_QUERY_KEY, env.name.toLowerCase());
-      updateLocalStorage(env.name, env.id);
+      setCurrentEnvDetails({
+        id: env.id,
+        name: env.name,
+        appId,
+        workspaceId,
+        editingId: env.id,
+      });
       // Replace current querystring with the new one.
       window.history.replaceState({}, "", "?" + queryParams.toString());
       setSelectedEnv(env);
@@ -160,11 +174,10 @@ const mapStateToProps = (state: AppState) => {
     }
 
     if (!defaultEnvironment) {
-      const environmenId =
-        localStorage.getItem(ENVIRONMENT_ID_LOCAL_STORAGE_KEY) || "";
-      if (!!environmenId && environmentList.length > 0) {
+      const environmentId = getCurrentEnvironmentId(state) || "";
+      if (!!environmentId && environmentList.length > 0) {
         defaultEnvironment = environmentList.find(
-          (env: EnvironmentType) => env.id === environmenId,
+          (env: EnvironmentType) => env.id === environmentId,
         );
       }
     }
@@ -180,4 +193,12 @@ const mapStateToProps = (state: AppState) => {
   };
 };
 
-export default connect(mapStateToProps)(SwitchEnvironment);
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    setCurrentEnvDetails: (currentEnvDetails: CurrentEnvironmentDetails) => {
+      dispatch(setCurrentEnvironment(currentEnvDetails));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SwitchEnvironment);

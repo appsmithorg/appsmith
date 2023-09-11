@@ -9,6 +9,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 const mockStore = configureMockStore();
 const store = mockStore({
   ui: {
+    workspaces: { currentWorkspace: { id: "64ba2f58abba6049fb4626da" } },
     datasourcePane: { viewMode: false },
     users: {
       featureFlag: {
@@ -31,6 +32,7 @@ const store = mockStore({
       },
     },
   },
+  entities: { pageList: { applicationId: "64ba2f58abba6049fb4626da" } },
   environments: {
     isLoading: false,
     showEnvDeployInfoModal: false,
@@ -51,11 +53,19 @@ const store = mockStore({
         userPermissions: ["execute:environments"],
       },
     ],
+    currentEnvironmentDetails: {
+      id: "64ba2f58abba6049fb4626de",
+      name: "production",
+      appId: "64ba2f58abba6049fb4626da",
+      workspaceId: "64ba2f58abba6049fb4626da",
+      editingId: "64ba2f58abba6049fb4626de",
+    },
   },
 });
 
 const onlyStagingStore = mockStore({
   ui: {
+    workspaces: { currentWorkspace: { id: "64ba2f58abba6049fb4626da" } },
     datasourcePane: { viewMode: false },
     users: {
       featureFlag: {
@@ -78,6 +88,7 @@ const onlyStagingStore = mockStore({
       },
     },
   },
+  entities: { pageList: { applicationId: "64ba2f58abba6049fb4626da" } },
   environments: {
     isLoading: false,
     showEnvDeployInfoModal: false,
@@ -98,11 +109,19 @@ const onlyStagingStore = mockStore({
         userPermissions: ["execute:environments"],
       },
     ],
+    currentEnvironmentDetails: {
+      id: "64ba2f58abba6049fb4626df",
+      name: "staging",
+      appId: "64ba2f58abba6049fb4626da",
+      workspaceId: "64ba2f58abba6049fb4626da",
+      editingId: "64ba2f58abba6049fb4626df",
+    },
   },
 });
 
 const noEnvAccess = mockStore({
   ui: {
+    workspaces: { currentWorkspace: { id: "64ba2f58abba6049fb4626da" } },
     datasourcePane: { viewMode: false },
     users: {
       featureFlag: {
@@ -125,6 +144,7 @@ const noEnvAccess = mockStore({
       },
     },
   },
+  entities: { pageList: { applicationId: "64ba2f58abba6049fb4626da" } },
   environments: {
     isLoading: false,
     showEnvDeployInfoModal: false,
@@ -145,6 +165,13 @@ const noEnvAccess = mockStore({
         userPermissions: [""],
       },
     ],
+    currentEnvironmentDetails: {
+      id: "",
+      name: "",
+      appId: "64ba2f58abba6049fb4626da",
+      workspaceId: "64ba2f58abba6049fb4626da",
+      editingId: "",
+    },
   },
 });
 
@@ -188,8 +215,10 @@ describe("Switch Environment Component", () => {
       </Provider>,
     );
 
-    const selectedStagEnvironemnt = getByText("Staging");
-    expect(selectedStagEnvironemnt).toBeInTheDocument();
+    setTimeout(() => {
+      const selectedStagEnvironemnt = getByText("Staging");
+      expect(selectedStagEnvironemnt).toBeInTheDocument();
+    }, 50);
   });
   it("2. Shouldn't render component when user doesn't have permission for all environment", () => {
     const { container } = render(

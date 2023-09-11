@@ -17,7 +17,7 @@ import isUndefined from "lodash/isUndefined";
 import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "design-system";
 import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
 import type { Datasource } from "entities/Datasource";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -189,7 +189,7 @@ function ApiRightPane(props: any) {
   const dispatch = useDispatch();
   const { hasDependencies } = useEntityDependencies(props.actionName);
   const selectedTab = useSelector(getApiRightPaneSelectedTab);
-  const currentEnvironmentId = getCurrentEnvironment();
+  const currentEnvironmentId = useSelector(getCurrentEnvironmentId);
 
   const setSelectedTab = useCallback((selectedIndex: string) => {
     dispatch(setApiRightPaneSelectedTab(selectedIndex));

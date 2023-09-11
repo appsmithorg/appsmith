@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { Callout, Link } from "design-system";
-import { getCurrentWorkspaceId } from "ce/selectors/workspaceSelectors";
-import { areEnvironmentsFetched } from "ce/selectors/environmentSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
 import type { AppState } from "@appsmith/reducers";
 import {
   getUserPreferenceFromStorage,
@@ -14,7 +14,7 @@ import {
   ENV_INFO_MODAL_DISMISS_ACTION,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentEnvName } from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 
 // show only if envs are fetched and the user has not clicked on `Don't show me again` before
 export function EnvInfoHeader() {
@@ -23,6 +23,7 @@ export function EnvInfoHeader() {
   );
 
   const workspaceId = useSelector(getCurrentWorkspaceId);
+  const currEnvDetails = useSelector(getCurrentEnvironmentDetails);
   const showInfoCallout = useSelector((state: AppState) =>
     areEnvironmentsFetched(state, workspaceId),
   );
@@ -33,7 +34,7 @@ export function EnvInfoHeader() {
 
   const setUserPreferenceInStorageOnClick = () => {
     AnalyticsUtil.logEvent("DEPLOY_WITHOUT_GIT_DISMISS_ENV_MESSAGE", {
-      currentEnvName: getCurrentEnvName(),
+      currentEnvName: currEnvDetails.name,
     });
     setUserPreference(setUserPreferenceInStorage());
   };
