@@ -161,6 +161,7 @@ import { getDeleteLineShortcut } from "./utils/deleteLine";
 import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import resizeObserver from "utils/resizeObserver";
+import { EMPTY_BINDING } from "../ActionCreator/constants";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -239,6 +240,7 @@ export type EditorProps = EditorStyleProps &
     jsObjectName?: string;
     // Custom gutter
     customGutter?: CodeEditorGutter;
+    positionCursorInsideBinding?: boolean;
 
     // On focus and blur event handler
     onEditorBlur?: () => void;
@@ -498,6 +500,16 @@ class CodeEditor extends Component<Props, State> {
       resizeObserver.observe(this.codeEditorTarget.current, [
         this.debounceEditorRefresh,
       ]);
+    }
+    if (
+      this.props.positionCursorInsideBinding &&
+      this.props.input.value === EMPTY_BINDING
+    ) {
+      this.editor.focus();
+      this.editor.setCursor({
+        ch: 2,
+        line: 0,
+      });
     }
   }
 

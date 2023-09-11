@@ -160,6 +160,7 @@ function DataControlComponent(props: RenderComponentProps) {
           }}
           mode={EditorModes.TEXT_WITH_BINDING}
           placeholder="Series Name"
+          positionCursorInsideBinding
           size={EditorSize.EXTENDED}
           tabBehaviour={TabBehaviour.INPUT}
           theme={props.theme}
@@ -210,6 +211,7 @@ function DataControlComponent(props: RenderComponentProps) {
           }}
           mode={EditorModes.JSON_WITH_BINDING}
           placeholder=""
+          positionCursorInsideBinding
           size={EditorSize.EXTENDED}
           tabBehaviour={TabBehaviour.INPUT}
           theme={props.theme}
