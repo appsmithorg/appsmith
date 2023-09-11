@@ -33,6 +33,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         hinting={[assistiveBindingHinter]}
         input={{ value: propertyValue, onChange: this.onChange }}
         mode={EditorModes.TEXT_WITH_BINDING}
+        positionCursorInsideBinding
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={this.props.theme}
