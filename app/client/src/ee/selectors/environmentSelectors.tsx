@@ -61,3 +61,15 @@ export const areEnvironmentsFetched = (state: AppState, workspaceId: string) =>
 
 export const isEnvInfoModalOpen = (state: AppState) =>
   state.environments.showEnvDeployInfoModal;
+
+export const getCurrentEnvironmentId = (state: AppState) =>
+  state.environments.currentEnvironmentDetails.id || "unused_env";
+
+export const getCurrentEnvironmentName = (state: AppState) =>
+  state.environments.currentEnvironmentDetails.name || "";
+
+export const getCurrentEditingEnvironmentId = (state: AppState) =>
+  state.environments.currentEnvironmentDetails.editingId || "unused_env";
+
+export const getCurrentEnvironmentDetails = (state: AppState) =>
+  state.environments.currentEnvironmentDetails;

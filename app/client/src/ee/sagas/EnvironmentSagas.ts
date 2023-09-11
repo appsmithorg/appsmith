@@ -1,60 +1,52 @@
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  put,
+  race,
+  select,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
 import EnvironmentApi from "@appsmith/api/EnvironmentApi";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
-import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
-import {
-  ENVIRONMENT_ID_LOCAL_STORAGE_KEY,
-  ENVIRONMENT_QUERY_KEY,
-  removeCurrentEnvironment,
-  setCurrentEditingEnvID,
-  updateLocalStorage,
-} from "@appsmith/utils/Environments";
+import type {
+  CurrentEnvironmentDetails,
+  EnvironmentType,
+} from "@appsmith/reducers/environmentReducer";
+import { ENVIRONMENT_QUERY_KEY } from "@appsmith/utils/Environments";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getSavedCurrentEnvironmentDetails,
+  resetCurrentEnvironment,
+  saveCurrentEnvironment,
+} from "utils/storage";
+import { getEnvironments } from "@appsmith/selectors/environmentSelectors";
 
-const checkIfEnvIsAlreadySet = (
+const fetchStoredEnv = (
   envs: EnvironmentType[],
-  queryParams: URLSearchParams,
+  storedEnvDetails: { appId: string; envId: string },
+  appId: string,
 ) => {
-  // check if query params have the environment name
-  // do not override the default environment if it is already set
+  // if the env is already set in the indexDb is not from same app, override it
+  if (storedEnvDetails.appId.length > 0 && storedEnvDetails.appId !== appId)
+    return undefined;
 
-  if (queryParams.has(ENVIRONMENT_QUERY_KEY)) {
-    // check if this env is present in the incoming payload
-    const envName = queryParams.get(ENVIRONMENT_QUERY_KEY);
-    const env = envs.find(
-      (env: EnvironmentType) =>
-        env.name.toLowerCase() === envName &&
-        env.userPermissions &&
-        env.userPermissions.length > 0 &&
-        env.userPermissions[0] === PERMISSION_TYPE.EXECUTE_ENVIRONMENT,
-    );
-    // if the env is not present in the incoming payload, override the localstorage
-    if (!env) {
-      return false;
-    }
-  }
-
-  // check localstorage if the default environment is already set
-  const localStorageEnvId = localStorage.getItem(
-    ENVIRONMENT_ID_LOCAL_STORAGE_KEY,
-  );
-  if (!localStorageEnvId || localStorageEnvId.length === 0) return false;
+  const storedEnvId = storedEnvDetails.envId;
 
   // check if this id is present in the incoming payload
-  const localStorageEnv = envs.find(
-    (env: EnvironmentType) => env.id === localStorageEnvId,
-  );
+  const storedEnv = envs.find((env: EnvironmentType) => env.id === storedEnvId);
 
-  if (!!localStorageEnv) {
-    return true;
+  if (!!storedEnv) {
+    return storedEnv;
   }
 
-  return false;
+  return undefined;
 };
 
 // Saga to handle fetching the environment configs
@@ -67,35 +59,64 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const queryParams = new URLSearchParams(window.location.search);
-      // list of env  which is exec
+
+      // list of env for which execute permission is present
       const executableEnvs = response.data.filter(
         (env) =>
           env.userPermissions &&
           env.userPermissions.length > 0 &&
           env.userPermissions[0] === PERMISSION_TYPE.EXECUTE_ENVIRONMENT,
       );
+
+      // Get current application ID
+      const appId: string = yield select(getCurrentApplicationId);
+
+      // Prepare current environment details
+      let currentEnvData: CurrentEnvironmentDetails = {
+        id: "",
+        name: "",
+        appId,
+        workspaceId: action.payload,
+        editingId: "",
+      };
+
       // if there are no executable environments then remove the current environment from localstorage and query param.
       if (executableEnvs.length === 0) {
-        removeCurrentEnvironment();
+        resetCurrentEnvironment();
         queryParams.delete(ENVIRONMENT_QUERY_KEY);
         window.history.replaceState({}, "", "?" + queryParams.toString());
       } else {
         const defaultEnvironment = executableEnvs.find(
           (env: EnvironmentType) => env.isDefault,
         );
+
+        // check if datasource env feature flag is enabled
         const datasourceEnv: boolean = yield select(datasourceEnvEnabled);
-        const seletedEnv = defaultEnvironment
+
+        // if default env is present, use it as the selected env, else use the first env present
+        const selectedEnv = defaultEnvironment
           ? defaultEnvironment
           : executableEnvs[0];
-        // Check if there was any environment set in previous session and if it is valid for currently.
+
+        // check indexDb if the default environment is already set
+        const storedEnvDetails: { appId: string; envId: string } =
+          yield getSavedCurrentEnvironmentDetails() || { appId: "", envId: "" };
+
+        // Check if there was any environment set in previous session and if it is valid for current session.
         // If not, update the environemnt to selected environment.
-        if (!checkIfEnvIsAlreadySet(executableEnvs, queryParams)) {
-          updateLocalStorage(seletedEnv.name, seletedEnv.id);
+        const storedEnv = fetchStoredEnv(
+          executableEnvs,
+          storedEnvDetails,
+          appId,
+        );
+        if (!storedEnv) {
+          // Save the current environment details in indexDb
+          saveCurrentEnvironment(selectedEnv.id, appId);
           if (datasourceEnv) {
             // Set new if there is no query param
             queryParams.set(
               ENVIRONMENT_QUERY_KEY,
-              seletedEnv.name.toLowerCase(),
+              selectedEnv.name.toLowerCase(),
             );
             // Replace current querystring with the new one. Make sure the # stays intact
             // We also need to make sure hash doesn't have any query params
@@ -109,8 +130,22 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
               }${queryParams.toString()}`,
             );
           }
+          // update the current environment details to be stored in redux
+          currentEnvData = {
+            ...currentEnvData,
+            id: selectedEnv.id,
+            name: selectedEnv.name,
+            editingId: selectedEnv.id,
+          };
+        } else {
+          // update the current environment details to be stored in redux
+          currentEnvData = {
+            ...currentEnvData,
+            id: storedEnv.id,
+            name: storedEnv.name,
+            editingId: storedEnv.id,
+          };
         }
-        setCurrentEditingEnvID(seletedEnv.id);
       }
       let envsData: Array<EnvironmentType> = [];
       if (!!response.data && response.data.length > 0) {
@@ -123,7 +158,7 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
       }
       yield put({
         type: ReduxActionTypes.FETCH_ENVIRONMENT_SUCCESS,
-        payload: envsData,
+        payload: { envsData, currentEnvData },
       });
     } else {
       yield put({
@@ -159,6 +194,18 @@ function* fetchWorkspaceIdandInitSaga(
 
   if (!workspaceId) return;
   yield put(fetchingEnvironmentConfigs(workspaceId));
+}
+
+export function* waitForFetchEnvironments() {
+  const environments: EnvironmentType[] | undefined = yield select(
+    getEnvironments,
+  );
+  if (environments?.length === 0) {
+    yield race([
+      take(ReduxActionTypes.FETCH_ENVIRONMENT_SUCCESS),
+      take(ReduxActionTypes.FETCH_ENVIRONMENT_FAILED),
+    ]);
+  }
 }
 
 export default function* EnvironmentSagas() {
