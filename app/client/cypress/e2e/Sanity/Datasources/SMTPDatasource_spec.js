@@ -113,12 +113,20 @@ describe("SMTP datasource test cases using ted", function () {
         cmd: "exim -bp",
       },
     }).then((res) => {
+      agHelper.Sleep(2000);
+      cy.log("-------------------------------------------");
       cy.log("exim -bp res is", JSON.stringify(res));
+      agHelper.Sleep();
+      cy.log("-------------------------------------------");
       cy.log("exim -bp output is", JSON.stringify(res.body));
+      agHelper.Sleep();
+      cy.log("-------------------------------------------");
       //cy.log("res.body.stderr" + res.body.stderr);
       cy.log("res.status" + JSON.stringify(res.status));
-      // expect(stdout).to.contain("qwerty@appsmith.com");
-      expect(res.status).equal(100);
+      agHelper.Sleep();
+
+      expect(JSON.stringify(res.body)).to.contain("qwerty@appsmith.com");
+      expect(res.status).equal(200);
     });
   });
 });
