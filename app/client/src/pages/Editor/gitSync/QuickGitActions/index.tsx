@@ -22,11 +22,7 @@ import {
 
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  gitPullInit,
-  setIsGitSyncModalOpen,
-  showConnectGitModal,
-} from "actions/gitSyncActions";
+import { gitPullInit, setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import {
   getCountOfChangesToCommit,
@@ -41,6 +37,8 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { getTypographyByKey } from "design-system-old";
 import { Button, Icon, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 type QuickActionButtonProps = {
   className?: string;
@@ -139,18 +137,18 @@ const getPullBtnStatus = (gitStatus: any, pullFailed: boolean) => {
 const getQuickActionButtons = ({
   changesToCommit,
   commit,
-  connect,
   gitStatus,
   isFetchingGitStatus,
   merge,
   pull,
   pullDisabled,
   pullTooltipMessage,
+  settings,
   showPullLoadingState,
 }: {
   changesToCommit: number;
   commit: () => void;
-  connect: () => void;
+  settings: () => void;
   pull: () => void;
   merge: () => void;
   gitStatus: any;
@@ -186,7 +184,7 @@ const getQuickActionButtons = ({
     {
       className: "t--bottom-git-settings",
       icon: "settings-2-line",
-      onClick: connect,
+      onClick: settings,
       tooltipText: createMessage(GIT_SETTINGS),
     },
   ];
@@ -253,7 +251,13 @@ function ConnectGitPlaceholder() {
                   source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
                 });
 
-                dispatch(showConnectGitModal(false));
+                dispatch(
+                  setIsGitSyncModalOpen({
+                    isDeploying: false,
+                    isOpen: true,
+                    tab: GitSyncModalTab.GIT_CONNECTION,
+                  }),
+                );
               }}
               size="sm"
             >
@@ -284,6 +288,10 @@ export default function QuickGitActions() {
   const showPullLoadingState = isPullInProgress || isFetchingGitStatus;
   const changesToCommit = useSelector(getCountOfChangesToCommit);
 
+  const isGitConnectV2Enabled = useFeatureFlag(
+    FEATURE_FLAG.release_git_connect_v2_enabled,
+  );
+
   const quickActionButtons = getQuickActionButtons({
     commit: () => {
       dispatch(
@@ -297,11 +305,13 @@ export default function QuickGitActions() {
         source: "BOTTOM_BAR_GIT_COMMIT_BUTTON",
       });
     },
-    connect: () => {
+    settings: () => {
       dispatch(
         setIsGitSyncModalOpen({
           isOpen: true,
-          tab: GitSyncModalTab.GIT_CONNECTION,
+          tab: isGitConnectV2Enabled
+            ? GitSyncModalTab.SETTINGS
+            : GitSyncModalTab.GIT_CONNECTION,
           isDeploying: true,
         }),
       );

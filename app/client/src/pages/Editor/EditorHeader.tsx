@@ -86,6 +86,7 @@ import {
   RENAME_APPLICATION_TOOLTIP,
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
+  APPLICATION_INVITE,
 } from "@appsmith/constants/messages";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import {
@@ -539,7 +540,7 @@ export function EditorHeader() {
               open={showModal}
             >
               <ModalContent style={{ width: "640px" }}>
-                <ModalHeader>Application Invite</ModalHeader>
+                <ModalHeader>{createMessage(APPLICATION_INVITE)}</ModalHeader>
                 <ModalBody>
                   <Tabs
                     onValueChange={(value) => setActiveTab(value)}

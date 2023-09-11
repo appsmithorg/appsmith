@@ -234,7 +234,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     }
   } catch (error) {
     if (action.onErrorCallback) {
-      action.onErrorCallback(error as string);
+      action.onErrorCallback(error as Error, response);
     }
 
     const isRepoLimitReachedError: boolean = yield call(
@@ -571,7 +571,12 @@ function* fetchGitStatusSaga(action: ReduxAction<GitStatusParams>) {
   }
 }
 
-function* fetchGitRemoteStatusSaga() {
+interface FetchRemoteStatusSagaAction extends ReduxAction<undefined> {
+  onSuccessCallback?: (data: any) => void;
+  onErrorCallback?: (error: Error, response?: any) => void;
+}
+
+function* fetchGitRemoteStatusSaga(action: FetchRemoteStatusSagaAction) {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
@@ -591,8 +596,11 @@ function* fetchGitRemoteStatusSaga() {
       // @ts-expect-error: response is of type unknown
       yield put(fetchGitRemoteStatusSuccess(response?.data));
     }
+    if (typeof action?.onSuccessCallback === "function") {
+      action.onSuccessCallback(response?.data);
+    }
   } catch (error) {
-    const payload = { error, show: true };
+    const payload = { error, show: !action?.onErrorCallback };
     if ((error as Error)?.message?.includes("Auth fail")) {
       payload.error = new Error(createMessage(ERROR_GIT_AUTH_FAIL));
     } else if ((error as Error)?.message?.includes("Invalid remote: origin")) {
@@ -603,6 +611,10 @@ function* fetchGitRemoteStatusSaga() {
       type: ReduxActionErrorTypes.FETCH_GIT_REMOTE_STATUS_ERROR,
       payload,
     });
+
+    if (typeof action?.onErrorCallback === "function") {
+      action.onErrorCallback(error as Error, response);
+    }
 
     // non api error
     if (!response || response?.responseMeta?.success) {
@@ -867,7 +879,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
     }
   } catch (error) {
     if (action.onErrorCallback) {
-      action.onErrorCallback(error as string);
+      action.onErrorCallback(error as Error, response);
     }
 
     const isRepoLimitReachedError: boolean = yield call(
