@@ -112,7 +112,8 @@ export const assistiveBindingHinter: HintHelper = (
         hint: () => {
           const cursor = editor.getCursor();
           const currentLine = cursor.line;
-          const currentCursorPosition = cursor.ch;
+          const currentCursorPosition =
+            value === PARTIAL_BINDING ? cursor.ch + 1 : cursor.ch;
           const hints = {
             list,
             from: {
