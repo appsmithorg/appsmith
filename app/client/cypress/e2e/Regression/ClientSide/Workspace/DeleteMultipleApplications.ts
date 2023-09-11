@@ -72,7 +72,7 @@ describe("Delete workspace test spec", function () {
   });
 
   it("3. Unable to select to multiple delete if not enough permissions to delete", function () {
-    homePage.CreateNewWorkspace(UnableToDeleteWorkspace.workspaceName, true);
+    homePage.CreateNewWorkspace(UnableToDeleteWorkspace.workspaceName);
     homePage.CreateAppInWorkspace(
       UnableToDeleteWorkspace.workspaceName,
       UnableToDeleteWorkspace.applicationName,
