@@ -45,6 +45,7 @@ import {
   shouldLog,
   shouldProcessAction,
   shouldTriggerEvaluation,
+  getRequiresLinting,
 } from "@appsmith/actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
@@ -99,7 +100,6 @@ import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
-import { getRequiresLinting } from "@appsmith/workers/Evaluation/evaluationUtils";
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
   new Worker(
