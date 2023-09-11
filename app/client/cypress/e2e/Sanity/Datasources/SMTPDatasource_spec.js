@@ -104,18 +104,21 @@ describe("SMTP datasource test cases using ted", function () {
     // });
 
     //To try further
-    // const tedUrl = "http://localhost:5001/v1/parent";
+    const tedUrl = "http://localhost:5001/v1/parent/cmd";
 
-    // cy.request({
-    //   method: "GET",
-    //   url: tedUrl,
-    //   qs: {
-    //     cmd: "exim -bp",
-    //   },
-    // }).then((res) => {
-    //   cy.log("exim -bp output is", res.body.stdout);
-    //   cy.log(res.body.stderr);
-    //   //expect(res.status).equal(200);
-    // });
+    cy.request({
+      method: "GET",
+      url: tedUrl,
+      qs: {
+        cmd: "exim -bp",
+      },
+    }).then((res) => {
+      cy.log("exim -bp output is", res.body.stdout);
+      cy.log("res.body.stderr+ res.body.stderr");
+      cy.log("res.status" + res.status);
+      expect(stdout).to.contain("qwerty@appsmith.com");
+      //expect(res.status).equal(200);
+    });
+    expect(true).to.be.false;
   });
 });
