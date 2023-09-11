@@ -301,7 +301,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             return Mono.just(Collections.emptyList());
         }
 
-        // convert the list of new actions to a list of DBObjects
+        // convert the list of new pages to a list of DBObjects
         List<WriteModel<Document>> dbObjects = newPages.stream()
                 .map(newPage -> {
                     assert newPage.getId() != null;
