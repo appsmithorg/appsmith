@@ -31,13 +31,14 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import type { AppState } from "@appsmith/reducers";
-import { MainContainerResizer } from "widgets/MainContainerResizer";
+import { MainContainerResizer } from "layoutSystems/autolayout/MainContainerResizer/MainContainerResizer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 import {
   LayoutSystemFeatures,
   useLayoutSystemFeatures,
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
 type MainCanvasWrapperProps = {
   isPreviewMode: boolean;
@@ -224,7 +225,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
             !showAnonymousDataPopup,
           "mt-24": shouldShowSnapShotBanner,
         })}
-        id={"canvas-viewport"}
+        id={CANVAS_VIEWPORT}
         isAppSettingsPaneWithNavigationTabOpen={
           isAppSettingsPaneWithNavigationTabOpen
         }

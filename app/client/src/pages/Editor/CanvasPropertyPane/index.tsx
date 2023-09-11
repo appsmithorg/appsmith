@@ -7,13 +7,13 @@ import { Button, Tooltip } from "design-system";
 
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
-import { MainContainerWidthToggles } from "../MainContainerWidthToggles";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   LayoutSystemFeatures,
   useLayoutSystemFeatures,
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
+import { MainContainerWidthToggles } from "../MainContainerWidthToggles";
 
 const Title = styled.p`
   color: var(--ads-v2-color-fg);
