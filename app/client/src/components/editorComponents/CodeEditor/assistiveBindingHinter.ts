@@ -69,8 +69,10 @@ export const assistiveBindingHinter: HintHelper = (
         (e) => e.name !== currentEntityName,
       );
 
-      // const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
-      const value = editor.getValue();
+      const str = editor.getLine(editor.lastLine());
+      const words = str.split(/[\s]+/);
+      const value = words[words.length - 1]; //last word after any white spaces
+
       if (value.length < 3 && value !== PARTIAL_BINDING) return false;
       const searchText = value === PARTIAL_BINDING ? "" : value;
       const list = generateAssistiveBindingCommands(
@@ -87,8 +89,6 @@ export const assistiveBindingHinter: HintHelper = (
       );
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      // const { data, render, ...rest } = selected; DELETE
-      // const { ENTITY_TYPE, name, pluginType } = data as any; DELETE
       if (!list.length) return false;
 
       AnalyticsUtil.logEvent("ASSISTIVE_JS_BINDING_TRIGGERED", {
@@ -110,15 +110,18 @@ export const assistiveBindingHinter: HintHelper = (
       };
       editor.showHint({
         hint: () => {
+          const cursor = editor.getCursor();
+          const currentLine = cursor.line;
+          const currentCursorPosition = cursor.ch;
           const hints = {
             list,
             from: {
-              ch: 0,
-              line: 0,
+              ch: currentCursorPosition - value.length,
+              line: currentLine,
             },
             to: {
-              ch: value.length,
-              line: 0,
+              ch: currentCursorPosition,
+              line: currentLine,
             },
             selectedHint: list[0]?.isHeader ? 1 : 0,
           };
@@ -126,12 +129,15 @@ export const assistiveBindingHinter: HintHelper = (
             currentSelection = selected;
           }
           function handlePick(selected: CommandsCompletion) {
-            const cursorPosition = selected.text.length - 2;
+            const cursor = editor.getCursor();
+            const currentLine = cursor.line;
+            const currentCursorPosition = cursor.ch;
+            const newCursorPosition = currentCursorPosition - 2; //offset cursor before the ending moustache braces '}}'
             setTimeout(() => {
               editor.focus();
               editor.setCursor({
-                line: 0,
-                ch: cursorPosition,
+                line: currentLine,
+                ch: newCursorPosition,
               });
             });
 
