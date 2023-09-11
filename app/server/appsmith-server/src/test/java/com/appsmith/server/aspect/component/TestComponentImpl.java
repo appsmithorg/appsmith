@@ -28,7 +28,9 @@ public class TestComponentImpl extends TestComponentCECompatibleImpl implements 
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.TENANT_TEST_FEATURE)
-    public Mono<String> methodWithSideEffect() {
-        return this.getTestField() == null ? Mono.just("ee_testField") : Mono.just(this.getTestField());
+    public Mono<String> getterForFieldWithExplicitSetter() {
+        return this.getFieldWithExplicitSetter() == null
+                ? Mono.just("ee_testField")
+                : Mono.just(this.getFieldWithExplicitSetter());
     }
 }

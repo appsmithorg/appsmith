@@ -10,7 +10,9 @@ public interface TestComponentCE {
     // and no implementations in  CE compatible class
     Mono<String> ceEeDiffMethod();
 
-    void setTestField();
+    void setFieldWithExplicitSetter();
 
-    Mono<String> methodWithSideEffect();
+    Mono<String> getterForFieldWithExplicitSetter();
+
+    Mono<String> getterForFieldWithoutExplicitSetter();
 }

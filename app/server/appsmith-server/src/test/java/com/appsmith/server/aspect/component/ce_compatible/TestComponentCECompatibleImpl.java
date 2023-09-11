@@ -13,7 +13,9 @@ public class TestComponentCECompatibleImpl extends TestComponentCEImpl implement
     }
 
     @Override
-    public Mono<String> methodWithSideEffect() {
-        return this.getTestField() == null ? Mono.just("ceCompatible_testField") : Mono.just(this.getTestField());
+    public Mono<String> getterForFieldWithExplicitSetter() {
+        return this.getFieldWithExplicitSetter() == null
+                ? Mono.just("ceCompatible_testField")
+                : Mono.just(this.getFieldWithExplicitSetter());
     }
 }

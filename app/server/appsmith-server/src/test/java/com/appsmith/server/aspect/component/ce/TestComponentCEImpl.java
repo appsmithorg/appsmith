@@ -8,7 +8,9 @@ import reactor.core.publisher.Mono;
 @Getter
 public class TestComponentCEImpl implements TestComponentCE {
 
-    private String testField = null;
+    private String fieldWithExplicitSetter = null;
+
+    private String fieldUpdatedInDiffMethodOverriddenWithFeatureFlagged = null;
 
     @Override
     public Mono<String> ceCeCompatibleEeSameImplMethod() {
@@ -17,17 +19,23 @@ public class TestComponentCEImpl implements TestComponentCE {
 
     @Override
     public Mono<String> ceEeDiffMethod() {
+        fieldUpdatedInDiffMethodOverriddenWithFeatureFlagged = "ce_fieldUpdatedInDiffMethod";
         // CE Implementation
         return Mono.just("ce_impl_method");
     }
 
     @Override
-    public void setTestField() {
-        testField = "ce_testField";
+    public void setFieldWithExplicitSetter() {
+        fieldWithExplicitSetter = "ce_testField";
     }
 
     @Override
-    public Mono<String> methodWithSideEffect() {
-        return Mono.just(testField);
+    public Mono<String> getterForFieldWithExplicitSetter() {
+        return Mono.just(fieldWithExplicitSetter);
+    }
+
+    @Override
+    public Mono<String> getterForFieldWithoutExplicitSetter() {
+        return Mono.just(fieldUpdatedInDiffMethodOverriddenWithFeatureFlagged);
     }
 }

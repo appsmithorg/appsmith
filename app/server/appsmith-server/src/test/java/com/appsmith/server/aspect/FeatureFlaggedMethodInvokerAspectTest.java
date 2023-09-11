@@ -82,10 +82,21 @@ class FeatureFlaggedMethodInvokerAspectTest {
 
     @Test
     void testClassLevelVariable() {
-        testComponent.setTestField();
+        testComponent.setFieldWithExplicitSetter();
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.TENANT_TEST_FEATURE)))
                 .thenReturn(Mono.just(true));
-        Mono<String> resultMono = testComponent.methodWithSideEffect();
+        Mono<String> resultMono = testComponent.getterForFieldWithExplicitSetter();
         StepVerifier.create(resultMono).expectNext("ce_testField").verifyComplete();
+    }
+
+    @Test
+    void testClassLevelVariable_test() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.TENANT_TEST_FEATURE)))
+                .thenReturn(Mono.just(true));
+        // Update `fieldUpdatedInDiffMethodOverriddenWithFeatureFlagged`
+        testComponent.ceEeDiffMethod().block();
+        StepVerifier.create(testComponent.getterForFieldWithoutExplicitSetter())
+                .expectNext("ce_fieldUpdatedInDiffMethod")
+                .verifyComplete();
     }
 }
