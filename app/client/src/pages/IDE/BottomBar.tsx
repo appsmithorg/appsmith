@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import SwitchEnvironment from "@appsmith/components/SwitchEnvironment";
-import QuickGitActions from "../Editor/gitSync/QuickGitActions";
 import ManualUpgrades from "../../components/BottomBar/ManualUpgrades";
 import { Button } from "design-system";
 import { DebuggerTrigger } from "../../components/editorComponents/Debugger";
@@ -33,7 +32,7 @@ const DebugBar = () => {
     <Container>
       <Wrapper>
         <SwitchEnvironment viewMode={isPreviewMode} />
-        {!isPreviewMode && <QuickGitActions />}
+        {/* {!isPreviewMode && <QuickGitActions />} */}
       </Wrapper>
       {!isPreviewMode && (
         <Wrapper>
