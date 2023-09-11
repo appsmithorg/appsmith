@@ -3,6 +3,7 @@
 .env
 
 stacks
+/info.json
 
 # to ignore the node_modeules folder
 node_modules
