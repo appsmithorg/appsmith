@@ -54,6 +54,11 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
     setTemplateName(currentApplication.name);
   }, [currentApplication?.name]);
 
+  useEffect(() => {
+    if (!currentApplication?.isCommunityTemplate) return;
+    onPublishSuccess();
+  }, [currentApplication?.isCommunityTemplate]);
+
   const isFormValid = useMemo(() => {
     const requiredFields = [templateName, authorName, authorEmail];
     const areRequiredFieldsPresent = requiredFields.every(
@@ -71,11 +76,19 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
   ]);
 
   const handleConfirmationClick = () => {
-    dispatch(publishCommunityTemplate());
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_CLICK", {
       id: currentApplication?.id,
     });
-    onPublishSuccess();
+    dispatch(
+      publishCommunityTemplate({
+        title: templateName,
+        headline: templateExcerpt,
+        description: templateDescription,
+        useCases: templateUseCases,
+        authorEmail,
+        authorName,
+      }),
+    );
   };
   return (
     <>

@@ -9,7 +9,7 @@ import {
   ModalHeader,
   Text,
 } from "design-system";
-import React from "react";
+import React, { useState } from "react";
 import CommunityTemplatePublishSuccess from "./CommunityTemplatePublishSuccess";
 import CommunityTemplateForm from "./CommunityTemplateForm";
 import { PublishPageHeaderContainer } from "./StyledComponents";
@@ -20,9 +20,9 @@ type Props = {
 };
 
 const PublishCommunityTemplateModal = ({ setShowModal, showModal }: Props) => {
-  const isAppPublished = false;
+  const [isAppPublished, setIsAppPublished] = useState(false);
   const handlePublishSuccess = () => {
-    setShowModal(false);
+    setIsAppPublished(true);
   };
 
   return (

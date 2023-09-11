@@ -656,6 +656,22 @@ export const handlers = {
       isDeletingNavigationLogo: false,
     };
   },
+  [ReduxActionTypes.CURRENT_APPLICATION_COMMUNITY_TEMPLATE_STATUS_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{
+      isCommunityTemplate: boolean;
+      forkingEnabled: boolean;
+      isPublic: boolean;
+    }>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      isCommunityTemplate: action.payload.isCommunityTemplate,
+      isPublic: action.payload.isPublic,
+      forkingEnabled: action.payload.forkingEnabled,
+    },
+  }),
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
