@@ -1,13 +1,14 @@
 import type { RenderMode } from "constants/WidgetConstants";
 import type {
+  FlexLayerAlignment,
   FlexVerticalAlignment,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/anvil/utils/constants";
 import type { ReactNode } from "react";
 import type { WidgetType } from "utils/WidgetFactory";
 
 export type AutoLayoutProps = {
-  alignment: FlexVerticalAlignment;
+  alignment: FlexLayerAlignment;
   children: ReactNode;
   componentHeight: number;
   componentWidth: number;
