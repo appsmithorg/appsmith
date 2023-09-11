@@ -147,6 +147,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { nestDSL, flattenDSL } from "@shared/dsl";
 import { fetchSnapshotDetailsAction } from "actions/autoLayoutActions";
+import { IDEAppState } from "../pages/IDE/ideReducer";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -779,6 +780,8 @@ export function* createPageSaga(
         history.push(
           builderURL({
             pageId: response.data.id,
+            ideState: IDEAppState.Page,
+            suffix: "/ui",
           }),
         );
       }

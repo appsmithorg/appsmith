@@ -7,6 +7,7 @@ import { initEditor } from "actions/initActions";
 import { getSearchQuery } from "../../utils/helpers";
 import {
   GIT_BRANCH_QUERY_KEY,
+  IDE_PAGE_NAV_PATH,
   IDE_PAGE_PATH,
   IDE_PATH,
 } from "../../constants/routes";
@@ -37,7 +38,7 @@ class IDELoader extends React.PureComponent<Props, { Page: any }> {
     const matchParams = matchPath<{ appId: string; pageId: string }>(
       window.location.pathname,
       {
-        path: [IDE_PATH, IDE_PAGE_PATH],
+        path: [IDE_PAGE_NAV_PATH, IDE_PAGE_PATH, IDE_PATH],
       },
     );
 

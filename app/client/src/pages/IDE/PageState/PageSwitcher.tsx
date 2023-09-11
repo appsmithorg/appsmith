@@ -89,23 +89,20 @@ const PageSwitcher = () => {
     );
     setSwitchMode(false);
   }, [dispatch, pages, applicationId]);
-  const switchPage = useCallback(
-    (page: Page) => {
-      const navigateToUrl = builderURL({
-        pageId: page.pageId,
-        ideState: IDEAppState.Page,
-        suffix: "/ui",
-      });
-      dispatch(toggleInOnboardingWidgetSelection(true));
-      dispatch(updateCurrentPage(page.pageId));
-      dispatch(fetchPage(page.pageId));
-      history.push(navigateToUrl, {
-        invokedBy: NavigationMethod.EntityExplorer,
-      });
-      setSwitchMode(false);
-    },
-    [location.pathname],
-  );
+  const switchPage = useCallback((page: Page) => {
+    const navigateToUrl = builderURL({
+      pageId: page.pageId,
+      ideState: IDEAppState.Page,
+      suffix: "/ui",
+    });
+    dispatch(toggleInOnboardingWidgetSelection(true));
+    dispatch(updateCurrentPage(page.pageId));
+    dispatch(fetchPage(page.pageId));
+    history.push(navigateToUrl, {
+      invokedBy: NavigationMethod.EntityExplorer,
+    });
+    setSwitchMode(false);
+  }, []);
   if (isSwitchMode) {
     return (
       <PageSwitchOverlay width={paneWidth}>
