@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 @Getter
 public class TestComponentCEImpl implements TestComponentCE {
 
-    protected String testField = null;
+    private String testField = null;
 
     @Override
     public Mono<String> ceCeCompatibleEeSameImplMethod() {
