@@ -92,6 +92,7 @@ describe("SMTP datasource test cases using ted", function () {
     cy.get("button").contains("1 files selected");
     agHelper.ClickButton("Run query");
     agHelper.ValidateToastMessage("Sent the email successfully");
+    //not working
     // cy.exec("exim -bp", { failOnNonZeroExit: false }).then((result) => {
     //   const { stdout, stderr, code } = result;
 
@@ -103,7 +104,6 @@ describe("SMTP datasource test cases using ted", function () {
     //   //expect(stdout).to.contain("qwerty@appsmith.com");//not working here since stdout is empty
     // });
 
-    //To try further
     const tedUrl = "http://localhost:5001/v1/parent/cmd";
 
     cy.request({
@@ -114,7 +114,7 @@ describe("SMTP datasource test cases using ted", function () {
       },
     }).then((res) => {
       cy.log("exim -bp output is", res.body.stdout);
-      cy.log("res.body.stderr+ res.body.stderr");
+      cy.log("res.body.stderr" + res.body.stderr);
       cy.log("res.status" + res.status);
       expect(stdout).to.contain("qwerty@appsmith.com");
       //expect(res.status).equal(200);
