@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Button } from "design-system";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { selectLibrariesForExplorer } from "selectors/entitiesSelector";
 import { LibraryEntity } from "pages/Editor/Explorer/Libraries";
 import { AddLibraries } from "./AddLibararies";
 import ListSubTitle from "../../components/ListSubTitle";
-import { setIdeSidebarWidth } from "pages/IDE/ideActions";
 
 const Container = styled.div`
   display: flex;
@@ -23,16 +22,11 @@ export interface LibLeftPaneContent {
 }
 
 const LibLeftPane = () => {
-  const [addlib, setAddLib] = useState(false);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(setIdeSidebarWidth(400));
-  }, []);
+  const [addLib, setAddLib] = useState(false);
 
   return (
     <Container>
-      {addlib ? (
+      {addLib ? (
         <AddLibraries onStateChange={() => setAddLib(false)} />
       ) : (
         <InstalledLibraries onStateChange={() => setAddLib(true)} />

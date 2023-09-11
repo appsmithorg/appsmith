@@ -1,10 +1,10 @@
 import { Icon, Text } from "design-system";
 import { importSvg } from "design-system-old";
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { setIdePageTabState, setIdeSidebarWidth } from "../ideActions";
+import { setIdePageTabState } from "../ideActions";
 import { datasourcesEditorURL, pageEntityUrl } from "RouteBuilder";
 import history from "utils/history";
 import { PageNavState, TabState } from "../ideReducer";
@@ -63,11 +63,6 @@ const IconWrapper = styled.div<{ backgroundColor: string }>`
 `;
 
 const DataMainEmptyState = () => {
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(setIdeSidebarWidth(400));
-  }, []);
-
   return (
     <Container>
       <AddNewCards />
