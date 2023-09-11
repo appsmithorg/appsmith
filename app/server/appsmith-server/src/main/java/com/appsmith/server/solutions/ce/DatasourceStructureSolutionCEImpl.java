@@ -220,8 +220,8 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())))
                 .flatMap(pluginExecutor -> {
-                    ActionConfiguration actionConfig =
-                            ((PluginExecutor<Object>) pluginExecutor).getSchemaPreviewActionConfig(queryTemplate);
+                    ActionConfiguration actionConfig = ((PluginExecutor<Object>) pluginExecutor)
+                            .getSchemaPreviewActionConfig(queryTemplate, datasourceStorage.getIsMock());
                     // actionConfig will be null for plugins which do not have this functionality yet
                     // Currently its only implemented for PostgreSQL, to be added subsequently for MySQL as well
                     if (actionConfig != null) {

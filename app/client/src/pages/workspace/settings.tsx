@@ -1,12 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useParams, useHistory } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
-import {
-  getAllApplications,
-  setShowAppInviteUsersDialog,
-} from "@appsmith/actions/applicationActions";
+import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
@@ -126,10 +123,6 @@ export default function Settings() {
     }
   }, [dispatch, currentWorkspace]);
 
-  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
-    dispatch(setShowAppInviteUsersDialog(isOpen));
-  }, []);
-
   const pageMenuItems: any[] = [
     {
       icon: "book-line",
@@ -182,7 +175,6 @@ export default function Settings() {
           hideDefaultTrigger
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          onOpenOrClose={handleFormOpenOrClose}
           placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
           workspace={currentWorkspace}
         />

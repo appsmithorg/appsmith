@@ -1,14 +1,14 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { agHelper, propPane } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget text wrapping functionality", function () {
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
-    _.agHelper.AddDsl("Table/TextWrappingDSL");
+    agHelper.RestoreLocalStorageCache();
+    agHelper.AddDsl("Table/TextWrappingDSL");
   });
 
   it("1. should check that cell is not wrapped when cell wrapping is disabled", () => {
@@ -19,10 +19,8 @@ describe("Table Widget text wrapping functionality", function () {
     // Enable cell wrapping and check that height is more than 28px
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("image");
-    cy.get(".t--property-control-cellwrapping input")
-      .first()
-      .click({ force: true });
-    cy.wait(1000);
+
+    propPane.TogglePropertyState("Cell wrapping", "On");
     cy.getTableCellHeight(1, 0).then((height) => {
       expect(height).to.not.equal("28px");
     });
@@ -63,10 +61,8 @@ describe("Table Widget text wrapping functionality", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.wait(2000);
     cy.editColumn("email");
-    cy.get(".t--property-control-cellwrapping input").click({
-      force: true,
-    });
-    cy.wait(1000);
+
+    propPane.TogglePropertyState("Cell wrapping", "On");
     cy.getTableCellHeight(2, 0).then((height) => {
       expect(height).to.not.equal("28px");
     });
@@ -134,12 +130,12 @@ describe("Table Widget text wrapping functionality", function () {
       cy.getTableCellHeight(0, 0).then((height) => {
         expect(height).to.equal("28px");
       });
-      cy.get(".t--property-control-cellwrapping input").first().click();
+      propPane.TogglePropertyState("Cell wrapping", "On");
       cy.wait(1000);
       cy.getTableCellHeight(0, 0).then((height) => {
         expect(height).to.not.equal("28px");
       });
-      cy.get(".t--property-control-cellwrapping input").first().click();
+      propPane.TogglePropertyState("Cell wrapping", "Off");
     });
   });
 
@@ -152,8 +148,7 @@ describe("Table Widget text wrapping functionality", function () {
       .then((value) => {
         pageSizeBeforeWrapping = value;
       });
-    cy.get(".t--property-control-cellwrapping input").first().click();
-    cy.wait(1000);
+    propPane.TogglePropertyState("Cell wrapping", "On");
     cy.get(".t--widget-textwidget .bp3-ui-text")
       .invoke("text")
       .then((value) => {
