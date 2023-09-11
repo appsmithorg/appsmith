@@ -22,6 +22,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -128,34 +130,21 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
 
         // Check if the invited user exists. If yes, return the user, else create a new user by triggering
         // createNewUserAndSendInviteEmail. In both the cases, send the appropriate emails
-        Mono<List<User>> inviteUsersMono = Flux.fromIterable(usernames)
-                .flatMap(username -> Mono.zip(
-                        Mono.just(username),
-                        workspaceMono,
-                        currentUserMono,
-                        permissionGroupMono,
-                        defaultPermissionGroupsMono))
+        Mono<List<Tuple2<User, Boolean>>> inviteUsersMonoWithUserCreationMapping = Flux.fromIterable(usernames)
+                .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, defaultPermissionGroupsMono))
                 .flatMap(tuple -> {
                     String username = tuple.getT1();
                     Workspace workspace = tuple.getT2();
                     eventData.put(FieldName.WORKSPACE, workspace);
-                    User currentUser = tuple.getT3();
-                    PermissionGroup permissionGroup = tuple.getT4();
-                    List<PermissionGroup> defaultPermissionGroups = tuple.getT5();
+                    List<PermissionGroup> defaultPermissionGroups = tuple.getT3();
 
                     Mono<User> getUserFromDbAndCheckIfUserExists = userRepository
                             .findByEmail(username)
-                            .flatMap(user -> {
-                                return throwErrorIfUserAlreadyExistsInWorkspace(user, defaultPermissionGroups)
-                                        // If no errors, proceed forward
-                                        .thenReturn(user);
-                            });
+                            .flatMap(user -> throwErrorIfUserAlreadyExistsInWorkspace(user, defaultPermissionGroups)
+                                    .thenReturn(user));
 
                     return getUserFromDbAndCheckIfUserExists
-                            .flatMap(existingUser -> emailService
-                                    .sendInviteUserToWorkspaceEmail(
-                                            currentUser, existingUser, workspace, permissionGroup, originHeader, false)
-                                    .thenReturn(existingUser))
+                            .flatMap(existingUser -> Mono.just(Tuples.of(existingUser, false)))
                             .switchIfEmpty(Mono.defer(() -> {
                                 User newUser = new User();
                                 newUser.setEmail(username.toLowerCase());
@@ -163,18 +152,14 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                 boolean isAdminUser = false;
                                 return userService
                                         .userCreate(newUser, isAdminUser)
-                                        .flatMap(newCreatedUser -> emailService
-                                                .sendInviteUserToWorkspaceEmail(
-                                                        currentUser,
-                                                        newCreatedUser,
-                                                        workspace,
-                                                        permissionGroup,
-                                                        originHeader,
-                                                        true)
-                                                .thenReturn(newUser));
+                                        .flatMap(newCreatedUser -> Mono.just(Tuples.of(newCreatedUser, true)));
                             }));
                 })
                 .collectList()
+                .cache();
+
+        Mono<List<User>> inviteUsersMono = inviteUsersMonoWithUserCreationMapping
+                .map(tuple2s -> tuple2s.stream().map(Tuple2::getT1).collect(Collectors.toList()))
                 .cache();
 
         // assign permission group to the invited users.
@@ -204,7 +189,29 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                             AnalyticsEvents.EXECUTE_INVITE_USERS, currentUser, analyticsProperties);
                 });
 
-        return bulkAddUserResultMono.then(sendAnalyticsEventMono).then(inviteUsersMono);
+        Mono<Boolean> sendEmailsMono = Mono.zip(
+                        inviteUsersMonoWithUserCreationMapping, workspaceMono, currentUserMono, permissionGroupMono)
+                .flatMap(tuple -> {
+                    List<Tuple2<User, Boolean>> users = tuple.getT1();
+                    Workspace workspace = tuple.getT2();
+                    User currentUser = tuple.getT3();
+                    PermissionGroup permissionGroup = tuple.getT4();
+
+                    return Flux.fromIterable(users)
+                            .flatMap(userTuple -> {
+                                User user = userTuple.getT1();
+                                boolean isNewUser = userTuple.getT2();
+                                return emailService.sendInviteUserToWorkspaceEmail(
+                                        currentUser, user, workspace, permissionGroup, originHeader, isNewUser);
+                            })
+                            .all(emailSent -> emailSent);
+                })
+                .cache();
+
+        return bulkAddUserResultMono
+                .then(sendAnalyticsEventMono)
+                .then(sendEmailsMono)
+                .then(inviteUsersMono);
     }
 
     private Mono<Boolean> throwErrorIfUserAlreadyExistsInWorkspace(
