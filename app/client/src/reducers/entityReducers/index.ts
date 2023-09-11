@@ -10,7 +10,6 @@ import jsExecutionsReducer from "./jsExecutionsReducer";
 import metaReducer from "./metaReducer";
 import pageListReducer from "./pageListReducer";
 import pluginsReducer from "reducers/entityReducers/pluginsReducer";
-import widgetConfigReducer from "./widgetConfigReducer";
 import autoHeightLayoutTreeReducer from "./autoHeightReducers/autoHeightLayoutTreeReducer";
 import canvasLevelsReducer from "./autoHeightReducers/canvasLevelsReducer";
 
@@ -18,7 +17,6 @@ const entityReducer = combineReducers({
   canvasWidgets: canvasWidgetsReducer,
   canvasWidgetsStructure: canvasWidgetsStructureReducer,
   metaWidgets: metaWidgetsReducer,
-  widgetConfig: widgetConfigReducer,
   actions: actionsReducer,
   datasources: datasourceReducer,
   pageList: pageListReducer,
