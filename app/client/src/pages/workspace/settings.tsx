@@ -14,10 +14,7 @@ import { Tabs, Tab, TabsList, TabPanel } from "design-system";
 import MemberSettings from "@appsmith/pages/workspace/Members";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
-import {
-  getAllApplications,
-  setShowAppInviteUsersDialog,
-} from "@appsmith/actions/applicationActions";
+import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
@@ -159,10 +156,6 @@ export default function Settings() {
     }
   }, [dispatch, currentWorkspace]);
 
-  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
-    dispatch(setShowAppInviteUsersDialog(isOpen));
-  }, []);
-
   const GeneralSettingsComponent = (
     <SentryRoute
       component={GeneralSettings}
@@ -276,7 +269,6 @@ export default function Settings() {
           hideDefaultTrigger
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          onOpenOrClose={handleFormOpenOrClose}
           placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
           workspace={currentWorkspace}
         />
