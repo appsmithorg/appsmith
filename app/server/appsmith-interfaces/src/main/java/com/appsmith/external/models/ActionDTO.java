@@ -2,6 +2,7 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.helpers.Identifiable;
+import com.appsmith.external.helpers.ModuleConsumable;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -21,7 +22,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @ToString
-public class ActionDTO implements Identifiable {
+public class ActionDTO implements Identifiable, ModuleConsumable {
 
     @Transient
     @JsonView(Views.Public.class)
