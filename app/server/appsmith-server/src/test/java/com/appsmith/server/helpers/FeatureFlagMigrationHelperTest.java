@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.appsmith.server.constants.FeatureMigrationType.DISABLE;
+import static com.appsmith.server.constants.FeatureMigrationType.ENABLE;
 import static com.appsmith.server.featureflags.FeatureFlagEnum.TENANT_TEST_FEATURE;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -148,5 +149,37 @@ class FeatureFlagMigrationHelperTest {
     }
 
     @Test
-    void checkAndExecuteMigrationsForFeatureFlag() {}
+    void checkAndExecuteMigrationsForFeatureFlag_nullFeatureFlag_success() {
+        Tenant defaultTenant = new Tenant();
+        Mono<Boolean> resultMono =
+                featureFlagMigrationHelper.checkAndExecuteMigrationsForFeatureFlag(defaultTenant, null);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertThat(result).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void checkAndExecuteMigrationsForFeatureFlag_validFeatureFlag_success() {
+        Tenant defaultTenant = new Tenant();
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        tenantConfiguration.setFeaturesWithPendingMigration(Map.of(TENANT_TEST_FEATURE, ENABLE));
+
+        CachedFeatures existingCachedFeatures = new CachedFeatures();
+        Map<String, Boolean> featureMap = new HashMap<>();
+        featureMap.put(TENANT_TEST_FEATURE.name(), true);
+        existingCachedFeatures.setFeatures(featureMap);
+        existingCachedFeatures.setRefreshedAt(Instant.now().minus(1, ChronoUnit.HOURS));
+        Mockito.when(cacheableFeatureFlagHelper.fetchCachedTenantFeatures(any()))
+                .thenReturn(Mono.just(existingCachedFeatures));
+
+        Mono<Boolean> resultMono =
+                featureFlagMigrationHelper.checkAndExecuteMigrationsForFeatureFlag(defaultTenant, TENANT_TEST_FEATURE);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertThat(result).isTrue();
+                })
+                .verifyComplete();
+    }
 }
