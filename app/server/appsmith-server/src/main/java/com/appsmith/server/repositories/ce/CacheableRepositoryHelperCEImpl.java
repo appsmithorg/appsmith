@@ -34,11 +34,11 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 @Component
 public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelperCE {
     private final ReactiveMongoOperations mongoOperations;
-    private static final Map<String, User> tenantAnonymousUserMap = new HashMap<>();
+    private final Map<String, User> tenantAnonymousUserMap = new HashMap<>();
 
-    private static Set<String> anonymousUserPermissionGroupIds = null;
+    private Set<String> anonymousUserPermissionGroupIds = null;
 
-    private static String defaultTenantId = null;
+    private String defaultTenantId = null;
 
     public CacheableRepositoryHelperCEImpl(ReactiveMongoOperations mongoOperations) {
         this.mongoOperations = mongoOperations;
@@ -81,9 +81,8 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Override
     public Mono<Set<String>> preFillAnonymousUserPermissionGroupIdsCache() {
 
-        if (CacheableRepositoryHelperCEImpl.anonymousUserPermissionGroupIds != null
-                && !CacheableRepositoryHelperCEImpl.anonymousUserPermissionGroupIds.isEmpty()) {
-            return Mono.just(CacheableRepositoryHelperCEImpl.anonymousUserPermissionGroupIds);
+        if (anonymousUserPermissionGroupIds != null && !anonymousUserPermissionGroupIds.isEmpty()) {
+            return Mono.just(anonymousUserPermissionGroupIds);
         }
 
         log.debug(
@@ -97,15 +96,14 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                         Config.class)
                 .map(publicPermissionGroupConfig ->
                         Set.of(publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID)))
-                .doOnSuccess(permissionGroupIds ->
-                        CacheableRepositoryHelperCEImpl.anonymousUserPermissionGroupIds = permissionGroupIds);
+                .doOnSuccess(permissionGroupIds -> anonymousUserPermissionGroupIds = permissionGroupIds);
     }
 
     @Override
     public Mono<Set<String>> getPermissionGroupsOfAnonymousUser() {
 
-        if (CacheableRepositoryHelperCEImpl.anonymousUserPermissionGroupIds != null) {
-            return Mono.just(CacheableRepositoryHelperCEImpl.anonymousUserPermissionGroupIds);
+        if (anonymousUserPermissionGroupIds != null) {
+            return Mono.just(anonymousUserPermissionGroupIds);
         }
 
         // If we have reached this state, then the cache is not populated. We need to wait for this to get populated
@@ -122,8 +120,8 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
 
     @Override
     public Mono<User> getAnonymousUser(String tenantId) {
-        if (CacheableRepositoryHelperCEImpl.tenantAnonymousUserMap.containsKey(tenantId)) {
-            return Mono.just(CacheableRepositoryHelperCEImpl.tenantAnonymousUserMap.get(tenantId));
+        if (tenantAnonymousUserMap.containsKey(tenantId)) {
+            return Mono.just(tenantAnonymousUserMap.get(tenantId));
         }
 
         Criteria anonymousUserCriteria =
@@ -136,16 +134,15 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         query.addCriteria(tenantIdCriteria);
 
         return mongoOperations.findOne(query, User.class).map(anonymousUser -> {
-            CacheableRepositoryHelperCEImpl.tenantAnonymousUserMap.put(tenantId, anonymousUser);
+            tenantAnonymousUserMap.put(tenantId, anonymousUser);
             return anonymousUser;
         });
     }
 
     @Override
     public Mono<User> getAnonymousUser() {
-        if (CacheableRepositoryHelperCEImpl.defaultTenantId != null
-                && !CacheableRepositoryHelperCEImpl.defaultTenantId.isEmpty()) {
-            return getAnonymousUser(CacheableRepositoryHelperCEImpl.defaultTenantId);
+        if (defaultTenantId != null && !defaultTenantId.isEmpty()) {
+            return getAnonymousUser(defaultTenantId);
         }
 
         Criteria defaultTenantCriteria =
@@ -154,16 +151,15 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         query.addCriteria(defaultTenantCriteria);
 
         return mongoOperations.findOne(query, Tenant.class).flatMap(defaultTenant -> {
-            CacheableRepositoryHelperCEImpl.defaultTenantId = defaultTenant.getId();
+            defaultTenantId = defaultTenant.getId();
             return getAnonymousUser(defaultTenant.getId());
         });
     }
 
     @Override
     public Mono<String> getDefaultTenantId() {
-        if (CacheableRepositoryHelperCEImpl.defaultTenantId != null
-                && !CacheableRepositoryHelperCEImpl.defaultTenantId.isEmpty()) {
-            return Mono.just(CacheableRepositoryHelperCEImpl.defaultTenantId);
+        if (defaultTenantId != null && !defaultTenantId.isEmpty()) {
+            return Mono.just(defaultTenantId);
         }
 
         Criteria defaultTenantCriteria =
@@ -172,8 +168,8 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         query.addCriteria(defaultTenantCriteria);
 
         return mongoOperations.findOne(query, Tenant.class).map(defaultTenant -> {
-            CacheableRepositoryHelperCEImpl.defaultTenantId = defaultTenant.getId();
-            return CacheableRepositoryHelperCEImpl.defaultTenantId;
+            defaultTenantId = defaultTenant.getId();
+            return defaultTenantId;
         });
     }
 }
