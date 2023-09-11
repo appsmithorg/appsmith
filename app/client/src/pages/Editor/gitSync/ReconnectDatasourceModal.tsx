@@ -512,7 +512,7 @@ function ReconnectDatasourceModal() {
             JSON.stringify(appInfo),
           );
         }
-      } else if (appURL) {
+      } else if (appURL && unconfiguredDatasources.length === 0) {
         // open application import successfule
         localStorage.setItem("importApplicationSuccess", "true");
         localStorage.setItem("importedAppPendingInfo", "null");
