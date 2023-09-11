@@ -683,7 +683,7 @@ class MultiSelectTreeWidget extends BaseWidget<
   getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const dropDownWidth =
-      MinimumPopupWidthInPercentage *
+      (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
     const isInvalid =

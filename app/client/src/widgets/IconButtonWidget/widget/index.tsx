@@ -19,6 +19,8 @@ import IconSVG from "../icon.svg";
 
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
+const ICON_BUTTON_SIZE_IN_AUTOLAYOUT = 32;
+
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
@@ -308,7 +310,11 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         hasOnClickAction={!!this.props.onClick}
-        height={this.isAutoLayoutMode ? 32 : componentHeight}
+        height={
+          this.isAutoLayoutMode
+            ? ICON_BUTTON_SIZE_IN_AUTOLAYOUT
+            : componentHeight
+        }
         iconName={iconName}
         isDisabled={isDisabled}
         isVisible={isVisible}
@@ -318,7 +324,11 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         renderMode={this.props.renderMode}
         tooltip={tooltip}
         widgetId={widgetId}
-        width={this.isAutoLayoutMode ? 32 : componentWidth}
+        width={
+          this.isAutoLayoutMode
+            ? ICON_BUTTON_SIZE_IN_AUTOLAYOUT
+            : componentWidth
+        }
       />
     );
   }

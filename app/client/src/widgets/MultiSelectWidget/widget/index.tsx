@@ -522,7 +522,7 @@ class MultiSelectWidget extends BaseWidget<
       ? this.props.selectedOptionValues
       : [];
     const dropDownWidth =
-      MinimumPopupWidthInPercentage *
+      (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
 

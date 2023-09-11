@@ -199,7 +199,7 @@ export enum AlignWidgetTypes {
 }
 
 // Minimum width for Widget Popups
-export const MinimumPopupWidthInPercentage = 0.1875;
+export const MinimumPopupWidthInPercentage = 18.75;
 
 // Default boxShadowColor used in theming migration
 export const rgbaMigrationConstantV56 = "rgba(0, 0, 0, 0.25)";
