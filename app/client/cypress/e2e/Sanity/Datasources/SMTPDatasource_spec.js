@@ -113,10 +113,10 @@ describe("SMTP datasource test cases using ted", function () {
         cmd: "exim -bp",
       },
     }).then((res) => {
-      cy.log("exim -bp res is", res);
-      cy.log("exim -bp output is", res.body);
+      cy.log("exim -bp res is", JSON.stringify(res));
+      cy.log("exim -bp output is", JSON.stringify(res.body));
       //cy.log("res.body.stderr" + res.body.stderr);
-      cy.log("res.status" + res.status);
+      cy.log("res.status" + JSON.stringify(res.status));
       // expect(stdout).to.contain("qwerty@appsmith.com");
       // expect(res.status).equal(100);
     });
