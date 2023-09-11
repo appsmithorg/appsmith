@@ -161,7 +161,9 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                 .flatMapMany(principal -> {
                     Query query = new Query(notDeleted());
                     return mongoOperations.find(
-                            query, entityInformation.getJavaType(), entityInformation.getCollectionName());
+                            query.cursorBatchSize(10000),
+                            entityInformation.getJavaType(),
+                            entityInformation.getCollectionName());
                 });
     }
 

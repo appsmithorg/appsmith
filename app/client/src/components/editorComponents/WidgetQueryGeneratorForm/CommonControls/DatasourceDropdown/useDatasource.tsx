@@ -37,12 +37,12 @@ import type { AppState } from "@appsmith/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
-  getCurrentEnvironment,
   getEnvironmentConfiguration,
   isEnvironmentValid,
 } from "@appsmith/utils/Environments";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getDatatype } from "utils/AppsmithUtils";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -131,6 +131,7 @@ export function useDatasource(searchText: string) {
   const plugins = useSelector(getPlugins);
 
   const workspaceId = useSelector(getCurrentWorkspaceId);
+  const currentEnvironment: string = useSelector(getCurrentEnvironmentId);
 
   const [actualDatasourceOptions, mockDatasourceOptions] = useMemo(() => {
     const availableDatasources = datasources.filter(({ pluginId }) =>
@@ -147,12 +148,12 @@ export function useDatasource(searchText: string) {
           value: datasource.name,
           data: {
             pluginId: datasource.pluginId,
-            isValid: isEnvironmentValid(datasource, getCurrentEnvironment()),
+            isValid: isEnvironmentValid(datasource, currentEnvironment),
             pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
             isSample: false,
             connectionMode: getEnvironmentConfiguration(
               datasource,
-              getCurrentEnvironment(),
+              currentEnvironment,
             )?.connection?.mode,
           },
           icon: (
