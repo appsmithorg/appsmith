@@ -21,7 +21,6 @@ const getLayoutSystem = (
   renderMode: RenderModes,
   appPositioningType: AppPositioningTypes,
 ): LayoutSystem => {
-  console.log("####", { appPositioningType });
   switch (appPositioningType) {
     case AppPositioningTypes.ANVIL:
       return getAnvilSystem(renderMode);
@@ -43,7 +42,7 @@ const LayoutSystemWrapper = ({
   const appPositioningType = useSelector(getAppPositioningType);
   const { LayoutSystemWrapper, propertyEnhancer } = getLayoutSystem(
     renderMode,
-    AppPositioningTypes.ANVIL || appPositioningType,
+    appPositioningType,
   );
   const enhancedProperties = propertyEnhancer(widgetProps);
   return (
