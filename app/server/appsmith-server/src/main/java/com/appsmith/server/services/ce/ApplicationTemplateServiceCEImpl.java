@@ -330,9 +330,6 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private Mono<ApplicationTemplate> uploadCommunityTemplateToCS(CommunityTemplateUploadDTO communityTemplate) {
         String url = cloudServicesConfig.getBaseUrl() + "/api/v1/app-templates/upload-community-template";
         String authHeader = "Authorization";
-        System.out.println("============ Header ==================");
-        System.out.println(cloudServicesConfig.getTemplateUploadAuthHeader());
-        System.out.println("============ Header ==================");
         String payload;
         try {
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
