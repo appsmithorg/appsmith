@@ -42,7 +42,7 @@ const LayoutSystemWrapper = ({
   const appPositioningType = useSelector(getAppPositioningType);
   const { LayoutSystemWrapper, propertyEnhancer } = getLayoutSystem(
     renderMode,
-    appPositioningType,
+    AppPositioningTypes.ANVIL || appPositioningType,
   );
   const enhancedProperties = propertyEnhancer(widgetProps);
   return (

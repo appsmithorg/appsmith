@@ -75,7 +75,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
         props.widgetId
       } ${widgetTypeClassname(
         props.widgetType,
-      )} t--widget-${props.widgetName.toLowerCase()}`,
+      )} t--widget-${props.widgetName.toLowerCase()} anvil-layout`,
     [props.parentId, props.widgetId, props.widgetType, props.widgetName],
   );
 

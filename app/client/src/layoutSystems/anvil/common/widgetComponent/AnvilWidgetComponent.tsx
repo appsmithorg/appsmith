@@ -1,4 +1,5 @@
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
+import WidgetComponentBoundary from "layoutSystems/common/widgetComponent/WidgetComponentBoundary";
 import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import Skeleton from "widgets/Skeleton";
@@ -18,7 +19,13 @@ export const AnvilWidgetComponent = (props: BaseWidgetProps) => {
     return <Skeleton />;
   }
 
-  if (!detachFromLayout) return props.children;
+  if (!detachFromLayout) return <div>{props.children}</div>;
 
-  return <ErrorBoundary>{props.children}</ErrorBoundary>;
+  return (
+    <ErrorBoundary>
+      <WidgetComponentBoundary widgetType={type}>
+        {props.children}
+      </WidgetComponentBoundary>
+    </ErrorBoundary>
+  );
 };
