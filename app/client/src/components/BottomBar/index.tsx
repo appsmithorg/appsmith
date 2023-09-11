@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import QuickGitActions from "pages/Editor/gitSync/QuickGitActions";
 import { Layers } from "constants/Layers";
 import { DebuggerTrigger } from "components/editorComponents/Debugger";
 import HelpButton from "pages/Editor/HelpButton";
@@ -30,7 +29,7 @@ export default function BottomBar({ viewMode }: { viewMode: boolean }) {
     <Container>
       <Wrapper>
         <SwitchEnvironment viewMode={viewMode} />
-        {!viewMode && <QuickGitActions />}
+        {/* {!viewMode && <QuickGitActions />} */}
       </Wrapper>
       {!viewMode && (
         <Wrapper>

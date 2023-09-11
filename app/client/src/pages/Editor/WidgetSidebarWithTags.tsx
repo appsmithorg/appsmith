@@ -32,7 +32,13 @@ import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
 
-function WidgetSidebarWithTags({ isActive = true }: { isActive: boolean }) {
+function WidgetSidebarWithTags({
+  hideSearch = false,
+  isActive = true,
+}: {
+  isActive: boolean;
+  hideSearch?: boolean;
+}) {
   const cards = useSelector(getWidgetCards);
   const groupedCards = useMemo(() => groupWidgetCardsByTags(cards), [cards]);
   const [filteredCards, setFilteredCards] =
@@ -127,17 +133,19 @@ function WidgetSidebarWithTags({ isActive = true }: { isActive: boolean }) {
         isActive ? "" : "hidden"
       }`}
     >
-      <div className="sticky top-0 px-3 mt-0.5">
-        <SearchInput
-          autoComplete="off"
-          autoFocus
-          id={ENTITY_EXPLORER_SEARCH_ID}
-          onChange={search}
-          placeholder="Search widgets"
-          ref={searchInputRef}
-          type="text"
-        />
-      </div>
+      {!hideSearch && (
+        <div className="sticky top-0 px-3 mt-0.5">
+          <SearchInput
+            autoComplete="off"
+            autoFocus
+            id={ENTITY_EXPLORER_SEARCH_ID}
+            onChange={search}
+            placeholder="Search widgets"
+            ref={searchInputRef}
+            type="text"
+          />
+        </div>
+      )}
       <div
         className="flex-grow px-3 mt-2 overflow-y-scroll"
         data-testid="widget-sidebar-scrollable-wrapper"
