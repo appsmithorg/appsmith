@@ -216,7 +216,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   getWidgetView() {
     const { componentWidth } = this.props;
     const menuDropDownWidth =
-      MinimumPopupWidthInPercentage *
+      (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
 
     return (

@@ -48,11 +48,6 @@
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-reload4j</artifactId>
                 </exclusion>
-                <exclusion>
-                    <!-- Once this transitive dependency is updated to at least 3.10.0, we can remove this exclusion. -->
-                    <groupId>org.pf4j</groupId>
-                    <artifactId>pf4j</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
 

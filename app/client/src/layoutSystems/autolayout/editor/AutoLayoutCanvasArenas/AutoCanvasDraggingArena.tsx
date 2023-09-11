@@ -22,7 +22,7 @@ export interface AutoCanvasDraggingArenaProps {
 }
 
 /**
- * AutoCanvasDraggingArena is a wrapper for html Canvas on top of the canvas which renders widgets that helps with drag n drop
+ * AutoCanvasDraggingArena is a wrapper for html Canvas on top of the canvas which renders widgets that provides the canvas and logic for drag n drop
  * This Canvas/Arena helps with drag n drop of widgets in AutoLayout and drawing highlights while dragging using useCanvasDragging hook
  * Arenas are basically associated with components involving HTML canvas that is used during dragging, selection etc..
  * @param  AutoCanvasDraggingArenaProps is an object that includes properties like

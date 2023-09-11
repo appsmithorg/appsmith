@@ -486,7 +486,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth =
-      MinimumPopupWidthInPercentage *
+      (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
 
     const selectedIndex = _.findIndex(this.props.options, {

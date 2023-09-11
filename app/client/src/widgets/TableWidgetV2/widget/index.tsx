@@ -333,7 +333,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           {
             propertyPath: "tableData",
             propertyValue: propValueMap.data,
-            isDynamicPropertyPath: false,
+            isDynamicPropertyPath: !!propValueMap.isDynamicPropertyPath,
           },
         ];
       },

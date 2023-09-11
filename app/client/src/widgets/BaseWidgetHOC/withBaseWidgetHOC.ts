@@ -13,11 +13,16 @@ export const withBaseWidgetHOC = (
   needsMeta: boolean,
   eagerRender: boolean,
 ) => {
+  // Adds Meta properties and functionality
   const MetaWidget = needsMeta ? withMeta(Widget) : Widget;
+  // Adds Lazy rendering layer to a widget
   const LazyRenderedWidget = eagerRender
     ? MetaWidget
     : withLazyRender(MetaWidget as any);
+  // Adds respective layout specific layers to a widget
   const LayoutWrappedWidget = withLayoutSystemHOC(LazyRenderedWidget);
+  // Adds/Enhances widget props
   const HydratedWidget = withWidgetProps(LayoutWrappedWidget as any);
+  // Wraps the widget to be profiled via sentry
   return Sentry.withProfiler(HydratedWidget);
 };

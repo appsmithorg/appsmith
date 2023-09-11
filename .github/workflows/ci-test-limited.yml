@@ -115,12 +115,14 @@ jobs:
           echo "::set-output name=run_result::$run_result_env"
 
       # In case this is second attempt try restoring failed tests
+      - if : steps.run_result.outputs.run_result == 'failedtest'
+        run: echo "failed_spec_artifact=failed-spec-ci-$((${{github.run_attempt}}-1))" >> $GITHUB_ENV
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: actions/download-artifact@v3
         with:
-          name: combined_failed_spec_ci
-          path: ~/combined_failed_spec_ci
+          name: ${{ env.failed_spec_artifact }}
+          path: ~/failed_spec_ci
 
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
@@ -438,7 +440,7 @@ jobs:
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         id: cypress_test_failedtest
-        if: steps.run_result.outputs.run_result == 'failedtest'
+        if: steps.run_result.outputs.run_result == 'failedtest' && env.failed_spec_env != ''
         uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
