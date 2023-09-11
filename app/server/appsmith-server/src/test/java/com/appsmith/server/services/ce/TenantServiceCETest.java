@@ -6,7 +6,6 @@ import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
-import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
@@ -38,6 +37,8 @@ import java.util.UUID;
 
 import static com.appsmith.server.constants.MigrationStatus.COMPLETED;
 import static com.appsmith.server.constants.MigrationStatus.IN_PROGRESS;
+import static com.appsmith.server.exceptions.AppsmithErrorCode.FEATURE_FLAG_MIGRATION_FAILURE;
+import static com.appsmith.server.featureflags.FeatureFlagEnum.TENANT_TEST_FEATURE;
 import static com.appsmith.server.featureflags.FeatureFlagEnum.TEST_FEATURE_2;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
@@ -257,7 +258,7 @@ class TenantServiceCETest {
         TenantConfiguration config = new TenantConfiguration();
         Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap = new HashMap<>();
         config.setFeaturesWithPendingMigration(featureMigrationTypeMap);
-        featureMigrationTypeMap.put(FeatureFlagEnum.TENANT_TEST_FEATURE, FeatureMigrationType.ENABLE);
+        featureMigrationTypeMap.put(TENANT_TEST_FEATURE, FeatureMigrationType.ENABLE);
         featureMigrationTypeMap.put(TEST_FEATURE_2, FeatureMigrationType.DISABLE);
         tenant.setTenantConfiguration(config);
         final Mono<Tenant> resultMono = tenantService.checkAndExecuteMigrationsForTenantFeatureFlags(tenant);
@@ -285,7 +286,7 @@ class TenantServiceCETest {
         TenantConfiguration config = new TenantConfiguration();
         Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap = new HashMap<>();
         config.setFeaturesWithPendingMigration(featureMigrationTypeMap);
-        featureMigrationTypeMap.put(FeatureFlagEnum.TENANT_TEST_FEATURE, FeatureMigrationType.DISABLE);
+        featureMigrationTypeMap.put(TENANT_TEST_FEATURE, FeatureMigrationType.DISABLE);
         featureMigrationTypeMap.put(TEST_FEATURE_2, FeatureMigrationType.ENABLE);
         tenant.setTenantConfiguration(config);
         final Mono<Tenant> resultMono = tenantService.checkAndExecuteMigrationsForTenantFeatureFlags(tenant);
@@ -294,8 +295,8 @@ class TenantServiceCETest {
         StepVerifier.create(resultMono)
                 .expectErrorSatisfies(throwable -> {
                     assertThat(throwable instanceof AppsmithException).isTrue();
-                    assertThat(throwable.getMessage())
-                            .isEqualTo(AppsmithError.FeatureFlagMigrationFailure.getMessage(TEST_FEATURE_2, ""));
+                    assertThat(((AppsmithException) throwable).getAppErrorCode())
+                            .isEqualTo(FEATURE_FLAG_MIGRATION_FAILURE.getCode());
                 })
                 .verify();
 
