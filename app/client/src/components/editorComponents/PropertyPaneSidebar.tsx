@@ -10,14 +10,12 @@ import { getSelectedWidgets } from "selectors/ui";
 import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
 import { previewModeSelector } from "selectors/editorSelectors";
-import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
-import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import styled from "styled-components";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
@@ -95,17 +93,13 @@ export const PropertyPaneSidebar = memo((props: Props) => {
    */
   const propertyPane = useMemo(() => {
     switch (true) {
-      case isAppSettingsPaneOpen:
-        return <AppSettingsPane />;
       case selectedWidgetsLength > 1:
         return <MultiSelectPropertyPane />;
       case selectedWidgetsLength === 1:
-        if (shouldNotRenderPane) return <CanvasPropertyPane />;
+        if (shouldNotRenderPane) return <div />;
         else return <WidgetPropertyPane />;
-      case selectedWidgetsLength === 0:
-        return <CanvasPropertyPane />;
       default:
-        return <CanvasPropertyPane />;
+        return <div />;
     }
   }, [
     isAppSettingsPaneOpen,

@@ -128,7 +128,6 @@ const AddDatasourceModal = () => {
   const onBack = () => {
     dispatch(showAddDatasourceModal(false));
   };
-
   return (
     <Modal open={openAddModal}>
       <ModalContent style={{ width: "75vw" }}>

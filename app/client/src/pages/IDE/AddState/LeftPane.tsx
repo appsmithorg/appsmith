@@ -1,15 +1,15 @@
-import { Icon, Link, Text } from "design-system";
+import { Icon, Text } from "design-system";
 import { importSvg } from "design-system-old";
-import WidgetCard from "pages/Editor/WidgetCard";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId, getWidgetCards } from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { setIdePageTabState, setIdeSidebarWidth } from "../ideActions";
 import { datasourcesEditorURL, pageEntityUrl } from "RouteBuilder";
 import history from "utils/history";
 import { PageNavState, TabState } from "../ideReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
+import WidgetSidebarWithTags from "pages/Editor/WidgetSidebarWithTags";
 
 const DataIcon = importSvg(
   () => import("pages/IDE/assets/icons/database-2-line.svg"),
@@ -23,6 +23,8 @@ const Container = styled.div`
   padding: 10px;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  flex: 1;
   p {
     font-size: 30px;
     color: #4c5664;
@@ -46,7 +48,6 @@ const NewCard = styled.div`
 
 const AddNewCardWrapper = styled.div`
   display: flex;
-  flex: 1;
   gap: 8px;
 `;
 
@@ -59,14 +60,6 @@ const IconWrapper = styled.div<{ backgroundColor: string }>`
   align-items: center;
   border-radius: 4px;
   background-color: ${(props) => props.backgroundColor};
-`;
-
-const CardList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-  grid-template-rows: repeat(3, auto);
-  gap: 12px;
-  margin-top: 8px;
 `;
 
 const DataMainEmptyState = () => {
@@ -127,29 +120,12 @@ const AddNewCards = () => {
 };
 
 const WidgetPane = () => {
-  const cards = useSelector(getWidgetCards);
-  const currentPageId = useSelector(getCurrentPageId);
-
   return (
-    <div>
-      <div className="flex justify-between mt-6">
-        <Text kind="heading-xs">Drag & Drop widgets on the canvas</Text>
-        <Link
-          onClick={() => {
-            history.push(
-              pageEntityUrl({ pageId: currentPageId || "" }, PageNavState.UI),
-            );
-          }}
-        >
-          View all
-        </Link>
+    <div className="flex-1 overflow-hidden flex flex-col mt-6">
+      <Text kind="heading-xs">Drag & Drop widgets on the canvas</Text>
+      <div className="flex-1 overflow-y-auto">
+        <WidgetSidebarWithTags hideSearch isActive />
       </div>
-
-      <CardList>
-        {cards.slice(0, 15).map((card) => {
-          return <WidgetCard details={card} key={card.key} />;
-        })}
-      </CardList>
     </div>
   );
 };
