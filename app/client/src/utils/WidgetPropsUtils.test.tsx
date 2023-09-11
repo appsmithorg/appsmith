@@ -12,7 +12,7 @@ import {
   buildDslWithChildren,
 } from "test/factories/WidgetFactoryUtils";
 import { cloneDeep } from "lodash";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import {
   extractCurrentDSL,
   getDraggingSpacesFromBlocks,

@@ -285,6 +285,7 @@ function Deploy() {
         <Container
           data-testid={"t--deploy-tab-container"}
           ref={scrollWrapperRef}
+          style={{ minHeight: 360 }}
         >
           <Section>
             {hasChangesToCommit && (
@@ -428,7 +429,7 @@ function Deploy() {
           )}
         </Container>
       </ModalBody>
-      <ModalFooter key="footer">
+      <ModalFooter key="footer" style={{ minHeight: 52 }}>
         {showPullButton && (
           <Button
             className="t--pull-button"
