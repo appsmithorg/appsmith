@@ -7,49 +7,70 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
-import Menu from "./Menu";
-import { MENU_ITEMS_MAP } from "./constants";
-import Deploy from "./Tabs/Deploy";
-import Merge from "./Tabs/Merge";
-import GitConnection from "./Tabs/GitConnection";
+import Menu from "../Menu";
+import Deploy from "../Tabs/Deploy";
+import Merge from "../Tabs/Merge";
+import GitConnection from "../Tabs/GitConnection";
 
-import GitErrorPopup from "./components/GitErrorPopup";
+import GitErrorPopup from "../components/GitErrorPopup";
 import styled from "styled-components";
-import { GitSyncModalTab } from "entities/GitSync";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Modal, ModalContent, ModalHeader } from "design-system";
+import { EnvInfoHeader } from "@appsmith/components/EnvInfoHeader";
 import {
   createMessage,
+  GIT_CONNECTION,
+  DEPLOY,
+  MERGE,
+  CONNECT_TO_GIT,
+  DEPLOY_YOUR_APPLICATION,
+  MERGE_CHANGES,
   GIT_IMPORT,
   IMPORT_FROM_GIT_REPOSITORY,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useGitConnect } from "./hooks";
-import { Modal, ModalContent, ModalHeader } from "design-system";
-import { EnvInfoHeader } from "@appsmith/components/EnvInfoHeader";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import { GitSyncModalTab } from "entities/GitSync";
 
 const ModalContentContainer = styled(ModalContent)`
   min-height: 650px;
 `;
 
-const ComponentsByTab = {
+const ComponentsByTab: { [K in GitSyncModalTab]?: any } = {
   [GitSyncModalTab.GIT_CONNECTION]: GitConnection,
   [GitSyncModalTab.DEPLOY]: Deploy,
   [GitSyncModalTab.MERGE]: Merge,
 };
 
+const MENU_ITEMS_MAP: { [K in GitSyncModalTab]?: any } = {
+  [GitSyncModalTab.GIT_CONNECTION]: {
+    key: GitSyncModalTab.GIT_CONNECTION,
+    title: createMessage(GIT_CONNECTION),
+    modalTitle: createMessage(CONNECT_TO_GIT),
+  },
+  [GitSyncModalTab.DEPLOY]: {
+    key: GitSyncModalTab.DEPLOY,
+    title: createMessage(DEPLOY),
+    modalTitle: createMessage(DEPLOY_YOUR_APPLICATION),
+  },
+  [GitSyncModalTab.MERGE]: {
+    key: GitSyncModalTab.MERGE,
+    title: createMessage(MERGE),
+    modalTitle: createMessage(MERGE_CHANGES),
+  },
+};
+
 const allMenuOptions = Object.values(MENU_ITEMS_MAP);
 
-function GitSyncModal(props: { isImport?: boolean }) {
+function GitSyncModalV1(props: { isImport?: boolean }) {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);
+
   const activeTabKey = useSelector(getActiveGitSyncModalTab);
   // Fetching feature flags from the store and checking if the feature is enabled
   const allowedToRenderMEFeature = useSelector(datasourceEnvEnabled);
-  const { onGitConnectFailure: resetGitConnectStatus } = useGitConnect();
 
   const handleClose = useCallback(() => {
-    resetGitConnectStatus();
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
     dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
@@ -147,4 +168,4 @@ function GitSyncModal(props: { isImport?: boolean }) {
   );
 }
 
-export default GitSyncModal;
+export default GitSyncModalV1;
