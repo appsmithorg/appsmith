@@ -12,7 +12,7 @@ import { Colors } from "constants/Colors";
 import { BarType } from "../constants";
 import type { Stylesheet } from "entities/AppTheming";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "../icon.svg";
 
 class ProgressBarWidget extends BaseWidget<
@@ -196,7 +196,7 @@ class ProgressBarWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <ProgressBarComponent
         barType={this.props.barType}

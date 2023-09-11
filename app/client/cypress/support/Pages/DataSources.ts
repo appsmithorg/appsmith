@@ -17,6 +17,7 @@ export const DataSourceKVP = {
   Oracle: "Oracle",
   S3: "S3",
   Twilio: "Twilio",
+  SMTP: "SMTP",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -118,7 +119,7 @@ export class DataSources {
   _generatePageBtn = "[data-testid=t--generate-page-form-submit]";
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
-  _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
+  _selectedActiveTab = "button[aria-selected='true'] " + this._activeTab;
   _contextMenuDSReviewPage = "[data-testid='t--context-menu-trigger']";
   _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
@@ -534,10 +535,11 @@ export class DataSources {
       this._port,
       this.dataManager.dsValues[environment].mongo_port.toString(),
     );
-    this.agHelper.ClearNType(
-      this._databaseName,
-      this.dataManager.dsValues[environment].mongo_databaseName,
-    );
+    this.agHelper.ClearTextField(this._databaseName);
+    const databaseName = shouldAddTrailingSpaces
+      ? this.dataManager.dsValues[environment].mongo_databaseName + "  "
+      : this.dataManager.dsValues[environment].mongo_databaseName;
+    this.agHelper.TypeText(this._databaseName, databaseName);
   }
 
   public FillMySqlDSForm(
@@ -798,11 +800,10 @@ export class DataSources {
     } else {
       this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
     }
+  }
 
-    // cy.wait("@saveDatasource")
-    //     .then((xhr) => {
-    //         cy.log(JSON.stringify(xhr.response!.body));
-    //     }).should("have.nested.property", "response.body.responseMeta.status", 200);
+  public AssertSaveDSButtonDisability(isDisabled = true) {
+    this.agHelper.AssertElementEnabledDisabled(this._saveDs, 0, isDisabled);
   }
 
   public AuthAPISaveAndAuthorize() {
@@ -816,8 +817,24 @@ export class DataSources {
     this.agHelper.AssertContains("datasource updated");
   }
 
+  public ShowAllDatasources() {
+    this.agHelper.GetElement(this.locator._body).then(($body) => {
+      if ($body.find(this._selectedActiveTab).length === 0) {
+        this.agHelper.ClickButton("Show all datasources");
+      }
+    });
+  }
+
   public ClickActiveTabDSContextMenu(datasourceName: string) {
-    this.NavigateToActiveTab();
+    this.agHelper.GetElement(this.locator._body).then(($body) => {
+      if (
+        $body.find(this.locator._visibleTextSpan("Show all datasources", true))
+          .length !== 0
+      ) {
+        this.ShowAllDatasources();
+      } else this.NavigateToActiveTab();
+    });
+
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .parents(this._datasourceCard)
@@ -910,7 +927,7 @@ export class DataSources {
 
   public NavigateToActiveTab() {
     this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if ($body.find(this._selectedActiveTab).length == 0) {
+      if ($body.find(this._selectedActiveTab).length === 0) {
         this.NavigateToDSCreateNew();
         this.agHelper.GetNClick(this._activeTab, 0, true);
       }
@@ -927,7 +944,7 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
-    this.AssertDSActive(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
+    this.AssertDSInActiveList(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
       .then(($element) => {
@@ -944,7 +961,7 @@ export class DataSources {
       this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
   }
 
-  public AssertDSActive(dsName: string | RegExp) {
+  public AssertDSInActiveList(dsName: string | RegExp) {
     this.entityExplorer.NavigateToSwitcher("Explorer", 0, true);
     this.entityExplorer.ExpandCollapseEntity("Datasources", false);
     //this.entityExplorer.SelectEntityByName(datasourceName, "Datasources");
