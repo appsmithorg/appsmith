@@ -5,9 +5,8 @@ import type { Item } from "./components/ListView";
 import useRecentEntities from "../../components/editorComponents/GlobalSearch/useRecentEntities";
 import { useEffect, useState } from "react";
 import _, { findIndex, keyBy } from "lodash";
-import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
 import { useSelector } from "react-redux";
-import { getPlugins } from "selectors/entitiesSelector";
+import { getDatasources, getPlugins } from "selectors/entitiesSelector";
 import { PluginType } from "entities/Action";
 import { getPluginIcon } from "pages/Editor/Explorer/ExplorerIcons";
 
@@ -81,11 +80,11 @@ export const useIDEPageRecent = (
 };
 
 export const useIDEDatasources = () => {
-  const { otherDS } = useAppWideAndOtherDatasource();
+  const allDatasources = useSelector(getDatasources);
   const plugins = useSelector(getPlugins);
   const pluginByKey = keyBy(plugins, "id");
   const params = useParams<{ appId: string; dataId?: string }>();
-  const otherItems = otherDS
+  const otherItems = allDatasources
     .filter((item) => {
       const plugin = pluginByKey[item.pluginId];
       if (plugin) {
