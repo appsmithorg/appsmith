@@ -7,7 +7,7 @@ import clsx from "clsx";
 
 import type { FlexProps } from "./types";
 
-const _Flex = (props: FlexProps) => {
+const _Flex = (props: FlexProps, ref: HTMLDivElement) => {
   const {
     children,
     className,
@@ -16,7 +16,7 @@ const _Flex = (props: FlexProps) => {
     style,
     ...rest
   } = props;
-  const flexElement = useRef<HTMLDivElement>(null);
+  const flexElement = useRef<HTMLDivElement>(ref);
   const flexClassName = useRef(uniqueId("wds-flex-"));
   const sheet = new StyleSheet({
     key: flexClassName.current,
