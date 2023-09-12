@@ -1,3 +1,4 @@
+import { memoize } from "lodash";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
@@ -65,18 +66,20 @@ export const getFixedLayoutComponentDimensions = ({
   };
 };
 
-export const getComponentDimensions = (
-  props: BaseWidgetProps,
-  appPositioningType: AppPositioningTypes,
-  isMobile: boolean,
-): {
-  componentHeight: number;
-  componentWidth: number;
-} => {
-  switch (appPositioningType) {
-    case AppPositioningTypes.AUTO:
-      return getAutoLayoutComponentDimensions({ ...props, isMobile });
-    default:
-      return getFixedLayoutComponentDimensions(props);
-  }
-};
+export const getComponentDimensions = memoize(
+  (
+    props: BaseWidgetProps,
+    appPositioningType: AppPositioningTypes,
+    isMobile: boolean,
+  ): {
+    componentHeight: number;
+    componentWidth: number;
+  } => {
+    switch (appPositioningType) {
+      case AppPositioningTypes.AUTO:
+        return getAutoLayoutComponentDimensions({ ...props, isMobile });
+      default:
+        return getFixedLayoutComponentDimensions(props);
+    }
+  },
+);
