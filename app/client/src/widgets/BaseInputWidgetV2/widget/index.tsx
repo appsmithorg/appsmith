@@ -5,7 +5,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
-import IconSVG from "./icon.svg";
+import IconSVG from "../icon.svg";
 import type { BaseInputWidgetProps } from "./types";
 import { propertyPaneContentConfig } from "./contentConfig";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
