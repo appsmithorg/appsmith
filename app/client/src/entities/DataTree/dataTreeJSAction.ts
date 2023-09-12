@@ -42,8 +42,8 @@ export const generateDataTreeJSAction = (js: JSCollectionData): any => {
       dynamicBindingPathList.push({ key: action.name });
       dependencyMap["body"].push(action.name);
       actionsData[action.name] = {
-        // here, data is always set to an empty object
-        // data is handled in the Datastore class
+        // Data is always set to {} in the unevalTree
+        // Action data is updated directly to the dataTree (see updateActionData.ts)
         data: {},
       };
     }
