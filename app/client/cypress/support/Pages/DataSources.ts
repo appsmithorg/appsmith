@@ -280,9 +280,11 @@ export class DataSources {
   _stagingTab = "[data-testid='t--ds-data-filter-Staging']";
   _graphQlDsFromRightPane = (dsName: string) =>
     "//div/span[text() ='" + dsName + "']";
-
   private _dsVirtuosoElement = (dsName: string) =>
     `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`;
+  private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
+  private _dsVirtuosoElementTable = (targetTableName: string) =>
+    `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`;
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -1931,9 +1933,7 @@ export class DataSources {
               const heightOfParentElement = parentElement.outerHeight() || 0;
 
               // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element accordion is collapsed by default.
-              const containerElement = parentElement.find(
-                '[data-test-id="virtuoso-item-list"]',
-              );
+              const containerElement = parentElement.find(this._dsVirtuosoList);
               const elementHeight = parseInt(
                 containerElement.children().first().attr("data-known-size") ||
                   "",
@@ -1953,7 +1953,7 @@ export class DataSources {
               }
 
               this.agHelper.AssertElementVisibility(
-                `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`,
+                this._dsVirtuosoElementTable(targetTableName),
               );
             });
         } else {
