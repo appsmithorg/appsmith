@@ -969,6 +969,15 @@ public enum AppsmithError {
             ErrorType.CONFIGURATION_ERROR,
             null),
 
+    FeatureFlagMigrationFailure(
+            500,
+            AppsmithErrorCode.FEATURE_FLAG_MIGRATION_FAILURE.getCode(),
+            "Migration failed for feature flag {0}, error: {1}",
+            AppsmithErrorAction.DEFAULT,
+            "Migration failed",
+            ErrorType.INTERNAL_ERROR,
+            null),
+
     // EE-only errors below this line:
     APPLICATION_NOT_CLONED_MISSING_PERMISSIONS(
             403,
