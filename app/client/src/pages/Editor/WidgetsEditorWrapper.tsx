@@ -21,7 +21,7 @@ import BottomBar from "components/BottomBar";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const Container = styled.div`
+const Wrapper = styled.div`
   display: flex;
   height: calc(
     100vh - ${(props) => props.theme.smallHeaderHeight} -
@@ -30,7 +30,10 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.appBackground};
 `;
 
-function MainContainer() {
+/**
+ * OldName: MainContainer
+ */
+function WidgetsEditorWrapper() {
   const dispatch = useDispatch();
   const sidebarWidth = useSelector(getExplorerWidth);
   const { path } = useRouteMatch();
@@ -57,7 +60,7 @@ function MainContainer() {
 
   return (
     <>
-      <Container className="relative w-full overflow-x-hidden">
+      <Wrapper className="relative w-full overflow-x-hidden">
         <EntityExplorerSidebar
           onDragEnd={onLeftSidebarDragEnd}
           onWidthChange={onLeftSidebarWidthChange}
@@ -92,12 +95,12 @@ function MainContainer() {
             <SentryRoute component={EditorsRouter} />
           </Switch>
         </div>
-      </Container>
+      </Wrapper>
       <BottomBar viewMode={isPreviewMode} />
     </>
   );
 }
 
-MainContainer.displayName = "MainContainer";
+WidgetsEditorWrapper.displayName = "WidgetsEditorWrapper";
 
-export default MainContainer;
+export default WidgetsEditorWrapper;
