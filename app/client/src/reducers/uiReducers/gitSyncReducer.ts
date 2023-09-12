@@ -24,7 +24,7 @@ const initialState: GitSyncReducerState = {
   localGitConfig: { authorEmail: "", authorName: "" },
 
   isFetchingLocalGitConfig: false,
-  isFetchingGitConfig: false,
+  isFetchingGlobalGitConfig: false,
 
   isMerging: false,
   tempRemoteUrl: "",
@@ -38,6 +38,7 @@ const initialState: GitSyncReducerState = {
 
   isSwitchingBranch: false,
   switchingToBranch: null,
+  isDeploying: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -46,9 +47,11 @@ const gitSyncReducer = createReducer(initialState, {
     action: ReduxAction<{
       isOpen: boolean;
       tab: GitSyncModalTab;
+      isDeploying: boolean;
     }>,
   ) => {
     const activeGitSyncModalTab = action.payload.tab;
+    const isDeploying = action.payload.isDeploying || false;
 
     return {
       ...state,
@@ -61,6 +64,7 @@ const gitSyncReducer = createReducer(initialState, {
       mergeError: null,
       pullFailed: false, // reset conflicts when the modal is opened
       gitImportError: null,
+      isDeploying,
     };
   },
   [ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT]: (state: GitSyncReducerState) => ({
@@ -124,7 +128,7 @@ const gitSyncReducer = createReducer(initialState, {
     state: GitSyncReducerState,
   ) => ({
     ...state,
-    isFetchingGitConfig: true,
+    isFetchingGlobalGitConfig: true,
     connectError: null,
     commitAndPushError: null,
     pullError: null,
@@ -135,7 +139,7 @@ const gitSyncReducer = createReducer(initialState, {
     state: GitSyncReducerState,
   ) => ({
     ...state,
-    isFetchingGitConfig: true,
+    isFetchingGlobalGitConfig: true,
     connectError: null,
     commitAndPushError: null,
     pullError: null,
@@ -148,7 +152,7 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     globalGitConfig: action.payload,
-    isFetchingGitConfig: false,
+    isFetchingGlobalGitConfig: false,
   }),
   [ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_SUCCESS]: (
     state: GitSyncReducerState,
@@ -156,19 +160,19 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     globalGitConfig: action.payload,
-    isFetchingGitConfig: false,
+    isFetchingGlobalGitConfig: false,
   }),
   [ReduxActionErrorTypes.UPDATE_GLOBAL_GIT_CONFIG_ERROR]: (
     state: GitSyncReducerState,
   ) => ({
     ...state,
-    isFetchingGitConfig: false,
+    isFetchingGlobalGitConfig: false,
   }),
   [ReduxActionErrorTypes.FETCH_GLOBAL_GIT_CONFIG_ERROR]: (
     state: GitSyncReducerState,
   ) => ({
     ...state,
-    isFetchingGitConfig: false,
+    isFetchingGlobalGitConfig: false,
   }),
   [ReduxActionTypes.FETCH_BRANCHES_INIT]: (state: GitSyncReducerState) => ({
     ...state,
@@ -644,7 +648,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   isCommitSuccessful: boolean;
 
   fetchingBranches: boolean;
-  isFetchingGitConfig: boolean;
+  isFetchingGlobalGitConfig: boolean;
   isFetchingLocalGitConfig: boolean;
 
   isFetchingGitStatus: boolean;
@@ -693,6 +697,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   isSwitchingBranch: boolean;
   switchingToBranch: string | null;
+  isDeploying: boolean;
 };
 
 export default gitSyncReducer;

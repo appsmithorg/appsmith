@@ -1,5 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 
 export default [
   {

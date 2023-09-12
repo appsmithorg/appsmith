@@ -26,16 +26,17 @@ import {
 } from "selectors/appThemingSelectors";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
-import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
+import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
 import {
   AUTOLAYOUT_RESIZER_WIDTH_BUFFER,
   useDynamicAppLayout,
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import type { AppState } from "@appsmith/reducers";
-import { CanvasResizer } from "widgets/CanvasResizer";
+import { CanvasResizer } from "layoutSystems/autolayout/canvasResizer/CanvasResizer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -204,7 +205,7 @@ function CanvasContainer(props: CanvasContainerProps) {
             !showAnonymousDataPopup,
           "mt-24": shouldShowSnapShotBanner,
         })}
-        id={"canvas-viewport"}
+        id={CANVAS_VIEWPORT}
         isAppSettingsPaneWithNavigationTabOpen={
           isAppSettingsPaneWithNavigationTabOpen
         }

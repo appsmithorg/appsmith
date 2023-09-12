@@ -3,7 +3,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { snipingModeBindToSelector } from "selectors/editorSelectors";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import {
   batchUpdateWidgetDynamicProperty,
   batchUpdateWidgetProperty,
@@ -26,6 +26,7 @@ import type { PropertyUpdates } from "WidgetProvider/constants";
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{
     widgetId: string;
+    bindingQuery?: string;
   }>,
 ) {
   const queryId: string = yield select(snipingModeBindToSelector);
@@ -56,10 +57,23 @@ export function* bindDataToWidgetSaga(
 
   let updates: Array<PropertyUpdates> = [];
 
+  const oneClickBindingQuery = `{{${currentAction.config.name}.data}}`;
+
+  const bindingQuery = action.payload.bindingQuery
+    ? `{{${currentAction.config.name}.${action.payload.bindingQuery}}}`
+    : oneClickBindingQuery;
+
+  let isDynamicPropertyPath = true;
+
+  if (bindingQuery === oneClickBindingQuery) {
+    isDynamicPropertyPath = false;
+  }
+
   if (getSnipingModeUpdates) {
     updates = getSnipingModeUpdates?.({
-      data: `{{${currentAction.config.name}.data}}`,
+      data: bindingQuery,
       run: `{{${currentAction.config.name}.run()}}`,
+      isDynamicPropertyPath,
     });
 
     AnalyticsUtil.logEvent("WIDGET_SELECTED_VIA_SNIPING_MODE", {

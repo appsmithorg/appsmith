@@ -9,7 +9,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { getAction, getPlugins } from "selectors/entitiesSelector";
+import { getAction, getPlugins } from "@appsmith/selectors/entitiesSelector";
 import { onApiEditor, onCanvas, onQueryEditor } from "../helpers";
 import { getLastSelectedWidget } from "selectors/ui";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
