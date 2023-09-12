@@ -2,6 +2,7 @@ export * from "ce/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { LICENSE_ORIGIN, LICENSE_TYPE } from "@appsmith/pages/Billing/types";
 import type { AppState } from "@appsmith/reducers";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getRemainingDaysFromTimestamp } from "@appsmith/utils/billingUtils";
 import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { createSelector } from "reselect";
@@ -91,6 +92,10 @@ export const isEnterprise = (state: AppState) =>
 export const isAirgapLicense = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.origin ===
   LICENSE_ORIGIN.AIRGAPPED;
+
+// selector to check if the user is on an enterprise user (non-BE)
+export const enableEEOnlyFeatures = (state: AppState) =>
+  isEnterprise(state) || (isAirgapped() && isAirgapLicense(state));
 
 /**
  * selects the tenant brand colors
