@@ -1,24 +1,26 @@
-package com.appsmith.server.services;
+package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatibleImpl;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.AssetService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import jakarta.validation.Validator;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
 
-@Slf4j
 @Service
-public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl implements ApplicationService {
-
-    public ApplicationServiceImpl(
+public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
+        implements ApplicationServiceCECompatible {
+    public ApplicationServiceCECompatibleImpl(
             Scheduler scheduler,
             Validator validator,
             MongoConverter mongoConverter,
@@ -33,7 +35,6 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             AssetService assetService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission) {
-
         super(
                 scheduler,
                 validator,
