@@ -4069,13 +4069,7 @@ public class GitServiceCETest {
         ApplicationJson applicationJson = createAppJson(filePath).block();
         assert applicationJson != null;
         // the list of branches does not contain the develop branch
-        Mockito.when(gitExecutor.listBranches(
-                        Mockito.any(Path.class),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        eq(false)))
-                .thenReturn(Mono.just(branches));
+        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class))).thenReturn(Mono.just(branches));
         Mockito.when(gitExecutor.fetchRemote(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
