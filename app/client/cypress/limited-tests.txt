@@ -1,9 +1,5 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Git/ExistingApps/v1.9.24/DSCrudAndBindings_Spec.ts
-cypress/e2e/Regression/ClientSide/Linting/EntityPropertiesLint_spec.ts
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_Existing_app_spec.js
-cypress/e2e/Regression/ServerSide/JsFunctionExecution/PlatformFn_spec.ts
-cypress/e2e/Regression/ClientSide/BugTests/Bug25894_spec.ts
+cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 
 
 # For running all specs - uncomment below:
