@@ -38,7 +38,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
       );
 
       deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
+      table.WaitUntilTableLoad(0, 0, "v2");
       //Should not be able to delete ds until app is published again
       //coz if app is published & shared then deleting ds may cause issue, So!
       dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
@@ -54,32 +54,32 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
       directInput: false,
       inputFieldName: "Query",
     });
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE_V1));
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     agHelper.GetNAssertElementText(
       locators._textWidgetInDeployed,
       "mongomart Data",
     );
     //Validating loaded table
-    table.SelectTableRow(2);
+    table.SelectTableRow(2, 0, true, "v2");
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(2, 0, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0, "v2", 200).then(($cellData) => {
       expect($cellData).to.be.empty;
     });
-    table.ReadTableRowColumnData(2, 6, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 6, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq("WiredTiger T-shirt");
     });
-    table.ReadTableRowColumnData(2, 7, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 7, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("Apparel");
     });
 
-    table.SelectTableRow(8);
+    table.SelectTableRow(8, 0, true, "v2");
     deployMode.ClearJSONFieldValue("Slogan");
     deployMode.ClearJSONFieldValue("Category");
 
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
     for (let i = 7; i <= 8; i++) {
-      table.ReadTableRowColumnData(8, i, "v1").then(($cellData) => {
+      table.ReadTableRowColumnData(8, i, "v2").then(($cellData) => {
         expect($cellData).to.be.empty;
       });
     }
@@ -93,12 +93,12 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
-    table.ReadTableRowColumnData(8, 8, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(8, 8, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq(
         "Write Your Story with Elegance: The Pen of Choice!",
       );
     });
-    table.ReadTableRowColumnData(8, 5, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(8, 5, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("3");
     });
   });
@@ -118,7 +118,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
     );
     agHelper.ClickButton("Submit");
     for (let i = 0; i <= 1; i++) {
-      table.ReadTableRowColumnData(i, 6, "v1").then(($cellData) => {
+      table.ReadTableRowColumnData(i, 6, "v2").then(($cellData) => {
         expect($cellData).contains("Coffee Mug");
       });
     }
@@ -135,10 +135,10 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
     agHelper.ClickButton("Confirm");
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
-    table.ReadTableRowColumnData(0, 6, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("Coffee Mug");
     });
-    table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 6, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq("Track Jacket");
     });
   });
@@ -147,7 +147,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
     table.SearchTable("Swag");
     agHelper.Sleep(2500); //for search to load
     for (let i = 0; i <= 1; i++) {
-      table.ReadTableRowColumnData(i, 6, "v1").then(($cellData) => {
+      table.ReadTableRowColumnData(i, 6, "v2").then(($cellData) => {
         expect($cellData).to.eq("Swag");
       });
     }
@@ -155,7 +155,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
     table.OpenNFilterTable("title", "contains", "USB");
     for (let i = 0; i < 3; i++) {
-      table.ReadTableRowColumnData(i, 6, "v1").then(($cellData) => {
+      table.ReadTableRowColumnData(i, 6, "v2").then(($cellData) => {
         expect($cellData).contains("USB");
       });
     }
@@ -174,14 +174,14 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
   });
 
   it("6. Suggested Widget - Table", () => {
-    table.SelectTableRow(8);
+    table.SelectTableRow(8, 0, true, "v2");
     agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "down")); //2
     agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "down")); //1
     agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "down")); //0
     agHelper.ClickButton("Update");
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     entityExplorer.AddNewPage();
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
@@ -211,13 +211,13 @@ function GenerateCRUDNValidateDeployPage(
 
   //Validating loaded table
   agHelper.AssertElementExist(dataSources._selectedRow);
-  table.ReadTableRowColumnData(0, 1, "v1", 2000).then(($cellData) => {
+  table.ReadTableRowColumnData(0, 1, "v2", 2000).then(($cellData) => {
     expect($cellData).to.eq(col1Text);
   });
-  table.ReadTableRowColumnData(0, 6, "v1", 200).then(($cellData) => {
+  table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
     expect($cellData).to.eq(col6Text);
   });
-  table.ReadTableRowColumnData(0, 7, "v1", 200).then(($cellData) => {
+  table.ReadTableRowColumnData(0, 7, "v2", 200).then(($cellData) => {
     expect($cellData).to.eq(col7Text);
   });
 
