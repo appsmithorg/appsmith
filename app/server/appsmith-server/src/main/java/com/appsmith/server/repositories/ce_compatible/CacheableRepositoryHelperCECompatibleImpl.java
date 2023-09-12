@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce_compatible;
 
+import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.CacheableRepositoryHelperCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -9,7 +10,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class CacheableRepositoryHelperCECompatibleImpl extends CacheableRepositoryHelperCEImpl
         implements CacheableRepositoryHelperCECompatible {
-    public CacheableRepositoryHelperCECompatibleImpl(ReactiveMongoOperations mongoOperations) {
-        super(mongoOperations);
+    public CacheableRepositoryHelperCECompatibleImpl(
+            ReactiveMongoOperations mongoOperations,
+            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
+        super(mongoOperations, inMemoryCacheableRepositoryHelper);
     }
 }
