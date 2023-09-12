@@ -104,7 +104,7 @@ describe("SMTP datasource test cases using ted", function () {
     //   //expect(stdout).to.contain("qwerty@appsmith.com");//not working here since stdout is empty
     // });
 
-    const tedUrl = "http://localhost:5001/v1/parent/cmd";
+    const tedUrl = "http://localhost:5001/v1/cmd";
 
     cy.request({
       method: "GET",
