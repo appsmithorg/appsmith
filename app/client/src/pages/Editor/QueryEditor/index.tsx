@@ -30,7 +30,7 @@ import {
   getDBAndRemoteDatasources,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import type { QueryAction, SaaSAction } from "entities/Action";
+import type { Action, QueryAction, SaaSAction } from "entities/Action";
 import { PluginType } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
@@ -285,7 +285,7 @@ const mapStateToProps = (
 
   const { editorConfigs, settingConfigs } = plugins;
 
-  const action = getAction(state, actionId) as QueryAction | SaaSAction;
+  const action = getAction(state, actionId) as Action | undefined;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as
     | QueryAction
     | SaaSAction;
@@ -336,13 +336,13 @@ const mapStateToProps = (
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
     dataSources:
-      action.pluginType === PluginType.SAAS
+      action?.pluginType === PluginType.SAAS
         ? getDatasourceByPluginId(state, action?.pluginId)
         : getDBAndRemoteDatasources(state),
     responses: getActionResponses(state),
     isRunning: state.ui.queryPane.isRunning[actionId],
     isDeleting: state.ui.queryPane.isDeleting[actionId],
-    isSaas: action.pluginType === PluginType.SAAS,
+    isSaas: action?.pluginType === PluginType.SAAS,
     formData,
     editorConfig,
     settingConfig,

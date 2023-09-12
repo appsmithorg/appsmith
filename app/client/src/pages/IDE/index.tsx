@@ -70,7 +70,7 @@ const IDE = function () {
       <GlobalHotKeys>
         <Body id="IDE-body" leftPaneWidth={leftPaneWidth}>
           <SideBar />
-          <div className="flex gap-x-1" id="vinay-boundary">
+          <div className="flex gap-x-1 w-full" id="vinay-boundary">
             <LeftPane />
             <MainPane />
           </div>

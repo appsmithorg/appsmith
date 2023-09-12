@@ -100,7 +100,8 @@ export const integrationEditorURL = (
   const suffixPath = props.suffix ? `/${props.suffix}` : "";
   return urlBuilder.build({
     ...props,
-    suffix: `datasources/${props.selectedTab}${suffixPath}`,
+    suffix: `/datasources/${props.selectedTab}${suffixPath}`,
+    ideState: IDEAppState.Page,
   });
 };
 
