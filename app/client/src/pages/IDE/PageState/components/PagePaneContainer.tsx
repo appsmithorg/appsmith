@@ -14,7 +14,7 @@ const PaneTitleBar = styled.div`
   padding: 4px 8px;
   border-bottom: 1px solid #fbe6dc;
   display: grid;
-  grid-template-columns: auto 1fr 60px;
+  grid-template-columns: auto 1fr auto;
   height: 32px;
   align-content: center;
   border-bottom: 1px solid #fbe6dc;
