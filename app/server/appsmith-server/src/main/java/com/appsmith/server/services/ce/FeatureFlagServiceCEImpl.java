@@ -44,7 +44,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
 
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
-    private final long featureFlagCacheTimeMin = 120;
+    private static final long FEATURE_FLAG_CACHE_TIME_MIN = 120;
 
     private Mono<Boolean> checkAll(String featureName, User user) {
         Boolean check = check(featureName, user);
@@ -121,7 +121,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                     .fetchUserCachedFlags(userIdentifier, user)
                     .flatMap(cachedFlags -> {
                         if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
-                                < this.featureFlagCacheTimeMin) {
+                                < FEATURE_FLAG_CACHE_TIME_MIN) {
                             return Mono.just(cachedFlags.getFlags());
                         } else {
                             // empty the cache for the userIdentifier as expired

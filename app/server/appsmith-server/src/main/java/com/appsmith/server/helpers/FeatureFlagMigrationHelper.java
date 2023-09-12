@@ -40,7 +40,7 @@ public class FeatureFlagMigrationHelper {
     }
 
     /**
-     * Method to get the updated feature flags with pending migrations. This method finds the registers the flags for
+     * Method to get the updated feature flags with pending migrations. This method finds and registers the flags for
      * migration by comparing the diffs between the feature flags stored in cache and the latest one pulled from CS
      * @param tenant        Tenant for which the feature flags need to be updated
      * @param forceUpdate   Flag to force update the tenant level feature flags
@@ -86,7 +86,6 @@ public class FeatureFlagMigrationHelper {
         2. In case the tenant is unable to fetch the latest flags save the existing flags from step 1 to cache (fallback)
          */
         String tenantId = tenant.getId();
-        ;
         return cacheableFeatureFlagHelper
                 .evictCachedTenantFeatures(tenantId)
                 .then(cacheableFeatureFlagHelper.fetchCachedTenantFeatures(tenantId))
