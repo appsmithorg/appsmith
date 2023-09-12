@@ -92,7 +92,7 @@ describe("Repo Limit Exceeded Error Modal", function () {
     if (CURRENT_REPO === REPO.EE) {
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
       gitSync.closeGitSyncModal();
-      agHelper.AssertElementExist(this._bottomBarCommit);
+      agHelper.AssertElementExist(gitSync._bottomBarCommit);
     }
   });
 
