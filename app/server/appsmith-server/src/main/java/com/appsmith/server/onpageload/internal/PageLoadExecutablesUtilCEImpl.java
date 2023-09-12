@@ -73,34 +73,34 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * !!!WARNING!!! : This function edits the parameters edges, executablesUsedInDSL and flatPageLoadExecutables
      * and the same are used by the caller function for further processing.
      *
-     * @param providedPageId                    : Argument used for fetching executables in this page
-     * @param providedEvaluatedVersion          : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
-     * @param providedWidgetNames               : Set of widget names which SHOULD have been populated before calling this function.
-     * @param calculatedEdges                   : Set where this function adds all the relationships (dependencies) between executables
-     * @param providedWidgetDynamicBindingsMap  : A map of widget path and the set of dynamic binding words in the mustache at the
+     * @param pageId                    : Argument used for fetching executables in this page
+     * @param evaluatedVersion          : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
+     * @param widgetNames               : Set of widget names which SHOULD have been populated before calling this function.
+     * @param edgesRef                   : Set where this function adds all the relationships (dependencies) between executables
+     * @param widgetDynamicBindingsMap  : A map of widget path and the set of dynamic binding words in the mustache at the
      *                                          path in the widget (populated by the function `extractAllWidgetNamesAndDynamicBindingsFromDSL`
      *                                          <p>
      *                                          Example : If Table1's field tableData contains a mustache : {{Api1.data}}, the entry in the map would look like :
      *                                          Map.entry("Table1.tableData", Set.of("Api1.data"))
-     * @param calculatedFlatPageLoadExecutables : A flat list of on page load executables (Not in the sequence in which these executables
+     * @param flatPageLoadExecutablesRef : A flat list of on page load executables (Not in the sequence in which these executables
      *                                          would be called on page load)
-     * @param calculatedExecutablesUsedInDSL    : Set where this function adds all the executables directly used in the DSL
+     * @param executablesUsedInDSLRef    : Set where this function adds all the executables directly used in the DSL
      * @return Returns page load executables which is a list of sets of executables. Inside a set, all executables can be executed
      * in parallel. But one set of executables MUST finish execution before the next set of executables can be executed
      * in the list.
      */
     public Mono<List<Set<DslExecutableDTO>>> findAllOnLoadExecutables(
-            String providedPageId,
-            Integer providedEvaluatedVersion,
-            Set<String> providedWidgetNames,
-            Set<ExecutableDependencyEdge> calculatedEdges,
-            Map<String, Set<String>> providedWidgetDynamicBindingsMap,
-            List<Executable> calculatedFlatPageLoadExecutables,
-            Set<String> calculatedExecutablesUsedInDSL) {
+            String pageId,
+            Integer evaluatedVersion,
+            Set<String> widgetNames,
+            Set<ExecutableDependencyEdge> edgesRef,
+            Map<String, Set<String>> widgetDynamicBindingsMap,
+            List<Executable> flatPageLoadExecutablesRef,
+            Set<String> executablesUsedInDSLRef) {
 
-        Set<String> calculatedOnPageLoadExecutableSet = new HashSet<>();
-        Set<String> calculatedExplicitUserSetOnLoadExecutables = new HashSet<>();
-        Set<String> calculatedBindingsFromExecutables = new HashSet<>();
+        Set<String> onPageLoadExecutableSetRef = new HashSet<>();
+        Set<String> explicitUserSetOnLoadExecutablesRef = new HashSet<>();
+        Set<String> bindingsFromExecutablesRef = new HashSet<>();
 
         // Function `extractAndSetExecutableBindingsInGraphEdges` updates this map to keep a track of all the
         // executables which
@@ -114,9 +114,9 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
         // In the above case, the two executables depend on each other without there being a real cyclical dependency.
         Map<String, EntityDependencyNode> executablesFoundDuringWalk = new HashMap<>();
 
-        Flux<Executable> allExecutablesByPageIdFlux = getAllExecutablesByPageIdFlux(providedPageId);
+        Flux<Executable> allExecutablesByPageIdFlux = getAllExecutablesByPageIdFlux(pageId);
 
-        Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono = allExecutablesByPageIdFlux
+        Mono<Map<String, Executable>> executableNameToExecutableMapMono = allExecutablesByPageIdFlux
                 .collectMap(Executable::getValidName, executable -> executable)
                 .cache();
 
@@ -125,17 +125,17 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                 .collect(Collectors.toSet())
                 .cache();
 
-        Set<EntityDependencyNode> calculatedExecutableBindingsInDsl = new HashSet<>();
+        Set<EntityDependencyNode> executableBindingsInDslRef = new HashSet<>();
         Mono<Set<ExecutableDependencyEdge>> directlyReferencedExecutablesToGraphMono =
                 addDirectlyReferencedExecutablesToGraph(
-                        calculatedEdges,
-                        calculatedExecutablesUsedInDSL,
-                        calculatedBindingsFromExecutables,
+                        edgesRef,
+                        executablesUsedInDSLRef,
+                        bindingsFromExecutablesRef,
                         executablesFoundDuringWalk,
-                        providedWidgetDynamicBindingsMap,
-                        providedExecutableNameToExecutableMapMono,
-                        calculatedExecutableBindingsInDsl,
-                        providedEvaluatedVersion);
+                        widgetDynamicBindingsMap,
+                        executableNameToExecutableMapMono,
+                        executableBindingsInDslRef,
+                        evaluatedVersion);
 
         // This following `createAllEdgesForPageMono` publisher traverses the executables and widgets to add all
         // possible
@@ -147,29 +147,28 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
         Mono<Set<ExecutableDependencyEdge>> createAllEdgesForPageMono = directlyReferencedExecutablesToGraphMono
                 // Add dependencies of all on page load executables set by the user in the graph
                 .flatMap(updatedEdges -> addExplicitUserSetOnLoadExecutablesToGraph(
-                        providedPageId,
+                        pageId,
                         updatedEdges,
-                        calculatedExplicitUserSetOnLoadExecutables,
+                        explicitUserSetOnLoadExecutablesRef,
                         executablesFoundDuringWalk,
-                        calculatedBindingsFromExecutables,
-                        providedExecutableNameToExecutableMapMono,
-                        calculatedExecutableBindingsInDsl,
-                        providedEvaluatedVersion))
+                        bindingsFromExecutablesRef,
+                        executableNameToExecutableMapMono,
+                        executableBindingsInDslRef,
+                        evaluatedVersion))
                 // For all the executables found so far, recursively walk the dynamic bindings of the executables to
                 // find more
                 // relationships with other executables (& widgets)
                 .flatMap(updatedEdges -> recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
                         updatedEdges,
                         executablesFoundDuringWalk,
-                        calculatedBindingsFromExecutables,
-                        providedExecutableNameToExecutableMapMono,
-                        providedEvaluatedVersion))
+                        bindingsFromExecutablesRef,
+                        executableNameToExecutableMapMono,
+                        evaluatedVersion))
                 // At last, add all the widget relationships to the graph as well.
                 .zipWith(executablesInPageMono)
                 .flatMap(tuple -> {
                     Set<ExecutableDependencyEdge> updatedEdges = tuple.getT1();
-                    return addWidgetRelationshipToGraph(
-                            updatedEdges, providedWidgetDynamicBindingsMap, providedEvaluatedVersion);
+                    return addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap, evaluatedVersion);
                 });
 
         // Create a graph given edges
@@ -178,38 +177,37 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                 .map(tuple -> {
                     Set<String> allExecutables = tuple.getT1();
                     Set<ExecutableDependencyEdge> updatedEdges = tuple.getT2();
-                    return constructDAG(
-                            allExecutables, providedWidgetNames, updatedEdges, calculatedExecutableBindingsInDsl);
+                    return constructDAG(allExecutables, widgetNames, updatedEdges, executableBindingsInDslRef);
                 })
                 .cache();
 
         // Generate on page load schedule
         Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono = Mono.zip(
-                        providedExecutableNameToExecutableMapMono, createGraphMono)
+                        executableNameToExecutableMapMono, createGraphMono)
                 .map(tuple -> {
                     Map<String, Executable> executableNameToExecutableMap = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
 
                     return computeOnPageLoadExecutablesSchedulingOrder(
                             graph,
-                            calculatedOnPageLoadExecutableSet,
+                            onPageLoadExecutableSetRef,
                             executableNameToExecutableMap,
-                            calculatedExplicitUserSetOnLoadExecutables);
+                            explicitUserSetOnLoadExecutablesRef);
                 })
                 .map(onPageLoadExecutablesSchedulingOrder -> {
                     // Find all explicitly turned on executables which haven't found their way into the scheduling order
                     // This scenario would happen if an explicitly turned on for page load executable does not have any
                     // relationships in the page with any widgets/executables.
                     Set<String> pageLoadExecutableNames = new HashSet<>();
-                    pageLoadExecutableNames.addAll(calculatedOnPageLoadExecutableSet);
-                    pageLoadExecutableNames.addAll(calculatedExplicitUserSetOnLoadExecutables);
-                    pageLoadExecutableNames.removeAll(calculatedOnPageLoadExecutableSet);
+                    pageLoadExecutableNames.addAll(onPageLoadExecutableSetRef);
+                    pageLoadExecutableNames.addAll(explicitUserSetOnLoadExecutablesRef);
+                    pageLoadExecutableNames.removeAll(onPageLoadExecutableSetRef);
 
                     // If any of the explicitly set on page load executables havent been added yet, add them to the 0th
                     // set
                     // of executables set since no relationships were found with any other appsmith entity
                     if (!pageLoadExecutableNames.isEmpty()) {
-                        calculatedOnPageLoadExecutableSet.addAll(pageLoadExecutableNames);
+                        onPageLoadExecutableSetRef.addAll(pageLoadExecutableNames);
 
                         // In case there are no page load executables, initialize the 0th set of page load executables
                         // list.
@@ -226,27 +224,27 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
         // Transform the schedule order into client feasible DTO
         Mono<List<Set<DslExecutableDTO>>> computeCompletePageLoadExecutableScheduleMono =
                 filterAndTransformSchedulingOrderToDTO(
-                                calculatedOnPageLoadExecutableSet,
-                                providedExecutableNameToExecutableMapMono,
+                                onPageLoadExecutableSetRef,
+                                executableNameToExecutableMapMono,
                                 computeOnPageLoadScheduleNamesMono)
                         .cache();
 
         // With the final on page load scheduling order, also set the on page load executables which would be updated
         // by the caller function
         Mono<List<Executable>> flatPageLoadERxecutablesMono = computeCompletePageLoadExecutableScheduleMono
-                .then(providedExecutableNameToExecutableMapMono)
+                .then(executableNameToExecutableMapMono)
                 .map(executableMap -> {
-                    calculatedOnPageLoadExecutableSet.stream()
+                    onPageLoadExecutableSetRef.stream()
                             .forEach(executableName ->
-                                    calculatedFlatPageLoadExecutables.add(executableMap.get(executableName)));
-                    return calculatedFlatPageLoadExecutables;
+                                    flatPageLoadExecutablesRef.add(executableMap.get(executableName)));
+                    return flatPageLoadExecutablesRef;
                 });
 
         return createGraphMono.then(flatPageLoadERxecutablesMono).then(computeCompletePageLoadExecutableScheduleMono);
     }
 
-    protected Flux<Executable> getAllExecutablesByPageIdFlux(String providedPageId) {
-        return actionExecutableOnPageLoadService.getAllExecutablesByPageIdFlux(providedPageId);
+    protected Flux<Executable> getAllExecutablesByPageIdFlux(String pageId) {
+        return actionExecutableOnPageLoadService.getAllExecutablesByPageIdFlux(pageId);
     }
 
     /**
@@ -261,16 +259,16 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * Next it creates a new schedule order consisting of DslExecutableDTO instead of just executable names.
      *
      * @param onPageLoadExecutableSet
-     * @param providedExecutableNameToExecutableMapMono
+     * @param executableNameToExecutableMapMono
      * @param computeOnPageLoadScheduleNamesMono
      * @return
      */
     private Mono<List<Set<DslExecutableDTO>>> filterAndTransformSchedulingOrderToDTO(
             Set<String> onPageLoadExecutableSet,
-            Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono,
+            Mono<Map<String, Executable>> executableNameToExecutableMapMono,
             Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono) {
 
-        return Mono.zip(computeOnPageLoadScheduleNamesMono, providedExecutableNameToExecutableMapMono)
+        return Mono.zip(computeOnPageLoadScheduleNamesMono, executableNameToExecutableMapMono)
                 .map(tuple -> {
                     List<Set<String>> onPageLoadExecutablesSchedulingOrder = tuple.getT1();
                     Map<String, Executable> executableMap = tuple.getT2();
@@ -303,16 +301,14 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * We'll be able to find valid executable references only at this point. For widgets, we just assume that all
      * references are possible candidates
      *
-     * @param providedExecutableNameToExecutableMapMono : This map is used to filter only valid executable references in bindings
+     * @param executableNameToExecutableMapMono : This map is used to filter only valid executable references in bindings
      * @param bindings                                  : The set of bindings to find references from
      * @param evalVersion                               : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
      * @return A set of any possible reference found in the binding that qualifies as a global entity reference
      */
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
-            Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono,
-            Set<String> bindings,
-            int evalVersion) {
-        return getPossibleEntityReferences(providedExecutableNameToExecutableMapMono, bindings, evalVersion, null);
+            Mono<Map<String, Executable>> executableNameToExecutableMapMono, Set<String> bindings, int evalVersion) {
+        return getPossibleEntityReferences(executableNameToExecutableMapMono, bindings, evalVersion, null);
     }
 
     /**
@@ -320,21 +316,21 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * However, here we are assuming that the call came from when we were trying to analyze the DSL.
      * For such cases, we also want to capture entity references that would be qualified to run on page load first.
      *
-     * @param providedExecutableNameToExecutableMono : This map is used to filter only valid executable references in bindings
+     * @param executableNameToExecutableMono : This map is used to filter only valid executable references in bindings
      * @param bindings                               : The set of bindings to find references from
      * @param evalVersion                            : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
      * @param bindingsInDsl                          : All references are also added to this set if they should be qualified to run on page load first.
      * @return A set of any possible reference found in the binding that qualifies as a global entity reference
      */
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
-            Mono<Map<String, Executable>> providedExecutableNameToExecutableMono,
+            Mono<Map<String, Executable>> executableNameToExecutableMono,
             Set<String> bindings,
             int evalVersion,
             Set<EntityDependencyNode> bindingsInDsl) {
         // We want to be finding both type of references
         final int entityTypes = EXECUTABLE_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
 
-        return providedExecutableNameToExecutableMono
+        return executableNameToExecutableMono
                 .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion))
                 .map(tuple -> {
                     Map<String, Executable> executableMap = tuple.getT1();
@@ -418,26 +414,26 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * !!! WARNING !!! : This function updates executablesUsedInDSL set which is used to store all the directly referenced
      * executables in the DSL.
      *
-     * @param calculatedEdges
-     * @param calculatedExecutablesUsedInDSL
-     * @param calculatedBindingsFromExecutables
-     * @param calculatedExecutablesFoundDuringWalk
-     * @param providedWidgetDynamicBindingsMap
-     * @param providedExecutableNameToExecutableMapMono
-     * @param calculatedExecutableBindingsInDsl
-     * @param providedEvalVersion
+     * @param edgesRef
+     * @param executablesUsedInDSLRef
+     * @param bindingsFromExecutablesRef
+     * @param executablesFoundDuringWalkRef
+     * @param widgetDynamicBindingsMap
+     * @param executableNameToExecutableMapMono
+     * @param executableBindingsInDslRef
+     * @param evalVersion
      * @return
      */
     private Mono<Set<ExecutableDependencyEdge>> addDirectlyReferencedExecutablesToGraph(
-            Set<ExecutableDependencyEdge> calculatedEdges,
-            Set<String> calculatedExecutablesUsedInDSL,
-            Set<String> calculatedBindingsFromExecutables,
-            Map<String, EntityDependencyNode> calculatedExecutablesFoundDuringWalk,
-            Map<String, Set<String>> providedWidgetDynamicBindingsMap,
-            Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono,
-            Set<EntityDependencyNode> calculatedExecutableBindingsInDsl,
-            int providedEvalVersion) {
-        return Flux.fromIterable(providedWidgetDynamicBindingsMap.entrySet())
+            Set<ExecutableDependencyEdge> edgesRef,
+            Set<String> executablesUsedInDSLRef,
+            Set<String> bindingsFromExecutablesRef,
+            Map<String, EntityDependencyNode> executablesFoundDuringWalkRef,
+            Map<String, Set<String>> widgetDynamicBindingsMap,
+            Mono<Map<String, Executable>> executableNameToExecutableMapMono,
+            Set<EntityDependencyNode> executableBindingsInDslRef,
+            int evalVersion) {
+        return Flux.fromIterable(widgetDynamicBindingsMap.entrySet())
                 .flatMap(entry -> {
                     String widgetName = entry.getKey();
                     // For each widget in the DSL that has a dynamic binding,
@@ -447,38 +443,37 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                             new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
                     Set<String> bindingsInWidget = entry.getValue();
                     return getPossibleEntityReferences(
-                                    providedExecutableNameToExecutableMapMono,
+                                    executableNameToExecutableMapMono,
                                     bindingsInWidget,
-                                    providedEvalVersion,
-                                    calculatedExecutableBindingsInDsl)
+                                    evalVersion,
+                                    executableBindingsInDslRef)
                             .flatMapMany(Flux::fromIterable)
                             // Add dependencies of the executables found in the DSL in the graph
                             // We are ignoring the widget references at this point
                             // TODO: Possible optimization in the future
                             .flatMap(possibleEntity -> {
                                 if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
-                                    calculatedEdges.add(
-                                            new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
+                                    edgesRef.add(new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
                                     // This executable is directly referenced in the DSL. This executable is an ideal
                                     // candidate
                                     // for on page load
-                                    calculatedExecutablesUsedInDSL.add(possibleEntity.getValidEntityName());
+                                    executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
                                     return updateExecutableSelfReferencingPaths(possibleEntity)
                                             .flatMap(executable -> extractAndSetExecutableBindingsInGraphEdges(
                                                     possibleEntity,
-                                                    calculatedEdges,
-                                                    calculatedBindingsFromExecutables,
-                                                    providedExecutableNameToExecutableMapMono,
-                                                    calculatedExecutablesFoundDuringWalk,
+                                                    edgesRef,
+                                                    bindingsFromExecutablesRef,
+                                                    executableNameToExecutableMapMono,
+                                                    executablesFoundDuringWalkRef,
                                                     null,
-                                                    providedEvalVersion))
+                                                    evalVersion))
                                             .thenReturn(possibleEntity);
                                 }
                                 return Mono.just(possibleEntity);
                             });
                 })
                 .collectList()
-                .thenReturn(calculatedEdges);
+                .thenReturn(edgesRef);
     }
 
     protected Mono<Executable> updateExecutableSelfReferencingPaths(EntityDependencyNode possibleEntity) {
@@ -664,13 +659,13 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      *
      * @param dag                                   : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
      * @param onPageLoadExecutableSet
-     * @param providedExecutableNameToExecutableMap : All the executable names for the page
+     * @param executableNameToExecutableMap : All the executable names for the page
      * @return
      */
     private List<Set<String>> computeOnPageLoadExecutablesSchedulingOrder(
             DirectedAcyclicGraph<String, DefaultEdge> dag,
             Set<String> onPageLoadExecutableSet,
-            Map<String, Executable> providedExecutableNameToExecutableMap,
+            Map<String, Executable> executableNameToExecutableMap,
             Set<String> explicitUserSetOnLoadExecutables) {
         Map<String, Integer> pageLoadExecutableAndLevelMap = new HashMap<>();
         List<Set<String>> onPageLoadExecutables = new ArrayList<>();
@@ -695,7 +690,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
             }
 
             Set<String> executablesFromBinding = executableCandidatesForPageLoadFromBinding(
-                    providedExecutableNameToExecutableMap,
+                    executableNameToExecutableMap,
                     vertex,
                     pageLoadExecutableAndLevelMap,
                     onPageLoadExecutables,
@@ -726,7 +721,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
             Set<ExecutableDependencyEdge> edges,
             Map<String, EntityDependencyNode> executablesFoundDuringWalk,
             Set<String> dynamicBindings,
-            Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono,
+            Mono<Map<String, Executable>> executableNameToExecutableMapMono,
             int evalVersion) {
         if (dynamicBindings == null || dynamicBindings.isEmpty()) {
             return Mono.just(edges);
@@ -739,7 +734,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
 
         // First fetch all the executables in the page whose name matches the words found in all the dynamic bindings
         Mono<List<EntityDependencyNode>> findAndAddExecutablesInBindingsMono = getPossibleEntityReferences(
-                        providedExecutableNameToExecutableMapMono, dynamicBindings, evalVersion)
+                        executableNameToExecutableMapMono, dynamicBindings, evalVersion)
                 .flatMapMany(Flux::fromIterable)
                 // Add dependencies of the executables found in the DSL in the graph.
                 .flatMap(possibleEntity -> {
@@ -749,7 +744,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                                         possibleEntity,
                                         edges,
                                         newBindings,
-                                        providedExecutableNameToExecutableMapMono,
+                                        executableNameToExecutableMapMono,
                                         executablesFoundDuringWalk,
                                         null,
                                         evalVersion))
@@ -764,11 +759,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
             // Now that the next set of bindings have been found, find recursively all executables by these names
             // and their bindings
             return recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
-                    edges,
-                    executablesFoundDuringWalk,
-                    newBindings,
-                    providedExecutableNameToExecutableMapMono,
-                    evalVersion);
+                    edges, executablesFoundDuringWalk, newBindings, executableNameToExecutableMapMono, evalVersion);
         });
     }
 
@@ -796,7 +787,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
             Set<String> explicitUserSetOnLoadExecutables,
             Map<String, EntityDependencyNode> executablesFoundDuringWalk,
             Set<String> bindingsFromExecutables,
-            Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono,
+            Mono<Map<String, Executable>> executableNameToExecutableMapMono,
             Set<EntityDependencyNode> executableBindingsInDsl,
             int evalVersion) {
 
@@ -812,7 +803,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                                     entityDependencyNode,
                                     edges,
                                     bindingsFromExecutables,
-                                    providedExecutableNameToExecutableMapMono,
+                                    executableNameToExecutableMapMono,
                                     executablesFoundDuringWalk,
                                     executableBindingsInDsl,
                                     evalVersion)
@@ -846,7 +837,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
             EntityDependencyNode entityDependencyNode,
             Set<ExecutableDependencyEdge> edges,
             Set<String> bindingsFromExecutables,
-            Mono<Map<String, Executable>> providedExecutableNameToExecutableMapMono,
+            Mono<Map<String, Executable>> executableNameToExecutableMapMono,
             Map<String, EntityDependencyNode> executablesFoundDuringWalk,
             Set<EntityDependencyNode> bindingsInDsl,
             int evalVersion) {
@@ -895,7 +886,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                             null,
                             executable);
                     return getPossibleEntityReferences(
-                                    providedExecutableNameToExecutableMapMono,
+                                    executableNameToExecutableMapMono,
                                     executableBindingsMap.get(bindingPath),
                                     evalVersion,
                                     bindingsInDsl)
@@ -1111,14 +1102,14 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * - If sync function, ignore. This is because client would execute the same during dynamic binding eval
      * - If async function, it is a candidate only if the data for the function is referred in the dynamic binding.
      *
-     * @param providedExecutableNameToExecutableMap
+     * @param executableNameToExecutableMap
      * @param vertex
      * @param pageLoadExecutablesLevelMap
      * @param existingPageLoadExecutables
      * @return
      */
     private Set<String> executableCandidatesForPageLoadFromBinding(
-            Map<String, Executable> providedExecutableNameToExecutableMap,
+            Map<String, Executable> executableNameToExecutableMap,
             String vertex,
             Map<String, Integer> pageLoadExecutablesLevelMap,
             List<Set<String>> existingPageLoadExecutables,
@@ -1131,7 +1122,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
         for (String entity : possibleParents) {
 
             // if this generated entity name from the binding matches an executable name check for its eligibility
-            if (providedExecutableNameToExecutableMap.containsKey(entity)) {
+            if (executableNameToExecutableMap.containsKey(entity)) {
 
                 Boolean isCandidateForPageLoad = TRUE;
 
@@ -1143,7 +1134,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                  */
                 String validBinding;
                 if (explicitUserSetOnLoadExecutables.contains(entity)) {
-                    validBinding = entity + "." + "actionConfiguration";
+                    validBinding = executableNameToExecutableMap.get(entity).getConfigurationPath();
                 } else {
                     validBinding = entity + "." + "data";
                 }

@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 
 public interface ExecutableOnPageLoadServiceCE<T extends Executable> {
 
-    Flux<Executable> getAllExecutablesByPageIdFlux(String providedPageId);
+    Flux<Executable> getAllExecutablesByPageIdFlux(String pageId);
 
     Mono<Executable> fillSelfReferencingPaths(T executable);
 

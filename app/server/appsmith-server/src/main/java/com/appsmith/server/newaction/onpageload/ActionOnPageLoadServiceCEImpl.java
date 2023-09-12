@@ -20,9 +20,9 @@ public class ActionOnPageLoadServiceCEImpl implements ExecutableOnPageLoadServic
     private final ActionPermission actionPermission;
 
     @Override
-    public Flux<Executable> getAllExecutablesByPageIdFlux(String providedPageId) {
+    public Flux<Executable> getAllExecutablesByPageIdFlux(String pageId) {
         return newActionService
-                .findByPageIdAndViewMode(providedPageId, false, actionPermission.getEditPermission())
+                .findByPageIdAndViewMode(pageId, false, actionPermission.getEditPermission())
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .map(actionDTO -> (Executable) actionDTO)
                 .cache();
