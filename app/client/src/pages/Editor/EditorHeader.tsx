@@ -596,6 +596,10 @@ export function EditorHeader() {
               </ModalContent>
             </Modal>
             <PublishCommunityTemplateModal
+              onPublishSuccess={() => {
+                setShowPublishCommunityTemplateModal(false);
+                setShowModal(true);
+              }}
               setShowModal={setShowPublishCommunityTemplateModal}
               showModal={showPublishCommunityTemplateModal}
             />

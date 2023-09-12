@@ -9,20 +9,23 @@ import {
   ModalHeader,
   Text,
 } from "design-system";
-import React, { useState } from "react";
-import CommunityTemplatePublishSuccess from "./CommunityTemplatePublishSuccess";
+import React from "react";
 import CommunityTemplateForm from "./CommunityTemplateForm";
 import { PublishPageHeaderContainer } from "./StyledComponents";
 
 type Props = {
+  onPublishSuccess: () => void;
   setShowModal: (showModal: boolean) => void;
   showModal: boolean;
 };
 
-const PublishCommunityTemplateModal = ({ setShowModal, showModal }: Props) => {
-  const [isAppPublished, setIsAppPublished] = useState(false);
+const PublishCommunityTemplateModal = ({
+  onPublishSuccess,
+  setShowModal,
+  showModal,
+}: Props) => {
   const handlePublishSuccess = () => {
-    setIsAppPublished(true);
+    onPublishSuccess();
   };
 
   return (
@@ -36,11 +39,7 @@ const PublishCommunityTemplateModal = ({ setShowModal, showModal }: Props) => {
           </ModalHeader>
         </PublishPageHeaderContainer>
         <ModalBody>
-          {isAppPublished ? (
-            <CommunityTemplatePublishSuccess />
-          ) : (
-            <CommunityTemplateForm onPublishSuccess={handlePublishSuccess} />
-          )}
+          <CommunityTemplateForm onPublishSuccess={handlePublishSuccess} />
         </ModalBody>
       </ModalContent>
     </Modal>

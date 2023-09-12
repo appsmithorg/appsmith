@@ -3,8 +3,11 @@ import {
   LEARN_MORE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Button, Icon, Text } from "design-system";
-import React from "react";
+import React, { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 type Props = {
@@ -15,25 +18,49 @@ const CommunityTemplatesPublishInfo = ({
   onPublishClick,
   setShowHostModal,
 }: Props) => {
-  const isPublished = false;
-  return isPublished ? (
-    <PublishedAppInstructions />
+  const currentApplication = useSelector(getCurrentApplication);
+  const takeUserToPublishFormPage = () => {
+    setShowHostModal(false);
+    onPublishClick();
+  };
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch({
+      type: ReduxActionTypes.SET_PUBLISHED_APP_TO_COMMUNITY_PORTAL,
+    });
+  }, []);
+
+  return currentApplication?.isCommunityTemplate ? (
+    <PublishedAppInstructions
+      takeUserToPublishFormPage={takeUserToPublishFormPage}
+    />
   ) : (
     <UnPublishedAppInstructions
-      onPublishClick={onPublishClick}
-      setShowHostModal={setShowHostModal}
+      takeUserToPublishFormPage={takeUserToPublishFormPage}
     />
   );
 };
 
 export default CommunityTemplatesPublishInfo;
+const COMMUNITY_PORTAL_BASE_URL = "https://community.appsmith.com/";
 
-const PublishedAppInstructions = () => {
+const PublishedAppInstructions = ({
+  takeUserToPublishFormPage,
+}: {
+  takeUserToPublishFormPage: () => void;
+}) => {
+  const currentApplication = useSelector(getCurrentApplication);
+  const onVisitTemplateClick = useCallback(() => {
+    openUrlInNewPage(
+      `${COMMUNITY_PORTAL_BASE_URL}/template/${currentApplication?.id}`,
+    );
+  }, [currentApplication?.id]);
+
   return (
     <>
       <InfoContainer>
         <VerticalCenterContainer>
-          <Icon color="green" name="oval-check" size="md" />{" "}
+          <Icon color="green" name="oval-check" size="lg" />
           <Text kind="heading-s" renderAs="h2">
             {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.title)}
           </Text>
@@ -43,7 +70,15 @@ const PublishedAppInstructions = () => {
         </Text>
       </InfoContainer>
       <InfoFooter>
-        <Button endIcon="link" size="md">
+        <Button
+          data-testid="t--Publish-Initiate"
+          kind="secondary"
+          onClick={takeUserToPublishFormPage}
+          size="md"
+        >
+          {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.publishBtn)}
+        </Button>
+        <Button endIcon="link" onClick={onVisitTemplateClick} size="md">
           {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.viewTemplate)}
         </Button>
       </InfoFooter>
@@ -52,13 +87,10 @@ const PublishedAppInstructions = () => {
 };
 
 const UnPublishedAppInstructions = ({
-  onPublishClick,
-  setShowHostModal,
-}: Props) => {
-  const takeUserToPublishFormPage = () => {
-    setShowHostModal(false);
-    onPublishClick();
-  };
+  takeUserToPublishFormPage,
+}: {
+  takeUserToPublishFormPage: () => void;
+}) => {
   return (
     <>
       <InfoContainer>
@@ -80,12 +112,23 @@ const UnPublishedAppInstructions = ({
           onClick={takeUserToPublishFormPage}
           size="md"
         >
-          {createMessage(COMMUNITY_TEMPLATES.publish)}
+          {createMessage(COMMUNITY_TEMPLATES.modals.unpublishedInfo.publishBtn)}
         </Button>
       </InfoFooter>
     </>
   );
 };
+
+let windowReference: Window | null = null;
+function openUrlInNewPage(url: string) {
+  // If the tab is opened focus and reload else open in new tab
+  if (!windowReference || windowReference.closed) {
+    windowReference = window.open(url, "_blank");
+  } else {
+    windowReference.focus();
+    windowReference.location.href = windowReference.location.origin + url;
+  }
+}
 
 const InfoContainer = styled.div`
   display: flex;

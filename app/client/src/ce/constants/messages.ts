@@ -2069,12 +2069,14 @@ export const COMMUNITY_TEMPLATES = {
       title: () => "Publish to Appsmith community",
       description: () =>
         "Publish this app to Appsmith community for the public to view, fork, and remix.",
+      publishBtn: () => "Start Publishing",
     },
     publishedInfo: {
       title: () => "Live on Appsmith community!",
       description: () =>
         "This application is live on community as a template for users to fork and remix.",
       viewTemplate: () => "View Template",
+      publishBtn: () => "Publish again",
     },
   },
 };

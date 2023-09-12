@@ -858,6 +858,8 @@ const ActionTypes = {
     "PUBLISH_APP_AS_COMMUNITY_TEMPLATE_INIT",
   PUBLISH_APP_AS_COMMUNITY_TEMPLATE_SUCCESS:
     "PUBLISH_APP_AS_COMMUNITY_TEMPLATE_SUCCESS",
+  SET_PUBLISHED_APP_TO_COMMUNITY_PORTAL:
+    "SET_PUBLISHED_APP_TO_COMMUNITY_PORTAL",
   FORM_EVALUATION_EMPTY_BUFFER: "FORM_EVALUATION_EMPTY_BUFFER",
   CLEAR_CACHE: "CLEAR_CACHE",
 };
@@ -1192,6 +1194,7 @@ export interface ApplicationPayload {
   evaluationVersion?: EvaluationVersion;
   isPublishingAppToCommunityTemplate?: boolean;
   isCommunityTemplate?: boolean;
+  publishedAppToCommunityTemplate?: boolean;
 }
 
 export type WorkspaceDetails = {

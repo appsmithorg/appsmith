@@ -683,6 +683,17 @@ export const handlers = {
       },
     };
   },
+  [ReduxActionTypes.SET_PUBLISHED_APP_TO_COMMUNITY_PORTAL]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        publishedAppToCommunityTemplate: false,
+      },
+    };
+  },
   [ReduxActionTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_SUCCESS]: (
     state: ApplicationsReduxState,
   ) => {
@@ -691,6 +702,7 @@ export const handlers = {
       currentApplication: {
         ...state.currentApplication,
         isPublishingAppToCommunityTemplate: false,
+        publishedAppToCommunityTemplate: true,
       },
     };
   },

@@ -53,9 +53,9 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
   }, [currentApplication?.name]);
 
   useEffect(() => {
-    if (!currentApplication?.isCommunityTemplate) return;
+    if (!currentApplication?.publishedAppToCommunityTemplate) return;
     onPublishSuccess();
-  }, [currentApplication?.isCommunityTemplate]);
+  }, [currentApplication?.publishedAppToCommunityTemplate]);
 
   const isFormValid = useMemo(() => {
     const requiredFields = [templateName, authorName, authorEmail];
