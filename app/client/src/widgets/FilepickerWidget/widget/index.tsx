@@ -549,7 +549,7 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <FilePickerComponent
         closeModal={async () => {

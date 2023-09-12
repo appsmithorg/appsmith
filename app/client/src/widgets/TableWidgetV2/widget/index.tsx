@@ -132,7 +132,7 @@ import type {
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "../icon.svg";
 
 const ReactTableComponent = lazy(() =>
@@ -1161,13 +1161,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getPaddingAdjustedDimensions = () => {
     // eslint-disable-next-line prefer-const
-    let { componentHeight, componentWidth } = this.getComponentDimensions();
+    let { componentHeight, componentWidth } = this.props;
     // (2 * WIDGET_PADDING) gives the total horizontal padding (i.e. paddingLeft + paddingRight)
     componentWidth = componentWidth - 2 * WIDGET_PADDING;
     return { componentHeight, componentWidth };
   };
 
-  getPageView() {
+  getWidgetView() {
     const {
       totalRecordsCount,
       delimiter,
@@ -2100,7 +2100,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             resetFilterTextOnClose={cellProperties.resetFilterTextOnClose}
             rowIndex={rowIndex}
             serverSideFiltering={cellProperties.serverSideFiltering}
-            tableWidth={this.getComponentDimensions().componentWidth}
+            tableWidth={this.props.componentWidth}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             toggleCellEditMode={this.toggleCellEditMode}
@@ -2432,7 +2432,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             outputFormat={cellProperties.outputFormat}
             rowIndex={rowIndex}
             shortcuts={cellProperties.shortcuts}
-            tableWidth={this.getComponentDimensions().componentWidth}
+            tableWidth={this.props.componentWidth}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             timePrecision={cellProperties.timePrecision || TimePrecision.NONE}
@@ -2482,7 +2482,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onCellTextChange={this.onCellTextChange}
             onSubmitString={props.cell.column.columnProperties.onSubmit}
             rowIndex={rowIndex}
-            tableWidth={this.getComponentDimensions().componentWidth}
+            tableWidth={this.props.componentWidth}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             toggleCellEditMode={this.toggleCellEditMode}
