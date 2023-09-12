@@ -4,6 +4,19 @@ import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutW
 import FlexComponent from "../common/FlexComponent";
 import { FlexVerticalAlignment } from "layoutSystems/anvil/utils/constants";
 
+/**
+ * AutoLayoutViewerWidgetOnion
+ *
+ * Component that wraps the BaseWidget implementation of a Widget with Viewer(Deployed Application Viewer) specific wrappers
+ * needed in Auto Layout.
+ *
+ * Viewer specific wrappers are wrappers added to perform actions in the viewer.
+ * - FlexComponent: provides dimensions of a widget in auto-layout layout system.
+ * - AutoLayoutWidgetComponent: provides layer to auto update dimensions based on content/ add skeleton widget on loading state
+ *
+ * @returns Enhanced Widget
+ */
+
 export const AutoLayoutViewerWidgetOnion = (props: BaseWidgetProps) => {
   return (
     <FlexComponent

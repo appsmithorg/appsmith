@@ -1,7 +1,4 @@
-import {
-  getCurrentEditingEnvID,
-  isEnvironmentValid,
-} from "@appsmith/utils/Environments";
+import { isEnvironmentValid } from "@appsmith/utils/Environments";
 import type { Property } from "entities/Action";
 import type { Datasource, DatasourceStorage } from "entities/Datasource";
 import type {
@@ -20,8 +17,8 @@ import { get, set } from "lodash";
 
 export const datasourceToFormValues = (
   datasource: Datasource,
+  currentEnvironment: string,
 ): ApiDatasourceForm => {
-  const currentEnvironment = getCurrentEditingEnvID();
   const authType = get(
     datasource,
     `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationType`,
@@ -46,7 +43,11 @@ export const datasourceToFormValues = (
       connection.ssl.authType === SSLType.SELF_SIGNED_CERTIFICATE,
     );
   }
-  const authentication = datasourceToFormAuthentication(authType, datasource);
+  const authentication = datasourceToFormAuthentication(
+    authType,
+    datasource,
+    currentEnvironment,
+  );
   const isSendSessionEnabled =
     get(
       datasource,
@@ -86,8 +87,8 @@ export const datasourceToFormValues = (
 export const formValuesToDatasource = (
   datasource: Datasource,
   form: ApiDatasourceForm,
+  currentEnvironment: string,
 ): Datasource => {
-  const currentEnvironment = getCurrentEditingEnvID();
   const authentication = formToDatasourceAuthentication(
     form.authType,
     form.authentication,
@@ -223,8 +224,8 @@ const formToDatasourceAuthentication = (
 const datasourceToFormAuthentication = (
   authType: AuthType,
   datasource: Datasource,
+  currentEnvironment: string,
 ): Authentication | undefined => {
-  const currentEnvironment = getCurrentEditingEnvID();
   if (
     !datasource ||
     !datasource.datasourceStorages[currentEnvironment]

@@ -6,9 +6,27 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import SnipeableComponent from "../../common/snipeable/SnipeableComponent";
 import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
 import { AutoHeightOverlayLayer } from "../common/autoHeight/AutoHeightOverlayLayer";
-import { FixedLayoutWigdetComponent } from "../common/widgetComponent/FixedLayoutWidgetComponent";
+import { FixedLayoutWidgetComponent } from "../common/widgetComponent/FixedLayoutWidgetComponent";
 import { FixedResizableLayer } from "../common/resizer/FixedResizableLayer";
 import { PositionedComponentLayer } from "../common/PositionedComponentLayer";
+
+/**
+ * FixedLayoutEditorWidgetOnion
+ *
+ * Component that wraps the BaseWidget implementation of a Widget with Editor specific wrappers
+ * needed in Fixed Layout.
+ *
+ * Editor specific wrappers are wrappers added to perform actions in the editor.
+ * - AutoHeightOverlayLayer: provides overlay to edit auto-height limits for a widget.
+ * - PositionedComponentLayer: provides dimensions of a widget in fixed-layout layout system.
+ * - SnipeableComponent: provides ability to snipe a widget(Makes sure the widget is focused on Hover and allows the widget to be snipped on clicking on it)
+ * - DraggableComponent: provides DnD html apis to make the widget draggable.
+ * - WidgetNameLayer: provides the widget name in editing mode and also show error state if there are any.
+ * - FixedResizableLayer: provides the resize handles required to set dimension for a widget.
+ * - FixedLayoutWidgetComponent: provides layer to auto update height based on content/ add skeleton widget on loading state
+ *
+ * @returns Enhanced Widget
+ */
 
 export const FixedLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
@@ -28,9 +46,9 @@ export const FixedLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
               widgetName={props.widgetName}
             >
               <FixedResizableLayer {...props}>
-                <FixedLayoutWigdetComponent {...props}>
+                <FixedLayoutWidgetComponent {...props}>
                   {props.children}
-                </FixedLayoutWigdetComponent>
+                </FixedLayoutWidgetComponent>
               </FixedResizableLayer>
             </WidgetNameLayer>
           </DraggableComponent>

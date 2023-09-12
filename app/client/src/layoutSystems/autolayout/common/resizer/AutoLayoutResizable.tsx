@@ -43,7 +43,7 @@ import { useReflow } from "utils/hooks/useReflow";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { isFunction } from "lodash";
 import type { AppState } from "@appsmith/reducers";
@@ -70,7 +70,7 @@ export function AutoLayoutResizable(props: ResizableProps) {
  * AutoLayoutResizableComponent
  *
  * Component that renders the resizing handles of a widget in Auto Layout Editor.
- * It also handles the component dimension and position updation based on where it is aligned in the parent layer.
+ * It also handles the component dimension and position updation based on where it is aligned in the parent layer(AutoLayoutLayer).
  *
  */
 

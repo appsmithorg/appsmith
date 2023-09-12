@@ -3,16 +3,16 @@ import { AnvilEditorWrapper } from "./editor/AnvilEditorWrapper";
 import { AnvilViewerWrapper } from "./viewer/AnvilViewerWrapper";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { getAnvilComponentDimensions } from "utils/ComponentSizeUtils";
-import type {
-  AutoDimensionOptions,
-  AutoDimensionValues,
-  AutoLayoutConfig,
-} from "widgets/constants";
 import {
   getAutoDimensionsConfig,
   getAutoLayoutWidgetConfig,
   restructureWidgetSizeConfig,
 } from "layoutSystems/common/utils/commonUtils";
+import type {
+  AutoDimensionOptions,
+  AutoDimensionValues,
+  AutoLayoutConfig,
+} from "WidgetProvider/constants";
 
 export const getAnvilDimensionsConfig = (
   props: BaseWidgetProps,

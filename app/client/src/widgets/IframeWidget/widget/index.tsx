@@ -8,9 +8,81 @@ import IframeComponent from "../component";
 import type { IframeWidgetProps } from "../constants";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import IconSVG from "../icon.svg";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import type {
+  SnipingModeProperty,
+  PropertyUpdates,
+} from "WidgetProvider/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+
+const isAirgappedInstance = isAirgapped();
+
+const DEFAULT_IFRAME_SOURCE = !isAirgappedInstance
+  ? "https://www.example.com"
+  : "";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
+  static type = "IFRAME_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Iframe",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.DISPLAY],
+      needsMeta: true,
+      searchTags: ["embed"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      source: DEFAULT_IFRAME_SOURCE,
+      borderOpacity: 100,
+      borderWidth: 1,
+      rows: 32,
+      columns: 24,
+      widgetName: "Iframe",
+      version: 1,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "source",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return (widget: IframeWidgetProps) => ({
       "!doc": "Iframe widget is used to display iframes in your app.",
@@ -295,10 +367,6 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         widgetName={widgetName}
       />
     );
-  }
-
-  static getWidgetType(): string {
-    return "IFRAME_WIDGET";
   }
 }
 

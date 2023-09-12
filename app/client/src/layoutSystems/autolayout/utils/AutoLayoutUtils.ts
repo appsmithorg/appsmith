@@ -18,9 +18,9 @@ import {
   updateWidgetPositions,
 } from "layoutSystems/autolayout/utils/positionUtils";
 import { getWidgetWidth } from "./flexWidgetUtils";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { isFunction } from "lodash";
 import { SNAPSHOT_EXPIRY_IN_DAYS } from "./constants";
 import {

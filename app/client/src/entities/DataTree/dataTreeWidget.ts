@@ -4,7 +4,6 @@ import memoize from "micro-memoize";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
-import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetEntityConfig, WidgetEntity } from "./dataTreeFactory";
 import { ENTITY_TYPE } from "./dataTreeFactory";
 import type {
@@ -15,7 +14,9 @@ import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
 import { error } from "loglevel";
+import WidgetFactory from "WidgetProvider/factory";
 import { getComponentDimensions } from "utils/ComponentSizeUtils";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 /**
  *
@@ -344,7 +345,7 @@ const generateDataTreeWidgetWithoutMetaMemoized = memoize(
 export const generateDataTreeWidget = (
   widget: FlattenedWidgetProps,
   widgetMetaProps: Record<string, unknown> = {},
-  isAutoLayout = false,
+  appPositioningType: AppPositioningTypes = AppPositioningTypes.FIXED,
   isMobile = false,
 ) => {
   const {
@@ -382,7 +383,7 @@ export const generateDataTreeWidget = (
 
   const { componentHeight, componentWidth } = getComponentDimensions(
     dataTreeWidget,
-    isAutoLayout,
+    appPositioningType,
     isMobile,
   );
 

@@ -16,6 +16,14 @@ import { AutoResizableLayer } from "../common/resizer/AutoResizableLayer";
  * Component that wraps the BaseWidget implementation of a Widget with Editor specific wrappers
  * needed in Auto Layout.
  *
+ * Editor specific wrappers are wrappers added to perform actions in the editor.
+ * - FlexComponent: provides dimensions of a widget in auto-layout layout system.
+ * - SnipeableComponent: provides ability to snipe a widget(Makes sure the widget is focused on Hover and allows the widget to be snipped on clicking on it)
+ * - DraggableComponent: provides DnD html apis to make the widget draggable.
+ * - WidgetNameLayer: provides the widget name in editing mode and also show error state if there are any.
+ * - AutoResizableLayer: provides the resize handles required to set dimension for a widget.
+ * - AutoLayoutWidgetComponent: provides layer to auto update dimensions based on content/ add skeleton widget on loading state
+ *
  * @returns Enhanced Widget
  */
 

@@ -1,6 +1,14 @@
+import { memoize } from "lodash";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { GridDefaults } from "constants/WidgetConstants";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
+/**
+ * getAutoLayoutComponentDimensions
+ *
+ * utility function to compute a widgets dimensions in Auto layout system
+ *
+ */
 export const getAutoLayoutComponentDimensions = ({
   bottomRow,
   isMobile,
@@ -39,6 +47,12 @@ export const getAutoLayoutComponentDimensions = ({
   };
 };
 
+/**
+ * getFixedLayoutComponentDimensions
+ *
+ * utility function to compute a widgets dimensions in Fixed layout system
+ *
+ */
 export const getFixedLayoutComponentDimensions = ({
   bottomRow,
   leftColumn,
@@ -53,6 +67,12 @@ export const getFixedLayoutComponentDimensions = ({
   };
 };
 
+/**
+ * getAnvilComponentDimensions
+ *
+ * utility function to compute a widgets dimensions in Anvil layout system
+ *
+ */
 export const getAnvilComponentDimensions = ({
   bottomRow,
   height,
@@ -75,15 +95,20 @@ export const getAnvilComponentDimensions = ({
   };
 };
 
-export const getComponentDimensions = (
-  props: BaseWidgetProps,
-  isAutoLayout: boolean,
-  isMobile: boolean,
-): {
-  componentHeight: number;
-  componentWidth: number;
-} => {
-  return isAutoLayout
-    ? getAutoLayoutComponentDimensions({ ...props, isMobile })
-    : getFixedLayoutComponentDimensions(props);
-};
+export const getComponentDimensions = memoize(
+  (
+    props: BaseWidgetProps,
+    appPositioningType: AppPositioningTypes,
+    isMobile: boolean,
+  ): {
+    componentHeight: number;
+    componentWidth: number;
+  } => {
+    switch (appPositioningType) {
+      case AppPositioningTypes.AUTO:
+        return getAutoLayoutComponentDimensions({ ...props, isMobile });
+      default:
+        return getFixedLayoutComponentDimensions(props);
+    }
+  },
+);

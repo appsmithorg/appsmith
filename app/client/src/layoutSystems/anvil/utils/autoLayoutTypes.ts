@@ -1,12 +1,12 @@
-import type { FlattenedWidgetProps } from "widgets/constants";
 import type {
   FlexLayerAlignment,
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "./constants";
 import type { ReactNode } from "react";
-import type { WidgetType } from "utils/WidgetFactory";
 import type { RenderMode } from "constants/WidgetConstants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { WidgetType } from "WidgetProvider/factory";
 
 export type AlignmentColumnInfo = {
   [key in FlexLayerAlignment]: number;

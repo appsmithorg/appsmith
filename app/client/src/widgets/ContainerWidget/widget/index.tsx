@@ -1,8 +1,8 @@
 import type { MouseEventHandler } from "react";
 import React from "react";
 
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import WidgetFactory from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { ContainerStyle } from "../component";
 import ContainerComponent from "../component";
 
@@ -22,15 +22,120 @@ import {
   DefaultAutocompleteDefinitions,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AutocompletionDefinitions,
+  AutoLayoutConfig,
+  WidgetBaseConfiguration,
+  WidgetDefaultProps,
+} from "WidgetProvider/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import IconSVG from "../icon.svg";
+import { ButtonBoxShadowTypes } from "components/constants";
+import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/autolayout/utils/constants";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
 > {
+  static type = "CONTAINER_WIDGET";
+
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
+  }
+
+  static getConfig(): WidgetBaseConfiguration {
+    return {
+      name: "Container",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.LAYOUT],
+      isCanvas: true,
+      searchTags: ["div", "parent", "group"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 0,
+        active: true,
+      },
+    };
+  }
+
+  static getMethods() {
+    return {
+      getCanvasHeightOffset: (props: WidgetProps): number => {
+        const offset =
+          props.borderWidth && props.borderWidth > 1
+            ? Math.ceil(
+                (2 * parseInt(props.borderWidth, 10) || 0) /
+                  GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+              )
+            : 0;
+
+        return offset;
+      },
+    };
+  }
+
+  static getDefaults(): WidgetDefaultProps {
+    return {
+      backgroundColor: "#FFFFFF",
+      rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
+      columns: 24,
+      widgetName: "Container",
+      containerStyle: "card",
+      borderColor: Colors.GREY_5,
+      borderWidth: "1",
+      boxShadow: ButtonBoxShadowTypes.NONE,
+      animateLoading: true,
+      children: [],
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { top: 0, left: 0 },
+            props: {
+              containerStyle: "none",
+              canExtend: false,
+              detachFromLayout: true,
+              children: [],
+            },
+          },
+        ],
+      },
+      version: 1,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig(): AutoLayoutConfig {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "50px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: (props: ContainerWidgetProps<WidgetProps>) => ({
+        // Disables vertical resize handles for all container widgets except for the List item container
+        vertical: !props.isListItemContainer,
+      }),
+    };
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -46,7 +151,7 @@ export class ContainerWidget extends BaseWidget<
     };
   }
 
-  static getSetterConfig(): SetterConfig {
+  static getSetterConfig(): SetterConfig | null {
     return {
       __setters: {
         setVisibility: {
@@ -246,10 +351,6 @@ export class ContainerWidget extends BaseWidget<
 
   getWidgetView() {
     return this.renderAsContainerComponent(this.props);
-  }
-
-  static getWidgetType(): string {
-    return "CONTAINER_WIDGET";
   }
 }
 

@@ -12,7 +12,7 @@ import React from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import TabsComponent from "../component";
@@ -24,7 +24,18 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import {
+  GridDefaults,
+  WIDGET_TAGS,
+  WidgetHeightLimits,
+} from "constants/WidgetConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import IconSVG from "../icon.svg";
 
 export function selectedTabValidation(
   value: unknown,
@@ -50,6 +61,166 @@ class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
+  static type = "TABS_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Tabs",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.LAYOUT],
+      needsMeta: true,
+      isCanvas: true,
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 1,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+      rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
+      columns: 24,
+      shouldScrollContents: false,
+      widgetName: "Tabs",
+      animateLoading: true,
+      borderWidth: 1,
+      borderColor: Colors.GREY_5,
+      backgroundColor: Colors.WHITE,
+      minDynamicHeight: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
+      tabsObj: {
+        tab1: {
+          label: "Tab 1",
+          id: "tab1",
+          widgetId: "",
+          isVisible: true,
+          index: 0,
+          positioning: Positioning.Vertical,
+        },
+        tab2: {
+          label: "Tab 2",
+          id: "tab2",
+          widgetId: "",
+          isVisible: true,
+          index: 1,
+          positioning: Positioning.Vertical,
+        },
+      },
+      shouldShowTabs: true,
+      defaultTab: "Tab 1",
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { left: 0, top: 0 },
+            props: {
+              detachFromLayout: true,
+              canExtend: true,
+              isVisible: true,
+              isDisabled: false,
+              shouldScrollContents: false,
+              tabId: "tab1",
+              tabName: "Tab 1",
+              children: [],
+              version: 1,
+              bottomRow: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
+            },
+          },
+          {
+            type: "CANVAS_WIDGET",
+            position: { left: 0, top: 0 },
+            props: {
+              detachFromLayout: true,
+              canExtend: true,
+              isVisible: true,
+              isDisabled: false,
+              shouldScrollContents: false,
+              tabId: "tab2",
+              tabName: "Tab 2",
+              children: [],
+              version: 1,
+              bottomRow: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
+            },
+          },
+        ],
+        operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
+              const tabs = Object.values({ ...widget.tabsObj });
+              const tabIds: Record<string, string> = (
+                widget.children || []
+              ).reduce((idsObj, eachChild) => {
+                idsObj = { ...idsObj, [eachChild.tabId]: eachChild.widgetId };
+                return idsObj;
+              }, {});
+              const tabsObj = tabs.reduce((obj: any, tab: any) => {
+                const newTab = { ...tab };
+                newTab.widgetId = tabIds[newTab.id];
+                obj[newTab.id] = newTab;
+                return obj;
+              }, {});
+              const updatePropertyMap = [
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "tabsObj",
+                  propertyValue: tabsObj,
+                },
+              ];
+              return updatePropertyMap;
+            },
+          },
+        ],
+      },
+      version: 3,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getCanvasHeightOffset: (props: WidgetProps): number => {
+        let offset =
+          props.borderWidth && props.borderWidth > 1
+            ? Math.ceil(
+                (2 * parseInt(props.borderWidth, 10) || 0) /
+                  GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+              )
+            : 0;
+
+        if (props.shouldShowTabs === true) {
+          offset += 4;
+        }
+        return offset;
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -350,17 +521,16 @@ class TabsWidget extends BaseWidget<
   }
 
   getWidgetView() {
-    const { leftColumn, parentColumnSpace, rightColumn } = this.props;
-
+    const { componentWidth } = this.props;
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
-      width:
-        (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
+      width: componentWidth - WIDGET_PADDING * 2,
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
       !isAutoHeightEnabledForWidgetWithLimits(this.props);
+
     return (
       <TabsComponent
         {...tabsComponentProps}
@@ -431,10 +601,6 @@ class TabsWidget extends BaseWidget<
         )?.widgetId ?? this.props.selectedTabWidgetId;
     }
     return selectedTabWidgetId;
-  }
-
-  static getWidgetType(): string {
-    return "TABS_WIDGET";
   }
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {

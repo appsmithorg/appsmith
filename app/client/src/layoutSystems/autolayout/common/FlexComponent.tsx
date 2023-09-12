@@ -13,8 +13,8 @@ import { getIsResizing } from "selectors/widgetSelectors";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
-import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { FlexComponentProps } from "../../anvil/utils/autoLayoutTypes";
 
 const FlexWidget = styled.div`

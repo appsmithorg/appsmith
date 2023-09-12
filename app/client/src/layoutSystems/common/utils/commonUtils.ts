@@ -1,11 +1,11 @@
-import { isFunction } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import type {
   AutoDimensionOptions,
   AutoLayoutConfig,
   WidgetSizeConfig,
-} from "widgets/constants";
+} from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
+import { isFunction } from "lodash";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 export const getAutoDimensionsConfig = (
   config: AutoLayoutConfig,

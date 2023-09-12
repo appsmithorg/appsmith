@@ -1,3 +1,4 @@
+import type { WidgetType } from "WidgetProvider/factory";
 import type { RenderMode } from "constants/WidgetConstants";
 import type {
   FlexLayerAlignment,
@@ -5,7 +6,6 @@ import type {
   ResponsiveBehavior,
 } from "layoutSystems/anvil/utils/constants";
 import type { ReactNode } from "react";
-import type { WidgetType } from "utils/WidgetFactory";
 
 export type AutoLayoutProps = {
   alignment: FlexLayerAlignment;

@@ -5,13 +5,13 @@ import type {
   AutoDimensionValues,
   AutoLayoutConfig,
   WidgetConfiguration,
-} from "widgets/constants";
+} from "WidgetProvider/constants";
 import {
   getAutoDimensionsConfig,
   restructureWidgetSizeConfig,
 } from "./commonUtils";
-import { CONFIG as InputWidgetV2Config } from "widgets/InputWidgetV2";
-import { CONFIG as ButtonWidgetConfig } from "widgets/ButtonWidget";
+import InputWidget from "widgets/InputWidgetV2/widget";
+import ButtonWidget from "widgets/ButtonWidget/widget";
 
 const inputProps: BaseWidgetProps = {
   type: "INPUT_WIDGET_V2",
@@ -32,7 +32,7 @@ describe("Common Utils tests", () => {
   describe("getAutoDimensionsConfig", () => {
     it("autoDimension.height for InputWidgetV2 should be true", () => {
       const config: AutoLayoutConfig | undefined = (
-        InputWidgetV2Config as WidgetConfiguration
+        InputWidget.getConfig() as WidgetConfiguration
       ).autoLayout;
       const autoDimension: AutoDimensionOptions | undefined =
         getAutoDimensionsConfig(config || {}, inputProps);
@@ -40,7 +40,7 @@ describe("Common Utils tests", () => {
     });
     it("autoDimension.width for button widget should be true", () => {
       const config: AutoLayoutConfig | undefined = (
-        ButtonWidgetConfig as WidgetConfiguration
+        ButtonWidget.getConfig() as WidgetConfiguration
       ).autoLayout;
       const autoDimension: AutoDimensionOptions | undefined =
         getAutoDimensionsConfig(config || {}, {
@@ -54,7 +54,7 @@ describe("Common Utils tests", () => {
   describe("restructureWidgetSizeConfig", () => {
     it("should return widget size config in the structure accepted by WDS Flex component - BUTTON widget", () => {
       const config: AutoLayoutConfig | undefined = (
-        ButtonWidgetConfig as WidgetConfiguration
+        ButtonWidget.getConfig() as WidgetConfiguration
       ).autoLayout;
       const sizeConfig: {
         maxHeight: Record<string, string | number>;
@@ -73,7 +73,7 @@ describe("Common Utils tests", () => {
     });
     it("should return widget size config in the structure accepted by WDS Flex component - INPUT widget", () => {
       const config: AutoLayoutConfig | undefined = (
-        InputWidgetV2Config as WidgetConfiguration
+        InputWidget.getConfig() as WidgetConfiguration
       ).autoLayout;
       const sizeConfig: {
         maxHeight: Record<string, string | number>;

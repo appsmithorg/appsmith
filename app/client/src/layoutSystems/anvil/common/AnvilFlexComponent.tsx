@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
-import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import {
   getIsResizing,
@@ -18,6 +17,7 @@ import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
 import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import type { FlexComponentProps } from "layoutSystems/anvil/utils/autoLayoutTypes";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 
 export type AnvilFlexComponentProps = FlexComponentProps & {
   hasAutoWidth: boolean;

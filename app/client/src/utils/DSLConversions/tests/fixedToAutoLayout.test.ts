@@ -2,7 +2,7 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/anvil/utils/constants";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import {
   fitChildWidgetsIntoLayers,
   getAutoCanvasWidget,
@@ -11,7 +11,7 @@ import {
   processGroupedWidgets,
 } from "../fixedToAutoLayout";
 
-jest.mock("utils/WidgetFactory", () => ({
+jest.mock("WidgetProvider/factory/index", () => ({
   widgetConfigMap: {
     get: jest.fn(() => {
       /**/
