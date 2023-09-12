@@ -398,7 +398,7 @@ export const getQueryName = (state: AppState, actionId: string): string => {
   return action?.config.name ?? "";
 };
 
-const getCurrentPageId = (state: AppState) =>
+export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
 export const getDatasourcePlugins = createSelector(getPlugins, (plugins) => {
