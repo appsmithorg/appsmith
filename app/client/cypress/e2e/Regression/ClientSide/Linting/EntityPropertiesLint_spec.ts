@@ -94,8 +94,9 @@ describe("Linting of entity properties", () => {
     });
     // select button, and assert that lint error is present
     entityExplorer.SelectEntityByName("Button1", "Widgets");
-    cy.get(locators._lintErrorElement)
-      .should("have.length", 2)
+    agHelper.AssertElementLength(locators._lintErrorElement, 2);
+    agHelper
+      .GetElement(locators._lintErrorElement)
       .first()
       .trigger("mouseover");
     agHelper.AssertContains(`'JSObject1' is not defined`);
