@@ -1605,16 +1605,15 @@ public class GitServiceCEImpl implements GitServiceCE {
     private Flux<Application> updateDefaultBranchName(
             Path repoPath, String defaultBranchName, String defaultApplicationId) {
         // Get the application from DB by new defaultBranch name
-        return addFileLock(defaultApplicationId)
-                .then(applicationService.findByBranchNameAndDefaultApplicationId(
-                        defaultBranchName, defaultApplicationId, applicationPermission.getEditPermission()))
+        return applicationService
+                .findByBranchNameAndDefaultApplicationId(
+                        defaultBranchName, defaultApplicationId, applicationPermission.getEditPermission())
                 // Check if the branch is already present, If not follow checkout remote flow
                 .onErrorResume(throwable -> checkoutRemoteBranch(defaultApplicationId, defaultBranchName))
                 // ensure the local branch exists
                 .then(gitExecutor
                         .createAndCheckoutToBranch(repoPath, defaultBranchName)
                         .onErrorComplete())
-                .then(releaseFileLock(defaultApplicationId))
                 // Update the default branch name in all the child applications
                 .thenMany(applicationService
                         .findAllApplicationsByDefaultApplicationId(
@@ -1629,9 +1628,9 @@ public class GitServiceCEImpl implements GitServiceCE {
     public Mono<String> syncDefaultBranchNameFromRemote(Path repoPath, Application rootApp) {
         GitApplicationMetadata metadata = rootApp.getGitApplicationMetadata();
         GitAuth gitAuth = metadata.getGitAuth();
-        return gitExecutor
-                .getRemoteDefaultBranch(
-                        repoPath, metadata.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey())
+        return addFileLock(metadata.getDefaultApplicationId())
+                .then(gitExecutor.getRemoteDefaultBranch(
+                        repoPath, metadata.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey()))
                 .flatMap(defaultBranchNameInRemote -> {
                     String defaultBranchInDb = GitUtils.getDefaultBranchName(metadata);
                     if (StringUtils.isEmptyOrNull(defaultBranchNameInRemote)) {
@@ -1642,7 +1641,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     repoPath, defaultBranchNameInRemote, metadata.getDefaultApplicationId())
                             .then()
                             .thenReturn(defaultBranchNameInRemote);
-                });
+                })
+                .flatMap(branchName ->
+                        releaseFileLock(metadata.getDefaultApplicationId()).thenReturn(branchName));
     }
 
     @Override
