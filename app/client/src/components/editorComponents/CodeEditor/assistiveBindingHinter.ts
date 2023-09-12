@@ -60,8 +60,6 @@ export const assistiveBindingHinter: HintHelper = (
         enableAIAssistance: boolean;
       },
     ): boolean => {
-      // @ts-expect-error: Types are not available
-      editor.closeHint();
       const currentEntityName = entityInfo.entityName;
       const currentEntityType = entityInfo.entityType || ENTITY_TYPE.WIDGET;
 
@@ -189,7 +187,6 @@ export const assistiveBindingHinter: HintHelper = (
           },
         },
         completeSingle: false,
-        alignWithWord: false,
       });
       return true;
     },
