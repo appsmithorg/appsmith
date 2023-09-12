@@ -188,3 +188,63 @@ describe("bgAssistive color", () => {
     expect(bgAssistive1).toBe("rgb(92.148% 92.148% 92.148%)");
   });
 });
+
+describe("bgNeutral color", () => {
+  it("should return correct color when lightness is less than 0.5", () => {
+    const { bgNeutral: bgNeutral1 } = new DarkModeTheme(
+      "oklch(0.3 0.09 231)",
+    ).getColors();
+    expect(bgNeutral1).toEqual("rgb(18.887% 23.77% 26.341%)");
+  });
+
+  it("should return correct color when chroma is less than 0.04", () => {
+    const { bgNeutral: bgNeutral2 } = new DarkModeTheme(
+      "oklch(0.95 0.02 170)",
+    ).getColors();
+    expect(bgNeutral2).toEqual("rgb(93.448% 93.448% 93.448%)");
+  });
+
+  it("should return correct color when hue is between 120 and 300 and chroma is not less than 0.04", () => {
+    const { bgNeutral: bgNeutral3 } = new DarkModeTheme(
+      "oklch(0.95 0.06 240)",
+    ).getColors();
+    expect(bgNeutral3).toEqual("rgb(89.041% 94.38% 98.38%)");
+  });
+
+  it("should return correct color when hue is not between 120 and 300 and chroma is not less than 0.04", () => {
+    const { bgNeutral: bgNeutral4 } = new DarkModeTheme(
+      "oklch(0.95 0.06 30)",
+    ).getColors();
+    expect(bgNeutral4).toEqual("rgb(96.118% 92.595% 91.947%)");
+  });
+});
+
+describe("bgNeutralHover color", () => {
+  it("should return correct color when lightness is greater than or equal to 0.85", () => {
+    const { bgNeutralHover: bgNeutralHover1 } = new DarkModeTheme(
+      "oklch(0.86 0.03 170)",
+    ).getColors();
+    expect(bgNeutralHover1).toEqual("rgb(73.075% 73.075% 73.075%)");
+  });
+
+  it("should return correct color when lightness is between 0.77 and 0.85", () => {
+    const { bgNeutralHover: bgNeutralHover2 } = new DarkModeTheme(
+      "oklch(0.80 0.03 170)",
+    ).getColors();
+    expect(bgNeutralHover2).toEqual("rgb(79.34% 79.34% 79.34%)");
+  });
+
+  it("should return correct color when lightness is between 0.45 and 0.77", () => {
+    const { bgNeutralHover: bgNeutralHover3 } = new DarkModeTheme(
+      "oklch(0.60 0.03 170)",
+    ).getColors();
+    expect(bgNeutralHover3).toEqual("rgb(53.715% 53.715% 53.715%)");
+  });
+
+  it("should return correct color when lightness is between 0.3 and 0.45", () => {
+    const { bgNeutralHover: bgNeutralHover4 } = new DarkModeTheme(
+      "oklch(0.35 0.03 170)",
+    ).getColors();
+    expect(bgNeutralHover4).toEqual("rgb(32.307% 32.307% 32.307%)");
+  });
+});
