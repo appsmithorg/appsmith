@@ -92,12 +92,6 @@ describe("Create new workspace and share with a user", function () {
       .click()
       .wait(1000);
     agHelper.ClickButton("Copy application url");
-    cy.window()
-      .its("navigator.clipboard")
-      .invoke("readText")
-      .then((text) => {
-        cy.wrap(text).as("deployUrl");
-      });
   });
 
   it("5. login as uninvited user and then validate public access of Application", function () {
@@ -115,12 +109,6 @@ describe("Create new workspace and share with a user", function () {
       .click()
       .wait(1000);
     agHelper.ClickButton("Copy application url");
-    cy.window()
-      .its("navigator.clipboard")
-      .invoke("readText")
-      .then((text) => {
-        cy.wrap(text).as("deployUrl");
-      });
     homePage.LogOutviaAPI();
   });
 
