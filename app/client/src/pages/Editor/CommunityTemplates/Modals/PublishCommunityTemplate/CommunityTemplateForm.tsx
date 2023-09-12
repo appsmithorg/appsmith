@@ -85,8 +85,8 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
         useCases: templateUseCases,
         authorEmail,
         authorName,
-        shouldUpdateEmail: !!currentUser?.email,
-        shouldUpdateName: !!currentUser?.name,
+        shouldUpdateEmail: !currentUser?.email,
+        shouldUpdateName: !currentUser?.name,
         branchName:
           currentApplication?.gitApplicationMetadata?.branchName || "",
       }),
