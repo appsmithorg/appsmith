@@ -34,7 +34,6 @@ describe("Validate Mongo query commands", function () {
   });
 
   it("1. Validate Raw query command, run and then delete the query", function () {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
     // cy.get("@getPluginForm").should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",
