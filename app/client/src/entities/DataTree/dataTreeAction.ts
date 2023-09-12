@@ -55,7 +55,7 @@ export const generateDataTreeAction = (
       run: {},
       clear: {},
       // Data is always set to undefined in the unevalTree
-      // Action data is handled in the DataStore class
+      // Action data is updated directly to the dataTree (see updateActionData.ts)
       data: undefined,
       isLoading: action.isLoading,
       responseMeta: {
