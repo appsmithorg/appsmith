@@ -42,9 +42,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-
 @Slf4j
 public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final SessionUserService sessionUserService;
@@ -109,25 +106,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                  */
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Workspace is not assigned to the user.")))
-                .zipWith(userMono)
-                /*
-                 * Today, the business logic dictates that the user would only be assigned a single role within a
-                 * workspace. This means that we can filter the roles to find the single role assigned to the user
-                 * which the user intends to leave.
-                 */
-                .filter(tuple -> {
-                    PermissionGroup permissionGroup = tuple.getT1();
-                    User currentUser = tuple.getT2();
-
-                    Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
-
-                    if (assignedToUserIds.contains(currentUser.getId())) {
-                        return TRUE;
-                    }
-
-                    return FALSE;
-                })
-                .map(tuple -> tuple.getT1())
+                // User must be assigned to a single default role of the workspace. We can safely use single() here.
                 .single()
                 .flatMap(permissionGroup -> {
                     if (permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
