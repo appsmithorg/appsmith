@@ -1,5 +1,12 @@
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
+/**
+ * getAutoLayoutComponentDimensions
+ *
+ * utility function to compute a widgets dimensions in Auto layout system
+ *
+ */
 export const getAutoLayoutComponentDimensions = ({
   bottomRow,
   isMobile,
@@ -41,7 +48,7 @@ export const getAutoLayoutComponentDimensions = ({
 /**
  * getFixedLayoutComponentDimensions
  *
- * utiltiy function to compute a widgets dimensions in Fixed layout system
+ * utility function to compute a widgets dimensions in Fixed layout system
  *
  */
 export const getFixedLayoutComponentDimensions = ({
@@ -60,13 +67,16 @@ export const getFixedLayoutComponentDimensions = ({
 
 export const getComponentDimensions = (
   props: BaseWidgetProps,
-  isAutoLayout: boolean,
+  appPositioningType: AppPositioningTypes,
   isMobile: boolean,
 ): {
   componentHeight: number;
   componentWidth: number;
 } => {
-  return isAutoLayout
-    ? getAutoLayoutComponentDimensions({ ...props, isMobile })
-    : getFixedLayoutComponentDimensions(props);
+  switch (appPositioningType) {
+    case AppPositioningTypes.AUTO:
+      return getAutoLayoutComponentDimensions({ ...props, isMobile });
+    default:
+      return getFixedLayoutComponentDimensions(props);
+  }
 };

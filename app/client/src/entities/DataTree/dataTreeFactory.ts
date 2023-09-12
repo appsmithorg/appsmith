@@ -22,7 +22,7 @@ import type {
   WidgetConfig,
 } from "./types";
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity
@@ -144,7 +144,7 @@ export class DataTreeFactory {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
-        appPositioningType === AppPositioningTypes.AUTO,
+        appPositioningType,
         isMobile,
       );
 

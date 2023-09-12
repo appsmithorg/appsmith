@@ -16,6 +16,7 @@ import { setOverridingProperty } from "./utils";
 import { error } from "loglevel";
 import WidgetFactory from "WidgetProvider/factory";
 import { getComponentDimensions } from "utils/ComponentSizeUtils";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 /**
  *
@@ -344,7 +345,7 @@ const generateDataTreeWidgetWithoutMetaMemoized = memoize(
 export const generateDataTreeWidget = (
   widget: FlattenedWidgetProps,
   widgetMetaProps: Record<string, unknown> = {},
-  isAutoLayout = false,
+  appPositioningType: AppPositioningTypes = AppPositioningTypes.FIXED,
   isMobile = false,
 ) => {
   const {
@@ -382,7 +383,7 @@ export const generateDataTreeWidget = (
 
   const { componentHeight, componentWidth } = getComponentDimensions(
     dataTreeWidget,
-    isAutoLayout,
+    appPositioningType,
     isMobile,
   );
 
