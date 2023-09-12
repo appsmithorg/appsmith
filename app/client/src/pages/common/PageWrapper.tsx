@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import React from "react";
+import React, { useMemo } from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import { Banner } from "@appsmith/utils/licenseHelpers";
@@ -70,13 +70,16 @@ export function PageWrapper(props: PageWrapperProps) {
   const htmlPageTitleMethod = getHTMLPageTitle(isBrandingEnabled);
   const titleSuffix = htmlPageTitleMethod();
 
-  const getPageTitleMethod = getPageTitle(isBrandingEnabled);
+  const pageTitle = useMemo(
+    () => getPageTitle(isBrandingEnabled, props.displayName, titleSuffix),
+    [isBrandingEnabled, props.displayName, titleSuffix],
+  );
 
   return (
     <Wrapper isFixed={isFixed}>
       <Banner />
       <Helmet>
-        <title>{getPageTitleMethod(props.displayName, titleSuffix)}</title>
+        <title>{pageTitle}</title>
       </Helmet>
       <PageBody isSavable={isSavable}>{props.children}</PageBody>
     </Wrapper>

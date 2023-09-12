@@ -25,10 +25,14 @@ export const getHTMLPageTitle = (isEnabled: boolean) => {
   }
 };
 
-export const getPageTitle = (isEnabled: boolean) => {
+export const getPageTitle = (
+  isEnabled: boolean,
+  displayName: string | undefined,
+  titleSuffix: string | undefined,
+) => {
   if (isEnabled) {
-    return getPageTitle_EE;
+    return getPageTitle_EE(displayName, titleSuffix);
   } else {
-    return getPageTitle_CE;
+    return getPageTitle_CE(displayName, titleSuffix);
   }
 };
