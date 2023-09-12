@@ -27,6 +27,7 @@ import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getSavedCurrentEnvironmentDetails } from "utils/storage";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -85,7 +86,7 @@ export const blockedApiRoutesForAirgapInterceptor = (
 // Request interceptor will add a timer property to the request.
 // this will be used to calculate the time taken for an action
 // execution request
-export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
+export const apiRequestInterceptor = async (config: AxiosRequestConfig) => {
   config.headers = config.headers ?? {};
 
   // Add header for CSRF protection.
@@ -105,7 +106,11 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
 
   if (ENV_ENABLED_ROUTES_REGEX.test(config.url?.split("?")[0] || "")) {
     // Add header for environment name
-    const activeEnv = getCurrentEnvironmentId(state);
+    let activeEnv = getCurrentEnvironmentId(state);
+
+    if (config.url?.indexOf("/token") !== -1) {
+      activeEnv = (await getSavedCurrentEnvironmentDetails()).envId;
+    }
 
     if (activeEnv && config.headers) {
       config.headers.environmentId = activeEnv;
