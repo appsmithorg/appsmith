@@ -329,7 +329,6 @@ jobs:
 
     steps:
       - name: Notify failure on workflow run and on Slack
-        if: failure()
         run: |
           set -o errexit
           set -o nounset
