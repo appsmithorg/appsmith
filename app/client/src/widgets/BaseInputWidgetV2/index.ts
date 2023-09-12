@@ -3,6 +3,7 @@ import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
+<<<<<<< HEAD
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -46,3 +47,8 @@ export const CONFIG = {
 };
 
 export default Widget;
+=======
+export { BaseInputWidget };
+export type { BaseInputWidgetProps } from "./widget/types";
+export type { BaseInputComponentProps } from "./component/types";
+>>>>>>> b5b717b251 (fix merge conflicts)
