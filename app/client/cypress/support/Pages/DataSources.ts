@@ -1,13 +1,13 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
-import { WALKTHROUGH_TEST_PAGE } from "../Constants";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
   Mongo: "MongoDB",
   MySql: "MySQL",
   UnAuthenticatedGraphQL: "GraphQL API",
+  AuthenticatedGraph: "Authenticated GraphQL API",
   MsSql: "Microsoft SQL Server",
   Airtable: "Airtable",
   ArangoDB: "ArangoDB",
@@ -17,6 +17,7 @@ export const DataSourceKVP = {
   Oracle: "Oracle",
   S3: "S3",
   Twilio: "Twilio",
+  SMTP: "SMTP",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -69,7 +70,6 @@ export class DataSources {
   private defaultDatabaseName =
     "input[name*='datasourceConfiguration.connection.defaultDatabaseName']";
   private _testDs = ".t--test-datasource";
-  _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
   _dsMenuoptions = "div.t--datasource-menu-option";
@@ -80,6 +80,8 @@ export class DataSources {
   _activeDS = "[data-testid='active-datasource-name']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
+  _addSuggestedExisting = "t--suggested-widget-existing";
+  _addSuggestedAddNew = "t--suggested-widget-add-new";
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
   _createQuery = ".t--create-query";
@@ -116,7 +118,7 @@ export class DataSources {
   _generatePageBtn = "[data-testid=t--generate-page-form-submit]";
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
-  _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
+  _selectedActiveTab = "button[aria-selected='true'] " + this._activeTab;
   _contextMenuDSReviewPage = "[data-testid='t--context-menu-trigger']";
   _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
@@ -186,8 +188,13 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
-  private _suggestedWidget = (widgetType: string) =>
-    ".t--suggested-widget-" + widgetType + "";
+
+  private _suggestedWidget = (widgetType: string, parentClass: string) =>
+    "//div[contains(@class, '" +
+    parentClass +
+    "')]//div[contains(@class, 't--suggested-widget-" +
+    widgetType +
+    "')]";
 
   private _curlTextArea =
     "//label[text()='Paste CURL Code Here']/parent::form/div";
@@ -268,6 +275,11 @@ export class DataSources {
   _s3EditFileName =
     "[data-widgetname-cy='update_file_name'] div[data-testid='input-container']";
   _s3MaxFileSizeAlert = "//p[@role='alert']";
+  _entityExplorerID = (dsName: string) =>
+    "[data-testid='t--entity-item-" + dsName + "']";
+  _stagingTab = "[data-testid='t--ds-data-filter-Staging']";
+  _graphQlDsFromRightPane = (dsName: string) =>
+    "//div/span[text() ='" + dsName + "']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -522,10 +534,11 @@ export class DataSources {
       this._port,
       this.dataManager.dsValues[environment].mongo_port.toString(),
     );
-    this.agHelper.ClearNType(
-      this._databaseName,
-      this.dataManager.dsValues[environment].mongo_databaseName,
-    );
+    this.agHelper.ClearTextField(this._databaseName);
+    const databaseName = shouldAddTrailingSpaces
+      ? this.dataManager.dsValues[environment].mongo_databaseName + "  "
+      : this.dataManager.dsValues[environment].mongo_databaseName;
+    this.agHelper.TypeText(this._databaseName, databaseName);
   }
 
   public FillMySqlDSForm(
@@ -682,12 +695,32 @@ export class DataSources {
 
   public FillUnAuthenticatedGraphQLDSForm(
     environment = this.dataManager.defaultEnviorment,
+    enterOrSelectUrl: "enter" | "select" = "enter",
+    dsNameToSelect = "",
   ) {
     this.agHelper.GetNClick(this._createBlankGraphQL);
-    this.apiPage.EnterURL(
+    cy.get("@guid").then((uid) => {
+      this.agHelper.RenameWithInPane("GraphQL_API" + "_" + uid, true);
+
+      if (enterOrSelectUrl == "enter")
+        this.apiPage.EnterURL(
+          this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
+        );
+      else if (enterOrSelectUrl == "select")
+        this.agHelper.GetNClick(this._graphQlDsFromRightPane(dsNameToSelect));
+
+      this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
+      cy.wrap("GraphQL_API" + "_" + uid).as("dsName");
+    });
+  }
+
+  public FillAuthenticatedGrapgQLURL(
+    environment = this.dataManager.defaultEnviorment,
+  ) {
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
       this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
     );
-    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
   }
 
   public CreateNFillAuthenticatedGraphQLDSForm(
@@ -696,12 +729,7 @@ export class DataSources {
     hValue: string,
     environment = this.dataManager.defaultEnviorment,
   ) {
-    this.NavigateToDSCreateNew();
-    this.CreatePlugIn("Authenticated GraphQL API");
-    this.agHelper.TypeText(
-      this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
-      this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
-    );
+    this.FillAuthenticatedGrapgQLURL(environment);
 
     this.agHelper.UpdateInputValue(this._graphQLHeaderKey, hKey);
     this.agHelper.UpdateInputValue(this._graphQLHeaderValue, hValue);
@@ -735,7 +763,7 @@ export class DataSources {
     );
   }
 
-  public fillTwilioDSForm(environment = this.dataManager.defaultEnviorment) {
+  public FillTwilioDSForm(environment = this.dataManager.defaultEnviorment) {
     this.ValidateNSelectDropdown("Authentication type", "", "Basic auth");
     this.agHelper.UpdateInputValue(
       this._username,
@@ -771,15 +799,14 @@ export class DataSources {
     } else {
       this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
     }
+  }
 
-    // cy.wait("@saveDatasource")
-    //     .then((xhr) => {
-    //         cy.log(JSON.stringify(xhr.response!.body));
-    //     }).should("have.nested.property", "response.body.responseMeta.status", 200);
+  public AssertSaveDSButtonDisability(isDisabled = true) {
+    this.agHelper.AssertElementEnabledDisabled(this._saveDs, 0, isDisabled);
   }
 
   public AuthAPISaveAndAuthorize() {
-    cy.get(this._saveAndAuthorizeDS).click();
+    cy.get(this._saveDs).click();
     this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
@@ -789,8 +816,24 @@ export class DataSources {
     this.agHelper.AssertContains("datasource updated");
   }
 
+  public ShowAllDatasources() {
+    this.agHelper.GetElement(this.locator._body).then(($body) => {
+      if ($body.find(this._selectedActiveTab).length === 0) {
+        this.agHelper.ClickButton("Show all datasources");
+      }
+    });
+  }
+
   public ClickActiveTabDSContextMenu(datasourceName: string) {
-    this.NavigateToActiveTab();
+    this.agHelper.GetElement(this.locator._body).then(($body) => {
+      if (
+        $body.find(this.locator._visibleTextSpan("Show all datasources", true))
+          .length !== 0
+      ) {
+        this.ShowAllDatasources();
+      } else this.NavigateToActiveTab();
+    });
+
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .parents(this._datasourceCard)
@@ -883,7 +926,7 @@ export class DataSources {
 
   public NavigateToActiveTab() {
     this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if ($body.find(this._selectedActiveTab).length == 0) {
+      if ($body.find(this._selectedActiveTab).length === 0) {
         this.NavigateToDSCreateNew();
         this.agHelper.GetNClick(this._activeTab, 0, true);
       }
@@ -900,7 +943,7 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
-    this.AssertDSActive(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
+    this.AssertDSInActiveList(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
       .then(($element) => {
@@ -917,7 +960,7 @@ export class DataSources {
       this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
   }
 
-  public AssertDSActive(dsName: string | RegExp) {
+  public AssertDSInActiveList(dsName: string | RegExp) {
     this.entityExplorer.NavigateToSwitcher("Explorer", 0, true);
     this.entityExplorer.ExpandCollapseEntity("Datasources", false);
     //this.entityExplorer.SelectEntityByName(datasourceName, "Datasources");
@@ -1209,6 +1252,7 @@ export class DataSources {
       | "Mongo"
       | "MySql"
       | "UnAuthenticatedGraphQL"
+      | "AuthenticatedGraph"
       | "MsSql"
       | "Airtable"
       | "ArangoDB"
@@ -1266,16 +1310,19 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "Redis")
           this.FillRedisDSForm(environment);
         else if (DataSourceKVP[dsType] == "S3") this.FillS3DSForm();
-        else if (DataSourceKVP[dsType] == "Twilio") this.fillTwilioDSForm();
+        else if (DataSourceKVP[dsType] == "Twilio") this.FillTwilioDSForm();
+        else if (DataSourceKVP[dsType] == "Authenticated GraphQL API")
+          this.FillAuthenticatedGrapgQLURL();
 
         if (testNSave) {
           this.TestSaveDatasource();
         } else {
           this.SaveDatasource();
         }
-      } else if (DataSourceKVP[dsType] == "GraphQL API")
+        cy.wrap(dataSourceName).as("dsName");
+      } else if (DataSourceKVP[dsType] == "GraphQL API") {
         this.FillUnAuthenticatedGraphQLDSForm(environment);
-      cy.wrap(dataSourceName).as("dsName");
+      }
     });
   }
 
@@ -1430,16 +1477,12 @@ export class DataSources {
 
   public FilterAndVerifyDatasourceSchemaBySearch(
     search: string,
-    filterBy?: "table" | "column",
+    expectedTableName = search,
   ) {
     this.agHelper.Sleep(2500); //for query editor to load
     this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
     this.agHelper.Sleep(); //for search result to load
-    if (filterBy === "column") {
-      this.VerifyColumnSchemaOnQueryEditor(search);
-    } else if (filterBy === "table") {
-      this.VerifyTableSchemaOnQueryEditor(search);
-    }
+    this.VerifyTableSchemaOnQueryEditor(expectedTableName);
   }
 
   public AssertDSDialogVisibility(isVisible = true) {
@@ -1603,7 +1646,7 @@ export class DataSources {
 
     // save datasource
     this.agHelper.Sleep(500);
-    this.agHelper.GetNClick(this._saveAndAuthorizeDS);
+    this.agHelper.GetNClick(this._saveDs);
 
     //Accept consent
     this.agHelper.GetNClick(this._consent);
@@ -1667,17 +1710,24 @@ export class DataSources {
     );
   }
 
-  public AddSuggestedWidget(widget: Widgets, force = false, index = 0) {
+  public AddSuggestedWidget(
+    widget: Widgets,
+    parentClass = this._addSuggestedAddNew,
+    force = false,
+    index = 0,
+  ) {
     switch (widget) {
       case Widgets.Dropdown:
-        this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("SELECT_WIDGET", parentClass),
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.SELECT),
         );
         break;
       case Widgets.Table:
         this.agHelper.GetNClick(
-          this._suggestedWidget("TABLE_WIDGET_V2"),
+          this._suggestedWidget("TABLE_WIDGET_V2", parentClass),
           index,
           force,
         );
@@ -1686,13 +1736,17 @@ export class DataSources {
         );
         break;
       case Widgets.Chart:
-        this.agHelper.GetNClick(this._suggestedWidget("CHART_WIDGET"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("CHART_WIDGET", parentClass),
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.CHART),
         );
         break;
       case Widgets.Text:
-        this.agHelper.GetNClick(this._suggestedWidget("TEXT_WIDGET"));
+        this.agHelper.GetNClick(
+          this._suggestedWidget("TEXT_WIDGET", parentClass),
+        );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TEXT),
         );

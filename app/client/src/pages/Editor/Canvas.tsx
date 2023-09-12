@@ -3,15 +3,15 @@ import React from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
-import WidgetFactory from "utils/WidgetFactory";
-import type { CanvasWidgetStructure } from "widgets/constants";
+import WidgetFactory from "WidgetProvider/factory";
+import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 
 import { RenderModes } from "constants/WidgetConstants";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { getViewportClassName } from "utils/autoLayout/AutoLayoutUtils";
+import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,

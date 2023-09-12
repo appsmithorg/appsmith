@@ -104,11 +104,13 @@ export const useOtherDatasourcesInWorkspace = () => {
       },
       new Set(),
     );
-    return allDatasources.filter(
-      (ds) =>
-        !datasourceIdsUsedInCurrentApplication.has(ds.id) &&
-        ds.id !== TEMP_DATASOURCE_ID,
-    );
+    return allDatasources
+      .filter(
+        (ds) =>
+          !datasourceIdsUsedInCurrentApplication.has(ds.id) &&
+          ds.id !== TEMP_DATASOURCE_ID,
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, [actions, allDatasources]);
   return otherDatasourcesInWorkspace;
 };
@@ -143,7 +145,6 @@ export const useDatasourceSuggestions = () => {
   const otherDatasourceInWorkspace = useOtherDatasourcesInWorkspace();
   if (datasourcesUsedInApplication.length >= MAX_DATASOURCE_SUGGESTIONS)
     return [];
-  otherDatasourceInWorkspace.reverse();
   return otherDatasourceInWorkspace.slice(
     0,
     MAX_DATASOURCE_SUGGESTIONS - datasourcesUsedInApplication.length,

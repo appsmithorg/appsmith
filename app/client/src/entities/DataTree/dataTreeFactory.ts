@@ -12,7 +12,7 @@ import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsRed
 import type { AppTheme } from "entities/AppTheming";
 import log from "loglevel";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetConfigProps } from "WidgetProvider/constants";
 import type {
   ActionDispatcher,
   ActionEntityConfig,
@@ -24,7 +24,7 @@ import type {
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { Positioning } from "utils/autoLayout/constants";
+import { Positioning } from "layoutSystems/autolayout/utils/constants";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity

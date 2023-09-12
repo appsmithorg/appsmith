@@ -13,7 +13,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { noop } from "utils/AppsmithUtils";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { getFeatureWalkthroughShown } from "utils/storage";
@@ -39,7 +39,7 @@ function NewActionButton(props: NewActionButtonProps) {
   const dispatch = useDispatch();
   const actionExist = useSelector(actionsExistInCurrentPage);
   const currentPageId = useSelector(getCurrentPageId);
-  const currentEnvironment = getCurrentEnvironment();
+  const currentEnvironment = useSelector(getCurrentEnvironmentId);
 
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const adapativeSignposting = useSelector(adaptiveSignpostingEnabled);
