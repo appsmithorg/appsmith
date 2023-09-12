@@ -34,7 +34,7 @@ jobs:
           if [[ ${{github.event_name}} == 'repository_dispatch' ]]; then
             echo "matrix_count=[0, 1, 2]" >> $GITHUB_OUTPUT
           else
-            echo "matrix_count=[0]" >> $GITHUB_OUTPUT
+            echo "matrix_count=[0, 1]" >> $GITHUB_OUTPUT
           fi
 
       - name: Get the PR number if workflow is triggered manually

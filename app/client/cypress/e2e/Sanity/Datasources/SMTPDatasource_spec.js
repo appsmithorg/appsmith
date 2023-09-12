@@ -92,20 +92,9 @@ describe("SMTP datasource test cases using ted", function () {
     cy.get("button").contains("1 files selected");
     agHelper.ClickButton("Run query");
     agHelper.ValidateToastMessage("Sent the email successfully");
-    //not working
-    // cy.exec("exim -bp", { failOnNonZeroExit: false }).then((result) => {
-    //   const { stdout, stderr, code } = result;
 
-    //   // Log the command output
-    //   cy.log("exim -bp stdout:", stdout); // result is empty
-    //   cy.log("exim -bp stderr:", stderr);
-    //   cy.log("exim -bp result:", result);
-    //   expect(code).to.eq(0); //(0 indicates success)
-    //   //expect(stdout).to.contain("qwerty@appsmith.com");//not working here since stdout is empty
-    // });
-
+    //Verifying if mail is sent/received using ted
     const tedUrl = "http://localhost:5001/v1/cmd";
-
     cy.request({
       method: "GET",
       url: tedUrl,
@@ -113,12 +102,8 @@ describe("SMTP datasource test cases using ted", function () {
         cmd: "exim -bp",
       },
     }).then((res) => {
-      cy.log("exim -bp res is", JSON.stringify(res));
-      cy.log("exim -bp output is", JSON.stringify(res.body));
-      cy.log("res.body.stderr" + res.body.stderr);
-      cy.log("res.status" + JSON.stringify(res.status));
       expect(res.status).equal(200);
-      expect(JSON.stringify(res.body)).to.contain("qwerty@appsmith.com1");
+      expect(JSON.stringify(res.body)).to.contain("qwerty@appsmith.com");
     });
   });
 });
