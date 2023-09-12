@@ -14,7 +14,7 @@ import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import {
   GRID_DENSITY_MIGRATION_V1,
   MinimumPopupRows,
@@ -27,7 +27,7 @@ import SingleSelectTreeComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
 
@@ -643,12 +643,12 @@ class SingleSelectTreeWidget extends BaseWidget<
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
     return (
       <SingleSelectTreeComponent
         accentColor={this.props.accentColor}

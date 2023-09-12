@@ -20,7 +20,7 @@ import {
 import MultiSelectComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "../icon.svg";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
@@ -515,13 +515,13 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
 
     return (
       <MultiSelectComponent
