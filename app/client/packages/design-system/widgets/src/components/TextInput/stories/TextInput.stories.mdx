@@ -22,6 +22,8 @@ Switch is a component that allows the user to select one or more options from a 
   <Story name="TextInput">{Template.bind({})}</Story>
 </Canvas>
 
+<ArgsTable of={TextInput} story="TextInput" />
+
 ## Default Value
 
 <Story
@@ -33,8 +35,6 @@ Switch is a component that allows the user to select one or more options from a 
 >
   {Template.bind({})}
 </Story>
-
-<ArgsTable of={TextInput} story="TextInput" />
 
 ## Description
 
@@ -231,6 +231,18 @@ Switch is a component that allows the user to select one or more options from a 
     placeholder: "Required - Label Indicator",
     isRequired: false,
     necessityIndicator: "label",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Contextual Help Text
+
+<Story
+  name="Contextual Help Text"
+  args={{
+    placeholder: "Contextual Help Text",
+    contextualHelp: "This is a contextual help text",
   }}
 >
   {Template.bind({})}

@@ -53,11 +53,20 @@ export const fieldStyles = css<FieldStylesProps>`
     cursor: default;
   }
 
+  & [data-field-contextual-help] {
+    position: relative;
+    /* this is a hack position the icon in the center of the label */
+    height: 0px;
+    width: 1em;
+  }
+
   & [data-field-contextual-help] button {
     height: 1em;
     width: 1em;
     border-radius: 100%;
-    margin-top: -0.2em;
+    position: absolute;
+    inset: 0;
+    transform: translate(0, -50%);
   }
 
   & [data-field-contextual-help] svg {
