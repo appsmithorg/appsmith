@@ -135,7 +135,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                                     "isSuperUser", isSuperUser,
                                     "instanceId", instanceId,
                                     "mostRecentlyUsedWorkspaceId", tuple.getT4(),
-                                    "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
+                                    "proficiency", ObjectUtils.defaultIfNull(userData.getProficiency(), ""),
                                     "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), ""))));
                     analytics.flush();
                     return savedUser;
