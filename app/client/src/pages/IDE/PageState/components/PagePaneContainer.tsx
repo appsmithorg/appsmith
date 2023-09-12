@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { Button, Text } from "design-system";
 import type { Item } from "../../components/ListView";
@@ -8,6 +8,8 @@ import { getIdePageTabState } from "pages/IDE/ideSelector";
 import { useDispatch, useSelector } from "react-redux";
 import { TabState } from "pages/IDE/ideReducer";
 import { setIdePageTabState } from "pages/IDE/ideActions";
+import moment from "moment";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const PaneTitleBar = styled.div`
   background-color: #fff8f8;
@@ -86,12 +88,19 @@ const PagePaneContainer = (props: Props) => {
     }
     dispatch(setIdePageTabState(TabState.EDIT));
   }, []);
+  const intervalRef = useRef<number | undefined>();
 
   const onListClick = useCallback((item: Item) => {
     if (props.onListClick) {
       props.onListClick(item);
     }
     dispatch(setIdePageTabState(TabState.EDIT));
+
+    if (intervalRef.current) {
+      const timeTaken = moment().diff(intervalRef.current, "seconds");
+      AnalyticsUtil.logEvent("DP_NAVIGATION_TIME", { timeTaken });
+      intervalRef.current = 0;
+    }
   }, []);
 
   const showMore = useMemo(() => {
@@ -140,11 +149,13 @@ const PagePaneContainer = (props: Props) => {
         const { listItems = [], titleItemCounts = 0 } = props;
         const howManyMore = listItems.length - titleItemCounts;
 
+        const onClick = () => {
+          dispatch(setIdePageTabState(TabState.LIST));
+          intervalRef.current = Date.now();
+        };
+
         return (
-          <Button
-            kind="secondary"
-            onClick={() => dispatch(setIdePageTabState(TabState.LIST))}
-          >
+          <Button kind="secondary" onClick={onClick}>
             {howManyMore > 0 && `${howManyMore} `}more
           </Button>
         );
