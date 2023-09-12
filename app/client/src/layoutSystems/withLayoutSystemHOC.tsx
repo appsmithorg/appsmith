@@ -45,7 +45,7 @@ const LayoutSystemWrapper = ({
   // properties enhancer(adds/modifies properties of a widget based on layout system)
   const { LayoutSystemWrapper, propertyEnhancer } = getLayoutSystem(
     renderMode,
-    AppPositioningTypes.ANVIL || appPositioningType,
+    appPositioningType,
   );
   const enhancedProperties = propertyEnhancer(widgetProps);
   return (

@@ -22,12 +22,11 @@ import type { DSLWidget } from "WidgetProvider/constants";
 import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import { isFunction } from "lodash";
-import { SNAPSHOT_EXPIRY_IN_DAYS } from "./constants";
+import { SNAPSHOT_EXPIRY_IN_DAYS, defaultAutoLayoutWidgets } from "./constants";
 import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-  defaultAutoLayoutWidgets,
 } from "layoutSystems/anvil/utils/constants";
 import type {
   AlignmentColumnData,
@@ -506,7 +505,7 @@ function getCanvasWidth(
   //modal will be the total width instead of the mainCanvasWidth
   if (widget.type === "MODAL_WIDGET") {
     width = Math.min(
-      widget.width,
+      widget.width || 0,
       mainCanvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
     );
   }

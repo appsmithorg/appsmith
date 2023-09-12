@@ -37,16 +37,14 @@ import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
 import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import {
-  defaultAutoLayoutWidgets,
-  Positioning,
-} from "layoutSystems/anvil/utils/constants";
+import { Positioning } from "layoutSystems/anvil/utils/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { defaultAutoLayoutWidgets } from "layoutSystems/autolayout/utils/constants";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];

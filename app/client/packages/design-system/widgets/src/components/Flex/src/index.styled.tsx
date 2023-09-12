@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import styled from "styled-components";
 
 import type { Responsive, StyledFlexProps } from "./types";

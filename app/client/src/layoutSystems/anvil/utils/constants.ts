@@ -74,11 +74,4 @@ export enum FlexVerticalAlignment {
 export const ROW_GAP = 12;
 export const MOBILE_ROW_GAP = 8;
 
-export const defaultAutoLayoutWidgets = [
-  "CONTAINER_WIDGET",
-  "TABS_WIDGET",
-  "LIST_WIDGET_V2",
-  "MODAL_WIDGET",
-  "STATBOX_WIDGET",
-  "FORM_WIDGET",
-];
+export const MOBILE_BREAKPOINT = 480;

@@ -13,7 +13,10 @@ import {
   isWidgetSelected,
 } from "selectors/widgetSelectors";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
-import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
+import {
+  MOBILE_BREAKPOINT,
+  ResponsiveBehavior,
+} from "layoutSystems/anvil/utils/constants";
 import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
 import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import type { FlexComponentProps } from "layoutSystems/anvil/utils/autoLayoutTypes";
@@ -88,17 +91,19 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
 
   const isFillWidget = props.responsiveBehavior === ResponsiveBehavior.Fill;
 
-  const updateMinWidth = (
+  const getMinWidth = (
     config: Record<string, string | number> | undefined,
   ): Record<string, string | number> | undefined => {
     if (!config)
-      return isFillWidget ? { base: "100%", "480px": "" } : undefined;
+      return isFillWidget
+        ? { base: "100%", [`${MOBILE_BREAKPOINT}px`]: "" }
+        : undefined;
     if (!isFillWidget) return config;
     const minWidth = config["base"];
     return {
       ...config,
       base: "100%",
-      "480px": config["480px"] || minWidth,
+      [`${MOBILE_BREAKPOINT}px`]: config[`${MOBILE_BREAKPOINT}px`] || minWidth,
     };
   };
 
@@ -128,7 +133,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
           ? { ...props.widgetSize?.minHeight }
           : undefined,
       // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
-      minWidth: updateMinWidth(props.widgetSize?.minWidth),
+      minWidth: getMinWidth(props.widgetSize?.minWidth),
       padding: WIDGET_PADDING + "px",
       width:
         isFillWidget || props.hasAutoWidth || isCurrentWidgetResizing
