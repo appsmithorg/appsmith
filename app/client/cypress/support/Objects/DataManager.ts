@@ -10,7 +10,7 @@ export class DataManager {
       mongo_authenticationAuthtype: "SCRAM-SHA-1",
       mongo_host: "host.docker.internal",
       mongo_port: 28017,
-      mongo_databaseName: "mongo_samples",
+      mongo_databaseName: "mongo_prod",
 
       postgres_host: "host.docker.internal",
       postgres_port: 5432,
@@ -104,7 +104,7 @@ export class DataManager {
       mongo_authenticationAuthtype: "SCRAM-SHA-1",
       mongo_host: "host.docker.internal",
       mongo_port: 28017,
-      mongo_databaseName: "mongo_samples2",
+      mongo_databaseName: "mongo_staging",
 
       postgres_host: "host.docker.internal",
       postgres_port: 5432,

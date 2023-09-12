@@ -24,10 +24,10 @@ import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getJSCollectionFromName,
-  getJSCollectionsForCurrentPage,
-} from "selectors/entitiesSelector";
+  getCurrentJSCollections,
+} from "@appsmith/selectors/entitiesSelector";
 import {
   getModalDropdownList,
   getNextModalName,
@@ -543,8 +543,8 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
     return state.entities.plugins.list;
   });
   const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const actions = useSelector(getActionsForCurrentPage);
-  const jsActions = useSelector(getJSCollectionsForCurrentPage);
+  const actions = useSelector(getCurrentActions);
+  const jsActions = useSelector(getCurrentJSCollections);
 
   // this function gets all the Queries/API's/JS Objects and attaches it to actionList
   return getApiQueriesAndJSActionOptionsWithChildren(
