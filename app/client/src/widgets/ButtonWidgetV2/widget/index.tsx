@@ -1,16 +1,21 @@
 import React from "react";
 import { toast } from "design-system";
 
+import IconSVG from "../icon.svg";
 import BaseWidget from "widgets/BaseWidget";
 import ButtonComponent from "../component";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { propertyPaneStyleConfig } from "./styleConfig";
-import type { WidgetType } from "constants/WidgetConstants";
 import { propertyPaneContentConfig } from "./contentConfig";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { ButtonWidgetProps, ButtonWidgetState } from "./types";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import { BUTTON_COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
@@ -19,6 +24,78 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
 
     this.state = {
       isLoading: false,
+    };
+  }
+
+  static type = "BUTTON_WIDGET_V2";
+
+  static getConfig() {
+    return {
+      name: "Button",
+      iconSVG: IconSVG,
+      needsMeta: false,
+      isCanvas: false,
+      tags: [WIDGET_TAGS.BUTTONS],
+      searchTags: ["click", "submit"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 0,
+        active: false,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      animateLoading: true,
+      text: "Submit",
+      buttonVariant: BUTTON_VARIANTS.FILLED,
+      buttonColor: BUTTON_COLORS.ACCENT,
+      placement: ButtonPlacementTypes.CENTER,
+      rows: 4,
+      columns: 16,
+      widgetName: "Button",
+      isDisabled: false,
+      isVisible: true,
+      isDefaultClickDisabled: true,
+      disabledWhenInvalid: false,
+      resetFormOnClick: false,
+      recaptchaType: RecaptchaTypes.V3,
+      version: 1,
+      responsiveBehavior: ResponsiveBehavior.Hug,
+      minWidth: BUTTON_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      defaults: {
+        rows: 4,
+        columns: 6.453,
+      },
+      autoDimension: {
+        width: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+              maxWidth: "360px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        horizontal: true,
+        vertical: true,
+      },
     };
   }
 
@@ -117,7 +194,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     }
   };
 
-  getPageView() {
+  getWidgetView() {
     const isDisabled = (() => {
       const { disabledWhenInvalid, isFormValid } = this.props;
       const isDisabledWhenFormIsInvalid =
@@ -157,10 +234,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         variant={this.props.buttonVariant}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "BUTTON_WIDGET_V2";
   }
 }
 

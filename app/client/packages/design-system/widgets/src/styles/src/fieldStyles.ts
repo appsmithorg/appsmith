@@ -28,10 +28,16 @@ export const fieldStyles = css<FieldStylesProps>`
   * FIELD LABEL
   *-----------------------------------------------------------------------------
   */
-  & [data-field-label] {
+  & [data-field-label-wrapper] {
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
+  }
+
+  & [data-field-label] {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
     height: fit-content;
     color: var(--color-fg);
     font-weight: ${({ isEmphasized }) => (isEmphasized ? "bold" : "normal")};
@@ -45,6 +51,18 @@ export const fieldStyles = css<FieldStylesProps>`
   &[data-disabled] [data-field-label] {
     opacity: var(--opacity-disabled);
     cursor: default;
+  }
+
+  & [data-field-contextual-help] button {
+    height: 1em;
+    width: 1em;
+    border-radius: 100%;
+    margin-top: -0.2em;
+  }
+
+  & [data-field-contextual-help] svg {
+    width: 1.2em;
+    height: 1.2em;
   }
 
   /**

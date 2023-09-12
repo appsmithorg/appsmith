@@ -86,6 +86,7 @@ import {
   RENAME_APPLICATION_TOOLTIP,
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
+  APPLICATION_INVITE,
 } from "@appsmith/constants/messages";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import {
@@ -112,6 +113,7 @@ import WalkthroughContext from "components/featureWalkthrough/walkthroughContext
 import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
+import { KBEditorNavButton } from "@appsmith/pages/Editor/KnowledgeBase/KBEditorNavButton";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -538,7 +540,7 @@ export function EditorHeader() {
               open={showModal}
             >
               <ModalContent style={{ width: "640px" }}>
-                <ModalHeader>Application Invite</ModalHeader>
+                <ModalHeader>{createMessage(APPLICATION_INVITE)}</ModalHeader>
                 <ModalBody>
                   <Tabs
                     onValueChange={(value) => setActiveTab(value)}
@@ -571,6 +573,7 @@ export function EditorHeader() {
                 </ModalBody>
               </ModalContent>
             </Modal>
+            <KBEditorNavButton />
             <div className="flex items-center">
               <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}

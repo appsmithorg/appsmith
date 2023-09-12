@@ -1,4 +1,4 @@
-export { TextArea } from "./TextArea";
+export * from "./types";
 export { TextInput } from "./TextInput";
-export type { TextAreaProps, TextAreaRef } from "./TextArea";
-export type { TextInputProps, TextInputRef } from "./TextInput";
+export { TextInputBase } from "./TextInputBase";
+export type { TextInputRef } from "./TextInput";

@@ -3,7 +3,7 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
-import type { WidgetType, TextSize } from "constants/WidgetConstants";
+import type { TextSize } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import type { InputComponentProps } from "../component";
 import InputComponent from "../component";
@@ -16,10 +16,10 @@ import {
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { InputType } from "../constants";
 import { InputTypes } from "../constants";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -32,7 +32,12 @@ import { LabelPosition } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import IconSVG from "../icon.svg";
 
 export function defaultValueValidation(
   value: any,
@@ -123,6 +128,58 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     super(props);
     this.state = {
       text: props.text,
+    };
+  }
+
+  static type = "INPUT_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Input",
+      iconSVG: IconSVG,
+      needsMeta: true,
+      hideCard: true,
+      isDeprecated: true,
+      replacement: "INPUT_WIDGET_V2",
+    };
+  }
+
+  static getDefaults() {
+    return {
+      inputType: "TEXT",
+      rows: 4,
+      label: "",
+      labelPosition: LabelPosition.Left,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      columns: 20,
+      widgetName: "Input",
+      version: 1,
+      defaultText: "",
+      iconAlign: "left",
+      autoFocus: false,
+      labelStyle: "",
+      resetOnSubmit: true,
+      isRequired: false,
+      isDisabled: false,
+      allowCurrencyChange: false,
+      animateLoading: true,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "defaultText",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
     };
   }
 
@@ -889,7 +946,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     );
   };
 
-  getPageView() {
+  getWidgetView() {
     const value = this.getFormattedText();
     let isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
@@ -981,10 +1038,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         {...conditionalProps}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "INPUT_WIDGET";
   }
 }
 

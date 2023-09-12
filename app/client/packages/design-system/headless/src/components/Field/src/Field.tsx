@@ -4,6 +4,7 @@ import type { SpectrumFieldProps } from "@react-types/label";
 
 import { Label } from "./Label";
 import { HelpText } from "./HelpText";
+import type { StyleProps } from "@react-types/shared";
 
 export type FieldProps = Omit<
   SpectrumFieldProps,
@@ -11,6 +12,7 @@ export type FieldProps = Omit<
   | "necessityIndicator"
   | "isRequired"
   | "showErrorIcon"
+  | keyof StyleProps
 > & {
   fieldType?: "field" | "field-group";
 };
@@ -53,7 +55,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
   };
 
   const labelAndContextualHelp = (
-    <>
+    <div data-field-label-wrapper="">
       {label && (
         <Label
           {...labelProps}
@@ -64,8 +66,10 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
           {label}
         </Label>
       )}
-      {label && contextualHelp}
-    </>
+      {label && contextualHelp && (
+        <div data-field-contextual-help="">{contextualHelp}</div>
+      )}
+    </div>
   );
 
   return (

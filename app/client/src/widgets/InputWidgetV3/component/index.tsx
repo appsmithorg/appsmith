@@ -53,8 +53,9 @@ function InputComponent(props: InputComponentProps) {
       !props.autoComplete &&
       (props.inputType === INPUT_TYPES.PASSWORD ||
         props.inputType === INPUT_TYPES.EMAIL)
-    )
+    ) {
       return "off";
+    }
 
     return props.autoComplete;
   })();
@@ -87,6 +88,7 @@ function InputComponent(props: InputComponentProps) {
     <ElementType
       autoComplete={autoComplete}
       autoFocus={props.autoFocus}
+      contextualHelp={props.tooltip}
       defaultValue={props.defaultValue}
       endIcon={endIcon}
       errorMessage={props.errorMessage}

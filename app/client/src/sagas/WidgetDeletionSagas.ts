@@ -39,7 +39,7 @@ import {
   updateListWidgetPropertiesOnChildDelete,
 } from "./WidgetOperationUtils";
 import { showUndoRedoToast } from "utils/replayHelpers";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   inGuidedTour,
   isExploringSelector,
@@ -47,7 +47,7 @@ import {
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { updateFlexLayersOnDelete } from "../utils/autoLayout/AutoLayoutUtils";
+import { updateFlexLayersOnDelete } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

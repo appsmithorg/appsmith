@@ -65,6 +65,7 @@ import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getAIPromptTriggered } from "utils/storage";
 import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -149,6 +150,7 @@ export default class AppEditorEngine extends AppEngine {
 
     yield call(waitForFetchUserSuccess);
     yield call(waitForSegmentInit, true);
+    yield call(waitForFetchEnvironments);
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 

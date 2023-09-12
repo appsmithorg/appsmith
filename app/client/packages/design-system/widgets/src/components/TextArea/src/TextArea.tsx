@@ -1,11 +1,11 @@
 import React, { forwardRef } from "react";
-
 import type {
   TextAreaRef as HeadlessTextAreaRef,
   TextAreaProps as HeadlessTextAreaProps,
 } from "@design-system/headless";
 
 import { Text } from "../../Text";
+import { Label } from "../../TextInput";
 import { StyledTextArea } from "./index.styled";
 
 export interface TextAreaProps extends HeadlessTextAreaProps {
@@ -16,6 +16,8 @@ export interface TextAreaProps extends HeadlessTextAreaProps {
    */
   necessityIndicator?: "label" | "icon";
   includeNecessityIndicatorInAccessibilityName?: boolean;
+  /** label for the input */
+  label?: string;
 }
 
 const _TextArea = (props: TextAreaProps, ref: HeadlessTextAreaRef) => {
@@ -28,41 +30,18 @@ const _TextArea = (props: TextAreaProps, ref: HeadlessTextAreaRef) => {
     necessityIndicator = "icon",
     ...rest
   } = props;
-  const necessityLabel = isRequired ? "(required)" : "(optional)";
-  const icon = (
-    <span
-      aria-label={
-        includeNecessityIndicatorInAccessibilityName ? "(required)" : undefined
-      }
-      data-field-necessity-indicator-icon=""
-    >
-      *
-    </span>
-  );
 
   const wrappedLabel = label && (
-    <Text>
-      {label}
-      {/* necessityLabel is hidden to screen readers if the field is required because
-       * aria-required is set on the field in that case. That will already be announced,
-       * so no need to duplicate it here. If optional, we do want it to be announced here. */}
-      {(necessityIndicator === "label" ||
-        (necessityIndicator === "icon" && isRequired)) &&
-        " \u200b"}
-      {necessityIndicator === "label" && (
-        <span
-          aria-hidden={
-            !includeNecessityIndicatorInAccessibilityName
-              ? isRequired
-              : undefined
-          }
-        >
-          {necessityLabel}
-        </span>
-      )}
-      {necessityIndicator === "icon" && isRequired && icon}
-    </Text>
+    <Label
+      includeNecessityIndicatorInAccessibilityName={
+        includeNecessityIndicatorInAccessibilityName
+      }
+      isRequired={isRequired}
+      label={label}
+      necessityIndicator={necessityIndicator}
+    />
   );
+
   const wrappedDescription = description && (
     <Text variant="footnote">{description}</Text>
   );

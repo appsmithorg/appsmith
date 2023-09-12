@@ -1,7 +1,7 @@
 import React, { forwardRef } from "react";
 import { useDOMRef } from "@react-spectrum/utils";
 import { filterDOMProps } from "@react-aria/utils";
-import type { DOMRef } from "@react-types/shared";
+import type { DOMRef, StyleProps } from "@react-types/shared";
 import type { SpectrumLabelProps } from "@react-types/label";
 
 export interface LabelProps
@@ -10,6 +10,7 @@ export interface LabelProps
     | "necessityIndicator"
     | "includeNecessityIndicatorInAccessibilityName"
     | "isRequired"
+    | keyof StyleProps
   > {
   isEmphasized?: boolean;
   labelWidth?: string;
