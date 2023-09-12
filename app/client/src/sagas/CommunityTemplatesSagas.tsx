@@ -21,6 +21,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { UpdateUserRequest } from "@appsmith/api/UserApi";
 import UserApi from "@appsmith/api/UserApi";
 import type { PublishCommunityTemplatePayload } from "actions/communityTemplateActions";
+import type { ApiResponse } from "api/ApiResponses";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -29,7 +30,16 @@ function* updateUserDetails(payload: PublishCommunityTemplatePayload) {
   const request: UpdateUserRequest = {};
   payload.shouldUpdateEmail && (request.email = payload.authorEmail);
   payload.shouldUpdateName && (request.name = payload.authorName);
-  yield call(UserApi.updateUser, request);
+
+  const response: ApiResponse = yield call(UserApi.updateUser, request);
+  const isValidResponse: boolean = yield validateResponse(response);
+
+  if (isValidResponse) {
+    yield put({
+      type: ReduxActionTypes.UPDATE_USER_DETAILS_SUCCESS,
+      payload: response.data,
+    });
+  }
 }
 
 function* handleFailure(error: unknown) {
