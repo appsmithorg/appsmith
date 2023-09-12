@@ -2,8 +2,8 @@ package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.helpers.CollectionUtils;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -12,10 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Optional;
 
 import static com.appsmith.server.migrations.utils.CompatibilityUtils.optimizeQueryForNoCursorTimeout;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -41,10 +45,6 @@ public class Migration022RemoveUnassignPermissionFromUnnecessaryRoles {
 
         mongoTemplate.stream(optimizedQueryForInterestingPermissionGroups, PermissionGroup.class)
                 .forEach(permissionGroup -> {
-                    if (CollectionUtils.isNullOrEmpty(permissionGroup.getPolicies())) {
-                        return;
-                    }
-
                     Optional<Policy> optionalUnassignPolicy = permissionGroup.getPolicies().stream()
                             .filter(policy -> policy.getPermission().equals("unassign:permissionGroups"))
                             .findFirst();
@@ -56,7 +56,11 @@ public class Migration022RemoveUnassignPermissionFromUnnecessaryRoles {
                     Policy unAssignPolicy = optionalUnassignPolicy.get();
                     unAssignPolicy.getPermissionGroups().remove(permissionGroup.getId());
 
-                    mongoTemplate.save(permissionGroup);
+                    mongoTemplate.updateFirst(
+                            query(where(fieldName(QPermissionGroup.permissionGroup.id))
+                                    .is(permissionGroup.getId())),
+                            new Update().set("policies", permissionGroup.getPolicies()),
+                            PermissionGroup.class);
                 });
     }
 }
