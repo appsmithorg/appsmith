@@ -22,11 +22,13 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +53,11 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
             CachedFlags cachedFlags = new CachedFlags();
             cachedFlags.setRefreshedAt(Instant.now());
             cachedFlags.setFlags(flags);
+            // if cs is down, returning the empty flags, so the request doesn't error out.
+            // setting the refreshed at to an older time, so that the next call reaches to CS
+            if (flags.isEmpty()) {
+                cachedFlags.setRefreshedAt(Instant.now().minus(1, ChronoUnit.DAYS));
+            }
             return Mono.just(cachedFlags);
         });
     }
@@ -105,7 +112,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     return this.getRemoteFeatureFlagsByIdentity(new FeatureFlagIdentityTraits(
                             objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3()));
                 })
-                .map(newValue -> newValue.get(userIdentifier));
+                .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of()));
     }
 
     /**
