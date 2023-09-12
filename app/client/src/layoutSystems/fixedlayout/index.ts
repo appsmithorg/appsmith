@@ -2,7 +2,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import { FixedLayoutEditorWrapper } from "./editor/FixedLayoutEditorWrapper";
 import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { getFixedLayoutComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
+import { getFixedLayoutComponentDimensions } from "utils/ComponentSizeUtils";
 
 /**
  * getLabelWidth
