@@ -4,11 +4,13 @@ import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import { Banner } from "@appsmith/utils/licenseHelpers";
 import {
-  getHTMLPageTitle,
   getPageTitle,
+  getHTMLPageTitle,
 } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { useSelector } from "react-redux";
 
 export const Wrapper = styled.section<{ isFixed?: boolean }>`
   ${(props) =>
@@ -67,8 +69,13 @@ export function PageWrapper(props: PageWrapperProps) {
   const isBrandingEnabled = useFeatureFlag(
     FEATURE_FLAG?.license_branding_enabled,
   );
-  const htmlPageTitleMethod = getHTMLPageTitle(isBrandingEnabled);
-  const titleSuffix = htmlPageTitleMethod();
+  const tentantConfig = useSelector(getTenantConfig);
+  const { instanceName } = tentantConfig;
+
+  const titleSuffix = useMemo(
+    () => getHTMLPageTitle(isBrandingEnabled, instanceName),
+    [isBrandingEnabled, instanceName],
+  );
 
   const pageTitle = useMemo(
     () => getPageTitle(isBrandingEnabled, props.displayName, titleSuffix),

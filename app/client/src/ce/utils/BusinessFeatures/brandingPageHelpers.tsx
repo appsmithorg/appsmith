@@ -3,11 +3,11 @@ import { default as UpgradeBanner_CE } from "ce/pages/AdminSettings/Branding/Upg
 import { default as UpgradeBanner_EE } from "@appsmith/pages/AdminSettings/Branding/UpgradeBanner";
 import React from "react";
 import {
-  useHtmlPageTitle as useHtmlPageTitle_CE,
+  getHtmlPageTitle as getHtmlPageTitle_CE,
   getPageTitle as getPageTitle_CE,
 } from "ce/utils";
 import {
-  useHtmlPageTitle as useHtmlPageTitle_EE,
+  getHtmlPageTitle as getHtmlPageTitle_EE,
   getPageTitle as getPageTitle_EE,
 } from "@appsmith/utils";
 
@@ -17,11 +17,11 @@ export const getUpgradeBanner = (isEnabled: boolean) => {
   } else return <UpgradeBanner_CE />;
 };
 
-export const getHTMLPageTitle = (isEnabled: boolean) => {
+export const getHTMLPageTitle = (isEnabled: boolean, instanceName: string) => {
   if (isEnabled) {
-    return useHtmlPageTitle_EE;
+    return getHtmlPageTitle_EE(instanceName);
   } else {
-    return useHtmlPageTitle_CE;
+    return getHtmlPageTitle_CE(instanceName);
   }
 };
 
