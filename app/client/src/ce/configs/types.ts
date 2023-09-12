@@ -65,3 +65,12 @@ export interface AppsmithUIConfigs {
   pricingUrl: string;
   customerPortalUrl: string;
 }
+
+// Type for one environment
+export type EnvironmentType = {
+  id: string;
+  name: string;
+  workspaceId: string;
+  isDefault?: boolean;
+  userPermissions?: string[];
+};

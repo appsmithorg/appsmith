@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { AppState } from "@appsmith/reducers";
-import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
+import type { EnvironmentType } from "@appsmith/configs/types";
 
 export const areEnvironmentsFetched = (state: AppState, workspaceId: string) =>
   true;
