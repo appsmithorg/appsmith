@@ -1,3 +1,4 @@
+import type { Hints } from "codemirror";
 import { sqlHint } from "../hintHelpers";
 
 export enum SQLDataType {
@@ -43,4 +44,11 @@ export function getHintDetailsFromClassName(
         iconBgType: SQLDataType.unknown,
       };
   }
+}
+
+const MAX_NUMBER_OF_SQL_HINTS = 200;
+
+export function filterCompletions(completions: Hints) {
+  completions.list = completions.list.slice(0, MAX_NUMBER_OF_SQL_HINTS);
+  return completions;
 }
