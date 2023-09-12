@@ -21,7 +21,7 @@ import get from "lodash/get";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
-import type { FlexLayer } from "layoutSystems/anvil/utils/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 class StatboxWidget extends ContainerWidget {
   static type = "STATBOX_WIDGET";

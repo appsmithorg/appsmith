@@ -16,10 +16,10 @@ import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import type {
   AlignmentColumnInfo,
   FlexBoxAlignmentColumnInfo,
-  FlexLayer,
 } from "layoutSystems/anvil/utils/autoLayoutTypes";
 import { getColumnsForAllLayers } from "selectors/autoLayoutSelectors";
 import { WidgetNameComponentHeight } from "layoutSystems/common/widgetName";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 export interface FlexBoxProps {
   direction: LayoutDirection;

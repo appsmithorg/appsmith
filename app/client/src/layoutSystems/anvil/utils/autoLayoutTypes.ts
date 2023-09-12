@@ -21,15 +21,6 @@ export type AlignmentColumnData = {
   columns: number;
 };
 
-export interface LayerChild {
-  id: string;
-  align: FlexLayerAlignment;
-}
-
-export interface FlexLayer {
-  children: LayerChild[];
-}
-
 export interface DropZone {
   top?: number;
   bottom?: number;

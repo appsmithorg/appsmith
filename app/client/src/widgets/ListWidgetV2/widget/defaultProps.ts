@@ -18,7 +18,7 @@ import {
 } from "layoutSystems/anvil/utils/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import type { FlexLayer } from "layoutSystems/anvil/utils/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 const DEFAULT_LIST_DATA = [
   {

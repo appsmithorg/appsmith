@@ -25,8 +25,8 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
-import type { FlexLayer } from "layoutSystems/anvil/utils/autoLayoutTypes";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 class FormWidget extends ContainerWidget {
   static type = "FORM_WIDGET";

@@ -1,11 +1,11 @@
 import type { WidgetBaseProps } from "widgets/BaseWidget";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { checkForOnClick } from "widgets/WidgetUtils";
 import type {
   FlexLayer,
   LayerChild,
-} from "layoutSystems/anvil/utils/autoLayoutTypes";
-import { checkForOnClick } from "widgets/WidgetUtils";
+} from "layoutSystems/autolayout/utils/types";
 
 export const extractTillNestedListWidget = (
   flattenedWidgets: WidgetBaseProps["flattenedChildCanvasWidgets"],

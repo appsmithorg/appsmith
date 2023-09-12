@@ -24,12 +24,11 @@ import type {
   AlignmentChildren,
   AlignmentInfo,
   DropZone,
-  FlexLayer,
   HighlightInfo,
-  LayerChild,
 } from "../../anvil/utils/autoLayoutTypes";
 import { getTotalRowsOfAllChildren } from "./heightUpdateUtils";
 import { DEFAULT_HIGHLIGHT_SIZE } from "../common/flexCanvas/FlexBoxComponent";
+import type { FlexLayer, LayerChild } from "./types";
 
 /**
  * @param allWidgets : CanvasWidgetsReduxState

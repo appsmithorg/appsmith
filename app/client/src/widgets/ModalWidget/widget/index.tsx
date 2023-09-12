@@ -35,7 +35,7 @@ import IconSVG from "../icon.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import type { FlexLayer } from "layoutSystems/anvil/utils/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "MODAL_WIDGET";

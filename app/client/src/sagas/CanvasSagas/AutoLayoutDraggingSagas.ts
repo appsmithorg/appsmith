@@ -23,10 +23,7 @@ import {
   updateExistingLayer,
   updateRelationships,
 } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
-import type {
-  HighlightInfo,
-  FlexLayer,
-} from "layoutSystems/anvil/utils/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/anvil/utils/autoLayoutTypes";
 import { updatePositionsOfParentAndSiblings } from "layoutSystems/autolayout/utils/positionUtils";
 import {
   getCanvasWidth,
@@ -34,6 +31,7 @@ import {
 } from "selectors/editorSelectors";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{

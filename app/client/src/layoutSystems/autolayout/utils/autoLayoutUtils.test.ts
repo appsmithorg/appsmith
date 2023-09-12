@@ -1,8 +1,4 @@
-import type {
-  AlignmentColumnData,
-  FlexLayer,
-  LayerChild,
-} from "../../anvil/utils/autoLayoutTypes";
+import type { AlignmentColumnData } from "../../anvil/utils/autoLayoutTypes";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -19,6 +15,7 @@ import {
 import { data, dataForgetCanvasDimensions } from "./testData";
 import { FlexLayerAlignment } from "../../anvil/utils/constants";
 import { AUTO_LAYOUT_CONTAINER_PADDING } from "constants/WidgetConstants";
+import type { FlexLayer, LayerChild } from "./types";
 
 describe("test AutoLayoutUtils methods", () => {
   const mainCanvasWidth = 960;

@@ -1,8 +1,6 @@
 import type {
   AlignmentChildren,
   AlignmentInfo,
-  FlexLayer,
-  LayerChild,
   Row,
 } from "../../anvil/utils/autoLayoutTypes";
 import {
@@ -39,6 +37,7 @@ import {
   shouldUpdateParentHeight,
   updateParentHeight,
 } from "./heightUpdateUtils";
+import type { FlexLayer, LayerChild } from "./types";
 
 /**
  * Calculate widget position on canvas.

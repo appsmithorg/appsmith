@@ -92,7 +92,6 @@ import {
 } from "entities/Widget/utils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
-import type { FlexLayer } from "layoutSystems/anvil/utils/autoLayoutTypes";
 import {
   addChildToPastedFlexLayers,
   getFlexLayersForSelectedWidgets,
@@ -183,6 +182,7 @@ import {
   LayoutDirection,
 } from "layoutSystems/anvil/utils/constants";
 import localStorage from "utils/localStorage";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {

@@ -31,9 +31,8 @@ import {
 import type {
   AlignmentColumnData,
   AlignmentColumnInfo,
-  FlexLayer,
-  LayerChild,
 } from "layoutSystems/anvil/utils/autoLayoutTypes";
+import type { FlexLayer, LayerChild } from "./types";
 
 export type ReadableSnapShotDetails = {
   timeSince: string;

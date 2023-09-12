@@ -1,8 +1,8 @@
 import { FlexLayerAlignment } from "layoutSystems/anvil/utils/constants";
-import type { FlexLayer, LayerChild } from "../../anvil/utils/autoLayoutTypes";
 import { isArray } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetPositions } from "./positionUtils";
+import type { FlexLayer, LayerChild } from "./types";
 
 /**
  * Transform movedWidgets to FlexLayer format,
