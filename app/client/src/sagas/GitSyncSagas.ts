@@ -749,7 +749,11 @@ function* showConnectGitModal() {
   // currently it just opens the git sync modal assuming the APIs would
   // throw an error instead
   yield put(
-    setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+    setIsGitSyncModalOpen({
+      isOpen: true,
+      tab: GitSyncModalTab.DEPLOY,
+      isDeploying: true,
+    }),
   );
 }
 

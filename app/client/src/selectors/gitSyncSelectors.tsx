@@ -14,6 +14,8 @@ export const getGitSyncState = (state: AppState): GitSyncReducerState =>
 export const getIsGitSyncModalOpen = (state: AppState) =>
   state.ui.gitSync.isGitSyncModalOpen;
 
+export const getIsDeploying = (state: AppState) => state.ui.gitSync.isDeploying;
+
 export const getIsDisconnectGitModalOpen = (state: AppState) =>
   state.ui.gitSync.isDisconnectGitModalOpen;
 
