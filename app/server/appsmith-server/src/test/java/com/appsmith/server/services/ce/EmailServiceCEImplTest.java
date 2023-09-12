@@ -181,6 +181,8 @@ class EmailServiceCEImplTest {
                 .when(mockEmailSender)
                 .sendMail(anyString(), anyString(), anyString(), anyMap());
 
-        emailService.sendInstanceAdminInviteEmail(invitedUser, originHeader).block();
+        emailService
+                .sendInstanceAdminInviteEmail(invitedUser, originHeader, true)
+                .block();
     }
 }

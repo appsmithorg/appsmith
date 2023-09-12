@@ -590,16 +590,26 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         Mono<Boolean> removedUsersMono = Flux.fromIterable(removedUsers)
                 .flatMap(userService::findByEmail)
                 .collectList()
-                .flatMap(users -> userUtils.removeSuperUser(users));
+                .flatMap(userUtils::removeSuperUser);
 
         Mono<Boolean> newUsersMono = Flux.fromIterable(newUsers)
-                .flatMap(email -> userService.findByEmail(email).flatMap(user -> userUtils
-                        .makeSuperUser(Collections.singletonList(user))
-                        .flatMap(success -> Boolean.TRUE.equals(success)
-                                ? emailService
-                                        .sendInstanceAdminInviteEmail(user, originHeader)
-                                        .thenReturn(true)
-                                : Mono.just(false))))
+                .flatMap(email -> userService.findByEmail(email).flatMap(existingUser -> {
+                    if (existingUser != null) {
+                        return userUtils
+                                .makeSuperUser(Collections.singletonList(existingUser))
+                                .flatMap(success -> Boolean.TRUE.equals(success)
+                                        ? emailService
+                                                .sendInstanceAdminInviteEmail(existingUser, originHeader, false)
+                                                .thenReturn(true)
+                                        : Mono.just(false));
+                    } else {
+                        User user = new User();
+                        user.setEmail(email);
+                        return emailService
+                                .sendInstanceAdminInviteEmail(user, originHeader, true)
+                                .thenReturn(true);
+                    }
+                }))
                 .collectList()
                 .map(results -> results.stream().allMatch(Boolean::booleanValue));
 
