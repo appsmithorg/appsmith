@@ -4,6 +4,11 @@ import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { getFixedLayoutComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
 
+/**
+ * getLabelWidth
+ * utiltiy function to compute a widgets label width in Fixed layout system
+ *
+ */
 const getLabelWidth = (props: BaseWidgetProps) => {
   return (Number(props.labelWidth) || 0) * props.parentColumnSpace;
 };

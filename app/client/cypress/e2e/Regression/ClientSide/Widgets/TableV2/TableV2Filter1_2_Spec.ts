@@ -18,7 +18,7 @@ describe("Verify various Table_Filter combinations", function () {
       JSON.stringify(this.dataSet.TableInput),
     );
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    cy.get("body").type("{esc}");
+    agHelper.PressEscape();
     table.ChangeColumnType("id", "Plain text", "v2");
     table.ChangeColumnType("orderAmount", "Plain text", "v2");
 

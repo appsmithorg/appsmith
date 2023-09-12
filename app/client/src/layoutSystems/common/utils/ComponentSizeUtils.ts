@@ -38,6 +38,12 @@ export const getAutoLayoutComponentDimensions = ({
   };
 };
 
+/**
+ * getFixedLayoutComponentDimensions
+ *
+ * utiltiy function to compute a widgets dimensions in Fixed layout system
+ *
+ */
 export const getFixedLayoutComponentDimensions = ({
   bottomRow,
   leftColumn,
