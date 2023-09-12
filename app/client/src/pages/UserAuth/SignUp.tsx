@@ -104,8 +104,10 @@ export function SignUp(props: SignUpFormProps) {
   const isBrandingEnabled = useFeatureFlag(
     FEATURE_FLAG.license_branding_enabled,
   );
-  const pageTitle = getHTMLPageTitle(isBrandingEnabled);
-  const htmlPageTitle = pageTitle();
+  const htmlPageTitle = useMemo(
+    () => getHTMLPageTitle(isBrandingEnabled),
+    [isBrandingEnabled],
+  );
 
   const recaptchaStatus = useScript(
     `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,

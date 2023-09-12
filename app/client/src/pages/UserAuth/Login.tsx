@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Redirect, useLocation } from "react-router-dom";
 import { connect, useSelector } from "react-redux";
 import type { InjectedFormProps, DecoratedFormProps } from "redux-form";
@@ -93,8 +93,10 @@ export function Login(props: LoginFormProps) {
   const isBrandingEnabled = useFeatureFlag(
     FEATURE_FLAG.license_branding_enabled,
   );
-  const pageTitle = getHTMLPageTitle(isBrandingEnabled);
-  const htmlPageTitle = pageTitle();
+  const htmlPageTitle = useMemo(
+    () => getHTMLPageTitle(isBrandingEnabled),
+    [isBrandingEnabled],
+  );
   const invalidCredsForgotPasswordLinkText = createMessage(
     LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   );

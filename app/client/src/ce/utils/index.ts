@@ -11,7 +11,7 @@ export const addItemsInContextMenu = (
   return moreActionItems;
 };
 
-export const useHtmlPageTitle = () => {
+export const getHtmlPageTitle = () => {
   return "Appsmith";
 };
 
