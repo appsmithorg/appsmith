@@ -334,13 +334,13 @@ jobs:
           set -o nounset
           set -o xtrace
 
-          run_url='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+          run_url='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}'
           common_parent_sha='${{ steps.merge.outputs.common_parent_sha }}'
           common_parent_sha_short="$(echo "$common_parent_sha" | grep -o '^.\{8\}' || true)"
           merged_upto_sha='${{ steps.merge.outputs.merged_upto_sha }}'
           merged_upto_sha_short="$(echo "$merged_upto_sha" | grep -o '^.\{8\}' || true)"
 
-          details="🚨 TBP workflow failed in <$run_url|${{ github.run_id }}>.
+          details="🚨 TBP workflow failed in <$run_url|${{ github.run_id }}/attempts/${{ github.run_attempt }}>.
 
           # This unweildy horror of a sed command, converts standard Markdown links to Slack's unweildy link syntax.
           slack_message="$(echo "$details" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')"
