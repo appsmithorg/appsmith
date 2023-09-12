@@ -192,6 +192,14 @@ public class ActionDTO implements Identifiable, Executable {
         }
     }
 
+    @Override
+    public EntityReferenceType getEntityReferenceType() {
+        if (this.getPluginType() == null) {
+            return null;
+        }
+        return this.getPluginType().equals(PluginType.JS) ? EntityReferenceType.JSACTION : EntityReferenceType.ACTION;
+    }
+
     public void sanitiseToExportDBObject() {
         this.setEventData(null);
         this.setDefaultResources(null);
@@ -222,8 +230,13 @@ public class ActionDTO implements Identifiable, Executable {
     }
 
     @Override
+    public String getConfigurationPath() {
+        return this.getValidName() + ".actionConfiguration";
+    }
+
+    @Override
     public String getCompleteDynamicBindingPath(String fieldPath) {
-        return this.getValidName() + ".actionConfiguration." + fieldPath;
+        return this.getConfigurationPath() + "." + fieldPath;
     }
 
     @Override

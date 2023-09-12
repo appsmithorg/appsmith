@@ -71,7 +71,7 @@ public class Layout extends BaseDomain {
     Set<String> allOnPageLoadActionNames;
 
     @JsonView(Views.Internal.class)
-    Set<ExecutionDependencyEdge> allOnPageLoadActionEdges;
+    Set<ExecutableDependencyEdge> allOnPageLoadActionEdges;
 
     @JsonView(Views.Internal.class)
     Set<String> actionsUsedInDynamicBindings;

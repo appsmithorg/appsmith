@@ -1,4 +1,4 @@
-package com.appsmith.server.services.ce;
+package com.appsmith.server.newaction.base;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Executable;

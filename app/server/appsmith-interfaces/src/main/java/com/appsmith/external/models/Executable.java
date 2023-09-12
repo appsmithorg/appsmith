@@ -24,14 +24,19 @@ public interface Executable {
 
     ExecutableConfiguration getExecutableConfiguration();
 
-    String getCompleteDynamicBindingPath(String fieldPath);
+    String getConfigurationPath();
+
+    default String getCompleteDynamicBindingPath(String fieldPath) {
+        return this.getConfigurationPath() + "." + fieldPath;
+    }
 
     default boolean hasExtractableBinding() {
         return false;
     }
-    ;
 
     DslExecutableDTO getDslExecutable();
 
     String getValidName();
+
+    EntityReferenceType getEntityReferenceType();
 }

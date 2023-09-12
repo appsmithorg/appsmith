@@ -14,7 +14,7 @@ import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.ExecutionDependencyEdge;
+import com.appsmith.server.domains.ExecutableDependencyEdge;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -30,16 +30,16 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
+import com.appsmith.server.newaction.base.NewActionService;
+import com.appsmith.server.onpageload.internal.PageLoadExecutablesUtil;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CollectionService;
 import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
-import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,7 +79,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final AnalyticsService analyticsService;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
-    private final PageLoadActionsUtil pageLoadActionsUtil;
+    private final PageLoadExecutablesUtil pageLoadActionsUtil;
     private final SessionUserService sessionUserService;
     private final ActionCollectionService actionCollectionService;
     private final CollectionService collectionService;
@@ -719,7 +719,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         }
 
         Set<String> actionNames = new HashSet<>();
-        Set<ExecutionDependencyEdge> edges = new HashSet<>();
+        Set<ExecutableDependencyEdge> edges = new HashSet<>();
         Set<String> executablesUsedInDSL = new HashSet<>();
         List<Executable> flatmapPageLoadExecutables = new ArrayList<>();
         List<LayoutExecutableUpdateDTO> executableUpdates = new ArrayList<>();
