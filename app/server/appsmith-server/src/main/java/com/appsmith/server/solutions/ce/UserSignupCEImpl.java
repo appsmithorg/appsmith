@@ -269,9 +269,6 @@ public class UserSignupCEImpl implements UserSignupCE {
                             });
                     return makeSuperUserMono.thenReturn(user);
                 })
-                .flatMap(user -> emailService
-                        .sendInstanceAdminInviteEmail(user, originHeader)
-                        .thenReturn(user))
                 .flatMap(user -> {
                     final UserData userData = new UserData();
                     userData.setRole(userFromRequest.getRole());
@@ -288,11 +285,13 @@ public class UserSignupCEImpl implements UserSignupCE {
                             });
 
                     Mono<Void> applyEnvManagerChangesMono = envManager
-                            .applyChanges(Map.of(
-                                    APPSMITH_DISABLE_TELEMETRY.name(),
-                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
-                                    APPSMITH_ADMIN_EMAILS.name(),
-                                    user.getEmail()))
+                            .applyChanges(
+                                    Map.of(
+                                            APPSMITH_DISABLE_TELEMETRY.name(),
+                                            String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
+                                            APPSMITH_ADMIN_EMAILS.name(),
+                                            user.getEmail()),
+                                    originHeader)
                             // We need a non-empty value for `.elapsed` to work.
                             .thenReturn(true)
                             .elapsed()

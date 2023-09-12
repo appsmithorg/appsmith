@@ -21,6 +21,7 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -60,6 +61,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -115,6 +117,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private final ObjectMapper objectMapper;
 
+    private final EmailService emailService;
+
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
      * `VAR_NAME=`. It also defines two named capture groups, `name` and `value`, for the variable's name and value
@@ -140,7 +144,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             ConfigService configService,
             UserUtils userUtils,
             TenantService tenantService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            EmailService emailService) {
 
         this.sessionUserService = sessionUserService;
         this.userService = userService;
@@ -157,6 +162,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.userUtils = userUtils;
         this.tenantService = tenantService;
         this.objectMapper = objectMapper;
+        this.emailService = emailService;
     }
 
     /**
@@ -335,7 +341,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<Void> applyChanges(Map<String, String> changes) {
+    public Mono<Void> applyChanges(Map<String, String> changes, String originHeader) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant
         // configuration
         return verifyCurrentUserIsSuper()
@@ -396,7 +402,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         commonConfig.setAdminEmails(changesCopy.remove(APPSMITH_ADMIN_EMAILS.name()));
                         String oldAdminEmailsCsv = originalValues.get(APPSMITH_ADMIN_EMAILS.name());
                         dependentTasks = dependentTasks
-                                .then(updateAdminUserPolicies(oldAdminEmailsCsv))
+                                .then(updateAdminUserPolicies(oldAdminEmailsCsv, originHeader))
                                 .then();
                     }
 
@@ -449,7 +455,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData) {
+    public Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader) {
         return Flux.fromIterable(formData.entrySet())
                 .flatMap(entry -> {
                     final String key = entry.getKey();
@@ -474,7 +480,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             });
                 })
                 .collectMap(Map.Entry::getKey, Map.Entry::getValue)
-                .flatMap(this::applyChanges);
+                .flatMap(changesMap -> this.applyChanges(changesMap, originHeader));
     }
 
     @Override
@@ -571,7 +577,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      *
      * @param oldAdminEmailsCsv comma separated email addresses that was set as admin email earlier
      */
-    private Mono<Boolean> updateAdminUserPolicies(String oldAdminEmailsCsv) {
+    private Mono<Boolean> updateAdminUserPolicies(String oldAdminEmailsCsv, String originHeader) {
         Set<String> oldAdminEmails = TextUtils.csvToSet(oldAdminEmailsCsv);
         Set<String> newAdminEmails = commonConfig.getAdminEmails();
 
@@ -587,9 +593,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .flatMap(users -> userUtils.removeSuperUser(users));
 
         Mono<Boolean> newUsersMono = Flux.fromIterable(newUsers)
-                .flatMap(userService::findByEmail)
+                .flatMap(email -> userService.findByEmail(email).flatMap(user -> userUtils
+                        .makeSuperUser(Collections.singletonList(user))
+                        .flatMap(success -> Boolean.TRUE.equals(success)
+                                ? emailService
+                                        .sendInstanceAdminInviteEmail(user, originHeader)
+                                        .thenReturn(true)
+                                : Mono.just(false))))
                 .collectList()
-                .flatMap(users -> userUtils.makeSuperUser(users));
+                .map(results -> results.stream().allMatch(Boolean::booleanValue));
 
         return Mono.when(removedUsersMono, newUsersMono).then(Mono.just(TRUE));
     }
