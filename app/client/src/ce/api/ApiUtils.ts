@@ -27,7 +27,6 @@ import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import { getSavedCurrentEnvironmentDetails } from "utils/storage";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -105,12 +104,8 @@ export const apiRequestInterceptor = async (config: AxiosRequestConfig) => {
   }
 
   if (ENV_ENABLED_ROUTES_REGEX.test(config.url?.split("?")[0] || "")) {
-    // Add header for environment name
-    let activeEnv = getCurrentEnvironmentId(state);
-
-    if (config.url?.indexOf("/token") !== -1) {
-      activeEnv = (await getSavedCurrentEnvironmentDetails()).envId;
-    }
+    // Add header for environment id if the route is using envs
+    const activeEnv = getCurrentEnvironmentId(state);
 
     if (activeEnv && config.headers) {
       config.headers.environmentId = activeEnv;
