@@ -1,8 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.AirgapInstanceConfig;
-import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.services.ce.FeatureFlagServiceCEImpl;
 import org.ff4j.FF4j;
 import org.springframework.stereotype.Component;
@@ -24,19 +24,17 @@ public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements 
             SessionUserService sessionUserService,
             FF4j ff4j,
             TenantService tenantService,
-            ConfigService configService,
-            CloudServicesConfig cloudServicesConfig,
             UserIdentifierService userIdentifierService,
             CacheableFeatureFlagHelper cacheableFeatureFlagHelper,
+            FeatureFlagMigrationHelper featureFlagMigrationHelper,
             AirgapInstanceConfig airgapInstanceConfig) {
         super(
                 sessionUserService,
                 ff4j,
                 tenantService,
-                configService,
-                cloudServicesConfig,
                 userIdentifierService,
-                cacheableFeatureFlagHelper);
+                cacheableFeatureFlagHelper,
+                featureFlagMigrationHelper);
 
         this.sessionUserService = sessionUserService;
         this.ff4j = ff4j;

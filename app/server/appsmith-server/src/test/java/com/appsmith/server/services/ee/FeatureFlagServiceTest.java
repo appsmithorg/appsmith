@@ -3,6 +3,7 @@ package com.appsmith.server.services.ee;
 import com.appsmith.server.configurations.AirgapInstanceConfig;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.License;
+import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
@@ -72,16 +73,18 @@ public class FeatureFlagServiceTest {
     @MockBean
     AirgapInstanceConfig instanceConfig;
 
+    @Autowired
+    FeatureFlagMigrationHelper featureFlagMigrationHelper;
+
     @BeforeEach
     public void setup() {
         featureFlagService = new FeatureFlagServiceImpl(
                 sessionUserService,
                 ff4j,
                 tenantService,
-                configService,
-                cloudServicesConfig,
                 userIdentifierService,
                 cacheableFeatureFlagHelper,
+                featureFlagMigrationHelper,
                 instanceConfig);
     }
 

@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
+import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.TenantRepository;
@@ -84,13 +85,14 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             ApplicationRepository applicationRepository,
             AnalyticsService analyticsService,
             ConfigService configService,
+            @Lazy EnvManager envManager,
+            FeatureFlagMigrationHelper featureFlagMigrationHelper,
             SessionUserService sessionUserService,
             LicenseAPIManager licenseAPIManager,
             RedirectHelper redirectHelper,
             AssetService assetService,
             ObjectMapper objectMapper,
             CacheableFeatureFlagHelper cacheableFeatureFlagHelper,
-            @Lazy EnvManager envManager,
             SessionLimiterService sessionLimiterService) {
 
         super(
@@ -101,7 +103,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 repository,
                 analyticsService,
                 configService,
-                envManager);
+                envManager,
+                featureFlagMigrationHelper);
         this.licenseAPIManager = licenseAPIManager;
         this.sessionUserService = sessionUserService;
         this.redirectHelper = redirectHelper;
