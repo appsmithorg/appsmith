@@ -27,7 +27,7 @@ import { ChartErrorComponent } from "../component/ChartErrorComponent";
 import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 import { EmptyChartData } from "../component/EmptyChartData";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "../constants";
 import IconSVG from "../icon.svg";
@@ -217,7 +217,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     );
   };
 
-  getPageView() {
+  getWidgetView() {
     const errors = syntaxErrorsFromProps(this.props);
 
     if (errors.length == 0) {
@@ -236,7 +236,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
               chartType={this.props.chartType}
               customEChartConfig={this.props.customEChartConfig}
               customFusionChartConfig={this.props.customFusionChartConfig}
-              dimensions={this.getComponentDimensions()}
+              dimensions={this.props}
               fontFamily={this.props.fontFamily ?? "Nunito Sans"}
               hasOnDataPointClick={Boolean(this.props.onDataPointClick)}
               isLoading={this.props.isLoading}
