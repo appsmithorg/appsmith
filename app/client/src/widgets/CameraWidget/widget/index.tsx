@@ -24,7 +24,7 @@ import {
   DEFAULT_CAMERA_LABEL_DESCRIPTION,
   FRONT_CAMERA_LABEL,
 } from "@appsmith/constants/messages";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 

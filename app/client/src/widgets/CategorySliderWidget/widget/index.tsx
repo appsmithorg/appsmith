@@ -13,7 +13,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 

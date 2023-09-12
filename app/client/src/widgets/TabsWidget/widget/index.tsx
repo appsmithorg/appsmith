@@ -25,7 +25,7 @@ import {
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {

@@ -11,7 +11,7 @@ import { Colors } from "constants/Colors";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/anvil/utils/constants";
 import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import IconSVG from "../icon.svg";
@@ -21,7 +21,7 @@ import get from "lodash/get";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/anvil/utils/autoLayoutTypes";
 
 class StatboxWidget extends ContainerWidget {
   static type = "STATBOX_WIDGET";

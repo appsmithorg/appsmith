@@ -19,7 +19,7 @@ import BaseWidget from "../../BaseWidget";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
 

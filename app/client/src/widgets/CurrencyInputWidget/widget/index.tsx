@@ -38,7 +38,7 @@ import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getDefaultCurrency } from "../component/CurrencyCodeDropdown";
 import IconSVG from "../icon.svg";

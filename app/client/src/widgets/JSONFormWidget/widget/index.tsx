@@ -34,7 +34,7 @@ import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import type {

@@ -8,7 +8,7 @@ import DocumentViewerComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import IconSVG from "../icon.svg";
 
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";

@@ -37,7 +37,7 @@ import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/anvil/utils/constants";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,

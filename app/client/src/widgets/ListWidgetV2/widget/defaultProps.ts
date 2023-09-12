@@ -15,10 +15,10 @@ import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/anvil/utils/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/anvil/utils/autoLayoutTypes";
 
 const DEFAULT_LIST_DATA = [
   {

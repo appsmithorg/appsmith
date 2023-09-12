@@ -9,7 +9,7 @@ import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import IconSVG from "../icon.svg";
 
 import { WIDGET_TAGS } from "constants/WidgetConstants";

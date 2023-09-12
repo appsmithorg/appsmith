@@ -14,7 +14,7 @@ import {
 } from "widgets/WidgetUtils";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import type {
   SnipingModeProperty,
   PropertyUpdates,

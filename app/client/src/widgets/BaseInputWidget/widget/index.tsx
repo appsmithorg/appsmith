@@ -15,7 +15,7 @@ import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
 import { checkInputTypeTextByProps } from "../utils";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 
 import IconSVG from "../icon.svg";
 import type {

@@ -13,7 +13,7 @@ import IconSVG from "../icon.svg";
 
 import { ButtonPlacementTypes } from "components/constants";
 import { ScannerLayout } from "../constants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 class CodeScannerWidget extends BaseWidget<
   CodeScannerWidgetProps,

@@ -120,7 +120,7 @@ import type {
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
 import IconSVG from "../icon.svg";
 import type {
   PropertyUpdates,
@@ -1026,7 +1026,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
         pushBatchMetaUpdates("selectedRowIndex", -1);
       } else {
-        if (!isNil(defaultSelectedRowIndex) && defaultSelectedRowIndex > -1) {
+        if (
+          !isNil(defaultSelectedRowIndex) &&
+          parseInt(defaultSelectedRowIndex?.toString(), 10) > -1
+        ) {
           pushBatchMetaUpdates("selectedRowIndex", defaultSelectedRowIndex);
         }
 
