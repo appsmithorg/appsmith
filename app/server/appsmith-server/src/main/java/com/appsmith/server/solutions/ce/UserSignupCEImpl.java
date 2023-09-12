@@ -266,7 +266,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 })
                 .flatMap(user -> {
                     final UserData userData = new UserData();
-                    userData.setRole(userFromRequest.getRole());
+                    userData.setProficiency(userFromRequest.getProficiency());
                     userData.setUseCase(userFromRequest.getUseCase());
 
                     Mono<UserData> userDataMono = userDataService
@@ -343,8 +343,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                     if (formData.containsKey(FieldName.NAME)) {
                         user.setName(formData.getFirst(FieldName.NAME));
                     }
-                    if (formData.containsKey("role")) {
-                        user.setRole(formData.getFirst("role"));
+                    if (formData.containsKey("proficiency")) {
+                        user.setProficiency(formData.getFirst("proficiency"));
                     }
                     if (formData.containsKey("useCase")) {
                         user.setUseCase(formData.getFirst("useCase"));

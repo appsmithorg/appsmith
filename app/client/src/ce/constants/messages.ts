@@ -1225,7 +1225,8 @@ export const SNIPPET_TOOLTIP = () => "Search code snippets";
 
 //Welcome page
 export const WELCOME_HEADER = () => "Almost there";
-export const WELCOME_BODY = () => "Let's setup your account first";
+export const WELCOME_BODY = () =>
+  "Help us provide you with a customized experience.";
 export const WELCOME_ACTION = () => "Get started";
 
 // API Editor
@@ -1417,6 +1418,8 @@ export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
+export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
+  "How would you rate your development proficiency?";
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
   `Are you sure you want to run `;
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";

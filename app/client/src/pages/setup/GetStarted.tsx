@@ -1,19 +1,16 @@
 import React from "react";
-import { FormGroup as StyledFormGroup } from "design-system-old";
-import { Button } from "design-system";
-import FormTextField from "components/utils/ReduxFormTextField";
+import { Button, Text } from "design-system";
 import {
-  WELCOME_FORM_ROLE_FIELD_NAME,
-  WELCOME_FORM_ROLE_NAME_FIELD_NAME,
   WELCOME_FORM_USECASE_FIELD_NAME,
   WELCOME_NON_SUPER_FORM_NAME,
+  WELCOME_FORM_PROFICIENCY_LEVEL,
 } from "@appsmith/constants/forms";
 import {
   createMessage,
   WELCOME_ACTION,
-  WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN,
   WELCOME_FORM_NON_SUPER_USER_USE_CASE,
-  WELCOME_FORM_ROLE,
+  WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
+  WELCOME_FORM_USE_CASE_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
@@ -21,8 +18,9 @@ import type { InjectedFormProps } from "redux-form";
 import { Field, formValueSelector, reduxForm } from "redux-form";
 import styled from "styled-components";
 import { DropdownWrapper, withDropdown } from "./common";
-import { roleOptions, useCaseOptions } from "./constants";
+import { proficiencyOptions, useCaseOptions } from "./constants";
 import SetupForm from "./SetupForm";
+import RadioButtonGroup from "components/editorComponents/RadioButtonGroup";
 
 const ActionContainer = styled.div`
   margin-top: ${(props) => props.theme.spaces[15]}px;
@@ -33,13 +31,12 @@ const StyledButton = styled(Button)`
 `;
 
 type UserFormProps = {
-  onGetStarted?: (role?: string, useCase?: string) => void;
+  onGetStarted?: (proficiency?: string, useCase?: string) => void;
 };
 
 type NonSuperUserFormData = {
-  role?: string;
+  proficiency?: string;
   useCase?: string;
-  role_name?: string;
 };
 
 export function SuperUserForm() {
@@ -55,19 +52,17 @@ const StyledNonSuperUserForm = styled.form`
   margin-right: 3rem;
 `;
 
-const Space = styled.div`
-  height: 20px;
+export const Space = styled.div`
+  height: 40px;
 `;
 
 const validate = (values: any) => {
   const errors: any = {};
 
-  if (!values.role) {
-    errors.role = "Please select a role";
+  if (!values.proficiency) {
+    errors.proficiency = "Please select a proficiency level";
   }
-  if (values.role === "other" && !values.role_name) {
-    errors.role_name = "Please enter a role";
-  }
+
   if (!values.useCase) {
     errors.useCase = "Please select an useCase";
   }
@@ -79,42 +74,37 @@ function NonSuperUser(
   props: InjectedFormProps & UserFormProps & NonSuperUserFormData,
 ) {
   const onSubmit = (data: NonSuperUserFormData) => {
-    props.onGetStarted &&
-      props.onGetStarted(
-        data.role !== "other" ? data.role : props.role_name,
-        data.useCase,
-      );
+    props.onGetStarted && props.onGetStarted(data.proficiency, data.useCase);
   };
 
   return (
     <StyledNonSuperUserForm onSubmit={props.handleSubmit(onSubmit)}>
       <Space />
-      <DropdownWrapper
-        label={createMessage(WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN)}
-      >
-        <Field
-          asyncControl
-          component={withDropdown(roleOptions)}
-          name="role"
-          placeholder=""
-          type="text"
-        />
-      </DropdownWrapper>
-      {props.role == "other" && (
-        <StyledFormGroup label={createMessage(WELCOME_FORM_ROLE)}>
-          <FormTextField name="role_name" placeholder="" type="text" />
-        </StyledFormGroup>
-      )}
-      <DropdownWrapper
-        label={createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
-      >
-        <Field
-          asyncControl
-          component={withDropdown(useCaseOptions)}
-          name="useCase"
-          placeholder=""
-          type="text"
-        />
+      <Field
+        component={RadioButtonGroup}
+        label={createMessage(WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL)}
+        name="proficiency"
+        options={proficiencyOptions}
+      />
+      <Space />
+      <DropdownWrapper>
+        <>
+          <Text
+            className="dropdown_wrapper__label"
+            color="var(--ads-v2-color-fg-emphasis)"
+            kind="heading-s"
+            renderAs="h5"
+          >
+            {createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
+          </Text>
+          <Field
+            asyncControl
+            component={withDropdown(useCaseOptions)}
+            name="useCase"
+            placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
+            type="text"
+          />
+        </>
       </DropdownWrapper>
       <ActionContainer>
         <StyledButton
@@ -135,8 +125,7 @@ function NonSuperUser(
 const selector = formValueSelector(WELCOME_NON_SUPER_FORM_NAME);
 export default connect((state: AppState) => {
   return {
-    role: selector(state, WELCOME_FORM_ROLE_FIELD_NAME),
-    role_name: selector(state, WELCOME_FORM_ROLE_NAME_FIELD_NAME),
+    proficiency: selector(state, WELCOME_FORM_PROFICIENCY_LEVEL),
     useCase: selector(state, WELCOME_FORM_USECASE_FIELD_NAME),
   };
 }, null)(

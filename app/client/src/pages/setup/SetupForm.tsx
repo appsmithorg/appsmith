@@ -8,10 +8,9 @@ import {
   WELCOME_FORM_NAME,
   WELCOME_FORM_NAME_FIELD_NAME,
   WELCOME_FORM_PASSWORD_FIELD_NAME,
-  WELCOME_FORM_ROLE_FIELD_NAME,
-  WELCOME_FORM_ROLE_NAME_FIELD_NAME,
   WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
   WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME,
+  WELCOME_FORM_PROFICIENCY_LEVEL,
 } from "@appsmith/constants/forms";
 import type { FormErrors, InjectedFormProps } from "redux-form";
 import { formValueSelector, getFormSyncErrors, reduxForm } from "redux-form";
@@ -46,10 +45,9 @@ export type DetailsFormValues = {
   email?: string;
   password?: string;
   verifyPassword?: string;
-  role?: string;
+  proficiency?: string;
   useCase?: string;
   custom_useCase?: string;
-  role_name?: string;
 };
 
 export const firstpageValues = [
@@ -60,12 +58,7 @@ export const firstpageValues = [
   "verifyPassword",
 ];
 
-export const secondPageValues = [
-  "role",
-  "useCase",
-  "custom_useCase",
-  "role_name",
-];
+export const secondPageValues = ["proficiency", "useCase", "custom_useCase"];
 
 const validate = (values: DetailsFormValues) => {
   const errors: DetailsFormValues = {};
@@ -85,12 +78,8 @@ const validate = (values: DetailsFormValues) => {
     errors.verifyPassword = "Passwords don't match.";
   }
 
-  if (!values.role) {
-    errors.role = "Please select a role";
-  }
-
-  if (values.role == "other" && !values.role_name) {
-    errors.role_name = "Please enter a role";
+  if (!values.proficiency) {
+    errors.proficiency = "Please select a proficiency level";
   }
 
   if (!values.useCase) {
@@ -143,16 +132,12 @@ function SetupForm(props: SetupFormProps) {
       form.appendChild(fullName);
     }
 
-    const roleInput = document.createElement("input");
-    roleInput.type = "text";
-    roleInput.name = "role";
-    roleInput.style.display = "none";
-    if (props.role !== "other") {
-      roleInput.value = props.role as string;
-    } else {
-      roleInput.value = props.role_name as string;
-    }
-    form.appendChild(roleInput);
+    const proficiencyInput = document.createElement("input");
+    proficiencyInput.type = "text";
+    proficiencyInput.name = "proficiency";
+    proficiencyInput.style.display = "none";
+    form.appendChild(proficiencyInput);
+
     const useCaseInput = document.createElement("input");
     useCaseInput.type = "text";
     useCaseInput.name = "useCase";
@@ -252,8 +237,7 @@ export default connect((state: AppState) => {
     email: selector(state, WELCOME_FORM_EMAIL_FIELD_NAME),
     password: selector(state, WELCOME_FORM_PASSWORD_FIELD_NAME),
     verify_password: selector(state, WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME),
-    role: selector(state, WELCOME_FORM_ROLE_FIELD_NAME),
-    role_name: selector(state, WELCOME_FORM_ROLE_NAME_FIELD_NAME),
+    proficiency: selector(state, WELCOME_FORM_PROFICIENCY_LEVEL),
     useCase: selector(state, WELCOME_FORM_USECASE_FIELD_NAME),
     custom_useCase: selector(state, WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME),
     formSyncErrors: getFormSyncErrors(WELCOME_FORM_NAME)(state),

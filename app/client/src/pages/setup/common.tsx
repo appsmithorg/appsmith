@@ -68,6 +68,12 @@ export const DropdownWrapper = styled(StyledFormGroup)`
     color: var(--ads-v2-color-fg);
   }
 
+  // custom label
+  && .dropdown_wrapper__label {
+    color: var(--ads-v2-color-fg-emphasis);
+    margin-bottom: 0.8rem;
+  }
+
   .dropdown-errorMsg {
     font-size: 12px;
     color: var(--ads-v2-color-fg-error);

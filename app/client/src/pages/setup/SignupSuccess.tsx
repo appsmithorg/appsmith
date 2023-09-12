@@ -42,11 +42,11 @@ export function SignupSuccess() {
     [],
   );
 
-  const onGetStarted = useCallback((role?: string, useCase?: string) => {
+  const onGetStarted = useCallback((proficiency?: string, useCase?: string) => {
     dispatch({
       type: ReduxActionTypes.UPDATE_USER_DETAILS_INIT,
       payload: {
-        role,
+        proficiency,
         useCase,
       },
     });

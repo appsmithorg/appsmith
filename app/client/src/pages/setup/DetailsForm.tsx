@@ -9,23 +9,23 @@ import {
   WELCOME_FORM_LAST_NAME,
   WELCOME_FORM_CREATE_PASSWORD,
   WELCOME_FORM_VERIFY_PASSWORD,
-  WELCOME_FORM_ROLE_DROPDOWN,
-  WELCOME_FORM_ROLE,
-  WELCOME_FORM_USE_CASE,
   WELCOME_FORM_CUSTOM_USE_CASE,
-  WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
   WELCOME_FORM_USE_CASE_PLACEHOLDER,
   CONTINUE,
   ONBOARDING_STATUS_GET_STARTED,
+  WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
+  WELCOME_FORM_NON_SUPER_USER_USE_CASE,
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import type { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import { FormGroup } from "design-system-old";
-import { Button, Checkbox } from "design-system";
-import { roleOptions, useCaseOptions } from "./constants";
+import { Button, Checkbox, Text } from "design-system";
+import { proficiencyOptions, useCaseOptions } from "./constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { setFirstTimeUserOnboardingTelemetryCalloutVisibility } from "utils/storage";
+import RadioButtonGroup from "components/editorComponents/RadioButtonGroup";
+import { Space } from "./GetStarted";
 
 const DetailsFormWrapper = styled.div`
   width: 100%;
@@ -49,8 +49,9 @@ const StyledTabIndicator = styled.div<{ isFirstPage?: boolean }>`
 `;
 
 const StyledFormGroup = styled(FormGroup)`
-  && > .bp3-label {
-    color: var(--ads-v2-color-fg);
+  && label {
+    // color: var(--ads-v2-color-fg);
+    color: var(--ads-v2-color-fg-emphasis);
   }
 `;
 
@@ -132,44 +133,34 @@ export default function DetailsForm(
 
         {!props.isFirstPage && (
           <div>
-            <DropdownWrapper
-              className="t--welcome-form-role-dropdown"
-              label={createMessage(WELCOME_FORM_ROLE_DROPDOWN)}
-            >
-              <Field
-                asyncControl
-                component={withDropdown(roleOptions)}
-                data-testid="role"
-                name="role"
-                placeholder={createMessage(
-                  WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
-                )}
-                size="md"
-                type="text"
-              />
-            </DropdownWrapper>
-            {props.role == "other" && (
-              <StyledFormGroup className="t--welcome-form-role-input">
-                <FormTextField
-                  label={createMessage(WELCOME_FORM_ROLE)}
-                  name="role_name"
-                  placeholder=""
+            <Field
+              component={RadioButtonGroup}
+              label={createMessage(
+                WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
+              )}
+              name="proficiency"
+              options={proficiencyOptions}
+            />
+            <Space />
+            <DropdownWrapper className="t--welcome-form-role-usecase">
+              <>
+                <Text
+                  className="dropdown_wrapper__label"
+                  color="var(--ads-v2-color-fg-emphasis)"
+                  kind="heading-s"
+                  renderAs="h5"
+                >
+                  {createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
+                </Text>
+                <Field
+                  asyncControl
+                  component={withDropdown(useCaseOptions)}
+                  data-testid="useCase"
+                  name="useCase"
+                  placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
                   type="text"
                 />
-              </StyledFormGroup>
-            )}
-            <DropdownWrapper
-              className="t--welcome-form-role-usecase"
-              label={createMessage(WELCOME_FORM_USE_CASE)}
-            >
-              <Field
-                asyncControl
-                component={withDropdown(useCaseOptions)}
-                data-testid="useCase"
-                name="useCase"
-                placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
-                type="text"
-              />
+              </>
             </DropdownWrapper>
             {props.useCase == "other" && (
               <StyledFormGroup className="t--welcome-form-use-case-input">

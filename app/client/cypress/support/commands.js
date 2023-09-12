@@ -1385,8 +1385,7 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.continueButton).should("not.be.disabled");
   cy.get(welcomePage.continueButton).click();
 
-  cy.get(welcomePage.roleDropdown).click();
-  cy.get(welcomePage.roleDropdownOption).eq(1).click();
+  cy.get(welcomePage.proficiencyGroupButton).first().click();
   cy.get(welcomePage.submitButton).should("be.disabled");
   cy.get(welcomePage.useCaseDropdown).click();
   cy.get(welcomePage.useCaseDropdownOption).eq(1).click();

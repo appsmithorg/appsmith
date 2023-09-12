@@ -480,13 +480,13 @@ public class UserServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateRoleOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
-        updateUser.setRole("New role of user");
+        updateUser.setProficiency("Proficiency level");
         final Mono<UserData> resultMono =
                 userService.updateCurrentUser(updateUser, null).then(userDataService.getForUserEmail("api_user"));
         StepVerifier.create(resultMono)
                 .assertNext(userData -> {
                     assertNotNull(userData);
-                    assertThat(userData.getRole()).isEqualTo("New role of user");
+                    assertThat(userData.getProficiency()).isEqualTo("Proficiency level");
                 })
                 .verifyComplete();
     }
@@ -545,7 +545,7 @@ public class UserServiceTest {
     public void updateNameRoleAndUseCaseOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setName("New name of user here");
-        updateUser.setRole("New role of user");
+        updateUser.setProficiency("Proficiency level");
         updateUser.setUseCase("New use case");
         final Mono<Tuple2<User, UserData>> resultMono = userService
                 .updateCurrentUser(updateUser, null)
@@ -557,7 +557,7 @@ public class UserServiceTest {
                     assertNotNull(user);
                     assertNotNull(userData);
                     assertEquals("New name of user here", user.getName());
-                    assertEquals("New role of user", userData.getRole());
+                    assertEquals("Proficiency level", userData.getProficiency());
                     assertEquals("New use case", userData.getUseCase());
                 })
                 .verifyComplete();

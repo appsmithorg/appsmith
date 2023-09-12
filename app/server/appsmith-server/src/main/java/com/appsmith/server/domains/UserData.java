@@ -30,9 +30,9 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Internal.class)
     String userId;
 
-    // Role of the user in their workspace, example, Designer, Developer, Product Lead etc.
+    // The development proficiency of the user for example, Beginner, Novice, Intermediate, Advanced.
     @JsonView(Views.Public.class)
-    private String role;
+    private String proficiency;
 
     // The goal the user is trying to solve with Appsmith.
     @JsonView(Views.Public.class)

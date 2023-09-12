@@ -48,3 +48,16 @@ export const useCaseOptions: OptionType[] = [
     value: "other",
   },
 ];
+
+export const proficiencyOptions = [
+  {
+    label: "Beginner",
+    value: "Just dipping my toes 🌱 (Brand new to this)",
+  },
+  { label: "Novice", value: "Novice (Limited to no experience)" },
+  { label: "Intermediate", value: "Intermediate (Some coding adventures)" },
+  {
+    label: "Advanced",
+    value: "Advanced (Comfortable with programming quests)",
+  },
+];

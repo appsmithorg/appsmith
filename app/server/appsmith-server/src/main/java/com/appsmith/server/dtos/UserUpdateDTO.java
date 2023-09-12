@@ -10,7 +10,7 @@ public class UserUpdateDTO {
 
     private String name;
 
-    private String role;
+    private String proficiency;
 
     private String useCase;
 
@@ -21,6 +21,6 @@ public class UserUpdateDTO {
     }
 
     public boolean hasUserDataUpdates() {
-        return role != null || useCase != null || isIntercomConsentGiven;
+        return proficiency != null || useCase != null || isIntercomConsentGiven;
     }
 }
