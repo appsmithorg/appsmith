@@ -189,7 +189,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     featuresRequestDTO.setTenantId(tenantId);
                     featuresRequestDTO.setInstanceId(instanceId);
                     featuresRequestDTO.setAppsmithVersion(appsmithVersion);
-
+                    featuresRequestDTO.setIsCloudHosting(commonConfig.isCloudHosting());
                     return featuresRequestDTO;
                 })
                 .flatMap(this::getRemoteFeaturesForTenant)
