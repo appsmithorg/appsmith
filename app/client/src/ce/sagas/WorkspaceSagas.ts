@@ -77,7 +77,7 @@ export function* fetchWorkspaceSaga(
     );
     const isValidResponse: boolean = yield request.skipValidation ||
       validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && response) {
       yield put({
         type: ReduxActionTypes.FETCH_WORKSPACE_SUCCESS,
         payload: response.data || {},

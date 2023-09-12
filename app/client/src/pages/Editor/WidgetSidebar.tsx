@@ -19,7 +19,7 @@ import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSele
 import {
   actionsExistInCurrentPage,
   widgetsExistCurrentPage,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
 

@@ -92,7 +92,7 @@ describe("Validate Elasticsearch DS", () => {
 
     agHelper.PressEnter();
 
-    agHelper.Sleep();
+    agHelper.Sleep(2000);
     dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(
@@ -143,6 +143,13 @@ describe("Validate Elasticsearch DS", () => {
       directInput: false,
       inputFieldName: "Body",
     });
+
+    agHelper
+      .GetElement(dataSources._bodyCodeMirror)
+      .type("{downarrow}".repeat(5));
+
+    agHelper.PressEnter();
+    agHelper.Sleep(2000);
     dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
