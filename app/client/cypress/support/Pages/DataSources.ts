@@ -1952,7 +1952,7 @@ export class DataSources {
                 );
               }
 
-              this.agHelper.AssertElementExist(
+              this.agHelper.AssertElementVisibility(
                 `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`,
               );
             });
