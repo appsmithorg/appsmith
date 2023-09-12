@@ -33,7 +33,7 @@ import {
   getIsListing,
   getIsReconnectingDatasourcesModalOpen,
   getUnconfiguredDatasources,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import {
   initDatasourceConnectionDuringImportRequest,
   resetDatasourceConfigForImportFetchedFlag,

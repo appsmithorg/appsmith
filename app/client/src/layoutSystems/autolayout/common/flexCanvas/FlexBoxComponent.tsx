@@ -10,7 +10,7 @@ import {
 } from "layoutSystems/autolayout/utils/constants";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
-import { getAppMode } from "selectors/entitiesSelector";
+import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import AutoLayoutLayer from "./AutoLayoutLayer";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import type {

@@ -14,7 +14,7 @@ import {
   CONTEXT_MOVE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getPageListAsOptions } from "selectors/entitiesSelector";
+import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
 import {
   autoIndentCode,
   getAutoIndentShortcutKeyText,

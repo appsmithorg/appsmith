@@ -7,7 +7,7 @@ import type { Datasource } from "entities/Datasource";
 import {
   getPluginImages,
   getPluginNameFromId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import FormControl from "../FormControl";
 import {
   PluginName,

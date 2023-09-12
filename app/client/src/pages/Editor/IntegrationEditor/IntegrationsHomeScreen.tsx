@@ -10,7 +10,10 @@ import NewQueryScreen from "./NewQuery";
 import ActiveDataSources from "./ActiveDataSources";
 import MockDataSources from "./MockDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
-import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
+import {
+  getDatasources,
+  getMockDatasources,
+} from "@appsmith/selectors/entitiesSelector";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import type { TabProp } from "design-system-old";
 import { IconSize, Text, TextType } from "design-system-old";

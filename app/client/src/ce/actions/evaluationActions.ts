@@ -8,6 +8,9 @@ import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { QueryActionConfig } from "entities/Action";
 import type { DatasourceConfiguration } from "entities/Datasource";
 import type { DiffWithReferenceState } from "workers/Evaluation/helpers";
+import store from "store";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
@@ -224,3 +227,11 @@ export const EVAL_AND_LINT_REDUX_ACTIONS = union(
   EVALUATE_REDUX_ACTIONS,
   Object.keys(LINT_REDUX_ACTIONS),
 );
+
+export function getRequiresLinting(action: ReduxAction<unknown>) {
+  const appMode: ReturnType<typeof getAppMode> = getAppMode(store.getState());
+
+  const requiresLinting =
+    appMode === APP_MODE.EDIT && shouldTriggerLinting(action);
+  return requiresLinting;
+}

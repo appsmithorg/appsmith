@@ -43,7 +43,7 @@ import {
   getActions,
   getCanvasWidgets,
   getJSCollections,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import {
   buildChildWidgetTree,

@@ -42,7 +42,7 @@ import equal from "fast-deep-equal/es6";
 import {
   getDatasource,
   getDatasourcesByPluginId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import {

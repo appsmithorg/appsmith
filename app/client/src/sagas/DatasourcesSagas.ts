@@ -45,7 +45,7 @@ import {
   getPluginByPackageName,
   getDatasourcesUsedInApplicationByActions,
   getEntityExplorerDatasources,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import {
   addMockDatasourceToWorkspace,
   setDatasourceViewModeFlag,

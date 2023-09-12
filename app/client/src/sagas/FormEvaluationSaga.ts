@@ -11,12 +11,12 @@ import type {
   DynamicValues,
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
+import { FORM_EVALUATION_REDUX_ACTIONS } from "@appsmith/actions/evaluationActions";
 import type { Action, ActionConfig } from "entities/Action";
 import type { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 import type { ApiResponse } from "api/ApiResponses";
-import { getAction } from "selectors/entitiesSelector";
+import { getAction } from "@appsmith/selectors/entitiesSelector";
 import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";

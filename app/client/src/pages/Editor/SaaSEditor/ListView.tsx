@@ -5,7 +5,7 @@ import type { Plugin } from "api/PluginApi";
 import {
   getDatasourcesByPluginId,
   getPluginByPackageName,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import NotFound from "pages/common/NotFound";
 import type { AppState } from "@appsmith/reducers";
 import { createDatasourceFromForm } from "actions/datasourceActions";

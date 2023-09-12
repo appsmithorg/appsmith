@@ -8,7 +8,7 @@ import {
   getPluginDocumentationLinks,
   getPlugin,
   getActionData,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { EditorJSONtoFormProps } from "./EditorJSONtoForm";
 import { EditorJSONtoForm } from "./EditorJSONtoForm";
 import { getFormEvaluationState } from "selectors/formSelectors";

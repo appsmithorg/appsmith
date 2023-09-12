@@ -12,7 +12,7 @@ import type {
 import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { getAppMode } from "selectors/entitiesSelector";
+import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";

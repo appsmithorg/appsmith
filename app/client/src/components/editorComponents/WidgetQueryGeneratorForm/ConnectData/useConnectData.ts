@@ -4,7 +4,7 @@ import { PluginPackageName } from "entities/Action";
 import { useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
-import { getPluginPackageFromDatasourceId } from "selectors/entitiesSelector";
+import { getPluginPackageFromDatasourceId } from "@appsmith/selectors/entitiesSelector";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetQueryGeneratorFormContext } from "..";

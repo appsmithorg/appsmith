@@ -152,7 +152,7 @@ import {
 import {
   getAllDatasourceTableKeys,
   selectInstalledLibraries,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { debug } from "loglevel";
 import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";

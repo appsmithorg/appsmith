@@ -8,7 +8,7 @@ import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
   getPluginPackageFromDatasourceId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { Bold, Label } from "../../styles";
 import { PluginFormInputFieldMap } from "../../constants";

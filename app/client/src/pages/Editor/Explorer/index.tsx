@@ -27,7 +27,7 @@ import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import {
   actionsExistInCurrentPage,
   widgetsExistCurrentPage,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { SignpostingWalkthroughConfig } from "../FirstTimeUserOnboarding/Utils";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>

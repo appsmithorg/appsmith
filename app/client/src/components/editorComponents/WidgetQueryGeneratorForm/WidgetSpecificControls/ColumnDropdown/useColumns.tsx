@@ -13,7 +13,7 @@ import {
   getDatasourceTableColumns,
   getDatasourceTablePrimaryColumn,
   getPluginPackageFromDatasourceId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdown/DropdownOption";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";

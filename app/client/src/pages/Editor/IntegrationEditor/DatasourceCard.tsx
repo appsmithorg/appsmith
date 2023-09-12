@@ -6,8 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
   getPluginImages,
-  getActionsForCurrentPage,
-} from "selectors/entitiesSelector";
+  getCurrentActions,
+} from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
@@ -15,7 +15,7 @@ import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/Datasourc
 import { getQueryParams } from "utils/URLUtils";
 import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
-import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
+import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
@@ -153,7 +153,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
-  const queryActions = useSelector(getActionsForCurrentPage);
+  const queryActions = useSelector(getCurrentActions);
   const queriesWithThisDatasource = queryActions.filter(
     (action) =>
       isStoredDatasource(action.config.datasource) &&

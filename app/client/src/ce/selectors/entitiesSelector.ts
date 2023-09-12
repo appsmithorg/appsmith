@@ -398,7 +398,7 @@ export const getQueryName = (state: AppState, actionId: string): string => {
   return action?.config.name ?? "";
 };
 
-const getCurrentPageId = (state: AppState) =>
+export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
 export const getDatasourcePlugins = createSelector(getPlugins, (plugins) => {
@@ -480,7 +480,7 @@ export const getPluginIdPackageNamesMap = createSelector(
   },
 );
 
-export const getActionsForCurrentPage = createSelector(
+export const getCurrentActions = createSelector(
   getCurrentPageId,
   getActions,
   (pageId, actions) => {
@@ -493,7 +493,7 @@ export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
 export const actionsExistInCurrentPage = createSelector(
-  getActionsForCurrentPage,
+  getCurrentActions,
   (actions) => {
     return !!actions.length;
   },
@@ -506,8 +506,8 @@ export const widgetsExistCurrentPage = createSelector(
   },
 );
 
-// Note: getJSCollectionsForCurrentPage (returns a new object everytime)
-export const getJSCollectionsForCurrentPage = createSelector(
+// Note: getCurrentJSCollections (returns a new object everytime)
+export const getCurrentJSCollections = createSelector(
   getCurrentPageId,
   getJSCollections,
   (pageId, actions) => {
@@ -518,7 +518,7 @@ export const getJSCollectionsForCurrentPage = createSelector(
 
 export const getJSCollectionFromName = createSelector(
   [
-    getJSCollectionsForCurrentPage,
+    getCurrentJSCollections,
     (_state: AppState, JSObjectName: string) => JSObjectName,
   ],
   (jsCollections, JSObjectName) => {
@@ -870,8 +870,8 @@ export const getDatasourceLoading = (state: AppState) => {
 };
 
 export const selectFilesForExplorer = createSelector(
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
+  getCurrentActions,
+  getCurrentJSCollections,
   selectDatasourceIdToNameMap,
   (actions, jsActions, datasourceIdToNameMap) => {
     const files = [...actions, ...jsActions].reduce((acc, file) => {
@@ -1029,8 +1029,8 @@ export const getJSCollectionParseErrors = (
 
 export const getNumberOfEntitiesInCurrentPage = createSelector(
   getCanvasWidgets,
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
+  getCurrentActions,
+  getCurrentJSCollections,
   (widgets, actions, jsCollections) => {
     return (
       Object.keys(widgets).length - 1 + actions.length + jsCollections.length
@@ -1106,12 +1106,12 @@ export const getAllJSActionsData = (state: AppState) => {
 };
 
 export const selectActionByName = (actionName: string) =>
-  createSelector(getActionsForCurrentPage, (actions) => {
+  createSelector(getCurrentActions, (actions) => {
     return actions.find((action) => action.config.name === actionName);
   });
 
 export const selectJSCollectionByName = (collectionName: string) =>
-  createSelector(getJSCollectionsForCurrentPage, (collections) => {
+  createSelector(getCurrentJSCollections, (collections) => {
     return collections.find(
       (collection) => collection.config.name === collectionName,
     );

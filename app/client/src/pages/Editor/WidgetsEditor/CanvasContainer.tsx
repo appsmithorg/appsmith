@@ -26,7 +26,7 @@ import {
 } from "selectors/appThemingSelectors";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
-import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
+import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
 import {
   AUTOLAYOUT_RESIZER_WIDTH_BUFFER,
   useDynamicAppLayout,
