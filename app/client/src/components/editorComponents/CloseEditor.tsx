@@ -63,7 +63,6 @@ function CloseEditor() {
             params: getQueryParams(),
           })
         : redirectURL;
-    e.preventDefault();
     AnalyticsUtil.logEvent("BACK_BUTTON_CLICK", {
       type: "BACK_BUTTON",
       fromUrl: location.pathname,
@@ -78,7 +77,6 @@ function CloseEditor() {
       kind="secondary"
       onClick={handleClose}
       startIcon="arrow-left-line"
-      target="_self"
     >
       Back
     </StyledLink>
