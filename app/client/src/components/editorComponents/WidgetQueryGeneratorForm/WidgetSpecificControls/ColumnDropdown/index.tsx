@@ -49,6 +49,7 @@ function ColumnDropdown(props: Props) {
               onSelect(value, option);
             }
           }}
+          showSearch
           value={selected}
           virtual={false}
         >
