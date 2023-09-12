@@ -22,7 +22,6 @@ const Container = styled.div`
   border-radius: 4px;
   margin-right: 5px;
   flex: 1;
-  with: 100%;
 `;
 
 const MainPane = () => {
