@@ -45,7 +45,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       dynamicHeight: {
         sectionIndex: 3,
         defaultValue: DynamicHeight.FIXED,
-        defaultValue: DynamicHeight.FIXED,
         active: true,
       },
     };
