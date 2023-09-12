@@ -1,14 +1,18 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
+import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class TenantConfigurationCE {
@@ -31,6 +35,17 @@ public class TenantConfigurationCE {
     // is preserved across browser refreshes.
     @JsonInclude
     private List<String> thirdPartyAuths;
+
+    // Field to be used to track the status of migrations during upgrade and downgrade workflows. Downgrade migrations
+    // are gated by user consent whereas upgrade can be triggered immediately and depending upon the status client
+    // blocks the user access to the instance
+    MigrationStatus migrationStatus = MigrationStatus.COMPLETED;
+
+    // Field to store the list of features for which the migrations are pending. This will be used to store the diffs of
+    // the feature flags. This can happen for 2 reasons:
+    // 1. The license plan changes
+    // 2. Because of grandfathering via cron where tenant level feature flags are fetched
+    Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration;
 
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {

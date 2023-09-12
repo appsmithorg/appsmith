@@ -2,11 +2,16 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -23,6 +28,7 @@ import reactor.core.scheduler.Scheduler;
 import java.util.Map;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
+import static java.lang.Boolean.TRUE;
 
 public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, String> implements TenantServiceCE {
 
@@ -32,6 +38,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final EnvManager envManager;
 
+    private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
+
     public TenantServiceCEImpl(
             Scheduler scheduler,
             Validator validator,
@@ -40,10 +48,12 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             TenantRepository repository,
             AnalyticsService analyticsService,
             ConfigService configService,
-            @Lazy EnvManager envManager) {
+            @Lazy EnvManager envManager,
+            FeatureFlagMigrationHelper featureFlagMigrationHelper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
+        this.featureFlagMigrationHelper = featureFlagMigrationHelper;
     }
 
     @Override
@@ -179,5 +189,43 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         clientTenant.setUserPermissions(dbTenant.getUserPermissions());
 
         return clientTenant;
+    }
+
+    @Override
+    public Mono<Tenant> save(Tenant tenant) {
+        return repository.save(tenant);
+    }
+
+    /**
+     * This function checks if there are any pending migrations for feature flags and execute them.
+     * @param tenant    tenant for which the migrations need to be executed
+     * @return          tenant with migrations executed
+     */
+    @Override
+    public Mono<Tenant> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant) {
+        if (tenant.getTenantConfiguration() == null
+                || CollectionUtils.isNullOrEmpty(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())) {
+            return Mono.just(tenant);
+        }
+        Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
+                tenant.getTenantConfiguration().getFeaturesWithPendingMigration();
+
+        FeatureFlagEnum featureFlagEnum =
+                featureMigrationTypeMap.keySet().stream().findFirst().orElse(null);
+        return featureFlagMigrationHelper
+                .checkAndExecuteMigrationsForFeatureFlag(tenant, featureFlagEnum)
+                .flatMap(isSuccessful -> {
+                    if (TRUE.equals(isSuccessful)) {
+                        featureMigrationTypeMap.remove(featureFlagEnum);
+                        if (CollectionUtils.isNullOrEmpty(featureMigrationTypeMap)) {
+                            tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.COMPLETED);
+                        } else {
+                            tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.IN_PROGRESS);
+                        }
+                        return this.save(tenant).flatMap(this::checkAndExecuteMigrationsForTenantFeatureFlags);
+                    }
+                    return Mono.error(
+                            new AppsmithException(AppsmithError.FeatureFlagMigrationFailure, featureFlagEnum, ""));
+                });
     }
 }

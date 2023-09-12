@@ -960,6 +960,15 @@ public enum AppsmithError {
             "Invalid usage for custom annotation",
             ErrorType.CONFIGURATION_ERROR,
             null),
+
+    FeatureFlagMigrationFailure(
+            500,
+            AppsmithErrorCode.FEATURE_FLAG_MIGRATION_FAILURE.getCode(),
+            "Migration failed for feature flag {0}, error: {1}",
+            AppsmithErrorAction.DEFAULT,
+            "Migration failed",
+            ErrorType.INTERNAL_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;
