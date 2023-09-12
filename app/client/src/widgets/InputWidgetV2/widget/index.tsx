@@ -38,7 +38,7 @@ import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 
 import IconSVG from "../icon.svg";
@@ -722,7 +722,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     );
   };
 
-  getPageView() {
+  getWidgetView() {
     const value = this.props.inputText ?? "";
     let isInvalid = false;
     if (this.props.isDirty) {

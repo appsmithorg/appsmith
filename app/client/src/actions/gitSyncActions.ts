@@ -1,4 +1,7 @@
-import type { ReduxActionWithCallbacks } from "@appsmith/constants/ReduxActionConstants";
+import type {
+  ReduxAction,
+  ReduxActionWithCallbacks,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -11,6 +14,7 @@ import type {
   GitRemoteStatusData,
 } from "reducers/uiReducers/gitSyncReducer";
 import type { ResponseMeta } from "api/ApiResponses";
+import { noop } from "lodash";
 
 export type GitStatusParams = {
   compareRemote?: boolean;
@@ -19,6 +23,7 @@ export type GitStatusParams = {
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
   tab?: GitSyncModalTab;
+  isDeploying?: boolean;
 }) => {
   return {
     type: ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN,
@@ -64,14 +69,14 @@ export type ConnectToGitResponse = {
 type ConnectToGitRequestParams = {
   payload: ConnectToGitPayload;
   onSuccessCallback?: (payload: ConnectToGitResponse) => void;
-  onErrorCallback?: (error: string) => void;
+  onErrorCallback?: (error: any, response?: any) => void;
 };
 
-export type ConnectToGitReduxAction = ReduxActionWithCallbacks<
-  ConnectToGitPayload,
-  ConnectToGitResponse,
-  string
->;
+export interface ConnectToGitReduxAction
+  extends ReduxAction<ConnectToGitPayload> {
+  onSuccessCallback?: (response: ConnectToGitResponse) => void;
+  onErrorCallback?: (error: Error, response?: any) => void;
+}
 
 export const connectToGitInit = ({
   onErrorCallback,
@@ -177,8 +182,13 @@ export const fetchGitStatusSuccess = (payload: GitStatusData) => ({
   payload,
 });
 
-export const fetchGitRemoteStatusInit = () => ({
+export const fetchGitRemoteStatusInit = ({
+  onSuccessCallback = noop,
+  onErrorCallback = noop,
+} = {}) => ({
   type: ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_INIT,
+  onSuccessCallback,
+  onErrorCallback,
 });
 
 export const fetchGitRemoteStatusSuccess = (payload: GitRemoteStatusData) => ({

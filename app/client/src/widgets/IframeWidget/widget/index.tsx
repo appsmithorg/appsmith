@@ -9,7 +9,7 @@ import type { IframeWidgetProps } from "../constants";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "../icon.svg";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import type {
@@ -336,7 +336,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     });
   };
 
-  getPageView() {
+  getWidgetView() {
     const {
       borderColor,
       borderOpacity,
