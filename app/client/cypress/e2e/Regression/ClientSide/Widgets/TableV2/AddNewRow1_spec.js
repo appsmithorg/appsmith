@@ -11,42 +11,32 @@ describe("Basic flow ", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.get(".t--property-control-allowaddingarow").should("exist");
     cy.get(".t--property-control-allowaddingarow input").should("exist");
-  });
-
-  it("1.2. should test that Add new row link appears on the UI when the allow add new row property is enabled", () => {
     cy.get(".t--add-new-row").should("not.exist");
-    _.propPane.TogglePropertyState("Allow adding a row", "On");
-    cy.get(".t--add-new-row").should("exist");
     _.propPane.TogglePropertyState("Allow adding a row", "Off");
     cy.get(".t--add-new-row").should("not.exist");
-  });
-
-  it("1.3. should test that onSave, onDiscard and default row are showing up only when the allow add new property is enabled", () => {
     cy.get(".t--property-control-onsave").should("not.exist");
     cy.get(".t--property-control-ondiscard").should("not.exist");
     cy.get(".t--property-control-defaultvalues").should("not.exist");
+    // onSave, onDiscard and default row are showing up only when the allow add new property is enabled
     _.propPane.TogglePropertyState("Allow adding a row", "On");
+    cy.get(".t--add-new-row").should("exist");
     cy.get(".t--property-control-onsave").should("exist");
     cy.get(".t--property-control-ondiscard").should("exist");
     cy.get(".t--property-control-defaultvalues").should("exist");
-  });
-
-  it("1.4. should test that add new row link is disabled during the inline editing flow", () => {
     cy.get(".t--add-new-row.disabled").should("not.exist");
+    //  add new row link is disabled during the inline editing flow
     cy.makeColumnEditable("step");
     cy.editTableCell(0, 0);
     cy.get(".t--add-new-row.disabled").should("exist");
-  });
-
-  it("1.5. should test that clicking on add new row link adds an empty row at the top of the table", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.get(".tableWrap .new-row").should("not.exist");
+    // clicking on add new row link adds an empty row at the top of the table
     cy.get(".t--add-new-row").click();
     cy.get(".tableWrap .new-row").should("exist");
     cy.get(".t--discard-new-row").click({ force: true });
   });
 
-  it("1.6. should test that new row is getting populated with the default row property value", () => {
+  it("1.2. should test that new row is getting populated with the default row property value", () => {
     cy.updateCodeInput(
       ".t--property-control-defaultvalues",
       "{{{step: 'newStepCell'}}}",
@@ -59,7 +49,7 @@ describe("Basic flow ", () => {
     cy.get(".t--discard-new-row").click({ force: true });
   });
 
-  it("1.7. should test that inline editing, row selection, pagination, search, filters are actions cannot be performed while in add new row feature", () => {
+  it("1.3. should test that inline editing, row selection, pagination, search, filters are actions cannot be performed while in add new row feature", () => {
     cy.get(".t--widget-tablewidgetv2 .t--search-input").should("exist");
     cy.get(".t--widget-tablewidgetv2 .t--table-filter-toggle-btn").should(
       "exist",
@@ -100,7 +90,7 @@ describe("Basic flow ", () => {
     cy.get(".t--discard-new-row").click({ force: true });
   });
 
-  it("1.8. should test that only editable column cells are in editmode in the new row", () => {
+  it("1.4. should test that only editable column cells are in editmode in the new row", () => {
     cy.get(".t--add-new-row").click();
     cy.get(`[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor`).should(
       "exist",
@@ -125,7 +115,7 @@ describe("Basic flow ", () => {
     );
   });
 
-  it("1.9. should test that newRow property holds the entered data", () => {
+  it("1.5. should test that newRow property holds the entered data", () => {
     cy.makeColumnEditable("step");
     cy.makeColumnEditable("task");
     cy.enterTableCellValue(0, 0, "22");
@@ -139,7 +129,7 @@ describe("Basic flow ", () => {
     );
   });
 
-  it("1.10. should test that non data (iconBitton, button, menubutton) column cells are not showing up", () => {
+  it("1.6. should test that non data (iconBitton, button, menubutton) column cells are not showing up", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
     ["Button", "Menu button", "Icon button"].forEach((columnType) => {
@@ -150,7 +140,8 @@ describe("Basic flow ", () => {
     });
     cy.get("[data-testid='t--property-pane-back-btn']").click();
   });
-  it("1.11. should not hide the header section when add new row button is enabled and another header element is disabled", () => {
+
+  it("1.7. should not hide the header section when add new row button is enabled and another header element is disabled", () => {
     cy.get(".t--discard-new-row").click({ force: true });
     //disable all header widgets for the table
     [

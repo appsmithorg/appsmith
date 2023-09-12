@@ -68,7 +68,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import _, { cloneDeep, isString, set, uniq } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
@@ -92,7 +92,7 @@ import {
 } from "entities/Widget/utils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import {
   addChildToPastedFlexLayers,
   getFlexLayersForSelectedWidgets,
@@ -100,7 +100,7 @@ import {
   getNewFlexLayers,
   isStack,
   pasteWidgetInFlexLayers,
-} from "../utils/autoLayout/AutoLayoutUtils";
+} from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type {
   CopiedWidgetGroup,
   NewPastePositionVariables,
@@ -169,19 +169,19 @@ import {
 } from "./WidgetBlueprintSagas";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { BlueprintOperationTypes } from "widgets/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { toast } from "design-system";
 
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,
-} from "utils/autoLayout/positionUtils";
-import { getWidgetWidth } from "utils/autoLayout/flexWidgetUtils";
+} from "layoutSystems/autolayout/utils/positionUtils";
+import { getWidgetWidth } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import {
   FlexLayerAlignment,
   LayoutDirection,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import localStorage from "utils/localStorage";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
