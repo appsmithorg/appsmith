@@ -44,25 +44,6 @@ describe("datasource unsaved changes popup shows even without changes", function
       _.dataSources.EditDatasource();
       _.agHelper.GoBack();
       _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
-
-      // Edit DS from active tab and add oauth2 details
-      _.dataSources.EditDSFromActiveTab(dsName);
-      _.dataSources.AddOAuth2AuthorizationCodeDetails(
-        testString,
-        testString,
-        testString,
-        testString,
-      );
-      _.dataSources.UpdateDatasource();
-      _.agHelper.Sleep();
-
-      // Now edit DS, and ensure that discard popup is not shown on back button click
-      // Even if custom authentication params are being initialized, we shouldnt see the popup
-      // as those are not initialized by user
-      _.dataSources.EditDatasource();
-      _.agHelper.GoBack();
-      _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
-
       _.dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
   });

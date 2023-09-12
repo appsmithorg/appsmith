@@ -3,7 +3,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React from "react";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { AlignWidgetTypes } from "WidgetProvider/constants";
 import {
@@ -15,7 +15,7 @@ import BaseWidget from "../../BaseWidget";
 import CheckboxComponent from "../component";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
@@ -423,7 +423,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <CheckboxComponent
         accentColor={this.props.accentColor}

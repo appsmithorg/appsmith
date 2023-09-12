@@ -8,10 +8,12 @@ aws_access_key_id = $AWS_ACCESS_KEY_ID
 aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" > ~/.aws/credentials
 
 echo "[default]
+region = $region
+output = json
 [profile eksci]
 role_arn= $AWS_ROLE_ARN
 output = json
-region=ap-south-1
+region = $region
 source_profile = default" > ~/.aws/config
 
 sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name ekscisession)
@@ -37,8 +39,14 @@ for i in $deployed_charts
     echo $pr_state
     if [[ $pr_state == "MERGED" || $pr_state == "CLOSED" ]]
     then
+      mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$i?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
+      pod_name=$(kubectl get pods -n $i -o json | jq '.items[0].metadata.name' | tr -d '"')
+      kubectl exec $pod_name -n $i -- bash -c "rm -rf /appsmith-stacks/*"
       helm uninstall $i -n $i
       kubectl delete ns $i || true
-      mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$i?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
+      kubectl patch pv $i-appsmith -p '{"metadata":{"finalizers":null}}' || true
+      kubectl delete pv $i-appsmith --grace-period=0 --force || true
+#      ACCESS_POINT_ID=$(aws efs describe-access-points --file-system-id "$DP_EFS_ID" | jq -r '.AccessPoints[] | select(.Name=="'"ce$pr"'") | .AccessPointId')
+#      aws efs delete-access-point --access-point-id $ACCESS_POINT_ID
     fi
   done
