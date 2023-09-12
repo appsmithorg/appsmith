@@ -5,6 +5,7 @@ import {
   jsEditor,
   propPane,
   apiPage,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Assistive Binding", function () {
@@ -47,9 +48,13 @@ describe("Assistive Binding", function () {
     );
 
     // Create Api1
-    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/posts");
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].echoApiUrl,
+    );
     // Create Api2
-    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/posts");
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].echoApiUrl,
+    );
   });
   it("1. Shows hints without curly braces when user types in data fields", () => {
     entityExplorer.SelectEntityByName("Button1", "Widgets");
