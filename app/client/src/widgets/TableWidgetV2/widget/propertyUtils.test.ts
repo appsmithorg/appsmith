@@ -9,9 +9,11 @@ import {
   updateCustomColumnAliasOnLabelChange,
   selectColumnOptionsValidation,
   allowedFirstDayOfWeekRange,
+  updateSelectColumnDisplayAsValue,
 } from "./propertyUtils";
 import _ from "lodash";
-import type { ColumnTypes, TableWidgetProps } from "../constants";
+import type { TableWidgetProps } from "../constants";
+import { ColumnTypes } from "../constants";
 import { StickyType } from "../component/Constants";
 
 describe("PropertyUtils - ", () => {
@@ -1014,5 +1016,71 @@ describe("allowedFirstDayOfWeekRange", () => {
       parsed: 0,
       messages: ["Number should be between 0-6."],
     });
+  });
+});
+
+describe("updateSelectColumnDisplayAsValue", () => {
+  it("should return an updates array when column type is select and selectDisplayAs value is not present", () => {
+    const tableProps = {
+      primaryColumns: {
+        gender: {
+          computedValue: ["male", "female"],
+        },
+        columnType: ColumnTypes.SELECT,
+      },
+    };
+
+    expect(
+      updateSelectColumnDisplayAsValue(
+        tableProps as unknown as TableWidgetProps,
+        "primaryColumns.gender.computedValue",
+        "select",
+      ),
+    ).toEqual([
+      {
+        propertyPath: "primaryColumns.gender.selectDisplayAs",
+        propertyValue: "label",
+      },
+    ]);
+  });
+
+  it("should return an undefined when column type is not select and selectDisplayAs value is present", () => {
+    const tableProps = {
+      primaryColumns: {
+        gender: {
+          computedValue: ["male", "female"],
+          selectDisplayAs: "label",
+        },
+        columnType: ColumnTypes.TEXT,
+      },
+    };
+
+    expect(
+      updateSelectColumnDisplayAsValue(
+        tableProps as unknown as TableWidgetProps,
+        "primaryColumns.gender.computedValue",
+        "select",
+      ),
+    ).toEqual(undefined);
+  });
+
+  it("should return an undefined when column type is select and selectDisplayAs value is present", () => {
+    const tableProps = {
+      primaryColumns: {
+        gender: {
+          computedValue: ["male", "female"],
+          selectDisplayAs: "label",
+        },
+        columnType: ColumnTypes.SELECT,
+      },
+    };
+
+    expect(
+      updateSelectColumnDisplayAsValue(
+        tableProps as unknown as TableWidgetProps,
+        "primaryColumns.gender.computedValue",
+        "select",
+      ),
+    ).toEqual(undefined);
   });
 });

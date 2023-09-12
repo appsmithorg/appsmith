@@ -100,6 +100,7 @@ export default {
     {
       propertyName: "selectDisplayAs",
       defaultValue: "label",
+      helpText: "Allows to display an option's label or value in the cell",
       label: "Display as",
       controlType: "DROP_DOWN",
       isBindProperty: true,

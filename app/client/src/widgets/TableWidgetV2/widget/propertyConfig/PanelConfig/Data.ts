@@ -11,6 +11,7 @@ import {
   uniqueColumnAliasValidation,
   updateMenuItemsSource,
   updateNumberColumnTypeTextAlignment,
+  updateSelectColumnDisplayAsValue,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -80,6 +81,7 @@ export default {
         updateNumberColumnTypeTextAlignment,
         updateThemeStylesheetsInColumns,
         updateMenuItemsSource,
+        updateSelectColumnDisplayAsValue,
       ]),
       dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
       isBindProperty: false,
@@ -149,8 +151,8 @@ export default {
     {
       helpText:
         "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
-      helperText: (props: WidgetProps, propertName: string) => {
-        const basePropertyPath = getBasePropertyPath(propertName);
+      helperText: (props: WidgetProps, propertyPath: string) => {
+        const basePropertyPath = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${basePropertyPath}.columnType`);
         return columnType === ColumnTypes.SELECT
           ? COMPUTED_VALUE_SELECT_HELPER_TEXT

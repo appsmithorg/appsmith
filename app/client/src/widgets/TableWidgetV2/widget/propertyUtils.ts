@@ -1,4 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
+import { SelectOptionAccessor } from "../component/Constants";
 import type { ColumnProperties } from "../component/Constants";
 import { StickyType } from "../component/Constants";
 import { CellAlignmentTypes } from "../component/Constants";
@@ -774,6 +775,23 @@ export const updateMenuItemsSource = (
   return propertiesToUpdate?.length ? propertiesToUpdate : undefined;
 };
 
+export const updateSelectColumnDisplayAsValue = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: string,
+) => {
+  const basePropertyPath = getBasePropertyPath(propertyPath);
+  const selectDisplayAs = get(props, `${basePropertyPath}.selectDisplayAs`, "");
+  if (propertyValue === ColumnTypes.SELECT && !selectDisplayAs) {
+    return [
+      {
+        propertyPath: `${basePropertyPath}.selectDisplayAs`,
+        propertyValue: SelectOptionAccessor.LABEL,
+      },
+    ];
+  }
+};
+
 export function selectColumnOptionsValidation(
   value: unknown,
   props: TableWidgetProps,
@@ -792,7 +810,9 @@ export function selectColumnOptionsValidation(
 
   const getBasePropertyPath = (propertyPath: string): string | undefined => {
     const propertyPathRegex = /^(.*)\.\w+$/g;
-    const matches = Array.from(propertyPath.matchAll(propertyPathRegex))[0];
+    const matches = propertyPath
+      ? Array.from(propertyPath.matchAll(propertyPathRegex))[0]
+      : "";
     if (matches && _.isArray(matches) && matches.length === 2) {
       return matches[1];
     } else {

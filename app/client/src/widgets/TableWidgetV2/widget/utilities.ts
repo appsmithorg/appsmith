@@ -9,7 +9,6 @@ import type {
   TableColumnProps,
   TableStyles,
 } from "../component/Constants";
-import { SelectOptionAccessor } from "../component/Constants";
 import {
   CellAlignmentTypes,
   StickyType,
@@ -222,7 +221,6 @@ export function getDefaultColumnProperties(
         )}"]))}}`,
     sticky: StickyType.NONE,
     validation: {},
-    selectDisplayAs: SelectOptionAccessor.VALUE,
   };
 
   return columnProps;
@@ -513,6 +511,7 @@ export const getCellProperties = (
       selectDisplayAs: getPropertyValue(
         columnProperties.selectDisplayAs,
         rowIndex,
+        true,
       ),
     } as CellLayoutProperties;
   }

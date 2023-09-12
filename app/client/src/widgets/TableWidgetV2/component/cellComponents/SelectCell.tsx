@@ -150,7 +150,6 @@ export const SelectCell = (props: SelectProps) => {
     verticalAlignment,
     width,
   } = props;
-  const displayAs = selectDisplayAs?.toLowerCase();
   const onSelect = useCallback(
     (option: DropdownOption) => {
       onItemSelect(
@@ -160,7 +159,7 @@ export const SelectCell = (props: SelectProps) => {
         onOptionSelectActionString,
       );
     },
-    [displayAs, onItemSelect, rowIndex, alias, onOptionSelectActionString],
+    [onItemSelect, rowIndex, alias, onOptionSelectActionString],
   );
 
   const onFilter = useCallback(
@@ -194,17 +193,16 @@ export const SelectCell = (props: SelectProps) => {
     .map((d: DropdownOption) => d.value)
     .indexOf(value);
 
-  let baseCellValueFromSelectOptions: string | number | undefined = value;
+  let cellValue: string | number | undefined = value;
 
-  if (displayAs === SelectOptionAccessor.LABEL) {
-    const filteredOptions = options.filter(
+  if (selectDisplayAs === SelectOptionAccessor.LABEL) {
+    const filteredOptionIndex = options.findIndex(
       (item) => item[SelectOptionAccessor.VALUE] === value,
     );
-    if (filteredOptions.length > 0) {
-      baseCellValueFromSelectOptions =
-        filteredOptions[0][SelectOptionAccessor.LABEL];
+    if (filteredOptionIndex > -1) {
+      cellValue = options[filteredOptionIndex][SelectOptionAccessor.LABEL];
     } else {
-      baseCellValueFromSelectOptions = "";
+      cellValue = "";
     }
   }
 
@@ -246,7 +244,7 @@ export const SelectCell = (props: SelectProps) => {
           resetFilterTextOnClose={resetFilterTextOnClose}
           selectedIndex={selectedIndex}
           serverSideFiltering={serverSideFiltering}
-          value={baseCellValueFromSelectOptions}
+          value={cellValue}
           widgetId={""}
           width={width}
         />
@@ -276,7 +274,7 @@ export const SelectCell = (props: SelectProps) => {
         tableWidth={tableWidth}
         textColor={textColor}
         textSize={textSize}
-        value={baseCellValueFromSelectOptions}
+        value={cellValue}
         verticalAlignment={verticalAlignment}
       />
     );
