@@ -11,7 +11,7 @@ import {
   getJSCollections,
   getPlugins,
   getRecentDatasourceIds,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import history from "utils/history";

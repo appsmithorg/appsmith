@@ -14,7 +14,7 @@ import {
   EMPTY_WIDGET_BUTTON_TEXT,
   EMPTY_WIDGET_MAIN_TEXT,
 } from "@appsmith/constants/messages";
-import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
+import { selectWidgetsForCurrentPage } from "@appsmith/selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   getExplorerStatus,

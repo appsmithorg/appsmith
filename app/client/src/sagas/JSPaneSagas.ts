@@ -19,7 +19,10 @@ import {
   getCurrentPageName,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
-import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
+import {
+  getJSCollection,
+  getJSCollections,
+} from "@appsmith/selectors/entitiesSelector";
 import type {
   JSCollectionData,
   JSCollectionDataState,
