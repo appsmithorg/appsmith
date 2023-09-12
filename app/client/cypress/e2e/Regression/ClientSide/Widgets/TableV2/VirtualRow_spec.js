@@ -1,4 +1,8 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  propPane,
+  table,
+  agHelper,
+} from "../../../../../support/Objects/ObjectsCore";
 
 const totalRows = 100;
 
@@ -17,17 +21,16 @@ describe("Table Widget Virtualized Row", function () {
       step: i,
     }));
 
-    _.propPane.EnterJSContext("Table data", JSON.stringify(rows));
-    _.propPane.TogglePropertyState("Server side pagination", "On");
-    _.propPane.TogglePropertyState("Show pagination", "Off");
+    propPane.EnterJSContext("Table data", JSON.stringify(rows));
+    propPane.TogglePropertyState("Server side pagination", "On");
+    propPane.TogglePropertyState("Show pagination", "Off");
   });
 
-  it("1. should check that row is getting rendered", () => {
+  it("1. should check that virtual rows are getting rendered when scrolling through the table", () => {
+    // check that row is getting rendered
     cy.get(".tr[data-rowindex]").should("exist");
     cy.get(".td[data-rowindex]").should("exist");
-  });
 
-  it("2. should check that virtual rows are getting rendered when scrolling through the table", () => {
     cy.get(".tr[data-rowindex]").should("not.have.length", totalRows);
     cy.get(".tr[data-rowindex='0']").should("exist");
     cy.get(".virtual-list.simplebar-content").scrollTo("bottom");
@@ -41,10 +44,10 @@ describe("Table Widget Virtualized Row", function () {
     cy.get(".t--virtual-row").should("exist");
   });
 
-  it("3. should check that virtual rows feature is turned off when cell wrapping is enabled", () => {
+  it("2. should check that virtual rows feature is turned off when cell wrapping is enabled", () => {
     cy.editColumn("step");
     cy.wait(500);
-    _.propPane.TogglePropertyState("Cell wrapping", "On");
+    propPane.TogglePropertyState("Cell wrapping", "On");
     cy.get(".tr[data-rowindex]").should("have.length", totalRows);
     cy.get(".tr[data-rowindex='0']").should("exist");
     cy.get(".tr[data-rowindex='98']").should("exist");
@@ -59,13 +62,13 @@ describe("Table Widget Virtualized Row", function () {
     cy.get(".t--virtual-row").should("not.exist");
   });
 
-  it("4. should check that virtual rows feature is turned off when server side pagination is disabled", () => {
-    _.propPane.TogglePropertyState("Cell wrapping", "Off");
-    _.propPane.NavigateBackToPropertyPane();
-    cy.wait(500);
-    _.propPane.TogglePropertyState("Show pagination", "On");
-    cy.wait(500);
-    _.propPane.TogglePropertyState("Server side pagination", "Off");
+  it("3. should check that virtual rows feature is turned off when server side pagination is disabled", () => {
+    agHelper.AssertElementExist(table._cellWrapOn);
+    propPane.TogglePropertyState("Cell wrapping", "Off");
+    agHelper.AssertElementExist(table._cellWrapOff);
+    propPane.NavigateBackToPropertyPane();
+    propPane.TogglePropertyState("Show pagination", "On");
+    propPane.TogglePropertyState("Server side pagination", "Off");
     cy.get(".tr[data-rowindex]").should("have.length", 5);
     cy.get(".t--virtual-row").should("not.exist");
   });

@@ -28,6 +28,7 @@ import {
 } from "@appsmith/constants/messages";
 import { isEnvironmentValid } from "@appsmith/utils/Environments";
 import { setDatasourceViewModeFlag } from "actions/datasourceActions";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -222,7 +223,9 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const hintMessages = datasource && datasource.messages;
 
-  const isDatasourceValid = isEnvironmentValid(datasource) || false;
+  const currentEnvironmentId = getCurrentEnvironmentId(state);
+  const isDatasourceValid =
+    isEnvironmentValid(datasource, currentEnvironmentId) || false;
 
   return {
     messages: hintMessages,

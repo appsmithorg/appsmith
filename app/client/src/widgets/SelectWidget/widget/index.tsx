@@ -8,7 +8,7 @@ import equal from "fast-deep-equal/es6";
 import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import {
   GRID_DENSITY_MIGRATION_V1,
   MinimumPopupRows,
@@ -45,7 +45,7 @@ import type {
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
@@ -768,7 +768,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   isStringOrNumber = (value: any): value is string | number =>
     isString(value) || isNumber(value);
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
@@ -777,7 +777,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     const selectedIndex = findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     return (
       <SelectComponent
         accentColor={this.props.accentColor}

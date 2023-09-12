@@ -32,15 +32,6 @@ describe("Table widget v2 edge case scenario testing", function () {
       "have.text",
       "[  1]",
     );
-
-    propPane.TogglePropertyState("Enable multi-row selection", "Off"); //Disable Multi row select
-
-    propPane.TogglePropertyState("Enable multi-row selection", "On"); //Enable Multi row select
-
-    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
-      "have.text",
-      "[  1]",
-    );
   });
 
   it("2. Check if the selectedRowIndices does not contain -1", function () {

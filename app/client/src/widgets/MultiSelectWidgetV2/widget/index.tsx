@@ -10,7 +10,7 @@ import { isArray, isFinite, isString, xorWith } from "lodash";
 import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import {
@@ -42,7 +42,7 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
@@ -779,10 +779,10 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
     const values = this.mergeLabelAndValue();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
