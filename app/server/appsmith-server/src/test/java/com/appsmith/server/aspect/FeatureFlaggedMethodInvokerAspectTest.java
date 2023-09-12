@@ -90,14 +90,13 @@ class FeatureFlaggedMethodInvokerAspectTest {
         StepVerifier.create(resultMono).expectNext("ce_testField").verifyComplete();
     }
 
-    // This fails as the field remains null in `testComponent` as the `ceEeDiffMethod` does not update the field in
-    // Impl class but the same gets updated in CEImpl class
+    // Test for verifying the private class data member is referred correctly
     @Test
     void testClassLevelVariable_test() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.TENANT_TEST_FEATURE)))
                 .thenReturn(Mono.just(true));
         // Update `fieldUpdatedInDiffMethodOverriddenWithFeatureFlagged`
-        testComponent.ceEeDiffMethod().block();
+        testComponent.ceCeCompatibleEeSameImplMethod().block();
         StepVerifier.create(testComponent.getterForFieldWithoutExplicitSetter())
                 .expectNext("ce_fieldUpdatedInDiffMethod")
                 .verifyComplete();

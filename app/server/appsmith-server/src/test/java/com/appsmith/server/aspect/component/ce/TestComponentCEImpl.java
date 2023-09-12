@@ -14,12 +14,12 @@ public class TestComponentCEImpl implements TestComponentCE {
 
     @Override
     public Mono<String> ceCeCompatibleEeSameImplMethod() {
+        fieldUpdatedInDiffMethodOverriddenWithFeatureFlagged = "ce_fieldUpdatedInDiffMethod";
         return Mono.just("ce_impl_method");
     }
 
     @Override
     public Mono<String> ceEeDiffMethod() {
-        fieldUpdatedInDiffMethodOverriddenWithFeatureFlagged = "ce_fieldUpdatedInDiffMethod";
         // CE Implementation
         return Mono.just("ce_impl_method");
     }
