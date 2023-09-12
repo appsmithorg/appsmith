@@ -3952,68 +3952,68 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@omlet/cli-darwin-arm64@npm:1.0.1-beta.35":
-  version: 1.0.1-beta.35
-  resolution: "@omlet/cli-darwin-arm64@npm:1.0.1-beta.35"
+"@omlet/cli-darwin-arm64@npm:1.0.1-beta.36":
+  version: 1.0.1-beta.36
+  resolution: "@omlet/cli-darwin-arm64@npm:1.0.1-beta.36"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@omlet/cli-darwin-x64@npm:1.0.1-beta.35":
-  version: 1.0.1-beta.35
-  resolution: "@omlet/cli-darwin-x64@npm:1.0.1-beta.35"
+"@omlet/cli-darwin-x64@npm:1.0.1-beta.36":
+  version: 1.0.1-beta.36
+  resolution: "@omlet/cli-darwin-x64@npm:1.0.1-beta.36"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@omlet/cli-linux-arm64-gnu@npm:1.0.1-beta.35":
-  version: 1.0.1-beta.35
-  resolution: "@omlet/cli-linux-arm64-gnu@npm:1.0.1-beta.35"
+"@omlet/cli-linux-arm64-gnu@npm:1.0.1-beta.36":
+  version: 1.0.1-beta.36
+  resolution: "@omlet/cli-linux-arm64-gnu@npm:1.0.1-beta.36"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@omlet/cli-linux-arm64-musl@npm:1.0.1-beta.35":
-  version: 1.0.1-beta.35
-  resolution: "@omlet/cli-linux-arm64-musl@npm:1.0.1-beta.35"
+"@omlet/cli-linux-arm64-musl@npm:1.0.1-beta.36":
+  version: 1.0.1-beta.36
+  resolution: "@omlet/cli-linux-arm64-musl@npm:1.0.1-beta.36"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@omlet/cli-linux-x64-gnu@npm:1.0.1-beta.35":
-  version: 1.0.1-beta.35
-  resolution: "@omlet/cli-linux-x64-gnu@npm:1.0.1-beta.35"
+"@omlet/cli-linux-x64-gnu@npm:1.0.1-beta.36":
+  version: 1.0.1-beta.36
+  resolution: "@omlet/cli-linux-x64-gnu@npm:1.0.1-beta.36"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@omlet/cli-linux-x64-musl@npm:1.0.1-beta.35":
-  version: 1.0.1-beta.35
-  resolution: "@omlet/cli-linux-x64-musl@npm:1.0.1-beta.35"
+"@omlet/cli-linux-x64-musl@npm:1.0.1-beta.36":
+  version: 1.0.1-beta.36
+  resolution: "@omlet/cli-linux-x64-musl@npm:1.0.1-beta.36"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@omlet/cli-win32-x64-msvc@npm:1.0.1-beta.35":
-  version: 1.0.1-beta.35
-  resolution: "@omlet/cli-win32-x64-msvc@npm:1.0.1-beta.35"
+"@omlet/cli-win32-x64-msvc@npm:1.0.1-beta.36":
+  version: 1.0.1-beta.36
+  resolution: "@omlet/cli-win32-x64-msvc@npm:1.0.1-beta.36"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@omlet/cli@npm:^1.0.1-beta.35":
-  version: 1.0.1-beta.35
-  resolution: "@omlet/cli@npm:1.0.1-beta.35"
+"@omlet/cli@npm:^1.0.1-beta.36":
+  version: 1.0.1-beta.36
+  resolution: "@omlet/cli@npm:1.0.1-beta.36"
   dependencies:
     "@hapi/joi": ^17.1.1
     "@npmcli/ci-detect": ^2.0.0
-    "@omlet/cli-darwin-arm64": 1.0.1-beta.35
-    "@omlet/cli-darwin-x64": 1.0.1-beta.35
-    "@omlet/cli-linux-arm64-gnu": 1.0.1-beta.35
-    "@omlet/cli-linux-arm64-musl": 1.0.1-beta.35
-    "@omlet/cli-linux-x64-gnu": 1.0.1-beta.35
-    "@omlet/cli-linux-x64-musl": 1.0.1-beta.35
-    "@omlet/cli-win32-x64-msvc": 1.0.1-beta.35
+    "@omlet/cli-darwin-arm64": 1.0.1-beta.36
+    "@omlet/cli-darwin-x64": 1.0.1-beta.36
+    "@omlet/cli-linux-arm64-gnu": 1.0.1-beta.36
+    "@omlet/cli-linux-arm64-musl": 1.0.1-beta.36
+    "@omlet/cli-linux-x64-gnu": 1.0.1-beta.36
+    "@omlet/cli-linux-x64-musl": 1.0.1-beta.36
+    "@omlet/cli-win32-x64-msvc": 1.0.1-beta.36
     colorette: ^2.0.19
     commander: ^9.0.0
     core-js: ^3.29.1
@@ -4056,7 +4056,7 @@ __metadata:
       optional: true
   bin:
     omlet: bin/omlet
-  checksum: aa5feaae983236a04850b3bcddced5b2fd839c5656c5c197662feb958c355bc40f36e75faf921dcb612873c366d896245acc550c1d9df95640089e49c2641da6
+  checksum: bca7bf42f21c5ee60f7a0ccc9eaec9d13a34be7a58e7909fff9d803a8f10d122a429b73e4a9b2a705694dfff8b0fdb9a08486ee43a5063b82868b4d8e230b98a
   languageName: node
   linkType: hard
 
@@ -10102,7 +10102,7 @@ __metadata:
     "@loadable/component": ^5.15.3
     "@manaflair/redux-batch": ^1.0.0
     "@mantine/hooks": ^5.10.1
-    "@omlet/cli": ^1.0.1-beta.35
+    "@omlet/cli": ^1.0.1-beta.36
     "@peculiar/webcrypto": ^1.4.3
     "@redux-saga/testing-utils": ^1.1.5
     "@sentry/react": ^6.2.4
