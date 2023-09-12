@@ -1,3 +1,4 @@
+export * from "ce/components/EnvDeployInfoModal";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Button,
