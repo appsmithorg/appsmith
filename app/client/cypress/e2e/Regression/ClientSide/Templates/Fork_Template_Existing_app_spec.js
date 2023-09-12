@@ -59,7 +59,7 @@ describe(
         30000,
       );
       agHelper.GetNClick(template.meetingSchedulerDashboard);
-      agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
+      //agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
       cy.wait("@getTemplatePages").should(
         "have.nested.property",
         "response.body.responseMeta.status",
