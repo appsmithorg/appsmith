@@ -208,8 +208,8 @@ export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) => {
 };
 
 // Environments
-export const ENVIRONMENT_FILTER_DISABLED_TOOLTIP = (PluginName = "This") =>
-  `${PluginName} data source doesn't support environments, your production configuration is also used for staging.`;
+export const ENVIRONMENT_FILTER_DISABLED_TOOLTIP = (PluginName = "this") =>
+  `Production and staging configurations are the same since ${PluginName.toLowerCase()} datasource doesn't support environments.`;
 export const ENV_INFO_MODAL_CHECKBOX_LABEL = () =>
   "I understand, don't tell me again.";
 export const ENV_INFO_MODAL_HEADER = () =>

@@ -49,6 +49,7 @@ export default function EnvInfoModalBody() {
             setIsGitSyncModalOpen({
               isOpen: true,
               tab: GitSyncModalTab.GIT_CONNECTION,
+              isDeploying: true,
             }),
           );
           AnalyticsUtil.logEvent("GS_SETTING_CLICK", {

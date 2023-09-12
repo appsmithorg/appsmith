@@ -15,6 +15,11 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import styled from "styled-components";
+
+const DismissLink = styled(Link)`
+  max-width: fit-content;
+`;
 
 // show only if envs are fetched and the user has not clicked on `Don't show me again` before
 export function EnvInfoHeader() {
@@ -41,9 +46,9 @@ export function EnvInfoHeader() {
   return (
     <Callout kind="info">
       <InfoContent />
-      <Link kind="secondary" onClick={setUserPreferenceInStorageOnClick}>
+      <DismissLink kind="secondary" onClick={setUserPreferenceInStorageOnClick}>
         {createMessage(ENV_INFO_MODAL_DISMISS_ACTION)}
-      </Link>
+      </DismissLink>
     </Callout>
   );
 }

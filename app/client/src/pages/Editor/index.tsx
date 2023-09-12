@@ -43,7 +43,6 @@ import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import { EnvDeployInfoModal } from "@appsmith/components/EnvDeployInfoModal";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -55,7 +54,6 @@ type EditorProps = {
   isEditorInitializeError: boolean;
   errorPublishing: boolean;
   loadingGuidedTour: boolean;
-  allowedToRenderMEFeature: boolean;
   user?: User;
   lightTheme: Theme;
   resetEditorRequest: () => void;
@@ -163,7 +161,7 @@ class Editor extends Component<Props> {
           <GlobalHotKeys>
             <MainContainer />
             <GitSyncModal />
-            {this.props.allowedToRenderMEFeature && <EnvDeployInfoModal />}
+            <EnvDeployInfoModal />
             <DisconnectGitModal />
             <GuidedTourModal />
             <RepoLimitExceededErrorModal />
@@ -191,7 +189,6 @@ const mapStateToProps = (state: AppState) => ({
   currentApplicationName: state.ui.applications.currentApplication?.name,
   currentPageId: getCurrentPageId(state),
   loadingGuidedTour: loading(state),
-  allowedToRenderMEFeature: datasourceEnvEnabled(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

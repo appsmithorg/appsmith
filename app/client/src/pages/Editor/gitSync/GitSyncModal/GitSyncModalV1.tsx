@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import {
   getActiveGitSyncModalTab,
+  getIsDeploying,
   getIsGitConnected,
   getIsGitSyncModalOpen,
 } from "selectors/gitSyncSelectors";
@@ -28,7 +29,6 @@ import {
   GIT_IMPORT,
   IMPORT_FROM_GIT_REPOSITORY,
 } from "@appsmith/constants/messages";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { GitSyncModalTab } from "entities/GitSync";
 
 const ModalContentContainer = styled(ModalContent)`
@@ -64,11 +64,10 @@ const allMenuOptions = Object.values(MENU_ITEMS_MAP);
 function GitSyncModalV1(props: { isImport?: boolean }) {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
+  const isDeploying = useSelector(getIsDeploying);
   const isGitConnected = useSelector(getIsGitConnected);
 
   const activeTabKey = useSelector(getActiveGitSyncModalTab);
-  // Fetching feature flags from the store and checking if the feature is enabled
-  const allowedToRenderMEFeature = useSelector(datasourceEnvEnabled);
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
@@ -86,7 +85,13 @@ function GitSyncModalV1(props: { isImport?: boolean }) {
           source: `${activeTabKey}_TAB`,
         });
       }
-      dispatch(setIsGitSyncModalOpen({ isOpen: isModalOpen, tab: tabKey }));
+      dispatch(
+        setIsGitSyncModalOpen({
+          isOpen: isModalOpen,
+          tab: tabKey,
+          isDeploying,
+        }),
+      );
     },
     [dispatch, setIsGitSyncModalOpen, isModalOpen],
   );
@@ -149,7 +154,7 @@ function GitSyncModalV1(props: { isImport?: boolean }) {
           <ModalHeader>
             {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
           </ModalHeader>
-          {allowedToRenderMEFeature && <EnvInfoHeader />}
+          {isDeploying && <EnvInfoHeader />}
           <Menu
             activeTabKey={activeTabKey}
             onSelect={(tabKey: string) =>
