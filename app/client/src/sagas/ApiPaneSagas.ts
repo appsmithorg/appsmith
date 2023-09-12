@@ -41,7 +41,7 @@ import {
   getActions,
   getDatasourceActionRouteInfo,
   getPlugin,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type {
   ActionData,
   ActionDataState,
