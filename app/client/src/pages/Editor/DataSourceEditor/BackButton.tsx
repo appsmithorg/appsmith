@@ -19,7 +19,8 @@ const Back = styled(Link)`
 function BackButton() {
   const history = useHistory<AppsmithLocationState>();
   const pageId = useSelector(getCurrentPageId);
-  const goBack = () => {
+  const goBack = (e: React.MouseEvent) => {
+    e.preventDefault();
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     const redirectURL = isGeneratePageInitiator
       ? generateTemplateFormURL({ pageId })

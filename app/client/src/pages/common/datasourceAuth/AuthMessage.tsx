@@ -65,6 +65,7 @@ export default function AuthMessage(props: AuthMessageProps) {
     dispatch(redirectAuthorizationCode(pageId, datasource.id, pluginType));
   };
   const handleDocumentationClick: any = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);
   };
@@ -79,7 +80,8 @@ export default function AuthMessage(props: AuthMessageProps) {
           },
           {
             children: createMessage(GOOGLE_SHEETS_ASK_FOR_SUPPORT),
-            onClick: () => {
+            onClick: (e: React.MouseEvent) => {
+              e.preventDefault();
               // Triggering intercom here, to understand what exact
               // problem user is facing while creating google sheets datasource
               if (intercomAppID && window.Intercom) {

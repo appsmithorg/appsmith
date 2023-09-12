@@ -42,7 +42,7 @@ export const StickyHeader = styled.div`
 export function BackButton({ goTo }: { goTo?: string }) {
   const history = useHistory();
 
-  const onBack = (e: any) => {
+  const onBack = (e: React.MouseEvent) => {
     e.preventDefault();
     if (goTo) {
       history.push(goTo);

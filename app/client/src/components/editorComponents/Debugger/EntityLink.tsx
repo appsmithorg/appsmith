@@ -187,7 +187,7 @@ function DebuggerEntityLink(props: {
       return (
         <span className="debugger-entity">
           [
-          <Link kind="secondary" onClick={onClick} to="">
+          <Link kind="secondary" onClick={onClick}>
             {props.name}
           </Link>
           ]
@@ -198,7 +198,6 @@ function DebuggerEntityLink(props: {
         <Link
           className="debugger-entity-link t--debugger-log-entity-link"
           onClick={onClick}
-          to=""
         >
           {props.name}
         </Link>

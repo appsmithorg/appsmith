@@ -42,6 +42,7 @@ function CloseEditor() {
   }
 
   const handleClose = (e: React.MouseEvent) => {
+    e.preventDefault();
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CLOSE_SIDE_PANE,
       { path: location.pathname },

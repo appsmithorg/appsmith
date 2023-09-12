@@ -36,7 +36,8 @@ function TemplateViewHeader({ templateId }: Props) {
   const currentTemplate = useSelector(getActiveTemplateSelector);
   const query = useQuery();
   const workspaceList = useSelector(getForkableWorkspaces);
-  const goBack = () => {
+  const goBack = (e: React.MouseEvent) => {
+    e.preventDefault();
     history.goBack();
   };
   const onForkModalClose = () => {

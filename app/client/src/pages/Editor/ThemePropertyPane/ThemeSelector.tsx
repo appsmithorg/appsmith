@@ -25,7 +25,8 @@ function ThemeSelector() {
   /**
    * goes to previous screen in the pane
    */
-  const onClickBack = () => {
+  const onClickBack = (e: React.MouseEvent) => {
+    e.preventDefault();
     dispatch(setAppThemingModeStackAction(themingStack.slice(0, -1)));
   };
 

@@ -56,7 +56,8 @@ export default function AnonymousDataPopup() {
     }
   }, [isAnonymousDataPopupVisible]);
 
-  const handleLinkClick = (link: string) => {
+  const handleLinkClick = (e: React.MouseEvent, link: string) => {
+    e.preventDefault();
     if (link === ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH) {
       AnalyticsUtil.logEvent("VISIT_ADMIN_SETTINGS_TELEMETRY_CALLOUT");
     } else if (link === TELEMETRY_DOCS_PAGE_URL) {
@@ -104,12 +105,13 @@ export default function AnonymousDataPopup() {
         links={[
           {
             children: createMessage(ADMIN_SETTINGS),
-            onClick: () =>
-              handleLinkClick(ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH),
+            onClick: (e: React.MouseEvent) =>
+              handleLinkClick(e, ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH),
           },
           {
             children: createMessage(LEARN_MORE),
-            onClick: () => handleLinkClick(TELEMETRY_DOCS_PAGE_URL),
+            onClick: (e: React.MouseEvent) =>
+              handleLinkClick(e, TELEMETRY_DOCS_PAGE_URL),
           },
         ]}
         onClose={hideAnonymousDataPopup}

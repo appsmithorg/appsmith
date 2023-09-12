@@ -426,7 +426,8 @@ function ActionSidebar({
       <BackToCanvasLink
         id="back-to-canvas"
         kind="secondary"
-        onClick={() => {
+        onClick={(e: React.MouseEvent) => {
+          e.preventDefault();
           history.push(builderURL({ pageId }));
 
           handleCloseWalkthrough();
