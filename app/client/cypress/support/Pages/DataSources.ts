@@ -70,7 +70,6 @@ export class DataSources {
   private defaultDatabaseName =
     "input[name*='datasourceConfiguration.connection.defaultDatabaseName']";
   private _testDs = ".t--test-datasource";
-  _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
   _dsMenuoptions = "div.t--datasource-menu-option";
@@ -810,7 +809,7 @@ export class DataSources {
   }
 
   public AuthAPISaveAndAuthorize() {
-    cy.get(this._saveAndAuthorizeDS).click();
+    cy.get(this._saveDs).click();
     this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
@@ -1650,7 +1649,7 @@ export class DataSources {
 
     // save datasource
     this.agHelper.Sleep(500);
-    this.agHelper.GetNClick(this._saveAndAuthorizeDS);
+    this.agHelper.GetNClick(this._saveDs);
 
     //Accept consent
     this.agHelper.GetNClick(this._consent);
