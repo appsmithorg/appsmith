@@ -22,6 +22,7 @@ import {
 } from "selectors/editorSelectors";
 import {
   getAllUsers,
+  getCurrentAppWorkspace,
   getCurrentWorkspaceId,
 } from "@appsmith/selectors/workspaceSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -240,6 +241,7 @@ export function EditorHeader() {
   const isPreviewMode = useSelector(previewModeSelector);
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const workspaceId = useSelector(getCurrentWorkspaceId);
+  const currentWorkspace = useSelector(getCurrentAppWorkspace);
   const applicationId = useSelector(getCurrentApplicationId);
   const currentApplication = useSelector(getCurrentApplication);
   const isPublishing = useSelector(getIsPublishingApplication);
@@ -540,7 +542,13 @@ export function EditorHeader() {
               open={showModal}
             >
               <ModalContent style={{ width: "640px" }}>
-                <ModalHeader>{createMessage(APPLICATION_INVITE)}</ModalHeader>
+                <ModalHeader>
+                  {createMessage(
+                    APPLICATION_INVITE,
+                    currentWorkspace.name,
+                    cloudHosting,
+                  )}
+                </ModalHeader>
                 <ModalBody>
                   <Tabs
                     onValueChange={(value) => setActiveTab(value)}
