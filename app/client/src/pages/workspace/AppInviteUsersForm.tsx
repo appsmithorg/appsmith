@@ -192,6 +192,6 @@ export default connect(
         },
       }),
     fetchCurrentWorkspace: (workspaceId: string) =>
-      dispatch(fetchWorkspace(workspaceId)),
+      dispatch(fetchWorkspace(workspaceId, true)),
   }),
 )(AppInviteUsersForm);
