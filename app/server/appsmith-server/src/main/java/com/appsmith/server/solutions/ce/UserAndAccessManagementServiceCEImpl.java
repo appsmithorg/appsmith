@@ -205,8 +205,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                         currentUser, user, workspace, permissionGroup, originHeader, isNewUser);
                             })
                             .all(emailSent -> emailSent);
-                })
-                .cache();
+                });
 
         return bulkAddUserResultMono
                 .then(sendAnalyticsEventMono)

@@ -104,7 +104,7 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
             value = "/super",
             consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     public Mono<Void> createSuperUserFromFormData(
-            @RequestHeader("OriginHeader") String originHeader, ServerWebExchange exchange) {
+            @RequestHeader("Origin") String originHeader, ServerWebExchange exchange) {
         return userSignup.signupAndLoginSuperFromFormData(originHeader, exchange);
     }
 
