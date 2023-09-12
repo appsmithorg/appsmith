@@ -6,7 +6,6 @@ import React, { createRef } from "react";
 import { isEmpty, floor, isString, isNil } from "lodash";
 import { klona } from "klona";
 import hash from "object-hash";
-
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import derivedProperties from "./parseDerivedProperties";
@@ -18,18 +17,19 @@ import Loader from "../component/Loader";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
 import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
 import MetaWidgetGenerator from "../MetaWidgetGenerator";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type {
   CanvasWidgetStructure,
   FlattenedWidgetProps,
-} from "widgets/constants";
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
-import type { WidgetType } from "constants/WidgetConstants";
 import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
@@ -43,8 +43,12 @@ import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import defaultProps from "./defaultProps";
+
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -141,6 +145,54 @@ class ListWidget extends BaseWidget<
   pageChangeEventTriggerFromSelectedKey: boolean;
   pageSizeUpdated: boolean;
   primaryKeys: string[];
+
+  static type = "LIST_WIDGET_V2";
+
+  static getConfig() {
+    return {
+      name: "List",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
+      needsMeta: true,
+      isCanvas: true,
+    };
+  }
+
+  static getDefaults() {
+    return defaultProps;
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "listData",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -244,7 +296,7 @@ class ListWidget extends BaseWidget<
       level: props.level || 1,
       onVirtualListScroll: this.generateMetaWidgets,
       prefixMetaWidgetId: props.prefixMetaWidgetId || props.widgetId,
-      primaryWidgetType: ListWidget.getWidgetType(),
+      primaryWidgetType: ListWidget.type,
       renderMode: props.renderMode,
       setWidgetCache: this.setWidgetCache,
       setWidgetReferenceCache: this.setWidgetReferenceCache,
@@ -655,7 +707,7 @@ class ListWidget extends BaseWidget<
 
     const itemsCount = (listData || []).length;
 
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     const spaceAvailableWithoutPaginationControls =
       componentHeight - WIDGET_PADDING * 2;
@@ -816,7 +868,7 @@ class ListWidget extends BaseWidget<
   mainMetaCanvasWidget = () => {
     const { flattenedChildCanvasWidgets = {}, mainCanvasId = "" } = this.props;
     const mainCanvasWidget = flattenedChildCanvasWidgets[mainCanvasId] || {};
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     const metaMainCanvas = klona(mainCanvasWidget) ?? {};
 
     const { metaWidgetId, metaWidgetName } =
@@ -837,7 +889,7 @@ class ListWidget extends BaseWidget<
   };
 
   mainMetaCanvasWidgetBottomRow = () => {
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     if (this.props.infiniteScroll) {
       return Math.max(
@@ -1299,8 +1351,8 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  getPageView() {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+  getWidgetView() {
+    const { componentHeight, componentWidth } = this.props;
     const {
       infiniteScroll,
       isLoading,
@@ -1368,13 +1420,6 @@ class ListWidget extends BaseWidget<
         {this.renderPaginationUI()}
       </ListComponent>
     );
-  }
-
-  /**
-   * returns type of the widget
-   */
-  static getWidgetType(): WidgetType {
-    return "LIST_WIDGET_V2";
   }
 }
 

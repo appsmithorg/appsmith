@@ -93,7 +93,7 @@ jobs:
         run: echo "$STEPS_CONTEXT"
 
       # In case this is second attempt try restoring failed tests
-      - if : steps.run_result.outputs.run_result == 'failedtest'
+      - if: steps.run_result.outputs.run_result == 'failedtest'
         run: echo "failed_spec_artifact=failed-spec-ci-$((${{github.run_attempt}}-1))" >> $GITHUB_ENV
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
@@ -318,7 +318,8 @@ jobs:
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
             if [[ '${{env.EVENT_COMMITS}}' == 'null' ]]; then 
-              echo "COMMIT_INFO_MESSAGE=${{ github.event_name }} by ${{ env.COMMIT_INFO_AUTHOR }}" >> $GITHUB_ENV
+              echo "COMMIT_INFO_MESSAGE=$(echo ${{ github.event_name }} | perl -pe 's/(^|_)./uc($&)/ge;s/_//g')" >> $GITHUB_ENV
+              echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE}} by ${{ env.COMMIT_INFO_AUTHOR }}" >> $GITHUB_ENV
             else
               echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
             fi
@@ -368,15 +369,10 @@ jobs:
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
+          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           TOTAL_RUNNERS: ${{ strategy.job-total }}
           THIS_RUNNER: ${{ strategy.job-index }}
-          CYPRESS_SPEC_PATTERN: "cypress/e2e/**/**/*"
-          CYPRESS_ENV: "NODE_ENV=development"
-          CYPRESS_CONFIG_FILE: cypress_ci_custom.config.ts
-          CYPRESS_HEADLESS: "true"
-          CYPRESS_BROWSER: ${{ env.BROWSER_PATH }}
           RUNID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
           REPOSITORY: ${{ github.repository }}
@@ -390,13 +386,15 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
+          browser: ${{ env.BROWSER_PATH }}
           install: false
+          config-file: cypress_ci_custom.config.ts
           working-directory: app/client
-          command: yarn ts-node --require esm cypress/cypress-split.ts
+          env: "NODE_ENV=development"
 
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
-        if: steps.run_result.outputs.run_result == 'failedtest'
+        if: steps.run_result.outputs.run_result == 'failedtest' && env.failed_spec_env != ''
         id: cypress_test_failedtest
         uses: cypress-io/github-action@v5
         env:
@@ -440,10 +438,7 @@ jobs:
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
-          CYPRESS_ENV: "NODE_ENV=development"
-          CYPRESS_CONFIG_FILE: cypress_ci.config.ts
-          CYPRESS_HEADLESS: "true"
-          CYPRESS_BROWSER: ${{ env.BROWSER_PATH }}
+          CYPRESS_SPECS: ${{ env.failed_spec_env }}
           RUNID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
           REPOSITORY: ${{ github.repository }}
@@ -458,9 +453,11 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
+          browser: ${{ env.BROWSER_PATH }}
           install: false
+          config-file: cypress_ci_custom.config.ts
           working-directory: app/client
-          command: yarn cypress run --browser ${{ env.BROWSER_PATH }} --config-file cypress_ci_custom.config.ts --spec ${{ env.failed_spec_env }}
+          env: "NODE_ENV=development"
 
       - name: Collect CI container logs
         if: failure()
@@ -477,14 +474,14 @@ jobs:
           name: dockerlogs
           path: ~/dockerlogs
 
-      - name: Rename reports 
-        if: always()
+      - name: Rename reports
+        if: failure() && env.failed_spec_env != ''
         run: |
           mkdir -p ~/results
           mv ${{ github.workspace }}/app/client/results ~/results/${{ matrix.job }}
 
       - name: Upload cypress report
-        if: always()
+        if: failure() && env.failed_spec_env != ''
         uses: actions/upload-artifact@v3
         with:
           name: results-${{github.run_attempt}}
@@ -527,7 +524,7 @@ jobs:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-      
+
       - name: get cypress url dashboard url
         id: dashboard_url
         if: always()

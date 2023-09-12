@@ -241,7 +241,7 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate) {
+        public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
             ActionConfiguration actionConfig = new ActionConfiguration();
             // Sets query body
             actionConfig.setBody(queryTemplate.getBody());

@@ -2,39 +2,69 @@ import {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
-} from "utils/autoLayout/constants";
-import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+} from "layoutSystems/autolayout/utils/constants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import type { CSSProperties } from "react";
 import React from "react";
 import { getCanvasClassName } from "utils/generators";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import WidgetFactory from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import WidgetFactory from "WidgetProvider/factory";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import ContainerWidget from "widgets/ContainerWidget/widget";
-import type { CanvasWidgetStructure, DSLWidget } from "./constants";
+import type {
+  CanvasWidgetStructure,
+  DSLWidget,
+  WidgetDefaultProps,
+} from "../WidgetProvider/constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import FlexBoxComponent from "../layoutSystems/autolayout/common/flexCanvas/FlexBoxComponent";
+import { AutoCanvasDraggingArena } from "layoutSystems/autolayout/editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
+import { FixedCanvasDraggingArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
+import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { SetterConfig } from "entities/AppTheming";
 
 class CanvasWidget extends ContainerWidget {
+  static type = "CANVAS_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Canvas",
+      hideCard: true,
+      eagerRender: true,
+    };
+  }
+
+  static getDefaults(): WidgetDefaultProps {
+    return {
+      rows: 0,
+      columns: 0,
+      widgetName: "Canvas",
+      version: 1,
+      detachFromLayout: true,
+      flexLayers: [],
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [];
-  }
-  static getWidgetType() {
-    return "CANVAS_WIDGET";
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {};
+  }
+
+  static getSetterConfig(): SetterConfig | null {
+    return null;
   }
 
   getCanvasProps(): DSLWidget & { minHeight: number } {
@@ -105,19 +135,34 @@ class CanvasWidget extends ContainerWidget {
       <ContainerComponent {...props}>
         {props.renderMode === RenderModes.CANVAS && (
           <>
-            <CanvasDraggingArena
-              {...this.getSnapSpaces()}
-              alignItems={props.alignItems}
-              canExtend={props.canExtend}
-              direction={direction}
-              dropDisabled={!!props.dropDisabled}
-              noPad={this.props.noPad}
-              parentId={props.parentId}
-              snapRows={snapRows}
-              useAutoLayout={this.props.useAutoLayout}
-              widgetId={props.widgetId}
-              widgetName={props.widgetName}
-            />
+            {
+              //Temporary change, will have better separation logic with Canvas onion implementation
+              !this.props.useAutoLayout ? (
+                <FixedCanvasDraggingArena
+                  {...this.getSnapSpaces()}
+                  canExtend={props.canExtend}
+                  dropDisabled={!!props.dropDisabled}
+                  noPad={this.props.noPad}
+                  parentId={props.parentId}
+                  snapRows={snapRows}
+                  widgetId={props.widgetId}
+                  widgetName={props.widgetName}
+                />
+              ) : (
+                <AutoCanvasDraggingArena
+                  {...this.getSnapSpaces()}
+                  alignItems={props.alignItems}
+                  canExtend={props.canExtend}
+                  direction={direction}
+                  dropDisabled={!!props.dropDisabled}
+                  noPad={this.props.noPad}
+                  parentId={props.parentId}
+                  snapRows={snapRows}
+                  widgetId={props.widgetId}
+                  widgetName={props.widgetName}
+                />
+              )
+            }
             <CanvasSelectionArena
               {...this.getSnapSpaces()}
               canExtend={props.canExtend}
@@ -195,8 +240,10 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  getCanvasView() {
-    if (!this.props.dropDisabled) {
+  getWidgetView() {
+    //ToDo(Ashok): Make sure Layout Factory takes care of render mode based widget view.
+    // untill then this part of the widget will have a abstraction leak.
+    if (!this.props.dropDisabled && this.props.renderMode === "CANVAS") {
       return this.renderAsDropTarget();
     }
     return this.getPageView();
@@ -214,29 +261,5 @@ class CanvasWidget extends ContainerWidget {
     return {};
   }
 }
-
-export const CONFIG = {
-  type: CanvasWidget.getWidgetType(),
-  name: "Canvas",
-  hideCard: true,
-  eagerRender: true,
-  defaults: {
-    rows: 0,
-    columns: 0,
-    widgetName: "Canvas",
-    version: 1,
-    detachFromLayout: true,
-    flexLayers: [],
-    responsiveBehavior: ResponsiveBehavior.Fill,
-    minWidth: FILL_WIDGET_MIN_WIDTH,
-  },
-  properties: {
-    derived: CanvasWidget.getDerivedPropertiesMap(),
-    default: CanvasWidget.getDefaultPropertiesMap(),
-    meta: CanvasWidget.getMetaPropertiesMap(),
-    config: CanvasWidget.getPropertyPaneConfig(),
-    autocompleteDefinitions: CanvasWidget.getAutocompleteDefinitions(),
-  },
-};
 
 export default CanvasWidget;

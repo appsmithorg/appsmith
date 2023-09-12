@@ -5,7 +5,7 @@ import {
   isDynamicValue,
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { parseSchemaItem } from "widgets/WidgetUtils";
 import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";

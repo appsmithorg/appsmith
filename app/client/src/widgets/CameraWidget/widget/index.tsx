@@ -4,16 +4,19 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { base64ToBlob, createBlobUrl } from "utils/AppsmithUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { DefaultMobileCameraTypes, FileDataTypes } from "widgets/constants";
+import {
+  FileDataTypes,
+  DefaultMobileCameraTypes,
+} from "WidgetProvider/constants";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import CameraComponent from "../component";
 import type { CameraMode } from "../constants";
 import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import {
   BACK_CAMERA_LABEL,
   createMessage,
@@ -21,8 +24,53 @@ import {
   DEFAULT_CAMERA_LABEL_DESCRIPTION,
   FRONT_CAMERA_LABEL,
 } from "@appsmith/constants/messages";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
+  static type = "CAMERA_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Camera", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.EXTERNAL],
+      needsMeta: true, // Defines if this widget adds any meta properties
+      isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+      searchTags: ["photo", "video recorder"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      widgetName: "Camera",
+      rows: 33,
+      columns: 25,
+      mode: CameraModeTypes.CAMERA,
+      isDisabled: false,
+      isVisible: true,
+      isMirrored: true,
+      version: 1,
+      responsiveBehavior: ResponsiveBehavior.Hug,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -256,10 +304,6 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
     };
   }
 
-  static getWidgetType(): string {
-    return "CAMERA_WIDGET";
-  }
-
   static getSetterConfig(): SetterConfig {
     return {
       __setters: {
@@ -275,7 +319,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
       bottomRow,
       defaultCamera,
