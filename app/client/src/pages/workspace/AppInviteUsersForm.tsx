@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   isPermitted,
@@ -13,7 +13,6 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { viewerURL } from "RouteBuilder";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
-import useWorkspace from "utils/hooks/useWorkspace";
 import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
@@ -58,8 +57,7 @@ function AppInviteUsersForm(props: any) {
     isFetchingApplication,
   } = props;
   const [isCopied, setIsCopied] = useState(false);
-  const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
-  const currentWorkspace = useWorkspace(currentWorkspaceId);
+  const currentWorkspace = useSelector(getCurrentAppWorkspace);
   const userWorkspacePermissions = currentWorkspace?.userPermissions ?? [];
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
   const canInviteToApplication = hasInviteUserToApplicationPermission([
@@ -103,7 +101,7 @@ function AppInviteUsersForm(props: any) {
   }, [defaultPageId]);
 
   useEffect(() => {
-    if (currentUser?.name !== ANONYMOUS_USERNAME && canInviteToApplication) {
+    if (currentUser?.name !== ANONYMOUS_USERNAME) {
       fetchCurrentWorkspace(props.workspaceId);
     }
   }, [props.workspaceId, fetchCurrentWorkspace, currentUser?.name]);
