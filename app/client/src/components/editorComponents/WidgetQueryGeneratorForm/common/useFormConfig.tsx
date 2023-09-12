@@ -13,14 +13,6 @@ export function useFormConfig() {
     (field) => field.isDataIdentifier && field?.isVisible?.(config),
   );
 
-  const getPrimaryKey = () => {
-    if (dataIdentifierField) {
-      return config.otherFields?.[dataIdentifierField?.name];
-    } else {
-      return primaryColumn;
-    }
-  };
-
   const searchableColumn = (() => {
     if (config.searchableColumn) {
       return config.searchableColumn;
@@ -49,7 +41,9 @@ export function useFormConfig() {
     tableHeaderIndex: config.tableHeaderIndex,
     searchableColumn,
     columns: selectedColumns,
-    primaryColumn: getPrimaryKey(),
+    primaryColumn,
+    dataIdentifier:
+      dataIdentifierField && config.otherFields?.[dataIdentifierField?.name],
     connectionMode: config.datasourceConnectionMode,
     aliases: Object.entries(config.alias).map(([key, value]) => ({
       name: key,

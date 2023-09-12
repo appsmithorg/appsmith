@@ -106,6 +106,8 @@ export default abstract class MSSQL extends BaseQueryGenerator {
     }
 
     const { value, where } = update;
+    const dataIdentifier = formConfig.dataIdentifier;
+    const primaryKey = formConfig.primaryColumn || dataIdentifier;
 
     const columns = without(
       formConfig.columns.map((d) => d.name),
@@ -118,8 +120,8 @@ export default abstract class MSSQL extends BaseQueryGenerator {
       payload: {
         body: `UPDATE ${formConfig.tableName} SET ${columns
           .map((column) => `${column}= '{{${value}.${column}}}'`)
-          .join(", ")} WHERE ${formConfig.primaryColumn}= '{{${where}.${
-          formConfig.primaryColumn
+          .join(", ")} WHERE ${primaryKey}= '{{${where}.${
+          dataIdentifier || formConfig.primaryColumn
         }}}';`,
       },
       dynamicBindingPathList: [

@@ -4,7 +4,6 @@ import { noop } from "lodash";
 import type { Alias, OtherField } from "../types";
 import { OtherFieldComponent } from "./OtherFields";
 import { useFormConfig } from "../common/useFormConfig";
-import { useColumns } from "components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/ColumnDropdown/useColumns";
 
 type Props = {
   hasSearchableColumn?: boolean;
@@ -17,7 +16,6 @@ export default function WidgetSpecificControls(props: Props) {
   let aliases = null;
   let otherFields = null;
   const formConfig: Record<string, unknown> = useFormConfig();
-  const { primaryColumn = "" } = useColumns("", false);
 
   if (props.hasSearchableColumn) {
     searchableColumn = (
@@ -52,7 +50,8 @@ export default function WidgetSpecificControls(props: Props) {
     otherFields = props.otherFields.map((field) => {
       const isVisible = field.isVisible && field.isVisible(formConfig);
       const defaultValue =
-        field.getDefaultValue && field.getDefaultValue?.({ primaryColumn });
+        field.getDefaultValue &&
+        field.getDefaultValue?.({ primaryColumn: formConfig.primaryColumn });
 
       return isVisible ? (
         <OtherFieldComponent
