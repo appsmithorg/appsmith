@@ -4133,4 +4133,57 @@ public class GitServiceCETest {
                 })
                 .verifyComplete();
     }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void checkoutRemoteBranch_WhenApplicationObjectIsPresent_NewAppNotCreated()
+            throws GitAPIException, IOException {
+        /*
+        1. Create an application with a branch.
+        2. Mock to ensure that the branch is not present in the local repo
+        3. Call checkout to remote branch with the branch name
+        4. Ensure that the flow is completed without any errors
+         */
+        String appName = "app_" + UUID.randomUUID().toString();
+        Application application = createApplicationConnectedToGit(appName, "develop");
+
+        assertThat(application.getGitApplicationMetadata().getBranchName()).isEqualTo("develop");
+        assertThat(application.getId())
+                .isEqualTo(application.getGitApplicationMetadata().getDefaultApplicationId());
+
+        List<GitBranchDTO> branches = List.of(new GitBranchDTO("main", true, false));
+        ApplicationJson applicationJson = createAppJson(filePath).block();
+        assert applicationJson != null;
+        // the list of branches does not contain the develop branch
+        Mockito.when(gitExecutor.listBranches(
+                        Mockito.any(Path.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        eq(false)))
+                .thenReturn(Mono.just(branches));
+        Mockito.when(gitExecutor.fetchRemote(
+                        Mockito.any(Path.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        eq(false),
+                        Mockito.anyString(),
+                        eq(true)))
+                .thenReturn(Mono.just("success"));
+        Mockito.when(gitExecutor.checkoutRemoteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just("success"));
+
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+                        Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+
+        Mono<Application> checkoutBranchMono = gitService.checkoutBranch(application.getId(), "origin/develop");
+        StepVerifier.create(checkoutBranchMono)
+                .assertNext(app -> {
+                    assertThat(app.getId()).isEqualTo(application.getId());
+                    assertThat(app.getGitApplicationMetadata().getBranchName()).isEqualTo("develop");
+                    assertThat(app.getGitApplicationMetadata().getGitAuth()).isNotNull();
+                })
+                .verifyComplete();
+    }
 }
