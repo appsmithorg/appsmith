@@ -65,7 +65,7 @@ export type PageWrapperProps = {
 export function PageWrapper(props: PageWrapperProps) {
   const { isFixed = false, isSavable = false } = props;
   const isBrandingEnabled = useFeatureFlag(
-    FEATURE_FLAG.license_branding_enabled,
+    FEATURE_FLAG?.license_branding_enabled,
   );
   const htmlPageTitleMethod = getHTMLPageTitle(isBrandingEnabled);
   const titleSuffix = htmlPageTitleMethod();
