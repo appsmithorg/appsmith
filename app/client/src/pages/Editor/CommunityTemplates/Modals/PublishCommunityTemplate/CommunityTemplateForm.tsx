@@ -4,7 +4,6 @@ import { Button, Checkbox } from "design-system";
 import { createMessage } from "design-system-old/build/constants/messages";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { isPublishingCommunityTempalteSelector } from "selectors/communityTemplatesSelector";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -26,7 +25,6 @@ type Props = {
 
 const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
   const currentUser = useSelector(getCurrentUser);
-  const isPublishing = useSelector(isPublishingCommunityTempalteSelector);
   const currentApplication = useSelector(getCurrentApplication);
   const dispatch = useDispatch();
 
@@ -143,7 +141,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
         <Button
           data-testid="t--community-template-publish-submit-btn"
           isDisabled={!isFormValid}
-          isLoading={isPublishing}
+          isLoading={currentApplication?.isPublishingAppToCommunityTemplate}
           onClick={handleConfirmationClick}
           size="md"
         >

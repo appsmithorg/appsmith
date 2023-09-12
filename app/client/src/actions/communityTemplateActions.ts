@@ -14,6 +14,6 @@ export type PublishCommunityTemplatePayload = {
 export const publishCommunityTemplate = (
   payload: PublishCommunityTemplatePayload,
 ) => ({
-  type: ReduxActionTypes.COMMUNITY_TEMPLATE_PUBLISH_INIT,
+  type: ReduxActionTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_INIT,
   payload,
 });

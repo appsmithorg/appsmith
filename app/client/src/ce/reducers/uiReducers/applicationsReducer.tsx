@@ -672,6 +672,39 @@ export const handlers = {
       forkingEnabled: action.payload.forkingEnabled,
     },
   }),
+  [ReduxActionTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_INIT]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublishingAppToCommunityTemplate: true,
+      },
+    };
+  },
+  [ReduxActionTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublishingAppToCommunityTemplate: false,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublishingAppToCommunityTemplate: false,
+      },
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);

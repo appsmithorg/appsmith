@@ -42,7 +42,7 @@ function* handleFailure(error: unknown) {
     },
   };
   yield put({
-    type: ReduxActionErrorTypes.COMMUNITY_TEMPLATE_PUBLISH_ERROR,
+    type: ReduxActionErrorTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_ERROR,
     payload,
   });
 }
@@ -79,7 +79,7 @@ function* publishCommunityTemplateSaga(
         kind: "success",
       });
       yield put({
-        type: ReduxActionTypes.COMMUNITY_TEMPLATE_PUBLISH_SUCCESS,
+        type: ReduxActionTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_SUCCESS,
         payload: response,
       });
       yield put({
@@ -102,7 +102,7 @@ export default function* watchActionSagas() {
   if (!isAirgappedInstance)
     yield all([
       takeEvery(
-        ReduxActionTypes.COMMUNITY_TEMPLATE_PUBLISH_INIT,
+        ReduxActionTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_INIT,
         publishCommunityTemplateSaga,
       ),
     ]);
