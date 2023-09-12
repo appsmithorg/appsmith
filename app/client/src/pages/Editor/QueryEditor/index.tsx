@@ -30,7 +30,7 @@ import {
   getDBAndRemoteDatasources,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import type { QueryAction, SaaSAction } from "entities/Action";
+import type { Action, QueryAction, SaaSAction } from "entities/Action";
 import { PluginType } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
@@ -49,10 +49,7 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import {
-  getCurrentEnvName,
-  getCurrentEnvironment,
-} from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -105,6 +102,8 @@ type ReduxStateProps = {
   actionObjectDiff?: any;
   isSaas: boolean;
   datasourceId?: string;
+  currentEnvironmentId: string;
+  currentEnvironmentName: string;
 };
 
 type Props = ReduxDispatchProps &
@@ -166,8 +165,8 @@ class QueryEditor extends React.Component<Props> {
     AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
       actionId: this.props.actionId,
       dataSourceSize: dataSources.length,
-      environmentId: getCurrentEnvironment(),
-      environmentName: getCurrentEnvName(),
+      environmentId: this.props.currentEnvironmentId,
+      environmentName: this.props.currentEnvironmentName,
       pluginName: pluginName,
       datasourceId: datasource?.id,
       isMock: !!datasource?.isMock,
@@ -285,7 +284,7 @@ const mapStateToProps = (
 
   const { editorConfigs, settingConfigs } = plugins;
 
-  const action = getAction(state, actionId) as QueryAction | SaaSAction;
+  const action = getAction(state, actionId) as Action | undefined;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as
     | QueryAction
     | SaaSAction;
@@ -329,20 +328,24 @@ const mapStateToProps = (
   let uiComponent = UIComponentTypes.DbEditorForm;
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
+  const currentEnvDetails = getCurrentEnvironmentDetails(state);
+
   return {
     actionId,
+    currentEnvironmentId: currentEnvDetails?.id || "",
+    currentEnvironmentName: currentEnvDetails?.name || "",
     pluginId,
     plugins: allPlugins,
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
     dataSources:
-      action.pluginType === PluginType.SAAS
+      action?.pluginType === PluginType.SAAS
         ? getDatasourceByPluginId(state, action?.pluginId)
         : getDBAndRemoteDatasources(state),
     responses: getActionResponses(state),
     isRunning: state.ui.queryPane.isRunning[actionId],
     isDeleting: state.ui.queryPane.isDeleting[actionId],
-    isSaas: action.pluginType === PluginType.SAAS,
+    isSaas: action?.pluginType === PluginType.SAAS,
     formData,
     editorConfig,
     settingConfig,

@@ -49,6 +49,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import localStorage from "utils/localStorage";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 
 const BINDING_GUIDE_GIF = `${ASSETS_CDN_URL}/binding.gif`;
 
@@ -341,6 +342,8 @@ function renderWidgetImage(image: string | undefined) {
   return null;
 }
 
+const SUPPORTED_SUGGESTED_WIDGETS = ["TABLE_WIDGET_V2"];
+
 function SuggestedWidgets(props: SuggestedWidgetProps) {
   const dispatch = useDispatch();
   const dataTree = useSelector(getDataTree);
@@ -398,7 +401,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     dispatch(addSuggestedWidget(payload));
   };
 
-  const handleBindData = async (widgetId: string) => {
+  const handleBindData = async (widgetId: string, widgetType: WidgetType) => {
     dispatch(
       bindDataOnCanvas({
         queryId: (params.apiId || params.queryId) as string,
@@ -414,9 +417,14 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       localStorage.setItem(WIDGET_ID_SHOW_WALKTHROUGH, widgetId);
     }
 
+    const widgetSuggestedInfo = props.suggestedWidgets.find(
+      (suggestedWidget) => suggestedWidget.type === widgetType,
+    );
+
     dispatch(
       bindDataToWidget({
         widgetId: widgetId,
+        bindingQuery: widgetSuggestedInfo?.bindingQuery,
       }),
     );
 
@@ -432,8 +440,9 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       canvasWidgetLength > 1 &&
       Object.keys(canvasWidgets).some((widgetKey: string) => {
         return (
-          canvasWidgets[widgetKey]?.type === "TABLE_WIDGET_V2" &&
-          parseInt(widgetKey, 0) !== 0
+          SUPPORTED_SUGGESTED_WIDGETS.includes(
+            canvasWidgets[widgetKey]?.type,
+          ) && parseInt(widgetKey, 0) !== 0
         );
       })
     );
@@ -494,7 +503,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     <SuggestedWidgetContainer id={BINDING_SECTION_ID}>
       <Collapsible label={labelNew}>
         {isTableWidgetPresentOnCanvas() && (
-          <SubSection>
+          <SubSection className="t--suggested-widget-existing">
             {renderHeading(
               connectExistingWidgetLabel,
               connectExistingWidgetSubLabel,
@@ -514,14 +523,17 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
                   const widgetInfo: WidgetBindingInfo | undefined =
                     WIDGET_DATA_FIELD_MAP[widget.type];
 
-                  if (!widgetInfo || widget?.type !== "TABLE_WIDGET_V2")
+                  if (
+                    !widgetInfo ||
+                    !SUPPORTED_SUGGESTED_WIDGETS.includes(widget?.type)
+                  )
                     return null;
 
                   return (
                     <div
                       className={`widget t--suggested-widget-${widget.type}`}
                       key={widget.type + widget.widgetId}
-                      onClick={() => handleBindData(widgetKey)}
+                      onClick={() => handleBindData(widgetKey, widget.type)}
                     >
                       <Tooltip
                         content={createMessage(SUGGESTED_WIDGET_TOOLTIP)}
@@ -542,7 +554,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
             }
           </SubSection>
         )}
-        <SubSection>
+        <SubSection className="t--suggested-widget-add-new">
           {renderHeading(addNewWidgetLabel, addNewWidgetSubLabel)}
           <WidgetList className="spacing">
             {props.suggestedWidgets.map((suggestedWidget) => {

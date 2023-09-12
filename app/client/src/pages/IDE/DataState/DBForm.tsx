@@ -76,10 +76,7 @@ import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
-import {
-  isStorageEnvironmentCreated,
-  onUpdateFilterSuccess,
-} from "@appsmith/utils/Environments";
+import { isStorageEnvironmentCreated } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
@@ -96,6 +93,7 @@ import { formValuesToDatasource } from "../../../transformers/RestAPIDatasourceF
 import history from "utils/history";
 import { builderURL } from "RouteBuilder";
 import { IDEAppState } from "../ideReducer";
+import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -426,7 +424,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     name: string,
     userPermissions: string[],
   ) => {
-    onUpdateFilterSuccess(id);
     const { datasourceStorages } = this.props.datasource as Datasource;
     // check all datasource storages and remove the ones which do not have an id object
     const datasourceStoragesWithId = Object.keys(datasourceStorages).reduce(
@@ -708,6 +705,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       return formValuesToDatasource(
         this.props.datasource as Datasource,
         this.props.formData as ApiDatasourceForm,
+        this.state.filterParams.id,
       );
     else
       return getTrimmedData({
@@ -763,11 +761,13 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const isNewDatasource = datasourcePane.newDatasource === TEMP_DATASOURCE_ID;
   const pluginDatasourceForm =
     plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm;
+  const currentEnvDetails = getCurrentEnvironmentDetails(state);
   const isFormDirty = getIsFormDirty(
     isDirty(formName)(state),
     formData,
     isNewDatasource,
     pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm,
+    currentEnvDetails.editingId,
   );
   const initialValue = getFormInitialValues(formName)(state) as
     | Datasource
@@ -797,7 +797,11 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const isPluginAuthorized =
     pluginPackageName === PluginPackageName.GOOGLE_SHEETS
       ? plugin &&
-        isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin)
+        isDatasourceAuthorizedForQueryCreation(
+          formData as Datasource,
+          plugin,
+          currentEnvDetails.id,
+        )
       : true;
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(

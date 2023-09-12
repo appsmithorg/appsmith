@@ -119,8 +119,14 @@ function* setPageRecentListSaga(action: ReduxAction<RecentEntity[]>) {
   ]);
 }
 
+function* resetRecentEntities() {
+  yield put(setRecentJsList([]));
+  yield put(setRecentQueryList([]));
+}
+
 export default function* watchIDESagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_RECENT_ENTITIES, setPageRecentListSaga),
+    takeEvery(ReduxActionTypes.SWITCH_CURRENT_PAGE_ID, resetRecentEntities),
   ]);
 }

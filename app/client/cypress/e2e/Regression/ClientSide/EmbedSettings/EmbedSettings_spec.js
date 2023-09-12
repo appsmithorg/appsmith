@@ -63,7 +63,7 @@ describe("Embed settings options", function () {
     )
       .click()
       .wait(1000);
-    cy.get("[data-testid='copy-application-url']").last().click();
+    _.agHelper.ClickButton("Copy application url");
     cy.window()
       .its("navigator.clipboard")
       .invoke("readText")

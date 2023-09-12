@@ -81,10 +81,8 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { toast } from "design-system";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { createDefaultActionPayload } from "./ActionSagas";
-import {
-  DB_NOT_SUPPORTED,
-  getCurrentEnvironment,
-} from "@appsmith/utils/Environments";
+import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -270,7 +268,7 @@ function* formValueChangeSaga(
 
     // Editing form fields triggers evaluations.
     // We pass the action to run form evaluations when the dataTree evaluation is complete
-    let currentEnvironment = getCurrentEnvironment();
+    let currentEnvironment: string = yield select(getCurrentEnvironmentId);
     const pluginType = plugin?.type;
     if (
       (!!pluginType && DB_NOT_SUPPORTED.includes(pluginType)) ||
