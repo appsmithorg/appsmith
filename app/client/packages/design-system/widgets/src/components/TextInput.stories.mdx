@@ -25,6 +25,18 @@ Switch is a component that allows the user to select one or more options from a 
 
 <ArgsTable of={TextInput} story="TextInput" />
 
+## Default Value
+
+<Story
+  name="Default Value"
+  args={{
+    placeholder: "Default Value",
+    defaultValue: "Default Value",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
 ## Description
 
 <Story
@@ -220,6 +232,42 @@ Switch is a component that allows the user to select one or more options from a 
     placeholder: "Required - Label Indicator",
     isRequired: false,
     necessityIndicator: "label",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Contextual Help Text
+
+<Story
+  name="Contextual Help Text"
+  args={{
+    placeholder: "Contextual Help Text",
+    contextualHelp: "This is a contextual help text",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## On Value Change
+
+<Story
+  name="On Change"
+  args={{
+    placeholder: "On Value Change",
+    onChange: (value) => console.log(value),
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## On Focus Change
+
+<Story
+  name="On Focus Change"
+  args={{
+    placeholder: "On Focus Change",
+    onFocusChange: (value) => console.log(value),
   }}
 >
   {Template.bind({})}

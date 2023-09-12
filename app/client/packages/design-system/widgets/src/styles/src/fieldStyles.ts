@@ -31,10 +31,6 @@ export const fieldStyles = css<FieldStylesProps>`
   & [data-field-label] {
     display: flex;
     align-items: center;
-<<<<<<< HEAD:app/client/packages/design-system/widgets/src/styles/src/fieldStyles.ts
-    gap: var(--spacing-2);
-=======
->>>>>>> ce95345e26 (refactor field and input component):app/client/packages/design-system/widgets/src/styles/fieldStyles.ts
     height: fit-content;
     color: var(--color-fg);
     font-weight: ${({ isEmphasized }) => (isEmphasized ? "bold" : "normal")};
@@ -48,6 +44,27 @@ export const fieldStyles = css<FieldStylesProps>`
   &[data-disabled] [data-field-label] {
     opacity: var(--opacity-disabled);
     cursor: default;
+  }
+
+  & [data-field-contextual-help] {
+    position: relative;
+    /* this is a hack position the icon in the center of the label */
+    height: 0px;
+    width: 1em;
+  }
+
+  & [data-field-contextual-help] button {
+    height: 1em;
+    width: 1em;
+    border-radius: 100%;
+    position: absolute;
+    inset: 0;
+    transform: translate(0, -50%);
+  }
+
+  & [data-field-contextual-help] svg {
+    width: 1.2em;
+    height: 1.2em;
   }
 
   /**
