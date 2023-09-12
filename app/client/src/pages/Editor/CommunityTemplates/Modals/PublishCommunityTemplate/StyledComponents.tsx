@@ -23,6 +23,17 @@ export const PublishPageBodyContainer = styled(_defaultContainer)`
   height: 100%;
   gap: var(--ads-v2-spaces-7);
 `;
+
+export const PublishSuccessPageBodyContainer = styled(_defaultContainer)`
+  height: 100%;
+  gap: var(--ads-v2-spaces-7);
+  display: flex;
+  flex-direction: column;
+
+  button {
+    align-self: flex-end;
+  }
+`;
 export const PublishPageTemplateDetailsInputContainer = styled.div`
   display: flex;
   flex-direction: column;

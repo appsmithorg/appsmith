@@ -54,11 +54,10 @@ export type PublishCommunityTemplateRequest = {
 };
 
 export type PublishCommunityTemplateResponse = ApiResponse<{
-  title: string;
   isPublic: boolean;
   forkingEnabled: boolean;
   isCommunityTemplate: boolean;
-  modifiedAt: Date;
+  modifiedAt: string;
 }>;
 
 class TemplatesAPI extends Api {

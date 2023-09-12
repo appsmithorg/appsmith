@@ -2005,8 +2005,9 @@ export const COMMUNITY_TEMPLATES = {
   publish: () => "Publish",
   cancel: () => "Cancel",
   publishSuccessPage: {
-    title: () => "Your template is now live!",
-    description: () => "Thank you for your contribution to Appsmith community.",
+    title: () => "Live on Appsmith community",
+    description: () =>
+      "This application is live on community as a template for users to fork and remix.",
     viewTemplateButton: () => "View Template",
   },
   publishFormPage: {
@@ -2065,7 +2066,7 @@ export const COMMUNITY_TEMPLATES = {
   },
   modals: {
     unpublishedInfo: {
-      title: () => "Publish to app community",
+      title: () => "Publish to Appsmith community",
       description: () =>
         "Publish this app to Appsmith community for the public to view, fork, and remix.",
     },
