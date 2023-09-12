@@ -24,7 +24,13 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
-import { getCurrentAppPositioningType } from "./editorSelectors";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+
+const getAppPositioningType = (state: AppState) =>
+  AppPositioningTypes[
+    state.ui.applications.currentApplication?.applicationDetail?.appPositioning
+      ?.type || AppPositioningTypes.FIXED
+  ];
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -38,7 +44,7 @@ export const getUnevaluatedDataTree = createSelector(
   getSelectedAppThemeProperties,
   getMetaWidgets,
   getIsMobileBreakPoint,
-  getCurrentAppPositioningType,
+  getAppPositioningType,
   (
     actions,
     jsActions,
