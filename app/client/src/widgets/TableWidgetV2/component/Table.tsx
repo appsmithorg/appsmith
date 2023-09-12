@@ -133,6 +133,8 @@ export interface TableProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  bottomRow: number;
+  topRow: number;
 }
 
 const defaultColumn = {
@@ -265,7 +267,10 @@ export function Table(props: TableProps) {
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const scrollBarRef = useRef<SimpleBar | null>(null);
-  const [pageHeight, setPageHeight] = useState(0);
+  const [pageHeight, setPageHeight] = useState<{
+    clientHeight: number;
+    scrollHeight: number;
+  }>();
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
@@ -327,12 +332,16 @@ export function Table(props: TableProps) {
 
   useEffect(() => {
     if (scrollBarRef.current) {
-      setPageHeight(scrollBarRef.current.getScrollElement().scrollHeight || 0);
+      setPageHeight({
+        scrollHeight: scrollBarRef.current.getScrollElement().scrollHeight || 0,
+        clientHeight: scrollBarRef.current.getScrollElement().clientHeight || 0,
+      });
     }
-  }, [data, props.pageSize]);
+  }, [data, props.topRow, props.bottomRow]);
 
   useEffect(() => {
-    if (pageHeight == 0) {
+    // Prevent Event trigger on component mount
+    if (!pageHeight) {
       return;
     }
 

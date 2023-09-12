@@ -1194,6 +1194,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           borderColor={this.props.borderColor}
           borderRadius={this.props.borderRadius}
           borderWidth={this.props.borderWidth}
+          bottomRow={this.props.bottomRow}
           boxShadow={this.props.boxShadow}
           canFreezeColumn={this.props.canFreezeColumn}
           columnWidthMap={this.props.columnWidthMap}
@@ -1250,6 +1251,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           sortTableColumn={this.handleColumnSorting}
           tableData={finalTableData}
+          topRow={this.props.topRow}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
           unSelectAllRow={this.unSelectAllRow}
