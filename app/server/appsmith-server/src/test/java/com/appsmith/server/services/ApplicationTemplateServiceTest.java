@@ -82,7 +82,7 @@ public class ApplicationTemplateServiceTest {
         Application testApp = setUpTestApplication();
         CommunityTemplateDTO communityTemplateDTO = new CommunityTemplateDTO();
         communityTemplateDTO.setApplicationId(testApp.getId());
-        communityTemplateDTO.setOrganizationId(testApp.getOrganizationId());
+        communityTemplateDTO.setWorkspaceId(testApp.getWorkspaceId());
         communityTemplateDTO.setTitle("Some title");
         communityTemplateDTO.setHeadline("Some headline");
         communityTemplateDTO.setDescription("Some description");

@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class CommunityTemplateDTO extends BaseDomain {
     String applicationId;
-    String organizationId;
+    String workspaceId;
     String branchName;
     String title;
     String headline;
