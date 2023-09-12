@@ -1,11 +1,9 @@
 import {
   agHelper,
-  locators,
   homePage,
   assertHelper,
   inviteModal,
 } from "../../../../support/Objects/ObjectsCore";
-import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
 const timestamp = Date.now();
 
@@ -24,7 +22,7 @@ const UnableToDeleteWorkspace = {
   applicationName: `app_${timestamp}_3`,
 };
 
-describe("Delete workspace test spec", function () {
+describe("Delete multiple application", function () {
   before(() => {
     homePage.CreateNewWorkspace(
       MultipleDeleteFirstWorkspace.workspaceName,
@@ -53,25 +51,57 @@ describe("Delete workspace test spec", function () {
     homePage.SelectMultipleApplicationToDelete(
       MultipleDeleteSecondWorkspace.applicationName,
     );
-    agHelper.GetNClick(homePage._deleteMultipleAppCancelBtn);
+    agHelper.ClickButton("Cancel");
     agHelper.AssertElementAbsence(homePage._multipleSelectedApplication);
+    agHelper.AssertElementExist(
+      homePage._appCard(MultipleDeleteFirstWorkspace.applicationName),
+    );
+    agHelper.AssertElementExist(
+      homePage._appCard(MultipleDeleteSecondWorkspace.applicationName),
+    );
   });
 
-  it("2. Should select & delete multiple applications in different workspace", function () {
+  it("2. Once the application is selected for multiple deletion, all the other buttons will be hidden once any application is selected)", function () {
+    homePage.SelectMultipleApplicationToDelete(
+      MultipleDeleteFirstWorkspace.applicationName,
+    );
+
+    agHelper.AssertElementVisibility(
+      homePage._shareWorkspace(MultipleDeleteFirstWorkspace.workspaceName),
+      false,
+    );
+
+    agHelper.AssertElementVisibility(
+      homePage._existingWorkspaceCreateNewApp(
+        MultipleDeleteFirstWorkspace.workspaceName,
+      ),
+      false,
+    );
+
+    agHelper.ClickButton("Cancel");
+  });
+
+  it("3. Should select & delete multiple applications in different workspace", function () {
     homePage.SelectMultipleApplicationToDelete(
       MultipleDeleteFirstWorkspace.applicationName,
     );
     homePage.SelectMultipleApplicationToDelete(
       MultipleDeleteSecondWorkspace.applicationName,
     );
-    agHelper.GetNClick(homePage._deleteMultipleAppBtn);
-    agHelper.GetNClick(locators._confirmationdialogbtn("Yes"));
+    agHelper.ClickButton("Delete");
+    agHelper.ClickButton("Yes");
     assertHelper.WaitForNetworkCall("@deleteMultipleApp").then((intercept) => {
       expect(intercept.response?.body?.data?.length).to.be.equal(2);
+      agHelper.AssertElementAbsence(
+        homePage._appCard(MultipleDeleteFirstWorkspace.applicationName),
+      );
+      agHelper.AssertElementAbsence(
+        homePage._appCard(MultipleDeleteSecondWorkspace.applicationName),
+      );
     });
   });
 
-  it("3. Unable to select to multiple delete if not enough permissions to delete", function () {
+  it("4. Unable to select to multiple delete if not enough permissions to delete", function () {
     homePage.CreateNewWorkspace(UnableToDeleteWorkspace.workspaceName);
     homePage.CreateAppInWorkspace(
       UnableToDeleteWorkspace.workspaceName,

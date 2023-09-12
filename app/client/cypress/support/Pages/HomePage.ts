@@ -54,7 +54,7 @@ export class HomePage {
   private _homeAppsmithImage = "a.t--appsmith-logo";
   _appContainer = ".t--applications-container";
   _homePageAppCreateBtn = this._appContainer + " .createnew";
-  private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
+  _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
   _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
@@ -83,7 +83,7 @@ export class HomePage {
   private _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
   private _forkModal = ".fork-modal";
-  private _appCard = (applicationName: string) =>
+  public _appCard = (applicationName: string) =>
     "//span[text()='" +
     applicationName +
     "']/ancestor::div[contains(@class, 't--application-card')]";
@@ -121,8 +121,6 @@ export class HomePage {
   private useCaseDropdown = ".setup-dropdown:last";
   private dropdownOption = ".rc-select-item-option:first";
   private roleUsecaseSubmit = ".t--get-started-button";
-  _deleteMultipleAppBtn = ".t--delete-multiple-application";
-  _deleteMultipleAppCancelBtn = ".t--cancel-multiple-application-delete";
   _multipleSelectedApplication = ".t--application-card-selected";
 
   public SwitchToAppsTab() {
