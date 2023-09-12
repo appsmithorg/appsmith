@@ -23,10 +23,9 @@ import {
 import CheckboxGroupComponent from "../component";
 import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import IconSVG from "../icon.svg";
-
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export function defaultSelectedValuesValidation(
@@ -630,7 +629,7 @@ class CheckboxGroupWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <CheckboxGroupComponent
         accentColor={this.props.accentColor}
