@@ -12,20 +12,19 @@ import { useHistory } from "react-router-dom";
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
   align-items: center;
   justify-content: flex-start;
   padding-top: 15%;
   background: var(--ads-v2-color-bg);
   position: absolute;
   width: 100%;
-  height: 100%;
+  flex: 1;
 
   .page-details {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 450px;
+    width: 100%;
   }
 
   .bold-text {
