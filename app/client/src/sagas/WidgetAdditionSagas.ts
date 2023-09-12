@@ -12,7 +12,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
+import type { WidgetBlueprint } from "WidgetProvider/constants";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -28,26 +28,26 @@ import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
 import type { WidgetProps } from "widgets/BaseWidget";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import omit from "lodash/omit";
 import produce from "immer";
 import {
   GRID_DENSITY_MIGRATION_V1,
   BlueprintOperationTypes,
-} from "widgets/constants";
+} from "WidgetProvider/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { toast } from "design-system";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
-import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { isStack } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
   getCanvasWidth,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { isFunction } from "lodash";
 
 const WidgetTypes = WidgetFactory.widgetTypes;

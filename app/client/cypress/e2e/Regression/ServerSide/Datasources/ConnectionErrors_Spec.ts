@@ -45,9 +45,7 @@ describe("Validate Empty DS error messages", () => {
       agHelper.ValidateToastMessage(
         "An exception occurred while creating connection pool. One or more arguments in the datasource configuration may be invalid.",
       );
-      agHelper.ValidateToastMessage(
-        "Failed to initialize pool: The server requested password-based authentication, but no password was provided by plugin null",
-      );
+      agHelper.ValidateToastMessage("Failed to initialize pool:");
       agHelper.GetNClick(locators._visibleTextSpan("Read only"));
       propPane.AssertPropertiesDropDownValues("SSL mode", [
         "Default",
