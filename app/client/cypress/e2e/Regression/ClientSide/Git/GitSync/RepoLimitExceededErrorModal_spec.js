@@ -96,7 +96,7 @@ describe("Repo Limit Exceeded Error Modal", function () {
     }
   });
 
-  /*after(() => {
+  after(() => {
     cy.request({
       method: "DELETE",
       url: "api/v1/applications/" + repoName1,
@@ -121,5 +121,5 @@ describe("Repo Limit Exceeded Error Modal", function () {
     gitSync.DeleteTestGithubRepo(repoName2);
     gitSync.DeleteTestGithubRepo(repoName3);
     gitSync.DeleteTestGithubRepo(repoName4);
-  }); */
+  });
 });
