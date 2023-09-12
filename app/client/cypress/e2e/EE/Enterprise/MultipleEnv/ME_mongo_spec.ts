@@ -66,15 +66,20 @@ describe(
       dataSources.CreateQueryFromActiveTab(meDatasourceName);
       agHelper.RenameWithInPane(meQueryName, true);
 
-      dataSources.ValidateNSelectDropdown("Collection", "", "netflix");
+      dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
+      agHelper.EnterValue("100", {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Limit",
+      });
       // Run and verify the response for the query
-      dataSources.RunQueryNVerifyResponseViews(10, false);
+      dataSources.RunQueryNVerifyResponseViews(23, false);
       // Bind the mongo query to a table
       agHelper.GetNClick(entityExplorer._entityNameInExplorer(meQueryName));
       // Check both query responses on staging
       multipleEnv.SwitchEnv(stagingEnv);
       agHelper.Sleep();
-      dataSources.RunQueryNVerifyResponseViews(10, false);
+      dataSources.RunQueryNVerifyResponseViews(17, false);
       dataSources.AddSuggestedWidget(Widgets.Table);
       // Create query on staging only DS
       agHelper.Sleep(2000);
@@ -82,15 +87,28 @@ describe(
       dataSources.NavigateToActiveTab();
       dataSources.CreateQueryFromActiveTab(meDSStagingOnlyName);
       agHelper.RenameWithInPane(meStagingOnlyQueryName, true);
-      dataSources.ValidateNSelectDropdown("Collection", "", "coffeeCafe");
+      dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
+      agHelper.EnterValue("100", {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Limit",
+      });
       // Run and verify the response for the query
-      dataSources.RunQuery();
+      dataSources.RunQueryNVerifyResponseViews(17, false);
       multipleEnv.SwitchEnv(prodEnv);
       // verify query fails on prod
       dataSources.RunQuery({ expectedStatus: false });
+      cy.get("@postExecute").then((interception: any) => {
+        expect(interception.response.body.data.title).to.eq(
+          "Datasource not configured for the given environment",
+        );
+        expect(interception.response.body.data.body).contains(
+          "does not have a valid production configuration",
+        );
+      });
       // Bind the mongo query to a table
       multipleEnv.SwitchEnv(stagingEnv);
-      dataSources.RunQuery();
+      dataSources.RunQueryNVerifyResponseViews(17, false);
       agHelper.GetNClick(
         entityExplorer._entityNameInExplorer(meStagingOnlyQueryName),
       );
@@ -101,25 +119,38 @@ describe(
 
     it("3. Check table response for both environments", function () {
       // Check the records on the table with only staging configured
-      cy.get(locators._tableRecordsContainer).should("contain", "10 Records");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "17 Records",
+      );
       multipleEnv.SwitchEnv(prodEnv);
-      cy.get(locators._tableRecordsContainer).should("contain", "0 Records");
+      agHelper.ValidateToastMessage(
+        'The action "mongo_stageonly_select" has failed.',
+      );
+      agHelper.GetNAssertContains(locators._tableRecordsContainer, "0 Records");
       entityExplorer.SelectEntityByName("Page1", "Pages");
-      cy.get(locators._tableRecordsContainer).should("contain", "10 Records");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "23 Records",
+      );
       multipleEnv.SwitchEnv(stagingEnv);
-      cy.get(locators._tableRecordsContainer).should("contain", "10 Records");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "17 Records",
+      );
     });
+
     it("4. Generate CRUD page for both datasources", function () {
       dataSources.NavigateFromActiveDS(meDatasourceName, false);
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
+      agHelper.GetNClickByContains(dataSources._dropdownOption, "mongomart");
       // generate crud on staging env
-      agHelper.GetNClick(dataSources._generatePageBtn);
+      agHelper.ClickButton("Generate page");
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       agHelper.AssertContains("Successfully generated a page"); // Commenting this since FindQuery failure appears sometimes
       assertHelper.AssertNetworkStatus("@getActions", 200);
       assertHelper.AssertNetworkStatus("@postExecute", 200);
-      agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+      agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
       agHelper.Sleep(2000);
       // verify genertae crud option is not present on prod
@@ -143,14 +174,15 @@ describe(
       // Check for env switcher
       agHelper.AssertElementExist(multipleEnv.env_switcher);
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
-        expect($cellData).to.eq("");
+      table.SelectTableRow(1);
+      table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+        expect($cellData).to.not.be.empty;
       });
-      table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq("");
+      table.ReadTableRowColumnData(1, 2, "v1", 200).then(($cellData) => {
+        expect($cellData).to.eq("45");
       });
-      table.ReadTableRowColumnData(0, 6, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq("Washington, US");
+      table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
+        expect($cellData).to.eq("Track Jacket");
       });
 
       //Validating loaded JSON form
@@ -162,17 +194,20 @@ describe(
             expect(classes).not.contain("bp3-disabled");
           });
       });
-      multipleEnv.SwitchEnv(stagingEnv);
+      dataSources.AssertJSONFormHeader(1, 4, "Id", "4", true);
+
+      multipleEnv.SwitchEnv(stagingEnv); //Assert data is changed for Staging env
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
-        expect($cellData).to.eq("");
+      table.SelectTableRow(1);
+      table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+        expect($cellData).to.be.empty;
       });
-      table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq("");
+      table.ReadTableRowColumnData(1, 2, "v1", 200).then(($cellData) => {
+        expect($cellData).to.eq("45");
       });
-      table.ReadTableRowColumnData(0, 6, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq("Washington, US");
+      table.ReadTableRowColumnData(1, 6, "v1", 200).then(($cellData) => {
+        expect($cellData).to.eq("Women's T-shirt");
       });
 
       //Validating loaded JSON form
@@ -184,19 +219,31 @@ describe(
             expect(classes).not.contain("bp3-disabled");
           });
       });
-      dataSources.AssertJSONFormHeader(0, 11, "Id", "", true);
+      dataSources.AssertJSONFormHeader(1, 4, "Id", "5", true);
 
       // Check table values
       multipleEnv.SwitchEnv(prodEnv);
 
       agHelper.GetNClickByContains(locators._deployedPage, "Page1");
-      cy.get(locators._tableRecordsContainer).should("contain", "10 Records");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "23 Records",
+      );
       agHelper.GetNClickByContains(locators._deployedPage, "Page2");
-      cy.get(locators._tableRecordsContainer).should("contain", "0 Records");
+      agHelper.ValidateToastMessage(
+        'The action "mongo_stageonly_select" has failed.',
+      );
+      agHelper.GetNAssertContains(locators._tableRecordsContainer, "0 Records");
       multipleEnv.SwitchEnv(stagingEnv);
-      cy.get(locators._tableRecordsContainer).should("contain", "10 Records");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "17 Records",
+      );
       agHelper.GetNClickByContains(locators._deployedPage, "Page1");
-      cy.get(locators._tableRecordsContainer).should("contain", "10 Records");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "17 Records",
+      );
       deployMode.NavigateBacktoEditor();
       multipleEnv.SwitchEnv(prodEnv);
       // Clean up
