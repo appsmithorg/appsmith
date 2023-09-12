@@ -24,7 +24,7 @@ const StyledButton = styled(Button)`
 
 const RadioButtonGroupContainer = styled.div`
   & .radio_group__label {
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.5rem;
   }
 `;
 
@@ -112,8 +112,8 @@ const RadioButtonGroup = ({
     >
       <Text
         className="radio_group__label"
-        color="var(--ads-v2-color-fg-emphasis)"
-        kind="heading-s"
+        color="var(--ads-v2-color-fg)"
+        kind="body-m"
         renderAs="h5"
       >
         {" "}

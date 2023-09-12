@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Text } from "design-system";
+import { Button } from "design-system";
 import {
   WELCOME_FORM_USECASE_FIELD_NAME,
   WELCOME_NON_SUPER_FORM_NAME,
@@ -87,24 +87,16 @@ function NonSuperUser(
         options={proficiencyOptions}
       />
       <Space />
-      <DropdownWrapper>
-        <>
-          <Text
-            className="dropdown_wrapper__label"
-            color="var(--ads-v2-color-fg-emphasis)"
-            kind="heading-s"
-            renderAs="h5"
-          >
-            {createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
-          </Text>
-          <Field
-            asyncControl
-            component={withDropdown(useCaseOptions)}
-            name="useCase"
-            placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
-            type="text"
-          />
-        </>
+      <DropdownWrapper
+        label={createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
+      >
+        <Field
+          asyncControl
+          component={withDropdown(useCaseOptions)}
+          name="useCase"
+          placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
+          type="text"
+        />
       </DropdownWrapper>
       <ActionContainer>
         <StyledButton

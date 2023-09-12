@@ -20,7 +20,7 @@ import FormTextField from "components/utils/ReduxFormTextField";
 import type { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import { FormGroup } from "design-system-old";
-import { Button, Checkbox, Text } from "design-system";
+import { Button, Checkbox } from "design-system";
 import { proficiencyOptions, useCaseOptions } from "./constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { setFirstTimeUserOnboardingTelemetryCalloutVisibility } from "utils/storage";
@@ -49,9 +49,8 @@ const StyledTabIndicator = styled.div<{ isFirstPage?: boolean }>`
 `;
 
 const StyledFormGroup = styled(FormGroup)`
-  && label {
-    // color: var(--ads-v2-color-fg);
-    color: var(--ads-v2-color-fg-emphasis);
+  && > .bp3-label {
+    color: var(--ads-v2-color-fg);
   }
 `;
 
@@ -142,25 +141,18 @@ export default function DetailsForm(
               options={proficiencyOptions}
             />
             <Space />
-            <DropdownWrapper className="t--welcome-form-role-usecase">
-              <>
-                <Text
-                  className="dropdown_wrapper__label"
-                  color="var(--ads-v2-color-fg-emphasis)"
-                  kind="heading-s"
-                  renderAs="h5"
-                >
-                  {createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
-                </Text>
-                <Field
-                  asyncControl
-                  component={withDropdown(useCaseOptions)}
-                  data-testid="useCase"
-                  name="useCase"
-                  placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
-                  type="text"
-                />
-              </>
+            <DropdownWrapper
+              className="t--welcome-form-role-usecase"
+              label={createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
+            >
+              <Field
+                asyncControl
+                component={withDropdown(useCaseOptions)}
+                data-testid="useCase"
+                name="useCase"
+                placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
+                type="text"
+              />
             </DropdownWrapper>
             {props.useCase == "other" && (
               <StyledFormGroup className="t--welcome-form-use-case-input">

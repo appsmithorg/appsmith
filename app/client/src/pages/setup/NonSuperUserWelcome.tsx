@@ -55,9 +55,9 @@ const StyledBannerBody = styled.div`
   font-size: 24px;
   margin: ${(props) => props.theme.spaces[7]}px 0px;
   font-weight: 500;
-  margin-right: 9rem;
+  margin-left: 5rem;
   width: 100%;
-  text-align: right;
+  text-align: center;
   color: var(--ads-v2-color-fg-emphasis);
 `;
 
