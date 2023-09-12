@@ -5,8 +5,12 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
+import IconSVG from "./icon.svg";
 import type { BaseInputWidgetProps } from "./types";
 import { propertyPaneContentConfig } from "./contentConfig";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -14,6 +18,39 @@ class BaseInputWidget<
 > extends BaseWidget<T, K> {
   constructor(props: T) {
     super(props);
+  }
+
+  static getConfig(): WidgetBaseConfiguration {
+    return {
+      name: "Input",
+      hideCard: true,
+      iconSVG: IconSVG,
+      needsMeta: true,
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 4,
+      label: "Label",
+      labelPosition: "side",
+      labelAlignment: "left",
+      labelTextSize: "0.875rem",
+      labelWidth: 5,
+      columns: 20,
+      widgetName: "Input",
+      version: 1,
+      defaultText: "",
+      iconAlign: "left",
+      autoFocus: false,
+      labelStyle: "",
+      resetOnSubmit: true,
+      isRequired: false,
+      isDisabled: false,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
   }
 
   static getPropertyPaneContentConfig() {
