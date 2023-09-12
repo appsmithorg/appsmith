@@ -9,7 +9,7 @@ import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
   getNumberOfEntitiesInCurrentPage,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import DatasourceStructureHeader from "../Explorer/Datasources/DatasourceStructureHeader";
 import { MessageWrapper, TableWrapper } from "../SaaSEditor/GoogleSheetSchema";
 import { Spinner, Text, Button } from "design-system";

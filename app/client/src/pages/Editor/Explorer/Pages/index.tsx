@@ -23,7 +23,7 @@ import PageContextMenu from "./PageContextMenu";
 import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
-import { selectAllPages } from "selectors/entitiesSelector";
+import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
 import { builderURL } from "RouteBuilder";
 import {
   getExplorerStatus,
