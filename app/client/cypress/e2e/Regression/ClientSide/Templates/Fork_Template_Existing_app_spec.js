@@ -53,7 +53,7 @@ describe(
       entityExplorer.AddNewPage("Add page from template");
       agHelper.AssertElementVisibility(template.templateDialogBox);
       agHelper.AssertElementVisibility(
-        templates.locators._resultsHeader,
+        templates.locators._templateCard,
         true,
         0,
         30000,
@@ -86,7 +86,7 @@ describe(
 
       entityExplorer.AddNewPage("Add page from template");
       agHelper.AssertElementVisibility(
-        templates.locators._resultsHeader,
+        templates.locators._templateCard,
         true,
         0,
         30000,
