@@ -45,6 +45,19 @@ const FlexComponentWrapper = styled.button<{ onHoverZIndex: number }>`
   }
 `;
 
+/**
+ * Adds following functionalities to the widget:
+ * 1. Click handler to select the widget and open property pane.
+ * 2. Widget size based on responsiveBehavior:
+ *   2a. Hug widgets will stick to the size provided to them. (flex: 0 0 auto;)
+ *   2b. Fill widgets will automatically take up all available width in the parent container. (flex: 1 1 0%;)
+ * 3. Widgets can optionally have auto width or height which is dictated by the props.
+ *
+ * Uses Flex component provided by WDS.
+ * @param props | AnvilFlexComponentProps
+ * @returns Widget
+ */
+
 export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
   const isSnipingMode = useSelector(snipingModeSelector);
   const isResizing = useSelector(getIsResizing);
@@ -82,6 +95,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     [props.parentId, props.widgetId, props.widgetType, props.widgetName],
   );
 
+  // TODO: This wrapper was introduced to solve a bug with Map widget. Will be removed as part of a fix in another task.
   const wrappedChildren = (children: ReactNode) =>
     props.renderMode === RenderModes.PAGE ? (
       <div className="w-full h-full">{children}</div>
@@ -91,6 +105,13 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
 
   const isFillWidget = props.responsiveBehavior === ResponsiveBehavior.Fill;
 
+  /**
+   * Updates minWidth style for the widget based on its responsiveBehavior:
+   * A Fill widget will expand to assume 100% of its parent's width when its parent width < 480px.
+   * For other situations, it will adopt the minWidth provided in its widget config.
+   * @param config Record<string, string | number> | undefined
+   * @returns Record<string, string | number> | undefined
+   */
   const getMinWidth = (
     config: Record<string, string | number> | undefined,
   ): Record<string, string | number> | undefined => {
@@ -107,6 +128,8 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     };
   };
 
+  // Memoize flex props to be passed to the WDS Flex component.
+  // If the widget is being resized => update width and height to auto.
   const flexProps: FlexProps = useMemo(() => {
     return {
       alignSelf: props.flexVerticalAlignment,
@@ -120,17 +143,17 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
       maxHeight:
         props.widgetSize?.maxHeight &&
         Object.keys(props.widgetSize?.maxHeight).length
-          ? { ...props.widgetSize?.maxHeight }
+          ? props.widgetSize?.maxHeight
           : undefined,
       maxWidth:
         props.widgetSize?.maxWidth &&
         Object.keys(props.widgetSize?.maxWidth).length
-          ? { ...props.widgetSize?.maxWidth }
+          ? props.widgetSize?.maxWidth
           : undefined,
       minHeight:
         props.widgetSize?.minHeight &&
         Object.keys(props.widgetSize?.minHeight).length
-          ? { ...props.widgetSize?.minHeight }
+          ? props.widgetSize?.minHeight
           : undefined,
       // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
       minWidth: getMinWidth(props.widgetSize?.minWidth),
@@ -152,7 +175,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
   ]);
 
   return (
-    <Flex alignSelf={props.flexVerticalAlignment} {...flexProps}>
+    <Flex {...flexProps}>
       <FlexComponentWrapper
         className={className}
         onClick={stopEventPropagation}

@@ -7,6 +7,21 @@ import DraggableComponent from "layoutSystems/common/draggable/DraggableComponen
 import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
 import { FlexVerticalAlignment } from "../utils/constants";
 
+/**
+ * AnvilEditorWidgetOnion
+ *
+ * Component that wraps the BaseWidget implementation of a Widget with Editor specific wrappers
+ * needed in Anvil.
+ *
+ * Editor specific wrappers are wrappers added to perform actions in the editor.
+ * - AnvilFlexComponent: provides dimensions of a widget in anvil layout system.
+ * - SnipeableComponent: provides ability to snipe a widget(Makes sure the widget is focused on Hover and allows the widget to be snipped on clicking on it)
+ * - DraggableComponent: provides DnD html apis to make the widget draggable.
+ * - WidgetNameLayer: provides the widget name in editing mode and also show error state if there are any.
+ * - AnvilWidgetComponent: provides layer to auto update dimensions based on content/ add skeleton widget on loading state
+ *
+ * @returns Enhanced Widget
+ */
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
     <AnvilFlexComponent
