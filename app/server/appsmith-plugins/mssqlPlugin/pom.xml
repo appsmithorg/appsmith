@@ -55,6 +55,16 @@
         <plugins>
             <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
+                <configuration>
+                    <filters>
+                        <filter>
+                            <excludes>
+                                <exclude>META-INF/MANIFEST.MF</exclude>
+                                <exclude>META-INF/versions/9/module-info.class</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
