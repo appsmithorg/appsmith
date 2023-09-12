@@ -14,7 +14,7 @@ import type { SlashCommandPayload } from "entities/Action";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import store from "store";
-import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import { getCurrentActions } from "@appsmith/selectors/entitiesSelector";
 
 const PARTIAL_BINDING = "{}";
 
@@ -27,7 +27,7 @@ export const assistiveBindingHinter: HintHelper = (
     entitiesForNavigation || {},
   );
   const appState = store.getState();
-  const actions = getActionsForCurrentPage(appState);
+  const actions = getCurrentActions(appState);
 
   for (const navEntity of entitiesForSuggestions) {
     if (navEntity.type === ENTITY_TYPE.ACTION) {
