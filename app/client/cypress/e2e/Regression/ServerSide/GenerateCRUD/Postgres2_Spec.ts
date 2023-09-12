@@ -612,7 +612,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.FocusElement(locators._codeMirrorTextArea);
 
     dataSources.RunQueryNVerifyResponseViews();
-    dataSources.AssertTableInVirtuosoList(dsName, "public.vessels", true);
+    dataSources.AssertTableInVirtuosoList(dsName, "public.vessels", false);
   });
 
   it("17. Verify application does not break when user runs the query with wrong table name", function () {

@@ -115,7 +115,7 @@ describe("Entity explorer datasource structure", function () {
     dataSources.AssertTableInVirtuosoList(
       datasourceName,
       `public.${tableName}`,
-      true,
+      false,
     );
     cy.deleteQueryUsingContext();
     cy.deleteDatasource(datasourceName);

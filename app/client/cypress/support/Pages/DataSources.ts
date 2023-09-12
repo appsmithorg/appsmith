@@ -1905,7 +1905,7 @@ export class DataSources {
   public AssertTableInVirtuosoList(
     dsName: string,
     targetTableName: string,
-    absence = false,
+    presence = true,
   ) {
     this.entityExplorer.ExpandCollapseEntity("Datasources");
     this.entityExplorer.ExpandCollapseEntity(dsName);
@@ -1924,9 +1924,7 @@ export class DataSources {
         const indexOfTable = tables.findIndex(
           (table) => table.name === targetTableName,
         );
-        if (absence) {
-          expect(indexOfTable).to.equal(-1);
-        } else {
+        if (presence) {
           this.agHelper.Sleep();
           this.agHelper
             .GetNClick(this._dsVirtuosoElement(dsName))
@@ -1959,6 +1957,8 @@ export class DataSources {
                 `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`,
               );
             });
+        } else {
+          expect(indexOfTable).to.equal(-1);
         }
       });
   }

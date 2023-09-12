@@ -295,7 +295,7 @@ describe("Numeric Datatype tests", function () {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes", true);
+    dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes", false);
     entityExplorer.ExpandCollapseEntity(dsName, false);
     entityExplorer.ExpandCollapseEntity("Datasources", false);
   });

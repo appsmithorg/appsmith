@@ -688,7 +688,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards", true);
+    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards", false);
   });
 
   it("18. Verify application does not break when user runs the query with wrong collection name", function () {
@@ -803,7 +803,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.EnterQuery(dropCollection);
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    dataSources.AssertTableInVirtuosoList(dsName, "BirthNDeath", true);
+    dataSources.AssertTableInVirtuosoList(dsName, "BirthNDeath", false);
   });
 
   it("20. Verify Deletion of the datasource", () => {

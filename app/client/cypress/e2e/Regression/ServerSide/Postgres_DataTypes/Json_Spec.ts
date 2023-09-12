@@ -312,7 +312,7 @@ describe("Json & JsonB Datatype tests", function () {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonbooks", true);
+    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonbooks", false);
     entityExplorer.ExpandCollapseEntity(dsName, false);
     entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
@@ -658,7 +658,7 @@ describe("Json & JsonB Datatype tests", function () {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonBbooks", true);
+    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonBbooks", false);
     entityExplorer.ExpandCollapseEntity(dsName, false);
     entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
