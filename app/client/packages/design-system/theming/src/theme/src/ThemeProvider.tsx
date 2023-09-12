@@ -29,7 +29,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
   const sheetKey = useRef(uniqueId("wds-provider-"));
 
   useLayoutEffect(() => {
-    providerStyleSheet.createSheets(sheetKey.current);
+    providerStyleSheet.create(sheetKey.current);
 
     return () => {
       providerStyleSheet.flush(sheetKey.current);

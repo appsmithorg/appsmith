@@ -5,9 +5,10 @@ import { flexCssRule } from "./flexCssRule";
 import styles from "./styles.module.css";
 import clsx from "clsx";
 
+import type { Ref } from "react";
 import type { FlexProps } from "./types";
 
-const _Flex = (props: FlexProps, ref: HTMLDivElement) => {
+const _Flex = (props: FlexProps, ref: Ref<HTMLDivElement>) => {
   const {
     children,
     className,
@@ -16,7 +17,7 @@ const _Flex = (props: FlexProps, ref: HTMLDivElement) => {
     style,
     ...rest
   } = props;
-  const flexElement = useRef<HTMLDivElement>(ref);
+
   const flexClassName = useRef(uniqueId("wds-flex-"));
   const sheet = new StyleSheet({
     key: flexClassName.current,
@@ -38,7 +39,7 @@ const _Flex = (props: FlexProps, ref: HTMLDivElement) => {
     return (
       <div
         className={clsx(className, flexClassName.current)}
-        ref={flexElement}
+        ref={ref}
         style={style}
       >
         {children}

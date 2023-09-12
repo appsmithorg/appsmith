@@ -7,16 +7,27 @@ import { SheetTypes } from "./types";
 import type { RootUnit, ThemeToken } from "../../token";
 import type { FontFamily, Typography } from "../../typography";
 
+/**
+ * This class is used to create style sheets(insert style tag to the document.head).
+ * Class creates separate sheet for each token(see SheetTypes), so we can update each set of tokens separately.
+ * Class uses @emotion/sheet to create sheet under the hood, read more https://github.com/emotion-js/emotion/tree/main/packages/sheet.
+ */
 export class ProviderStyleSheet {
   private sheets = new Map<string, StyleSheet>();
 
-  createSheets = (key: string) => {
+  /**
+   * Creates all the necessary lists for each individual token.
+   */
+  create = (key: string) => {
     Object.values(SheetTypes).map((type) => {
       const sheetKey = `${key}-${type}`;
       this.sheets.set(sheetKey, this.createSheet(sheetKey));
     });
   };
 
+  /**
+   * Used to add global styles such as font faces.
+   */
   global = (key: string, styles: string) => {
     const sheet = new StyleSheet({
       key,
@@ -25,6 +36,9 @@ export class ProviderStyleSheet {
     sheet.insert(styles);
   };
 
+  /**
+   * Removes style sheet.
+   */
   flush = (key: string) => {
     Object.values(SheetTypes).map((type) => {
       this.sheets.get(`${key}-${type}`)?.flush();
