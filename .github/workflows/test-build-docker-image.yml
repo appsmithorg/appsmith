@@ -321,6 +321,13 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{ github.sha }}
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:nightly
 
+  notify-slack-for-promotion:
+    needs: ci-test
+    runs-on: ubuntu-latest
+
+    if: ( failure() && github.ref == 'refs/heads/master' )
+
+    steps:
       - name: Notify failure on workflow run and on Slack
         if: failure()
         run: |
