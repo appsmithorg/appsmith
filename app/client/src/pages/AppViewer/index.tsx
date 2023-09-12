@@ -42,7 +42,10 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
+import {
+  areEnvironmentsFetched,
+  getEnvironmentsWithPermission,
+} from "@appsmith/selectors/environmentSelectors";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   ThemeProvider as WDSThemeProvider,
@@ -115,10 +118,16 @@ function AppViewer(props: Props) {
   const canShowRamp = useSelector(showRampSelector);
 
   const workspaceId = currentApplicationDetails?.workspaceId || "";
+  const environmentList = useSelector(getEnvironmentsWithPermission);
+  // If there is only one environment and it is default, don't show the bottom bar
+  const isOnlyDefaultShown =
+    environmentList.length === 1 && environmentList[0]?.isDefault;
   const showBottomBar = useSelector((state: AppState) => {
     return (
       areEnvironmentsFetched(state, workspaceId) &&
-      (datasourceEnvEnabled(state) || canShowRamp)
+      (datasourceEnvEnabled(state) || canShowRamp) &&
+      environmentList.length &&
+      !isOnlyDefaultShown
     );
   });
 
@@ -215,7 +224,7 @@ function AppViewer(props: Props) {
               hasPages={pages.length > 1}
               headerHeight={headerHeight}
               ref={focusRef}
-              showBottomBar={showBottomBar}
+              showBottomBar={!!showBottomBar}
               showGuidedTourMessage={showGuidedTourMessage}
             >
               {isInitialized && <AppViewerPageContainer />}

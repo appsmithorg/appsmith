@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { AppState } from "@appsmith/reducers";
+import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
 
 export const areEnvironmentsFetched = (state: AppState, workspaceId: string) =>
   true;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getEnvironmentsWithPermission = (state: AppState) => [];
+export const getEnvironmentsWithPermission = (
+  state: AppState,
+): Array<EnvironmentType> => [];
 
 export const getDefaultEnvironmentId = (state: AppState) => "unused_env";
 
