@@ -8,7 +8,7 @@ import DocumentViewerComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "../icon.svg";
 
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
@@ -208,7 +208,7 @@ class DocumentViewerWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return <DocumentViewerComponent docUrl={this.props.docUrl} />;
   }
 }

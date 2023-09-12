@@ -42,6 +42,7 @@ import type { AppState } from "@appsmith/reducers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useLocation } from "react-router";
 import { getIdeSidebarWidth } from "../../pages/IDE/ideSelector";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
 const GUTTER_WIDTH = 12;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -177,7 +178,7 @@ export const useDynamicAppLayout = () => {
     if (isMobile) {
       maxWidth += sidebarWidth;
     }
-    const ele: any = document.getElementById("canvas-viewport");
+    const ele: any = document.getElementById(CANVAS_VIEWPORT);
     if (
       appMode === APP_MODE.EDIT &&
       appLayout?.type === "FLUID" &&
@@ -241,7 +242,7 @@ export const useDynamicAppLayout = () => {
 
   const resizeObserver = new ResizeObserver(immediateDebouncedResize);
   useEffect(() => {
-    const ele: any = document.getElementById("canvas-viewport");
+    const ele: any = document.getElementById(CANVAS_VIEWPORT);
     if (ele) {
       if (appLayout?.type === "FLUID") {
         resizeObserver.observe(ele);

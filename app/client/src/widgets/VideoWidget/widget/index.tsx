@@ -12,7 +12,7 @@ import BaseWidget from "../../BaseWidget";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "../icon.svg";
 import type {
   SnipingModeProperty,
@@ -315,7 +315,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const { autoPlay, onEnd, onPause, onPlay, playing, url } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>

@@ -32,9 +32,10 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import type { AppState } from "@appsmith/reducers";
-import { CanvasResizer } from "widgets/CanvasResizer";
+import { CanvasResizer } from "layoutSystems/autolayout/canvasResizer/CanvasResizer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -193,7 +194,7 @@ function CanvasContainer(props: CanvasContainerProps) {
             !isPreviewingNavigation &&
             !showAnonymousDataPopup,
         })}
-        id={"canvas-viewport"}
+        id={CANVAS_VIEWPORT}
         isAppSettingsPaneWithNavigationTabOpen={
           isAppSettingsPaneWithNavigationTabOpen
         }

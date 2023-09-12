@@ -33,7 +33,7 @@ import {
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getDefaultISDCode } from "../component/ISDCodeDropdown";
 import IconSVG from "../icon.svg";
@@ -452,7 +452,7 @@ class PhoneInputWidget extends BaseInputWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const value = this.props.text ?? "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;

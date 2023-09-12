@@ -250,9 +250,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 if (TRUE.equals(isVerificationRequired)) {
                     return postVerificationRequiredHandler(webFilterExchange, user, null, FALSE);
                 } else {
-                    return userService
-                            .sendWelcomeEmail(user, originHeader)
-                            .then(redirectHelper.handleRedirect(webFilterExchange, null, false));
+                    return redirectHelper.handleRedirect(webFilterExchange, null, false);
                 }
             });
         }

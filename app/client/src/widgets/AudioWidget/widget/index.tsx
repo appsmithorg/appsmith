@@ -12,7 +12,7 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { SetterConfig } from "entities/AppTheming";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
@@ -244,7 +244,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     const { onEnd, onPause, onPlay, playing, url } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>
