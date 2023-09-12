@@ -85,7 +85,7 @@ export const blockedApiRoutesForAirgapInterceptor = (
 // Request interceptor will add a timer property to the request.
 // this will be used to calculate the time taken for an action
 // execution request
-export const apiRequestInterceptor = async (config: AxiosRequestConfig) => {
+export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   config.headers = config.headers ?? {};
 
   // Add header for CSRF protection.
@@ -104,7 +104,7 @@ export const apiRequestInterceptor = async (config: AxiosRequestConfig) => {
   }
 
   if (ENV_ENABLED_ROUTES_REGEX.test(config.url?.split("?")[0] || "")) {
-    // Add header for environment id if the route is using envs
+    // Add header for environment name
     const activeEnv = getCurrentEnvironmentId(state);
 
     if (activeEnv && config.headers) {
