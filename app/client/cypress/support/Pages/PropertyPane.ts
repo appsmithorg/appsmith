@@ -162,6 +162,7 @@ export class PropertyPane {
     ".currency-change-dropdown-trigger .remixicon-icon";
   _countryCodeChangeDropDown = ".t--input-country-code-change .remixicon-icon";
   _searchCountryPlaceHolder = "[placeholder='Search by ISD code or country']";
+  _closeModal = "//*[contains(@class,'ads-v2-button t--close')]";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
