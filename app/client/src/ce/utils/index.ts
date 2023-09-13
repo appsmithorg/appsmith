@@ -11,7 +11,8 @@ export const addItemsInContextMenu = (
   return moreActionItems;
 };
 
-export const useHtmlPageTitle = () => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const getHtmlPageTitle = (instanceName: string) => {
   return "Appsmith";
 };
 
