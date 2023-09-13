@@ -75,14 +75,14 @@ describe(
       multipleEnv.VerifyEnvDetailsInReviewMode("PostgreSQL", stagingEnv);
     });
 
-    it("2. Create and test query responses for both ds on both environmets and add to a table", function () {
+    it("2. Create and test query responses for both ds on both environmets and add Suggested table", function () {
       // Create a query on the ME ds
-      const query = 'SELECT * FROM public."users" LIMIT 10;';
+      const query = 'SELECT * FROM public."city"';
       dataSources.CreateQueryFromActiveTab(meDatasourceName);
       agHelper.RenameWithInPane(meQueryName, true);
       dataSources.EnterQuery(query);
       // Run and verify the response for the query
-      dataSources.RunQueryNVerifyResponseViews(3);
+      dataSources.RunQueryNVerifyResponseViews(600);
 
       dataSources.AddSuggestedWidget(Widgets.Table);
       // Create query on staging only DS
@@ -96,13 +96,21 @@ describe(
         meStagingOnlyQueryName,
       );
       // Run and verify the response for the query
-      dataSources.RunQuery();
+      dataSources.RunQueryNVerifyResponseViews(43);
       multipleEnv.SwitchEnv(prodEnv);
-      // verify query fails on prod
+      // verify query fails on prod for staging only configured DS
       dataSources.RunQuery({ expectedStatus: false });
+      cy.get("@postExecute").then((interception: any) => {
+        expect(interception.response.body.data.title).to.eq(
+          "Datasource not configured for the given environment",
+        );
+        expect(interception.response.body.data.body).contains(
+          "does not have a valid production configuration",
+        );
+      });
       // Bind the postgres query to a table
       multipleEnv.SwitchEnv(stagingEnv);
-      dataSources.RunQuery();
+      dataSources.RunQueryNVerifyResponseViews(43);
       agHelper.GetNClick(
         entityExplorer._entityNameInExplorer(meStagingOnlyQueryName),
       );
@@ -113,31 +121,43 @@ describe(
 
     it("3. Check table response for both environments", function () {
       // Check the records on the table
-      cy.get(locators._tableRecordsContainer).should("contain", "3 Records");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "43 Records",
+      );
       multipleEnv.SwitchEnv(prodEnv);
-      cy.get(locators._tableRecordsContainer).should("contain", "0 Records");
+      agHelper.ValidateToastMessage(
+        'The action "postgres_stageonly_select" has failed.',
+      );
+      agHelper.GetNAssertContains(locators._tableRecordsContainer, "0 Records");
       entityExplorer.SelectEntityByName("Page1", "Pages");
-      cy.get(locators._tableRecordsContainer).should("contain", "3 Records");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "600 Records",
+      );
       multipleEnv.SwitchEnv(stagingEnv);
-      cy.get(locators._tableRecordsContainer).should("contain", "3 Records");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "43 Records",
+      );
     });
 
     it("4. Generate CRUD page for both datasources", function () {
       dataSources.NavigateFromActiveDS(meDatasourceName, false);
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "orders");
-      agHelper.GetNClick(dataSources._generatePageBtn);
+      agHelper.GetNClickByContains(dataSources._dropdownOption, "city");
+      agHelper.ClickButton("Generate page");
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-      agHelper.AssertContains("Successfully generated a page");
+      agHelper.ValidateToastMessage("Successfully generated a page");
       //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
       assertHelper.AssertNetworkStatus("@postExecute", 200);
-      agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+      agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
       agHelper.Sleep(2000);
       table.WaitUntilTableLoad();
-      // verify genertae crud option is  not present on prod
+      // verify generate crud option is not present on prod
       multipleEnv.SwitchEnv(prodEnv);
-      dataSources.AssertDSActive(meDSStagingOnlyName);
+      dataSources.NavigateToActiveTab();
       dataSources.AssertReconnectDS(meDSStagingOnlyName);
     });
 
@@ -153,17 +173,14 @@ describe(
         "present",
       );
       featureFlagIntercept({ release_datasource_environments_enabled: true });
-      agHelper.GetNClickByContains(locators._deployedPage, "Public.orders");
+      agHelper.GetNClickByContains(locators._deployedPage, "Public.city");
       agHelper.AssertElementExist(dataSources._selectedRow);
 
       table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
-        expect($cellData).to.eq("VINET");
+        expect($cellData).to.eq("A Corua (La Corua)");
       });
-      table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq("1996-07-04");
-      });
-      table.ReadTableRowColumnData(0, 4, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq("1996-08-01");
+      table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+        expect($cellData).to.eq("87");
       });
 
       //Validating loaded JSON form
@@ -175,18 +192,15 @@ describe(
             expect(classes).not.contain("bp3-disabled");
           });
       });
-      dataSources.AssertJSONFormHeader(0, 0, "order_id");
+      dataSources.AssertJSONFormHeader(0, 0, "city_id", "1");
       multipleEnv.SwitchEnv(prodEnv);
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
       table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
-        expect($cellData).to.eq("VINET");
+        expect($cellData).to.eq("A Corua (La Corua)");
       });
-      table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq("1996-07-04");
-      });
-      table.ReadTableRowColumnData(0, 4, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq("1996-08-01");
+      table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+        expect($cellData).to.eq("87");
       });
 
       //Validating loaded JSON form
@@ -198,18 +212,27 @@ describe(
             expect(classes).not.contain("bp3-disabled");
           });
       });
-      dataSources.AssertJSONFormHeader(0, 0, "order_id");
+      dataSources.AssertJSONFormHeader(0, 0, "city_id", "1");
       agHelper.AssertElementExist(multipleEnv.env_switcher);
       // Check table values for binded tables
       multipleEnv.SwitchEnv(prodEnv);
       agHelper.GetNClickByContains(locators._deployedPage, "Page1");
-      cy.get(locators._tableRecordsContainer).should("contain", "3 Records");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "600 Records",
+      );
       agHelper.GetNClickByContains(locators._deployedPage, "Page2");
-      cy.get(locators._tableRecordsContainer).should("contain", "0 Records");
+      agHelper.GetNAssertContains(locators._tableRecordsContainer, "0 Records");
       multipleEnv.SwitchEnv(stagingEnv);
-      cy.get(locators._tableRecordsContainer).should("contain", "3 Records");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "43 Records",
+      );
       agHelper.GetNClickByContains(locators._deployedPage, "Page1");
-      cy.get(locators._tableRecordsContainer).should("contain", "3 Records");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "43 Records",
+      );
       deployMode.NavigateBacktoEditor();
       multipleEnv.SwitchEnv(prodEnv);
       // Clean up

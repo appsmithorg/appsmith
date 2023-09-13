@@ -906,7 +906,7 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
-    this.AssertDSActive(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
+    this.AssertDSInActiveList(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
       .then(($element) => {
@@ -923,7 +923,7 @@ export class DataSources {
       this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
   }
 
-  public AssertDSActive(dsName: string | RegExp) {
+  public AssertDSInActiveList(dsName: string | RegExp) {
     this.entityExplorer.NavigateToSwitcher("Explorer", 0, true);
     this.entityExplorer.ExpandCollapseEntity("Datasources", false);
     //this.entityExplorer.SelectEntityByName(datasourceName, "Datasources");
