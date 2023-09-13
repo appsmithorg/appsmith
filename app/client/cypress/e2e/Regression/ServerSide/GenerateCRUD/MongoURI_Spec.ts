@@ -34,7 +34,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
         "/img/products/mug.jpg",
         "Coffee Mug",
         `Kitchen`,
-        4,
+        0,
       );
 
       deployMode.NavigateBacktoEditor();
@@ -62,7 +62,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
     //Validating loaded table
     table.SelectTableRow(2, 0, true, "v2");
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(2, 0, "v2", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.be.empty;
     });
     table.ReadTableRowColumnData(2, 6, "v2", 2000).then(($cellData) => {
@@ -155,7 +155,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
     table.OpenNFilterTable("title", "contains", "USB");
     for (let i = 0; i < 3; i++) {
-      table.ReadTableRowColumnData(i, 6, "v2").then(($cellData) => {
+      table.ReadTableRowColumnData(i, 5, "v2").then(($cellData) => {
         expect($cellData).contains("USB");
       });
     }
@@ -194,7 +194,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 });
 
 function GenerateCRUDNValidateDeployPage(
-  col1Text: string,
+  col2Text: string,
   col6Text: string,
   col7Text: string,
   idIndex: number,
@@ -211,8 +211,8 @@ function GenerateCRUDNValidateDeployPage(
 
   //Validating loaded table
   agHelper.AssertElementExist(dataSources._selectedRow);
-  table.ReadTableRowColumnData(0, 1, "v2", 2000).then(($cellData) => {
-    expect($cellData).to.eq(col1Text);
+  table.ReadTableRowColumnData(0, 2, "v2", 2000).then(($cellData) => {
+    expect($cellData).to.eq(col2Text);
   });
   table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
     expect($cellData).to.eq(col6Text);

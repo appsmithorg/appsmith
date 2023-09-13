@@ -230,6 +230,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     agHelper.ClickButton("Cancel");
     agHelper.AssertElementAbsence(locators._visibleTextSpan("Update File")); //verifying Update File dialog is closed
 
+    // Click on the list item first:
+    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
+
     agHelper.GetNClick(dataSources._s3CrudIcons(fixturePath, "Edit"));
     agHelper.ClickButton("Select File"); //1 files selected
     agHelper.UploadFile(imageNameToUpload, true, 2);
