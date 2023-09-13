@@ -1,6 +1,7 @@
 import {
   agHelper,
   apiPage,
+  dataManager,
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 
@@ -30,7 +31,12 @@ describe("Block Action Execution when no field is present", () => {
 
   it("3. Ensure Run button is disabled for Post UQI Datasources e.g. Oracle when no body data is present", () => {
     let name: any;
-    dataSources.CreateDataSource("Oracle", true, false);
+    dataSources.CreateDataSource(
+      "Oracle",
+      true,
+      false,
+      dataManager.environments[1], //using staging mock data
+    );
     cy.get("@dsName").then(($dsName) => {
       name = $dsName;
 
