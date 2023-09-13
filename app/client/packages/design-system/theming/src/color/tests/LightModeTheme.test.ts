@@ -322,3 +322,98 @@ describe("bgNeutralSubtle color", () => {
     expect(bgNeutralSubtle).toEqual("rgb(90.851% 90.851% 90.851%)");
   });
 });
+
+describe("bgNeutralSubtleHover color", () => {
+  it("should return correct color", () => {
+    const { bgNeutralSubtleHover } = new LightModeTheme(
+      "oklch(0.92 0.1 170)",
+    ).getColors();
+
+    expect(bgNeutralSubtleHover).toEqual("rgb(91.102% 94.398% 93.061%)");
+  });
+});
+
+describe("bgNeutralSubtleActive color", () => {
+  it("should return correct color", () => {
+    const { bgNeutralSubtleActive } = new LightModeTheme(
+      "oklch(0.92 0.1 170)",
+    ).getColors();
+
+    expect(bgNeutralSubtleActive).toEqual("rgb(87.229% 90.5% 89.174%)");
+  });
+});
+
+describe("bgPositive color", () => {
+  it("should return correct color when seed color is green (hue between 116 and 165) and chroma > 0.11", () => {
+    const { bgPositive } = new LightModeTheme(
+      "oklch(0.62 0.19 145)",
+    ).getColors();
+    expect(bgPositive).toEqual("rgb(30.224% 61.63% 0%)");
+  });
+
+  it("should return correct color when seed color is green (hue between 116 and 165) but chroma is not greater than 0.11", () => {
+    const { bgPositive } = new LightModeTheme(
+      "oklch(0.62 0.1 145)",
+    ).getColors();
+    expect(bgPositive).toEqual("rgb(6.7435% 63.436% 18.481%)");
+  });
+
+  it("should return correct color when seed color is not green (hue outside 116-165) and chroma > 0.11", () => {
+    const { bgPositive } = new LightModeTheme(
+      "oklch(0.62 0.19 100)",
+    ).getColors();
+    expect(bgPositive).toEqual("rgb(6.7435% 63.436% 18.481%)");
+  });
+
+  it("should return correct color when seed color is not green (hue outside 116-165) and chroma is not greater than 0.11", () => {
+    const { bgPositive } = new LightModeTheme(
+      "oklch(0.62 0.1 100)",
+    ).getColors();
+    expect(bgPositive).toEqual("rgb(6.7435% 63.436% 18.481%)");
+  });
+});
+
+describe("bgPositiveHover color", () => {
+  it("should return correct color", () => {
+    const { bgPositiveHover } = new LightModeTheme(
+      "oklch(0.62 0.19 100)",
+    ).getColors();
+    expect(bgPositiveHover).toEqual("rgb(18.172% 69.721% 25.266%)");
+  });
+});
+
+describe("bgPositiveActive color", () => {
+  it("should return correct color", () => {
+    const { bgPositiveActive } = new LightModeTheme(
+      "oklch(0.62 0.19 100)",
+    ).getColors();
+    expect(bgPositiveActive).toEqual("rgb(0% 60.947% 15.563%)");
+  });
+});
+
+describe("bgPositiveSubtle color", () => {
+  it("should return correct color", () => {
+    const { bgPositiveSubtle } = new LightModeTheme(
+      "oklch(0.62 0.19 100)",
+    ).getColors();
+    expect(bgPositiveSubtle).toEqual("rgb(81.329% 100% 81.391%)");
+  });
+});
+
+describe("bgPositiveSubtleHover color", () => {
+  it("should return correct color", () => {
+    const { bgPositiveSubtleHover } = new LightModeTheme(
+      "oklch(0.62 0.19 100)",
+    ).getColors();
+    expect(bgPositiveSubtleHover).toEqual("rgb(84.848% 100% 84.841%)");
+  });
+});
+
+describe("bgPositiveSubtleActive color", () => {
+  it("should return correct color", () => {
+    const { bgPositiveSubtleActive } = new LightModeTheme(
+      "oklch(0.62 0.19 100)",
+    ).getColors();
+    expect(bgPositiveSubtleActive).toEqual("rgb(80.049% 98.746% 80.116%)");
+  });
+});
