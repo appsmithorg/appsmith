@@ -101,19 +101,15 @@ export function TemplateLayout(props: TemplateLayoutProps) {
     }
   };
 
-  const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
+  const onForkButtonTrigger = () => {
     if (props.onForkTemplateClick) {
-      e.preventDefault();
-      e.stopPropagation();
       props.onForkTemplateClick(props.template);
     } else {
-      e.stopPropagation();
       setShowForkModal(true);
     }
   };
 
-  const onForkModalClose = (e?: React.MouseEvent<HTMLElement>) => {
-    e?.stopPropagation();
+  const onForkModalClose = () => {
     setShowForkModal(false);
   };
 

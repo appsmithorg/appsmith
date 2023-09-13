@@ -312,11 +312,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                 className={"t--generate-template"}
                 isDisabled={!canGeneratePage}
                 kind="secondary"
-                onClick={(e: any) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  routeToGeneratePage();
-                }}
+                onClick={routeToGeneratePage}
                 size="md"
               >
                 {createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)}
@@ -326,11 +322,7 @@ function DatasourceCard(props: DatasourceCardProps) {
               <Button
                 className={"t--reconnect-btn"}
                 kind="secondary"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  editDatasource();
-                }}
+                onClick={editDatasource}
                 size="md"
               >
                 {createMessage(RECONNECT_BUTTON_TEXT)}

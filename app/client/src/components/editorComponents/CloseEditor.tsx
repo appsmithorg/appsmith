@@ -41,8 +41,7 @@ function CloseEditor() {
     integrationTab = INTEGRATION_TABS.NEW;
   }
 
-  const handleClose = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleClose = () => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CLOSE_SIDE_PANE,
       { path: location.pathname },

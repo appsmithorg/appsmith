@@ -311,8 +311,7 @@ export function CustomRolesRamp() {
       <RampLink
         className="inline"
         kind="primary"
-        onClick={(e: React.MouseEvent) => {
-          e.preventDefault();
+        onClick={() => {
           setDynamicProps({ visible: false });
           window.open(rampLink, "_blank");
           // This reset of prop is required because, else the tooltip will be controlled by the state

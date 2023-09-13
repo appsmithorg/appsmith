@@ -177,17 +177,12 @@ function DebuggerEntityLink(props: {
   entityType: ENTITY_TYPE;
   uiComponent: DebuggerLinkUI;
 }) {
-  const onClick = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
-    props.onClick();
-  };
-
   switch (props.uiComponent) {
     case DebuggerLinkUI.ENTITY_TYPE:
       return (
         <span className="debugger-entity">
           [
-          <Link kind="secondary" onClick={onClick}>
+          <Link kind="secondary" onClick={props.onClick}>
             {props.name}
           </Link>
           ]
@@ -197,7 +192,7 @@ function DebuggerEntityLink(props: {
       return (
         <Link
           className="debugger-entity-link t--debugger-log-entity-link"
-          onClick={onClick}
+          onClick={props.onClick}
         >
           {props.name}
         </Link>

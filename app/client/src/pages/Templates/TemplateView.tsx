@@ -132,8 +132,7 @@ function TemplateView() {
   const currentTemplate = useSelector(getActiveTemplateSelector);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const goToTemplateListView = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const goToTemplateListView = () => {
     history.push(TEMPLATES_PATH);
   };
 

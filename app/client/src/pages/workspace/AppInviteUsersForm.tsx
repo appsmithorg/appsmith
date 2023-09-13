@@ -70,8 +70,7 @@ function AppInviteUsersForm(props: any) {
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
-  const copyToClipboard = (e: any) => {
-    e.preventDefault();
+  const copyToClipboard = () => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(appViewEndPoint);
     } else {
@@ -127,7 +126,7 @@ function AppInviteUsersForm(props: any) {
           data-testid={"copy-application-url"}
           endIcon="links-line"
           kind="tertiary"
-          onClick={(e) => copyToClipboard(e)}
+          onClick={copyToClipboard}
           size="md"
         >
           {`${

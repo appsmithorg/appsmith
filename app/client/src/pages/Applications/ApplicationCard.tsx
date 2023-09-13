@@ -441,37 +441,27 @@ export function ApplicationCard(props: ApplicationCardProps) {
     });
   }, [props.application.defaultPageId, params]);
 
-  const launchApp = useCallback(
-    (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setURLParams();
-      history.push(
-        viewerURL({
-          pageId: props.application.defaultPageId,
-          params,
-        }),
-      );
-      dispatch(getCurrentUser());
-    },
-    [props.application.defaultPageId],
-  );
+  const launchApp = useCallback(() => {
+    setURLParams();
+    history.push(
+      viewerURL({
+        pageId: props.application.defaultPageId,
+        params,
+      }),
+    );
+    dispatch(getCurrentUser());
+  }, [props.application.defaultPageId]);
 
-  const editApp = useCallback(
-    (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setURLParams();
-      history.push(
-        builderURL({
-          pageId: props.application.defaultPageId,
-          params,
-        }),
-      );
-      dispatch(getCurrentUser());
-    },
-    [props.application.defaultPageId],
-  );
+  const editApp = useCallback(() => {
+    setURLParams();
+    history.push(
+      builderURL({
+        pageId: props.application.defaultPageId,
+        params,
+      }),
+    );
+    dispatch(getCurrentUser());
+  }, [props.application.defaultPageId]);
 
   return (
     <Card
