@@ -86,9 +86,6 @@ export const assistiveBindingHinter: HintHelper = (
         },
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      if (!list.length) return false;
-
       AnalyticsUtil.logEvent("ASSISTIVE_JS_BINDING_TRIGGERED", {
         query: value,
         suggestedOptionCount: list.filter(
@@ -106,24 +103,24 @@ export const assistiveBindingHinter: HintHelper = (
         text: "",
         shortcut: "",
       };
+      const cursor = editor.getCursor();
+      const currentLine = cursor.line;
+      const currentCursorPosition =
+        value === PARTIAL_BINDING ? cursor.ch + 1 : cursor.ch;
+      const hints = {
+        list,
+        from: {
+          ch: currentCursorPosition - value.length,
+          line: currentLine,
+        },
+        to: {
+          ch: currentCursorPosition,
+          line: currentLine,
+        },
+        selectedHint: list[0]?.isHeader ? 1 : 0,
+      };
       editor.showHint({
         hint: () => {
-          const cursor = editor.getCursor();
-          const currentLine = cursor.line;
-          const currentCursorPosition =
-            value === PARTIAL_BINDING ? cursor.ch + 1 : cursor.ch;
-          const hints = {
-            list,
-            from: {
-              ch: currentCursorPosition - value.length,
-              line: currentLine,
-            },
-            to: {
-              ch: currentCursorPosition,
-              line: currentLine,
-            },
-            selectedHint: list[0]?.isHeader ? 1 : 0,
-          };
           function handleSelection(selected: CommandsCompletion) {
             currentSelection = selected;
           }
@@ -139,7 +136,6 @@ export const assistiveBindingHinter: HintHelper = (
                 ch: newCursorPosition,
               });
             });
-
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { data } = selected;
             const { name, type } = data as any;
