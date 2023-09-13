@@ -93,7 +93,7 @@ jobs:
         run: echo "$STEPS_CONTEXT"
 
       # In case this is second attempt try restoring failed tests
-      - if : steps.run_result.outputs.run_result == 'failedtest'
+      - if: steps.run_result.outputs.run_result == 'failedtest'
         run: echo "failed_spec_artifact=failed-spec-ci-$((${{github.run_attempt}}-1))" >> $GITHUB_ENV
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
@@ -136,12 +136,12 @@ jobs:
 
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
-      
+
       - name: Setup mongodb-tools
         run: |
           wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.6.1.deb
           sudo apt install ./mongodb-database-tools-*-100.6.1.deb
-      
+
       - name: Download mongodb archive
         run: |
           curl -o data.gz https://appsmithctl-backup-restore-test.s3.ap-south-1.amazonaws.com/docdb-data.gz
@@ -173,7 +173,6 @@ jobs:
         run: |
           chmod 400 ssh_key.pem 
           ssh -4 -o StrictHostKeyChecking=no -o ServerAliveInterval=180 -o ServerAliveCountMax=5 -i "ssh_key.pem" -L 0.0.0.0:27010:docdb-ansible-test-cluster.cluster-cz8diybf9wdj.ap-south-1.docdb.amazonaws.com:27017 ubuntu@65.1.106.35 -N -f
-      
 
       - name: Run Appsmith, CS & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
@@ -257,7 +256,7 @@ jobs:
         working-directory: app/client
         run: |
           yarn install --immutable
-          
+
       - name: Wait until appsmith server is healthy
         run: |
           bash scripts/health_check.sh
@@ -283,6 +282,10 @@ jobs:
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
@@ -379,6 +382,10 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
@@ -450,6 +457,10 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
@@ -512,7 +523,7 @@ jobs:
           name: dockerlogs
           path: ~/dockerlogs
 
-      - name: Rename reports 
+      - name: Rename reports
         if: always()
         run: |
           mkdir -p ~/results
@@ -562,7 +573,7 @@ jobs:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-      
+
       - name: get cypress url dashboard url
         id: dashboard_url
         if: always()
