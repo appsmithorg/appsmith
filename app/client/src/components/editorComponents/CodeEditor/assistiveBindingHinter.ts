@@ -109,6 +109,21 @@ export const assistiveBindingHinter: HintHelper = (
       const currentLine = cursor.line;
       const currentCursorPosition =
         value === PARTIAL_BINDING ? cursor.ch + 1 : cursor.ch;
+      list.unshift({
+        text: "\n",
+        displayText: "",
+        from: cursor,
+        to: cursor,
+        render: (element: any) => {
+          element.style.display = "none";
+        },
+        origin: "",
+        type: AutocompleteDataType.UNKNOWN,
+        data: {
+          doc: "",
+        },
+        shortcut: "",
+      });
       const hints = {
         list,
         from: {
@@ -119,7 +134,7 @@ export const assistiveBindingHinter: HintHelper = (
           ch: currentCursorPosition,
           line: currentLine,
         },
-        selectedHint: list[0]?.isHeader ? 1 : 0,
+        selectedHint: 0,
       };
       editor.showHint({
         hint: () => {
@@ -127,6 +142,9 @@ export const assistiveBindingHinter: HintHelper = (
             currentSelection = selected;
           }
           function handlePick(selected: CommandsCompletion) {
+            if (selected.displayText === "") {
+              return;
+            }
             const cursor = editor.getCursor();
             const currentLine = cursor.line;
             const currentCursorPosition = cursor.ch;
@@ -176,12 +194,14 @@ export const assistiveBindingHinter: HintHelper = (
             if (currentSelection.isHeader === true) {
               handle.moveFocus(-1);
             }
+            if (currentSelection.displayText === "") handle.moveFocus(-1);
           },
           Down: (cm: CodeMirror.Editor, handle: any) => {
             handle.moveFocus(1);
             if (currentSelection.isHeader === true) {
               handle.moveFocus(1);
             }
+            if (currentSelection.displayText === "") handle.moveFocus(1);
           },
         },
         completeSingle: false,
