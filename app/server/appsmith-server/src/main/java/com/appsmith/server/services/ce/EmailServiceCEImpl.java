@@ -97,7 +97,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                 .flatMap(updatedParams -> emailSender.sendMail(
                         invitedUser.getEmail(),
                         String.format(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
-                        INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE,
+                        getAdminInstanceInviteTemplate(),
                         updatedParams));
     }
 
@@ -119,6 +119,10 @@ public class EmailServiceCEImpl implements EmailServiceCE {
 
     protected String getWorkspaceInviteTemplate() {
         return INVITE_WORKSPACE_TEMPLATE_CE;
+    }
+
+    protected String getAdminInstanceInviteTemplate() {
+        return INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE;
     }
 
     private Map<String, String> getInviteToWorkspaceEmailParams(
