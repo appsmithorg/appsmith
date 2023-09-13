@@ -64,42 +64,23 @@ const FlexWrapper = styled.div<{ disabled?: boolean }>`
 `;
 
 export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
-  const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
-  const { columns: data, primaryColumn } = useColumns("", false);
+  const { updateConfig } = useContext(WidgetQueryGeneratorFormContext);
+  const { columns, primaryColumn, selectedColumnsNames } = useColumns(
+    "",
+    false,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [originalColumns, setOriginalColumns] = useState<string[]>([]); // to reset the selected columns on cancel
-  const [selectedColumns, setSelectedColumns] = useState<string[]>([]); // to update the selected columns on save
+  const [transientSelectedColumnsNames, setTrainsientSelectedColumnsNames] =
+    useState<string[]>([]); // to update the selected columns on save
 
   useEffect(() => {
-    if (data) {
-      const initialSelectedColumns =
-        config?.selectedColumns && config?.selectedColumns.length > 0
-          ? config.selectedColumns
-          : data
-              .filter((column: any) => column.isSelected)
-              .map((column: any) => column.name);
-      setSelectedColumns(initialSelectedColumns);
-      setOriginalColumns(initialSelectedColumns);
-    }
-  }, [data, config]);
-
-  const updatedData = useMemo(() => {
-    return data?.map((column: any) => {
-      return {
-        ...column,
-        isSelected: selectedColumns?.includes(column.name),
-      };
-    });
-  }, [data, selectedColumns]);
-
-  const isSaveDisabled = useMemo(() => {
-    return updatedData?.every((column: any) => !column.isSelected);
-  }, [updatedData]);
+    setTrainsientSelectedColumnsNames(selectedColumnsNames);
+  }, [selectedColumnsNames]);
 
   const handleSelect = (row: any, isSelected: boolean) => {
     if (row) {
       const col = row.original;
-      setSelectedColumns((prevSelectedColumns) => {
+      setTrainsientSelectedColumnsNames((prevSelectedColumns) => {
         if (isSelected) {
           return [...prevSelectedColumns, col.name];
         } else {
@@ -110,13 +91,12 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
   };
 
   const onCancel = () => {
-    setSelectedColumns(originalColumns);
+    setTrainsientSelectedColumnsNames(selectedColumnsNames);
     setIsModalOpen(false);
   };
 
   const handleSave = () => {
-    updateConfig("selectedColumns", selectedColumns);
-    setOriginalColumns(selectedColumns);
+    updateConfig("selectedColumns", transientSelectedColumnsNames);
     setIsModalOpen(false);
   };
 
@@ -127,7 +107,20 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
     }
   };
 
-  const columns = [
+  const tableData = useMemo(() => {
+    return columns?.map((column) => {
+      return {
+        ...column,
+        isSelected: transientSelectedColumnsNames?.includes(column.name),
+      };
+    });
+  }, [columns, transientSelectedColumnsNames]);
+
+  const isSaveDisabled = useMemo(() => {
+    return !tableData?.some((column) => column.isSelected);
+  }, [tableData]);
+
+  const tableColumnHeaders = [
     {
       Header: createMessage(COLUMN_NAME),
       accessor: "name",
@@ -184,8 +177,8 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
           </ModalHeader>
           <StyledModalBody>
             <EditFieldsTable
-              columns={columns}
-              data={updatedData || []}
+              columns={tableColumnHeaders}
+              data={tableData || []}
               rowProps={(row: any) => {
                 const isDisabled = row.original.name === primaryColumn;
                 return {

@@ -122,7 +122,7 @@ export default abstract class Snowflake extends BaseQueryGenerator {
         body: `UPDATE ${formConfig.tableName} SET ${columns
           .map((column) => `${column}= '{{${value}.${column}}}'`)
           .join(", ")} WHERE ${formConfig.primaryColumn}= '{{${where}.${
-          formConfig.primaryColumn
+          formConfig.dataIdentifier
         }}}';`,
       },
       dynamicBindingPathList: [

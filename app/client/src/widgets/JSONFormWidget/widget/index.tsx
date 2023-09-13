@@ -20,7 +20,10 @@ import {
 } from "./helper";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { convertSchemaItemToFormData, getDefaultValues } from "../helper";
+import {
+  convertSchemaItemToFormData,
+  generateSchemaWithDefaultValues,
+} from "../helper";
 import type {
   ButtonStyles,
   ChildStylesheet,
@@ -52,10 +55,11 @@ import type {
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { toast } from "design-system";
 import {
-  createMessage,
   ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
+  ONSUBMIT_NOT_CONFIGURED_ACTION_URL,
   ONSUBMIT_NOT_CONFIGURED_MESSAGE,
 } from "../constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -244,11 +248,14 @@ class JSONFormWidget extends BaseWidget<
         formConfig: WidgetQueryGenerationFormConfig,
       ) => {
         let modify = {};
-        const dynamicPropertyPathList: DynamicPath[] = [];
+        const dynamicPropertyPathList: DynamicPath[] = [
+          ...(widget.dynamicPropertyPathList || []),
+        ];
 
         if (queryConfig.create) {
+          const columns = formConfig.columns;
           modify = {
-            sourceData: getDefaultValues(formConfig),
+            sourceData: generateSchemaWithDefaultValues(columns),
             onSubmit: queryConfig.create.run,
           };
         }
@@ -667,7 +674,7 @@ class JSONFormWidget extends BaseWidget<
             text: createMessage(ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT),
             effect: () =>
               window.open(
-                "https://docs.appsmith.com/build-apps/how-to-guides/submit-form-data",
+                createMessage(ONSUBMIT_NOT_CONFIGURED_ACTION_URL),
                 "_blank",
               ),
           },
@@ -791,8 +798,7 @@ class JSONFormWidget extends BaseWidget<
         scrollContents={this.props.scrollContents}
         setMetaInternalFieldState={this.setMetaInternalFieldState}
         showConnectDataOverlay={
-          this.props.sourceData &&
-          !Object.keys(this.props.sourceData).length &&
+          isEmpty(this.props.sourceData) &&
           this.props.renderMode === RenderModes.CANVAS
         }
         showReset={this.props.showReset}

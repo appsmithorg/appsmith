@@ -347,7 +347,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       getOneClickBindingConnectableWidgetConfig: (widget: WidgetProps) => {
         return {
           widgetBindPath: `${widget.widgetName}.selectedRow`,
-          message: `Make sure ${widget.widgetName} columns are bound to the same data source`,
+          message: `Make sure ${widget.widgetName} is bound to the same data source`,
         };
       },
     };

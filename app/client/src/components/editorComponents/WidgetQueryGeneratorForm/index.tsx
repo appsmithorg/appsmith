@@ -16,9 +16,10 @@ import {
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
 import type { AlertMessage, Alias, OtherField } from "./types";
 import {
+  CONNECT_BUTTON_TEXT,
   createMessage,
-  TABLE_CONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
+
 import { DROPDOWN_VARIANT } from "./CommonControls/DatasourceDropdown/types";
 
 type WidgetQueryGeneratorFormContextType = {
@@ -122,7 +123,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     aliases,
     alertMessage,
     showEditFieldsModal = false,
-    actionButtonCtaText = createMessage(TABLE_CONNECT_BUTTON_TEXT),
+    actionButtonCtaText = createMessage(CONNECT_BUTTON_TEXT),
     errorMsg,
     excludePrimaryColumnFromQueryGeneration,
     expectedType,

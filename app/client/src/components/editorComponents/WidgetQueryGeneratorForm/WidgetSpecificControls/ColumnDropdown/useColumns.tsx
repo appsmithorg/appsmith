@@ -98,9 +98,10 @@ export function useColumns(alias: string, isSearcheable: boolean) {
           name: column.value,
           type: "string",
           isSelected:
-            column.name === primaryColumn
-              ? !excludePrimaryColumnFromQueryGeneration
-              : column?.isSelected === undefined || column?.isSelected,
+            (column.name !== primaryColumn ||
+              !excludePrimaryColumnFromQueryGeneration) &&
+            (!config.selectedColumns ||
+              config.selectedColumns.includes(column.name)),
         };
       });
     } else if (isArray(columns)) {
@@ -109,15 +110,22 @@ export function useColumns(alias: string, isSearcheable: boolean) {
           name: column.name,
           type: prepareColumns(column.type),
           isSelected:
-            column.name === primaryColumn
-              ? !excludePrimaryColumnFromQueryGeneration
-              : column?.isSelected === undefined || column?.isSelected,
+            (column.name !== primaryColumn ||
+              !excludePrimaryColumnFromQueryGeneration) &&
+            (!config.selectedColumns ||
+              config.selectedColumns.includes(column.name)),
         };
       });
     } else {
       return [];
     }
   }, [columns, sheetColumns, config, selectedDatasourcePluginPackageName]);
+
+  const selectedColumnsNames: string[] = useMemo(() => {
+    return columnList
+      .filter((column) => column.isSelected)
+      .map((column) => column.name);
+  }, [columnList]);
 
   const isConnecting = useSelector(
     getisOneClickBindingConnectingForWidget(widgetId),
@@ -140,5 +148,6 @@ export function useColumns(alias: string, isSearcheable: boolean) {
     columns: columnList,
     disabled: isConnecting,
     onClear,
+    selectedColumnsNames,
   };
 }

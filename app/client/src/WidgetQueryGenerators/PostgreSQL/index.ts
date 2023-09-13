@@ -116,9 +116,6 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
 
     const { value, where } = update;
 
-    const dataIdentifier = formConfig.dataIdentifier;
-    const primaryKey = formConfig.primaryColumn || dataIdentifier;
-
     const columns = without(
       formConfig.columns.map((d) => d.name),
       formConfig.primaryColumn,
@@ -130,8 +127,8 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
       payload: {
         body: `UPDATE ${formConfig.tableName} SET ${columns
           .map((column) => `"${column}"= '{{${value}.${column}}}'`)
-          .join(", ")} WHERE "${primaryKey}"= {{${where}.${
-          dataIdentifier || formConfig.primaryColumn
+          .join(", ")} WHERE "${formConfig.primaryColumn}"= {{${where}.${
+          formConfig.dataIdentifier
         }}};`,
       },
       dynamicBindingPathList: [

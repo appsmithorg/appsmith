@@ -7,7 +7,10 @@ export function useFormConfig() {
     WidgetQueryGeneratorFormContext,
   );
 
-  const { columns, primaryColumn } = useColumns("", false);
+  const { columns, primaryColumn, selectedColumnsNames } = useColumns(
+    "",
+    false,
+  );
 
   const dataIdentifierField = otherFields?.find(
     (field) => field.isDataIdentifier && field?.isVisible?.(config),
@@ -24,14 +27,13 @@ export function useFormConfig() {
   })();
 
   const selectedColumns = useMemo(() => {
-    if (!config.selectedColumns || !config.selectedColumns?.length) {
-      return columns?.filter((column) => column.isSelected);
-    } else {
-      return columns?.filter((column) => {
-        return config.selectedColumns?.includes(column.name);
-      });
-    }
-  }, [config.selectedColumns, columns]);
+    return columns?.filter((column) => {
+      return selectedColumnsNames?.includes(column.name);
+    });
+  }, [selectedColumnsNames, columns]);
+
+  const dataIdentifier =
+    dataIdentifierField && config.otherFields?.[dataIdentifierField?.name];
 
   return {
     tableName: config.table,
@@ -41,9 +43,8 @@ export function useFormConfig() {
     tableHeaderIndex: config.tableHeaderIndex,
     searchableColumn,
     columns: selectedColumns,
-    primaryColumn,
-    dataIdentifier:
-      dataIdentifierField && config.otherFields?.[dataIdentifierField?.name],
+    primaryColumn: primaryColumn || dataIdentifier,
+    dataIdentifier: dataIdentifier || primaryColumn,
     connectionMode: config.datasourceConnectionMode,
     aliases: Object.entries(config.alias).map(([key, value]) => ({
       name: key,

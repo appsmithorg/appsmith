@@ -363,7 +363,9 @@ export const isEmpty = (value?: string | null): value is null | undefined => {
   return value === "" || isNil(value);
 };
 
-export const getDefaultValues = (formConfig: any) => {
+export const generateSchemaWithDefaultValues = (
+  columns: Array<Record<string, unknown>>,
+) => {
   const typeMappings: Record<string, unknown> = {
     number: 0,
     string: "",
@@ -371,7 +373,7 @@ export const getDefaultValues = (formConfig: any) => {
     array: [],
   };
 
-  const convertedObject: Record<string, unknown> = formConfig.columns.reduce(
+  const convertedObject: Record<string, unknown> = columns.reduce(
     (obj: any, curr: any) => {
       obj[curr.name] = typeMappings[curr.type];
       return obj;

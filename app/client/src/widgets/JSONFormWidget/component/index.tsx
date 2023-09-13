@@ -19,8 +19,8 @@ import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
 import {
   JSON_FORM_CONNECT_BUTTON_TEXT,
   JSON_FORM_CONNECT_OVERLAY_TEXT,
-  createMessage,
 } from "../constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 
 type StyledContainerProps = {
   backgroundColor?: string;

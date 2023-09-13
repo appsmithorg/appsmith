@@ -2017,12 +2017,9 @@ export const SAVE_CHANGES_DISABLED_TOOLTIP_TEXT = () =>
 export const NO_CONNECTABLE_WIDGET_FOUND = () =>
   "Add a table or list widget with data to get the values from";
 
-export const NO_FIELDS_ADDED = () => "No fields added";
+export const CONNECT_BUTTON_TEXT = () => "Connect data";
 
-// Table widget
-export const TABLE_CONNECT_OVERLAY_TEXT = () =>
-  "Connect your data or use sample data to display table";
-export const TABLE_CONNECT_BUTTON_TEXT = () => "Connect data";
+export const NO_FIELDS_ADDED = () => "No fields added";
 
 // One click binding control
 export const DATASOURCE_DROPDOWN_OPTIONS = {

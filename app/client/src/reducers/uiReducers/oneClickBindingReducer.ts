@@ -24,7 +24,6 @@ const oneClickBindingReducer = createReducer(initialState, {
       ...state,
       isConnecting: true,
       config: action.payload,
-      selectedColumns: undefined,
     };
   },
   [ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_SUCCESS]: (
@@ -34,7 +33,6 @@ const oneClickBindingReducer = createReducer(initialState, {
       ...state,
       isConnecting: false,
       config: null,
-      selectedColumns: undefined,
     };
   },
   [ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_ERROR]: (
@@ -44,7 +42,6 @@ const oneClickBindingReducer = createReducer(initialState, {
       ...state,
       isConnecting: false,
       config: null,
-      selectedColumns: undefined,
     };
   },
   [ReduxActionTypes.SET_ONE_CLICK_BINDING_OPTIONS_VISIBILITY]: (

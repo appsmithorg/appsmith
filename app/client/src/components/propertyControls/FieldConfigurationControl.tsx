@@ -5,7 +5,6 @@ import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import EmptyDataState from "components/utils/EmptyDataState";
 import SchemaParser, {
   getKeysFromSchema,
 } from "widgets/JSONFormWidget/schemaParser";
@@ -208,13 +207,9 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     if (isEmpty(schema)) {
       return (
         <FlexContainer>
-          {this.props.widgetProperties.type === "JSON_FORM_WIDGET" ? (
-            <StyledText color="var(--ads-v2-color-fg-muted)" kind="body-s">
-              {createMessage(NO_FIELDS_ADDED)}
-            </StyledText>
-          ) : (
-            <EmptyDataState />
-          )}
+          <StyledText color="var(--ads-v2-color-fg-muted)" kind="body-s">
+            {createMessage(NO_FIELDS_ADDED)}
+          </StyledText>
           {addNewFieldButton}
         </FlexContainer>
       );

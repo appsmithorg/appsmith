@@ -1,10 +1,3 @@
-export function createMessage(
-  format: (...strArgs: any[]) => string,
-  ...args: any[]
-) {
-  return format(...args);
-}
-
 // JSON Form
 
 export const JSON_FORM_CONNECT_OVERLAY_TEXT = () =>
@@ -18,3 +11,6 @@ export const ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT = () => "Learn more";
 
 export const NO_CONNECTABLE_WIDGET_FOUND = () =>
   "Add a table or list widget with data to get the values from";
+
+export const ONSUBMIT_NOT_CONFIGURED_ACTION_URL = () =>
+  "https://docs.appsmith.com/build-apps/how-to-guides/submit-form-data";
