@@ -593,23 +593,24 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .flatMap(userUtils::removeSuperUser);
 
         Mono<Boolean> newUsersMono = Flux.fromIterable(newUsers)
-                .flatMap(email -> userService.findByEmail(email).flatMap(existingUser -> {
-                    if (existingUser != null) {
-                        return userUtils
-                                .makeSuperUser(Collections.singletonList(existingUser))
-                                .flatMap(success -> Boolean.TRUE.equals(success)
-                                        ? emailService
-                                                .sendInstanceAdminInviteEmail(existingUser, originHeader, false)
-                                                .thenReturn(true)
-                                        : Mono.just(false));
-                    } else {
-                        User user = new User();
-                        user.setEmail(email);
-                        return emailService
-                                .sendInstanceAdminInviteEmail(user, originHeader, true)
-                                .thenReturn(true);
-                    }
-                }))
+                .flatMap(email -> userService.findByEmail(email).flatMap(existingUser -> sessionUserService
+                        .getCurrentUser()
+                        .flatMap(invitingUser -> {
+                            if (existingUser != null) {
+                                return userUtils
+                                        .makeSuperUser(Collections.singletonList(existingUser))
+                                        .flatMap(success -> emailService.sendInstanceAdminInviteEmail(
+                                                existingUser,
+                                                invitingUser,
+                                                originHeader,
+                                                Boolean.TRUE.equals(success)));
+                            } else {
+                                User user = new User();
+                                user.setEmail(email);
+                                return emailService.sendInstanceAdminInviteEmail(
+                                        user, invitingUser, originHeader, true);
+                            }
+                        })))
                 .collectList()
                 .map(results -> results.stream().allMatch(Boolean::booleanValue));
 

@@ -75,22 +75,26 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     }
 
     @Override
-    public Mono<Boolean> sendInstanceAdminInviteEmail(User user, String originHeader, boolean isNewUser) {
+    public Mono<Boolean> sendInstanceAdminInviteEmail(
+            User invitedUser, User invitingUser, String originHeader, boolean isNewUser) {
         Map<String, String> params = new HashMap<>();
         String inviteUrl = isNewUser
                 ? String.format(
                         INVITE_USER_CLIENT_URL_FORMAT,
                         originHeader,
-                        URLEncoder.encode(user.getUsername().toLowerCase(), StandardCharsets.UTF_8))
+                        URLEncoder.encode(invitedUser.getUsername().toLowerCase(), StandardCharsets.UTF_8))
                 : originHeader;
         params.put(PRIMARY_LINK_URL, inviteUrl);
 
         String primaryLinkText = isNewUser ? PRIMARY_LINK_TEXT_USER_SIGNUP : PRIMARY_LINK_TEXT_INVITE_TO_INSTANCE;
         params.put(PRIMARY_LINK_TEXT, primaryLinkText);
 
+        if (invitingUser != null) {
+            params.put(INVITER_FIRST_NAME, StringUtils.defaultIfEmpty(invitingUser.getName(), invitingUser.getEmail()));
+        }
         return this.enrichParams(params)
                 .flatMap(updatedParams -> emailSender.sendMail(
-                        user.getEmail(),
+                        invitedUser.getEmail(),
                         String.format(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
                         INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE,
                         updatedParams));

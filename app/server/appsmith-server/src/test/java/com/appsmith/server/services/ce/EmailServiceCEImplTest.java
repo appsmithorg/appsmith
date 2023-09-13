@@ -153,6 +153,10 @@ class EmailServiceCEImplTest {
 
     @Test
     void testSendInstanceAdminInviteEmail() {
+        User invitingUser = new User();
+        String invitingUserMail = "a@abc.com";
+        invitingUser.setEmail(invitingUserMail);
+
         User invitedUser = new User();
         String invitedUserMail = "b@abc.com";
         invitedUser.setEmail(invitedUserMail);
@@ -161,6 +165,7 @@ class EmailServiceCEImplTest {
 
         Map<String, String> expectedParams = new HashMap<>();
         expectedParams.put(INSTANCE_NAME, "Appsmith");
+        expectedParams.put(INVITER_FIRST_NAME, invitingUserMail);
 
         doAnswer(invocation -> {
                     String to = invocation.getArgument(0);
@@ -173,6 +178,7 @@ class EmailServiceCEImplTest {
                             String.format(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT, expectedParams.get(INSTANCE_NAME)),
                             subject);
                     assertEquals(INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE, text);
+                    assertEquals(expectedParams.get(INVITER_FIRST_NAME), params.get(INVITER_FIRST_NAME));
                     assertTrue(params.containsKey(PRIMARY_LINK_URL));
                     assertTrue(params.containsKey(PRIMARY_LINK_TEXT));
 
@@ -182,7 +188,7 @@ class EmailServiceCEImplTest {
                 .sendMail(anyString(), anyString(), anyString(), anyMap());
 
         emailService
-                .sendInstanceAdminInviteEmail(invitedUser, originHeader, true)
+                .sendInstanceAdminInviteEmail(invitedUser, invitingUser, originHeader, true)
                 .block();
     }
 }

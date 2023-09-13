@@ -12,7 +12,7 @@ public class EmailConstantsCE {
     public static final String PRIMARY_LINK_TEXT = "primaryLinkText";
     public static final String PRIMARY_LINK_TEXT_USER_SIGNUP = "Sign up now";
     public static final String PRIMARY_LINK_TEXT_INVITE_TO_INSTANCE = "Go to instance";
-    public static final String PRIMARY_LINK_TEXT_WORKSPACE_REDIRECTION = "Join your Appsmith workspace";
+    public static final String PRIMARY_LINK_TEXT_WORKSPACE_REDIRECTION = "Go to your Appsmith workspace";
 
     public static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     public static final String WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER = "You’re invited to the workspace %s.";
