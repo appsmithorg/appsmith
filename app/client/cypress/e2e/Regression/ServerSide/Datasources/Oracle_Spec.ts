@@ -8,9 +8,9 @@ import {
 describe("Validate Oracle DS", () => {
   let dataSourceName: string;
 
-  // afterEach("Delete DS", () => {
-  //   dataSources.DeleteDSDirectly(200, false);
-  // });
+  after("Delete Oracle DS", () => {
+    dataSources.DeleteDatasouceFromActiveTab(dataSourceName);
+  });
 
   it("1. Tc #2354 - Oracle placeholder & mandatory mark verification", () => {
     dataSources.NavigateToDSCreateNew();
