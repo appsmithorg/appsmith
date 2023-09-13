@@ -1,9 +1,9 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CompareDslActionDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -40,10 +40,10 @@ public class Layout extends BaseDomain {
 
     @Deprecated
     @JsonView({Views.Public.class, Views.Export.class})
-    Set<DslActionDTO> layoutActions;
+    Set<DslExecutableDTO> layoutActions;
 
     @JsonView({Views.Public.class, Views.Export.class})
-    List<Set<DslActionDTO>> layoutOnLoadActions;
+    List<Set<DslExecutableDTO>> layoutOnLoadActions;
 
     @JsonView({Views.Public.class, Views.Export.class})
     @Override
@@ -59,10 +59,10 @@ public class Layout extends BaseDomain {
 
     @Deprecated
     @JsonView(Views.Internal.class)
-    Set<DslActionDTO> publishedLayoutActions;
+    Set<DslExecutableDTO> publishedLayoutActions;
 
     @JsonView(Views.Internal.class)
-    List<Set<DslActionDTO>> publishedLayoutOnLoadActions;
+    List<Set<DslExecutableDTO>> publishedLayoutOnLoadActions;
 
     @JsonView(Views.Internal.class)
     Set<String> widgetNames;
@@ -71,7 +71,7 @@ public class Layout extends BaseDomain {
     Set<String> allOnPageLoadActionNames;
 
     @JsonView(Views.Internal.class)
-    Set<ActionDependencyEdge> allOnPageLoadActionEdges;
+    Set<ExecutableDependencyEdge> allOnPageLoadActionEdges;
 
     @JsonView(Views.Internal.class)
     Set<String> actionsUsedInDynamicBindings;
@@ -93,12 +93,12 @@ public class Layout extends BaseDomain {
 
     @Deprecated
     @JsonView({Views.Public.class, Views.Export.class})
-    public Set<DslActionDTO> getLayoutActions() {
+    public Set<DslExecutableDTO> getLayoutActions() {
         return viewMode ? publishedLayoutActions : layoutActions;
     }
 
     @JsonView({Views.Public.class, Views.Export.class})
-    public List<Set<DslActionDTO>> getLayoutOnLoadActions() {
+    public List<Set<DslExecutableDTO>> getLayoutOnLoadActions() {
         return viewMode ? publishedLayoutOnLoadActions : layoutOnLoadActions;
     }
 
@@ -109,13 +109,13 @@ public class Layout extends BaseDomain {
         this.setUpdatedAt(null);
         this.setActionsUsedInDynamicBindings(null);
         this.setWidgetNames(null);
-        List<Set<DslActionDTO>> layoutOnLoadActions = this.getLayoutOnLoadActions();
+        List<Set<DslExecutableDTO>> layoutOnLoadActions = this.getLayoutOnLoadActions();
         if (!CollectionUtils.isNullOrEmpty(layoutOnLoadActions)) {
             // Sort actions based on id to commit to git in ordered manner
             for (int dslActionIndex = 0; dslActionIndex < layoutOnLoadActions.size(); dslActionIndex++) {
-                TreeSet<DslActionDTO> sortedActions = new TreeSet<>(new CompareDslActionDTO());
+                TreeSet<DslExecutableDTO> sortedActions = new TreeSet<>(new CompareDslActionDTO());
                 sortedActions.addAll(layoutOnLoadActions.get(dslActionIndex));
-                sortedActions.forEach(DslActionDTO::sanitiseForExport);
+                sortedActions.forEach(DslExecutableDTO::sanitiseForExport);
                 layoutOnLoadActions.set(dslActionIndex, sortedActions);
             }
         }

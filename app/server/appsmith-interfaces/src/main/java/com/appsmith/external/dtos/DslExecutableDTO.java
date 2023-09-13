@@ -1,4 +1,4 @@
-package com.appsmith.server.dtos;
+package com.appsmith.external.dtos;
 
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
@@ -16,7 +16,7 @@ import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXE
 @Setter
 @ToString
 @EqualsAndHashCode
-public class DslActionDTO {
+public class DslExecutableDTO {
     @JsonView(Views.Public.class)
     String id;
 

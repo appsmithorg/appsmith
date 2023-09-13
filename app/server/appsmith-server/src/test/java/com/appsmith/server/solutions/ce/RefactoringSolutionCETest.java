@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -15,7 +16,6 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
@@ -25,6 +25,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.newaction.base.NewActionService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ActionCollectionService;
@@ -32,7 +33,6 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -304,7 +304,7 @@ class RefactoringSolutionCETest {
                 .assertNext(updatedAction -> {
                     assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("PostNameChange");
 
-                    DslActionDTO actionDTO = postNameChangeLayout
+                    DslExecutableDTO actionDTO = postNameChangeLayout
                             .getLayoutOnLoadActions()
                             .get(0)
                             .iterator()
@@ -378,7 +378,7 @@ class RefactoringSolutionCETest {
                 .assertNext(updatedAction -> {
                     assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("PostNameChange");
 
-                    DslActionDTO actionDTO = postNameChangeLayout
+                    DslExecutableDTO actionDTO = postNameChangeLayout
                             .getLayoutOnLoadActions()
                             .get(0)
                             .iterator()
@@ -576,7 +576,7 @@ class RefactoringSolutionCETest {
                 .assertNext(updatedAction -> {
                     assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("newName");
 
-                    DslActionDTO actionDTO = postNameChangeLayout
+                    DslExecutableDTO actionDTO = postNameChangeLayout
                             .getLayoutOnLoadActions()
                             .get(0)
                             .iterator()

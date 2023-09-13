@@ -7,6 +7,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.newaction.base.NewActionService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ce.GitServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;

@@ -1,5 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
+import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -15,8 +17,6 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.DslActionDTO;
-import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
@@ -25,6 +25,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.newaction.base.NewActionService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -392,15 +393,19 @@ public class LayoutActionServiceTest {
                     assertThat(page.getLayouts()).hasSize(1);
                     assertThat(page.getLayouts().get(0).getLayoutOnLoadActions())
                             .hasSize(2);
-                    Set<DslActionDTO> dslActionDTOS1 =
+                    Set<DslExecutableDTO> dslExecutableDTOS1 =
                             page.getLayouts().get(0).getLayoutOnLoadActions().get(0);
-                    assertThat(dslActionDTOS1).hasSize(1);
-                    assertThat(dslActionDTOS1.stream().map(dto -> dto.getName()).collect(Collectors.toSet()))
+                    assertThat(dslExecutableDTOS1).hasSize(1);
+                    assertThat(dslExecutableDTOS1.stream()
+                                    .map(dto -> dto.getName())
+                                    .collect(Collectors.toSet()))
                             .containsAll(Set.of("jsObject.jsFunction"));
-                    Set<DslActionDTO> dslActionDTOS2 =
+                    Set<DslExecutableDTO> dslExecutableDTOS2 =
                             page.getLayouts().get(0).getLayoutOnLoadActions().get(1);
-                    assertThat(dslActionDTOS2).hasSize(1);
-                    assertThat(dslActionDTOS2.stream().map(dto -> dto.getName()).collect(Collectors.toSet()))
+                    assertThat(dslExecutableDTOS2).hasSize(1);
+                    assertThat(dslExecutableDTOS2.stream()
+                                    .map(dto -> dto.getName())
+                                    .collect(Collectors.toSet()))
                             .containsAll(Set.of("query1"));
                 })
                 .verifyComplete();
@@ -448,14 +453,14 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    DslActionDTO actionDTO = updatedLayout
+                    DslExecutableDTO actionDTO = updatedLayout
                             .getLayoutOnLoadActions()
                             .get(0)
                             .iterator()
                             .next();
                     assertThat(actionDTO.getName()).isEqualTo("firstAction");
 
-                    List<LayoutActionUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
+                    List<LayoutExecutableUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
                     assertThat(actionUpdates.size()).isEqualTo(1);
                     assertThat(actionUpdates.get(0).getName()).isEqualTo("firstAction");
                     assertThat(actionUpdates.get(0).getExecuteOnLoad()).isTrue();
@@ -485,27 +490,27 @@ public class LayoutActionServiceTest {
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
                     log.debug("{}", updatedLayout.getMessages());
-                    DslActionDTO actionDTO = updatedLayout
+                    DslExecutableDTO actionDTO = updatedLayout
                             .getLayoutOnLoadActions()
                             .get(0)
                             .iterator()
                             .next();
                     assertThat(actionDTO.getName()).isEqualTo("secondAction");
 
-                    List<LayoutActionUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
+                    List<LayoutExecutableUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
                     assertThat(actionUpdates.size()).isEqualTo(2);
 
-                    Optional<LayoutActionUpdateDTO> firstActionUpdateOptional = actionUpdates.stream()
+                    Optional<LayoutExecutableUpdateDTO> firstActionUpdateOptional = actionUpdates.stream()
                             .filter(actionUpdate -> actionUpdate.getName().equals("firstAction"))
                             .findFirst();
-                    LayoutActionUpdateDTO firstActionUpdate = firstActionUpdateOptional.get();
+                    LayoutExecutableUpdateDTO firstActionUpdate = firstActionUpdateOptional.get();
                     assertThat(firstActionUpdate).isNotNull();
                     assertThat(firstActionUpdate.getExecuteOnLoad()).isFalse();
 
-                    Optional<LayoutActionUpdateDTO> secondActionUpdateOptional = actionUpdates.stream()
+                    Optional<LayoutExecutableUpdateDTO> secondActionUpdateOptional = actionUpdates.stream()
                             .filter(actionUpdate -> actionUpdate.getName().equals("secondAction"))
                             .findFirst();
-                    LayoutActionUpdateDTO secondActionUpdate = secondActionUpdateOptional.get();
+                    LayoutExecutableUpdateDTO secondActionUpdate = secondActionUpdateOptional.get();
                     assertThat(secondActionUpdate).isNotNull();
                     assertThat(secondActionUpdate.getExecuteOnLoad()).isTrue();
                 })
@@ -751,7 +756,7 @@ public class LayoutActionServiceTest {
                     assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
-                    DslActionDTO actionDTO = updatedLayout
+                    DslExecutableDTO actionDTO = updatedLayout
                             .getLayoutOnLoadActions()
                             .get(0)
                             .iterator()
@@ -869,11 +874,11 @@ public class LayoutActionServiceTest {
                     assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
 
                     // Assert that all three the actions dont belong to the same set
-                    final Set<DslActionDTO> firstSet =
+                    final Set<DslExecutableDTO> firstSet =
                             updatedLayout.getLayoutOnLoadActions().get(0);
                     assertThat(firstSet).allMatch(actionDTO -> Set.of("firstAction", "thirdAction")
                             .contains(actionDTO.getName()));
-                    final DslActionDTO secondSetAction = updatedLayout
+                    final DslExecutableDTO secondSetAction = updatedLayout
                             .getLayoutOnLoadActions()
                             .get(1)
                             .iterator()
@@ -961,7 +966,7 @@ public class LayoutActionServiceTest {
                 .assertNext(updatedLayout -> {
                     assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
 
-                    DslActionDTO actionDTO = updatedLayout
+                    DslExecutableDTO actionDTO = updatedLayout
                             .getLayoutOnLoadActions()
                             .get(0)
                             .iterator()
@@ -1134,14 +1139,14 @@ public class LayoutActionServiceTest {
                     assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
-                    DslActionDTO actionDTO1 = updatedLayout
+                    DslExecutableDTO actionDTO1 = updatedLayout
                             .getLayoutOnLoadActions()
                             .get(0)
                             .iterator()
                             .next();
                     assertThat(actionDTO1.getName()).isEqualTo("firstAction");
 
-                    DslActionDTO actionDTO2 = updatedLayout
+                    DslExecutableDTO actionDTO2 = updatedLayout
                             .getLayoutOnLoadActions()
                             .get(1)
                             .iterator()
@@ -1206,7 +1211,7 @@ public class LayoutActionServiceTest {
                     assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
 
                     // Assert that both the actions don't belong to the same set. They should be run iteratively.
-                    DslActionDTO actionDTO1 = updatedLayout
+                    DslExecutableDTO actionDTO1 = updatedLayout
                             .getLayoutOnLoadActions()
                             .get(0)
                             .iterator()

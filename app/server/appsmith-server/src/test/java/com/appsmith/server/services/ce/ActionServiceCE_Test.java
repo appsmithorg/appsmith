@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
@@ -27,13 +28,13 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
-import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.newaction.base.NewActionService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -44,7 +45,6 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
 import com.appsmith.server.services.MockDataService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
@@ -1263,7 +1263,7 @@ public class ActionServiceCE_Test {
                     Set<String> firstSetPageLoadActions = Set.of("paginatedApi");
 
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream()
-                                    .map(DslActionDTO::getName)
+                                    .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);
                 })

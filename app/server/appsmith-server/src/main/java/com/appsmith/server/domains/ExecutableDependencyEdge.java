@@ -10,7 +10,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ActionDependencyEdge {
+public class ExecutableDependencyEdge {
 
     EntityDependencyNode sourceNode;
     EntityDependencyNode targetNode;
@@ -29,19 +29,19 @@ public class ActionDependencyEdge {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ActionDependencyEdge) {
-            final ActionDependencyEdge actionDependencyEdge = (ActionDependencyEdge) obj;
+        if (obj instanceof ExecutableDependencyEdge) {
+            final ExecutableDependencyEdge executableDependencyEdge = (ExecutableDependencyEdge) obj;
 
             if (sourceNode == null
                     || targetNode == null
-                    || actionDependencyEdge.sourceNode == null
-                    || actionDependencyEdge.targetNode == null) {
+                    || executableDependencyEdge.sourceNode == null
+                    || executableDependencyEdge.targetNode == null) {
                 return false;
             }
 
             return new EqualsBuilder()
-                    .append(sourceNode.getReferenceString(), actionDependencyEdge.sourceNode.getReferenceString())
-                    .append(targetNode.getReferenceString(), actionDependencyEdge.targetNode.getReferenceString())
+                    .append(sourceNode.getReferenceString(), executableDependencyEdge.sourceNode.getReferenceString())
+                    .append(targetNode.getReferenceString(), executableDependencyEdge.targetNode.getReferenceString())
                     .isEquals();
         } else {
             return false;

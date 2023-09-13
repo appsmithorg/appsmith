@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
@@ -18,10 +19,10 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.newaction.base.NewActionService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -32,7 +33,6 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.LayoutActionService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
@@ -480,8 +480,8 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
             String pageId,
             boolean shouldSave,
             Layout layout) {
-        for (final Set<DslActionDTO> actionSet : layout.getLayoutOnLoadActions()) {
-            for (final DslActionDTO actionDTO : actionSet) {
+        for (final Set<DslExecutableDTO> actionSet : layout.getLayoutOnLoadActions()) {
+            for (final DslExecutableDTO actionDTO : actionSet) {
                 if (actionIdsMap.containsKey(actionDTO.getId())) {
                     final String srcActionId = actionDTO.getId();
                     final String srcCollectionId = actionDTO.getCollectionId();

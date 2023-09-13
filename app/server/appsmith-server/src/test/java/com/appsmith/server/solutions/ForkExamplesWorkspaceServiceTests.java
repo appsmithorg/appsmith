@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AuthenticationResponse;
@@ -26,10 +27,10 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.newaction.base.NewActionService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -39,7 +40,6 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
@@ -672,9 +672,9 @@ public class ForkExamplesWorkspaceServiceTests {
         JSONObject publishedDsl = new JSONObject(dsl);
         publishedDsl.put("testField", "published {{ newPageAction.data }}");
         layout.setPublishedDsl(publishedDsl);
-        final DslActionDTO actionDTO = new DslActionDTO();
-        final HashSet<DslActionDTO> dslActionDTOS = new HashSet<>(List.of(actionDTO));
-        layout.setLayoutOnLoadActions(List.of(dslActionDTOS));
+        final DslExecutableDTO actionDTO = new DslExecutableDTO();
+        final HashSet<DslExecutableDTO> dslExecutableDTOS = new HashSet<>(List.of(actionDTO));
+        layout.setLayoutOnLoadActions(List.of(dslExecutableDTOS));
         newPage.getLayouts().add(layout);
 
         final ActionDTO newPageAction = new ActionDTO();
