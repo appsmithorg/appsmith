@@ -1,3 +1,4 @@
+import { GridDefaults } from "constants/WidgetConstants";
 import { memoize } from "lodash";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
@@ -70,7 +71,9 @@ export const getFixedLayoutComponentDimensions = ({
 }: BaseWidgetProps) => {
   return {
     componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
-    componentHeight: (bottomRow - topRow) * parentRowSpace,
+    componentHeight:
+      (bottomRow - topRow) *
+      (parentRowSpace || GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
   };
 };
 
