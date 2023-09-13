@@ -103,6 +103,7 @@ const StyledMenuItem = styled(MenuItem)`
 export interface IconSelectControlProps extends ControlProps {
   propertyValue?: IconName;
   defaultIconName?: IconName;
+  showNoneIcon?: boolean;
 }
 
 export interface IconSelectControlState {
@@ -115,7 +116,6 @@ type IconType = IconName | typeof NONE;
 const ICON_NAMES = Object.keys(IconNames).map<IconType>(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
-ICON_NAMES.unshift(NONE);
 const icons = new Set(ICON_NAMES);
 
 const TypedSelect = Select.ofType<IconType>();
@@ -131,6 +131,10 @@ class IconSelectControl extends BaseControl<
   private searchInput: React.RefObject<HTMLInputElement>;
   id: string = generateReactKey();
 
+  static defaultProps = {
+    showNoneIcon: true,
+  };
+
   constructor(props: IconSelectControlProps) {
     super(props);
     this.iconSelectTargetRef = React.createRef();
@@ -138,6 +142,17 @@ class IconSelectControl extends BaseControl<
     this.searchInput = React.createRef();
     this.initialItemIndex = 0;
     this.filteredItems = [];
+
+    const noneIndex = ICON_NAMES.indexOf(NONE);
+
+    if (!!props.showNoneIcon && noneIndex === -1) {
+      ICON_NAMES.unshift(NONE);
+      icons.add(NONE);
+    } else if (!!!props.showNoneIcon && noneIndex !== -1) {
+      ICON_NAMES.splice(noneIndex, 1);
+      icons.delete(NONE);
+    }
+
     this.state = {
       activeIcon: props.propertyValue ?? NONE,
       isOpen: false,
