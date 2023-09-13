@@ -1212,10 +1212,16 @@ function* getNewPositionsBasedOnSelectedWidgets(
   copiedLeftMostColumn: number,
 ) {
   //get Parent canvasId
-  const parentId = selectedWidgets[0].parentId || "";
+  const parentId: string | undefined = selectedWidgets[0].parentId;
 
-  // get the Id of the container widget based on the canvasId
+  // If we failed to get the parent canvas widget Id then return empty object
+  if (parentId === undefined) return {};
+
+  // get the Id of the container like widget based on the canvasId
   const containerId = getContainerIdForCanvas(parentId);
+
+  // If we failed to get the containing container like widget Id then return empty object
+  if (containerId === undefined) return {};
 
   const containerWidget = canvasWidgets[containerId];
   const canvasDOM = document.querySelector(`#${getSlidingArenaName(parentId)}`);

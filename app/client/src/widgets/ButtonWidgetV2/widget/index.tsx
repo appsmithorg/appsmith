@@ -47,12 +47,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   }
 
   static getFeatures() {
-    return {
-      dynamicHeight: {
-        sectionIndex: 0,
-        active: false,
-      },
-    };
+    return null;
   }
 
   static getDefaults() {

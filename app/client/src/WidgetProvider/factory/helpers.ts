@@ -179,8 +179,16 @@ export function enhancePropertyPaneConfig(
         features[registeredFeature as RegisteredWidgetFeatures];
       const sectionName = (config[sectionIndex] as PropertyPaneSectionConfig)
         ?.sectionName;
+      // This has been designed to check if the sectionIndex provided in the
+      // features configuration of the widget to point to the section named "General"
+      // If not, it logs an error
+      // This is a sanity check, and doesn't effect the functionality of the feature
+      // For consistency, we expect that all "Auto Height" property pane controls
+      // be present in the "General" section of the property pane
       if (!sectionName || sectionName !== "General") {
-        log.error(`Invalid section index for feature: ${registeredFeature}`);
+        log.error(
+          `Invalid section index for feature: ${registeredFeature} in widget: ${widgetType}`,
+        );
       }
       if (
         Array.isArray(config[sectionIndex].children) &&
