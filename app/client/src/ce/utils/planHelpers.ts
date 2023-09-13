@@ -12,3 +12,7 @@ export const isOIDCEnabled = (featureFlags: FeatureFlags) => {
 export const isSAMLEnabled = (featureFlags: FeatureFlags) => {
   return featureFlags?.license_sso_saml_enabled;
 };
+
+export const isMultipleEnvEnabled = (featureFlags: FeatureFlags) => {
+  return featureFlags?.release_datasource_environments_enabled;
+};

@@ -17,13 +17,6 @@ export const selectFeatureFlagCheck = (
   return false;
 };
 
-export const datasourceEnvEnabled = createSelector(
-  selectFeatureFlags,
-  (flags) => {
-    return !!flags.release_datasource_environments_enabled;
-  },
-);
-
 export const adaptiveSignpostingEnabled = createSelector(
   selectFeatureFlags,
   (flags) => {
