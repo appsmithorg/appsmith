@@ -505,7 +505,6 @@ jobs:
 
       # Set status = failedtest
       - name: Set fail if there are test failures
-        id: test_status
         if: failure()
         run: |
           echo "run_result=failedtest" >> $GITHUB_OUTPUT
