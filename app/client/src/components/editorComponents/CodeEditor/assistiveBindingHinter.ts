@@ -109,6 +109,10 @@ export const assistiveBindingHinter: HintHelper = (
       const currentLine = cursor.line;
       const currentCursorPosition =
         value === PARTIAL_BINDING ? cursor.ch + 1 : cursor.ch;
+
+      // CodeMirror hinter needs to have a selected hint.
+      // Assistive binding requires that we do not have any completion selected by default.
+      // Adds a hidden completion ("\n") that mocks the enter behavior.
       list.unshift({
         text: "\n",
         displayText: "",
@@ -192,17 +196,23 @@ export const assistiveBindingHinter: HintHelper = (
         extraKeys: {
           Up: (cm: CodeMirror.Editor, handle: any) => {
             handle.moveFocus(-1);
-            if (currentSelection.isHeader === true) {
+            if (currentSelection.isHeader) {
               handle.moveFocus(-1);
+              if (currentSelection.displayText === "") handle.moveFocus(-1);
+            } else if (currentSelection.displayText === "") {
+              handle.moveFocus(-1);
+              if (currentSelection.isHeader) handle.moveFocus(-1);
             }
-            if (currentSelection.displayText === "") handle.moveFocus(-1);
           },
           Down: (cm: CodeMirror.Editor, handle: any) => {
             handle.moveFocus(1);
-            if (currentSelection.isHeader === true) {
+            if (currentSelection.isHeader) {
               handle.moveFocus(1);
+              if (currentSelection.displayText === "") handle.moveFocus(1);
+            } else if (currentSelection.displayText === "") {
+              handle.moveFocus(1);
+              if (currentSelection.isHeader) handle.moveFocus(1);
             }
-            if (currentSelection.displayText === "") handle.moveFocus(1);
           },
         },
         completeSingle: false,
