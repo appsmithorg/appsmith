@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.newaction.base;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
@@ -16,7 +16,14 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.services.ce.NewActionServiceCEImpl;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.MarketplaceService;
+import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
