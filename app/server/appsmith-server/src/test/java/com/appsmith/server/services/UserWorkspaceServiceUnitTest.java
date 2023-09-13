@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
@@ -104,6 +105,7 @@ public class UserWorkspaceServiceUnitTest {
     }
 
     @Test
+    @WithMockAppsmithUser
     public void getWorkspaceMembers_WhenNoOrgFound_ThrowsException() {
         String sampleWorkspaceId = "test-org-id";
         Mono<List<MemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
