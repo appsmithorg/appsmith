@@ -436,12 +436,6 @@ safe_init_postgres
 
 configure_supervisord
 
-# CREDENTIAL_PATH="/etc/nginx/passwords"
-# if ! [[ -e "$CREDENTIAL_PATH" ]]; then
-#   echo "Generating Basic Authentication file"
-#   printf "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 $APPSMITH_SUPERVISOR_PASSWORD)" > "$CREDENTIAL_PATH"
-# fi
-
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
