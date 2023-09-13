@@ -115,7 +115,8 @@ export const assistiveBindingHinter: HintHelper = (
         from: cursor,
         to: cursor,
         render: (element: any) => {
-          element.style.display = "none";
+          element.style.height = 0;
+          element.style.marginBottom = "4px";
         },
         origin: "",
         type: AutocompleteDataType.UNKNOWN,

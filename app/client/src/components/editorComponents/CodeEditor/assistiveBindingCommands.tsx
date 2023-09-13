@@ -141,7 +141,7 @@ export const generateAssistiveBindingCommands = (
   const list: CommandsCompletion[] = actionCommandsMatchingSearchText;
 
   if (suggestionsMatchingSearchText.length) {
-    list.push(commandsHeader("Bind data", "", list.length > 0));
+    list.push(commandsHeader("Bind data", "", false));
   }
   list.push(...suggestionsMatchingSearchText);
 
