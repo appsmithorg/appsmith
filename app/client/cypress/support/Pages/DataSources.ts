@@ -188,6 +188,8 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
+  _mandatoryMark = "//span[text()='*']";
+  _deleteDSHostPort = ".t--delete-field";
 
   private _suggestedWidget = (widgetType: string, parentClass: string) =>
     "//div[contains(@class, '" +
@@ -502,14 +504,14 @@ export class DataSources {
       ? this.dataManager.dsValues[environment].oracle_host + "  "
       : this.dataManager.dsValues[environment].oracle_host;
     const databaseName = shouldAddTrailingSpaces
-      ? this.dataManager.dsValues[environment].oracle_name + "  "
-      : this.dataManager.dsValues[environment].oracle_name;
+      ? this.dataManager.dsValues[environment].oracle_service + "  "
+      : this.dataManager.dsValues[environment].oracle_service;
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].oracle_port.toString(),
     );
-    cy.get(this._databaseName).clear().type(databaseName);
+    cy.get(this._databaseName).type(databaseName);
     cy.get(this._username).type(
       username == ""
         ? this.dataManager.dsValues[environment].oracle_username

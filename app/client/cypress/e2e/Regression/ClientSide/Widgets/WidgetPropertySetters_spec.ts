@@ -155,8 +155,10 @@ describe("Linting warning for setter methods", function () {
     propPane.TypeTextIntoField("Label", "{{Button1.setLabel('Hello')}}");
 
     //Mouse hover to exact warning message
+    agHelper.AssertElementVisibility(locators._lintErrorElement);
     agHelper.HoverElement(locators._lintErrorElement);
     agHelper.AssertContains("Data fields cannot execute async code");
+    agHelper.Sleep();
 
     //Create a JS object
     jsEditor.CreateJSObject(
@@ -175,10 +177,12 @@ describe("Linting warning for setter methods", function () {
       },
     );
 
+    agHelper.AssertElementVisibility(locators._lintErrorElement);
     agHelper.HoverElement(locators._lintErrorElement);
     agHelper.AssertContains(
       "Direct mutation of widget properties aren't supported. Use Button1.setVisibility(value) instead.",
     );
+    agHelper.Sleep();
 
     //Add myFun1 to onClick
     entityExplorer.SelectEntityByName("Button1");
@@ -187,5 +191,6 @@ describe("Linting warning for setter methods", function () {
     agHelper.AssertContains(
       "Found an action invocation during evaluation. Data fields cannot execute actions.",
     );
+    agHelper.Sleep();
   });
 });
