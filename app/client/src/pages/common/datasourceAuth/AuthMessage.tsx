@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getPlugin,
   getPluginTypeFromDatasourceId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import {
   GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,

@@ -17,6 +17,7 @@ export class EChartsConfigurationBuilder {
     seriesID: string,
     seriesData: ChartData,
     showDataPointLabel: boolean,
+    layoutConfig: Record<string, Record<string, unknown>>,
   ) {
     let seriesName = messages.Undefined;
     if (seriesData.seriesName && seriesData.seriesName.length > 0) {
@@ -25,8 +26,8 @@ export class EChartsConfigurationBuilder {
 
     const config = {
       type: "pie",
-      radius: "60%",
-      center: ["50%", "60%"],
+      top: layoutConfig.grid.top,
+      bottom: layoutConfig.grid.bottom,
       name: seriesName,
       label: {
         show: showDataPointLabel,
@@ -46,6 +47,7 @@ export class EChartsConfigurationBuilder {
   #seriesConfigForChart(
     props: ChartComponentProps,
     allSeriesData: AllChartData,
+    layoutConfig: Record<string, Record<string, unknown>>,
   ) {
     /**
      * {
@@ -98,6 +100,7 @@ export class EChartsConfigurationBuilder {
             seriesID,
             seriesData,
             props.showDataPointLabel,
+            layoutConfig,
           );
           break;
       }
@@ -118,16 +121,13 @@ export class EChartsConfigurationBuilder {
   #titleConfigForPiechart(
     props: ChartComponentProps,
     allSeriesData: AllChartData,
+    layoutConfig: Record<string, Record<string, unknown>>,
   ) {
     const config: Record<string, unknown>[] = [];
-    const numSeries = Object.keys(allSeriesData).length;
-    const interval = 100 / (numSeries + 1);
-
-    Object.values(allSeriesData).forEach((seriesData, index) => {
-      const offset = `${(index + 1) * interval}%`;
+    Object.values(allSeriesData).forEach((seriesData) => {
       config.push({
-        top: this.seriesTitleOffsetForPieChart(props),
-        left: offset,
+        top: (layoutConfig.grid.top as number) - 20,
+        left: props.dimensions.componentWidth / 2 - 5,
         textAlign: "center",
         text: seriesData.seriesName ?? "",
       });
@@ -172,7 +172,7 @@ export class EChartsConfigurationBuilder {
     if (props.chartType == "PIE_CHART") {
       return [
         defaultTitleConfig,
-        ...this.#titleConfigForPiechart(props, allSeriesData),
+        ...this.#titleConfigForPiechart(props, allSeriesData, layoutConfig),
       ];
     } else {
       return defaultTitleConfig;
@@ -350,7 +350,11 @@ export class EChartsConfigurationBuilder {
     chartConfig.yAxis = this.#yAxisConfig(props, layoutConfig);
 
     chartConfig.dataZoom = this.#scrollConfig(props, layoutConfig);
-    chartConfig.series = this.#seriesConfigForChart(props, allSeriesData);
+    chartConfig.series = this.#seriesConfigForChart(
+      props,
+      allSeriesData,
+      layoutConfig,
+    );
     return chartConfig;
   }
 }

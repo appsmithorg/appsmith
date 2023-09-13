@@ -86,39 +86,6 @@ Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {
 });
 
 Cypress.Commands.add(
-  "fillMongoDatasourceForm",
-  (shouldAddTrailingSpaces = false) => {
-    const hostAddress = shouldAddTrailingSpaces
-      ? datasourceFormData["mongo-host"] + "  "
-      : datasourceFormData["mongo-host"];
-    // const databaseName = shouldAddTrailingSpaces
-    //   ? datasourceFormData["mongo-databaseName"] + "  "
-    //   : datasourceFormData["mongo-databaseName"];
-    cy.get(datasourceEditor["host"]).clear().type(hostAddress);
-    cy.get(datasourceEditor.port)
-      .clear()
-      .type(datasourceFormData["mongo-port"]);
-    //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
-    //cy.get(datasourceEditor["selConnectionType"]).click();
-    //cy.contains(datasourceFormData["connection-type"]).click();
-    //cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);//is optional hence removing
-    cy.get(datasourceEditor["databaseName"])
-      .clear()
-      .type(datasourceFormData["mongo-databaseName"]);
-    // cy.get(datasourceEditor["username"]).type(
-    //   datasourceFormData["mongo-username"],
-    // );
-    // cy.get(datasourceEditor["password"]).type(
-    //   datasourceFormData["mongo-password"],
-    // );
-    // cy.get(datasourceEditor["authenticationAuthtype"]).click();
-    // cy.contains(datasourceFormData["mongo-authenticationAuthtype"]).click({
-    //   force: true,
-    // });
-  },
-);
-
-Cypress.Commands.add(
   "fillPostgresDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
     const hostAddress = shouldAddTrailingSpaces
@@ -332,14 +299,6 @@ Cypress.Commands.add("createAmazonS3Datasource", () => {
   cy.get(datasourceEditor.AmazonS3).click();
   cy.fillAmazonS3DatasourceForm();
   cy.testSaveDatasource();
-});
-
-Cypress.Commands.add("fillMongoDatasourceFormWithURI", () => {
-  cy.xpath(datasourceEditor["mongoUriDropdown"]).click().wait(500);
-  cy.xpath(datasourceEditor["mongoUriYes"]).click().wait(500);
-  cy.xpath(datasourceEditor["mongoUriInput"]).type(
-    datasourceFormData["mongo-uri"],
-  );
 });
 
 Cypress.Commands.add("ReconnectDatasource", (datasource) => {
