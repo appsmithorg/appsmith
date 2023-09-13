@@ -104,7 +104,10 @@ import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import PageApi from "api/PageApi";
 import { identity, isEmpty, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { getPageList, getPluginForm } from "selectors/entitiesSelector";
+import {
+  getPageList,
+  getPluginForm,
+} from "@appsmith/selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
@@ -122,10 +125,10 @@ import {
   keysOfNavigationSetting,
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { generateReactKey } from "utils/generators";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -877,7 +880,7 @@ export function* fetchUnconfiguredDatasourceList(
 }
 
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
-  let currentEnvironment = getCurrentEnvironment();
+  let currentEnvironment: string = yield select(getCurrentEnvironmentId);
   if (!datasource.datasourceStorages.hasOwnProperty(currentEnvironment)) {
     // if the currentEnvironemnt is not present for use here, take the first key from datasourceStorages
     currentEnvironment = Object.keys(datasource.datasourceStorages)[0];

@@ -196,6 +196,8 @@ export class Table {
       version == "v1" ? "" : version
     } .rc-pagination-item-active`;
   _paginationItem = (value: number) => `.rc-pagination-item-${value}`;
+  _cellWrapOff = "//div[@class='tableWrap virtual']";
+  _cellWrapOn = "//div[@class='tableWrap']";
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");

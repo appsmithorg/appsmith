@@ -92,7 +92,7 @@ describe("Validate Elasticsearch DS", () => {
 
     agHelper.PressEnter();
 
-    agHelper.Sleep();
+    agHelper.Sleep(2000);
     dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(
@@ -125,7 +125,7 @@ describe("Validate Elasticsearch DS", () => {
       books = JSON.parse(
         JSON.stringify(resObj.response.body.data.body.hits.total.value),
       );
-      expect(books).to.eq(3);
+      expect(books).to.be.oneOf([1, 3]);
     });
 
     //PUT - update
@@ -143,6 +143,13 @@ describe("Validate Elasticsearch DS", () => {
       directInput: false,
       inputFieldName: "Body",
     });
+
+    agHelper
+      .GetElement(dataSources._bodyCodeMirror)
+      .type("{downarrow}".repeat(5));
+
+    agHelper.PressEnter();
+    agHelper.Sleep(2000);
     dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {

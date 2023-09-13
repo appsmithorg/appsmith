@@ -42,7 +42,6 @@ export const initialState: ApplicationsReduxState = {
   isSavingWorkspaceInfo: false,
   importingApplication: false,
   importedApplication: null,
-  showAppInviteUsersDialog: false,
   isImportAppModalOpen: false,
   workspaceIdForImport: null,
   pageIdForImport: "",
@@ -450,13 +449,6 @@ export const handlers = {
     ...state,
     currentApplication: null,
   }),
-  [ReduxActionTypes.SET_SHOW_APP_INVITE_USERS_MODAL]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<boolean>,
-  ) => ({
-    ...state,
-    showAppInviteUsersDialog: action.payload,
-  }),
   [ReduxActionTypes.CONNECT_TO_GIT_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<ConnectToGitResponse>,
@@ -686,7 +678,6 @@ export interface ApplicationsReduxState {
   userWorkspaces: Workspaces[];
   isSavingWorkspaceInfo: boolean;
   importingApplication: boolean;
-  showAppInviteUsersDialog: boolean;
   importedApplication: unknown;
   isImportAppModalOpen: boolean;
   workspaceIdForImport: any;

@@ -8,7 +8,10 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
 import produce from "immer";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { getActions, getDatasources } from "selectors/entitiesSelector";
+import {
+  getActions,
+  getDatasources,
+} from "@appsmith/selectors/entitiesSelector";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { matchPath, useLocation } from "react-router";
 import {

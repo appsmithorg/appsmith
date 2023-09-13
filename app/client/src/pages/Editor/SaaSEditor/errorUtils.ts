@@ -10,7 +10,6 @@ import {
 import { getDatasourcePropertyValue } from "utils/editorContextUtils";
 import { GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE } from "constants/Datasource";
 import { PluginPackageName } from "entities/Action";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { get } from "lodash";
 
 /**
@@ -23,8 +22,8 @@ import { get } from "lodash";
 export function isAuthorisedFilesEmptyGsheet(
   datasource: Datasource,
   propertyKey: string,
+  currentEnvironment: string,
 ): boolean {
-  const currentEnvironment = getCurrentEnvironment();
   const value = get(
     datasource,
     `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.scopeString`,
@@ -64,6 +63,7 @@ export function isAuthorisedFilesEmptyGsheet(
 export function getDatasourceErrorMessage(
   datasource: Datasource,
   plugin: Plugin | undefined,
+  currentEnvironment: string,
 ): string {
   if (!datasource) return "";
 
@@ -74,6 +74,7 @@ export function getDatasourceErrorMessage(
       const authorisedFilesEmptyGsheet = isAuthorisedFilesEmptyGsheet(
         datasource,
         createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
+        currentEnvironment,
       );
 
       authErrorMessage = authorisedFilesEmptyGsheet
