@@ -12,7 +12,7 @@ import { useColumns } from "../../../ColumnDropdown/useColumns";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
-import { getCurrentPageWidgets } from "selectors/entitiesSelector";
+import { getCurrentPageWidgets } from "@appsmith/selectors/entitiesSelector";
 import { StyledImage } from "./styles";
 import { FieldOptionsType } from "./types";
 import type { DropdownOptionType } from "../../../../types";

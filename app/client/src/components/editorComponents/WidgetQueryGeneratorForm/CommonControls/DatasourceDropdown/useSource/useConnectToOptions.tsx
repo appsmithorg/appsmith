@@ -1,10 +1,10 @@
 import React, { useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getCurrentPageWidgets,
   getPluginIdPackageNamesMap,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import WidgetFactory from "WidgetProvider/factory";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DatasourceImage, ImageWrapper } from "../../../styles";
@@ -77,7 +77,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
     updateConfig,
   } = useContext(WidgetQueryGeneratorFormContext);
 
-  const queries = useSelector(getActionsForCurrentPage);
+  const queries = useSelector(getCurrentActions);
   const pluginsPackageNamesMap = useSelector(getPluginIdPackageNamesMap);
 
   const { pluginImages, widget } = props;

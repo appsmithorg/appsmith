@@ -5,7 +5,7 @@ import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getAction, getDatasource } from "selectors/entitiesSelector";
+import { getAction, getDatasource } from "@appsmith/selectors/entitiesSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";

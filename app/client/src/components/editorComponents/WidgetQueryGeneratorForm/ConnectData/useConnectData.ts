@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getWidget } from "sagas/selectors";
-import { getPluginPackageFromDatasourceId } from "selectors/entitiesSelector";
+import { getPluginPackageFromDatasourceId } from "@appsmith/selectors/entitiesSelector";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { isValidGsheetConfig } from "../utils";

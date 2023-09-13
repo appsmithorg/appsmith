@@ -11,7 +11,7 @@ import {
   getDatasourceTableColumns,
   getDatasourceTablePrimaryColumn,
   getPluginPackageFromDatasourceId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import { getWidget } from "sagas/selectors";
