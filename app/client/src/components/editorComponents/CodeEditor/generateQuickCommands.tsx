@@ -16,7 +16,7 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
 
-enum Shortcuts {
+export enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
   FUNCTION = "FUNCTION",
@@ -59,7 +59,7 @@ export const commandsHeader = (
   shortcut: "",
 });
 
-const generateCreateNewCommand = ({
+export const generateCreateNewCommand = ({
   action,
   description,
   displayText,
@@ -90,8 +90,8 @@ const generateCreateNewCommand = ({
   },
 });
 
-const iconsByType = {
-  [Shortcuts.BINDING]: <Icon name="binding" size="md" />,
+export const iconsByType = {
+  [Shortcuts.BINDING]: <Icon name="binding-new" size="md" />,
   [Shortcuts.PLUS]: (
     <Icon className="add-datasource-icon" name="add-box-line" size="md" />
   ),
@@ -101,7 +101,7 @@ const iconsByType = {
   [Shortcuts.ASK_AI]: <Icon className="magic" name="magic-line" size="md" />,
 };
 
-function Command(props: {
+export function Command(props: {
   icon: any;
   name: string;
   desc?: string;
@@ -111,12 +111,14 @@ function Command(props: {
     <div className="command-container">
       <div className="command">
         {props.icon}
-        <div className="overflow-hidden overflow-ellipsis whitespace-nowrap flex flex-row items-center gap-2">
-          {props.name}
-          {props.isBeta && <BetaCard />}
+        <div className="flex flex-col gap-1">
+          <div className="overflow-hidden overflow-ellipsis whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)]">
+            {props.name}
+            {props.isBeta && <BetaCard />}
+          </div>
+          {props.desc ? <div className="command-desc">{props.desc}</div> : null}
         </div>
       </div>
-      {props.desc ? <div className="command-desc">{props.desc}</div> : null}
     </div>
   );
 }
@@ -180,10 +182,10 @@ export const generateQuickCommands = (
         const pluginType = data.data.pluginType as PluginType;
         let icon = null;
         if (pluginType === PluginType.JS) {
-          icon = JsFileIconV2();
+          icon = JsFileIconV2(16, 16);
         } else if (pluginIdToImageLocation[data.data.pluginId]) {
           icon = (
-            <EntityIcon>
+            <EntityIcon height="16px" width="16px">
               <img
                 src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
               />
@@ -210,7 +212,7 @@ export const generateQuickCommands = (
         }),
       render: (element: HTMLElement, self: any, data: any) => {
         const icon = (
-          <EntityIcon>
+          <EntityIcon height="16px" width="16px">
             <img
               src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
             />
@@ -231,8 +233,6 @@ export const generateQuickCommands = (
   );
   const actionCommands = [newBinding];
 
-  // Adding this hack in the interest of time.
-  // TODO: Refactor slash commands generation for easier code splitting
   if (enableAIAssistance) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
       text: "",

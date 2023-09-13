@@ -47,13 +47,12 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     }
 
     .CodeMirror-command-header {
-      padding: 0 12px;
-      color: var(--ads-v2-color-fg);
+      padding: 8px;
+      color: var(--ads-v2-color-gray-600);
       pointer-events: none !important;
       font-family: ${(props) => props.theme.fonts.text};
       font-size:12px;
       position: relative;
-      height: 30px;
       margin: 0 4px;
       &.separator {
         &:after {
@@ -105,10 +104,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         display: flex;
         align-items: start;
         flex-direction: column;
-        gap: 4px;
         justify-content: space-between;
         flex: 1;
-        padding: 6px;
+        padding: 4px;
         .command-desc {
           display: none;
           font-size: 12px;
@@ -117,7 +115,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       }
       .command {
         display: flex;
-        align-items: center;
+        align-items: start;
         gap: 8px;
       }
     }
