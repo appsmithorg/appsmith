@@ -206,9 +206,12 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         ensureAssignedToUserIds(pg);
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().removeAll(userIds);
-        return Mono.zip(
-                        repository.updateById(pg.getId(), pg, permissionGroupPermission.getUnAssignPermission()),
-                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE))
+        Mono<PermissionGroup> updatePermissionGroupMono =
+                repository.updateById(pg.getId(), pg, permissionGroupPermission.getUnAssignPermission());
+        Mono<Boolean> evictCachePostUpdateMono =
+                cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
+        return updatePermissionGroupMono
+                .zipWhen(updatedPermissionGroup -> evictCachePostUpdateMono)
                 .map(tuple -> tuple.getT1());
     }
 
