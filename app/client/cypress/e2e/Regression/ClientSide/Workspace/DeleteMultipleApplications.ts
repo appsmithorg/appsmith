@@ -43,7 +43,7 @@ describe("Delete multiple application", function () {
     );
   });
 
-  it("1. Should select & cancel delete multiple applications in different workspace", function () {
+  it("1. Should select & cancel delete multiple applications in different workspace & other action items should not be visible when selection mode is on", function () {
     homePage.NavigateToHome();
     homePage.SelectMultipleApplicationToDelete(
       MultipleDeleteFirstWorkspace.applicationName,
@@ -51,21 +51,8 @@ describe("Delete multiple application", function () {
     homePage.SelectMultipleApplicationToDelete(
       MultipleDeleteSecondWorkspace.applicationName,
     );
-    agHelper.ClickButton("Cancel");
-    agHelper.AssertElementAbsence(homePage._multipleSelectedApplication);
-    agHelper.AssertElementExist(
-      homePage._appCard(MultipleDeleteFirstWorkspace.applicationName),
-    );
-    agHelper.AssertElementExist(
-      homePage._appCard(MultipleDeleteSecondWorkspace.applicationName),
-    );
-  });
 
-  it("2. Once the application is selected for multiple deletion, all the other buttons will be hidden once any application is selected)", function () {
-    homePage.SelectMultipleApplicationToDelete(
-      MultipleDeleteFirstWorkspace.applicationName,
-    );
-
+    // Asserting all the other share & create new app button not visible
     agHelper.AssertElementVisibility(
       homePage._shareWorkspace(MultipleDeleteFirstWorkspace.workspaceName),
       false,
@@ -79,9 +66,16 @@ describe("Delete multiple application", function () {
     );
 
     agHelper.ClickButton("Cancel");
+    agHelper.AssertElementAbsence(homePage._multipleSelectedApplication);
+    agHelper.AssertElementExist(
+      homePage._appCard(MultipleDeleteFirstWorkspace.applicationName),
+    );
+    agHelper.AssertElementExist(
+      homePage._appCard(MultipleDeleteSecondWorkspace.applicationName),
+    );
   });
 
-  it("3. Should select & delete multiple applications in different workspace", function () {
+  it("2. Should select & delete multiple applications in different workspace", function () {
     homePage.SelectMultipleApplicationToDelete(
       MultipleDeleteFirstWorkspace.applicationName,
     );
@@ -101,7 +95,7 @@ describe("Delete multiple application", function () {
     });
   });
 
-  it("4. Unable to select to multiple delete if not enough permissions to delete", function () {
+  it("3. Unable to select to multiple delete if not enough permissions to delete", function () {
     homePage.CreateNewWorkspace(UnableToDeleteWorkspace.workspaceName);
     homePage.CreateAppInWorkspace(
       UnableToDeleteWorkspace.workspaceName,
