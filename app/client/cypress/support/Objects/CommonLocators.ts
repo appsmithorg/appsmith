@@ -293,4 +293,6 @@ export class CommonLocators {
   _alignment = (value: string) => `//*[@data-value='${value}']`;
   _borderRadius = (value: string) => `//*[@data-value='${value}']`;
   _textInside = ".bp3-ui-text span";
+  _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
+  _hintsList = "ul.CodeMirror-hints";
 }
