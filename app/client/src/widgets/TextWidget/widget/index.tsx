@@ -536,21 +536,17 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         <TextComponent
           accentColor={this.props.accentColor}
           backgroundColor={this.props.backgroundColor}
-          bottomRow={this.props.bottomRow}
           disableLink={disableLink}
           fontFamily={this.props.fontFamily}
           fontSize={this.props.fontSize}
           fontStyle={this.props.fontStyle}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
-          leftColumn={this.props.leftColumn}
           minHeight={this.props.minHeight}
           overflow={this.props.overflow}
-          rightColumn={this.props.rightColumn}
           text={this.props.text}
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
           textColor={this.props.textColor}
-          topRow={this.props.topRow}
           truncateButtonColor={
             this.props.truncateButtonColor || this.props.accentColor
           }
