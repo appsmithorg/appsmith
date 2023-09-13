@@ -189,7 +189,7 @@ export class Table {
   _divFirstChild = "div:first-child abbr";
   _listPreviousPage = ".rc-pagination-prev";
   _listNavigation = (move: string) =>
-    "//button[@area-label='" + move + " page']";
+    "//button[@aria-label='" + move + " page']";
   _listNextPage = ".rc-pagination-next";
   _listActivePage = (version: "v1" | "v2") =>
     `.t--widget-listwidget${
