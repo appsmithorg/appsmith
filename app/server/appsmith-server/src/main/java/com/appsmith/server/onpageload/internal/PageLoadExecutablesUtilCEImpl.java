@@ -366,7 +366,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
 
         return pageExecutables.stream()
                 .filter(pageExecutable -> updatedExecutableNames.contains(pageExecutable.getValidName()))
-                .map(Executable::getLayoutExecutableUpdateDTO)
+                .map(Executable::createLayoutExecutableUpdateDTO)
                 .collect(Collectors.toList());
     }
 

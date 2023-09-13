@@ -270,8 +270,8 @@ public class ActionDTO implements Identifiable, Executable {
     }
 
     @Override
-    public LayoutExecutableUpdateDTO getLayoutExecutableUpdateDTO() {
-        LayoutExecutableUpdateDTO layoutExecutableUpdateDTO = Executable.super.getLayoutExecutableUpdateDTO();
+    public LayoutExecutableUpdateDTO createLayoutExecutableUpdateDTO() {
+        LayoutExecutableUpdateDTO layoutExecutableUpdateDTO = Executable.super.createLayoutExecutableUpdateDTO();
         layoutExecutableUpdateDTO.setCollectionId(this.getCollectionId());
 
         return layoutExecutableUpdateDTO;

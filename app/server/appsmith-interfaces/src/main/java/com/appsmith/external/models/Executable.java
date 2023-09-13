@@ -43,7 +43,7 @@ public interface Executable {
 
     DefaultResources getDefaultResources();
 
-    default LayoutExecutableUpdateDTO getLayoutExecutableUpdateDTO() {
+    default LayoutExecutableUpdateDTO createLayoutExecutableUpdateDTO() {
         LayoutExecutableUpdateDTO layoutExecutableUpdateDTO = new LayoutExecutableUpdateDTO();
 
         layoutExecutableUpdateDTO.setId(this.getId());
