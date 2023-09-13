@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { util } from "./util";
 import globby from "globby";
 import minimatch from "minimatch";
 
@@ -100,49 +101,17 @@ async function getSpecsToRun(
   }
 }
 
-// This function will help to get and convert the env variables
-function getEnvNumber(
-  varName: string,
-  { required = false }: GetEnvOptions = {},
-): number {
-  if (required && process.env[varName] === undefined) {
-    throw Error(`${varName} is not set.`);
-  }
-  const value = Number(process.env[varName]);
-  if (isNaN(value)) {
-    throw Error(`${varName} is not a number.`);
-  }
-  return value;
-}
-
-// This function will helps to check and get env variables
-function getEnvValue(
-  varName: string,
-  { required = false }: GetEnvOptions = {},
+export async function cypressSplit(
+  on: Cypress.PluginEvents,
+  config: Cypress.PluginConfigOptions,
 ) {
-  if (required && process.env[varName] === undefined) {
-    throw Error(`${varName} is not set.`);
-  }
-  const value = process.env[varName] === undefined ? "" : process.env[varName];
-  return value;
-}
-
-// This is to fetch the env variables from CI
-function getArgs() {
-  return {
-    totalRunners: getEnvValue("TOTAL_RUNNERS", { required: false }),
-    thisRunner: getEnvValue("THIS_RUNNER", { required: false }),
-    cypressSpecs: getEnvValue("CYPRESS_SPECS", { required: false }),
-  };
-}
-
-export async function cypressSplit(on: any, config: any) {
   try {
+    const _ = new util();
     let currentRunner = 0;
     let allRunners = 1;
-    let specPattern = await config.specPattern;
-    const ignorePattern = await config.excludeSpecPattern;
-    const { cypressSpecs, thisRunner, totalRunners } = getArgs();
+    let specPattern = config.specPattern;
+    const ignorePattern = config.excludeSpecPattern;
+    const { cypressSpecs, thisRunner, totalRunners } = _.getVars();
 
     if (cypressSpecs != "")
       specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
@@ -158,12 +127,8 @@ export async function cypressSplit(on: any, config: any) {
       specPattern,
       ignorePattern,
     );
+    config.specPattern = specs.length == 1 ? specs[0] : specs;
 
-    if (specs.length > 0) {
-      config.specPattern = specs.length == 1 ? specs[0] : specs;
-    } else {
-      config.specPattern = "cypress/scripts/no_spec.ts";
-    }
     return config;
   } catch (err) {
     console.log(err);
