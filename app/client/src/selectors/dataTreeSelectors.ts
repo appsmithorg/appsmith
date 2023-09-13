@@ -26,6 +26,8 @@ import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
+// appPositioning?.type instead of appPositioning.type is for legacy applications that may not have the appPositioning object.
+// All new applications will have appPositioning.type
 const getAppPositioningType = (state: AppState) =>
   AppPositioningTypes[
     state.ui.applications.currentApplication?.applicationDetail?.appPositioning

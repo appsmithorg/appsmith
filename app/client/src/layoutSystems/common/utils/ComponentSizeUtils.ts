@@ -7,6 +7,14 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
  *
  * utility function to compute a widgets dimensions in Auto layout system
  *
+ * The Auto-Layout Layout system uses the mobile breakpoints for layouts.
+ * For this reason, the rows and columns occupied in the mobile breakpoint,
+ * and the rows and columns occupied in other viewport widths can be different.
+ * As a result, we check if we're in the mobile breakpoint using the isMobile,
+ * and use the appropriate leftColumn, rightColumn, topRow and bottomRow
+ * (with or without the mobile prefix depending on the isMobile value) to compute the component dimensions.
+ * The components here are the widgets.
+ *
  */
 export const getAutoLayoutComponentDimensions = ({
   bottomRow,
