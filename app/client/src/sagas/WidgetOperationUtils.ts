@@ -815,12 +815,12 @@ export function getDefaultCanvas(canvasWidgets: CanvasWidgetsReduxState) {
  * @param canvasId
  * @returns
  */
-export function getContainerIdForCanvas(canvasId: string) {
+export function getContainerIdForCanvas(canvasId: string): string | undefined {
   if (canvasId === MAIN_CONTAINER_WIDGET_ID) return canvasId;
 
   const selector = `#${getStickyCanvasName(canvasId)}`;
   const canvasDOM = document.querySelector(selector);
-  if (!canvasDOM) return "";
+  if (!canvasDOM) return undefined;
   //check for positionedWidget parent
   let containerDOM = canvasDOM.closest(`.${POSITIONED_WIDGET}`);
   //if positioned widget parent is not found, most likely is a modal widget
@@ -1644,6 +1644,8 @@ export function getParentColumnSpace(
   pastingIntoWidgetId: string,
 ) {
   const containerId = getContainerIdForCanvas(pastingIntoWidgetId);
+
+  if (containerId === undefined) return;
 
   const containerWidget = canvasWidgets[containerId];
   const canvasDOM = document.querySelector(
