@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.newaction.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.ce.ActionCollectionServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;

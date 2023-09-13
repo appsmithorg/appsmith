@@ -1,8 +1,7 @@
-package com.appsmith.server.services;
+package com.appsmith.server.newaction.base;
 
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.AnalyticEventDTO;
-import com.appsmith.server.services.ce.NewActionServiceCE;
 import reactor.core.publisher.Mono;
 
 public interface NewActionService extends NewActionServiceCE {
