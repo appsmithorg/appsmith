@@ -2,6 +2,7 @@
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 cypress/e2e/Regression/ServerSide/Datasources/Oracle_Spec.js
 cypress/e2e/Regression/ClientSide/EmbedSettings/EmbedSettings_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/WidgetPropertySetters_spec.ts
 
 
 # For running all specs - uncomment below:
