@@ -37,7 +37,6 @@ describe("Validate JSObj binding to Table widget", () => {
       "Items",
       (("{{" + jsName) as string) + ".myFun1()}}",
     );
-    cy.wait(2000);
     cy.get(_.locators._textWidget).should("have.length", 8);
     _.deployMode.DeployApp(_.locators._textWidgetInDeployed);
     _.agHelper.AssertElementLength(_.locators._textWidgetInDeployed, 8);
