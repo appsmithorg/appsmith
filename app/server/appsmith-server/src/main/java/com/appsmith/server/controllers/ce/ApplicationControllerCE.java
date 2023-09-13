@@ -139,6 +139,14 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @JsonView(Views.Public.class)
+    @PostMapping("/delete-apps")
+    public Mono<ResponseDTO<List<Application>>> deleteMultipleApps(@Valid @RequestBody List<String> ids) {
+        return applicationPageService
+                .deleteMultipleApps(ids)
+                .map(deletedResources -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResources, null));
+    }
+
+    @JsonView(Views.Public.class)
     @GetMapping("/new")
     public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
         log.debug("Going to get all applications grouped by workspace");
