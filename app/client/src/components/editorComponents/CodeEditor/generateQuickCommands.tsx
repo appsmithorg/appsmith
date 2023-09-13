@@ -44,13 +44,14 @@ const matchingCommands = (
   return list.slice(0, limit);
 };
 
-const commandsHeader = (
+export const commandsHeader = (
   displayText: string,
   text = "",
+  separator = true,
 ): CommandsCompletion => ({
   text: text,
   displayText: displayText,
-  className: "CodeMirror-command-header",
+  className: `CodeMirror-command-header ${separator ? "separator" : ""}`,
   data: { doc: "" },
   origin: "",
   type: AutocompleteDataType.UNKNOWN,
@@ -139,8 +140,6 @@ export const generateQuickCommands = (
     enableAIAssistance: boolean;
   },
 ) => {
-  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind data");
-  const createNewHeader: CommandsCompletion = commandsHeader("Create a query");
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
@@ -266,13 +265,12 @@ export const generateQuickCommands = (
     );
   }
   const list: CommandsCompletion[] = actionCommandsMatchingSearchText;
-
   if (suggestionsMatchingSearchText.length) {
-    list.push(suggestionsHeader);
+    list.push(commandsHeader("Bind data", "", list.length > 0));
   }
   list.push(...suggestionsMatchingSearchText);
   if (createNewCommandsMatchingSearchText.length) {
-    list.push(createNewHeader);
+    list.push(commandsHeader("Create a query", "", list.length > 0));
   }
   list.push(...createNewCommandsMatchingSearchText);
   return list;

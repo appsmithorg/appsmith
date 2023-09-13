@@ -54,16 +54,18 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       font-size:12px;
       position: relative;
       height: 30px;
-      marign: 0 4px;
-      &:after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 4px;
-        right: 4px;
-        width: calc(100% - 8px);
-        height: 1px;
-        background: var(--ads-v2-color-border);
+      margin: 0 4px;
+      &.separator {
+        &:after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 4px;
+          right: 4px;
+          width: calc(100% - 8px);
+          height: 1px;
+          background: var(--ads-v2-color-border);
+        }
       }
     }
 

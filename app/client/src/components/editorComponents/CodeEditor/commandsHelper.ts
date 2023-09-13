@@ -52,6 +52,8 @@ export const slashCommandHintHelper: HintHelper = (editor, data: DataTree) => {
         enableAIAssistance: boolean;
       },
     ): boolean => {
+      // @ts-expect-error: Types are not available
+      editor.closeHint();
       const { entityType } = entityInfo;
       const currentEntityType =
         entityType || ENTITY_TYPE.ACTION || ENTITY_TYPE.JSACTION;

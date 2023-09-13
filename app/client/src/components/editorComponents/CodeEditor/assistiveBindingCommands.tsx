@@ -10,6 +10,7 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { Icon } from "design-system";
 import BetaCard from "../BetaCard";
+import { commandsHeader } from "./generateQuickCommands";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -38,20 +39,6 @@ const matchingCommands = (
   });
   return list.slice(0, limit);
 };
-
-const commandsHeader = (
-  displayText: string,
-  text = "",
-): CommandsCompletion => ({
-  text: text,
-  displayText: displayText,
-  className: "CodeMirror-command-header",
-  data: { doc: "" },
-  origin: "",
-  type: AutocompleteDataType.UNKNOWN,
-  isHeader: true,
-  shortcut: "",
-});
 
 const generateCreateNewCommand = ({
   action,
@@ -130,7 +117,6 @@ export const generateAssistiveBindingCommands = (
     enableAIAssistance: boolean;
   },
 ) => {
-  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind data");
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
@@ -207,14 +193,6 @@ export const generateAssistiveBindingCommands = (
   );
   const actionCommands = [newBinding];
 
-  const createNewCommands: any = [];
-
-  const createNewCommandsMatchingSearchText = matchingCommands(
-    createNewCommands,
-    searchText,
-    [],
-    3,
-  );
   const actionCommandsMatchingSearchText = matchingCommands(
     actionCommands,
     searchText,
@@ -224,10 +202,9 @@ export const generateAssistiveBindingCommands = (
   const list: CommandsCompletion[] = actionCommandsMatchingSearchText;
 
   if (suggestionsMatchingSearchText.length) {
-    list.push(suggestionsHeader);
+    list.push(commandsHeader("Bind data", "", list.length > 0));
   }
   list.push(...suggestionsMatchingSearchText);
 
-  list.push(...createNewCommandsMatchingSearchText);
   return list;
 };
