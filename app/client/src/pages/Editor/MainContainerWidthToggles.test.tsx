@@ -7,7 +7,7 @@ import { Provider } from "react-redux";
 
 import { lightTheme } from "selectors/themeSelectors";
 import store from "store";
-import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
+import { MainContainerWidthToggles } from "./MainContainerWidthToggles";
 
 function navigateWithArrowKeys(key: string, noOfPresses: number) {
   for (let i = 0; i < noOfPresses; i++) {
@@ -15,11 +15,11 @@ function navigateWithArrowKeys(key: string, noOfPresses: number) {
   }
 }
 
-describe("<MainContainerLayoutControl />", () => {
+describe("<MainContainerWidthToggles />", () => {
   const getTestComponent = () => (
     <ThemeProvider theme={lightTheme}>
       <Provider store={store}>
-        <MainContainerLayoutControl />
+        <MainContainerWidthToggles />
       </Provider>
     </ThemeProvider>
   );

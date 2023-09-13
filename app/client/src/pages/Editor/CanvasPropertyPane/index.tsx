@@ -1,16 +1,19 @@
 import * as Sentry from "@sentry/react";
 
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { Button, Tooltip } from "design-system";
 
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
-import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
-import { getIsAutoLayout } from "selectors/editorSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  LayoutSystemFeatures,
+  useLayoutSystemFeatures,
+} from "../../../layoutSystems/common/useLayoutSystemFeatures";
+import { MainContainerWidthToggles } from "../MainContainerWidthToggles";
 
 const Title = styled.p`
   color: var(--ads-v2-color-fg);
@@ -25,7 +28,12 @@ export function CanvasPropertyPane() {
     AnalyticsUtil.logEvent("APP_SETTINGS_BUTTON_CLICK");
     dispatch(openAppSettingsPaneAction());
   };
-  const isAutoLayout = useSelector(getIsAutoLayout);
+
+  const checkLayoutSystemFeatures = useLayoutSystemFeatures();
+  const [enableLayoutControl] = checkLayoutSystemFeatures([
+    LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL,
+  ]);
+
   return (
     <div className="relative ">
       <MainHeading className="px-4 py-3 text-sm font-medium">
@@ -34,10 +42,10 @@ export function CanvasPropertyPane() {
 
       <div className="mt-3 space-y-6">
         <div className="px-4 space-y-2">
-          {!isAutoLayout && (
+          {enableLayoutControl && (
             <>
               <Title className="text-sm">Canvas size</Title>
-              <MainContainerLayoutControl />
+              <MainContainerWidthToggles />
             </>
           )}
           <ConversionButton />

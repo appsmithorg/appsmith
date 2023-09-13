@@ -29,7 +29,10 @@ import {
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { builderURL, widgetURL } from "RouteBuilder";
-import { getAppMode, getCanvasWidgets } from "selectors/entitiesSelector";
+import {
+  getAppMode,
+  getCanvasWidgets,
+} from "@appsmith/selectors/entitiesSelector";
 import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
 import {
   assertParentId,
