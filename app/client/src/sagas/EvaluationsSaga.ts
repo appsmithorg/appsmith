@@ -100,6 +100,7 @@ import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -584,8 +585,11 @@ function* evaluationChangeListenerSaga(): any {
     call(lintWorker.start),
   ]);
 
+  const featureFlags = yield select(selectFeatureFlags);
+
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {
     cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
+    featureFlags: featureFlags,
   });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 

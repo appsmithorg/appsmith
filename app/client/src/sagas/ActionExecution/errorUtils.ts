@@ -7,7 +7,6 @@ import { isString } from "lodash";
 import type { Types } from "utils/TypeHelpers";
 import type { ActionTriggerKeys } from "@appsmith/workers/Evaluation/fns/index";
 import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
 import {
@@ -18,8 +17,6 @@ import { DEBUGGER_TAB_KEYS } from "../../components/editorComponents/Debugger/he
 import store from "store";
 import showToast from "sagas/ToastSagas";
 import { call } from "redux-saga/effects";
-
-const APPSMITH_CONFIGS = getAppsmithConfigs();
 
 /*
  * The base trigger error that also logs the errors in the debugger.
@@ -52,9 +49,7 @@ export class ActionValidationError extends TriggerFailureError {
   ) {
     const errorMessage = createMessage(
       TRIGGER_ACTION_VALIDATION_ERROR,
-      getActionTriggerFunctionNames(!!APPSMITH_CONFIGS.cloudHosting)[
-        functionName
-      ],
+      getActionTriggerFunctionNames()[functionName],
       argumentName,
       expectedType,
       received,
