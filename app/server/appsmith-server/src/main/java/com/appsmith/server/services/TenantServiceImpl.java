@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
+import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
@@ -15,7 +16,7 @@ import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.CachedFeatures;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -70,6 +71,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     private final ObjectMapper objectMapper;
     private final SessionLimiterService sessionLimiterService;
 
+    private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
+
+    private final Scheduler scheduler;
+
     // Based on information provided on the Branding page.
     private static final int MAX_LOGO_SIZE_KB = 2048;
     private static final int MAX_FAVICON_SIZE_KB = 1024;
@@ -86,15 +91,14 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
-            FeatureFlagMigrationHelper featureFlagMigrationHelper,
             SessionUserService sessionUserService,
             LicenseAPIManager licenseAPIManager,
             RedirectHelper redirectHelper,
             AssetService assetService,
             ObjectMapper objectMapper,
             CacheableFeatureFlagHelper cacheableFeatureFlagHelper,
-            SessionLimiterService sessionLimiterService) {
-
+            SessionLimiterService sessionLimiterService,
+            FeatureFlagMigrationHelper featureFlagMigrationHelper) {
         super(
                 scheduler,
                 validator,
@@ -114,16 +118,13 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         this.objectMapper = objectMapper;
         this.cacheableFeatureFlagHelper = cacheableFeatureFlagHelper;
         this.sessionLimiterService = sessionLimiterService;
+        this.featureFlagMigrationHelper = featureFlagMigrationHelper;
+        this.scheduler = scheduler;
     }
 
     @Override
     public Mono<Tenant> findById(String id, AclPermission aclPermission) {
         return repository.findById(id, aclPermission);
-    }
-
-    @Override
-    public Mono<Tenant> save(Tenant tenant) {
-        return repository.save(tenant);
     }
 
     @Override
@@ -178,7 +179,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 return Mono.just(tenant);
             }
             tenantConfiguration.setIsActivated(true);
-            return update(tenant.getId(), tenant);
+            return save(tenant);
         });
 
         return licenseMono
@@ -214,7 +215,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, DEFAULT)));
 
         return tenantMono.flatMap(tenant -> {
-            if (!this.isValidLicenseConfiguration(tenant)) {
+            TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+            if (tenantConfiguration == null || tenantConfiguration.getLicense() == null) {
                 return Mono.just(tenant);
             }
             License license = tenant.getTenantConfiguration().getLicense();
@@ -223,10 +225,15 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             license.setPreviousPlan(previousPlan);
             return licenseAPIManager.downgradeTenantToFreePlan(tenant).flatMap(isSuccessful -> {
                 if (Boolean.TRUE.equals(isSuccessful)) {
-                    tenant.getTenantConfiguration().setLicense(null);
-                    return this.update(tenant.getId(), tenant)
-                            .flatMap(updatedTenant -> this.forceUpdateTenantFeatures(updatedTenant.getId())
-                                    .thenReturn(updatedTenant));
+                    License updatedLicense = new License();
+                    updatedLicense.setPlan(LicensePlan.FREE);
+                    updatedLicense.setPreviousPlan(previousPlan);
+                    updatedLicense.setActive(false);
+                    tenant.getTenantConfiguration().setLicense(updatedLicense);
+                    return this.save(tenant)
+                            .flatMap(updatedTenant ->
+                                    this.forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations(tenant))
+                            .then(syncLicensePlansAndRunFeatureBasedMigrations());
                 }
                 return Mono.error(new AppsmithException(AppsmithError.TENANT_DOWNGRADE_EXCEPTION));
             });
@@ -238,19 +245,30 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Mono of Tenant
      */
     @Override
-    public Mono<Tenant> syncLicensePlans() {
+    public Mono<Tenant> syncLicensePlansAndRunFeatureBasedMigrations() {
         Mono<Tenant> tenantMono = this.getDefaultTenant(MANAGE_TENANT)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, DEFAULT)));
 
-        return tenantMono.flatMap(tenant -> {
-            if (!this.isValidLicenseConfiguration(tenant)) {
-                return Mono.just(tenant);
-            }
-            License license = tenant.getTenantConfiguration().getLicense();
-            license.setPreviousPlan(license.getPlan());
-            return this.update(tenant.getId(), tenant);
-        });
+        return tenantMono
+                .flatMap(tenant -> {
+                    if (tenant.getTenantConfiguration() == null) {
+                        return Mono.just(tenant);
+                    }
+                    // Expect a null license in case the method is called from remove license flow
+                    License license = tenant.getTenantConfiguration().getLicense() == null
+                            ? new License()
+                            : tenant.getTenantConfiguration().getLicense();
+                    license.setPreviousPlan(license.getPlan());
+                    return this.save(tenant);
+                })
+                .map(tenantWithUpdatedMigration -> {
+                    // Run the migrations in a separate thread, as we expect the migrations can run for few seconds
+                    this.checkAndExecuteMigrationsForTenantFeatureFlags(tenantWithUpdatedMigration)
+                            .subscribeOn(scheduler)
+                            .subscribe();
+                    return tenantWithUpdatedMigration;
+                });
     }
 
     /**
@@ -332,8 +350,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                         tenantMono = Mono.just(tenant);
                     } else {
                         tenantMono = this.save(tenant)
-                                .flatMap(savedTenant -> this.forceUpdateTenantFeatures(savedTenant.getId())
-                                        .thenReturn(savedTenant));
+                                .flatMap(this::forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations)
+                                .then(syncLicensePlansAndRunFeatureBasedMigrations());
                     }
                     return tenantMono.flatMap(analyticsEventMono::thenReturn).zipWith(Mono.just(isActivateInstance));
                 });
@@ -519,9 +537,25 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .map(brandLogoAsset -> ASSET_PREFIX + brandLogoAsset.getId());
     }
 
-    private Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId) {
-        return cacheableFeatureFlagHelper
-                .evictCachedTenantFeatures(tenantId)
-                .then(cacheableFeatureFlagHelper.fetchCachedTenantFeatures(tenantId));
+    private Mono<Tenant> forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations(Tenant tenant) {
+        // 1. Fetch current/saved feature flags from cache
+        // 2. Force update the tenant flags keeping existing flags as fallback in case the API
+        // call to fetch the flags fails for some reason
+        // 3. Get the diff and update the flags with pending migrations to be used to run
+        // migrations selectively
+        return featureFlagMigrationHelper
+                .getUpdatedFlagsWithPendingMigration(tenant, true)
+                .flatMap(featureFlagWithPendingMigrations -> {
+                    TenantConfiguration tenantConfig = tenant.getTenantConfiguration() == null
+                            ? new TenantConfiguration()
+                            : tenant.getTenantConfiguration();
+                    tenantConfig.setFeaturesWithPendingMigration(featureFlagWithPendingMigrations);
+                    if (CollectionUtils.isNullOrEmpty(featureFlagWithPendingMigrations)) {
+                        tenantConfig.setMigrationStatus(MigrationStatus.COMPLETED);
+                    } else {
+                        tenantConfig.setMigrationStatus(MigrationStatus.PENDING);
+                    }
+                    return this.save(tenant);
+                });
     }
 }

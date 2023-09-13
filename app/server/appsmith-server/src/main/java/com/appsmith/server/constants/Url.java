@@ -12,6 +12,7 @@ public class Url extends UrlCE {
     public static final String AUDIT_LOGS_URL = BASE_URL + VERSION + "/audit-logs";
     public static final String PERMISSION_GROUP_URL = BASE_URL + VERSION + "/roles";
     public static final String USER_GROUP_URL = BASE_URL + VERSION + "/user-groups";
+    public static final String LICENSE_URL = BASE_URL + VERSION + "/tenants/license";
     // For sending special FE only events for Audit Logs
     public static final String ANALYTICS_URL = BASE_URL + VERSION + "/analytics";
 

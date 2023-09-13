@@ -57,8 +57,8 @@ public class License extends LicenseCE {
 
     public void updateLicenseFromValidationResponse(LicenseValidationResponseDTO validationResponse) {
         this.setActive(validationResponse.isValid());
-        this.setExpiry(validationResponse.getExpiry());
         if (Boolean.TRUE.equals(validationResponse.isValid())) {
+            this.setExpiry(validationResponse.getExpiry());
             this.setStatus(validationResponse.getLicenseStatus());
             this.setType(validationResponse.getLicenseType());
             this.setOrigin(validationResponse.getOrigin());

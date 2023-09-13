@@ -96,8 +96,8 @@ public class TenantConfiguration extends TenantConfigurationCE {
         License freeLicense = new License();
         freeLicense.setPlan(LicensePlan.FREE);
         this.license = isLicenseExist ? tenantConfiguration.getLicense() : freeLicense;
-
         if (null != this.license && !StringUtils.isEmpty(this.license.key)) {
+            this.license.setSubscriptionDetails(null);
             this.license.key = DataTypeStringUtils.maskString(this.license.key, 8, 32, 'x');
         }
     }

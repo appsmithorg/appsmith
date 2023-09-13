@@ -557,10 +557,14 @@ public class TenantServiceTest {
                 })
                 .verifyComplete();
 
+        License freeLicense = new License();
+        freeLicense.setActive(Boolean.FALSE);
+        freeLicense.setPreviousPlan(LicensePlan.FREE);
+        freeLicense.setPlan(LicensePlan.FREE);
         // Check if the license field is null after the license is removed as a part of downgrade to community flow
         StepVerifier.create(tenantService.removeLicenseKey())
                 .assertNext(tenant1 -> {
-                    assertThat(tenant1.getTenantConfiguration().getLicense()).isNull();
+                    assertThat(tenant1.getTenantConfiguration().getLicense()).isEqualTo(freeLicense);
                 })
                 .verifyComplete();
     }
@@ -608,7 +612,7 @@ public class TenantServiceTest {
                 .verifyComplete();
 
         // Check if the license field is null after the license is removed as a part of downgrade to community flow
-        StepVerifier.create(tenantService.syncLicensePlans())
+        StepVerifier.create(tenantService.syncLicensePlansAndRunFeatureBasedMigrations())
                 .assertNext(tenant1 -> {
                     assertThat(tenant1.getTenantConfiguration().getLicense()).isNotNull();
                     License tenantLicense = tenant1.getTenantConfiguration().getLicense();

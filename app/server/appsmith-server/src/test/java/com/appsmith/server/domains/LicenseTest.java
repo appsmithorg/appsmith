@@ -37,6 +37,8 @@ class LicenseTest {
         responseDTO.setValid(false);
         String licenseKey = UUID.randomUUID().toString();
         License license = getBusinessLicense(licenseKey);
+        Instant licenseExpiry = Instant.now().minus(10, ChronoUnit.DAYS);
+        license.setExpiry(licenseExpiry);
         license.updateLicenseFromValidationResponse(responseDTO);
 
         assertEquals(license.getKey(), licenseKey);
@@ -45,7 +47,8 @@ class LicenseTest {
         assertFalse(license.getActive());
         assertEquals(license.getOrigin(), LicenseOrigin.SELF_SERVE);
         assertEquals(license.getChangeType(), License.ChangeType.UPGRADE);
-        assertEquals(license.getExpiry(), responseDTO.getExpiry());
+        assertNotEquals(license.getExpiry(), responseDTO.getExpiry());
+        assertEquals(license.getExpiry(), licenseExpiry);
         assertEquals(license.getStatus(), LicenseStatus.EXPIRED);
     }
 

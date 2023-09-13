@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import reactor.core.scheduler.Schedulers;
+import reactor.core.scheduler.Scheduler;
 
 /**
  * This class represents a scheduled task that pings a data point indicating that this server installation is live.
@@ -33,6 +33,8 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
     private final TenantService tenantService;
     private final AirgapInstanceConfig airgapInstanceConfig;
     private final UsagePulseService usagePulseService;
+
+    private final Scheduler scheduler;
 
     public PingScheduledTaskImpl(
             ConfigService configService,
@@ -48,7 +50,8 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             NetworkUtils networkUtils,
             TenantService tenantService,
             AirgapInstanceConfig airgapInstanceConfig,
-            UsagePulseService usagePulseService) {
+            UsagePulseService usagePulseService,
+            Scheduler scheduler) {
 
         super(
                 configService,
@@ -65,6 +68,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
         this.tenantService = tenantService;
         this.airgapInstanceConfig = airgapInstanceConfig;
         this.usagePulseService = usagePulseService;
+        this.scheduler = scheduler;
     }
 
     @Scheduled(initialDelay = 3 * 60 * 1000 /* three minutes */, fixedRate = 1 * 60 * 60 * 1000 /* one hour */)
@@ -72,7 +76,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
         log.debug("Initiating Periodic License Check");
         tenantService
                 .checkAndUpdateDefaultTenantLicense()
-                .subscribeOn(Schedulers.boundedElastic())
+                .subscribeOn(scheduler)
                 .subscribe();
     }
 
@@ -88,7 +92,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
         log.debug("Sending Usage Pulse");
         while (Boolean.TRUE.equals(usagePulseService
                 .sendAndUpdateUsagePulse()
-                .subscribeOn(Schedulers.boundedElastic())
+                .subscribeOn(scheduler)
                 .block())) {
             // Sleep to delay continues requests
             Thread.sleep(2000);

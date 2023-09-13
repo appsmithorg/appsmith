@@ -12,8 +12,6 @@ import reactor.core.publisher.Mono;
 public interface TenantService extends TenantServiceCE {
     Mono<Tenant> findById(String id, AclPermission aclPermission);
 
-    Mono<Tenant> save(Tenant tenant);
-
     Mono<Tenant> getDefaultTenant(AclPermission aclPermission);
 
     /**
@@ -26,7 +24,7 @@ public interface TenantService extends TenantServiceCE {
 
     Mono<Tenant> removeLicenseKey();
 
-    Mono<Tenant> syncLicensePlans();
+    Mono<Tenant> syncLicensePlansAndRunFeatureBasedMigrations();
 
     /**
      * To update the default tenant's license key
