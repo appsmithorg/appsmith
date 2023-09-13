@@ -26,6 +26,8 @@ export function handleActionsDataUpdate(
     const { data, dataPath, entityName } = actionToUpdate;
     // update the evaltree
     set(evalTree, `${entityName}.[${dataPath}]`, data);
+    // Update context
+    set(self, `${entityName}.[${dataPath}]`, data);
   }
   const updatedProperties: string[][] = actionsToUpdate.map(
     ({ dataPath, entityName }) => [entityName, dataPath],
