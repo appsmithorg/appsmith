@@ -309,7 +309,11 @@ configure_supervisord() {
       echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
     fi
 
-  fi
+  fi 
+
+  # Configure Suprvisor Dashboard Authentication Credentials
+  bash /opt/appsmith/templates/supervisord.conf.sh "${APPSMITH_SUPERVISOR_USER-}" "${APPSMITH_SUPERVISOR_PASSWORD-}" > /etc/supervisor/supervisord.conf
+
 }
 
 # This is a workaround to get Redis working on diffent memory pagesize
@@ -432,11 +436,12 @@ safe_init_postgres
 
 configure_supervisord
 
-CREDENTIAL_PATH="/etc/nginx/passwords"
-if ! [[ -e "$CREDENTIAL_PATH" ]]; then
-  echo "Generating Basic Authentication file"
-  printf "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 $APPSMITH_SUPERVISOR_PASSWORD)" > "$CREDENTIAL_PATH"
-fi
+# CREDENTIAL_PATH="/etc/nginx/passwords"
+# if ! [[ -e "$CREDENTIAL_PATH" ]]; then
+#   echo "Generating Basic Authentication file"
+#   printf "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 $APPSMITH_SUPERVISOR_PASSWORD)" > "$CREDENTIAL_PATH"
+# fi
+
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore}
 

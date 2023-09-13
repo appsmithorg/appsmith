@@ -1,3 +1,13 @@
+#!/bin/bash
+
+default_generated_password=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ''
+    )
+supervisor_user="${1:-appsmith}"
+supervisor_password="${2:-default_generated_password}"
+
+cat <<EOF
 ; supervisor config file
 
 [unix_http_server]
@@ -6,9 +16,10 @@ chmod=0700                       ; sockef file mode (default 0700)
 
 [inet_http_server]         ; inet (TCP) server disabled by default
 port=*:9001        ; (ip_address:port specifier, *:port for all iface)
-
-username=user
-password=123
+;username=user              ; (default is no username (open server))
+;password=123               ; (default is no password (open server))
+username=${supervisor_user}
+password=${supervisor_password}
 [supervisord]
 logfile=/var/log/supervisor/supervisord.log ; (main log file;default $CWD/supervisord.log)
 pidfile=/var/run/supervisord.pid ; (supervisord pidfile;default supervisord.pid)
@@ -42,3 +53,4 @@ command = supervisor_stdout
 buffer_size = 100 
 events = PROCESS_LOG 
 result_handler = supervisor_stdout:event_handler
+EOF
