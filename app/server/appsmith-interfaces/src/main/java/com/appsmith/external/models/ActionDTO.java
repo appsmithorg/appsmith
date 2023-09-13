@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
+import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.Views;
@@ -266,5 +267,13 @@ public class ActionDTO implements Identifiable, Executable {
         }
 
         return dslExecutableDTO;
+    }
+
+    @Override
+    public LayoutExecutableUpdateDTO getLayoutExecutableUpdateDTO() {
+        LayoutExecutableUpdateDTO layoutExecutableUpdateDTO = Executable.super.getLayoutExecutableUpdateDTO();
+        layoutExecutableUpdateDTO.setCollectionId(this.getCollectionId());
+
+        return layoutExecutableUpdateDTO;
     }
 }

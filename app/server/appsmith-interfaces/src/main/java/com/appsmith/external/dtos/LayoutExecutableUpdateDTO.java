@@ -1,4 +1,4 @@
-package com.appsmith.server.dtos;
+package com.appsmith.external.dtos;
 
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;

@@ -1,6 +1,7 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
+import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.domains.ScreenType;
 import com.fasterxml.jackson.annotation.JsonProperty;

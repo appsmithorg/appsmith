@@ -11,4 +11,6 @@ public interface ExecutableOnPageLoadServiceCE<T extends Executable> {
     Mono<Executable> fillSelfReferencingPaths(T executable);
 
     Flux<Executable> getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(String pageId);
+
+    Mono<Executable> updateUnpublishedExecutable(String id, Executable executable);
 }

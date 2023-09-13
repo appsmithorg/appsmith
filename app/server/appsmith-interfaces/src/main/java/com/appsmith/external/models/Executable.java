@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
+import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 
 import java.time.Instant;
 import java.util.List;
@@ -39,4 +40,19 @@ public interface Executable {
     String getValidName();
 
     EntityReferenceType getEntityReferenceType();
+
+    DefaultResources getDefaultResources();
+
+    default LayoutExecutableUpdateDTO getLayoutExecutableUpdateDTO() {
+        LayoutExecutableUpdateDTO layoutExecutableUpdateDTO = new LayoutExecutableUpdateDTO();
+
+        layoutExecutableUpdateDTO.setId(this.getId());
+        layoutExecutableUpdateDTO.setName(this.getValidName());
+        layoutExecutableUpdateDTO.setExecuteOnLoad(this.getExecuteOnLoad());
+        layoutExecutableUpdateDTO.setDefaultActionId(this.getDefaultResources().getActionId());
+
+        return layoutExecutableUpdateDTO;
+    }
+
+    void setExecuteOnLoad(Boolean isExecuteOnLoad);
 }

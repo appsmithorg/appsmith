@@ -1,6 +1,7 @@
 package com.appsmith.server.onpageload.internal;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
+import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.EntityDependencyNode;
@@ -73,17 +74,17 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * !!!WARNING!!! : This function edits the parameters edges, executablesUsedInDSL and flatPageLoadExecutables
      * and the same are used by the caller function for further processing.
      *
-     * @param pageId                    : Argument used for fetching executables in this page
-     * @param evaluatedVersion          : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
-     * @param widgetNames               : Set of widget names which SHOULD have been populated before calling this function.
+     * @param pageId                     : Argument used for fetching executables in this page
+     * @param evaluatedVersion           : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
+     * @param widgetNames                : Set of widget names which SHOULD have been populated before calling this function.
      * @param edgesRef                   : Set where this function adds all the relationships (dependencies) between executables
-     * @param widgetDynamicBindingsMap  : A map of widget path and the set of dynamic binding words in the mustache at the
-     *                                          path in the widget (populated by the function `extractAllWidgetNamesAndDynamicBindingsFromDSL`
-     *                                          <p>
-     *                                          Example : If Table1's field tableData contains a mustache : {{Api1.data}}, the entry in the map would look like :
-     *                                          Map.entry("Table1.tableData", Set.of("Api1.data"))
+     * @param widgetDynamicBindingsMap   : A map of widget path and the set of dynamic binding words in the mustache at the
+     *                                   path in the widget (populated by the function `extractAllWidgetNamesAndDynamicBindingsFromDSL`
+     *                                   <p>
+     *                                   Example : If Table1's field tableData contains a mustache : {{Api1.data}}, the entry in the map would look like :
+     *                                   Map.entry("Table1.tableData", Set.of("Api1.data"))
      * @param flatPageLoadExecutablesRef : A flat list of on page load executables (Not in the sequence in which these executables
-     *                                          would be called on page load)
+     *                                   would be called on page load)
      * @param executablesUsedInDSLRef    : Set where this function adds all the executables directly used in the DSL
      * @return Returns page load executables which is a list of sets of executables. Inside a set, all executables can be executed
      * in parallel. But one set of executables MUST finish execution before the next set of executables can be executed
@@ -112,7 +113,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
         // Api1.actionConfiguration.body <- Api2.data.users[0].name
         // Api2.actionConfiguration.url <- Api1.actionConfiguration.url
         // In the above case, the two executables depend on each other without there being a real cyclical dependency.
-        Map<String, EntityDependencyNode> executablesFoundDuringWalk = new HashMap<>();
+        Map<String, EntityDependencyNode> executablesFoundDuringWalkRef = new HashMap<>();
 
         Flux<Executable> allExecutablesByPageIdFlux = getAllExecutablesByPageIdFlux(pageId);
 
@@ -131,26 +132,24 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                         edgesRef,
                         executablesUsedInDSLRef,
                         bindingsFromExecutablesRef,
-                        executablesFoundDuringWalk,
+                        executablesFoundDuringWalkRef,
                         widgetDynamicBindingsMap,
                         executableNameToExecutableMapMono,
                         executableBindingsInDslRef,
                         evaluatedVersion);
 
         // This following `createAllEdgesForPageMono` publisher traverses the executables and widgets to add all
-        // possible
-        // edges between all possible entity paths
+        // possible edges between all possible entity paths
 
         // First find all the executables in the page whose name matches the possible entity names found in the bindings
-        // in
-        // the widget
+        // in the widget
         Mono<Set<ExecutableDependencyEdge>> createAllEdgesForPageMono = directlyReferencedExecutablesToGraphMono
                 // Add dependencies of all on page load executables set by the user in the graph
                 .flatMap(updatedEdges -> addExplicitUserSetOnLoadExecutablesToGraph(
                         pageId,
                         updatedEdges,
                         explicitUserSetOnLoadExecutablesRef,
-                        executablesFoundDuringWalk,
+                        executablesFoundDuringWalkRef,
                         bindingsFromExecutablesRef,
                         executableNameToExecutableMapMono,
                         executableBindingsInDslRef,
@@ -160,7 +159,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                 // relationships with other executables (& widgets)
                 .flatMap(updatedEdges -> recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
                         updatedEdges,
-                        executablesFoundDuringWalk,
+                        executablesFoundDuringWalkRef,
                         bindingsFromExecutablesRef,
                         executableNameToExecutableMapMono,
                         evaluatedVersion))
@@ -231,7 +230,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
 
         // With the final on page load scheduling order, also set the on page load executables which would be updated
         // by the caller function
-        Mono<List<Executable>> flatPageLoadERxecutablesMono = computeCompletePageLoadExecutableScheduleMono
+        Mono<List<Executable>> flatPageLoadExecutablesMono = computeCompletePageLoadExecutableScheduleMono
                 .then(executableNameToExecutableMapMono)
                 .map(executableMap -> {
                     onPageLoadExecutableSetRef.stream()
@@ -240,7 +239,135 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                     return flatPageLoadExecutablesRef;
                 });
 
-        return createGraphMono.then(flatPageLoadERxecutablesMono).then(computeCompletePageLoadExecutableScheduleMono);
+        return createGraphMono.then(flatPageLoadExecutablesMono).then(computeCompletePageLoadExecutableScheduleMono);
+    }
+
+    @Override
+    public Mono<Boolean> updateExecutablesExecuteOnLoad(
+            List<Executable> onLoadExecutables,
+            String pageId,
+            List<LayoutExecutableUpdateDTO> executableUpdatesRef,
+            List<String> messagesRef) {
+        List<Executable> toUpdateExecutables = new ArrayList<>();
+
+        // Fetch all the actions which exist in this page.
+        Flux<Executable> pageExecutablesFlux =
+                this.getAllExecutablesByPageIdFlux(pageId).cache();
+
+        // Before we update the actions, fetch all the actions which are currently set to execute on load.
+        Mono<List<Executable>> existingOnPageLoadExecutablesMono = pageExecutablesFlux
+                .flatMap(executable -> {
+                    if (TRUE.equals(executable.getExecuteOnLoad())) {
+                        return Mono.just(executable);
+                    }
+                    return Mono.empty();
+                })
+                .collectList();
+
+        return existingOnPageLoadExecutablesMono
+                .zipWith(pageExecutablesFlux.collectList())
+                .flatMap(tuple -> {
+                    List<Executable> existingOnPageLoadExecutables = tuple.getT1();
+                    List<Executable> pageExecutables = tuple.getT2();
+
+                    // There are no actions in this page. No need to proceed further since no actions would get updated
+                    if (pageExecutables.isEmpty()) {
+                        return Mono.just(FALSE);
+                    }
+
+                    // No actions require an update if no actions have been found as page load actions as well as
+                    // existing on load page actions are empty
+                    if (existingOnPageLoadExecutables.isEmpty()
+                            && (onLoadExecutables == null || onLoadExecutables.isEmpty())) {
+                        return Mono.just(FALSE);
+                    }
+
+                    // Extract names of existing page load actions and new page load actions for quick lookup.
+                    Set<String> existingOnPageLoadExecutableNames = existingOnPageLoadExecutables.stream()
+                            .map(Executable::getValidName)
+                            .collect(Collectors.toSet());
+
+                    Set<String> newOnLoadExecutableNames = onLoadExecutables.stream()
+                            .map(Executable::getValidName)
+                            .collect(Collectors.toSet());
+
+                    // Calculate the actions which would need to be updated from execute on load TRUE to FALSE.
+                    Set<String> turnedOffExecutableNames = new HashSet<>();
+                    turnedOffExecutableNames.addAll(existingOnPageLoadExecutableNames);
+                    turnedOffExecutableNames.removeAll(newOnLoadExecutableNames);
+
+                    // Calculate the actions which would need to be updated from execute on load FALSE to TRUE
+                    Set<String> turnedOnExecutableNames = new HashSet<>();
+                    turnedOnExecutableNames.addAll(newOnLoadExecutableNames);
+                    turnedOnExecutableNames.removeAll(existingOnPageLoadExecutableNames);
+
+                    for (Executable executable : pageExecutables) {
+
+                        String executableName = executable.getValidName();
+                        // If a user has ever set execute on load, this field can not be changed automatically. It has
+                        // to be explicitly changed by the user again. Add the executable to update only if this
+                        // condition is false.
+                        if (FALSE.equals(executable.getUserSetOnLoad())) {
+
+                            // If this executable is no longer an onload executable, turn the execute on load to false
+                            if (turnedOffExecutableNames.contains(executableName)) {
+                                executable.setExecuteOnLoad(FALSE);
+                                toUpdateExecutables.add(executable);
+                            }
+
+                            // If this executable is newly found to be on load, turn execute on load to true
+                            if (turnedOnExecutableNames.contains(executableName)) {
+                                executable.setExecuteOnLoad(TRUE);
+                                toUpdateExecutables.add(executable);
+                            }
+                        } else {
+                            // Remove the executable name from either of the lists (if present) because this executable
+                            // should not be updated
+                            turnedOnExecutableNames.remove(executableName);
+                            turnedOffExecutableNames.remove(executableName);
+                        }
+                    }
+
+                    // Add newly turned on page actions to report back to the caller
+                    executableUpdatesRef.addAll(
+                            addExecutableUpdatesForExecutableNames(pageExecutables, turnedOnExecutableNames));
+
+                    // Add newly turned off page actions to report back to the caller
+                    executableUpdatesRef.addAll(
+                            addExecutableUpdatesForExecutableNames(pageExecutables, turnedOffExecutableNames));
+
+                    // Now add messagesRef that would eventually be displayed to the developer user informing them
+                    // about the action setting change.
+                    if (!turnedOffExecutableNames.isEmpty()) {
+                        messagesRef.add(
+                                turnedOffExecutableNames.toString() + " will no longer be executed on page load");
+                    }
+
+                    if (!turnedOnExecutableNames.isEmpty()) {
+                        messagesRef.add(
+                                turnedOnExecutableNames.toString() + " will be executed automatically on page load");
+                    }
+
+                    // Finally update the actions which require an update
+                    return Flux.fromIterable(toUpdateExecutables)
+                            .flatMap(executable -> this.updateUnpublishedExecutable(executable.getId(), executable))
+                            .then(Mono.just(TRUE));
+                });
+    }
+
+    private Mono<Executable> updateUnpublishedExecutable(String id, Executable executable) {
+        if (executable instanceof ActionDTO actionDTO) {
+            return actionExecutableOnPageLoadService.updateUnpublishedExecutable(id, actionDTO);
+        } else return Mono.just(executable);
+    }
+
+    private List<LayoutExecutableUpdateDTO> addExecutableUpdatesForExecutableNames(
+            List<Executable> pageExecutables, Set<String> updatedExecutableNames) {
+
+        return pageExecutables.stream()
+                .filter(pageExecutable -> updatedExecutableNames.contains(pageExecutable.getValidName()))
+                .map(Executable::getLayoutExecutableUpdateDTO)
+                .collect(Collectors.toList());
     }
 
     protected Flux<Executable> getAllExecutablesByPageIdFlux(String pageId) {
@@ -302,8 +429,8 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * references are possible candidates
      *
      * @param executableNameToExecutableMapMono : This map is used to filter only valid executable references in bindings
-     * @param bindings                                  : The set of bindings to find references from
-     * @param evalVersion                               : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
+     * @param bindings                          : The set of bindings to find references from
+     * @param evalVersion                       : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
      * @return A set of any possible reference found in the binding that qualifies as a global entity reference
      */
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
@@ -317,9 +444,9 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * For such cases, we also want to capture entity references that would be qualified to run on page load first.
      *
      * @param executableNameToExecutableMono : This map is used to filter only valid executable references in bindings
-     * @param bindings                               : The set of bindings to find references from
-     * @param evalVersion                            : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
-     * @param bindingsInDsl                          : All references are also added to this set if they should be qualified to run on page load first.
+     * @param bindings                       : The set of bindings to find references from
+     * @param evalVersion                    : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
+     * @param bindingsInDsl                  : All references are also added to this set if they should be qualified to run on page load first.
      * @return A set of any possible reference found in the binding that qualifies as a global entity reference
      */
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
@@ -657,7 +784,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * executables which depend on one or more of the executables which were executed from the 0th index set and so on.
      * Breadth First level by level traversal is used to compute each set of such independent executables.
      *
-     * @param dag                                   : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
+     * @param dag                           : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
      * @param onPageLoadExecutableSet
      * @param executableNameToExecutableMap : All the executable names for the page
      * @return
@@ -777,16 +904,16 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * @param pageId
      * @param edges
      * @param explicitUserSetOnLoadExecutables
-     * @param executablesFoundDuringWalk
-     * @param bindingsFromExecutables
+     * @param executablesFoundDuringWalkRef
+     * @param bindingsFromExecutablesRef
      * @return
      */
     private Mono<Set<ExecutableDependencyEdge>> addExplicitUserSetOnLoadExecutablesToGraph(
             String pageId,
             Set<ExecutableDependencyEdge> edges,
             Set<String> explicitUserSetOnLoadExecutables,
-            Map<String, EntityDependencyNode> executablesFoundDuringWalk,
-            Set<String> bindingsFromExecutables,
+            Map<String, EntityDependencyNode> executablesFoundDuringWalkRef,
+            Set<String> bindingsFromExecutablesRef,
             Mono<Map<String, Executable>> executableNameToExecutableMapMono,
             Set<EntityDependencyNode> executableBindingsInDsl,
             int evalVersion) {
@@ -802,9 +929,9 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                     return extractAndSetExecutableBindingsInGraphEdges(
                                     entityDependencyNode,
                                     edges,
-                                    bindingsFromExecutables,
+                                    bindingsFromExecutablesRef,
                                     executableNameToExecutableMapMono,
-                                    executablesFoundDuringWalk,
+                                    executablesFoundDuringWalkRef,
                                     executableBindingsInDsl,
                                     evalVersion)
                             .thenReturn(executable);

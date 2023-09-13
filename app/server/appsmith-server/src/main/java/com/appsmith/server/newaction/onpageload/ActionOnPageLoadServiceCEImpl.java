@@ -39,4 +39,11 @@ public class ActionOnPageLoadServiceCEImpl implements ExecutableOnPageLoadServic
                 .findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
     }
+
+    @Override
+    public Mono<Executable> updateUnpublishedExecutable(String id, Executable executable) {
+        return newActionService
+                .updateUnpublishedAction(id, (ActionDTO) executable)
+                .map(updated -> updated);
+    }
 }
