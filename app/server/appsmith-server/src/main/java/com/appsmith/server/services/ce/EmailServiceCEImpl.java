@@ -93,6 +93,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
             params.put(INVITER_FIRST_NAME, StringUtils.defaultIfEmpty(invitingUser.getName(), invitingUser.getEmail()));
         }
         return this.enrichParams(params)
+                .flatMap(enrichedParams -> this.enrichWithBrandParams(enrichedParams, originHeader))
                 .flatMap(updatedParams -> emailSender.sendMail(
                         invitedUser.getEmail(),
                         String.format(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
