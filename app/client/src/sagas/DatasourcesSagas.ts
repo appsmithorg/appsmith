@@ -159,6 +159,7 @@ import {
   getCurrentEditingEnvironmentId,
   getCurrentEnvironmentDetails,
 } from "@appsmith/selectors/environmentSelectors";
+import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -646,6 +647,8 @@ function* getOAuthAccessTokenSaga(
     return;
   }
   try {
+    // wait for envs to be fetched
+    yield call(waitForFetchEnvironments);
     // Get access token for datasource
     const response: ApiResponse<TokenResponse> = yield OAuthApi.getAccessToken(
       datasourceId,
