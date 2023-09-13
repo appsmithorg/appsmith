@@ -881,7 +881,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         layoutDTO.setDsl(layout.getDsl());
         layoutDTO.setScreen(layout.getScreen());
         layoutDTO.setLayoutOnLoadActions(layout.getLayoutOnLoadActions());
-        layoutDTO.setLayoutOnLoadExecutableErrors(layout.getLayoutOnLoadActionErrors());
+        layoutDTO.setLayoutOnLoadActionErrors(layout.getLayoutOnLoadActionErrors());
         layoutDTO.setUserPermissions(layout.getUserPermissions());
 
         return layoutDTO;

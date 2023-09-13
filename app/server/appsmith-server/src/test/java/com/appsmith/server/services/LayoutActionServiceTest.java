@@ -1285,7 +1285,7 @@ public class LayoutActionServiceTest {
         // since the dependency has been introduced calling updateLayout will return a LayoutDTO with a populated
         // layoutOnLoadActionErrors
         assertNotNull(firstLayout);
-        assertEquals(1, firstLayout.getLayoutOnLoadExecutableErrors().size());
+        assertEquals(1, firstLayout.getLayoutOnLoadActionErrors().size());
 
         // refactoring action to carry the existing error in DSL
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
@@ -1297,7 +1297,7 @@ public class LayoutActionServiceTest {
 
         Mono<LayoutDTO> layoutDTOMono = refactoringSolution.refactorActionName(refactorActionNameDTO);
         StepVerifier.create(layoutDTOMono.map(
-                        layoutDTO -> layoutDTO.getLayoutOnLoadExecutableErrors().size()))
+                        layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().size()))
                 .expectNext(1)
                 .verifyComplete();
 
@@ -1326,8 +1326,8 @@ public class LayoutActionServiceTest {
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
                 .block();
         assertNotNull(changedLayoutDTO);
-        assertNotNull(changedLayoutDTO.getLayoutOnLoadExecutableErrors());
-        assertEquals(0, changedLayoutDTO.getLayoutOnLoadExecutableErrors().size());
+        assertNotNull(changedLayoutDTO.getLayoutOnLoadActionErrors());
+        assertEquals(0, changedLayoutDTO.getLayoutOnLoadActionErrors().size());
     }
 
     @Test

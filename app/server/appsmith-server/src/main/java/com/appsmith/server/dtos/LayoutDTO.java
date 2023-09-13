@@ -30,7 +30,7 @@ public class LayoutDTO {
     // PageLoadExcutablesUtilCEImpl.java
     @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    List<ErrorDTO> layoutOnLoadExecutableErrors;
+    List<ErrorDTO> layoutOnLoadActionErrors;
 
     // All the executables which have been updated as part of updateLayout function call
     List<LayoutExecutableUpdateDTO> actionUpdates;
