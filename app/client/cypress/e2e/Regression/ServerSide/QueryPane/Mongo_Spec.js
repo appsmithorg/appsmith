@@ -1,6 +1,5 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
-const datasource = require("../../../../locators/DatasourcesEditor.json");
 const formControls = require("../../../../locators/FormControl.json");
 
 import {
@@ -27,18 +26,14 @@ describe("Validate Mongo query commands", function () {
   // });
 
   before("Creates a new Mongo datasource", function () {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.MongoDB).click();
-    cy.fillMongoDatasourceForm();
-    cy.generateUUID().then((uid) => {
-      datasourceName = `Mongo CRUD ds ${uid}`;
-      cy.renameDatasource(datasourceName);
+    dataSources.CreateDataSource("Mongo");
+    dataSources.CreateQueryAfterDSSaved();
+    cy.get("@dsName").then(($dsName) => {
+      datasourceName = $dsName;
     });
-    cy.testSaveDatasource();
   });
 
   it("1. Validate Raw query command, run and then delete the query", function () {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
     // cy.get("@getPluginForm").should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",
