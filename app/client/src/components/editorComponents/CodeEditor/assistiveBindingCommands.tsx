@@ -85,7 +85,7 @@ const generateCreateNewCommand = ({
 });
 
 const iconsByType = {
-  [Shortcuts.BINDING]: <Icon name="binding" size="md" />,
+  [Shortcuts.BINDING]: <Icon name="binding-new" size="md" />,
   [Shortcuts.PLUS]: (
     <Icon className="add-datasource-icon" name="add-box-line" size="md" />
   ),
@@ -134,7 +134,7 @@ export const generateAssistiveBindingCommands = (
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
-    displayText: "New binding",
+    displayText: "Add binding",
     shortcut: Shortcuts.BINDING,
     triggerCompletionsPostPick: true,
   });
