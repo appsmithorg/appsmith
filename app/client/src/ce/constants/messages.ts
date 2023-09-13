@@ -197,6 +197,10 @@ export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
   "Users will only have access to this application";
 export const NO_USERS_INVITED = () => "You haven't invited any users yet";
 export const BUSINESS_EDITION_TEXT = () => "business edition";
+export const PARTNER_PROGRAM_CALLOUT = (
+  email: string,
+) => `${email} is outside your organisation. If you’re building this app
+for someone else, you should check out our partner program.`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";

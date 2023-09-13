@@ -1,6 +1,10 @@
 import type { CalloutLinkProps } from "design-system";
 import { Callout } from "design-system";
 import React from "react";
+import {
+  PARTNER_PROGRAM_CALLOUT,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 type PartnerProgramCalloutProps = {
   email: string;
@@ -17,9 +21,13 @@ export default function PartnerProgramCallout(
   };
 
   return (
-    <Callout isClosable links={[link]} onClose={props.onClose}>
-      {props.email} is outside your organisation. If you’re building this app
-      for someone else, you should check out our partner program.
+    <Callout
+      data-testid="partner-program-callout"
+      isClosable
+      links={[link]}
+      onClose={props.onClose}
+    >
+      {createMessage(PARTNER_PROGRAM_CALLOUT, props.email)}
     </Callout>
   );
 }
