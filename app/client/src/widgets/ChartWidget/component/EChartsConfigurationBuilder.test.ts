@@ -245,14 +245,14 @@ describe("EChartsConfigurationBuilder", () => {
           },
         },
         {
-          top: 265,
-          left: "33.333333333333336%",
+          top: 80,
+          left: 495,
           textAlign: "center",
           text: "series1",
         },
         {
-          top: 265,
-          left: "66.66666666666667%",
+          top: 80,
+          left: 495,
           textAlign: "center",
           text: "series2",
         },
@@ -484,8 +484,8 @@ describe("EChartsConfigurationBuilder", () => {
       expectedConfig.series = [
         {
           type: "pie",
-          radius: "60%",
-          center: ["50%", "60%"],
+          top: 100,
+          bottom: 30,
           name: "series1",
           encode: {
             itemName: "Category",

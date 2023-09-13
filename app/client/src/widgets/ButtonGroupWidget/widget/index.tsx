@@ -9,7 +9,7 @@ import { get } from "lodash";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { MinimumPopupRows } from "WidgetProvider/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import ButtonGroupComponent from "../component";
 import { getStylesheetValue } from "./helpers";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
@@ -19,7 +19,7 @@ import { klona as clone } from "klona/full";
 import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -771,7 +771,9 @@ class ButtonGroupWidget extends BaseWidget<
 
   getWidgetView() {
     const { componentWidth } = this.props;
-    const minPopoverWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const minPopoverWidth =
+      (MinimumPopupWidthInPercentage / 100) *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
 
     return (
       <ButtonGroupComponent
