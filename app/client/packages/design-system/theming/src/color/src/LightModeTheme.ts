@@ -60,6 +60,7 @@ export class LightModeTheme implements ColorModeTheme {
       bgPositive: this.bgPositive.to("sRGB").toString(),
       bgPositiveHover: this.bgPositiveHover.to("sRGB").toString(),
       bgPositiveActive: this.bgPositiveActive.to("sRGB").toString(),
+      bgPositiveSubtle: this.bgPositiveSubtle.to("sRGB").toString(),
       bgPositiveSubtleHover: this.bgPositiveSubtleHover.to("sRGB").toString(),
       bgPositiveSubtleActive: this.bgPositiveSubtleActive.to("sRGB").toString(),
       bgNegative: this.bgNegative.to("sRGB").toString(),
