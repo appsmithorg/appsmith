@@ -72,6 +72,7 @@ export class LightModeTheme implements ColorModeTheme {
       bgWarning: this.bgWarning.to("sRGB").toString(),
       bgWarningHover: this.bgWarningHover.to("sRGB").toString(),
       bgWarningActive: this.bgWarningActive.to("sRGB").toString(),
+      bgWarningSubtle: this.bgWarningSubtle.to("sRGB").toString(),
       bgWarningSubtleHover: this.bgWarningSubtleHover.to("sRGB").toString(),
       bgWarningSubtleActive: this.bgWarningSubtleActive.to("sRGB").toString(),
 
