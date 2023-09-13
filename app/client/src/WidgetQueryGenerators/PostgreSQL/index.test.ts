@@ -238,6 +238,7 @@ OFFSET
         columns: [{ name: "id" }, { name: "name" }],
         primaryColumn: "id",
         connectionMode: DatasourceConnectionMode.READ_WRITE,
+        dataIdentifier: "id",
       },
       initialValues,
     );
