@@ -25,6 +25,7 @@ import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { Positioning } from "layoutSystems/autolayout/utils/constants";
+import { isEmpty } from "lodash";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity
@@ -81,6 +82,12 @@ type DataTreeSeed = {
   theme: AppTheme["properties"];
   metaWidgets: MetaWidgetsReduxState;
   isMobile: boolean;
+  moduleInputs: Record<string, ModuleInput>;
+};
+
+export type ModuleInput = {
+  name: string;
+  defaultValue: any;
 };
 
 export type DataTreeEntityConfig =
@@ -105,6 +112,7 @@ export class DataTreeFactory {
     isMobile,
     jsActions,
     metaWidgets,
+    moduleInputs,
     pageList,
     pluginDependencyConfig,
     theme,
@@ -139,6 +147,12 @@ export class DataTreeFactory {
     const endJsActions = performance.now();
 
     const startWidgets = performance.now();
+
+    if (!isEmpty(moduleInputs)) {
+      for (const [key, value] of Object.entries(moduleInputs)) {
+        dataTree[key] = value.defaultValue;
+      }
+    }
 
     Object.values(widgets).forEach((widget) => {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(

@@ -5,6 +5,7 @@ import {
   getPluginDependencyConfig,
   getPluginEditorConfigs,
   getCurrentJSCollections,
+  getInputsForModule,
 } from "@appsmith/selectors/entitiesSelector";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
@@ -37,6 +38,7 @@ export const getUnevaluatedDataTree = createSelector(
   getSelectedAppThemeProperties,
   getMetaWidgets,
   getIsMobileBreakPoint,
+  getInputsForModule,
   (
     actions,
     jsActions,
@@ -49,6 +51,7 @@ export const getUnevaluatedDataTree = createSelector(
     selectedAppThemeProperty,
     metaWidgets,
     isMobile,
+    moduleInputs,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -63,6 +66,7 @@ export const getUnevaluatedDataTree = createSelector(
       theme: selectedAppThemeProperty,
       metaWidgets,
       isMobile,
+      moduleInputs,
     });
   },
 );
