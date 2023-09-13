@@ -88,6 +88,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.constants.ce.AccessControlConstants.WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED;
 import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -755,7 +756,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
                     profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
-
+                    profile.setRoles(List.of(WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED));
+                    profile.setGroups(List.of(WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED));
                     return profile;
                 });
     }

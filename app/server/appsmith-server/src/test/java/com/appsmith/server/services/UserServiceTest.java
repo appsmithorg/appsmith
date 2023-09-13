@@ -61,6 +61,7 @@ import java.util.Set;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
+import static com.appsmith.server.constants.ce.AccessControlConstants.WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -495,6 +496,12 @@ public class UserServiceTest {
                 .assertNext(userProfileDTO -> {
                     assertNotNull(userProfileDTO);
                     assertThat(userProfileDTO.isIntercomConsentGiven()).isTrue();
+                    assertEquals(
+                            List.of(WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED),
+                            userProfileDTO.getGroups());
+                    assertEquals(
+                            List.of(WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED),
+                            userProfileDTO.getRoles());
                 })
                 .verifyComplete();
     }
