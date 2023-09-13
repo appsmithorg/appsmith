@@ -6,6 +6,7 @@ import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.DatasourceStructureService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.ce.DatasourceStructureSolutionCEImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,8 @@ public class DatasourceStructureSolutionImpl extends DatasourceStructureSolution
             DatasourcePermission datasourcePermission,
             DatasourceStructureService datasourceStructureService,
             AnalyticsService analyticsService,
-            EnvironmentPermission environmentPermission) {
+            EnvironmentPermission environmentPermission,
+            FeatureFlagService featureFlagService) {
         super(
                 datasourceService,
                 datasourceStorageService,
@@ -34,6 +36,7 @@ public class DatasourceStructureSolutionImpl extends DatasourceStructureSolution
                 datasourcePermission,
                 datasourceStructureService,
                 analyticsService,
-                environmentPermission);
+                environmentPermission,
+                featureFlagService);
     }
 }
