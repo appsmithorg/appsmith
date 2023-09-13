@@ -7,9 +7,9 @@ import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
 
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getPluginImages,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
@@ -98,7 +98,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
-  const queryActions = useSelector(getActionsForCurrentPage);
+  const queryActions = useSelector(getCurrentActions);
   const queriesWithThisDatasource = queryActions.filter(
     (action) =>
       isStoredDatasource(action.config.datasource) &&
