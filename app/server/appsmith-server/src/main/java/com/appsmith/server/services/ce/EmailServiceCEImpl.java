@@ -96,7 +96,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                 .flatMap(enrichedParams -> this.enrichWithBrandParams(enrichedParams, originHeader))
                 .flatMap(updatedParams -> emailSender.sendMail(
                         invitedUser.getEmail(),
-                        String.format(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
+                        String.format(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT),
                         getAdminInstanceInviteTemplate(),
                         updatedParams));
     }

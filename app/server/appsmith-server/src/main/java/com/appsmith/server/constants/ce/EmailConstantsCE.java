@@ -18,7 +18,7 @@ public class EmailConstantsCE {
     public static final String WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER = "You’re invited to the workspace %s.";
     public static final String FORGOT_PASSWORD_EMAIL_SUBJECT = "Reset your Appsmith password";
     public static final String EMAIL_VERIFICATION_EMAIL_SUBJECT = "Verify your account";
-    public static final String INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT = "You’ve been invited to join %s";
+    public static final String INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT = "You're invited to an Appsmith instance";
     public static final String INVITE_WORKSPACE_TEMPLATE_CE = "email/ce/inviteUserTemplate.html";
     public static final String FORGOT_PASSWORD_TEMPLATE_CE = "email/ce/forgotPasswordTemplate.html";
     public static final String INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE = "email/ce/instanceAdminInviteTemplate.html";

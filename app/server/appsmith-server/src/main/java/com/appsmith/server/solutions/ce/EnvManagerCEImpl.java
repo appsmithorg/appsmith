@@ -596,20 +596,20 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .flatMap(email -> userService.findByEmail(email).flatMap(existingUser -> sessionUserService
                         .getCurrentUser()
                         .flatMap(invitingUser -> {
-                            if (existingUser != null) {
-                                return userUtils
-                                        .makeSuperUser(Collections.singletonList(existingUser))
-                                        .flatMap(success -> emailService.sendInstanceAdminInviteEmail(
-                                                existingUser,
-                                                invitingUser,
-                                                originHeader,
-                                                Boolean.TRUE.equals(success)));
-                            } else {
+                            if (existingUser == null) {
                                 User user = new User();
                                 user.setEmail(email);
                                 return emailService.sendInstanceAdminInviteEmail(
                                         user, invitingUser, originHeader, true);
                             }
+                            return userUtils
+                                    .isSuperUser(existingUser)
+                                    .filter(isSuperUser -> !isSuperUser)
+                                    .flatMap(isSuperUser -> userUtils
+                                            .makeSuperUser(Collections.singletonList(existingUser))
+                                            .flatMap(success -> emailService.sendInstanceAdminInviteEmail(
+                                                    existingUser, invitingUser, originHeader, false)))
+                                    .switchIfEmpty(Mono.empty()); // Skip if existingUser is already a superuser
                         })))
                 .collectList()
                 .map(results -> results.stream().allMatch(Boolean::booleanValue));
