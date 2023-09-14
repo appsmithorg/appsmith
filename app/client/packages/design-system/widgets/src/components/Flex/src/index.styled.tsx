@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import type { AlignItems, Responsive, StyledFlexProps } from "./types";
+import type { Responsive, StyledFlexProps } from "./types";
 
 export const StyledFlex = styled.div<StyledFlexProps>`
   ${({ $wrap }) => {
@@ -172,7 +172,21 @@ const containerDimensionStyles = (
   return `${cssProp}: ${callback ? callback(value) : value};`;
 };
 
-const flexAlignValue = (value: AlignItems) => {
+const flexAlignValue = (
+  value: Responsive<
+    | "start"
+    | "end"
+    | "center"
+    | "stretch"
+    | "self-start"
+    | "self-end"
+    | "baseline"
+    | "first baseline"
+    | "last baseline"
+    | "safe center"
+    | "unsafe center"
+  >,
+) => {
   if (value === "start") {
     return "flex-start";
   }
