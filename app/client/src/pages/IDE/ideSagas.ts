@@ -45,13 +45,17 @@ function* setQueryRecentListSaga(recentEntities: RecentEntity[]) {
       pluginType: action.config.pluginType,
       icon: getPluginIcon(pluginGroups[action.config.pluginId]),
     }));
+  const filteredSortedItems = sortedItems.filter((item) =>
+    queryItems.some((queryItem) => queryItem.key === item.key),
+  );
 
   const newSortedList = sortItems(queryItems, recentEntities);
   if (newSortedList.length === 0) {
+    yield put(setRecentQueryList(newSortedList));
     return;
   }
 
-  if (sortedItems.length === 0) {
+  if (filteredSortedItems.length === 0) {
     yield put(setRecentQueryList(newSortedList));
   }
   const currentItem = recentEntities[0];
@@ -61,7 +65,7 @@ function* setQueryRecentListSaga(recentEntities: RecentEntity[]) {
   const currentItemId = currentItem.id;
 
   const indexOfCurrentItem = findIndex(
-    sortedItems,
+    filteredSortedItems,
     (r) => r.key === currentItemId,
   );
   if (indexOfCurrentItem > 3 || indexOfCurrentItem === -1) {
@@ -80,14 +84,20 @@ function* setJsRecentListSaga(recentEntities: RecentEntity[]) {
     key: a.entity.id,
     type: a.type,
   }));
+  // Filter out js objects which are not of the current page
+  const filteredSortedItems = sortedItems.filter((item) =>
+    jsItems.some((jsItem) => jsItem.key === item.key),
+  );
 
   const newSortedList = sortItems(jsItems, recentEntities);
-
+  // On a new page js object list will be always empty. Since the recent js list is our source of
+  // truth we reset this to empty else it will carry the previous pages's js objects
   if (newSortedList.length === 0) {
+    yield put(setRecentJsList(newSortedList));
     return;
   }
 
-  if (sortedItems.length === 0) {
+  if (filteredSortedItems.length === 0) {
     yield put(setRecentJsList(newSortedList));
   }
 
@@ -98,7 +108,7 @@ function* setJsRecentListSaga(recentEntities: RecentEntity[]) {
 
   const currentItemId = currentItem.id;
   const indexOfCurrentItem = findIndex(
-    sortedItems,
+    filteredSortedItems,
     (r) => r.key === currentItemId,
   );
   if (indexOfCurrentItem > 3 || indexOfCurrentItem === -1) {
@@ -119,14 +129,8 @@ function* setPageRecentListSaga(action: ReduxAction<RecentEntity[]>) {
   ]);
 }
 
-function* resetRecentEntities() {
-  yield put(setRecentJsList([]));
-  yield put(setRecentQueryList([]));
-}
-
 export default function* watchIDESagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_RECENT_ENTITIES, setPageRecentListSaga),
-    takeEvery(ReduxActionTypes.SWITCH_CURRENT_PAGE_ID, resetRecentEntities),
   ]);
 }
