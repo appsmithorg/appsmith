@@ -104,4 +104,3 @@ describe("List widget V2 functionality with audio and video widgets", () => {
     );
   });
 });
-
