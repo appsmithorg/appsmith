@@ -96,6 +96,8 @@ export const assistiveBindingHinter: HintHelper = (
         entityType: entityInfo.entityType,
       });
 
+      if (list.length === 0) return false;
+
       let currentSelection: CommandsCompletion = {
         origin: "",
         type: AutocompleteDataType.UNKNOWN,
