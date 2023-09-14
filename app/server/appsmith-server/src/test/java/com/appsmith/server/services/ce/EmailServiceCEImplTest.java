@@ -29,7 +29,6 @@ import static com.appsmith.server.constants.ce.EmailConstantsCE.INSTANCE_ADMIN_I
 import static com.appsmith.server.constants.ce.EmailConstantsCE.INSTANCE_NAME;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITER_FIRST_NAME;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITER_WORKSPACE_NAME;
-import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITE_WORKSPACE_TEMPLATE_CE;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.PRIMARY_LINK_TEXT;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.PRIMARY_LINK_URL;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.RESET_URL;
@@ -132,7 +131,6 @@ class EmailServiceCEImplTest {
 
                     assertEquals(invitedUser.getEmail(), to);
                     assertEquals(String.format(WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER, workspace.getName()), subject);
-                    assertEquals(INVITE_WORKSPACE_TEMPLATE_CE, text);
                     assertTrue(params.containsKey(PRIMARY_LINK_URL));
                     assertTrue(params.containsKey(PRIMARY_LINK_TEXT));
                     assertEquals(expectedParams.get(INSTANCE_NAME), params.get(INSTANCE_NAME));

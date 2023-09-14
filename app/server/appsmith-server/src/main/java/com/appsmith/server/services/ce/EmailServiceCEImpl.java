@@ -56,10 +56,10 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         String emailSubject = String.format(WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER, workspaceInvitedTo.getName());
         Map<String, String> params = getInviteToWorkspaceEmailParams(
                 workspaceInvitedTo, invitingUser, inviteUrl, assignedPermissionGroup.getName(), isNewUser);
-        return this.enrichParams(params)
-                .flatMap(enrichedParams -> this.enrichWithBrandParams(enrichedParams, originHeader)
-                        .flatMap(updatedParams -> emailSender.sendMail(
-                                invitedUser.getEmail(), emailSubject, getWorkspaceInviteTemplate(), updatedParams)));
+        return this.enrichParams(params).flatMap(enrichedParams -> this.enrichWithBrandParams(
+                        enrichedParams, originHeader)
+                .flatMap(updatedParams -> emailSender.sendMail(
+                        invitedUser.getEmail(), emailSubject, getWorkspaceInviteTemplate(isNewUser), updatedParams)));
     }
 
     @Override
@@ -117,8 +117,10 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         return FORGOT_PASSWORD_TEMPLATE_CE;
     }
 
-    protected String getWorkspaceInviteTemplate() {
-        return INVITE_WORKSPACE_TEMPLATE_CE;
+    protected String getWorkspaceInviteTemplate(boolean isNewUser) {
+        if (isNewUser) return INVITE_WORKSPACE_TEMPLATE_NEW_USER_CE;
+
+        return INVITE_WORKSPACE_TEMPLATE_EXISTING_USER_CE;
     }
 
     protected String getAdminInstanceInviteTemplate() {
