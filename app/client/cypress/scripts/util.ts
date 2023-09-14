@@ -53,7 +53,7 @@ export class util {
       { length: numberOfGroups },
       () => [],
     );
-    console.log("NUMBER OF GROUPS IN BALANCE FUNCTION ====> ", groups);
+    console.log("NUMBER OF GROUPS IN BALANCE FUNCTION ====> ", groups.length);
     sortedData.forEach((item) => {
       console.log("ITEM IN DIVIDE SPEC IN BALANCE GROUP", item);
       // Find the group with the shortest total duration and add the item to it

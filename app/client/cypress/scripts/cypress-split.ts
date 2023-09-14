@@ -44,9 +44,10 @@ async function getSpecsWithTime(specs: string[]) {
       return match ? match : { name: spec, duration: defaultDuration };
     });
     console.log("ALL SPECS WITH DURATION", allSpecsWithDuration);
+    const activeRunners = await _.getActiveRunners();
     return await _.divideSpecsIntoBalancedGroups(
       allSpecsWithDuration,
-      Number(_.getActiveRunners()),
+      Number(activeRunners),
     );
   } catch (err) {
     console.log(err);
