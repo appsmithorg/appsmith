@@ -118,7 +118,7 @@ jobs:
         id: slack_notification
         run: |
           if [[ ${{ needs.ci-test.result }} == 'failure' ]]; then
-            echo "slack_message=There are test failures in the run:\n$(echo -e '${{ env.new_failed_spec_env }}' | awk '{printf("• *%s*\n", $0)}')\nCypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>" >> $GITHUB_OUTPUT
+            echo "slack_message=There are test failures in the run. Cypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
             echo "slack_icon=:no_entry:" >> $GITHUB_OUTPUT
           elif [[ ${{ needs.ci-test.result }} == 'success' ]]; then
