@@ -1420,6 +1420,27 @@ export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
 export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
   "How would you rate your development proficiency?";
+
+export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
+  "Please select a proficiency level";
+export const WELCOME_FORM_USE_CASE_ERROR_MESSAGE = () =>
+  "Please select an use case";
+
+export const WELCOME_FORM_CUSTOM_USE_CASE_ERROR_MESSAGE = () =>
+  "Please enter a use case";
+
+export const WELCOME_FORM_EMAIL_ERROR_MESSAGE = () =>
+  "Enter a valid email address.";
+
+export const WELCOME_FORM_STRONG_PASSWORD_ERROR_MESSAGE = () =>
+  "Please enter a strong password.";
+
+export const WELCOME_FORM_GENERIC_ERROR_MESSAGE = () =>
+  "This field is required.";
+
+export const WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE = () =>
+  "TPasswords don't match.";
+
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
   `Are you sure you want to run `;
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";

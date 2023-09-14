@@ -19,6 +19,16 @@ import type { AppState } from "@appsmith/reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { useState } from "react";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import {
+  WELCOME_FORM_CUSTOM_USE_CASE_ERROR_MESSAGE,
+  WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE,
+  WELCOME_FORM_USE_CASE_ERROR_MESSAGE,
+  WELCOME_FORM_EMAIL_ERROR_MESSAGE,
+  createMessage,
+  WELCOME_FORM_STRONG_PASSWORD_ERROR_MESSAGE,
+  WELCOME_FORM_GENERIC_ERROR_MESSAGE,
+  WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE,
+} from "@appsmith/constants/messages";
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -63,31 +73,35 @@ export const secondPageValues = ["proficiency", "useCase", "custom_useCase"];
 const validate = (values: DetailsFormValues) => {
   const errors: DetailsFormValues = {};
   if (!values.firstName) {
-    errors.firstName = "This field is required.";
+    errors.firstName = createMessage(WELCOME_FORM_GENERIC_ERROR_MESSAGE);
   }
 
   if (!values.email || !isEmail(values.email)) {
-    errors.email = "Enter a valid email address.";
+    errors.email = createMessage(WELCOME_FORM_EMAIL_ERROR_MESSAGE);
   }
 
   if (!values.password || !isStrongPassword(values.password)) {
-    errors.password = "Please enter a strong password.";
+    errors.password = createMessage(WELCOME_FORM_STRONG_PASSWORD_ERROR_MESSAGE);
   }
 
   if (!values.verifyPassword || values.password != values.verifyPassword) {
-    errors.verifyPassword = "Passwords don't match.";
+    errors.verifyPassword = createMessage(
+      WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE,
+    );
   }
 
   if (!values.proficiency) {
-    errors.proficiency = "Please select a proficiency level";
+    errors.proficiency = createMessage(WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE);
   }
 
   if (!values.useCase) {
-    errors.useCase = "Please select a use case";
+    errors.useCase = createMessage(WELCOME_FORM_USE_CASE_ERROR_MESSAGE);
   }
 
   if (values.useCase === "other" && !values.custom_useCase)
-    errors.custom_useCase = "Please enter a use case";
+    errors.custom_useCase = createMessage(
+      WELCOME_FORM_CUSTOM_USE_CASE_ERROR_MESSAGE,
+    );
 
   return errors;
 };

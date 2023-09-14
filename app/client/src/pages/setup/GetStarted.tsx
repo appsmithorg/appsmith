@@ -11,6 +11,8 @@ import {
   WELCOME_FORM_NON_SUPER_USER_USE_CASE,
   WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
   WELCOME_FORM_USE_CASE_PLACEHOLDER,
+  WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE,
+  WELCOME_FORM_USE_CASE_ERROR_MESSAGE,
 } from "@appsmith/constants/messages";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
@@ -60,11 +62,11 @@ const validate = (values: any) => {
   const errors: any = {};
 
   if (!values.proficiency) {
-    errors.proficiency = "Please select a proficiency level";
+    errors.proficiency = createMessage(WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE);
   }
 
   if (!values.useCase) {
-    errors.useCase = "Please select an useCase";
+    errors.useCase = createMessage(WELCOME_FORM_USE_CASE_ERROR_MESSAGE);
   }
 
   return errors;

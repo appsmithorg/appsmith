@@ -51,7 +51,7 @@ const RadioButton = ({ label = "", value = "" }: RadioButtonProps) => {
       size={"md"}
       tabIndex={-1}
     >
-      {value}
+      {label}
     </StyledButton>
   );
 };

@@ -51,13 +51,13 @@ export const useCaseOptions: OptionType[] = [
 
 export const proficiencyOptions = [
   {
-    label: "Beginner",
-    value: "Just dipping my toes 🌱 (Brand new to this)",
+    label: "Just dipping my toes 🌱 (Brand new to this)",
+    value: "Beginner",
   },
-  { label: "Novice", value: "Novice (Limited to no experience)" },
-  { label: "Intermediate", value: "Intermediate (Some coding adventures)" },
+  { label: "Novice (Limited to no experience)", value: "Novice" },
+  { label: "Intermediate (Some coding adventures)", value: "Intermediate" },
   {
-    label: "Advanced",
-    value: "Advanced (Comfortable with programming quests)",
+    label: "Advanced (Comfortable with programming quests)",
+    value: "Advanced",
   },
 ];
