@@ -34,6 +34,7 @@ export type NavigationData = {
   children: EntityNavigationData;
   key?: string;
   pluginName?: string;
+  pluginId?: string;
   isMock?: boolean;
   datasourceId?: string;
   actionType?: string;
@@ -89,6 +90,7 @@ export const getEntitiesForNavigation = createSelector(
         children: {},
         // Adding below data as it is required for analytical events
         pluginName: plugin?.name,
+        pluginId: plugin?.id,
         datasourceId: datasource?.id,
         isMock: datasource?.isMock,
         actionType:

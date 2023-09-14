@@ -12,9 +12,10 @@ import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { SlashCommandPayload } from "entities/Action";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import type { EntityNavigationData } from "selectors/navigationSelectors";
-import store from "store";
-import { getCurrentActions } from "@appsmith/selectors/entitiesSelector";
+import type {
+  EntityNavigationData,
+  NavigationData,
+} from "selectors/navigationSelectors";
 
 const PARTIAL_BINDING = "{}";
 
@@ -23,22 +24,9 @@ export const assistiveBindingHinter: HintHelper = (
   data: DataTree,
   entitiesForNavigation?: EntityNavigationData,
 ) => {
-  const entitiesForSuggestions: any[] = Object.values(
+  const entitiesForSuggestions: NavigationData[] = Object.values(
     entitiesForNavigation || {},
   );
-  const appState = store.getState();
-  const actions = getCurrentActions(appState);
-
-  for (const navEntity of entitiesForSuggestions) {
-    if (navEntity.type === ENTITY_TYPE.ACTION) {
-      const action = actions.find(
-        (action) => action.config.id === navEntity.id,
-      );
-      const pluginId = action?.config.pluginId;
-      navEntity.pluginId = pluginId;
-    }
-  }
-
   return {
     showHint: (
       editor: CodeMirror.Editor,
@@ -102,11 +90,7 @@ export const assistiveBindingHinter: HintHelper = (
       });
 
       let currentSelection: CommandsCompletion = {
-        origin: "",
-        type: AutocompleteDataType.UNKNOWN,
-        data: {
-          doc: "",
-        },
+        data: {},
         text: "",
         shortcut: "",
       };
@@ -123,15 +107,11 @@ export const assistiveBindingHinter: HintHelper = (
         displayText: "",
         from: cursor,
         to: cursor,
-        render: (element: any) => {
-          element.style.height = 0;
+        render: (element: HTMLElement) => {
+          element.style.height = "0";
           element.style.marginBottom = "4px";
         },
-        origin: "",
-        type: AutocompleteDataType.UNKNOWN,
-        data: {
-          doc: "",
-        },
+        data: {},
         shortcut: "",
       });
       const hints = {
@@ -151,7 +131,7 @@ export const assistiveBindingHinter: HintHelper = (
           function handleSelection(selected: CommandsCompletion) {
             currentSelection = selected;
           }
-          function handlePick(selected: CommandsCompletion) {
+          function handlePick(selected: CommandsCompletion<NavigationData>) {
             if (selected.displayText === "") {
               return;
             }
@@ -168,7 +148,7 @@ export const assistiveBindingHinter: HintHelper = (
             });
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { data } = selected;
-            const { name, type } = data as any;
+            const { name, type } = data;
             const jsLexicalName: string | undefined =
               selected.displayText?.replace(name + ".", ""); //name of the variable of functions in JSAction
             const selectedOptionType: string | undefined =

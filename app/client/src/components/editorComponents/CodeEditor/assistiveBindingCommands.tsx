@@ -1,7 +1,6 @@
 import React from "react";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import ReactDOM from "react-dom";
-import sortBy from "lodash/sortBy";
 import type { SlashCommandPayload } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
@@ -12,38 +11,18 @@ import {
   Shortcuts,
   commandsHeader,
   generateCreateNewCommand,
+  matchingCommands,
 } from "./generateQuickCommands";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-
-const matchingCommands = (
-  list: any,
-  searchText: string,
-  recentEntities: string[] = [],
-  limit = 5,
-) => {
-  list = list.filter((action: any) => {
-    return (
-      action.displayText.toLowerCase().indexOf(searchText.toLowerCase()) > -1
-    );
-  });
-  list = sortBy(list, (a: any) => {
-    return (
-      (a.data.ENTITY_TYPE === ENTITY_TYPE.WIDGET
-        ? recentEntities.indexOf(a.data.widgetId)
-        : recentEntities.indexOf(a.data.actionId)) * -1
-    );
-  });
-  return list.slice(0, limit);
-};
+import type { NavigationData } from "selectors/navigationSelectors";
 
 export const generateAssistiveBindingCommands = (
-  entitiesForSuggestions: any[],
+  entitiesForSuggestions: NavigationData[],
   currentEntityType: ENTITY_TYPE,
   searchText: string,
   {
     expectedType,
     pluginIdToImageLocation,
-    recentEntities,
   }: {
     executeCommand: (payload: SlashCommandPayload) => void;
     pluginIdToImageLocation: Record<string, string>;
@@ -53,7 +32,6 @@ export const generateAssistiveBindingCommands = (
     expectedType: AutocompleteDataType;
   },
 ) => {
-  recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
     displayText: "Add a binding",
@@ -62,9 +40,10 @@ export const generateAssistiveBindingCommands = (
     triggerCompletionsPostPick: true,
   });
 
-  const actionEntities = entitiesForSuggestions.filter((suggestion: any) => {
+  const actionEntities = entitiesForSuggestions.filter((suggestion) => {
     return suggestion.type === ENTITY_TYPE.ACTION;
   });
+
   const suggestionsAction = actionEntities.map((suggestion: any) => {
     const name = suggestion.name;
     const text =
@@ -95,11 +74,11 @@ export const generateAssistiveBindingCommands = (
     };
   });
 
-  const jsActionEntities = entitiesForSuggestions.filter((suggestion: any) => {
+  const jsActionEntities = entitiesForSuggestions.filter((suggestion) => {
     return suggestion.type === ENTITY_TYPE.JSACTION;
   });
 
-  const suggestionsJSAction = jsActionEntities.flatMap((suggestion: any) => {
+  const suggestionsJSAction = jsActionEntities.flatMap((suggestion) => {
     const name = suggestion.name;
     const children = suggestion.children;
     const icon = JsFileIconV2(16, 16);
@@ -117,9 +96,17 @@ export const generateAssistiveBindingCommands = (
         description: text,
         data: suggestion,
         triggerCompletionsPostPick: false,
-        render: (element: HTMLElement, self: any, data: any) => {
+        render: (
+          element: HTMLElement,
+          _: unknown,
+          data: CommandsCompletion,
+        ) => {
           ReactDOM.render(
-            <Command desc={text} icon={icon} name={data.displayText} />,
+            <Command
+              desc={text}
+              icon={icon}
+              name={data.displayText as string}
+            />,
             element,
           );
         },
@@ -132,7 +119,6 @@ export const generateAssistiveBindingCommands = (
   const suggestionsMatchingSearchText = matchingCommands(
     suggestions,
     searchText,
-    recentEntities,
     5,
   );
   const actionCommands = [newBinding];
@@ -140,10 +126,9 @@ export const generateAssistiveBindingCommands = (
   const actionCommandsMatchingSearchText = matchingCommands(
     actionCommands,
     searchText,
-    [],
   );
 
-  const list: CommandsCompletion[] = actionCommandsMatchingSearchText;
+  const list = actionCommandsMatchingSearchText;
 
   if (suggestionsMatchingSearchText.length) {
     list.push(commandsHeader("Bind data", "", false));

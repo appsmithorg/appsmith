@@ -13,6 +13,7 @@ export const createNavData = (general: {
   key?: string;
   url: string | undefined;
   pluginName?: string;
+  pluginId?: string;
   datasourceId?: string;
   isMock?: boolean;
   actionType?: string;
@@ -31,6 +32,7 @@ export const createNavData = (general: {
     datasourceId: general.datasourceId,
     isMock: general.isMock,
     actionType: general.actionType,
+    pluginId: general.pluginId,
     widgetType: general.widgetType,
   };
 };
