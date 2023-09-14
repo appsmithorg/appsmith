@@ -31,8 +31,10 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
-import { getEditingEntityName } from "selectors/entitiesSelector";
+import { getEditingEntityName } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
+import moment from "moment";
+import AnalyticsUtil from "../../utils/AnalyticsUtil";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>
@@ -188,6 +190,20 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     isAppSettingsPaneWithNavigationTabOpen,
   ]);
 
+  const [hoverStartTime, setHoverStartTime] = useState(0);
+
+  const handleMouseEnter = useCallback(() => {
+    setHoverStartTime(Date.now());
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    if (hoverStartTime !== 0) {
+      const timeTaken = moment().diff(hoverStartTime, "seconds");
+      AnalyticsUtil.logEvent("TIME_TO_NAVIGATE_ENTITY_EXPLORER", { timeTaken });
+      setHoverStartTime(0);
+    }
+  }, [hoverStartTime]);
+
   return (
     <div
       className={classNames({
@@ -204,6 +220,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       {/* SIDEBAR */}
       <div
         className="flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         ref={sidebarRef}
         style={{ width: props.width }}
       >

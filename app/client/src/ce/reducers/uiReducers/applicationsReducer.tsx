@@ -27,6 +27,7 @@ import type { IconNames } from "design-system";
 import type { NavigationSetting } from "constants/AppConstants";
 import { defaultNavigationSetting } from "constants/AppConstants";
 import produce from "immer";
+import { groupBy } from "lodash";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -42,7 +43,6 @@ export const initialState: ApplicationsReduxState = {
   isSavingWorkspaceInfo: false,
   importingApplication: false,
   importedApplication: null,
-  showAppInviteUsersDialog: false,
   isImportAppModalOpen: false,
   workspaceIdForImport: null,
   pageIdForImport: "",
@@ -51,6 +51,7 @@ export const initialState: ApplicationsReduxState = {
   isErrorSavingNavigationSetting: false,
   isUploadingNavigationLogo: false,
   isDeletingNavigationLogo: false,
+  deletingMultipleApps: {},
 };
 
 export const handlers = {
@@ -92,6 +93,96 @@ export const handlers = {
     state: ApplicationsReduxState,
   ) => {
     return { ...state, deletingApplication: false };
+  },
+  [ReduxActionTypes.DELETE_MULTIPLE_APPS_TOGGLE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    let deleteMultipleAppsList = state.deletingMultipleApps.list || [];
+    if (deleteMultipleAppsList.includes(action.payload.id)) {
+      deleteMultipleAppsList = deleteMultipleAppsList.filter(
+        (i) => i !== action.payload.id,
+      );
+    } else {
+      deleteMultipleAppsList = [...deleteMultipleAppsList, action.payload.id];
+    }
+    return {
+      ...state,
+      deletingMultipleApps: {
+        list: deleteMultipleAppsList,
+      },
+    };
+  },
+  [ReduxActionTypes.DELETE_MULTIPLE_APPS_INIT]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      deletingMultipleApps: {
+        list: state.deletingMultipleApps.list,
+        isDeleting: true,
+      },
+    };
+  },
+  [ReduxActionTypes.DELETE_MULTIPLE_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<ApplicationPayload[]>,
+  ) => {
+    const workspacesWithDeletedApps = groupBy(
+      action.payload,
+      (e) => e.workspaceId,
+    );
+    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
+      if (workspacesWithDeletedApps[workspace.workspace.id]) {
+        const deletedApplicationIds = workspacesWithDeletedApps[
+          workspace.workspace.id
+        ].map((e) => e.id);
+
+        let applications = workspace.applications;
+        applications = applications.filter(
+          (application: ApplicationPayload) => {
+            return !deletedApplicationIds.includes(application.id);
+          },
+        );
+
+        return {
+          ...workspace,
+          applications,
+        };
+      }
+
+      return workspace;
+    });
+
+    return {
+      ...state,
+      userWorkspaces: _workspaces,
+      deletingMultipleApps: {
+        list: [],
+        isDeleting: false,
+      },
+    };
+  },
+  [ReduxActionTypes.DELETE_MULTIPLE_APPLICATION_CANCEL]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      deletingMultipleApps: {
+        list: [],
+        isDeleting: false,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.DELETE_MULTIPLE_APPLICATION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      deletingMultipleApps: {
+        isDeleting: false,
+      },
+    };
   },
   [ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT]: (
     state: ApplicationsReduxState,
@@ -450,13 +541,6 @@ export const handlers = {
     ...state,
     currentApplication: null,
   }),
-  [ReduxActionTypes.SET_SHOW_APP_INVITE_USERS_MODAL]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<boolean>,
-  ) => ({
-    ...state,
-    showAppInviteUsersDialog: action.payload,
-  }),
   [ReduxActionTypes.CONNECT_TO_GIT_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<ConnectToGitResponse>,
@@ -670,6 +754,11 @@ const applicationsReducer = createReducer(initialState, handlers);
 
 export type creatingApplicationMap = Record<string, boolean>;
 
+export type DeletingMultipleApps = {
+  list?: string[];
+  isDeleting?: boolean;
+};
+
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
   searchKeyword?: string;
@@ -686,7 +775,6 @@ export interface ApplicationsReduxState {
   userWorkspaces: Workspaces[];
   isSavingWorkspaceInfo: boolean;
   importingApplication: boolean;
-  showAppInviteUsersDialog: boolean;
   importedApplication: unknown;
   isImportAppModalOpen: boolean;
   workspaceIdForImport: any;
@@ -697,6 +785,7 @@ export interface ApplicationsReduxState {
   isErrorSavingNavigationSetting: boolean;
   isUploadingNavigationLogo: boolean;
   isDeletingNavigationLogo: boolean;
+  deletingMultipleApps: DeletingMultipleApps;
 }
 
 export interface Application {

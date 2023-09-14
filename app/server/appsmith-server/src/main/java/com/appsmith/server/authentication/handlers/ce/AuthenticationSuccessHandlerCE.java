@@ -248,9 +248,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 if (TRUE.equals(isVerificationRequired)) {
                     return postVerificationRequiredHandler(webFilterExchange, user, null, FALSE);
                 } else {
-                    return userService
-                            .sendWelcomeEmail(user, originHeader)
-                            .then(redirectHelper.handleRedirect(webFilterExchange, null, false));
+                    return redirectHelper.handleRedirect(webFilterExchange, null, false);
                 }
             });
         }
@@ -313,9 +311,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                     .then(handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup));
                         });
             } else {
-                redirectionMono = userService
-                        .sendWelcomeEmail(user, originHeader)
-                        .then(handleOAuth2Redirect(webFilterExchange, null, isFromSignup));
+                redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
             }
         } else {
             // form type signup/login handler

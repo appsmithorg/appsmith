@@ -134,7 +134,7 @@ import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
-import { getPageList } from "selectors/entitiesSelector";
+import { getPageList } from "@appsmith/selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
@@ -1377,5 +1377,6 @@ export default function* pageSagas() {
     ),
     takeEvery(ReduxActionTypes.SET_PREVIEW_MODE_INIT, setPreviewModeInitSaga),
     takeLatest(ReduxActionTypes.REFRESH_THE_APP, refreshTheApp),
+    takeLatest(ReduxActionTypes.CLEAR_CACHE, clearEvalCache),
   ]);
 }

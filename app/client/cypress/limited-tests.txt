@@ -2,6 +2,7 @@
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 cypress/e2e/Regression/ServerSide/QueryPane/S3_2_spec.ts
 
+
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
 

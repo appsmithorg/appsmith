@@ -10,7 +10,7 @@ export class DataManager {
       mongo_authenticationAuthtype: "SCRAM-SHA-1",
       mongo_host: "host.docker.internal",
       mongo_port: 28017,
-      mongo_databaseName: "mongo_samples",
+      mongo_databaseName: "mongo_prod",
 
       postgres_host: "host.docker.internal",
       postgres_port: 5432,
@@ -52,11 +52,11 @@ export class DataManager {
       smtp_username: "root",
       smtp_password: "root",
 
-      oracle_host: "random-data",
-      oracle_port: 40,
-      oracle_name: "random-name",
-      oracle_username: "random-username",
-      oracle_password: "random-password",
+      oracle_host: Cypress.env("ORACLE_HOST"),
+      oracle_port: 1521,
+      oracle_service: Cypress.env("ORACLE_SERVICE"),
+      oracle_username: Cypress.env("ORACLE_USERNAME"),
+      oracle_password: Cypress.env("ORACLE_PASSWORD"),
 
       redis_host: "host.docker.internal",
       redis_port: "6379",
@@ -104,13 +104,13 @@ export class DataManager {
       mongo_authenticationAuthtype: "SCRAM-SHA-1",
       mongo_host: "host.docker.internal",
       mongo_port: 28017,
-      mongo_databaseName: "mongo_samples2",
+      mongo_databaseName: "mongo_staging",
 
       postgres_host: "host.docker.internal",
       postgres_port: 5432,
-      postgres_databaseName: "fakeapitest",
-      postgres_username: "docker",
-      postgres_password: "docker",
+      postgres_databaseName: "stagingdb",
+      postgres_username: "dockerstaging",
+      postgres_password: "dockerstaging",
 
       mysql_host: "host.docker.internal",
       mysql_port: 3306,
@@ -148,7 +148,7 @@ export class DataManager {
 
       oracle_host: "random-data",
       oracle_port: 40,
-      oracle_name: "random-name",
+      oracle_service: "random-name",
       oracle_username: "random-username",
       oracle_password: "random-password",
 
