@@ -2,7 +2,7 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
-import com.appsmith.server.helpers.GitPrivateRepoHelper;
+import com.appsmith.server.helpers.GitRepoHelper;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.FeatureFlagService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 public class GitPrivateRepoCEImplTest {
 
     @Autowired
-    GitPrivateRepoHelper gitPrivateRepoHelper;
+    GitRepoHelper gitPrivateRepoHelper;
 
     @MockBean
     GitCloudServicesUtils gitCloudServicesUtils;

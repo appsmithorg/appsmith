@@ -4,7 +4,7 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.GitFileUtils;
-import com.appsmith.server.helpers.GitPrivateRepoHelper;
+import com.appsmith.server.helpers.GitRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
@@ -44,7 +44,7 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
             WorkspaceService workspaceService,
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
-            GitPrivateRepoHelper gitPrivateRepoHelper) {
+            GitRepoHelper gitRepoHelper) {
 
         super(
                 userService,
@@ -69,6 +69,6 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                 workspaceService,
                 redisUtils,
                 observationRegistry,
-                gitPrivateRepoHelper);
+                gitRepoHelper);
     }
 }

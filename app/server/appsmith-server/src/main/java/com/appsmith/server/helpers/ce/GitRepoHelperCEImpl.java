@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
-public class GitPrivateRepoHelperCEImpl implements GitPrivateRepoHelperCE {
+public class GitRepoHelperCEImpl implements GitRepoHelperCE {
 
     private final GitCloudServicesUtils gitCloudServicesUtils;
 
