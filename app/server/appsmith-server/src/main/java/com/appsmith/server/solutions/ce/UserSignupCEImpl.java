@@ -231,7 +231,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                 });
     }
 
-    public Mono<User> signupAndLoginSuper(UserSignupRequestDTO userFromRequest, ServerWebExchange exchange) {
+    public Mono<User> signupAndLoginSuper(
+            UserSignupRequestDTO userFromRequest, ServerWebExchange exchange, String originHeader) {
         Mono<User> userMono = userService
                 .isUsersEmpty()
                 .flatMap(isEmpty -> {
@@ -280,11 +281,13 @@ public class UserSignupCEImpl implements UserSignupCE {
                             });
 
                     Mono<Void> applyEnvManagerChangesMono = envManager
-                            .applyChanges(Map.of(
-                                    APPSMITH_DISABLE_TELEMETRY.name(),
-                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
-                                    APPSMITH_ADMIN_EMAILS.name(),
-                                    user.getEmail()))
+                            .applyChanges(
+                                    Map.of(
+                                            APPSMITH_DISABLE_TELEMETRY.name(),
+                                            String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
+                                            APPSMITH_ADMIN_EMAILS.name(),
+                                            user.getEmail()),
+                                    originHeader)
                             // We need a non-empty value for `.elapsed` to work.
                             .thenReturn(true)
                             .elapsed()
@@ -331,7 +334,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         });
     }
 
-    public Mono<Void> signupAndLoginSuperFromFormData(ServerWebExchange exchange) {
+    public Mono<Void> signupAndLoginSuperFromFormData(ServerWebExchange exchange, String originHeader) {
         return exchange.getFormData()
                 .map(formData -> {
                     final UserSignupRequestDTO user = new UserSignupRequestDTO();
@@ -358,7 +361,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     }
                     return user;
                 })
-                .flatMap(user -> signupAndLoginSuper(user, exchange))
+                .flatMap(user -> signupAndLoginSuper(user, exchange, originHeader))
                 .then()
                 .onErrorResume(error -> {
                     String referer = exchange.getRequest().getHeaders().getFirst("referer");

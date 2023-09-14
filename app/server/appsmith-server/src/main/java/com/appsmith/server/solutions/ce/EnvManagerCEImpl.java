@@ -72,6 +72,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_BASE_URL;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_ENABLED;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_FROM;
@@ -169,7 +170,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * @return List of string lines for updated env file content.
      */
     @Override
-    public List<String> transformEnvContent(String envContent, Map<String, String> changes) {
+    public List<String> transformEnvContent(String envContent, Map<String, String> changes, String originHeader) {
         final Set<String> variablesNotInWhitelist = new HashSet<>(changes.keySet());
         final Set<String> tenantConfigWhitelist = allowedTenantConfiguration();
 
@@ -186,6 +187,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             changes.put(
                     APPSMITH_MAIL_ENABLED.name(),
                     Boolean.toString(StringUtils.hasText(changes.get(APPSMITH_MAIL_HOST.name()))));
+            changes.put(APPSMITH_BASE_URL.name(), org.apache.commons.lang3.StringUtils.stripEnd(originHeader, "/"));
         }
 
         if (changes.containsKey(APPSMITH_MAIL_USERNAME.name())) {
@@ -335,7 +337,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<Void> applyChanges(Map<String, String> changes) {
+    public Mono<Void> applyChanges(Map<String, String> changes, String originHeader) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant
         // configuration
         return verifyCurrentUserIsSuper()
@@ -360,7 +362,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             envFileChanges.remove(key);
                         }
                     }
-                    final List<String> changedContent = transformEnvContent(originalContent, envFileChanges);
+                    final List<String> changedContent =
+                            transformEnvContent(originalContent, envFileChanges, originHeader);
 
                     try {
                         Files.write(envFilePath, changedContent);
@@ -449,7 +452,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData) {
+    public Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader) {
         return Flux.fromIterable(formData.entrySet())
                 .flatMap(entry -> {
                     final String key = entry.getKey();
@@ -474,7 +477,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             });
                 })
                 .collectMap(Map.Entry::getKey, Map.Entry::getValue)
-                .flatMap(this::applyChanges);
+                .flatMap(parsedData -> applyChanges(parsedData, originHeader));
     }
 
     @Override

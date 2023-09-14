@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -47,19 +48,23 @@ public class InstanceAdminControllerCE {
     @PutMapping(
             value = "/env",
             consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<ResponseDTO<Void>> saveEnvChangesJSON(@Valid @RequestBody Map<String, String> changes) {
+    public Mono<ResponseDTO<Void>> saveEnvChangesJSON(
+            @Valid @RequestBody Map<String, String> changes, @RequestHeader("Origin") String originHeader) {
         log.debug("Applying env updates {}", changes.keySet());
-        return envManager.applyChanges(changes).thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+        return envManager
+                .applyChanges(changes, originHeader)
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping(
             value = "/env",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Mono<ResponseDTO<Void>> saveEnvChangesMultipartFormData(ServerWebExchange exchange) {
+    public Mono<ResponseDTO<Void>> saveEnvChangesMultipartFormData(
+            @RequestHeader(name = "Origin") String originHeader, ServerWebExchange exchange) {
         log.debug("Applying env updates from form data");
         return exchange.getMultipartData()
-                .flatMap(envManager::applyChangesFromMultipartFormData)
+                .flatMap(multipartData -> envManager.applyChangesFromMultipartFormData(multipartData, originHeader))
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
 
