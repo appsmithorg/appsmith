@@ -82,6 +82,9 @@ export interface SliderComponentProps
 
   /** determines whether to display mark labels or only marks */
   showMarksLabel: boolean;
+
+  /** Width of the Label in pixels, used only when Position is Left   */
+  labelComponentWidth?: number;
 }
 
 const SliderComponent = (props: SliderComponentProps) => {

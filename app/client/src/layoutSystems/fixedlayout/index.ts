@@ -9,7 +9,6 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
  * utiltiy function to compute a widgets dimensions in Fixed layout system
  *
  */
-
 const getFixedLayoutComponentDimensions = ({
   bottomRow,
   leftColumn,
@@ -25,19 +24,30 @@ const getFixedLayoutComponentDimensions = ({
 };
 
 /**
+ * getLabelWidth
+ * utiltiy function to compute a widgets label width in Fixed layout system
+ *
+ */
+const getLabelWidth = (props: BaseWidgetProps) => {
+  return (Number(props.labelWidth) || 0) * props.parentColumnSpace;
+};
+
+/**
  * getFixedLayoutSystemPropsEnhancer
  *
  * utiltiy function to enhance BaseWidgetProps with Fixed Layout system specific props
  *
  */
-
 const getFixedLayoutSystemPropsEnhancer = (props: BaseWidgetProps) => {
   const { componentHeight, componentWidth } =
     getFixedLayoutComponentDimensions(props);
+  const labelComponentWidth = getLabelWidth(props);
+
   return {
     ...props,
     componentHeight,
     componentWidth,
+    labelComponentWidth,
   };
 };
 
