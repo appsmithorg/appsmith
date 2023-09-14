@@ -3,7 +3,8 @@ import AWS from "aws-sdk";
 import fs from "fs";
 import { Octokit } from "@octokit/rest";
 import fetch from "node-fetch";
-interface DataItem {
+
+export interface DataItem {
   name: string;
   duration: string;
 }
@@ -33,10 +34,10 @@ export class util {
       cypressSpecs: this.getEnvValue("CYPRESS_SPECS", { required: false }),
     };
   }
-  private divideSpecsIntoBalancedGroups(
+  public async divideSpecsIntoBalancedGroups(
     data: DataItem[],
     numberOfGroups: number,
-  ): DataItem[][] {
+  ): Promise<DataItem[][]> {
     // Sort data by duration in descending order
     const sortedData = [...data].sort(
       (a, b) => Number(b.duration) - Number(a.duration),
@@ -129,12 +130,13 @@ export class util {
       },
     });
     try {
+      const repo: string[] = this.getVars().repository.split("/");
       const response = await octokit.request(
         "GET /repos/{owner}/{repo}/actions/runs/{run_id}/jobs",
         {
-          owner: "appsmithorg",
-          repo: "appsmith",
-          run_id: Number(this.getEnvValue("RUNID", { required: true })),
+          owner: repo[0],
+          repo: repo[1],
+          run_id: Number(this.getVars().runId),
           headers: {
             "X-GitHub-Api-Version": "2022-11-28",
           },
@@ -142,10 +144,13 @@ export class util {
       );
       console.log("Workflow Run Details:", response.data);
       let active_runners = response.data.jobs.filter(
-        (job) => job.status == "in_progress",
+        (job) =>
+          job.status === "in_progress" &&
+          job.run_attempt === Number(this.getVars().attempt_number),
       );
       console.log("ACTIVE RUNNERS", active_runners);
       console.log("ACTIVE RUNNERS COUNT", active_runners.length);
+      return active_runners.length;
     } catch (error) {
       console.error("Error:", error);
     }

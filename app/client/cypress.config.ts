@@ -25,7 +25,7 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
-    baseUrl: "https://regression.test.appsmith.com/",
+    baseUrl: "https://dev.appsmith.com/",
     env: {
       USERNAME: "xxxx",
       PASSWORD: "xxx",
@@ -33,7 +33,7 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       return require("./cypress/plugins/index.js")(on, config);
     },
-    specPattern: "",
+    specPattern: "cypress/e2e/**/*.{js,ts}",
     testIsolation: false,
     excludeSpecPattern: "cypress/e2e/**/spec_utility.ts",
   },

@@ -1,7 +1,5 @@
-const os = require("os");
+import os from "os";
 import { util } from "./util";
-
-exports.cypressHooks = cypressHooks;
 
 export async function cypressHooks(
   on: Cypress.PluginEvents,
@@ -20,13 +18,11 @@ export async function cypressHooks(
     type: _.getVars().tag,
     branch: _.getVars().branch,
   };
-  const matrix = {
-    id: "",
+  const matrix: any = {
     matrixId: _.getVars().thisRunner,
     matrixStatus: "started",
   };
   const specData: any = {};
-  const testData: any = {};
 
   on("before:run", async (runDetails: Cypress.BeforeRunDetails) => {
     runData.browser = runDetails.browser?.name;
@@ -80,7 +76,7 @@ export async function cypressHooks(
     }
   });
 
-  await on("before:spec", async (spec: Cypress.Spec) => {
+  on("before:spec", async (spec: Cypress.Spec) => {
     console.log("BEFORE SPEC SPEC DETAILS ------->", spec);
     specData.name = spec.relative;
     specData.matrixId = matrix.id;
@@ -96,21 +92,13 @@ export async function cypressHooks(
     } catch (err) {
       console.log(err);
     } finally {
-      await client.release();
+      client.release();
     }
   });
 
-  await on(
+  on(
     "after:spec",
     async (spec: Cypress.Spec, results: CypressCommandLine.RunResult) => {
-      specData.testCount = results.stats.tests;
-      specData.passes = results.stats.passes;
-      specData.failed = results.stats.failures;
-      specData.pending = results.stats.pending;
-      specData.skipped = results.stats.skipped;
-      specData.status = results.stats.failures > 0 ? "fail" : "pass";
-      specData.duration = results.stats.duration;
-
       const client = await dbClient.connect();
       try {
         if (!specData.name.includes("no_spec.ts")) {
@@ -122,8 +110,8 @@ export async function cypressHooks(
               results.stats.failures,
               results.stats.skipped,
               results.stats.pending,
-              specData.status,
-              specData.duration,
+              results.stats.failures > 0 ? "fail" : "pass",
+              results.stats.duration,
               specData.specId,
             ],
           );

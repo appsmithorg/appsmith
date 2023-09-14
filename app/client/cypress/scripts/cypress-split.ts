@@ -1,13 +1,12 @@
 /* eslint-disable no-console */
+import type { DataItem } from "./util";
 import { util } from "./util";
 import globby from "globby";
 import minimatch from "minimatch";
 
 const fs = require("fs/promises");
-
-type GetEnvOptions = {
-  required?: boolean;
-};
+const _ = new util();
+const dbClient = _.configureDbClient();
 
 // used to roughly determine how many tests are in a file
 const testPattern = /(^|\s)(it)\(/g;
@@ -36,30 +35,26 @@ async function getSpecFilePaths(
   return filtered;
 }
 
-// This function will determine the test counts in each file to sort it further
-async function getTestCount(filePath: string): Promise<number> {
-  const content = await fs.readFile(filePath, "utf8");
-  return content.match(testPattern)?.length || 0;
-}
-
-// Sorting the spec files as per the test count in it
-async function sortSpecFilesByTestCount(
-  specPathsOriginal: string[],
-): Promise<string[]> {
-  const specPaths = [...specPathsOriginal];
-
-  const testPerSpec: Record<string, number> = {};
-
-  for (const specPath of specPaths) {
-    testPerSpec[specPath] = await getTestCount(specPath);
+async function getSpecsWithTime(specs: string[]) {
+  const client = await dbClient.connect();
+  try {
+    const queryRes = await client.query(
+      `SELECT * FROM "spec_avg_duration ORDER BY "duration" DESC`,
+    );
+    const defaultDuration = 180000;
+    const allSpecsWithDuration: DataItem[] = specs.map((spec) => {
+      const match = queryRes.rows.find((obj) => obj.name === spec);
+      return match ? match : { name: spec, duration: defaultDuration };
+    });
+    return await _.divideSpecsIntoBalancedGroups(
+      allSpecsWithDuration,
+      Number(_.getActiveRunners()),
+    );
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.release();
   }
-
-  return (
-    Object.entries(testPerSpec)
-      // Sort by the number of tests per spec file. And this will create a consistent file list/ordering so that file division proper.
-      .sort((a, b) => b[1] - a[1])
-      .map((x) => x[0])
-  );
 }
 
 // This function will split the specs between the runners by calculating the modulus between spec index and the totalRunners
@@ -76,28 +71,45 @@ function splitSpecs(
 
 // This function will finally get the specs as a comma separated string to pass the specs to the command
 async function getSpecsToRun(
-  totalRunnersCount = 0,
-  currentRunner = 0,
   specPattern: string | string[] = "cypress/e2e/**/**/*.{js,ts}",
   ignorePattern: string | string[],
 ): Promise<string[]> {
   try {
-    const specFilePaths = await sortSpecFilesByTestCount(
-      await getSpecFilePaths(specPattern, ignorePattern),
-    );
+    const specFilePaths = await getSpecFilePaths(specPattern, ignorePattern);
 
     if (!specFilePaths.length) {
       throw Error("No spec files found.");
     }
-    const specsToRun = splitSpecs(
-      specFilePaths,
-      totalRunnersCount,
-      currentRunner,
-    );
-    return specsToRun;
+    const specsToRun = await getSpecsWithTime(specFilePaths);
+    return specsToRun === undefined
+      ? []
+      : specsToRun[0].map((spec) => spec.name);
   } catch (err) {
     console.error(err);
     process.exit(1);
+  }
+}
+
+async function getAlreadyRunningSpecs() {
+  const client = await dbClient.connect();
+  try {
+    const dbRes = await client.query(
+      `SELECT name FROM public."specs" 
+      WHERE "matrixId" IN 
+      (SELECT id FROM public."matrix" 
+       WHERE "attemptId" = (
+         SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
+       )
+      )`,
+      [_.getVars().runId, _.getVars().attempt_number],
+    );
+    const specs: string[] =
+      dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
+    return specs;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.release();
   }
 }
 
@@ -106,11 +118,10 @@ export async function cypressSplit(
   config: Cypress.PluginConfigOptions,
 ) {
   try {
-    const _ = new util();
     let currentRunner = 0;
     let allRunners = 1;
     let specPattern = config.specPattern;
-    const ignorePattern = config.excludeSpecPattern;
+    let ignorePattern: string | string[] = config.excludeSpecPattern;
     const { cypressSpecs, thisRunner, totalRunners } = _.getVars();
 
     if (cypressSpecs != "")
@@ -121,16 +132,25 @@ export async function cypressSplit(
       allRunners = Number(totalRunners);
     }
 
-    const specs = await getSpecsToRun(
-      allRunners,
-      currentRunner,
-      specPattern,
-      ignorePattern,
-    );
-    config.specPattern = specs.length == 1 ? specs[0] : specs;
+    let runningSpecs: string[] = (await getAlreadyRunningSpecs()) ?? [];
+    if (typeof ignorePattern === "string") {
+      runningSpecs.push(ignorePattern);
+      ignorePattern = runningSpecs;
+    } else {
+      ignorePattern = runningSpecs.concat(ignorePattern);
+    }
+
+    const specs = await getSpecsToRun(specPattern, ignorePattern);
+    if (specs.length > 0) {
+      config.specPattern = specs.length == 1 ? specs[0] : specs;
+    } else {
+      config.specPattern = "cypress/scripts/no_spec.ts";
+    }
 
     return config;
   } catch (err) {
     console.log(err);
+  } finally {
+    dbClient.end();
   }
 }
