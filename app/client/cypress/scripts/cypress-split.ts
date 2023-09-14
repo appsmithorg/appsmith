@@ -36,7 +36,7 @@ async function getSpecsWithTime(specs: string[]) {
   const client = await dbClient.connect();
   try {
     const queryRes = await client.query(
-      `SELECT * FROM "spec_avg_duration ORDER BY "duration" DESC`,
+      'SELECT * FROM public."spec_avg_duration" ORDER BY "duration" DESC',
     );
     const defaultDuration = 180000;
     const allSpecsWithDuration: DataItem[] = specs.map((spec) => {
@@ -78,6 +78,7 @@ async function getSpecsToRun(
       throw Error("No spec files found.");
     }
     const specsToRun = await getSpecsWithTime(specFilePaths);
+    console.log("SPECS TO RUN ====>", specsToRun);
     return specsToRun === undefined
       ? []
       : specsToRun[0].map((spec) => spec.name);
@@ -114,7 +115,7 @@ async function createAttempt() {
   const client = await dbClient.connect();
   try {
     const runResponse = await client.query(
-      `INSERT INTO public.attempt ("workflowId", "attempt", "repo", "committer", "type", "commitMsg", "branch")
+      `INSERT INTO public."attempt" ("workflowId", "attempt", "repo", "committer", "type", "commitMsg", "branch")
           VALUES ($1, $2, $3, $4, $5, $6, $7)
           ON CONFLICT ("workflowId", attempt) DO NOTHING
           RETURNING id;`,
@@ -133,7 +134,7 @@ async function createAttempt() {
       return runResponse.rows[0].id;
     } else {
       const res = await client.query(
-        `SELECT id FROM public.attempt WHERE "workflowId" = $1 AND attempt = $2`,
+        `SELECT id FROM public."attempt" WHERE "workflowId" = $1 AND attempt = $2`,
         [_.getVars().runId, _.getVars().attempt_number],
       );
       return res.rows[0].id;
@@ -149,7 +150,7 @@ async function createMatrix(attemptId: number) {
   const client = await dbClient.connect();
   try {
     const matrixResponse = await client.query(
-      `INSERT INTO public.matrix ("workflowId", "matrixId", "status", "attemptId")
+      `INSERT INTO public."matrix" ("workflowId", "matrixId", "status", "attemptId")
           VALUES ($1, $2, $3, $4)
           ON CONFLICT ("matrixId", "attemptId") DO NOTHING
           RETURNING id;`,
@@ -197,7 +198,7 @@ async function addSpecsToMatrix(
   try {
     for (const spec of specs) {
       const res = await client.query(
-        `INSERT INTO public.specs ("name", "matrixId") VALUES ($1, $2) RETURNING id`,
+        `INSERT INTO public."specs" ("name", "matrixId") VALUES ($1, $2) RETURNING id`,
         [spec, matrixId],
       );
     }
