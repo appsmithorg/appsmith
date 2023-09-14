@@ -20,10 +20,7 @@ const renderComponent = (
       {...omit(componentProps, "type")}
       {...componentProps.input}
       errorMessage={
-        !componentProps.hideErrorMessage &&
-        showError &&
-        componentProps.meta.error &&
-        componentProps.meta.error
+        !componentProps.hideErrorMessage && componentProps.meta.error
       }
       isDisabled={componentProps.disabled}
       label={componentProps.label as string}
