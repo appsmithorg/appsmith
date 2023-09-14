@@ -226,6 +226,8 @@ function* BindWidgetToDatasource(
 
       const queryBindingConfig: WidgetQueryConfig = {};
 
+      const { alertMessage } = action.payload;
+
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.SELECT])) {
         queryBindingConfig[QUERY_TYPE.SELECT] = {
           data: `{{${queryNameMap[QUERY_TYPE.SELECT]}.data}}`,
@@ -244,9 +246,11 @@ function* BindWidgetToDatasource(
         const selectQuery = queryNameMap[QUERY_TYPE.SELECT]
           ? `${queryNameMap[QUERY_TYPE.SELECT]}.run()`
           : "";
-        const { alertMessage } = action.payload;
+
         const successMessage = `${
-          alertMessage?.success ? alertMessage.success : "Successfully saved!"
+          alertMessage?.success
+            ? alertMessage.success?.update
+            : "Successfully saved!"
         }`;
 
         queryBindingConfig[QUERY_TYPE.UPDATE] = {
@@ -264,10 +268,17 @@ function* BindWidgetToDatasource(
         const selectQuery = queryNameMap[QUERY_TYPE.SELECT]
           ? `${queryNameMap[QUERY_TYPE.SELECT]}.run()`
           : "";
+
+        const successMessage = `${
+          alertMessage?.success
+            ? alertMessage.success?.create
+            : "Successfully created!"
+        }`;
+
         queryBindingConfig[QUERY_TYPE.CREATE] = {
           data: `{{${queryNameMap[QUERY_TYPE.CREATE]}.data}}`,
           run: `{{${queryNameMap[QUERY_TYPE.CREATE]}.run(() => {
-            showAlert("Successfully created!");
+            showAlert("${successMessage}");
             ${selectQuery.toString()}
           }, () => {
             showAlert("Unable to create!");

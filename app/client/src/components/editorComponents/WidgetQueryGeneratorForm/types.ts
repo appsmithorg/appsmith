@@ -31,7 +31,9 @@ export interface OtherField {
   isDataIdentifier?: boolean;
 }
 
+type SuccessMessageAction = "create" | "update" | "delete";
+
 export interface AlertMessage {
-  success: string;
+  success: Record<SuccessMessageAction, string>;
   error: string;
 }

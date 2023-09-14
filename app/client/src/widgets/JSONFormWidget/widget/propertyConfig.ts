@@ -176,7 +176,10 @@ export const contentConfig = [
           excludePrimaryColumnFromQueryGeneration: true, // Excludes the primary column from the query generation by default
           isConnectableToWidget: true, // Whether this widget can be connected to another widget like Table,List etc
           alertMessage: {
-            success: createMessage(SUCCESSFULL_BINDING_MESSAGE), // Alert message to show when the binding is successful
+            success: {
+              create: createMessage(SUCCESSFULL_BINDING_MESSAGE, "created"),
+              update: createMessage(SUCCESSFULL_BINDING_MESSAGE, "updated"),
+            }, // Alert message to show when the binding is successful
           },
           /* other form config options like create or update flow, get default values from widget and data identifier to be used in the generated query as primary key*/
           otherFields: [
