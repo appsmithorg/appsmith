@@ -18,7 +18,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 
 @Component
 @AllArgsConstructor
-public class UserPoliciesComputeHelperCEImpl implements UserPoliciesComputeHelperCE {
+public class UserServiceHelperCEImpl implements UserServiceHelperCE {
 
     private final PolicySolution policySolution;
     private final PermissionGroupService permissionGroupService;

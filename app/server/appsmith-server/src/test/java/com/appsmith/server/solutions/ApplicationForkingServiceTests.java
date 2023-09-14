@@ -486,7 +486,8 @@ public class ApplicationForkingServiceTests {
         // Trigger the fork application flow
         applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(sourceAppId, targetWorkspace.getId(), sourceEnvironmentId)
-                .timeout(Duration.ofMillis(10))
+                // Increase the timer because feature flags are taking some tiem to be computed.
+                .timeout(Duration.ofMillis(50))
                 .subscribe();
 
         // Wait for fork to complete

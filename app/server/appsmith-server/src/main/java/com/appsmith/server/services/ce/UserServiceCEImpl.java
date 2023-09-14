@@ -25,7 +25,7 @@ import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedirectHelper;
-import com.appsmith.server.helpers.UserPoliciesComputeHelper;
+import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
@@ -118,7 +118,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final RateLimitService rateLimitService;
     private final RedirectHelper redirectHelper;
 
-    private final UserPoliciesComputeHelper userPoliciesComputeHelper;
+    private final UserServiceHelper userPoliciesComputeHelper;
 
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
 
@@ -164,7 +164,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             RedirectHelper redirectHelper,
             RateLimitService rateLimitService,
-            UserPoliciesComputeHelper userPoliciesComputeHelper) {
+            UserServiceHelper userServiceHelper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -184,7 +184,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.rateLimitService = rateLimitService;
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
         this.redirectHelper = redirectHelper;
-        this.userPoliciesComputeHelper = userPoliciesComputeHelper;
+        this.userPoliciesComputeHelper = userServiceHelper;
     }
 
     @Override
