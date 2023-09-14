@@ -16,9 +16,9 @@ describe("Validate Oracle DS", () => {
     });
   });
 
-  after("Delete Oracle DS", () => {
-    dataSources.DeleteDatasouceFromActiveTab(dataSourceName);
-  });
+  // after("Delete Oracle DS", () => {
+  //   dataSources.DeleteDatasouceFromActiveTab(dataSourceName);
+  // });
 
   it("1. Tc #2354, #2204 - Oracle placeholder & mandatory mark verification", () => {
     dataSources.NavigateToDSCreateNew();
