@@ -21,14 +21,14 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   //   } else cy.log("MySQL DB is found, hence using actual DB");
   // });
 
-  it("1. Create DS for generating CRUD template", () => {
+  before("1. Create DS for generating CRUD template", () => {
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
   });
 
-  it("2. Create new CRUD Table 'Stores' and populate & refresh Entity Explorer to find the new table", () => {
+  it("1. Create new CRUD Table 'Stores' and populate & refresh Entity Explorer to find the new table", () => {
     let tableCreateQuery = `CREATE TABLE Stores(
       store_id         INTEGER  NOT NULL PRIMARY KEY
      ,name          VARCHAR(36) NOT NULL
@@ -72,7 +72,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.AssertTableInVirtuosoList(dsName, "Stores");
   });
 
-  it("3. Validate Select record from Postgress datasource & verify query response", () => {
+  it("2. Validate Select record from Postgress datasource & verify query response", () => {
     entityExplorer.ActionTemplateMenuByEntityName("Stores", "SELECT");
     dataSources.RunQueryNVerifyResponseViews(10);
     dataSources.AssertQueryTableResponse(5, "2112");
@@ -83,7 +83,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
   });
 
-  it("4. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {
+  it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {
     dataSources.NavigateFromActiveDS(dsName, false);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "Stores");
@@ -98,7 +98,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.WaitUntilTableLoad();
   });
 
-  it("5. Verify Update data from Deploy page - on Stores - existing record", () => {
+  it("4. Verify Update data from Deploy page - on Stores - existing record", () => {
     entityExplorer.SelectEntityByName("update_form", "Widgets");
 
     updatingStoreJSONPropertyFileds();
@@ -136,7 +136,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //Hidden field bug - to add here aft secret codes are updated for some fields!
   });
 
-  it("6. Verify Delete field data from Deploy page - on Stores - existing record", () => {
+  it("5. Verify Delete field data from Deploy page - on Stores - existing record", () => {
     table.SelectTableRow(4);
     //Deleting field value from UI - since MYSQL - "" also considered a value & hence even though this field is NOT NULL - no validations
     dataSources.AssertJSONFormHeader(4, 0, "store_id");
@@ -153,7 +153,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     updateNVerify(8, 3, "");
   });
 
-  it("7. Verify Delete row from Deploy page - on Stores - existing record", () => {
+  it("6. Verify Delete row from Deploy page - on Stores - existing record", () => {
     table.SelectTableRow(5);
     dataSources.AssertJSONFormHeader(5, 0, "store_id");
     agHelper.ClickButton("Delete", 5);
@@ -180,7 +180,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.AssertJSONFormHeader(0, 0, "store_id");
   });
 
-  it("8. Verify Refresh table from Deploy page - on Stores & verify all updates persists", () => {
+  it("7. Verify Refresh table from Deploy page - on Stores & verify all updates persists", () => {
     agHelper.GetNClick(dataSources._refreshIcon);
 
     //Store Address deletion remains
@@ -218,7 +218,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.WaitUntilTableLoad();
   });
 
-  it("9. Verify Add/Insert from Deploy page - on Stores - new record", () => {
+  it("8. Verify Add/Insert from Deploy page - on Stores - new record", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     entityExplorer.ExpandCollapseEntity("Widgets");
@@ -278,7 +278,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       .then(($len) => expect($len).to.eq(1));
   });
 
-  it("10. Verify Update fields/Delete from Deploy page - on Stores - newly inserted record", () => {
+  it("9. Verify Update fields/Delete from Deploy page - on Stores - newly inserted record", () => {
     table.SelectTableRow(0);
 
     //validating update happened fine!
@@ -336,7 +336,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
   });
 
-  it("11. Validate Deletion of the Newly Created Page - Stores", () => {
+  it("10. Validate Deletion of the Newly Created Page - Stores", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
@@ -348,7 +348,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.RefreshPage();
   });
 
-  it("12. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
+  it("11. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
     let deleteTblQuery = "DROP TABLE Stores;";
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("DropStores");
@@ -372,11 +372,14 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     );
   });
 
-  it("13. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
-    deployMode.DeployApp();
-    deployMode.NavigateBacktoEditor();
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
-  });
+  after(
+    "Verify Deletion of the datasource when Pages/Actions associated are not removed yet",
+    () => {
+      deployMode.DeployApp();
+      deployMode.NavigateBacktoEditor();
+      dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+    },
+  );
 
   function GenerateCRUDNValidateDeployPage(
     col1Text: string,
