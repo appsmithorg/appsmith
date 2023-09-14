@@ -131,7 +131,7 @@ export const assistiveBindingHinter: HintHelper = (
           function handleSelection(selected: CommandsCompletion) {
             currentSelection = selected;
           }
-          function handlePick(selected: CommandsCompletion<NavigationData>) {
+          function handlePick(selected: CommandsCompletion) {
             if (selected.displayText === "") {
               return;
             }
@@ -148,7 +148,7 @@ export const assistiveBindingHinter: HintHelper = (
             });
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { data } = selected;
-            const { name, type } = data;
+            const { name, type } = data as NavigationData;
             const jsLexicalName: string | undefined =
               selected.displayText?.replace(name + ".", ""); //name of the variable of functions in JSAction
             const selectedOptionType: string | undefined =
