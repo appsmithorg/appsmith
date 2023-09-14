@@ -45,10 +45,12 @@ import {
   getPluginByPackageName,
   getDatasourcesUsedInApplicationByActions,
   getEntityExplorerDatasources,
+  getUnconfiguredDatasources,
 } from "@appsmith/selectors/entitiesSelector";
 import {
   addMockDatasourceToWorkspace,
   setDatasourceViewModeFlag,
+  setUnconfiguredDatasourcesDuringImport,
 } from "actions/datasourceActions";
 import type {
   UpdateDatasourceSuccessAction,
@@ -522,6 +524,14 @@ function* updateDatasourceSaga(
       toast.show(createMessage(DATASOURCE_UPDATE, responseData.name), {
         kind: "success",
       });
+
+      const unconfiguredDSList: Datasource[] = yield select(
+        getUnconfiguredDatasources,
+      );
+      const updatedList = unconfiguredDSList.filter(
+        (d: Datasource) => d.id !== datasourcePayload?.id,
+      );
+      yield put(setUnconfiguredDatasourcesDuringImport(updatedList));
 
       const expandDatasourceId = state.ui.datasourcePane.expandDatasourceId;
 
