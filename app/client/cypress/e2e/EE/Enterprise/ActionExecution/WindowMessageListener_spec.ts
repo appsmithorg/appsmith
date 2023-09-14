@@ -30,7 +30,7 @@ describe("Window message listener", () => {
   // window.cloudHosting = true
   // need to see where this can be executed for window.cloudHosting to be true
   // for now adding a unit test
-  it.skip("Doesn't exist in cloud instance", () => {
+  /*it("Doesn't exist in cloud instance", () => {
     _objects.jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
@@ -53,5 +53,5 @@ describe("Window message listener", () => {
       },
     );
     _objects.debuggerHelper.AssertErrorCount(2);
-  });
+  }); */
 });

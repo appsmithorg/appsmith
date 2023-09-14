@@ -33,12 +33,17 @@ public enum FeatureFlagEnum {
     ask_ai,
     ask_ai_sql,
     ask_ai_js,
+    license_session_limit_enabled,
+    /**
+     * feature flag for scim provisioning
+     */
+    license_scim_enabled,
 
     /**
      * feature flag for knowledge base generation
      * knowledge base is the summary of the application on per page basis
      */
-    release_knowledge_base,
+    release_knowledge_base_enabled,
 
     /**
      * feature flag for making connection pool sizes for plugins manually configurable

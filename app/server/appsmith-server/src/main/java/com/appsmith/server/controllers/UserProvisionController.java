@@ -64,7 +64,7 @@ public class UserProvisionController {
     @DeleteMapping("/{userId}")
     public Mono<ResponseDTO<String>> deleteUser(@PathVariable String userId) {
         return userAndAccessManagementService
-                .deleteUser(userId)
+                .deleteProvisionUser(userId)
                 .map(deleted -> new ResponseDTO<>(HttpStatus.NO_CONTENT.value(), null, null));
     }
 }

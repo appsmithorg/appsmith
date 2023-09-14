@@ -7,11 +7,17 @@ import {
 const EE_FEATURE_FLAG = {
   TEST_EE_FLAG: "TEST_EE_FLAG",
   license_audit_logs_enabled: "license_audit_logs_enabled",
+  release_knowledge_base_enabled: "release_knowledge_base_enabled",
+  license_session_limit_enabled: "license_session_limit_enabled",
+  license_pac_enabled: "license_pac_enabled",
 } as const;
 
 export const EE_DEFAULT_FEATURE_FLAG_VALUE: EE_FeatureFlags = {
   TEST_EE_FLAG: true,
   license_audit_logs_enabled: false,
+  release_knowledge_base_enabled: false,
+  license_session_limit_enabled: false,
+  license_pac_enabled: false,
 };
 
 export type EE_FeatureFlag = keyof typeof EE_FEATURE_FLAG;

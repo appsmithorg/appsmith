@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -17,6 +18,7 @@ import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
@@ -33,7 +35,7 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ce.UserAndAccessManagementServiceCEImpl;
+import com.appsmith.server.solutions.ce_compatible.UserAndAccessManagementServiceCECompatibleImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -74,7 +76,7 @@ import static java.lang.Boolean.TRUE;
 
 @Component
 @Slf4j
-public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCEImpl
+public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCECompatibleImpl
         implements UserAndAccessManagementService {
 
     private String instanceAdminRoleId = null;
@@ -666,5 +668,11 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .findByName(INSTANCE_CONFIG)
                 .map(configObj -> configObj.getConfig().getAsString(DEFAULT_PERMISSION_GROUP))
                 .doOnNext(id -> instanceAdminRoleId = id);
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
+    public Mono<Boolean> deleteProvisionUser(String userId) {
+        return deleteUser(userId);
     }
 }

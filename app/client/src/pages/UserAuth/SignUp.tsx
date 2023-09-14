@@ -45,10 +45,13 @@ import { getIsSafeRedirectURL } from "utils/helpers";
 import Container from "pages/UserAuth/Container";
 import {
   getIsFormLoginEnabled,
+  getTenantConfig,
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
 import Helmet from "react-helmet";
-import { useHtmlPageTitle } from "@appsmith/utils";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHTMLPageTitle } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
 
 declare global {
   interface Window {
@@ -99,7 +102,12 @@ export function SignUp(props: SignUpFormProps) {
   const socialLoginList = useSelector(getThirdPartyAuths);
   const shouldDisableSignupButton = pristine || !isFormValid;
   const location = useLocation();
-  const htmlPageTitle = useHtmlPageTitle();
+  const isBrandingEnabled = useFeatureFlag(
+    FEATURE_FLAG.license_branding_enabled,
+  );
+  const tentantConfig = useSelector(getTenantConfig);
+  const { instanceName } = tentantConfig;
+  const htmlPageTitle = getHTMLPageTitle(isBrandingEnabled, instanceName);
 
   const recaptchaStatus = useScript(
     `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,

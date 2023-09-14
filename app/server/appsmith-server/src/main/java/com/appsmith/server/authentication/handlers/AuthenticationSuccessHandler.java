@@ -2,16 +2,15 @@ package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.AuthenticationSuccessHandlerCE;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.SessionLimiterService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
@@ -25,14 +24,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @Component
 public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE {
 
     private final TenantService tenantService;
-    private final SessionUserService sessionUserService;
+    private final SessionLimiterService sessionLimiterService;
 
     public AuthenticationSuccessHandler(
             ForkExamplesWorkspace forkExamplesWorkspace,
@@ -49,8 +47,10 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
             FeatureFlagService featureFlagService,
             CommonConfig commonConfig,
             UserIdentifierService userIdentifierService,
+            RateLimitService rateLimitService,
             TenantService tenantService,
-            UserService userService) {
+            UserService userService,
+            SessionLimiterService sessionLimiterService) {
 
         super(
                 forkExamplesWorkspace,
@@ -67,36 +67,18 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                 featureFlagService,
                 commonConfig,
                 userIdentifierService,
+                rateLimitService,
                 tenantService,
                 userService);
         this.tenantService = tenantService;
-        this.sessionUserService = sessionUserService;
+        this.sessionLimiterService = sessionLimiterService;
     }
 
     @Override
     public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
         return super.onAuthenticationSuccess(webFilterExchange, authentication)
-                .then(this.logoutUserFromExistingSessionsBasedOnTenantConfig(authentication, webFilterExchange))
+                .then(tenantService.getTenantConfiguration())
+                .flatMap(tenant -> sessionLimiterService.handleSessionLimits(authentication, webFilterExchange, tenant))
                 .then();
-    }
-
-    private Mono<User> logoutUserFromExistingSessionsBasedOnTenantConfig(
-            Authentication authentication, WebFilterExchange exchange) {
-        User currentUser = (User) authentication.getPrincipal();
-        // TODO update to fetch user specific tenant after multi-tenancy is introduced
-        Mono<Tenant> tenantMono = tenantService.getTenantConfiguration();
-        return tenantMono.flatMap(tenant -> {
-            TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-            if (tenantConfiguration != null
-                    && Boolean.TRUE.equals(tenantConfiguration.getSingleSessionPerUserEnabled())) {
-                // In a separate thread, we delete all other active sessions of this user.
-                sessionUserService
-                        .logoutExistingSessions(currentUser.getEmail(), exchange)
-                        .thenReturn(currentUser)
-                        .subscribeOn(Schedulers.boundedElastic())
-                        .subscribe();
-            }
-            return Mono.just(currentUser);
-        });
     }
 }

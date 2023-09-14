@@ -7,8 +7,10 @@ import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserGroupService;
@@ -28,8 +30,10 @@ import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -52,6 +56,7 @@ import static com.appsmith.server.constants.FieldName.DEFAULT_ROLES;
 import static com.appsmith.server.constants.FieldName.TENANT_GROUP;
 import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -86,12 +91,17 @@ public class TenantResourcesTest {
     @Autowired
     RoleConfigurationSolution roleConfigurationSolution;
 
+    @MockBean
+    FeatureFlagService featureFlagService;
+
     User api_user = null;
 
     String superAdminPermissionGroupId = null;
 
     @BeforeEach
     public void setup() {
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_audit_logs_enabled))
+                .thenReturn(Mono.just(Boolean.FALSE));
         if (api_user == null) {
             api_user = userRepository.findByEmail("api_user").block();
         }
@@ -264,6 +274,8 @@ public class TenantResourcesTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testSaveRoleConfigurationChangesForOthersTab() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
 
         Workspace workspace = new Workspace();
         workspace.setName("testSaveRoleConfigurationChanges workspace");
@@ -424,6 +436,8 @@ public class TenantResourcesTest {
     @WithUserDetails(value = "api_user")
     public void testSaveRoleConfigurationChangesForGroupsRolesTab_givenAssignPermission_assertUnassignPermissions() {
 
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
         PermissionGroup permissionGroup = new PermissionGroup();
         String roleName = UUID.randomUUID().toString();
         permissionGroup.setName(roleName);
@@ -501,6 +515,8 @@ public class TenantResourcesTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void groupsRolesTabTest_ProvisionedGroup() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
         if (superAdminPermissionGroupId == null) {
             superAdminPermissionGroupId =
                     userUtils.getSuperAdminPermissionGroup().block().getId();
@@ -565,5 +581,8 @@ public class TenantResourcesTest {
                     assertThat(createdGroupView.getChildren()).isNull();
                 })
                 .verifyComplete();
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
     }
 }

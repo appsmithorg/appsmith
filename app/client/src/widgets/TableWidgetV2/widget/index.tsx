@@ -21,7 +21,6 @@ import _, {
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
 import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
@@ -114,12 +113,20 @@ import type {
 import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import IconSVG from "../icon.svg";
+import type {
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -147,115 +154,205 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   memoiseGetColumnsWithLocalStorage: (localStorage: any) => getColumns;
   memoiseTransformDataWithEditableCell: transformDataWithEditableCell;
 
-  static getQueryGenerationConfig(widget: WidgetProps) {
+  static type = "TABLE_WIDGET_V2";
+
+  static preloadConfig = true;
+
+  static getConfig() {
     return {
-      select: {
-        limit: `${widget.widgetName}.pageSize`,
-        where: `${widget.widgetName}.searchText`,
-        offset: `${widget.widgetName}.pageOffset`,
-        orderBy: `${widget.widgetName}.sortOrder.column`,
-        sortOrder: `${widget.widgetName}.sortOrder.order !== "desc"`,
-      },
-      create: {
-        value: `(${widget.widgetName}.newRow || {})`,
-      },
-      update: {
-        value: `${widget.widgetName}.updatedRow`,
-        where: `${widget.widgetName}.updatedRow`,
-      },
-      totalRecord: true,
+      name: "Table",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
+      needsMeta: true,
+      needsHeightForContent: true,
     };
   }
 
-  static getPropertyUpdatesForQueryBinding(
-    queryConfig: WidgetQueryConfig,
-    widget: TableWidgetProps,
-    formConfig: WidgetQueryGenerationFormConfig,
-  ) {
-    let modify = {};
-    const dynamicPropertyPathList: DynamicPath[] = [];
-
-    if (queryConfig.select) {
-      modify = merge(modify, {
-        tableData: queryConfig.select.data,
-        onPageChange: queryConfig.select.run,
-        serverSidePaginationEnabled: true,
-        onSearchTextChanged: formConfig.searchableColumn
-          ? queryConfig.select.run
-          : undefined,
-        onSort: queryConfig.select.run,
-        enableClientSideSearch: !formConfig.searchableColumn,
-        primaryColumnId: formConfig.primaryColumn,
-        isVisibleDownload: false,
-      });
-    }
-
-    if (queryConfig.create) {
-      modify = merge(modify, {
-        onAddNewRowSave: queryConfig.create.run,
-        allowAddNewRow: true,
-        ...Object.keys(widget.primaryColumns).reduce(
-          (prev: Record<string, boolean>, curr) => {
-            if (formConfig.primaryColumn !== curr) {
-              prev[`primaryColumns.${curr}.isEditable`] = true;
-              prev[`primaryColumns.${curr}.isCellEditable`] = true;
-            }
-
-            prev[`showInlineEditingOptionDropdown`] = true;
-
-            return prev;
-          },
-          {},
-        ),
-      });
-    }
-
-    if (queryConfig.update) {
-      let editAction = {};
-
-      if (
-        !Object.values(widget.primaryColumns).some(
-          (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
-        )
-      ) {
-        editAction = Object.values(createEditActionColumn(widget)).reduce(
-          (
-            prev: Record<string, unknown>,
-            curr: {
-              propertyPath: string;
-              propertyValue: unknown;
-              isDynamicPropertyPath?: boolean;
-            },
-          ) => {
-            prev[curr.propertyPath] = curr.propertyValue;
-
-            if (curr.isDynamicPropertyPath) {
-              dynamicPropertyPathList.push({ key: curr.propertyPath });
-            }
-
-            return prev;
-          },
-          {},
-        );
-      }
-
-      modify = merge(modify, {
-        ...editAction,
-        [`primaryColumns.EditActions1.onSave`]: queryConfig.update.run,
-      });
-    }
-
-    if (queryConfig.total_record) {
-      modify = merge(modify, {
-        totalRecordsCount: queryConfig.total_record.data,
-      });
-    }
-
+  static getDefaults() {
     return {
-      modify,
-      dynamicUpdates: {
-        dynamicPropertyPathList,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+      rows: 28,
+      canFreezeColumn: true,
+      columnUpdatedAt: Date.now(),
+      columns: 34,
+      animateLoading: true,
+      defaultSelectedRowIndex: 0,
+      defaultSelectedRowIndices: [0],
+      label: "Data",
+      widgetName: "Table",
+      searchKey: "",
+      textSize: "0.875rem",
+      horizontalAlignment: "LEFT",
+      verticalAlignment: "CENTER",
+      totalRecordsCount: 0,
+      defaultPageSize: 0,
+      dynamicPropertyPathList: [],
+      borderColor: Colors.GREY_5,
+      borderWidth: "1",
+      dynamicBindingPathList: [],
+      primaryColumns: {},
+      tableData: "",
+      columnWidthMap: {},
+      columnOrder: [],
+      enableClientSideSearch: true,
+      isVisibleSearch: true,
+      isVisibleFilters: true,
+      isVisibleDownload: true,
+      isVisiblePagination: true,
+      isSortable: true,
+      delimiter: ",",
+      version: 2,
+      inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
+      enableServerSideFiltering: TableWidgetV2.getFeatureFlag(
+        ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
+      )
+        ? false
+        : undefined,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getQueryGenerationConfig: (widget: WidgetProps) => {
+        return {
+          select: {
+            limit: `${widget.widgetName}.pageSize`,
+            where: `${widget.widgetName}.searchText`,
+            offset: `${widget.widgetName}.pageOffset`,
+            orderBy: `${widget.widgetName}.sortOrder.column`,
+            sortOrder: `${widget.widgetName}.sortOrder.order !== "desc"`,
+          },
+          create: {
+            value: `(${widget.widgetName}.newRow || {})`,
+          },
+          update: {
+            value: `${widget.widgetName}.updatedRow`,
+            where: `${widget.widgetName}.updatedRow`,
+          },
+          totalRecord: true,
+        };
       },
+      getPropertyUpdatesForQueryBinding: (
+        queryConfig: WidgetQueryConfig,
+        _widget: WidgetProps,
+        formConfig: WidgetQueryGenerationFormConfig,
+      ) => {
+        const widget = _widget as TableWidgetProps;
+
+        let modify = {};
+        const dynamicPropertyPathList: DynamicPath[] = [];
+
+        if (queryConfig.select) {
+          modify = merge(modify, {
+            tableData: queryConfig.select.data,
+            onPageChange: queryConfig.select.run,
+            serverSidePaginationEnabled: true,
+            onSearchTextChanged: formConfig.searchableColumn
+              ? queryConfig.select.run
+              : undefined,
+            onSort: queryConfig.select.run,
+            enableClientSideSearch: !formConfig.searchableColumn,
+            primaryColumnId: formConfig.primaryColumn,
+            isVisibleDownload: false,
+          });
+        }
+
+        if (queryConfig.create) {
+          modify = merge(modify, {
+            onAddNewRowSave: queryConfig.create.run,
+            allowAddNewRow: true,
+            ...Object.keys(widget.primaryColumns).reduce(
+              (prev: Record<string, boolean>, curr) => {
+                if (formConfig.primaryColumn !== curr) {
+                  prev[`primaryColumns.${curr}.isEditable`] = true;
+                  prev[`primaryColumns.${curr}.isCellEditable`] = true;
+                }
+
+                prev[`showInlineEditingOptionDropdown`] = true;
+
+                return prev;
+              },
+              {},
+            ),
+          });
+        }
+
+        if (queryConfig.update) {
+          let editAction = {};
+
+          if (
+            !Object.values(widget.primaryColumns).some(
+              (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
+            )
+          ) {
+            editAction = Object.values(createEditActionColumn(widget)).reduce(
+              (
+                prev: Record<string, unknown>,
+                curr: {
+                  propertyPath: string;
+                  propertyValue: unknown;
+                  isDynamicPropertyPath?: boolean;
+                },
+              ) => {
+                prev[curr.propertyPath] = curr.propertyValue;
+
+                if (curr.isDynamicPropertyPath) {
+                  dynamicPropertyPathList.push({ key: curr.propertyPath });
+                }
+
+                return prev;
+              },
+              {},
+            );
+          }
+
+          modify = merge(modify, {
+            ...editAction,
+            [`primaryColumns.EditActions1.onSave`]: queryConfig.update.run,
+          });
+        }
+
+        if (queryConfig.total_record) {
+          modify = merge(modify, {
+            totalRecordsCount: queryConfig.total_record.data,
+          });
+        }
+
+        return {
+          modify,
+          dynamicUpdates: {
+            dynamicPropertyPathList,
+          },
+        };
+      },
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "tableData",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: !!propValueMap.isDynamicPropertyPath,
+          },
+        ];
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
     };
   }
 
@@ -1646,10 +1743,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
     commitBatchMetaUpdates();
   };
-
-  static getWidgetType(): WidgetType {
-    return "TABLE_WIDGET_V2";
-  }
 
   getColumnIdByAlias(alias: string) {
     const { primaryColumns } = this.props;

@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.ProvisionResourceMetadata;
@@ -24,6 +25,7 @@ import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.enums.ProvisionStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.ProvisionUtils;
@@ -31,6 +33,7 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.ce_compatible.UserGroupServiceCECompatibleImpl;
 import com.appsmith.server.solutions.PolicySolution;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -87,8 +90,7 @@ import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @Service
-public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserGroup, String>
-        implements UserGroupService {
+public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl implements UserGroupService {
 
     private final SessionUserService sessionUserService;
     private final TenantService tenantService;
@@ -577,6 +579,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<ProvisionResourceDto> updateProvisionGroup(String id, UserGroupUpdateDTO resource) {
         return repository
                 .findById(id, MANAGE_USER_GROUPS)
@@ -618,6 +621,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<ProvisionResourceDto> getProvisionGroup(String groupId) {
         return repository
                 .findById(groupId, READ_USER_GROUPS)
@@ -627,6 +631,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<PagedDomain<ProvisionResourceDto>> getProvisionGroups(MultiValueMap<String, String> queryParams) {
         int count = NO_RECORD_LIMIT;
         int startIndex = 0;
@@ -673,6 +678,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<ProvisionResourceDto> createProvisionGroup(UserGroup userGroup) {
         // Note:
         // Have moved the setting of Provision Flag from the method updateProvisionUserGroupPolicies to this function
@@ -686,6 +692,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<List<UserGroupDTO>> removeUsersFromProvisionGroup(UsersForGroupDTO removeUsersFromGroupDTO) {
         List<String> userIds = removeUsersFromGroupDTO.getUserIds();
         return tenantService
@@ -711,6 +718,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<List<UserGroupDTO>> addUsersToProvisionGroup(UsersForGroupDTO addUsersFromGroupDTO) {
         List<String> userIds = addUsersFromGroupDTO.getUserIds();
         return tenantService
@@ -907,5 +915,14 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put(FieldName.IS_PROVISIONED, savedResource.getIsProvisioned());
         return analyticsProperties;
+    }
+
+    // TODO
+    //  Remove this method and start using then archiveById once we have the ability to use multiple feature flags.
+    //  In this case, it is going to be an OR of license_scim_enabled & GAC feature flag.
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
+    public Mono<UserGroup> archiveProvisionGroupById(String id) {
+        return archiveById(id);
     }
 }

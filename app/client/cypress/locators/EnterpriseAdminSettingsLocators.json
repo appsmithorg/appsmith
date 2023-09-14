@@ -9,5 +9,8 @@
   "samlUrlTab": "[data-testid='t--tab-METADATA_URL']",
   "samlXmlTab": "[data-testid='t--tab-XML']",
   "samlIdpTab": "[data-testid='t--tab-IDP_DATA']",
-  "disconnectBtn": "[data-testid='disconnect-service-button']"
+  "disconnectBtn": "[data-testid='disconnect-service-button']",
+  "adminSettingsEntryLink": ".admin-settings-menu-option",
+  "programaticAccessControlDiv": ".admin-settings-group-showRolesAndGroups",
+  "programaticAccessControlInput": "[data-testid='showRolesAndGroups']"
 }

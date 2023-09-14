@@ -1,11 +1,19 @@
 export * from "ce/selectors/rampSelectors";
+import { showProductRamps as CE_showProductRamps } from "ce/selectors/rampSelectors";
 import { createSelector } from "reselect";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const showProductRamps = (rampName: string) =>
-  createSelector(
-    () => null,
-    () => {
-      return false;
-    },
-  );
+const { cloudHosting } = getAppsmithConfigs();
+
+export const showProductRamps = (
+  rampName: string,
+  isEnterpriseOnlyFeature = false,
+) =>
+  cloudHosting || isEnterpriseOnlyFeature
+    ? CE_showProductRamps(rampName)
+    : createSelector(
+        () => null,
+        () => {
+          return false;
+        },
+      );

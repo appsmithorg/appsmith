@@ -184,19 +184,14 @@ describe("Multiple Permission flow ", function () {
     cy.get(homePageLocators.appEditIcon).click();
   });
 
-  it.skip("3. Verify when user has edit role and delete role it works as expected", function () {
-    // verify user is able to export the app
+  it("3. Verify when user has edit role and delete role it works as expected", function () {
+    // verify user is not able to export the app
     homePage.NavigateToHome();
     cy.get(homePageLocators.searchInput).clear().type(appName);
     cy.wait(2000);
     cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
     cy.get(RBAC.appMoreIcon).first().click({ force: true });
-    cy.get(homePageLocators.exportAppFromMenu).should("be.visible");
-    cy.get(homePageLocators.exportAppFromMenu).click({ force: true });
-    cy.get(homePageLocators.toastMessage).should(
-      "contain",
-      "Successfully exported",
-    );
+    cy.get(homePageLocators.exportAppFromMenu).should("not.exist");
   });
 
   it("4. Verify when user has appsmith provided role along with custom role it works as expected", function () {

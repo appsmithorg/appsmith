@@ -1104,6 +1104,14 @@ public enum AppsmithError {
             "HMAC signature generation failed",
             ErrorType.ARGUMENT_ERROR,
             null),
+    KNOWLEDGE_BASE_ERROR(
+            500,
+            AppsmithErrorCode.KNOWLEDGE_BASE_EXCEPTION.getCode(),
+            "{0}",
+            AppsmithErrorAction.DEFAULT,
+            "Knowledge base error",
+            ErrorType.INTERNAL_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;

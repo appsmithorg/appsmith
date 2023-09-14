@@ -23,4 +23,5 @@ public class Url extends UrlCE {
     public static final String PROVISION_URL = BASE_URL + VERSION + "/provision";
     public static final String PROVISION_USER_URL = PROVISION_URL + "/users";
     public static final String PROVISION_GROUP_URL = PROVISION_URL + "/groups";
+    public static final String KNOWLEDGE_BASE_URL = BASE_URL + VERSION + "/kb";
 }

@@ -20,9 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
@@ -52,11 +55,15 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
         implements CustomNewActionRepositoryCE {
 
+    private final MongoTemplate mongoTemplate;
+
     public CustomNewActionRepositoryCEImpl(
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            MongoTemplate mongoTemplate) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
@@ -571,16 +578,33 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Mono<UpdateResult> publishActions(String applicationId, AclPermission permission) {
+    public Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
         Criteria applicationIdCriteria =
                 where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
-        // using aggregation update instead of regular update here
-        // it's required to set a field to a value of another field from the same domain
-        AggregationUpdate aggregationUpdate = AggregationUpdate.update()
-                .set(fieldName(QNewAction.newAction.publishedAction))
-                .toValue("$" + fieldName(QNewAction.newAction.unpublishedAction));
 
-        return updateByCriteria(List.of(applicationIdCriteria), aggregationUpdate, permission);
+        Mono<Set<String>> permissionGroupsMono =
+                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
+
+        return permissionGroupsMono.flatMap(permissionGroups -> {
+            AggregationOperation matchAggregationWithPermission = null;
+            if (permission == null) {
+                matchAggregationWithPermission = Aggregation.match(new Criteria().andOperator(notDeleted()));
+            } else {
+                matchAggregationWithPermission = Aggregation.match(
+                        new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
+            }
+            AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
+            AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
+            AggregationOperation addFieldsOperation = Aggregation.addFields()
+                    .addField(fieldName(QNewAction.newAction.publishedAction))
+                    .withValueOf(Fields.field(fieldName(QNewAction.newAction.unpublishedAction)))
+                    .build();
+            Aggregation combinedAggregation = Aggregation.newAggregation(
+                    matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
+            AggregationResults<NewAction> updatedResults =
+                    mongoTemplate.aggregate(combinedAggregation, NewAction.class, NewAction.class);
+            return bulkUpdate(updatedResults.getMappedResults());
+        });
     }
 
     @Override

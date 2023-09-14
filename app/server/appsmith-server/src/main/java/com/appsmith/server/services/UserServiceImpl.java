@@ -5,6 +5,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.domains.LoginSource;
@@ -22,17 +23,19 @@ import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.enums.ProvisionStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ProvisionUtils;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.ce.UserServiceCEImpl;
+import com.appsmith.server.services.ce_compatible.UserServiceCECompatibleImpl;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
@@ -84,7 +87,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 
 @Slf4j
 @Service
-public class UserServiceImpl extends UserServiceCEImpl implements UserService {
+public class UserServiceImpl extends UserServiceCECompatibleImpl implements UserService {
     private final UserDataService userDataService;
     private final TenantService tenantService;
     private final UserUtils userUtils;
@@ -124,7 +127,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
             PermissionGroupRepository permissionGroupRepository,
             UserGroupRepository userGroupRepository,
             PolicyGenerator policyGenerator,
-            ProvisionUtils provisionUtils) {
+            ProvisionUtils provisionUtils,
+            RateLimitService rateLimitService) {
         super(
                 scheduler,
                 validator,
@@ -148,7 +152,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                 permissionGroupService,
                 userUtils,
                 emailVerificationTokenRepository,
-                redirectHelper);
+                redirectHelper,
+                rateLimitService);
 
         this.userDataService = userDataService;
         this.tenantService = tenantService;
@@ -324,6 +329,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<ProvisionResourceDto> createProvisionUser(User user) {
         Mono<User> createProvisionedUserMono = userCreate(user, Boolean.FALSE)
                 .flatMap(this::updateProvisionUserPoliciesAndProvisionFlag)
@@ -354,6 +360,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<ProvisionResourceDto> updateProvisionUser(String userId, UserUpdateDTO userUpdateDTO) {
         Mono<User> updateUserPolicyPostRead =
                 repository.findById(userId, READ_USERS).flatMap(this::updateProvisionUserPoliciesAndProvisionFlag);
@@ -390,6 +397,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<ProvisionResourceDto> getProvisionUser(String userId) {
         return repository
                 .findById(userId, READ_USERS)
@@ -399,6 +407,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<PagedDomain<ProvisionResourceDto>> getProvisionUsers(MultiValueMap<String, String> queryParams) {
         int count = NO_RECORD_LIMIT;
         int startIndex = 0;

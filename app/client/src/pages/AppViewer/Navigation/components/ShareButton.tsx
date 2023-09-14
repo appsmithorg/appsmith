@@ -10,6 +10,7 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
+  APPLICATION_INVITE,
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   SHARE_APP,
@@ -80,7 +81,11 @@ const ShareButton = (props: ShareButtonProps) => {
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
-          title={currentApplicationDetails?.name}
+          title={createMessage(
+            APPLICATION_INVITE,
+            currentApplicationDetails?.name,
+            cloudHosting,
+          )}
           workspace={{ id: currentWorkspaceId }}
         />
       )}

@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
@@ -16,11 +17,13 @@ import com.appsmith.server.dtos.DisconnectProvisioningDto;
 import com.appsmith.server.dtos.ProvisionStatusDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ProvisionUtils;
 import com.appsmith.server.helpers.TenantUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.ce_compatible.ProvisionServiceCECompatibleImpl;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.AllArgsConstructor;
 import net.minidev.json.JSONObject;
@@ -52,7 +55,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 
 @Component
 @AllArgsConstructor
-public class ProvisionServiceImpl implements ProvisionService {
+public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl implements ProvisionService {
     private final AnalyticsService analyticsService;
     private final ApiKeyService apiKeyService;
     private final TenantUtils tenantUtils;
@@ -65,6 +68,7 @@ public class ProvisionServiceImpl implements ProvisionService {
     private final ProvisionUtils provisionUtils;
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<String> generateProvisionToken() {
         ApiKeyRequestDto apiKeyRequestDto =
                 ApiKeyRequestDto.builder().email(FieldName.PROVISIONING_USER).build();
@@ -79,6 +83,7 @@ public class ProvisionServiceImpl implements ProvisionService {
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<ProvisionStatusDTO> getProvisionStatus() {
         // Check if the User has manage tenant permissions
         Mono<Tenant> tenantMono = tenantService
@@ -130,11 +135,14 @@ public class ProvisionServiceImpl implements ProvisionService {
         });
     }
 
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<Boolean> archiveProvisionToken() {
         return apiKeyService.archiveAllApiKeysForUser(FieldName.PROVISIONING_USER);
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<Boolean> disconnectProvisioning(DisconnectProvisioningDto disconnectProvisioningDto) {
         Mono<Boolean> deleteOrUpdateUsersGroupsAndUpdateAssociatedRolesMono;
 

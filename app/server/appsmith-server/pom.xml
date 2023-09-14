@@ -136,6 +136,11 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-redis</artifactId>
+            <version>8.3.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
@@ -255,6 +260,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.pf4j</groupId>
+            <artifactId>pf4j</artifactId>
+            <version>${org.pf4j.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.appsmith</groupId>
             <artifactId>appsmith-git</artifactId>
             <version>1.0-SNAPSHOT</version>
@@ -368,7 +379,6 @@
             <artifactId>reactiveCaching</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>

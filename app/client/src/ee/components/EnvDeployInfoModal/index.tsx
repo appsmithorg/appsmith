@@ -14,12 +14,14 @@ import {
   setWorkspaceIdForImport,
 } from "@appsmith/actions/applicationActions";
 import {
-  getCurrentEnvName,
   getUserPreferenceFromStorage,
   setUserPreferenceInStorage,
 } from "@appsmith/utils/Environments";
 import EnvInfoModalBody from "./EnvInfoModalBody";
-import { isEnvInfoModalOpen } from "@appsmith/selectors/environmentSelectors";
+import {
+  getCurrentEnvironmentDetails,
+  isEnvInfoModalOpen,
+} from "@appsmith/selectors/environmentSelectors";
 import { hideEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
 import {
   CANCEL,
@@ -53,6 +55,7 @@ export const EnvDeployInfoModal = () => {
   const isModalOpen = useSelector(isEnvInfoModalOpen);
   const currentApplication = useSelector(getCurrentApplication);
   const isPublishing = useSelector(getIsPublishingApplication);
+  const currEnvDetails = useSelector(getCurrentEnvironmentDetails);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -66,7 +69,7 @@ export const EnvDeployInfoModal = () => {
 
   const handleClose = useCallback(() => {
     AnalyticsUtil.logEvent("CANCEL_DEPLOY_WITHOUT_GIT", {
-      currentEnvName: getCurrentEnvName(),
+      currentEnvName: currEnvDetails.name,
     });
     dispatch(hideEnvironmentDeployInfoModal());
     dispatch(setWorkspaceIdForImport(""));
@@ -128,7 +131,7 @@ export const EnvDeployInfoModal = () => {
   const onToggleCheckbox = (checked: boolean) => {
     checked &&
       AnalyticsUtil.logEvent("DEPLOY_WITH_GIT_DISMISS_ENV_MESSAGE", {
-        currentEnvName: getCurrentEnvName(),
+        currentEnvName: currEnvDetails.name,
       });
     setPreferenceChecked(checked);
   };

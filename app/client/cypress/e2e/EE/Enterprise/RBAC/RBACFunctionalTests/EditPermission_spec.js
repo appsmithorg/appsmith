@@ -13,6 +13,7 @@ import {
   jsEditor,
   homePage,
   dataSources,
+  agHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Edit Permission flow ", function () {
@@ -299,7 +300,7 @@ describe("Edit Permission flow ", function () {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(".t--entity-name").contains("SelectQuery").click();
     cy.wait(1000);
-    cy.get(".rc-select-selector").click({ force: true });
+    agHelper.GetNClick(".rc-select-selector", 0, true);
     //verify it doesn't contain create new datasource option from dropdown
     cy.get(".rc-select-item-empty").should("contain", "Not Found");
     cy.wait(5000);

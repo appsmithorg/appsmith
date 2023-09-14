@@ -11,6 +11,14 @@ export interface EnvironmentType {
   userPermissions?: string[];
 }
 
+export interface CurrentEnvironmentDetails {
+  id: string; // current environment id
+  name: string; // current environment name
+  appId: string; // app for which the environment is being set
+  workspaceId: string; // workspace for which the environment is being set
+  editingId: string; // environment id being edited in ds editor mode
+}
+
 // Type for the environment state in redux
 export interface EnvironmentsReduxState {
   /**
@@ -26,6 +34,10 @@ export interface EnvironmentsReduxState {
    */
   showEnvDeployInfoModal: boolean;
   /**
+   * @param {string} currentEnvironmentDetails - The current environment details (id, name, appId, editingId)
+   */
+  currentEnvironmentDetails: CurrentEnvironmentDetails;
+  /**
    * @param {EnvironmentType} data - The list of environments
    */
   data: EnvironmentType[];
@@ -37,6 +49,13 @@ export const initialEnvironmentState: EnvironmentsReduxState = {
   showEnvDeployInfoModal: false,
   error: false,
   data: [],
+  currentEnvironmentDetails: {
+    id: "",
+    name: "",
+    appId: "",
+    workspaceId: "",
+    editingId: "",
+  },
 };
 
 // Reducer for the environment state in redux
@@ -49,11 +68,15 @@ const handlers = {
   }),
   [ReduxActionTypes.FETCH_ENVIRONMENT_SUCCESS]: (
     state: EnvironmentsReduxState,
-    action: ReduxAction<EnvironmentType[]>,
+    action: ReduxAction<{
+      envsData: EnvironmentType[];
+      currentEnvData: CurrentEnvironmentDetails;
+    }>,
   ): EnvironmentsReduxState => ({
     ...state,
     isLoading: false,
-    data: action.payload,
+    data: action.payload.envsData,
+    currentEnvironmentDetails: action.payload.currentEnvData,
   }),
   [ReduxActionTypes.FETCH_ENVIRONMENT_FAILED]: (
     state: EnvironmentsReduxState,
@@ -61,6 +84,23 @@ const handlers = {
     ...state,
     isLoading: false,
     error: true,
+  }),
+  [ReduxActionTypes.SET_CURRENT_ENVIRONMENT]: (
+    state: EnvironmentsReduxState,
+    action: ReduxAction<CurrentEnvironmentDetails>,
+  ): EnvironmentsReduxState => ({
+    ...state,
+    currentEnvironmentDetails: action.payload,
+  }),
+  [ReduxActionTypes.SET_CURRENT_EDITING_ENVIRONMENT]: (
+    state: EnvironmentsReduxState,
+    action: ReduxAction<{ currentEditingId: string }>,
+  ): EnvironmentsReduxState => ({
+    ...state,
+    currentEnvironmentDetails: {
+      ...state.currentEnvironmentDetails,
+      editingId: action.payload.currentEditingId,
+    },
   }),
   [ReduxActionTypes.SHOW_ENV_INFO_MODAL]: (
     state: EnvironmentsReduxState,

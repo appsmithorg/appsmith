@@ -60,7 +60,9 @@ public class UserGroupProvisionController {
 
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<UserGroup>> deleteGroup(@PathVariable String id) {
-        return userGroupService.archiveById(id).map(group -> new ResponseDTO<>(HttpStatus.OK.value(), group, null));
+        return userGroupService
+                .archiveProvisionGroupById(id)
+                .map(group -> new ResponseDTO<>(HttpStatus.OK.value(), group, null));
     }
 
     @PutMapping("/{id}")
