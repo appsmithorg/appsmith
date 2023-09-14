@@ -39,16 +39,23 @@ export class util {
     data: DataItem[],
     numberOfGroups: number,
   ): Promise<DataItem[][]> {
+    console.log("ALL DATA IN DIVIDE SPEC BALANCE FUNCTION ====> ", data);
     // Sort data by duration in descending order
     const sortedData = [...data].sort(
       (a, b) => Number(b.duration) - Number(a.duration),
+    );
+    console.log(
+      "SORTED DATA IN DIVIDE SPEC BALANCE FUNCTION ====> ",
+      sortedData,
     );
 
     const groups: DataItem[][] = Array.from(
       { length: numberOfGroups },
       () => [],
     );
+    console.log("NUMBER OF GROUPS IN BALANCE FUNCTION ====> ", groups);
     sortedData.forEach((item) => {
+      console.log("ITEM IN DIVIDE SPEC IN BALANCE GROUP", item);
       // Find the group with the shortest total duration and add the item to it
       const shortestGroupIndex = groups.reduce(
         (minIndex, group, currentIndex) => {
@@ -65,6 +72,10 @@ export class util {
             : minIndex;
         },
         0,
+      );
+      console.log(
+        "SHORTEST INDEX IN DIVIDE SPEC IN BALANCE GROUP",
+        shortestGroupIndex,
       );
       groups[shortestGroupIndex].push(item);
     });
@@ -123,7 +134,6 @@ export class util {
   }
 
   public async getActiveRunners() {
-    console.log("GITHUB TOKEN", this.getVars().githubToken);
     const octokit = new Octokit({
       auth: this.getVars().githubToken,
       request: {
@@ -143,13 +153,11 @@ export class util {
           },
         },
       );
-      console.log("Workflow Run Details:", response.data);
-      let active_runners = response.data.jobs.filter(
+      const active_runners = response.data.jobs.filter(
         (job) =>
           job.status === "in_progress" &&
           job.run_attempt === Number(this.getVars().attempt_number),
       );
-      console.log("ACTIVE RUNNERS", active_runners);
       console.log("ACTIVE RUNNERS COUNT", active_runners.length);
       return active_runners.length;
     } catch (error) {

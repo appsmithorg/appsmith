@@ -43,6 +43,7 @@ async function getSpecsWithTime(specs: string[]) {
       const match = queryRes.rows.find((obj) => obj.name === spec);
       return match ? match : { name: spec, duration: defaultDuration };
     });
+    console.log("ALL SPECS WITH DURATION", allSpecsWithDuration);
     return await _.divideSpecsIntoBalancedGroups(
       allSpecsWithDuration,
       Number(_.getActiveRunners()),
@@ -73,6 +74,7 @@ async function getSpecsToRun(
 ): Promise<string[]> {
   try {
     const specFilePaths = await getSpecFilePaths(specPattern, ignorePattern);
+    console.log("ALL SPEC FILES PATH ===> ", specFilePaths);
 
     if (!specFilePaths.length) {
       throw Error("No spec files found.");
@@ -271,6 +273,7 @@ export async function cypressSplit(
     }
 
     const specs = await getSpecsToRun(specPattern, ignorePattern);
+    console.log("GET SPECS TO RUN IN SPLIT SPECS", specs);
     if (specs.length > 0 && !specs.includes(defaultSpec)) {
       config.specPattern = specs.length == 1 ? specs[0] : specs;
 
