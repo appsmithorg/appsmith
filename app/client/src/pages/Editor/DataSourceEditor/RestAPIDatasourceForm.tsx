@@ -9,11 +9,9 @@ import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { PluginType } from "entities/Action";
-import { Button, Callout } from "design-system";
+import { Callout } from "design-system";
 import {
   createDatasourceFromForm,
-  redirectAuthorizationCode,
   toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
@@ -42,10 +40,6 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Form } from "./DBForm";
-import {
-  getCurrentEnvName,
-  getCurrentEnvironment,
-} from "@appsmith/utils/Environments";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -55,6 +49,7 @@ interface DatasourceRestApiEditorProps {
     onSuccess?: ReduxAction<unknown>,
   ) => void;
   currentEnvironment: string;
+  currentEnvironmentName: string;
   isSaving: boolean;
   applicationId: string;
   datasourceId: string;
@@ -204,7 +199,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   getSanitizedFormData = () =>
-    formValuesToDatasource(this.props.datasource, this.props.formData);
+    formValuesToDatasource(
+      this.props.datasource,
+      this.props.formData,
+      this.props.currentEnvironment,
+    );
 
   save = (onSuccess?: ReduxAction<unknown>) => {
     this.props.toggleSaveActionFlag(true);
@@ -213,8 +212,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
-      environmentId: getCurrentEnvironment(),
-      environmentName: getCurrentEnvName(),
+      environmentId: this.props.currentEnvironment,
+      environmentName: this.props.currentEnvironmentName,
       pluginName: this.props.pluginName || "",
       pluginPackageName: this.props.pluginPackageName || "",
     });
@@ -266,16 +265,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderEditor = () => {
-    const { datasource, datasourceId, formData, isSaving, messages, pageId } =
-      this.props;
-    const isAuthorized = _.get(
-      datasource,
-      "datasourceConfiguration.authentication.isAuthorized",
-      false,
-    );
+    const { formData, messages } = this.props;
     if (!formData) return;
-
-    const { authentication } = formData;
 
     return (
       <>
@@ -287,29 +278,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           ))}
         {this.renderGeneralSettings()}
         {this.renderOauth2AdvancedSettings()}
-        {formData.authType &&
-          formData.authType === AuthType.OAuth2 &&
-          _.get(authentication, "grantType") ===
-            GrantType.AuthorizationCode && (
-            <FormInputContainer>
-              <Button
-                className="t--save-and-authorize-datasource"
-                isDisabled={this.validate()}
-                isLoading={isSaving}
-                onClick={() =>
-                  this.save(
-                    redirectAuthorizationCode(
-                      pageId,
-                      datasourceId,
-                      PluginType.API,
-                    ),
-                  )
-                }
-              >
-                {isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
-              </Button>
-            </FormInputContainer>
-          )}
       </>
     );
   };
@@ -1035,11 +1003,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState, props: any) => {
-  const { datasource, formName } = props;
+  const { currentEnvironment, datasource, formName } = props;
   const hintMessages = datasource && datasource.messages;
 
   return {
-    initialValues: datasourceToFormValues(datasource),
+    initialValues: datasourceToFormValues(datasource, currentEnvironment),
     formMeta: getFormMeta(formName)(state),
     messages: hintMessages,
     datasourceName: datasource?.name ?? "",

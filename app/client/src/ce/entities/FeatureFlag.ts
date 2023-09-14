@@ -22,8 +22,10 @@ export const FEATURE_FLAG = {
   release_git_status_lite_enabled: "release_git_status_lite_enabled",
   license_sso_saml_enabled: "license_sso_saml_enabled",
   license_sso_oidc_enabled: "license_sso_oidc_enabled",
+  release_git_connect_v2_enabled: "release_git_connect_v2_enabled",
   deprecate_custom_fusioncharts_enabled:
     "deprecate_custom_fusioncharts_enabled",
+  ab_mock_mongo_schema_enabled: "ab_mock_mongo_schema_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -49,7 +51,9 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_git_status_lite_enabled: false,
   license_sso_saml_enabled: false,
   license_sso_oidc_enabled: false,
+  release_git_connect_v2_enabled: false,
   deprecate_custom_fusioncharts_enabled: false,
+  ab_mock_mongo_schema_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

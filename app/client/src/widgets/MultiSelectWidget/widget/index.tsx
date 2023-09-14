@@ -13,16 +13,17 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DraftValueType } from "rc-select/lib/Select";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import {
-  GRID_DENSITY_MIGRATION_V1,
-  MinimumPopupRows,
-} from "WidgetProvider/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import MultiSelectComponent from "../component";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import {
+  DefaultAutocompleteDefinitions,
+  isCompactMode,
+} from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "../icon.svg";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { layoutConfigurations } from "constants/WidgetConstants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -515,13 +516,15 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
-    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const dropDownWidth =
+      (MinimumPopupWidthInPercentage / 100) *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
+    const { componentHeight, componentWidth } = this.props;
 
     return (
       <MultiSelectComponent
@@ -529,13 +532,7 @@ class MultiSelectWidget extends BaseWidget<
         allowSelectAll={this.props.allowSelectAll}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         disabled={this.props.isDisabled ?? false}
         dropDownWidth={dropDownWidth}
         dropdownStyle={{
@@ -548,7 +545,7 @@ class MultiSelectWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
         onFilterChange={this.onFilterChange}
@@ -622,6 +619,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   labelPosition?: LabelPosition;
   labelAlignment?: Alignment;
   labelWidth?: number;
+  labelComponentWidth?: number;
 }
 
 export default MultiSelectWidget;

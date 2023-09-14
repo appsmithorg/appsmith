@@ -33,13 +33,13 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
+import com.appsmith.server.newaction.base.NewActionService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -50,6 +50,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.common.base.Strings;
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -472,6 +473,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     }
                     return Mono.just(application);
                 });
+    }
+
+    @Override
+    public Mono<List<Application>> deleteMultipleApps(List<String> ids) {
+        log.debug("Archiving application with ids: {}", ids.toString());
+
+        return Flux.fromIterable(ids).flatMap(id -> deleteApplication(id)).collectList();
     }
 
     public Mono<Application> deleteApplicationByResource(Application application) {
@@ -1134,7 +1142,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }
-                    Mono<UpdateResult> publishPagesMono =
+                    Mono<List<BulkWriteResult>> publishPagesMono =
                             newPageService.publishPages(editedPageIds, pagePermission.getEditPermission());
 
                     // Archive the deleted pages and save the application changes and then return the pages so that
@@ -1144,7 +1152,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
-        Mono<UpdateResult> publishActionsMono =
+        Mono<List<BulkWriteResult>> publishActionsMono =
                 newActionService.publishActions(applicationId, actionPermission.getEditPermission());
 
         // this is a map of pluginType to count of actions for that pluginType, required for analytics

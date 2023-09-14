@@ -1,5 +1,8 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
+import {
+  LayoutDirection,
+  Positioning,
+} from "layoutSystems/autolayout/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
@@ -22,7 +25,7 @@ import {
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
@@ -517,18 +520,17 @@ class TabsWidget extends BaseWidget<
     return {};
   }
 
-  getPageView() {
-    const { leftColumn, parentColumnSpace, rightColumn } = this.props;
-
+  getWidgetView() {
+    const { componentWidth } = this.props;
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
-      width:
-        (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
+      width: componentWidth - WIDGET_PADDING * 2,
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
       !isAutoHeightEnabledForWidgetWithLimits(this.props);
+
     return (
       <TabsComponent
         {...tabsComponentProps}
@@ -563,7 +565,7 @@ class TabsWidget extends BaseWidget<
     }
 
     childWidgetData.canExtend = this.props.shouldScrollContents;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.bottomRow = this.props.shouldScrollContents

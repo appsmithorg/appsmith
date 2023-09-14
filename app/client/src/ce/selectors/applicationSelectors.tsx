@@ -207,9 +207,6 @@ export const getCurrentAppGitMetaData = createSelector(
 export const getIsSavingWorkspaceInfo = (state: AppState) =>
   state.ui.applications.isSavingWorkspaceInfo;
 
-export const showAppInviteUsersDialogSelector = (state: AppState) =>
-  state.ui.applications.showAppInviteUsersDialog;
-
 export const getIsDatasourceConfigForImportFetched = (state: AppState) =>
   state.ui.applications.isDatasourceConfigForImportFetched;
 
@@ -277,3 +274,7 @@ const DEFAULT_EVALUATION_VERSION = 2;
 export const selectEvaluationVersion = (state: AppState) =>
   state.ui.applications.currentApplication?.evaluationVersion ||
   DEFAULT_EVALUATION_VERSION;
+
+export const getDeletingMultipleApps = (state: AppState) => {
+  return state.ui.applications.deletingMultipleApps;
+};
