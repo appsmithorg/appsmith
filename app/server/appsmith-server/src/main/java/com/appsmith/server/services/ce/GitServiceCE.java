@@ -81,4 +81,6 @@ public interface GitServiceCE {
     Mono<List<GitDocsDTO>> getGitDocUrls();
 
     Mono<BranchTrackingStatus> fetchRemoteChanges(String defaultApplicationId, String branchName, boolean isFileLock);
+
+    Mono<String> autoCommitDSLMigration(String defaultApplicationId, String branchName);
 }
