@@ -201,6 +201,8 @@ export const PARTNER_PROGRAM_CALLOUT = (
   email: string,
 ) => `${email} is outside your organisation. If you’re building this app
 for someone else, you should check out our partner program.`;
+export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
+  `Learn about Appsmith Partner Program`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";

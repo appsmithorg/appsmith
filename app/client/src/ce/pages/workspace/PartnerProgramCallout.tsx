@@ -3,6 +3,7 @@ import { Callout } from "design-system";
 import React from "react";
 import {
   PARTNER_PROGRAM_CALLOUT,
+  PARTNER_PROGRAM_CALLOUT_LINK,
   createMessage,
 } from "@appsmith/constants/messages";
 
@@ -15,9 +16,9 @@ export default function PartnerProgramCallout(
   props: PartnerProgramCalloutProps,
 ) {
   const link: CalloutLinkProps = {
-    children: "Learn about Appsmith Partner Program",
+    children: createMessage(PARTNER_PROGRAM_CALLOUT_LINK),
     to: "https://www.appsmith.com/partner-program",
-    endIcon: "open",
+    endIcon: "share-box-line",
   };
 
   return (
