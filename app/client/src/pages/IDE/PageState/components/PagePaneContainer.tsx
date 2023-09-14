@@ -68,9 +68,9 @@ const Tab = styled.div`
 `;
 
 type Props = {
-  editor: React.ReactNode;
+  editor: JSX.Element;
   addStateTitle?: string;
-  blankState?: React.ReactNode;
+  blankState?: JSX.Element;
   listStateTitle?: string;
   addItems?: Array<Item>;
   titleItemCounts?: number;
@@ -221,10 +221,29 @@ const PagePaneContainer = (props: Props) => {
           <ListView items={props.addItems} onClick={onAddClick} />
         )}
         <PaneListView />
-        {pageState === TabState.EDIT && props.editor}
+        {pageState === TabState.EDIT && (
+          <PageEditView
+            blankState={props.blankState}
+            editor={props.editor}
+            listItems={props.listItems}
+          />
+        )}
       </Body>
     </div>
   );
 };
+
+type PageEditViewProps = {
+  listItems?: Array<Item>;
+  editor: JSX.Element;
+  blankState?: JSX.Element;
+};
+function PageEditView(props: PageEditViewProps) {
+  if (props.listItems && props.listItems.length) {
+    return props.editor;
+  }
+
+  return <div className="h-full w-full flex">{props.blankState}</div>;
+}
 
 export default PagePaneContainer;
