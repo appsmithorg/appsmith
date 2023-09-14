@@ -24,6 +24,15 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+
+// appPositioning?.type instead of appPositioning.type is for legacy applications that may not have the appPositioning object.
+// All new applications will have appPositioning.type
+const getAppPositioningType = (state: AppState) =>
+  AppPositioningTypes[
+    state.ui.applications.currentApplication?.applicationDetail?.appPositioning
+      ?.type || AppPositioningTypes.FIXED
+  ];
 
 export const getUnevaluatedDataTree = createSelector(
   getCurrentActions,
@@ -37,6 +46,7 @@ export const getUnevaluatedDataTree = createSelector(
   getSelectedAppThemeProperties,
   getMetaWidgets,
   getIsMobileBreakPoint,
+  getAppPositioningType,
   (
     actions,
     jsActions,
@@ -49,6 +59,7 @@ export const getUnevaluatedDataTree = createSelector(
     selectedAppThemeProperty,
     metaWidgets,
     isMobile,
+    appPositioningType,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -63,6 +74,7 @@ export const getUnevaluatedDataTree = createSelector(
       theme: selectedAppThemeProperty,
       metaWidgets,
       isMobile,
+      appPositioningType,
     });
   },
 );
