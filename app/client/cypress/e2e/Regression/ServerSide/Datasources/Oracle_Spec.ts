@@ -16,7 +16,7 @@ describe("Validate Oracle DS", () => {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Oracle");
     agHelper.AssertAttribute(
-      dataSources._host,
+      dataSources._host(),
       "placeholder",
       "myapp.abcde.oracle.net",
     );
@@ -28,18 +28,26 @@ describe("Validate Oracle DS", () => {
     agHelper.AssertAttribute(dataSources._username, "placeholder", "admin");
     agHelper.AssertAttribute(dataSources._password, "placeholder", "password");
     agHelper.AssertElementLength(dataSources._mandatoryMark, 4); //verifyng all 4 fields are mandatory
-    agHelper.AssertText(dataSources._host, "val", "");
+    agHelper.AssertText(dataSources._host(), "val", "");
     agHelper.UpdateInputValue(
-      dataSources._host,
+      dataSources._host(),
       dataManager.dsValues[dataManager.environments[1]].oracle_host,
     );
     agHelper.AssertText(
-      dataSources._host,
+      dataSources._host(),
       "val",
       dataManager.dsValues[dataManager.environments[1]].oracle_host,
     );
     agHelper.GetNClick(dataSources._deleteDSHostPort); //Delete the value & verify
-    agHelper.AssertText(dataSources._host, "val", "");
+    agHelper.AssertText(dataSources._host(), "val", "");
+    agHelper.ClickButton("Add more");
+    agHelper.AssertElementVisibility(dataSources._host("1"));
+    agHelper.ClickButton("Add more");
+    agHelper.AssertElementVisibility(dataSources._host("2"));
+    Cypress._.times(2, () => {
+      //Delete the added extra hosts
+      agHelper.GetNClick(dataSources._deleteDSHostPort);
+    });
   });
 
   it("2. Tc #2357, #2356, #2355, #2354 Oracle connection errors", () => {
@@ -54,7 +62,7 @@ describe("Validate Oracle DS", () => {
       agHelper.WaitUntilAllToastsDisappear();
 
       agHelper.UpdateInputValue(
-        dataSources._host,
+        dataSources._host(),
         dataManager.dsValues[dataManager.defaultEnviorment].oracle_host,
       );
       agHelper.UpdateInputValue(
