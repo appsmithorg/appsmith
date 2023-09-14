@@ -33,6 +33,8 @@ export const STORAGE_KEYS: {
   USER_SIGN_UP: "USER_SIGN_UP",
   VERSION_UPDATE_STATE: "VERSION_UPDATE_STATE",
   AI_RECENT_QUERIES: "AI_RECENT_QUERIES",
+  CURRENT_ENV: "CURRENT_ENV",
+  AI_KNOWLEDGE_BASE: "AI_KNOWLEDGE_BASE",
 };
 
 const store = localforage.createInstance({
@@ -110,6 +112,49 @@ export const getCopiedWidgets = async () => {
     return;
   }
   return [];
+};
+
+// Function to save the current environment and the appId in indexedDB
+export const saveCurrentEnvironment = async (envId: string, appId: string) => {
+  try {
+    await store.setItem(STORAGE_KEYS.CURRENT_ENV, { envId, appId });
+    return true;
+  } catch (error) {
+    log.error("An error occurred when storing current env: ", error);
+    return false;
+  }
+};
+
+// Function to fetch the current environment and related appId from indexedDB
+export const getSavedCurrentEnvironmentDetails = async (): Promise<{
+  envId: string;
+  appId: string;
+}> => {
+  try {
+    return (
+      (await store.getItem(STORAGE_KEYS.CURRENT_ENV)) || {
+        envId: "",
+        appId: "",
+      }
+    );
+  } catch (error) {
+    log.error("An error occurred when fetching current env: ", error);
+    return {
+      envId: "",
+      appId: "",
+    };
+  }
+};
+
+// Function to reset the current environment and related appId from indexedDB
+export const resetCurrentEnvironment = async () => {
+  try {
+    await store.removeItem(STORAGE_KEYS.CURRENT_ENV);
+    return true;
+  } catch (error) {
+    log.error("An error occurred when resetting current env: ", error);
+    return false;
+  }
 };
 
 export const setPostWelcomeTourState = async (flag: boolean) => {
@@ -617,6 +662,112 @@ export const getVersionUpdateState =
 
 export const removeVersionUpdateState = async () => {
   return store.removeItem(STORAGE_KEYS.VERSION_UPDATE_STATE);
+};
+
+export const getAppKbState = async (appId: string) => {
+  try {
+    const aiKBApplicationMap: Record<
+      string,
+      {
+        checksum: string;
+        pageSlugs: {
+          [pageId: string]: {
+            hasReacted: boolean;
+          };
+        };
+      }
+    > | null = await store.getItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE);
+
+    if (typeof aiKBApplicationMap === "object" && aiKBApplicationMap) {
+      return aiKBApplicationMap[appId];
+    }
+
+    return null;
+  } catch (error) {
+    log.error("An error occurred while reading AI_KNOWLEDGE_BASE");
+    log.error(error);
+
+    return null;
+  }
+};
+
+export const initAppKbState = async (
+  appId: string,
+  checksum: string,
+  pageSlugs: string[],
+) => {
+  try {
+    let aiKBApplicationMap: Record<
+      string,
+      {
+        checksum: string;
+        pageSlugs: {
+          [pageId: string]: {
+            hasReacted: boolean;
+          };
+        };
+      }
+    > | null = await store.getItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE);
+
+    if (typeof aiKBApplicationMap !== "object" || !aiKBApplicationMap) {
+      aiKBApplicationMap = {};
+    }
+
+    const appKbState = {
+      checksum,
+      pageSlugs: pageSlugs.reduce((acc, pageSlug) => {
+        acc[pageSlug] = {
+          hasReacted: false,
+        };
+        return acc;
+      }, {} as Record<string, { hasReacted: boolean }>) as Record<
+        string,
+        { hasReacted: boolean }
+      >,
+    };
+
+    aiKBApplicationMap[appId] = appKbState;
+
+    await store.setItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE, aiKBApplicationMap);
+    return appKbState;
+  } catch (error) {
+    log.error("An error occurred while updating AI_KNOWLEDGE_BASE");
+    log.error(error);
+  }
+};
+
+export const reactToPageKB = async (
+  appId: string,
+  pageId: string,
+  hasReacted: boolean,
+) => {
+  try {
+    let aiKBApplicationMap: Record<
+      string,
+      {
+        checksum: string;
+        pageSlugs: {
+          [pageId: string]: {
+            hasReacted: boolean;
+          };
+        };
+      }
+    > | null = await store.getItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE);
+
+    if (typeof aiKBApplicationMap !== "object" || !aiKBApplicationMap) {
+      aiKBApplicationMap = {};
+    }
+
+    if (aiKBApplicationMap?.[appId]?.pageSlugs?.[pageId]) {
+      aiKBApplicationMap[appId].pageSlugs[pageId].hasReacted = hasReacted;
+    }
+
+    await store.setItem(STORAGE_KEYS.AI_KNOWLEDGE_BASE, aiKBApplicationMap);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while updating AI_KNOWLEDGE_BASE");
+    log.error(error);
+  }
 };
 
 export const setAISuggestedPromptShownForType = async (type: string) => {
