@@ -162,8 +162,7 @@ function RepoLimitExceededErrorModal() {
             kind="warning"
             links={[
               {
-                onClick: (e) => {
-                  e.preventDefault();
+                onClick: () => {
                   AnalyticsUtil.logEvent("GS_CONTACT_SALES_CLICK", {
                     source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
                   });

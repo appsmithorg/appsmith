@@ -1,10 +1,13 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-
-const { entityExplorer, propPane } = _;
+import {
+  entityExplorer,
+  propPane,
+  draggableWidgets,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Bug 25894 - Moustache brackets should be highlighted", () => {
   it("1. should show {{ }} in bold", () => {
-    entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
 
     entityExplorer.SelectEntityByName("Button1", "Widgets");
 
@@ -17,8 +20,11 @@ describe("Bug 25894 - Moustache brackets should be highlighted", () => {
       Query1.run();
     }).catch(() => {});const a = { a: "key"} }}`,
     );
-
-    cy.get("span").contains("{{").should("have.class", "cm-binding-brackets");
-    cy.get("span").contains("}}").should("have.class", "cm-binding-brackets");
+    agHelper
+      .GetNAssertContains("span", "{{")
+      .should("have.class", "cm-binding-brackets");
+    agHelper
+      .GetNAssertContains("span", "}}")
+      .should("have.class", "cm-binding-brackets");
   });
 });

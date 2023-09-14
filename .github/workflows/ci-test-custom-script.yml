@@ -247,6 +247,10 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
@@ -314,14 +318,15 @@ jobs:
         env:
           EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
         run: |
+          eventCommit=$(echo ${{env.EVENT_COMMITS}} | sed "s/'//g")
           if [[ ${{ inputs.pr }} -ne 0 ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
-            if [[ '${{env.EVENT_COMMITS}}' == 'null' ]]; then 
+            if [[ '$eventCommit' == 'null' ]]; then 
               echo "COMMIT_INFO_MESSAGE=$(echo ${{ github.event_name }} | perl -pe 's/(^|_)./uc($&)/ge;s/_//g')" >> $GITHUB_ENV
               echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE}} by ${{ env.COMMIT_INFO_AUTHOR }}" >> $GITHUB_ENV
             else
-              echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
+              echo "COMMIT_INFO_MESSAGE=$(echo "$eventCommit" | awk -F '\\\\n' '{print $1}' | sed 's/^"//;s/"$//')" >> $GITHUB_ENV
             fi
           fi
 
@@ -345,6 +350,10 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
@@ -413,6 +422,10 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
@@ -525,15 +538,15 @@ jobs:
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
-      - name: get cypress url dashboard url
-        id: dashboard_url
-        if: always()
-        run: |
-          if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-            echo "" >> ~/cypress_url
-          elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-            echo "" >> ~/cypress_url
-          fi
+      # - name: get cypress url dashboard url
+      #   id: dashboard_url
+      #   if: always()
+      #   run: |
+      #     if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
+      #       echo "" >> ~/cypress_url
+      #     elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
+      #       echo "" >> ~/cypress_url
+      #     fi
 
       # Force store previous run result to cache
       - name: Store the previous run result

@@ -620,7 +620,7 @@ class BaseInputWidget<
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         maxChars={this.props.maxChars}
         multiline={this.props.multiline}
         onFocusChange={this.props.onFocusChange}
@@ -668,6 +668,7 @@ export interface BaseInputWidgetProps extends WidgetProps {
   iconName?: IconName;
   iconAlign?: Omit<Alignment, "center">;
   onSubmit?: string;
+  labelComponentWidth?: number;
 }
 
 export default BaseInputWidget;
