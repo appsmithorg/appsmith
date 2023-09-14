@@ -117,13 +117,11 @@ const QuerySidebar = (props: Props) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         listItemClick(toListActions[0]);
-      } else {
-        dispatch(setIdePageTabState(TabState.LIST));
       }
     }
   }, [actionId, toListActions.length]);
 
-  let editor: React.ReactNode = <div />;
+  let editor: JSX.Element = <div />;
 
   if (actionId && action) {
     if (action.pluginType === PluginType.DB) {

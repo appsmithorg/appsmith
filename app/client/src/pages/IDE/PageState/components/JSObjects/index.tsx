@@ -57,8 +57,6 @@ function JSObjects(props: Props) {
     if (!collectionId) {
       if (toListActions.length) {
         listItemClick(toListActions[0]);
-      } else {
-        dispatch(setIdePageTabState(TabState.LIST));
       }
     }
   }, [collectionId, toListActions.length]);
