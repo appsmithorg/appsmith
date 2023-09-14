@@ -2,7 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { initialize } from "redux-form";
-import { getDBPlugins, getPluginImages } from "selectors/entitiesSelector";
+import {
+  getDBPlugins,
+  getPluginImages,
+} from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import {
@@ -14,7 +17,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { getQueryParams } from "utils/URLUtils";
-import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
+import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";

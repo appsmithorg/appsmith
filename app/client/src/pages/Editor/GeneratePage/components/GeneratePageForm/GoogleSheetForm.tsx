@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import React, { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getEditorConfig } from "selectors/entitiesSelector";
+import { getEditorConfig } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";

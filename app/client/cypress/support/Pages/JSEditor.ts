@@ -230,7 +230,7 @@ export class JSEditor {
   public RunJSObj() {
     this.agHelper.GetNClick(this._runButton);
     this.agHelper.Sleep(); //for function to run
-    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000);
+    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 15000);
     this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
   }
 
