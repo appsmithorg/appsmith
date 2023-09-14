@@ -2018,7 +2018,7 @@ export const COMMUNITY_TEMPLATES = {
     title: () => "Live on Appsmith community",
     description: () =>
       "This application is live on community as a template for users to fork and remix.",
-    viewTemplateButton: () => "View Template",
+    viewTemplateButton: () => "View template",
   },
   publishFormPage: {
     title: () => "Publish to community",
@@ -2054,7 +2054,7 @@ export const COMMUNITY_TEMPLATES = {
       emailPlaceholder: () => "Email",
     },
     applicationSettings: {
-      title: () => "Application Settings",
+      title: () => "Application settings",
       publicSetting: () => "Make application public",
       forkableSetting: () => "Make application forkable",
     },
@@ -2079,13 +2079,13 @@ export const COMMUNITY_TEMPLATES = {
       title: () => "Publish to Appsmith community",
       description: () =>
         "Publish this app to Appsmith community for the public to view, fork, and remix.",
-      publishBtn: () => "Start Publishing",
+      publishBtn: () => "Start publishing",
     },
     publishedInfo: {
       title: () => "Live on Appsmith community!",
       description: () =>
         "This application is live on community as a template for users to fork and remix.",
-      viewTemplate: () => "View Template",
+      viewTemplate: () => "View template",
     },
   },
 };
