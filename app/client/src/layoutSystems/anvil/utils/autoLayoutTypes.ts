@@ -85,3 +85,40 @@ export type FlexComponentProps = {
   isMobile: boolean;
   renderMode: RenderMode;
 };
+
+export type OverflowValues = "visible" | "hidden" | "scroll" | "auto";
+
+export type PositionValues =
+  | "absolute"
+  | "relative"
+  | "fixed"
+  | "static"
+  | "sticky";
+
+export type FlexWrapValues = "nowrap" | "wrap" | "wrap-reverse";
+
+export type FlexDirectionValues =
+  | "row"
+  | "column"
+  | "column-reverse"
+  | "row-reverse";
+
+export type JustifyContentValues =
+  | "start"
+  | "end"
+  | "center"
+  | "space-between"
+  | "space-around"
+  | "space-evenly";
+
+export type AlignSelfValues =
+  | "start"
+  | "end"
+  | "center"
+  | "auto"
+  | "flex-start"
+  | "normal"
+  | "flex-end"
+  | "self-start"
+  | "self-end"
+  | "stretch";
