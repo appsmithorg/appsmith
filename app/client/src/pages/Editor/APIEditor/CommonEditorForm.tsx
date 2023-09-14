@@ -405,7 +405,8 @@ function renderImportedDatasButton(
     <Button
       className="t--show-imported-datas"
       kind="tertiary"
-      onClick={() => {
+      onClick={(e) => {
+        e.preventDefault();
         onClick(!showInheritedAttributes);
       }}
       size="sm"
