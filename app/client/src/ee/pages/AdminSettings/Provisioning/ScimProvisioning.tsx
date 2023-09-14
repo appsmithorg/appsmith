@@ -177,7 +177,10 @@ const ScimConnectionContent = (props: ScimProps) => {
         >
           {createMessage(LAST_SYNC_MESSAGE, howMuchTimeBefore)}
         </Text>
-        <div data-testid="t--synced-resources-info">
+        <div
+          className="flex items-baseline"
+          data-testid="t--synced-resources-info"
+        >
           <ResourceLinks
             origin="SCIM"
             provisionedGroups={provisioningDetails.provisionedGroups}

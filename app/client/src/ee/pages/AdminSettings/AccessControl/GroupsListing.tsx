@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useHistory, useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
 import { HighlightText } from "design-system-old";
 import { Icon, Spinner } from "design-system";
 import { PageHeader } from "./PageHeader";
-import { BottomSpace, LoaderContainer } from "pages/AdminSettings/components";
+import {
+  BottomSpace,
+  LoaderContainer,
+  NoUnderLineLink,
+} from "pages/AdminSettings/components";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { AclWrapper, EmptyDataState, EmptySearchResult } from "./components";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
@@ -118,8 +121,9 @@ export function GroupListing() {
       Cell: function GroupCell(cellProps: any) {
         const { id, isProvisioned, name } = cellProps.cell.row.original;
         return (
-          <Link
+          <NoUnderLineLink
             data-testid="t--usergroup-cell"
+            target="_self"
             to={adminSettingsCategoryUrl({
               category: SettingCategories.GROUPS_LISTING,
               selected: id,
@@ -131,7 +135,7 @@ export function GroupListing() {
                 <Icon data-tesid="t--provisioned-resource" name="link-unlink" />
               )}
             </CellContainer>
-          </Link>
+          </NoUnderLineLink>
         );
       },
     },

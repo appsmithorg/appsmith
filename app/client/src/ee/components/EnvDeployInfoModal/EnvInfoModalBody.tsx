@@ -13,12 +13,6 @@ import {
 } from "@appsmith/constants/messages";
 import { hideEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
 
-const openDoc = (e: React.MouseEvent, url: string) => {
-  e.preventDefault();
-  e.stopPropagation();
-  window.open(url, "_blank");
-};
-
 const LinkToDocumnetation = styled(Link)`
   margin-top: 8px;
   margin-bottom: 16px;
@@ -37,7 +31,7 @@ export default function EnvInfoModalBody() {
   return (
     <>
       <InfoContent />
-      <LinkToDocumnetation onClick={(e) => openDoc(e, DOCUMENTATION_URL)}>
+      <LinkToDocumnetation target="_blank" to={DOCUMENTATION_URL}>
         {createMessage(ENV_INFO_MODAL_DOCUMENATION_LINK_TEXT)}
       </LinkToDocumnetation>
       <Text kind="body-m">{createMessage(ENV_INFO_MODAL_DESCRIPTION)}</Text>

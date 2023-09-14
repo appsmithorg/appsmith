@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory, useLocation, useParams } from "react-router-dom";
+import { useHistory, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
 import { HighlightText } from "design-system-old";
 import { PageHeader } from "./PageHeader";
-import { BottomSpace, LoaderContainer } from "pages/AdminSettings/components";
+import {
+  BottomSpace,
+  LoaderContainer,
+  NoUnderLineLink,
+} from "pages/AdminSettings/components";
 import { UserEdit } from "./UserEdit";
 import {
   AclWrapper,
@@ -70,8 +74,12 @@ export const CellContainer = styled.div`
 
   &.user-email-column > span:nth-child(2) {
     text-decoration: underline;
-    text-underline-offset: 2px;
-    color: var(--ads-v2-color-fg);
+    text-underline-offset: var(--ads-v2-spaces-2);
+    text-decoration-color: var(--ads-v2-color-border);
+
+    &:hover {
+      text-decoration-color: var(--ads-v2-color-border-emphasis);
+    }
   }
 
   .user-icons {
@@ -226,7 +234,7 @@ export function UserListing() {
         const { username } = cellProps.cell.row.values;
         const { id, isProvisioned, photoId } = cellProps.cell.row.original;
         return (
-          <Link
+          <NoUnderLineLink
             className="user-email-link"
             data-testid="acl-user-listing-link"
             onClick={() =>
@@ -235,6 +243,7 @@ export function UserListing() {
                 clicked_user_id: id,
               })
             }
+            target="_self"
             to={adminSettingsCategoryUrl({
               category: SettingCategories.USER_LISTING,
               selected: id,
@@ -260,7 +269,7 @@ export function UserListing() {
                 <Icon data-tesid="t--provisioned-resource" name="link-unlink" />
               )}
             </CellContainer>
-          </Link>
+          </NoUnderLineLink>
         );
       },
     },
@@ -271,13 +280,11 @@ export function UserListing() {
         const [showAllGroups, setShowAllGroups] = useState(false);
         const values = cellProps.cell.row.values;
 
-        const onClickShowMore = (e: any) => {
-          e.preventDefault();
+        const onClickShowMore = () => {
           setShowAllGroups(true);
         };
 
-        const onClickShowLess = (e: any) => {
-          e.preventDefault();
+        const onClickShowLess = () => {
           setShowAllGroups(false);
         };
 
@@ -344,6 +351,15 @@ export function UserListing() {
       Cell: function GroupCell(cellProps: any) {
         const [showAllGroups, setShowAllGroups] = useState(false);
         const values = cellProps.cell.row.values;
+
+        const onClickShowMore = () => {
+          setShowAllGroups(true);
+        };
+
+        const onClickShowLess = () => {
+          setShowAllGroups(false);
+        };
+
         return (
           <CellContainer data-testid="user-listing-groupCell">
             {showAllGroups ? (
@@ -356,7 +372,7 @@ export function UserListing() {
                 <ShowLess
                   data-testid="t--show-less"
                   kind="secondary"
-                  onClick={() => setShowAllGroups(false)}
+                  onClick={onClickShowLess}
                 >
                   {createMessage(SHOW_LESS_GROUPS)}
                 </ShowLess>
@@ -372,7 +388,7 @@ export function UserListing() {
                       <MoreGroups
                         data-testid="t--show-more"
                         kind="secondary"
-                        onClick={() => setShowAllGroups(true)}
+                        onClick={onClickShowMore}
                       >
                         {createMessage(
                           SHOW_MORE_GROUPS,
@@ -386,7 +402,7 @@ export function UserListing() {
                     <MoreGroups
                       data-testid="t--show-more"
                       kind="secondary"
-                      onClick={() => setShowAllGroups(true)}
+                      onClick={onClickShowMore}
                     >
                       {createMessage(
                         SHOW_MORE_GROUPS,
