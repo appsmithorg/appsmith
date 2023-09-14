@@ -121,7 +121,6 @@ export const generateQuickCommands = (
     enableAIAssistance,
     executeCommand,
     pluginIdToImageLocation,
-    recentEntities,
   }: {
     datasources: Datasource[];
     executeCommand: (payload: SlashCommandPayload) => void;
@@ -131,7 +130,6 @@ export const generateQuickCommands = (
     enableAIAssistance: boolean;
   },
 ) => {
-  recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
     displayText: "New binding",
