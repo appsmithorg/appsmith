@@ -300,7 +300,6 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       "dbo.amazon_sales",
     );
 
-    // 'eac7efa5dbd3d667f26eb3d3ab504464','Hornby 2014 Catalogue','Hornby','£3.42'
     GenerateCRUDNValidateDeployPage(
       "348f344247b0c1a935b1223072ef9d8a",
       "CLASSIC TOY TRAIN SET TRACK CARRIAGES LIGHT" +
@@ -369,7 +368,6 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
   after("Verify Deletion of the datasource", () => {
     cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource"); //Since intercept from before is not working
     dataSources.DeleteDatasouceFromWinthinDS(dsName);
-    //dataSources.StopNDeleteContainer(containerName); //commenting to check if MsSQL specific container deletion is causing issues
   });
 
   function GenerateCRUDNValidateDeployPage(
@@ -381,7 +379,6 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     agHelper.GetNClick(dataSources._generatePageBtn);
     assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page");
-    //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
@@ -405,7 +402,6 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
-          //cy.log("classes are:" + classes);
           expect(classes).not.contain("bp3-disabled");
         });
     });
