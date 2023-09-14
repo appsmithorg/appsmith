@@ -596,9 +596,8 @@ export class PropertyPane {
       .type(newName, { force: true })
       .should("have.value", newName)
       .blur();
-    this.agHelper.PressEnter();
+    this.agHelper.PressEnter(1000);
     this.assertHelper.AssertNetworkStatus("@updateWidgetName");
-    this.agHelper.Sleep();
   }
 
   public CreateModal(modalName: string, property: string) {
