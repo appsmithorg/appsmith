@@ -1373,6 +1373,7 @@ export class AggregateHelper extends ReusableHelper {
       .eq(index)
       .selectFile("cypress/fixtures/" + fixtureName, { force: true })
       .wait(3000);
+    this.Sleep(3000); //sleeping a bit more for upload to be success in CI
     toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false);
   }
 
