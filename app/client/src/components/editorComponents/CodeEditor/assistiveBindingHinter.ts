@@ -88,6 +88,8 @@ export const assistiveBindingHinter: HintHelper = (
         },
       );
 
+      if (list.length === 0) return false;
+
       AnalyticsUtil.logEvent("ASSISTIVE_JS_BINDING_TRIGGERED", {
         query: value,
         suggestedOptionCount: list.filter(
@@ -95,8 +97,6 @@ export const assistiveBindingHinter: HintHelper = (
         ).length,
         entityType: entityInfo.entityType,
       });
-
-      if (list.length === 0) return false;
 
       let currentSelection: CommandsCompletion = {
         origin: "",
