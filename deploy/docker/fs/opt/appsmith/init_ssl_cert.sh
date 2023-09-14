@@ -9,7 +9,7 @@ init_ssl_cert() {
   mkdir -p "$data_path/www"
 
   echo "Re-generating nginx config template with domain"
-  bash /opt/appsmith/templates/nginx.conf.sh 0 "$APPSMITH_CUSTOM_DOMAIN" > "$NGINX_CONF_PATH"
+  /opt/appsmith/templates/nginx.conf.sh 0 "$APPSMITH_CUSTOM_DOMAIN" > "$NGINX_CONF_PATH"
 
   echo "Start Nginx to verify certificate"
   nginx -c "$NGINX_CONF_PATH"
