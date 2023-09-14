@@ -457,7 +457,7 @@ configure_supervisord() {
   if [[ ${APPSMITH_DISABLE_EMBEDDED_KEYCLOAK-0} != 1 ]]; then
     # By default APPSMITH_DISABLE_EMBEDDED_KEYCLOAK=0
     # To disable set APPSMITH_DISABLE_EMBEDDED_KEYCLOAK=1
-    cp "$SUPERVISORD_CONF_PATH/keycloak.conf" /etc/supervisor/conf.d/
+    cp "$supervisord_conf_source/keycloak.conf" "$SUPERVISORD_CONF_TARGET"
   fi
 }
 
