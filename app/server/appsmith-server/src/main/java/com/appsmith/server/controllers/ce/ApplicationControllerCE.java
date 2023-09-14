@@ -8,13 +8,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.dtos.ApplicationAccessDTO;
-import com.appsmith.server.dtos.ApplicationImportDTO;
-import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.server.dtos.GitAuthDTO;
-import com.appsmith.server.dtos.ReleaseItemsDTO;
-import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.UserHomepageDTO;
+import com.appsmith.server.dtos.*;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
@@ -24,6 +18,7 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PartialImportExportService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +56,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     private final ImportExportApplicationService importExportApplicationService;
     private final ThemeService themeService;
     private final ApplicationSnapshotService applicationSnapshotService;
+    private final PartialImportExportService partialImportExportService;
 
     @Autowired
     public ApplicationControllerCE(
@@ -70,7 +66,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             ApplicationForkingService applicationForkingService,
             ImportExportApplicationService importExportApplicationService,
             ThemeService themeService,
-            ApplicationSnapshotService applicationSnapshotService) {
+            ApplicationSnapshotService applicationSnapshotService,
+            PartialImportExportService partialImportExportService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
@@ -78,6 +75,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
         this.importExportApplicationService = importExportApplicationService;
         this.themeService = themeService;
         this.applicationSnapshotService = applicationSnapshotService;
+        this.partialImportExportService = partialImportExportService;
     }
 
     @JsonView(Views.Public.class)
@@ -223,6 +221,19 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @JsonView(Views.Public.class)
+    @GetMapping("/partial/export/{id}")
+    public Mono<ResponseEntity<Object>> getPartialApplicationFile(
+            @PathVariable String id, @Valid @RequestBody PartialImportExportDTO entities) {
+        log.debug("Going to partially export application with id: {}", id);
+
+        return partialImportExportService.getPartialApplicationFile(id, entities).map(fetchedResource -> {
+            HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
+            Object applicationResource = fetchedResource.getApplicationResource();
+            return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
+        });
+    }
+
+    @JsonView(Views.Public.class)
     @PostMapping("/snapshot/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Boolean>> createSnapshot(
@@ -278,6 +289,18 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
         log.debug("Going to import application in workspace with id: {}", workspaceId);
         return fileMono.flatMap(file ->
                         importExportApplicationService.extractFileAndSaveApplication(workspaceId, file, applicationId))
+                .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping(value = "/partial/import/{applicationId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<ResponseDTO<ApplicationImportDTO>> importPartialApplicationFromFile(
+            @RequestPart("file") Mono<Part> fileMono,
+            @PathVariable String applicationId,
+            @RequestParam(name = FieldName.PAGE_ID, required = false) String pageId) {
+        log.debug("Going to import partial application with id: {}", applicationId);
+        return fileMono.flatMap(file ->
+                        partialImportExportService.importPartialApplicationFromJson(applicationId, pageId, file))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 

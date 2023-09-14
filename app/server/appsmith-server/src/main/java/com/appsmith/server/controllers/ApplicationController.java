@@ -9,6 +9,7 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PartialImportExportService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +24,8 @@ public class ApplicationController extends ApplicationControllerCE {
             ApplicationForkingService applicationForkingService,
             ImportExportApplicationService importExportApplicationService,
             ThemeService themeService,
-            ApplicationSnapshotService applicationSnapshotService) {
+            ApplicationSnapshotService applicationSnapshotService,
+            PartialImportExportService partialImportExportService) {
 
         super(
                 service,
@@ -32,6 +34,7 @@ public class ApplicationController extends ApplicationControllerCE {
                 applicationForkingService,
                 importExportApplicationService,
                 themeService,
-                applicationSnapshotService);
+                applicationSnapshotService,
+                partialImportExportService);
     }
 }

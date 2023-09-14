@@ -20,7 +20,7 @@ public class FieldNameCE {
     public static String WORKSPACE = "workspace";
     public static String ID = "id";
     public static final String NAME = "name";
-    public static String PAGE_ID = "pageId";
+    public static final String PAGE_ID = "pageId";
     public static String LAYOUT_ID = "layoutId";
     public static final String APPLICATION_ID = "applicationId";
     public static String SOURCE_APPLICATION_ID = "sourceApplicationId";
