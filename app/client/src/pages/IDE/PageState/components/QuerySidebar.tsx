@@ -1,7 +1,7 @@
 import React, { useCallback, useLayoutEffect, useMemo } from "react";
 import type { RouteComponentProps } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { getPlugins } from "../../../../selectors/entitiesSelector";
+import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import { find, keyBy } from "lodash";
 import { PluginType } from "../../../../entities/Action";
 import QueryEditor from "../../../Editor/QueryEditor";

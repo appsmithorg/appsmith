@@ -8,7 +8,7 @@ import scrollIntoView from "scroll-into-view-if-needed";
 import NewApiScreen from "../../Editor/IntegrationEditor/NewApi";
 import MockDataSources from "../../Editor/IntegrationEditor/MockDataSources";
 import NewQueryScreen from "../../Editor/IntegrationEditor/NewQuery";
-import { getMockDatasources } from "../../../selectors/entitiesSelector";
+import { getMockDatasources } from "@appsmith/selectors/entitiesSelector";
 import { showAddDatasourceModalSelector } from "../ideSelector";
 import { showAddDatasourceModal } from "../ideActions";
 

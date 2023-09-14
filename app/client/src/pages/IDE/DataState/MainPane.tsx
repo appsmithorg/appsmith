@@ -5,7 +5,7 @@ import {
   getDatasource,
   getPlugin,
   getPluginImages,
-} from "../../../selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Datasource } from "../../../entities/Datasource";
 import type { ApiDatasourceForm } from "../../../entities/Datasource/RestAPIForm";
 import { useDispatch, useSelector } from "react-redux";

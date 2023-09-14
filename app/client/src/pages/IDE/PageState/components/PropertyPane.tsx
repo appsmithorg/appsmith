@@ -9,7 +9,7 @@ import { getSelectedWidgets } from "../../../../selectors/ui";
 import { selectWidgetInitAction } from "../../../../actions/widgetSelectionActions";
 import { SelectionRequestType } from "../../../../sagas/WidgetSelectUtils";
 import { MAIN_CONTAINER_WIDGET_ID } from "../../../../constants/WidgetConstants";
-import PropertyPaneContainer from "../../../Editor/WidgetsEditor/PropertyPaneContainer";
+import PropertyPaneContainer from "../../../Editor/WidgetsEditor/PropertyPaneWrapper";
 import type { RouteComponentProps } from "react-router";
 import { PageNavState } from "../../ideReducer";
 

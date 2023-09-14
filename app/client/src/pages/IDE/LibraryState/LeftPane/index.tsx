@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Button } from "design-system";
 import { useSelector } from "react-redux";
-import { selectLibrariesForExplorer } from "selectors/entitiesSelector";
+import { selectLibrariesForExplorer } from "@appsmith/selectors/entitiesSelector";
 import { LibraryEntity } from "pages/Editor/Explorer/Libraries";
 import { AddLibraries } from "./AddLibararies";
 import ListSubTitle from "../../components/ListSubTitle";

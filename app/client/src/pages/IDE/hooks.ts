@@ -6,7 +6,10 @@ import useRecentEntities from "../../components/editorComponents/GlobalSearch/us
 import { useEffect, useState } from "react";
 import _, { findIndex, keyBy } from "lodash";
 import { useSelector } from "react-redux";
-import { getDatasources, getPlugins } from "selectors/entitiesSelector";
+import {
+  getDatasources,
+  getPlugins,
+} from "@appsmith/selectors/entitiesSelector";
 import { PluginType } from "entities/Action";
 import { getPluginIcon } from "pages/Editor/Explorer/ExplorerIcons";
 

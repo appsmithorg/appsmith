@@ -4,10 +4,10 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { fork, put, select, takeEvery } from "redux-saga/effects";
 import type { RecentEntity } from "../../components/editorComponents/GlobalSearch/utils";
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getPlugins,
   selectFilesForExplorer,
-} from "../../selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { ActionData } from "../../reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "../../reducers/entityReducers/jsActionsReducer";
 import type { Item } from "./components/ListView";
@@ -31,7 +31,7 @@ const sortItems = (items: Item[], recentEntities: RecentEntity[]) => {
 };
 
 function* setQueryRecentListSaga(recentEntities: RecentEntity[]) {
-  const queries: ActionData[] = yield select(getActionsForCurrentPage);
+  const queries: ActionData[] = yield select(getCurrentActions);
   const plugins: Plugin[] = yield select(getPlugins);
   const sortedItems: Item[] = yield select(getRecentQueryList);
   const pluginGroups = keyBy(plugins, "id");

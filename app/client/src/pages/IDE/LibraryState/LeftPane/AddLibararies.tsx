@@ -30,7 +30,7 @@ import {
   selectIsLibraryInstalled,
   selectQueuedLibraries,
   selectStatusForURL,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { AppState } from "@appsmith/reducers";

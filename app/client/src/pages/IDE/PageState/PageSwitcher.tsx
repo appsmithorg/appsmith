@@ -11,7 +11,7 @@ import {
 import Entity from "../../Editor/Explorer/Entity";
 import { defaultPageIcon, pageIcon } from "../../Editor/Explorer/ExplorerIcons";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { selectAllPages } from "../../../selectors/entitiesSelector";
+import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { getNextEntityName } from "../../../utils/AppsmithUtils";

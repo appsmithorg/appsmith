@@ -6,7 +6,7 @@ import { get } from "lodash";
 import { Modal, ModalContent, Text } from "design-system";
 import { PluginImage } from "../../Editor/DataSourceEditor/DSFormHeader";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { getPluginImages } from "../../../selectors/entitiesSelector";
+import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentApplicationId } from "../../../selectors/editorSelectors";
 import type { ApiDatasourceForm } from "../../../entities/Datasource/RestAPIForm";
 import DatasourceForm from "./DBForm";
