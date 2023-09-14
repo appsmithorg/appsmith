@@ -26,13 +26,14 @@ describe("Entity explorer context menu should hide on scrolling", function () {
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
 
-          agHelper.Sleep();
-          entityExplorer.ExpandCollapseEntity(mockDBNameUsers);
-          agHelper.Sleep();
-          entityExplorer.ExpandCollapseEntity(mockDBNameMovies);
-
+          dataSources.AssertTableInVirtuosoList(
+            mockDBNameUsers,
+            "public.users",
+          );
           entityExplorer.ExpandCollapseEntity("public.users");
+          dataSources.AssertTableInVirtuosoList(mockDBNameMovies, "movies");
           entityExplorer.ExpandCollapseEntity("movies");
+
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
           agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
@@ -60,13 +61,17 @@ describe("Entity explorer context menu should hide on scrolling", function () {
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
 
-          agHelper.Sleep();
-          entityExplorer.ExpandCollapseEntity(mockDBNameUsers);
-          agHelper.Sleep();
-          entityExplorer.ExpandCollapseEntity(mockDBNameMovies);
-
+          dataSources.AssertTableInVirtuosoList(
+            mockDBNameUsers,
+            "public.users",
+          );
           entityExplorer.ExpandCollapseEntity("public.users");
+          dataSources.AssertTableInVirtuosoList(
+            mockDBNameMovies,
+            "listingAndReviews",
+          );
           entityExplorer.ExpandCollapseEntity("listingAndReviews");
+
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
           agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");

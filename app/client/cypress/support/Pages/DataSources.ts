@@ -1911,7 +1911,7 @@ export class DataSources {
     this.entityExplorer.ExpandCollapseEntity("Datasources");
     this.entityExplorer.ExpandCollapseEntity(dsName);
     cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
-      "getDatasourceStructureUpdated",
+      `getDatasourceStructureUpdated_${dsName}`,
     );
     this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: dsName,
@@ -1919,7 +1919,7 @@ export class DataSources {
     });
 
     this.assertHelper
-      .WaitForNetworkCall("@getDatasourceStructureUpdated")
+      .WaitForNetworkCall(`@getDatasourceStructureUpdated_${dsName}`)
       .then(async (interception) => {
         const tables: any[] = interception?.response?.body.data?.tables || [];
         const indexOfTable = tables.findIndex(
@@ -1941,6 +1941,7 @@ export class DataSources {
               );
               // Total height of the parent container holding the tables in the dom normally without virtualization rendering
               const totalScroll = tables.length * elementHeight;
+              cy.log(JSON.stringify({ heightOfParentElement, totalScroll }));
               if (heightOfParentElement < totalScroll) {
                 // Index of the table present in the array of tables which will determine the presence of element inside the parent container
                 let offset = indexOfTable * elementHeight;
@@ -1948,7 +1949,7 @@ export class DataSources {
                 this.agHelper.ScrollToXY(
                   this._dsVirtuosoElement(dsName),
                   0,
-                  `${scrollPercent}%`,
+                  `${Math.max(scrollPercent, 0)}%`,
                 );
               }
 
