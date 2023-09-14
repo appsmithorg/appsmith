@@ -22,7 +22,7 @@ RUN apt-get update \
   && apt-get update && apt-get install --no-install-recommends --yes temurin-17-jdk \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && python3 -m venv --prompt certbot /opt/certbot/venv \
-  && /opt/certbot/venv/bin/pip install --upgrade certbot setuptools \
+  && /opt/certbot/venv/bin/pip install --upgrade certbot setuptools pip \
   && ln -s /opt/certbot/venv/bin/certbot /usr/local/bin \
   && apt-get remove --yes git python3-pip python3-venv \
   && apt-get autoremove --yes
@@ -35,7 +35,9 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
   && apt-get install --no-install-recommends --yes mongodb-org nodejs redis build-essential postgresql-13 \
-  && apt-get clean
+  && apt-get clean \
+  # This is to get semver 7.5.2, for a CVE fix, might be able to remove it with later versions on NodeJS.
+  && npm install -g npm@9.7.2
 
 # Untar & install keycloak - Service Layer
 RUN mkdir -p /opt/keycloak/data \
