@@ -15,7 +15,7 @@ import type {
 } from "reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
 import type { JSAction } from "entities/JSCollection";
-import { getJSCollectionsForCurrentPage } from "selectors/entitiesSelector";
+import { getCurrentJSCollections } from "@appsmith/selectors/entitiesSelector";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
@@ -326,7 +326,7 @@ export function* sortJSExecutionDataByCollectionId(
   const sortedErrors: BatchedJSExecutionErrors = {};
 
   const JSCollectionsForCurrentPage: JSCollectionData[] = yield select(
-    getJSCollectionsForCurrentPage,
+    getCurrentJSCollections,
   );
 
   for (const jsfuncFullName of Object.keys(data)) {

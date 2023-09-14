@@ -60,7 +60,7 @@ import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
-import { Positioning } from "utils/autoLayout/constants";
+import { Positioning } from "layoutSystems/autolayout/utils/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export interface CopiedWidgetGroup {
@@ -815,12 +815,12 @@ export function getDefaultCanvas(canvasWidgets: CanvasWidgetsReduxState) {
  * @param canvasId
  * @returns
  */
-export function getContainerIdForCanvas(canvasId: string) {
+export function getContainerIdForCanvas(canvasId: string): string | undefined {
   if (canvasId === MAIN_CONTAINER_WIDGET_ID) return canvasId;
 
   const selector = `#${getStickyCanvasName(canvasId)}`;
   const canvasDOM = document.querySelector(selector);
-  if (!canvasDOM) return "";
+  if (!canvasDOM) return undefined;
   //check for positionedWidget parent
   let containerDOM = canvasDOM.closest(`.${POSITIONED_WIDGET}`);
   //if positioned widget parent is not found, most likely is a modal widget
@@ -1644,6 +1644,8 @@ export function getParentColumnSpace(
   pastingIntoWidgetId: string,
 ) {
   const containerId = getContainerIdForCanvas(pastingIntoWidgetId);
+
+  if (containerId === undefined) return;
 
   const containerWidget = canvasWidgets[containerId];
   const canvasDOM = document.querySelector(

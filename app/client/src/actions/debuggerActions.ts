@@ -2,6 +2,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ENTITY_TYPE, Log, Message } from "entities/AppsmithConsole";
 import type { DebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
+import type { APP_MODE } from "entities/App";
 
 export interface LogDebuggerErrorAnalyticsPayload {
   entityName: string;
@@ -15,6 +16,7 @@ export interface LogDebuggerErrorAnalyticsPayload {
   errorType?: Message["type"];
   errorSubType?: Message["subType"];
   analytics?: Log["analytics"];
+  appMode: APP_MODE;
 }
 
 export const debuggerLogInit = (payload: Log[]) => ({

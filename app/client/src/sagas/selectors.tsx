@@ -11,7 +11,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { getActions, getPlugins } from "selectors/entitiesSelector";
+import { getActions, getPlugins } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import type { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";

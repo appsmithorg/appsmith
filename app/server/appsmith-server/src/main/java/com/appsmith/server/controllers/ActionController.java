@@ -2,8 +2,8 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.ActionControllerCE;
+import com.appsmith.server.newaction.base.NewActionService;
 import com.appsmith.server.services.LayoutActionService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
