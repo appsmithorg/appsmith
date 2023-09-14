@@ -9,6 +9,86 @@ export type Responsive<T> =
       [custom: string]: T | undefined;
     };
 
+export type JustifyContent = Responsive<
+  | "start"
+  | "end"
+  | "center"
+  | "left"
+  | "right"
+  | "space-between"
+  | "space-around"
+  | "space-evenly"
+  | "stretch"
+  | "baseline"
+  | "first baseline"
+  | "last baseline"
+  | "safe center"
+  | "unsafe center"
+>;
+
+export type AlignContent = Responsive<
+  | "start"
+  | "end"
+  | "center"
+  | "space-between"
+  | "space-around"
+  | "space-evenly"
+  | "stretch"
+  | "baseline"
+  | "first baseline"
+  | "last baseline"
+  | "safe center"
+  | "unsafe center"
+>;
+
+export type AlignItems = Responsive<
+  | "start"
+  | "end"
+  | "center"
+  | "stretch"
+  | "self-start"
+  | "self-end"
+  | "baseline"
+  | "first baseline"
+  | "last baseline"
+  | "safe center"
+  | "unsafe center"
+>;
+
+export type JustifySelf = Responsive<
+  | "auto"
+  | "normal"
+  | "start"
+  | "end"
+  | "flex-start"
+  | "flex-end"
+  | "self-start"
+  | "self-end"
+  | "center"
+  | "left"
+  | "right"
+  | "stretch"
+>;
+
+export type AlignSelf = Responsive<
+  | "auto"
+  | "normal"
+  | "start"
+  | "end"
+  | "center"
+  | "flex-start"
+  | "flex-end"
+  | "self-start"
+  | "self-end"
+  | "stretch"
+>;
+
+export type FlexDirection = Responsive<
+  "row" | "column" | "row-reverse" | "column-reverse"
+>;
+
+export type FlexWrap = Responsive<boolean | "wrap" | "nowrap" | "wrap-reverse">;
+
 export interface FlexProps {
   /*
    * Layout props
@@ -18,67 +98,27 @@ export interface FlexProps {
    * The direction in which to layout children. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-direction).
    * @default 'row'
    */
-  direction?: Responsive<"row" | "column" | "row-reverse" | "column-reverse">;
+  direction?: FlexDirection;
   /**
    * Whether to wrap items onto multiple lines. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap).
    * @default false
    */
-  wrap?: Responsive<boolean | "wrap" | "nowrap" | "wrap-reverse">;
+  wrap?: FlexWrap;
   /**
    * The distribution of space around items along the main axis. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content).
    * @default 'stretch'
    */
-  justifyContent?: Responsive<
-    | "start"
-    | "end"
-    | "center"
-    | "left"
-    | "right"
-    | "space-between"
-    | "space-around"
-    | "space-evenly"
-    | "stretch"
-    | "baseline"
-    | "first baseline"
-    | "last baseline"
-    | "safe center"
-    | "unsafe center"
-  >;
+  justifyContent?: JustifyContent;
   /**
    * The distribution of space around child items along the cross axis. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/align-content).
    * @default 'start'
    */
-  alignContent?: Responsive<
-    | "start"
-    | "end"
-    | "center"
-    | "space-between"
-    | "space-around"
-    | "space-evenly"
-    | "stretch"
-    | "baseline"
-    | "first baseline"
-    | "last baseline"
-    | "safe center"
-    | "unsafe center"
-  >;
+  alignContent?: AlignContent;
   /**
    * The alignment of children within their container. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/align-items).
    * @default 'stretch'
    */
-  alignItems?: Responsive<
-    | "start"
-    | "end"
-    | "center"
-    | "stretch"
-    | "self-start"
-    | "self-end"
-    | "baseline"
-    | "first baseline"
-    | "last baseline"
-    | "safe center"
-    | "unsafe center"
-  >;
+  alignItems?: AlignItems;
   /** The space to display between both rows and columns. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/gap). */
   gap?: Responsive<SpacingDimension>;
   /** The space to display between columns. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/column-gap). */
@@ -94,33 +134,9 @@ export interface FlexProps {
   /** When used in a flex layout, specifies the initial main size of the element. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-basis). */
   flexBasis?: Responsive<SizingDimension>;
   /** Specifies how the element is justified inside a flex or grid container. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/justify-self). */
-  justifySelf?: Responsive<
-    | "auto"
-    | "normal"
-    | "start"
-    | "end"
-    | "flex-start"
-    | "flex-end"
-    | "self-start"
-    | "self-end"
-    | "center"
-    | "left"
-    | "right"
-    | "stretch"
-  >; // ...
+  justifySelf?: JustifySelf; // ...
   /** Overrides the `alignItems` property of a flex or grid container. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/align-self). */
-  alignSelf?: Responsive<
-    | "auto"
-    | "normal"
-    | "start"
-    | "end"
-    | "center"
-    | "flex-start"
-    | "flex-end"
-    | "self-start"
-    | "self-end"
-    | "stretch"
-  >;
+  alignSelf?: AlignSelf;
   /** The layout order for the element within a flex or grid container. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/order). */
   order?: Responsive<number>;
   /** Hides the element. */
