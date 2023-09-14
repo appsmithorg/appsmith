@@ -18,6 +18,7 @@ export default function DateFilter() {
   const { goToTop } = useGoToTop();
 
   const searchFilters = useSelector(selectAuditLogsSearchFilters);
+  const excludeShortcuts = ["past_2_years"];
   const selected: [Date | null, Date | null] = [
     searchFilters.startDate === 0
       ? null
@@ -52,6 +53,7 @@ export default function DateFilter() {
         data-testid="t--audit-logs-date-filter"
         dateFormat="dd/MM/yy"
         endDate={selected[1]}
+        excludeShortcuts={excludeShortcuts}
         inputSize="md"
         label={createMessage(DATE_RANGE_LABEL)}
         maxDate={moment().endOf("day").toDate()}
