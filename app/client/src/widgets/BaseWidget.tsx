@@ -319,10 +319,6 @@ abstract class BaseWidget<
     return this.props.referencedWidgetId || this.props.widgetId;
   };
 
-  getLabelWidth = () => {
-    return (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace;
-  };
-
   render() {
     return this.getWidgetView();
   }

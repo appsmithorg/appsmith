@@ -302,17 +302,8 @@ class AudioRecorderWidget extends BaseWidget<
   }
 
   getWidgetView() {
-    const {
-      blobURL,
-      bottomRow,
-      iconColor,
-      isDisabled,
-      leftColumn,
-      parentColumnSpace,
-      parentRowSpace,
-      rightColumn,
-      topRow,
-    } = this.props;
+    const { blobURL, componentHeight, componentWidth, iconColor, isDisabled } =
+      this.props;
 
     return (
       <AudioRecorderComponent
@@ -320,12 +311,12 @@ class AudioRecorderWidget extends BaseWidget<
         blobUrl={blobURL}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        height={(bottomRow - topRow) * parentRowSpace}
+        height={componentHeight}
         iconColor={iconColor}
         isDisabled={isDisabled}
         onRecordingComplete={this.handleRecordingComplete}
         onRecordingStart={this.handleRecordingStart}
-        width={(rightColumn - leftColumn) * parentColumnSpace}
+        width={componentWidth}
       />
     );
   }

@@ -97,9 +97,8 @@ const ProductAlertBanner = () => {
   if (message.learnMoreLink) {
     links.push({
       children: createMessage(LEARN_MORE),
-      onClick: () => {
-        window.open(message.learnMoreLink, "_blank");
-      },
+      to: message.learnMoreLink,
+      target: "_blank",
     });
   }
 
