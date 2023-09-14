@@ -88,6 +88,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -239,7 +240,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       routesBlocked: false,
       readUrlParams: false,
       filterParams: {
-        id: "",
+        id: DEFAULT_ENV_ID,
         name: "",
         userPermissions: [],
       },
