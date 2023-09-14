@@ -1,6 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.ce.DatasourceContextServiceCEImpl;

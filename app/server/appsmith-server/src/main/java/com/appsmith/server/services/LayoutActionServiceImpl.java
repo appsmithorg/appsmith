@@ -2,10 +2,11 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.newaction.base.NewActionService;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.onpageload.internal.PageLoadExecutablesUtil;
 import com.appsmith.server.services.ce.LayoutActionServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;

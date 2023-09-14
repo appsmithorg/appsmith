@@ -6,7 +6,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.newaction.base.NewActionService;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
