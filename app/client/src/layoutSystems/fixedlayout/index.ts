@@ -2,6 +2,8 @@ import { RenderModes } from "constants/WidgetConstants";
 import { FixedLayoutEditorWrapper } from "./editor/FixedLayoutEditorWrapper";
 import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import { FixedLayoutEditorCanvas } from "./canvas/FixedLayoutEditorCanvas";
+import { FixedLayoutViewerCanvas } from "./canvas/FixedLayoutViewerCanvas";
 
 /**
  * getFixedLayoutComponentDimensions
@@ -9,7 +11,7 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
  * utiltiy function to compute a widgets dimensions in Fixed layout system
  *
  */
-const getFixedLayoutComponentDimensions = ({
+export const getFixedLayoutComponentDimensions = ({
   bottomRow,
   leftColumn,
   parentColumnSpace,
@@ -78,4 +80,12 @@ export function getFixedLayoutSystem(renderMode: RenderModes) {
     LayoutSystemWrapper: getFixedLayoutSystemWrapper(renderMode),
     propertyEnhancer: getFixedLayoutSystemPropsEnhancer,
   };
+}
+
+export function getFixedLayoutSystemCanvasWrapper(renderMode: RenderModes) {
+  if (renderMode === RenderModes.CANVAS) {
+    return FixedLayoutEditorCanvas;
+  } else {
+    return FixedLayoutViewerCanvas;
+  }
 }

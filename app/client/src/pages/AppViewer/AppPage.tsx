@@ -16,6 +16,7 @@ import { PageView, PageViewWrapper } from "./AppPage.styled";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { APP_MODE } from "entities/App";
 import { useLocation } from "react-router";
+import { LayoutSystemBasedCanvas } from "layoutSystems/LayoutSystemBasedCanvas";
 
 type AppPageProps = {
   appName?: string;
@@ -62,8 +63,11 @@ export function AppPage(props: AppPageProps) {
       }
     >
       <PageView className="t--app-viewer-page" width={props.canvasWidth}>
-        {props.widgetsStructure.widgetId &&
-          WidgetFactory.createWidget(props.widgetsStructure, RenderModes.PAGE)}
+        {props.widgetsStructure.widgetId && (
+          <LayoutSystemBasedCanvas
+            canvasProps={props.widgetsStructure as any}
+          />
+        )}
       </PageView>
     </PageViewWrapper>
   );

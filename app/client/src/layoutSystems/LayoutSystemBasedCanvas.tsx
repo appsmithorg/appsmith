@@ -7,51 +7,46 @@ import {
   getRenderMode,
 } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getAutoLayoutSystem } from "./autolayout";
-import { getFixedLayoutSystem } from "./fixedlayout";
+import withWidgetProps from "widgets/withWidgetProps";
+import { getAutoLayoutSystemCanvasWrapper } from "./autolayout";
+import { getFixedLayoutSystemCanvasWrapper } from "./fixedlayout";
+import { getLayoutSystem } from "./withLayoutSystemHOC";
 
 export type LayoutSystem = {
   LayoutSystemWrapper: (props: WidgetProps) => any;
   propertyEnhancer: (props: WidgetProps) => WidgetProps;
 };
 
-export const getLayoutSystem = (
+const getLayoutSystemBasedCanvas = (
   renderMode: RenderModes,
   appPositioningType: AppPositioningTypes,
-): LayoutSystem => {
+): ((props: WidgetProps) => any) => {
   if (appPositioningType === AppPositioningTypes.AUTO) {
-    return getAutoLayoutSystem(renderMode);
+    return getAutoLayoutSystemCanvasWrapper(renderMode);
   } else {
-    return getFixedLayoutSystem(renderMode);
+    return getFixedLayoutSystemCanvasWrapper(renderMode);
   }
 };
 
-const LayoutSystemWrapper = ({
-  Widget,
-  widgetProps,
+export const LayoutSystemBasedCanvas = ({
+  canvasProps,
 }: {
-  widgetProps: WidgetProps;
-  Widget: (props: WidgetProps) => any;
+  canvasProps: WidgetProps;
 }) => {
   const renderMode = useSelector(getRenderMode);
   const appPositioningType = useSelector(getAppPositioningType);
+  const { propertyEnhancer } = getLayoutSystem(renderMode, appPositioningType);
   // based on appPositioningType and renderMode
   // get the layout system wrapper(adds layout system specific functionality) and
   // properties enhancer(adds/modifies properties of a widget based on layout system)
-  const { LayoutSystemWrapper, propertyEnhancer } = getLayoutSystem(
+  const CanvasWidget = getLayoutSystemBasedCanvas(
     renderMode,
     appPositioningType,
   );
-  const enhancedProperties = propertyEnhancer(widgetProps);
+  const HydratedCanvasWidget = withWidgetProps(CanvasWidget as any);
   return (
-    <LayoutSystemWrapper {...enhancedProperties}>
-      <Widget {...enhancedProperties} />
-    </LayoutSystemWrapper>
+    <HydratedCanvasWidget
+      {...propertyEnhancer(canvasProps)}
+    ></HydratedCanvasWidget>
   );
-};
-
-export const withLayoutSystemHOC = (Widget: any) => {
-  return function LayoutWrappedWidget(props: WidgetProps) {
-    return <LayoutSystemWrapper Widget={Widget} widgetProps={props} />;
-  };
 };

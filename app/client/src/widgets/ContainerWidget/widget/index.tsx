@@ -38,6 +38,7 @@ import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/autolayout/utils/constants";
+import { LayoutSystemBasedCanvas } from "layoutSystems/LayoutSystemBasedCanvas";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -314,7 +315,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.useAutoLayout = this.props.positioning
       ? this.props.positioning === Positioning.Vertical
       : false;
-    return WidgetFactory.createWidget(childWidget, this.props.renderMode);
+    return <LayoutSystemBasedCanvas canvasProps={childWidget as WidgetProps} />;
   }
 
   renderChildren = () => {

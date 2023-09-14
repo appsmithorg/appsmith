@@ -2,6 +2,8 @@ import { isFunction } from "lodash";
 import WidgetFactory from "WidgetProvider/factory";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { RenderModes } from "../../constants/WidgetConstants";
+import { AutoLayoutEditorCanvas } from "./canvas/AutoLayoutEditorCanvas";
+import { AutoLayoutViewerCanvas } from "./canvas/AutoLayoutViewerCanvas";
 import { AutoLayoutEditorWrapper } from "./editor/AutoLayoutEditorWrapper";
 import { AutoLayoutViewerWrapper } from "./viewer/AutoLayoutViewerWrapper";
 
@@ -135,4 +137,12 @@ export function getAutoLayoutSystem(renderMode: RenderModes) {
     LayoutSystemWrapper: getAutoLayoutSystemWrapper(renderMode),
     propertyEnhancer: getAutoLayoutSystemPropsEnhancer,
   };
+}
+
+export function getAutoLayoutSystemCanvasWrapper(renderMode: RenderModes) {
+  if (renderMode === RenderModes.CANVAS) {
+    return AutoLayoutEditorCanvas;
+  } else {
+    return AutoLayoutViewerCanvas;
+  }
 }

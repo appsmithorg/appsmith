@@ -49,6 +49,7 @@ import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { LayoutSystemBasedCanvas } from "layoutSystems/LayoutSystemBasedCanvas";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -1216,7 +1217,7 @@ class ListWidget extends BaseWidget<
               },
             };
           });
-          return WidgetFactory.createWidget(child, this.props.renderMode);
+          return <LayoutSystemBasedCanvas canvasProps={child as WidgetProps} />;
         },
       );
 
