@@ -127,7 +127,10 @@ export const saveCurrentEnvironment = async (envId: string, appId: string) => {
 };
 
 // Function to fetch the current environment and related appId from indexedDB
-export const getSavedCurrentEnvironmentDetails = async () => {
+export const getSavedCurrentEnvironmentDetails = async (): Promise<{
+  envId: string;
+  appId: string;
+}> => {
   try {
     return (
       (await store.getItem(STORAGE_KEYS.CURRENT_ENV)) || {
@@ -137,6 +140,10 @@ export const getSavedCurrentEnvironmentDetails = async () => {
     );
   } catch (error) {
     log.error("An error occurred when fetching current env: ", error);
+    return {
+      envId: "",
+      appId: "",
+    };
   }
 };
 
