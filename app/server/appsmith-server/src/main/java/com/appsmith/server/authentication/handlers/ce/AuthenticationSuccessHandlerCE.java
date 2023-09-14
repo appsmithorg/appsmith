@@ -2,7 +2,6 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.constants.Security;
@@ -17,15 +16,11 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +54,6 @@ import static org.springframework.security.web.server.context.WebSessionServerSe
 public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSuccessHandler {
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
-    private final ForkExamplesWorkspace examplesWorkspaceCloner;
     private final RedirectHelper redirectHelper;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
@@ -69,10 +63,6 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final WorkspaceService workspaceService;
     private final ApplicationPageService applicationPageService;
     private final WorkspacePermission workspacePermission;
-    private final ConfigService configService;
-    private final FeatureFlagService featureFlagService;
-    private final CommonConfig commonConfig;
-    private final UserIdentifierService userIdentifierService;
     private final RateLimitService rateLimitService;
     private final TenantService tenantService;
     private final UserService userService;
@@ -195,6 +185,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
      * It constructs the redirect uri based on user's request, and if email verification is required
      * then redirects the user to /verificationPending and sends the magic link with the user's redirectUrl
      * in the email.
+     *
      * @param webFilterExchange
      * @param defaultWorkspaceId
      * @param authentication
@@ -362,7 +353,6 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                         invitedAs,
                                         FieldName.MODE_OF_LOGIN,
                                         modeOfLogin)));
-                        monos.add(examplesWorkspaceCloner.forkExamplesWorkspace());
                     }
 
                     monos.add(analyticsService.sendObjectEvent(

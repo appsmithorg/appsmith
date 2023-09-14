@@ -47,9 +47,7 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    /*
-    TODO: remove default values from application.
-     */
+    // TODO: remove default values from application
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Deprecated(forRemoval = true)
     @JsonView(Views.Public.class)

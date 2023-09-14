@@ -10,7 +10,7 @@ import com.appsmith.server.dtos.ItemDTO;
 import com.appsmith.server.dtos.ItemType;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.newaction.base.NewActionService;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.ApiTemplateService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.MarketplaceService;
