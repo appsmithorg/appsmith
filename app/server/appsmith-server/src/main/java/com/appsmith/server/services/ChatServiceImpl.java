@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.dtos.ChatGenerationDTO;
 import com.appsmith.server.dtos.ChatGenerationRequestDTO;
 import com.appsmith.server.dtos.ChatGenerationResponseDTO;

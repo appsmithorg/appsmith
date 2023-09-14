@@ -13,6 +13,8 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;

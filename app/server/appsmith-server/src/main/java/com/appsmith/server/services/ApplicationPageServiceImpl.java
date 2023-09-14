@@ -10,7 +10,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
-import com.appsmith.server.newaction.base.NewActionService;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;

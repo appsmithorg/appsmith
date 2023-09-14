@@ -4,7 +4,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.newaction.base.NewActionService;
+import com.appsmith.server.newactions.base.NewActionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
