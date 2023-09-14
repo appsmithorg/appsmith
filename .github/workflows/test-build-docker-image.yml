@@ -106,7 +106,7 @@ jobs:
         if: needs.ci-test.result != 'success'
         shell: bash
         run: |
-          new_failed_spec_env="<ol>$(sort -u ~/combined_failed_spec_ci | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+          new_failed_spec_env="<ol>$(sort -u ~/combined_failed_spec_ci | sed 's/|cypress|cypress/<\/li>\n<li>/g' | sed -e 's/^<li>//' -e 's/<\/li>$//' -e 's/<\/li>/<\/li>\n/')</ol>"
           echo "$new_failed_spec_env"
           echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$new_failed_spec_env" >> $GITHUB_ENV
@@ -118,7 +118,7 @@ jobs:
         id: slack_notification
         run: |
           if [[ ${{ needs.ci-test.result }} == 'failure' ]]; then
-            echo "slack_message=There are test failures in the run. Please check the <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Cypress dashboard> for more details." >> $GITHUB_OUTPUT
+            echo "slack_message=There are test failures in the run:\n$(echo -e '${{ env.new_failed_spec_env }}' | awk '{printf("• *%s*\n", $0)}')\nCypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
           elif [[ ${{ needs.ci-test.result }} == 'success' ]]; then
             echo "slack_message=All tests passed successfully :tada: Cypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}|Click here!>" >> $GITHUB_OUTPUT
