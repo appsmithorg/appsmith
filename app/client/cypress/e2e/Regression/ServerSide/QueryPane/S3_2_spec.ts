@@ -245,6 +245,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     ); //Assert that file name is original name
     agHelper.ClickButton("Update", { sleepTime: 2000 }); //for the update to refelct in UI
 
+    agHelper.Sleep(2000);
     agHelper.GetNAssertElementText(
       locators._textWidgetInDeployed,
       fixturePath,
