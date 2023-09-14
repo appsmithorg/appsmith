@@ -3,18 +3,33 @@ import {
   dataSources,
   propPane,
   dataManager,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate Oracle DS", () => {
   let dataSourceName: string;
 
+  before("Generate GUID", () => {
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      dataSourceName = "Oracle" + " " + uid;
+    });
+  });
+
   after("Delete Oracle DS", () => {
     dataSources.DeleteDatasouceFromActiveTab(dataSourceName);
   });
 
-  it("1. Tc #2354 - Oracle placeholder & mandatory mark verification", () => {
+  it("1. Tc #2354, #2204 - Oracle placeholder & mandatory mark verification", () => {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Oracle");
+    agHelper.GetNAssertContains(locators._dsName, "Untitled datasource");
+    agHelper.GetNClick(locators._dsName);
+    agHelper.ClearTextField(locators._dsNameTxt); //removing ds name
+    agHelper.AssertTooltip("Please enter a valid name");
+    //agHelper.ValidateToastMessage("Invalid name");
+    agHelper.TypeText(locators._dsNameTxt, dataSourceName);
+    agHelper.PressEnter();
     agHelper.AssertAttribute(
       dataSources._host(),
       "placeholder",
@@ -51,54 +66,45 @@ describe("Validate Oracle DS", () => {
   });
 
   it("2. Tc #2357, #2356, #2355, #2354 Oracle connection errors", () => {
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      //dataSources.CreatePlugIn("Oracle");
-      dataSourceName = "Oracle" + " " + uid;
-      agHelper.RenameWithInPane(dataSourceName, false);
-      dataSources.TestDatasource(false);
-      agHelper.ValidateToastMessage("Missing endpoint");
-      agHelper.ValidateToastMessage("Missing authentication details");
-      agHelper.WaitUntilAllToastsDisappear();
+    dataSources.TestDatasource(false);
+    agHelper.ValidateToastMessage("Missing endpoint");
+    agHelper.ValidateToastMessage("Missing authentication details");
+    agHelper.WaitUntilAllToastsDisappear();
 
-      agHelper.UpdateInputValue(
-        dataSources._host(),
-        dataManager.dsValues[dataManager.defaultEnviorment].oracle_host,
-      );
-      agHelper.UpdateInputValue(
-        dataSources._databaseName,
-        dataManager.dsValues[dataManager.defaultEnviorment].oracle_service,
-      );
-      dataSources.TestDatasource(false);
-      agHelper.ValidateToastMessage("Missing username for authentication");
-      agHelper.ValidateToastMessage("Missing password for authentication");
+    agHelper.UpdateInputValue(
+      dataSources._host(),
+      dataManager.dsValues[dataManager.defaultEnviorment].oracle_host,
+    );
+    agHelper.UpdateInputValue(
+      dataSources._databaseName,
+      dataManager.dsValues[dataManager.defaultEnviorment].oracle_service,
+    );
+    dataSources.TestDatasource(false);
+    agHelper.ValidateToastMessage("Missing username for authentication");
+    agHelper.ValidateToastMessage("Missing password for authentication");
 
-      agHelper.UpdateInputValue(
-        dataSources._username,
-        dataManager.dsValues[dataManager.defaultEnviorment].oracle_username,
-      );
-      agHelper.UpdateInputValue(
-        dataSources._password,
-        dataManager.dsValues[dataManager.defaultEnviorment].oracle_password,
-      );
-      dataSources.TestDatasource(false);
-      agHelper.ValidateToastMessage(
-        "An exception occurred while creating connection pool. One or more arguments in the datasource configuration may be invalid.",
-      );
-      agHelper.ValidateToastMessage("Failed to initialize pool:");
-      propPane.AssertPropertiesDropDownValues("SSL mode", ["Disable", "TLS"]);
-      dataSources.ValidateNSelectDropdown("SSL mode", "TLS", "Disable");
-      dataSources.TestSaveDatasource();
-      //Validate Review page
-      dataSources.AssertDataSourceInfo([
-        "Host address",
-        "Port",
-        "Service Name",
-      ]);
-      agHelper.ClickButton("Edit"); //Navigate to Edit page & check if DS edit is opened
-      dataSources.ValidateNSelectDropdown("SSL mode", "Disable");
-      agHelper.GoBack(); //Do not edit anythin, go back to active ds list, ensure no modal is opened
-      dataSources.AssertDSInActiveList(dataSourceName);
-    });
+    agHelper.UpdateInputValue(
+      dataSources._username,
+      dataManager.dsValues[dataManager.defaultEnviorment].oracle_username,
+    );
+    agHelper.UpdateInputValue(
+      dataSources._password,
+      dataManager.dsValues[dataManager.defaultEnviorment].oracle_password,
+    );
+    dataSources.TestDatasource(false);
+    agHelper.ValidateToastMessage(
+      "An exception occurred while creating connection pool. One or more arguments in the datasource configuration may be invalid.",
+    );
+    agHelper.ValidateToastMessage("Failed to initialize pool:");
+    propPane.AssertPropertiesDropDownValues("SSL mode", ["Disable", "TLS"]);
+    dataSources.ValidateNSelectDropdown("SSL mode", "TLS", "Disable");
+    dataSources.TestSaveDatasource();
+    //Validate Review page
+    dataSources.AssertDataSourceInfo(["Host address", "Port", "Service Name"]);
+    agHelper.ClickButton("Edit"); //Navigate to Edit page & check if DS edit is opened
+    dataSources.ValidateNSelectDropdown("SSL mode", "Disable");
+    agHelper.GoBack(); //Do not edit anythin, go back to active ds list, ensure no modal is opened
+    dataSources.AssertDSInActiveList(dataSourceName);
+    // });
   });
 });

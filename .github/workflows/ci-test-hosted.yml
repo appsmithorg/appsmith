@@ -259,7 +259,7 @@ jobs:
           EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
         run: |
           if [[ ${{ github.event_name }} == 'schedule' ]]; then
-            echo "COMMIT_INFO_MESSAGE=Scheduled workflow run for Hosted tests" >> $GITHUB_ENV
+            echo "COMMIT_INFO_MESSAGE=Scheduled run for Hosted tests" >> $GITHUB_ENV
           else
             echo "COMMIT_INFO_MESSAGE=Manual workflow run for Hosted tests" >> $GITHUB_ENV
           fi
