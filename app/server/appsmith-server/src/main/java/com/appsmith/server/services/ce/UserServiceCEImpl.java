@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
-import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
@@ -12,14 +11,12 @@ import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.PasswordResetToken;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
-import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
@@ -28,6 +25,7 @@ import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.helpers.UserPoliciesComputeHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
@@ -120,6 +118,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final RateLimitService rateLimitService;
     private final RedirectHelper redirectHelper;
 
+    private final UserPoliciesComputeHelper userPoliciesComputeHelper;
+
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
@@ -163,7 +163,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             RedirectHelper redirectHelper,
-            RateLimitService rateLimitService) {
+            RateLimitService rateLimitService,
+            UserPoliciesComputeHelper userPoliciesComputeHelper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -183,6 +184,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.rateLimitService = rateLimitService;
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
         this.redirectHelper = redirectHelper;
+        this.userPoliciesComputeHelper = userPoliciesComputeHelper;
     }
 
     @Override
@@ -484,29 +486,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
     }
 
-    protected Mono<User> addUserPolicies(User savedUser) {
-
-        // Create user management permission group
-        PermissionGroup userManagementPermissionGroup = new PermissionGroup();
-        userManagementPermissionGroup.setName(savedUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
-        // Add CRUD permissions for user to the group
-        userManagementPermissionGroup.setPermissions(Set.of(new Permission(savedUser.getId(), MANAGE_USERS)));
-
-        // Assign the permission group to the user
-        userManagementPermissionGroup.setAssignedToUserIds(Set.of(savedUser.getId()));
-
-        return permissionGroupService.save(userManagementPermissionGroup).map(savedPermissionGroup -> {
-            Map<String, Policy> crudUserPolicies =
-                    policySolution.generatePolicyFromPermissionGroupForObject(savedPermissionGroup, savedUser.getId());
-
-            User updatedWithPolicies = policySolution.addPoliciesToExistingObject(crudUserPolicies, savedUser);
-
-            return updatedWithPolicies;
-        });
-    }
-
     private Mono<User> addUserPoliciesAndSaveToRepo(User user) {
-        return addUserPolicies(user).flatMap(repository::save);
+        return userPoliciesComputeHelper.addPoliciesToUser(user).flatMap(repository::save);
     }
 
     @Override
