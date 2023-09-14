@@ -263,11 +263,11 @@ describe("IconSelectControl.canDisplayValue", () => {
 });
 
 describe("<IconSelectControl /> - (none) icon", () => {
-  const getTestComponent = (showNoneIcon = true) => (
-    <IconSelectControl {...requiredParams} showNoneIcon={showNoneIcon} />
+  const getTestComponent = (hideNoneIcon?: boolean) => (
+    <IconSelectControl {...requiredParams} hideNoneIcon={hideNoneIcon} />
   );
 
-  it("Should display (none) icon when showNoneIcon property is true", async () => {
+  it("Should display (none) icon when hideNoneIcon property is false/undefined", async () => {
     render(getTestComponent());
     userEvent.tab();
     expect(screen.queryByRole("button")?.textContent).toEqual(
@@ -285,8 +285,8 @@ describe("<IconSelectControl /> - (none) icon", () => {
     expect(screen.getByText("(none)", { selector: "div" })).toBeInTheDocument();
   });
 
-  it("Should not display (none) icon when showNoneIcon property is false", async () => {
-    render(getTestComponent(false));
+  it("Should not display (none) icon when hideNoneIcon property is true", async () => {
+    render(getTestComponent(true));
     userEvent.tab();
     expect(screen.queryByRole("button")?.textContent).toEqual(
       "(none)caret-down",

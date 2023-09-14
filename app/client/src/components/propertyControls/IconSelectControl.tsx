@@ -103,7 +103,7 @@ const StyledMenuItem = styled(MenuItem)`
 export interface IconSelectControlProps extends ControlProps {
   propertyValue?: IconName;
   defaultIconName?: IconName;
-  showNoneIcon?: boolean;
+  hideNoneIcon?: boolean;
 }
 
 export interface IconSelectControlState {
@@ -131,10 +131,6 @@ class IconSelectControl extends BaseControl<
   private searchInput: React.RefObject<HTMLInputElement>;
   id: string = generateReactKey();
 
-  static defaultProps = {
-    showNoneIcon: true,
-  };
-
   constructor(props: IconSelectControlProps) {
     super(props);
     this.iconSelectTargetRef = React.createRef();
@@ -143,13 +139,19 @@ class IconSelectControl extends BaseControl<
     this.initialItemIndex = 0;
     this.filteredItems = [];
 
-    const noneIndex = ICON_NAMES.indexOf(NONE);
+    /**
+     * Multiple instances of the IconSelectControl class may be created,
+     * and each instance modifies the ICON_NAMES array and the icons set.
+     * Without the below logic, the NONE icon may be added or removed
+     * multiple times, leading to unexpected behaviour.
+     */
+    const noneIconExists = icons.has(NONE);
 
-    if (!!props.showNoneIcon && noneIndex === -1) {
+    if (!!!props.hideNoneIcon && !noneIconExists) {
       ICON_NAMES.unshift(NONE);
       icons.add(NONE);
-    } else if (!!!props.showNoneIcon && noneIndex !== -1) {
-      ICON_NAMES.splice(noneIndex, 1);
+    } else if (!!props.hideNoneIcon && noneIconExists) {
+      ICON_NAMES.shift();
       icons.delete(NONE);
     }
 

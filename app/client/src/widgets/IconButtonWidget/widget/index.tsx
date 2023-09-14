@@ -102,7 +102,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             helpText: "Sets the icon to be used for the icon button",
             controlType: "ICON_SELECT",
             defaultIconName: "plus",
-            showNoneIcon: false,
+            hideNoneIcon: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
