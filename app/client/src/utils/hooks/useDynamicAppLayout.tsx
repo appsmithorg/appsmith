@@ -19,7 +19,7 @@ import {
   getMainCanvasProps,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import { getAppMode } from "selectors/entitiesSelector";
+import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import {
   getExplorerPinned,
   getExplorerWidth,

@@ -45,7 +45,7 @@ import equal from "fast-deep-equal/es6";
 
 import ApiAuthentication from "./ApiAuthentication";
 import { replayHighlightClass } from "globalStyles/portals";
-import { getPlugin } from "selectors/entitiesSelector";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
 import {
   hasDeleteActionPermission,
   hasExecuteActionPermission,
@@ -84,12 +84,16 @@ const Form = styled.form`
 
 const MainConfiguration = styled.div`
   z-index: 7;
-  padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-7) 0;
+  padding-left: var(--ads-v2-spaces-7);
   .api-info-row {
+    padding-top: var(--ads-v2-spaces-5);
     .ads-v2-select > .rc-select-selector {
       min-width: 110px;
       width: 110px;
     }
+  }
+  .form-row-header {
+    padding-top: var(--ads-v2-spaces-5);
   }
 `;
 

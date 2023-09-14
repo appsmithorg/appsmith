@@ -27,9 +27,9 @@ import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSele
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import Guide from "../GuidedTour/Guide";
-import CanvasContainer from "./CanvasContainer";
+import MainContainerWrapper from "./MainContainerWrapper";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
-import { PageViewContainer } from "pages/AppViewer/AppPage.styled";
+import { PageViewWrapper } from "pages/AppViewer/AppPage.styled";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getAppSettingsPaneContext,
@@ -178,7 +178,7 @@ function WidgetsEditor() {
           >
             {showNavigation()}
 
-            <PageViewContainer
+            <PageViewWrapper
               className={classNames({
                 "relative flex flex-row w-full justify-center overflow-hidden":
                   true,
@@ -196,7 +196,8 @@ function WidgetsEditor() {
               isPublished={isPublished}
               sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
             >
-              <CanvasContainer
+              <MainContainerWrapper
+                currentPageId={currentPageId}
                 isAppSettingsPaneWithNavigationTabOpen={
                   AppSettingsTabs.Navigation === appSettingsPaneContext?.type
                 }
@@ -204,7 +205,7 @@ function WidgetsEditor() {
                 navigationHeight={navigationHeight}
                 shouldShowSnapShotBanner={shouldShowSnapShotBanner}
               />
-            </PageViewContainer>
+            </PageViewWrapper>
 
             <CrudInfoModal />
           </div>

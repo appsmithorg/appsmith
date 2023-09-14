@@ -21,7 +21,7 @@ import type { AppsmithLocationState } from "utils/history";
 import history, { NavigationMethod } from "utils/history";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
-import { getAction, getPlugin } from "selectors/entitiesSelector";
+import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { has } from "lodash";

@@ -4,7 +4,7 @@ import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
 import { isString, noop } from "lodash";
 import type { Datasource } from "entities/Datasource";
-import { getPluginNameFromId } from "selectors/entitiesSelector";
+import { getPluginNameFromId } from "@appsmith/selectors/entitiesSelector";
 import FormControl from "../FormControl";
 import {
   PluginName,
@@ -124,7 +124,7 @@ const QueryFormContainer = styled.form`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: var(--ads-v2-spaces-4) 0 0;
+  padding: var(--ads-v2-spaces-5) 0 0;
   width: 100%;
   .statementTextArea {
     font-size: 14px;
@@ -195,7 +195,8 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
 `;
 
 export const StyledFormRow = styled(FormRow)`
-  padding: 0px var(--ads-v2-spaces-7);
+  padding: 0px var(--ads-v2-spaces-7) var(--ads-v2-spaces-5)
+    var(--ads-v2-spaces-7);
   flex: 0;
 `;
 
