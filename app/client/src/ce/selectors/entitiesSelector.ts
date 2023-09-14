@@ -1141,6 +1141,7 @@ export const getAllDatasourceTableKeys = createSelector(
         tables[table.name] = "table";
         table.columns.forEach((column) => {
           tables[`${table.name}.${column.name}`] = column.type;
+          tables[`${column.name}`] = column.type;
         });
       }
     });
