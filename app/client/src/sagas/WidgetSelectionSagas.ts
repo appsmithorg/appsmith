@@ -16,6 +16,7 @@ import type {
 import {
   setEntityExplorerAncestry,
   setSelectedWidgetAncestry,
+  setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -165,15 +166,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     }
 
     if (areArraysEqual([...newSelection], [...selectedWidgets])) {
-      const currentPageId: string = yield select(getCurrentPageId);
-      history.push(
-        builderURL({
-          pageId: pageId ?? currentPageId,
-          persistExistingParams: true,
-          ideState: IDEAppState.Page,
-          suffix: "/ui",
-        }),
-      );
+      yield put(setSelectedWidgets(newSelection));
       return;
     }
     yield call(appendSelectedWidgetToUrlSaga, newSelection, pageId, invokedBy);
