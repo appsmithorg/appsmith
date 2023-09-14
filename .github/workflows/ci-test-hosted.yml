@@ -490,10 +490,10 @@ jobs:
           SLACK_ICON_EMOJI: ":bell:"
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
           SLACK_TITLE: "Result:"
-          SLACK_USERNAME: Cloud-Hosted Tests
+          SLACK_USERNAME: Cloud Hosted Run
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
           MSG_MINIMAL: Ref,Event,Commit
-          SLACK_FOOTER: "Appsmith CI runs"
+        # SLACK_FOOTER: "Hosted runs"
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
