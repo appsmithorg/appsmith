@@ -9,6 +9,7 @@ import com.appsmith.external.models.ActionProvider;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
@@ -29,6 +30,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionViewDTO;
+import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ce.ImportActionResultDTO;
@@ -62,6 +64,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -78,6 +81,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -660,7 +664,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<NewAction> findAllById(Iterable<String> id) {
-        return repository.findAllByIdIn(id).flatMap(this::sanitizeAction);
+        return repository.findAllById(id).flatMap(this::sanitizeAction);
     }
 
     @Override
@@ -1229,6 +1233,148 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return repository.findByPageId(pageId).flatMap(this::sanitizeAction);
     }
 
+    /**
+     * !!!WARNING!!! This function edits the parameters actionUpdates and messages which are eventually returned back to
+     * the caller with the updates values.
+     *
+     * @param onLoadActions : All the actions which have been found to be on page load
+     * @param pageId
+     * @param actionUpdates : Empty array list which would be set in this function with all the page actions whose
+     *                      execute on load setting has changed (whether flipped from true to false, or vice versa)
+     * @param messages      : Empty array list which would be set in this function with all the messages that should be
+     *                      displayed to the developer user communicating the action executeOnLoad changes.
+     * @return
+     */
+    @Override
+    public Mono<Boolean> updateActionsExecuteOnLoad(
+            List<Executable> onLoadActions,
+            String pageId,
+            List<LayoutExecutableUpdateDTO> actionUpdates,
+            List<String> messages) {
+
+        List<ActionDTO> toUpdateActions = new ArrayList<>();
+
+        MultiValueMap<String, String> params =
+                CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
+        params.add(FieldName.PAGE_ID, pageId);
+
+        // Fetch all the actions which exist in this page.
+        Flux<ActionDTO> pageActionsFlux = this.getUnpublishedActions(params).cache();
+
+        // Before we update the actions, fetch all the actions which are currently set to execute on load.
+        Mono<List<ActionDTO>> existingOnPageLoadActionsMono = pageActionsFlux
+                .flatMap(action -> {
+                    if (TRUE.equals(action.getExecuteOnLoad())) {
+                        return Mono.just(action);
+                    }
+                    return Mono.empty();
+                })
+                .collectList();
+
+        return existingOnPageLoadActionsMono
+                .zipWith(pageActionsFlux.collectList())
+                .flatMap(tuple -> {
+                    List<ActionDTO> existingOnPageLoadActions = tuple.getT1();
+                    List<ActionDTO> pageActions = tuple.getT2();
+
+                    // There are no actions in this page. No need to proceed further since no actions would get updated
+                    if (pageActions.isEmpty()) {
+                        return Mono.just(FALSE);
+                    }
+
+                    // No actions require an update if no actions have been found as page load actions as well as
+                    // existing on load page actions are empty
+                    if (existingOnPageLoadActions.isEmpty() && (onLoadActions == null || onLoadActions.isEmpty())) {
+                        return Mono.just(FALSE);
+                    }
+
+                    // Extract names of existing page load actions and new page load actions for quick lookup.
+                    Set<String> existingOnPageLoadActionNames = existingOnPageLoadActions.stream()
+                            .map(ActionDTO::getValidName)
+                            .collect(Collectors.toSet());
+
+                    Set<String> newOnLoadActionNames =
+                            onLoadActions.stream().map(Executable::getValidName).collect(Collectors.toSet());
+
+                    // Calculate the actions which would need to be updated from execute on load TRUE to FALSE.
+                    Set<String> turnedOffActionNames = new HashSet<>();
+                    turnedOffActionNames.addAll(existingOnPageLoadActionNames);
+                    turnedOffActionNames.removeAll(newOnLoadActionNames);
+
+                    // Calculate the actions which would need to be updated from execute on load FALSE to TRUE
+                    Set<String> turnedOnActionNames = new HashSet<>();
+                    turnedOnActionNames.addAll(newOnLoadActionNames);
+                    turnedOnActionNames.removeAll(existingOnPageLoadActionNames);
+
+                    for (ActionDTO action : pageActions) {
+
+                        String actionName = action.getValidName();
+                        // If a user has ever set execute on load, this field can not be changed automatically. It has
+                        // to be
+                        // explicitly changed by the user again. Add the action to update only if this condition is
+                        // false.
+                        if (FALSE.equals(action.getUserSetOnLoad())) {
+
+                            // If this action is no longer an onload action, turn the execute on load to false
+                            if (turnedOffActionNames.contains(actionName)) {
+                                action.setExecuteOnLoad(FALSE);
+                                toUpdateActions.add(action);
+                            }
+
+                            // If this action is newly found to be on load, turn execute on load to true
+                            if (turnedOnActionNames.contains(actionName)) {
+                                action.setExecuteOnLoad(TRUE);
+                                toUpdateActions.add(action);
+                            }
+                        } else {
+                            // Remove the action name from either of the lists (if present) because this action should
+                            // not be updated
+                            turnedOnActionNames.remove(actionName);
+                            turnedOffActionNames.remove(actionName);
+                        }
+                    }
+
+                    // Add newly turned on page actions to report back to the caller
+                    actionUpdates.addAll(addActionUpdatesForActionNames(pageActions, turnedOnActionNames));
+
+                    // Add newly turned off page actions to report back to the caller
+                    actionUpdates.addAll(addActionUpdatesForActionNames(pageActions, turnedOffActionNames));
+
+                    // Now add messages that would eventually be displayed to the developer user informing them
+                    // about the action setting change.
+                    if (!turnedOffActionNames.isEmpty()) {
+                        messages.add(turnedOffActionNames.toString() + " will no longer be executed on page load");
+                    }
+
+                    if (!turnedOnActionNames.isEmpty()) {
+                        messages.add(turnedOnActionNames.toString() + " will be executed automatically on page load");
+                    }
+
+                    // Finally update the actions which require an update
+                    return Flux.fromIterable(toUpdateActions)
+                            .flatMap(actionDTO -> updateUnpublishedAction(actionDTO.getId(), actionDTO))
+                            .then(Mono.just(TRUE));
+                });
+    }
+
+    private List<LayoutExecutableUpdateDTO> addActionUpdatesForActionNames(
+            List<ActionDTO> pageActions, Set<String> actionNames) {
+
+        return pageActions.stream()
+                .filter(pageAction -> actionNames.contains(pageAction.getValidName()))
+                .map(pageAction -> {
+                    LayoutExecutableUpdateDTO layoutExecutableUpdateDTO = new LayoutExecutableUpdateDTO();
+                    layoutExecutableUpdateDTO.setId(pageAction.getId());
+                    layoutExecutableUpdateDTO.setName(pageAction.getValidName());
+                    layoutExecutableUpdateDTO.setCollectionId(pageAction.getCollectionId());
+                    layoutExecutableUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
+                    layoutExecutableUpdateDTO.setDefaultActionId(
+                            pageAction.getDefaultResources().getActionId());
+                    return layoutExecutableUpdateDTO;
+                })
+                .collect(Collectors.toList());
+    }
+
     @Override
     public Mono<NewAction> archiveById(String id) {
         Mono<NewAction> actionMono = repository
@@ -1762,7 +1908,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
 
         return repository
-                .findAllByIdIn(actionIds)
+                .findAllById(actionIds)
                 .map(newAction -> {
                     // Update collectionId and defaultCollectionIds in actionDTOs
                     ActionDTO unpublishedAction = newAction.getUnpublishedAction();
@@ -1814,7 +1960,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * This method is used to publish actions of an application. It does two things:
      * 1. it deletes actions which are deleted from the edit mode.
      * 2. It updates actions in bulk by setting publishedAction=unpublishedAction
-     *
      * @param applicationId
      * @param permission
      * @return

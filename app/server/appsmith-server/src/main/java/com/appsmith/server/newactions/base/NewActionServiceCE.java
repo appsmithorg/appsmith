@@ -1,12 +1,14 @@
 package com.appsmith.server.newactions.base;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionViewDTO;
+import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ce.ImportActionResultDTO;
@@ -98,6 +100,12 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     List<MustacheBindingToken> extractMustacheKeysInOrder(String query);
 
     String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings);
+
+    Mono<Boolean> updateActionsExecuteOnLoad(
+            List<Executable> executables,
+            String pageId,
+            List<LayoutExecutableUpdateDTO> actionUpdates,
+            List<String> messages);
 
     Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
 
