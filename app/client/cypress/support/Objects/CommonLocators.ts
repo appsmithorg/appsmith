@@ -301,4 +301,5 @@ export class CommonLocators {
   _newDataSourceBtn = ".datasources .t--entity-add-btn";
   _callbackAddBtn = ".action-callback-add .ads-v2-button";
   _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
+  _listText = "//span[text()='Blue']/../..";
 }

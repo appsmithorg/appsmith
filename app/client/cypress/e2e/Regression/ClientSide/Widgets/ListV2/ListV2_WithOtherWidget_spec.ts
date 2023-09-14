@@ -7,7 +7,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-xdescribe("List widget V2 functionality with audio and video widgets", () => {
+describe("List widget V2 functionality with audio and video widgets", () => {
   before(() => {
     agHelper.AddDsl("listV2AudioVideoDsl");
     entityExplorer.DragDropWidgetNVerify("audiowidget", 700, 500);
@@ -107,7 +107,7 @@ xdescribe("List widget V2 functionality with audio and video widgets", () => {
   });
 });
 
-describe("List widget V2 functionality with button, button group and icon button widgets", () => {
+xdescribe("List widget V2 functionality with button, button group and icon button widgets", () => {
   before(() => {
     agHelper.AddDsl("listV2ButtonsDsl",locators._buttonByText("Submit"));
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 500);

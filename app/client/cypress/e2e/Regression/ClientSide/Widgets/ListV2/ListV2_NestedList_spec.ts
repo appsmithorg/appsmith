@@ -123,17 +123,23 @@ describe("Nested List widget V2 ", () => {
   });
 
   it("5. Verify Theme change", () => {
-    agHelper.AssertAttribute(
-      "//div[contains(@class,'t--text-widget-container')]//div",
-      "font-family",
-      "Nunito Sans",
-    );
-    agHelper.ClickOutside();
+    [0, 1, 2].forEach((index) => {
+      agHelper.AssertAttribute(
+        locators._listText,
+        "font-family",
+        "Nunito Sans",
+        index,
+      );
+    });
+    agHelper.PressEscape();
     appSettings.OpenPaneAndChangeTheme("Pacific");
-    agHelper.AssertAttribute(
-      "//div[contains(@class,'t--text-widget-container')]//div",
-      "font-family",
-      "Open Sans",
-    );
+    [0, 1, 2].forEach((index) => {
+      agHelper.AssertAttribute(
+        locators._listText,
+        "font-family",
+        "Open Sans",
+        index,
+      );
+    });
   });
 });
