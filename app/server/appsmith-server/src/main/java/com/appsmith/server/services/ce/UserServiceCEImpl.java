@@ -88,7 +88,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.constants.ce.AccessControlConstants.WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED;
+import static com.appsmith.server.constants.ce.AccessControlConstantsCE.WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED;
 import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
