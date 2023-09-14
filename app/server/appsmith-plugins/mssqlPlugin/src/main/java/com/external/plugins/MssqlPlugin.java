@@ -487,6 +487,13 @@ public class MssqlPlugin extends BasePlugin {
             return preparedStatement;
         }
 
+
+        /**
+         * MsSQL plugin makes use of a common template that is available for SQL query which is also used for other SQL
+         * type plugins e.g. Postgres to create select, insert, update, delete, find queries for the CRUD page. In
+         * case of MsSQL the  template select query needs to be replaced because its syntax does not match with MsSQL
+         * syntax. Hence, this method updates the template select query with the correct syntax select query for MsSQL.
+         */
         @Override
         public Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(
                 List<ActionConfiguration> actionConfigurationList, Object... args) {
@@ -494,6 +501,7 @@ public class MssqlPlugin extends BasePlugin {
                 return Mono.empty();
             }
 
+            /* Find the actionConfiguration containing select query */
             Optional<ActionConfiguration> selectQueryConfigOptional = actionConfigurationList.stream()
                     .filter(actionConfiguration -> actionConfiguration.getBody().contains("SELECT"))
                     .findFirst();
