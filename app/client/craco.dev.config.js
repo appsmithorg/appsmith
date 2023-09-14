@@ -7,9 +7,9 @@ module.exports = merge(common, {
     client: {
       overlay: {
         warnings: false,
-        errors: false
-      }
-    }
+        errors: false,
+      },
+    },
   },
   optimization: {
     minimize: false,
