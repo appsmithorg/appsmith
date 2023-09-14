@@ -28,7 +28,6 @@ import {
   GIT_IMPORT,
   IMPORT_FROM_GIT_REPOSITORY,
 } from "@appsmith/constants/messages";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { GitSyncModalTab } from "entities/GitSync";
 
 const ModalContentContainer = styled(ModalContent)`
@@ -67,8 +66,6 @@ function GitSyncModalV1(props: { isImport?: boolean }) {
   const isGitConnected = useSelector(getIsGitConnected);
 
   const activeTabKey = useSelector(getActiveGitSyncModalTab);
-  // Fetching feature flags from the store and checking if the feature is enabled
-  const allowedToRenderMEFeature = useSelector(datasourceEnvEnabled);
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
@@ -149,7 +146,7 @@ function GitSyncModalV1(props: { isImport?: boolean }) {
           <ModalHeader>
             {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
           </ModalHeader>
-          {allowedToRenderMEFeature && <EnvInfoHeader />}
+          <EnvInfoHeader />
           <Menu
             activeTabKey={activeTabKey}
             onSelect={(tabKey: string) =>
