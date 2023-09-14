@@ -1507,9 +1507,7 @@ class CodeEditor extends Component<Props, State> {
         this.showFeatures(),
         this.props.input.value,
         this.state.hinterOpen,
-      ) &&
-      !_.get(this.editor, "state.completionActive") &&
-      !this.state.hinterOpen
+      ) && !_.get(this.editor, "state.completionActive")
     );
   };
 
