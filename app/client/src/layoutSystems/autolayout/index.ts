@@ -8,6 +8,7 @@ import {
   getAutoDimensionsConfig,
   getAutoLayoutWidgetConfig,
 } from "layoutSystems/common/utils/commonUtils";
+import { registerLayoutComponents } from "layoutSystems/anvil/utils/layoutUtils";
 
 /**
  * getAutoLayoutDimensionsConfig
@@ -78,6 +79,9 @@ const getAutoLayoutSystemWrapper = (renderMode: RenderModes) => {
  */
 
 export function getAutoLayoutSystem(renderMode: RenderModes) {
+  // This is just added to test out layout components. We will be removing this before merging to release
+  registerLayoutComponents();
+
   return {
     LayoutSystemWrapper: getAutoLayoutSystemWrapper(renderMode),
     propertyEnhancer: getAutoLayoutSystemPropsEnhancer,

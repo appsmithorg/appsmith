@@ -13,6 +13,7 @@ import type {
   AutoDimensionValues,
   AutoLayoutConfig,
 } from "WidgetProvider/constants";
+import { registerLayoutComponents } from "./utils/layoutUtils";
 
 export const getAnvilDimensionsConfig = (
   props: BaseWidgetProps,
@@ -53,6 +54,9 @@ const getAnvilSystemWrapper = (renderMode: RenderModes) => {
 };
 
 export function getAnvilSystem(renderMode: RenderModes) {
+  // Is this the right place to register layout components?
+  registerLayoutComponents();
+
   return {
     LayoutSystemWrapper: getAnvilSystemWrapper(renderMode),
     propertyEnhancer: getAnvilSystemPropsEnhancer,

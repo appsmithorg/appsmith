@@ -18,10 +18,7 @@ import React, { useMemo } from "react";
 import type { ReactNode } from "react";
 
 interface FlexLayoutProps {
-  canvasId: string;
   children: ReactNode;
-  isDropTarget?: boolean;
-  layoutId: string;
 
   alignSelf?: AlignSelfValues;
   border?: string;
