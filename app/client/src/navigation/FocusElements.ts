@@ -67,6 +67,8 @@ import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import { NavigationMethod } from "../utils/history";
 import { JSEditorTab } from "../reducers/uiReducers/jsPaneReducer";
+import { getIdePageTabState } from "pages/IDE/ideSelector";
+import { setIdePageTabState } from "pages/IDE/ideActions";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -89,6 +91,7 @@ export enum FocusElement {
   SelectedWidgets = "SelectedWidgets",
   SubEntityCollapsibleState = "SubEntityCollapsibleState",
   InputField = "InputField",
+  IDEPageTabState = "IDEPageTabState",
 }
 
 type Config = {
@@ -195,6 +198,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setJsPaneConfigSelectedTab,
       defaultValue: JSEditorTab.CODE,
     },
+    {
+      name: FocusElement.IDEPageTabState,
+      selector: getIdePageTabState,
+      setter: setIdePageTabState,
+    },
   ],
   [FocusEntity.QUERY]: [
     {
@@ -207,6 +215,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getQueryPaneConfigSelectedTabIndex,
       setter: setQueryPaneConfigSelectedTabIndex,
       defaultValue: 0,
+    },
+    {
+      name: FocusElement.IDEPageTabState,
+      selector: getIdePageTabState,
+      setter: setIdePageTabState,
     },
   ],
   [FocusEntity.PROPERTY_PANE]: [
@@ -221,6 +234,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getFocusablePropertyPaneField,
       setter: setFocusablePropertyPaneField,
       defaultValue: "",
+    },
+    {
+      name: FocusElement.IDEPageTabState,
+      selector: getIdePageTabState,
+      setter: setIdePageTabState,
     },
   ],
   [FocusEntity.API]: [
@@ -244,6 +262,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.ApiRightPaneTabs,
       selector: getApiRightPaneSelectedTab,
       setter: setApiRightPaneSelectedTab,
+    },
+    {
+      name: FocusElement.IDEPageTabState,
+      selector: getIdePageTabState,
+      setter: setIdePageTabState,
     },
   ],
   [FocusEntity.DEBUGGER]: [
