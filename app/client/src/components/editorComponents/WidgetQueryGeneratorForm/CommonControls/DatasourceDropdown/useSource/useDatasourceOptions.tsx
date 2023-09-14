@@ -32,6 +32,7 @@ import {
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
+import { getGSheetsConnectionMode } from "./utils";
 
 interface DatasourceOptionsProps {
   widget: WidgetProps;
@@ -59,89 +60,94 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
     const availableDatasources = datasources.filter(({ pluginId }) =>
       WidgetQueryGeneratorRegistry.has(pluginsPackageNamesMap[pluginId]),
     );
-    let filteredDatasources = availableDatasources;
 
-    /* Exclude Gsheets from datasource options till this gets resolved https://github.com/appsmithorg/appsmith/issues/27102*/
-    if (widget.type === "JSON_FORM_WIDGET") {
-      filteredDatasources = availableDatasources.filter((datasource) => {
-        return (
-          pluginsPackageNamesMap[datasource.pluginId] !==
-          PluginPackageName.GOOGLE_SHEETS
-        );
-      });
-    }
     let datasourceOptions: DropdownOptionType[] = [];
-    if (filteredDatasources.length) {
+    if (availableDatasources.length) {
       datasourceOptions = datasourceOptions.concat(
-        filteredDatasources.map((datasource) => ({
-          id: datasource.id,
-          label: datasource.name,
-          value: datasource.name,
-          data: {
-            pluginId: datasource.pluginId,
-            isValid: isEnvironmentValid(datasource, currentEnvironment),
-            pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
-            isSample: false,
-            connectionMode: getEnvironmentConfiguration(
-              datasource,
-              currentEnvironment,
-            )?.connection?.mode,
-          },
-          icon: (
-            <ImageWrapper>
-              <DatasourceImage
-                alt=""
-                className="dataSourceImage"
-                src={pluginImages[datasource.pluginId]}
-              />
-            </ImageWrapper>
-          ),
-          onSelect: function (
-            value?: string,
-            valueOption?: DropdownOptionType,
-          ) {
-            if (config.datasource !== valueOption?.id) {
-              const pluginId: string = valueOption?.data.pluginId;
+        availableDatasources.map((datasource) => {
+          // Get current datasource config
+          const datasourceConfig = getEnvironmentConfiguration(
+            datasource,
+            currentEnvironment,
+          );
+          // Get connection mode from datasource config. Uses scopeString for google sheets datasource and connection.mode for other datasources. Defaults to READ_ONLY
+          const connectionMode =
+            pluginsPackageNamesMap[datasource.pluginId] ===
+            PluginPackageName.GOOGLE_SHEETS
+              ? getGSheetsConnectionMode(
+                  datasourceConfig?.authentication?.scopeString,
+                )
+              : datasourceConfig?.connection?.mode ||
+                DatasourceConnectionMode.READ_ONLY;
+          return {
+            id: datasource.id,
+            label: datasource.name,
+            value: datasource.name,
+            data: {
+              pluginId: datasource.pluginId,
+              isValid: isEnvironmentValid(datasource, currentEnvironment),
+              pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
+              isSample: false,
+              connectionMode,
+            },
+            icon: (
+              <ImageWrapper>
+                <DatasourceImage
+                  alt=""
+                  className="dataSourceImage"
+                  src={pluginImages[datasource.pluginId]}
+                />
+              </ImageWrapper>
+            ),
+            onSelect: function (
+              value?: string,
+              valueOption?: DropdownOptionType,
+            ) {
+              if (config.datasource !== valueOption?.id) {
+                const pluginId: string = valueOption?.data.pluginId;
 
-              const plugin = plugins.find((d) => d.id === datasource.pluginId);
+                const plugin = plugins.find(
+                  (d) => d.id === datasource.pluginId,
+                );
 
-              updateConfig({
-                datasource: valueOption?.id,
-                datasourcePluginType: plugin?.type,
-                datasourcePluginName: plugin?.name,
-                datasourceConnectionMode:
-                  valueOption?.data.connectionMode ||
-                  DatasourceConnectionMode.READ_ONLY,
-              });
-              if (valueOption?.id) {
-                switch (pluginsPackageNamesMap[pluginId]) {
-                  case PluginPackageName.GOOGLE_SHEETS:
-                    dispatch(
-                      fetchGheetSpreadsheets({
-                        datasourceId: valueOption.id,
-                        pluginId: pluginId,
-                      }),
-                    );
-                    break;
-                  default: {
-                    dispatch(fetchDatasourceStructure(valueOption.id, true));
-                    break;
+                updateConfig({
+                  datasource: valueOption?.id,
+                  datasourcePluginType: plugin?.type,
+                  datasourcePluginName: plugin?.name,
+                  datasourceConnectionMode:
+                    valueOption?.data.connectionMode ||
+                    DatasourceConnectionMode.READ_ONLY,
+                });
+                if (valueOption?.id) {
+                  switch (pluginsPackageNamesMap[pluginId]) {
+                    case PluginPackageName.GOOGLE_SHEETS:
+                      dispatch(
+                        fetchGheetSpreadsheets({
+                          datasourceId: valueOption.id,
+                          pluginId: pluginId,
+                        }),
+                      );
+                      break;
+                    default: {
+                      dispatch(fetchDatasourceStructure(valueOption.id, true));
+                      break;
+                    }
                   }
                 }
-              }
 
-              AnalyticsUtil.logEvent("GENERATE_QUERY_FOR_WIDGET", {
-                widgetName: widget.widgetName,
-                widgetType: widget.type,
-                propertyName: propertyName,
-                pluginType: plugin?.type,
-                pluginName: plugin?.name,
-                connectionMode: valueOption?.data.connectionMode,
-                isSampleDb: datasource.isMock,
-              });
-            }
-          },
-        })),
+                AnalyticsUtil.logEvent("GENERATE_QUERY_FOR_WIDGET", {
+                  widgetName: widget.widgetName,
+                  widgetType: widget.type,
+                  propertyName: propertyName,
+                  pluginType: plugin?.type,
+                  pluginName: plugin?.name,
+                  connectionMode: valueOption?.data.connectionMode,
+                  isSampleDb: datasource.isMock,
+                });
+              }
+            },
+          };
+        }),
       );
     }
 
@@ -158,10 +164,12 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
             /*
              * remove mocks from which the user has already created the source.
              */
-            const datasource: Datasource | undefined = filteredDatasources.find(
-              (d) =>
-                pluginsPackageNamesMap[d.pluginId] === packageName && d.isMock,
-            );
+            const datasource: Datasource | undefined =
+              availableDatasources.find(
+                (d) =>
+                  pluginsPackageNamesMap[d.pluginId] === packageName &&
+                  d.isMock,
+              );
 
             return !datasource;
           })

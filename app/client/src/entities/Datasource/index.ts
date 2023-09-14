@@ -29,7 +29,7 @@ export enum ActionType {
   DOCUMENTATION = "documentation",
 }
 
-/* 
+/*
   Types of messages that can be shown in the toast of the datasource configuration page
   EMPTY_TOAST_MESSAGE: No message to be shown
   TEST_DATASOURCE_SUCCESS: Test datasource success message
@@ -54,6 +54,7 @@ export interface DatasourceAuthentication {
   authenticationType?: string;
   secretExists?: Record<string, boolean>;
   isAuthorized?: boolean;
+  scopeString?: string;
 }
 
 export interface DatasourceColumns {
@@ -80,6 +81,7 @@ export interface QueryTemplate {
   pluginSpecifiedTemplates?: Array<{ key?: string; value?: unknown }>;
   suggested: boolean;
 }
+
 export interface DatasourceTable {
   type: string;
   name: string;
