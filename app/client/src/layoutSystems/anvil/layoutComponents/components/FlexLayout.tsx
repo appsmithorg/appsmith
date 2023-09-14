@@ -49,8 +49,7 @@ export const FlexLayout = (props: FlexLayoutProps) => {
   const layoutStyle: FlexProps = useMemo(() => {
     return {
       alignSelf: props.alignSelf || "flex-start",
-      columnGap: props.columnGap || 0,
-      display: "flex",
+      columnGap: props.columnGap || "0px",
       flexDirection: props.flexDirection || "column",
       flexGrow: props.flexGrow || 0,
       flexShrink: props.flexShrink || 0,
