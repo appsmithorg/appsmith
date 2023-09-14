@@ -13,6 +13,7 @@ import {
   commandsHeader,
   generateCreateNewCommand,
 } from "./generateQuickCommands";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 const matchingCommands = (
   list: any,
@@ -40,6 +41,7 @@ export const generateAssistiveBindingCommands = (
   currentEntityType: ENTITY_TYPE,
   searchText: string,
   {
+    expectedType,
     pluginIdToImageLocation,
     recentEntities,
   }: {
@@ -48,6 +50,7 @@ export const generateAssistiveBindingCommands = (
     recentEntities: string[];
     featureFlags: FeatureFlags;
     enableAIAssistance: boolean;
+    expectedType: AutocompleteDataType;
   },
 ) => {
   recentEntities.reverse();
@@ -64,8 +67,12 @@ export const generateAssistiveBindingCommands = (
   });
   const suggestionsAction = actionEntities.map((suggestion: any) => {
     const name = suggestion.name;
+    const text =
+      expectedType === AutocompleteDataType.FUNCTION
+        ? `{{${name}.run()}}`
+        : `{{${name}.data}}`;
     return {
-      text: `{{${name}.data}}`,
+      text,
       displayText: `${name}`,
       className: "CodeMirror-commands",
       data: suggestion,
@@ -81,11 +88,7 @@ export const generateAssistiveBindingCommands = (
           );
         }
         ReactDOM.render(
-          <Command
-            desc={`{{${name}.data}}`}
-            icon={icon}
-            name={data.displayText}
-          />,
+          <Command desc={text} icon={icon} name={data.displayText} />,
           element,
         );
       },
@@ -103,10 +106,12 @@ export const generateAssistiveBindingCommands = (
     return Object.keys(children).map((key: string) => {
       const isFunction = children[key].isfunction;
       const text = isFunction
-        ? `{{${name}.${key}.data}}`
+        ? expectedType === AutocompleteDataType.FUNCTION
+          ? `{{${name}.${key}()}}`
+          : `{{${name}.${key}.data}}`
         : `{{${name}.${key}}}`;
       return {
-        text: text,
+        text,
         displayText: `${name}.${key}`,
         className: "CodeMirror-commands",
         description: text,

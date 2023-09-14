@@ -64,6 +64,8 @@ export const assistiveBindingHinter: HintHelper = (
       editor.closeHint();
       const currentEntityName = entityInfo.entityName;
       const currentEntityType = entityInfo.entityType || ENTITY_TYPE.WIDGET;
+      const expectedType =
+        entityInfo.expectedType || AutocompleteDataType.UNKNOWN;
 
       const filterEntityListForSuggestion = entitiesForSuggestions.filter(
         (e) => e.name !== currentEntityName,
@@ -85,6 +87,7 @@ export const assistiveBindingHinter: HintHelper = (
           recentEntities,
           featureFlags,
           enableAIAssistance,
+          expectedType,
         },
       );
 
