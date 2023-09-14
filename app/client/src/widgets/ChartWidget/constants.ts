@@ -13,8 +13,13 @@ export type ChartType =
 
 export const XAxisCategory = "Category";
 export interface ChartDataPoint {
-  x: any;
-  y: any;
+  x: number | string;
+  y: number | string;
+}
+
+export interface LongestLabelParams {
+  x: string;
+  y: string;
 }
 
 export interface ChartData {
