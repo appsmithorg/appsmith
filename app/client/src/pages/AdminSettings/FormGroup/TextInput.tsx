@@ -13,12 +13,14 @@ const LabelWrapper = styled.div`
 `;
 
 export default function TextInput({ setting }: SettingComponentProps) {
-  const inputLabel = (
+  const inputLabel = setting.label ? (
     <LabelWrapper>
       <section>{setting.label} </section>
       {setting.isFeatureEnabled === false &&
         (setting.isEnterprise === true ? <EnterpriseTag /> : <BusinessTag />)}
     </LabelWrapper>
+  ) : (
+    ""
   );
   return (
     <div
