@@ -266,7 +266,7 @@ describe("GraphQL Datasource Implementation", function () {
 
     apiPage.RunAPI(false);
     apiPage.ResponseStatusCheck("PE-ARG-5000");
-    agHelper.Sleep(2000);
+    agHelper.Sleep(3500);
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.isExecutionSuccess).to.eq(false);
       expect(interception.response.body.data.body).to.contains(
