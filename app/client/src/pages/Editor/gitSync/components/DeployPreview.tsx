@@ -35,8 +35,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
   const pageId = useSelector(getCurrentPageId) as string;
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
 
-  const showDeployPreview = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const showDeployPreview = () => {
     AnalyticsUtil.logEvent("GS_LAST_DEPLOYED_PREVIEW_LINK_CLICK", {
       source: "GIT_DEPLOY_MODAL",
     });
