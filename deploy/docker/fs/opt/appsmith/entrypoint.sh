@@ -17,6 +17,8 @@ CERTBOT_CONFIG_DIR="$stacks_path/letsencrypt"
 
 mkdir -pv "$SUPERVISORD_CONF_TARGET" "$NGINX_WWW_PATH"
 
+mkdir -pv "$SUPERVISORD_CONF_TARGET"
+
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
 # https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
@@ -287,24 +289,24 @@ check_setup_custom_ca_certificates() {
 }
 
 configure_supervisord() {
-  supervisord_conf_source="/opt/appsmith/templates/supervisord"
+  local supervisord_conf_source="/opt/appsmith/templates/supervisord"
   if [[ -n "$(ls -A "$SUPERVISORD_CONF_TARGET")" ]]; then
-    rm -f "$SUPERVISORD_CONF_TARGET/"*
+    rm -f "$SUPERVISORD_CONF_TARGET"/*
   fi
 
-  cp -f "$supervisord_conf_source/application_process/"*.conf "$SUPERVISORD_CONF_TARGET"
+  cp -f "$supervisord_conf_source"/application_process/*.conf "$SUPERVISORD_CONF_TARGET"
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
     if [[ $isUriLocal -eq 0 ]]; then
-      cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"/
+      cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
-      cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"/
+      cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
     fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
-      cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"/
+      cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
     fi
 
   fi

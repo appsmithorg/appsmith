@@ -42,7 +42,7 @@ import {
   isActionSaving,
   getJSCollection,
   getDatasource,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
   getAppMode,
@@ -147,7 +147,7 @@ import { toast } from "design-system";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
-import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import { getCurrentActions } from "@appsmith/selectors/entitiesSelector";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPage } from "actions/pageActions";
@@ -1495,9 +1495,7 @@ function* openDebugger() {
 
 // Function to clear the action responses for the actions which are not executeOnLoad.
 function* clearTriggerActionResponse() {
-  const currentPageActions: ActionData[] = yield select(
-    getActionsForCurrentPage,
-  );
+  const currentPageActions: ActionData[] = yield select(getCurrentActions);
   for (const action of currentPageActions) {
     // Clear the action response if the action has data and is not executeOnLoad.
     if (action.data && !action.config.executeOnLoad) {

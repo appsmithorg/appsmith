@@ -11,7 +11,7 @@ import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { getViewportClassName } from "utils/autoLayout/AutoLayoutUtils";
+import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
@@ -22,17 +22,17 @@ interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
   pageId: string;
   canvasWidth: number;
-  isAutoLayout?: boolean;
+  enableMainCanvasResizer?: boolean;
 }
 
-const Container = styled.section<{
+const Wrapper = styled.section<{
   background: string;
   width: number;
-  $isAutoLayout: boolean;
+  $enableMainCanvasResizer: boolean;
 }>`
   background: ${({ background }) => background};
-  width: ${({ $isAutoLayout, width }) =>
-    $isAutoLayout ? `100%` : `${width}px`};
+  width: ${({ $enableMainCanvasResizer, width }) =>
+    $enableMainCanvasResizer ? `100%` : `${width}px`};
 `;
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
@@ -68,13 +68,15 @@ const Canvas = (props: CanvasProps) => {
 
   const focusRef = useWidgetFocus();
 
-  const marginHorizontalClass = props.isAutoLayout ? `mx-0` : `mx-auto`;
-  const paddingBottomClass = props.isAutoLayout ? "" : "pb-52";
+  const marginHorizontalClass = props.enableMainCanvasResizer
+    ? `mx-0`
+    : `mx-auto`;
+  const paddingBottomClass = props.enableMainCanvasResizer ? "" : "pb-52";
   try {
     return (
       <WDSThemeProvider theme={theme}>
-        <Container
-          $isAutoLayout={!!props.isAutoLayout}
+        <Wrapper
+          $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
           background={backgroundForCanvas}
           className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
             canvasWidth,
@@ -89,7 +91,7 @@ const Canvas = (props: CanvasProps) => {
               props.widgetsStructure,
               RenderModes.CANVAS,
             )}
-        </Container>
+        </Wrapper>
       </WDSThemeProvider>
     );
   } catch (error) {

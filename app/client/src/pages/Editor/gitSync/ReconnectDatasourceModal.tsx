@@ -33,7 +33,7 @@ import {
   getIsListing,
   getIsReconnectingDatasourcesModalOpen,
   getUnconfiguredDatasources,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import {
   initDatasourceConnectionDuringImportRequest,
   resetDatasourceConfigForImportFetchedFlag,
@@ -474,7 +474,7 @@ function ReconnectDatasourceModal() {
   }, [importedApplication, queryIsImport]);
 
   useEffect(() => {
-    if (pageId && appId && datasources.length) {
+    if (pageId) {
       // TODO: Update route params here
       setAppURL(
         builderURL({
@@ -482,7 +482,7 @@ function ReconnectDatasourceModal() {
         }),
       );
     }
-  }, [pageId, appId, datasources]);
+  }, [pageId]);
 
   // checking of full configured
   useEffect(() => {
@@ -516,7 +516,7 @@ function ReconnectDatasourceModal() {
             JSON.stringify(appInfo),
           );
         }
-      } else if (appURL) {
+      } else if (appURL && unconfiguredDatasources.length === 0) {
         // open application import successfule
         localStorage.setItem("importApplicationSuccess", "true");
         localStorage.setItem("importedAppPendingInfo", "null");

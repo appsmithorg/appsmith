@@ -20,6 +20,7 @@ import {
   getApplicationList,
   getApplicationSearchKeyword,
   getCreateApplicationError,
+  getDeletingMultipleApps,
   getIsCreatingApplication,
   getIsDeletingApplication,
   getIsFetchingApplications,
@@ -158,9 +159,10 @@ export const ItemWrapper = styled.div`
 export const StyledIcon = styled(Icon)`
   margin-right: 11px;
 `;
-export const WorkspaceShareUsers = styled.div`
+export const WorkspaceShareUsers = styled.div<{ isHidden?: boolean }>`
   display: flex;
   align-items: center;
+  ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
 
   & .t--options-icon {
     margin-left: 8px;
@@ -417,7 +419,11 @@ export const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
   margin-left: ${(props) => props.theme.homePage.leftPane.width}px;
   width: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   scroll-behavior: smooth;
-  padding: ${CONTAINER_WRAPPER_PADDING} 0;
+  ${({ isMobile }) =>
+    isMobile
+      ? `padding: ${CONTAINER_WRAPPER_PADDING} 0;`
+      : `padding:  0 0 ${CONTAINER_WRAPPER_PADDING};`}
+
   ${({ isMobile }) =>
     isMobile &&
     `
@@ -438,6 +444,9 @@ export function ApplicationsSection(props: any) {
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
+  const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
+  const isEnabledMultipleSelection =
+    !!deleteMultipleApplicationObject.list?.length;
   const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
@@ -647,7 +656,7 @@ export function ApplicationsSection(props: any) {
                   />
                 )}
                 {!isLoadingResources && (
-                  <WorkspaceShareUsers>
+                  <WorkspaceShareUsers isHidden={isEnabledMultipleSelection}>
                     <SharedUserList workspaceId={workspace.id} />
                     {canInviteToWorkspace && !isMobile && (
                       <FormDialogComponent
