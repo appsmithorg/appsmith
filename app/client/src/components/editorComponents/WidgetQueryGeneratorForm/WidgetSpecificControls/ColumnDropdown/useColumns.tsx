@@ -67,7 +67,7 @@ export function useColumns(alias: string, isSearcheable: boolean) {
     ...columnDropdownProps,
   });
 
-  const prepareColumns = (type: string) => {
+  const getType = (type: string) => {
     switch (type) {
       case "int4":
       case "int2":
@@ -108,7 +108,7 @@ export function useColumns(alias: string, isSearcheable: boolean) {
       return columns.map((column: any) => {
         return {
           name: column.name,
-          type: prepareColumns(column.type),
+          type: getType(column.type),
           isSelected:
             (column.name !== primaryColumn ||
               !excludePrimaryColumnFromQueryGeneration) &&

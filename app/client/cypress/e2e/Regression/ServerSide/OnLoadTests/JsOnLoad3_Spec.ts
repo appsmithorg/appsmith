@@ -10,6 +10,7 @@ import {
   apiPage,
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
+
 let dsName: any, jsName: any;
 
 describe("JSObjects OnLoad Actions tests", function () {
@@ -342,7 +343,6 @@ describe("JSObjects OnLoad Actions tests", function () {
 
       entityExplorer.SelectEntityByName("JSONForm1");
       propPane.EnterJSContext("sourcedata", "{{getBooks.data}}", true, false);
-      // propPane.UpdatePropertyFieldValue("Source data", "{{getBooks.data}}");
       //this toast is not coming due to existing JSON date errors but its made true at API
       //agHelper.ValidateToastMessage("[getBooks] will be executed automatically on page load");
     });

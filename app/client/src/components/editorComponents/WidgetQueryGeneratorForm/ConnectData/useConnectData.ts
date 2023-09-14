@@ -19,7 +19,7 @@ export function useConnectData() {
 
   const widget = useSelector((state) => getWidget(state, widgetId));
 
-  const formConfig = useFormConfig(); // Use the useFormConfig hook
+  const formConfig = useFormConfig();
 
   const isLoading = useSelector(
     getisOneClickBindingConnectingForWidget(widgetId),

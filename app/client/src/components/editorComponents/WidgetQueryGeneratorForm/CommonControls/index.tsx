@@ -2,15 +2,11 @@ import React from "react";
 import DatasourceDropdown from "./DatasourceDropdown";
 import TableOrSpreadsheetDropdown from "./TableOrSpreadsheetDropdown";
 
-type CommonControlsProps = {
-  allowFieldConfig: boolean;
-};
-
-export function CommonControls(props: CommonControlsProps) {
+export function CommonControls() {
   return (
     <>
       <DatasourceDropdown />
-      <TableOrSpreadsheetDropdown allowFieldConfig={props.allowFieldConfig} />
+      <TableOrSpreadsheetDropdown />
     </>
   );
 }

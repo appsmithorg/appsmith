@@ -1,17 +1,13 @@
-import React, { memo } from "react";
+import React, { memo, useContext } from "react";
 import { ErrorMessage, Label, LabelWrapper, SelectWrapper } from "../../styles";
 import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
 import { Select, Option, Tooltip } from "design-system";
 import { DropdownOption } from "../DatasourceDropdown/DropdownOption";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import { ColumnSelectorModal } from "../ColumnSelectorModal";
+import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
 
-type Props = {
-  allowFieldConfig: boolean;
-};
-
-function TableOrSpreadsheetDropdown(props: Props) {
-  const { allowFieldConfig } = props;
+function TableOrSpreadsheetDropdown() {
   const {
     disabled,
     error,
@@ -24,6 +20,8 @@ function TableOrSpreadsheetDropdown(props: Props) {
     show,
   } = useTableOrSpreadsheet();
 
+  const { showEditFieldsModal } = useContext(WidgetQueryGeneratorFormContext);
+
   if (show) {
     return (
       <SelectWrapper className="space-y-2">
@@ -31,7 +29,9 @@ function TableOrSpreadsheetDropdown(props: Props) {
           <Tooltip content={labelText}>
             <Label>{label}</Label>
           </Tooltip>
-          {allowFieldConfig && <ColumnSelectorModal isDisabled={!selected} />}
+          {showEditFieldsModal && (
+            <ColumnSelectorModal isDisabled={!selected} />
+          )}
         </LabelWrapper>
         <Select
           data-testid="t--one-click-binding-table-selector"

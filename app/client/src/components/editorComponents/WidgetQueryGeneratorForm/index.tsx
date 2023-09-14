@@ -55,6 +55,7 @@ type WidgetQueryGeneratorFormContextType = {
   isConnectableToWidget?: boolean;
   datasourceDropdownVariant: DROPDOWN_VARIANT;
   alertMessage?: AlertMessage | null;
+  showEditFieldsModal?: boolean;
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -248,6 +249,7 @@ function WidgetQueryGeneratorForm(props: Props) {
       isConnectableToWidget,
       datasourceDropdownVariant,
       alertMessage,
+      showEditFieldsModal,
     };
   }, [
     config,
@@ -266,6 +268,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     isConnectableToWidget,
     datasourceDropdownVariant,
     alertMessage,
+    showEditFieldsModal,
   ]);
 
   useEffect(() => {
@@ -277,7 +280,7 @@ function WidgetQueryGeneratorForm(props: Props) {
   return (
     <Wrapper>
       <WidgetQueryGeneratorFormContext.Provider value={contextValue}>
-        <CommonControls allowFieldConfig={showEditFieldsModal} />
+        <CommonControls />
         <DatasourceSpecificControls />
         <WidgetSpecificControls
           aliases={aliases}
