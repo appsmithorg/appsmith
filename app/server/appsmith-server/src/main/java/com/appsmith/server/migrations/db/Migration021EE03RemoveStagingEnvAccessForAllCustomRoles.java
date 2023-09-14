@@ -80,7 +80,7 @@ public class Migration021EE03RemoveStagingEnvAccessForAllCustomRoles {
         Query query = new Query().addCriteria(applicableEnvironmentsCriteria);
 
         Update environmentUpdateQuery =
-                new Update().pullAll("policies.$.permissionGroups", finalPermissionGroupIdsToRemove.toArray());
+                new Update().pullAll("policies.$[].permissionGroups", finalPermissionGroupIdsToRemove.toArray());
 
         mongoTemplate.updateMulti(query, environmentUpdateQuery, Environment.class);
     }
