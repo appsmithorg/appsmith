@@ -31,9 +31,7 @@ const CommunityTemplatesPublishInfo = ({
   }, []);
 
   return currentApplication?.isCommunityTemplate ? (
-    <PublishedAppInstructions
-      takeUserToPublishFormPage={takeUserToPublishFormPage}
-    />
+    <PublishedAppInstructions />
   ) : (
     <UnPublishedAppInstructions
       takeUserToPublishFormPage={takeUserToPublishFormPage}
@@ -44,11 +42,7 @@ const CommunityTemplatesPublishInfo = ({
 export default CommunityTemplatesPublishInfo;
 const COMMUNITY_PORTAL_BASE_URL = "https://community.appsmith.com/";
 
-const PublishedAppInstructions = ({
-  takeUserToPublishFormPage,
-}: {
-  takeUserToPublishFormPage: () => void;
-}) => {
+const PublishedAppInstructions = () => {
   const currentApplication = useSelector(getCurrentApplication);
   const onVisitTemplateClick = useCallback(() => {
     openUrlInNewPage(
@@ -70,14 +64,6 @@ const PublishedAppInstructions = ({
         </Text>
       </InfoContainer>
       <InfoFooter>
-        <Button
-          data-testid="t--Publish-Initiate"
-          kind="secondary"
-          onClick={takeUserToPublishFormPage}
-          size="md"
-        >
-          {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.publishBtn)}
-        </Button>
         <Button endIcon="link" onClick={onVisitTemplateClick} size="md">
           {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.viewTemplate)}
         </Button>

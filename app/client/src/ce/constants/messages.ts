@@ -2077,7 +2077,6 @@ export const COMMUNITY_TEMPLATES = {
       description: () =>
         "This application is live on community as a template for users to fork and remix.",
       viewTemplate: () => "View Template",
-      publishBtn: () => "Publish again",
     },
   },
 };
