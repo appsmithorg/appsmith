@@ -12,7 +12,7 @@ import {
   getAction,
   getDatasource,
   getPlugins,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action, StoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
 import { keyBy } from "lodash";

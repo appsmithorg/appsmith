@@ -14,7 +14,7 @@ import {
   getDatasource,
   getPlugin,
   getDatasourceFormButtonConfig,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import {
   switchDatasource,
   setDatasourceViewMode,
@@ -88,7 +88,7 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
+import { PluginName, PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import { isStorageEnvironmentCreated } from "@appsmith/utils/Environments";
@@ -960,6 +960,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                     isSaving={isSaving}
                     isTesting={isTesting}
                     onCancel={() => this.onCancel()}
+                    pageId={pageId}
                     pluginName={pluginName}
                     pluginPackageName={pluginPackageName}
                     pluginType={pluginType as PluginType}
@@ -1072,14 +1073,23 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const featureFlags = selectFeatureFlags(state);
 
   //   A/B feature flag for datasource view mode preview data.
-  const isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
+  let isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
     state,
     FEATURE_FLAG.ab_gsheet_schema_enabled,
   );
 
+  // for mongoDB, the feature flag should be based on ab_mock_mongo_schema_enabled.
+  if (plugin?.name === PluginName.MONGO) {
+    isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.ab_mock_mongo_schema_enabled,
+    );
+  }
+
   // should plugin be able to preview data
   const isPluginAllowedToPreviewData =
-    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "");
+    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
+    (plugin?.name === PluginName.MONGO && !!(datasource as Datasource)?.isMock);
 
   return {
     canCreateDatasourceActions,

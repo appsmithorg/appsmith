@@ -34,6 +34,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.newaction.base.NewActionService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -41,7 +42,6 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -486,7 +486,8 @@ public class ApplicationForkingServiceTests {
         // Trigger the fork application flow
         applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(sourceAppId, targetWorkspace.getId(), sourceEnvironmentId)
-                .timeout(Duration.ofMillis(10))
+                // Increase the timer because feature flags are taking some tiem to be computed.
+                .timeout(Duration.ofMillis(50))
                 .subscribe();
 
         // Wait for fork to complete

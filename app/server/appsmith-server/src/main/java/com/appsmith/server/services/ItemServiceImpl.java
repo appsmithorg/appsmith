@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.newaction.base.NewActionService;
 import com.appsmith.server.services.ce.ItemServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

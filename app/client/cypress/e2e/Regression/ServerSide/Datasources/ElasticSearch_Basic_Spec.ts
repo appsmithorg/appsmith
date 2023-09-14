@@ -8,10 +8,10 @@ import {
 describe("Validate Elasticsearch DS", () => {
   let dsName: any,
     books: any,
-    containerName = "elasticsearch1";
+    containerName = "elasticsearch";
 
   before("Create a new ElasticSearch DS", () => {
-    dataSources.StartContainerNVerify("Elasticsearch", containerName, 45000);
+    //dataSources.StartContainerNVerify("Elasticsearch", containerName, 45000); Since its run in Hosted runs & container is already running, commenting this line
     dataSources.CreateDataSource("Elasticsearch");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -92,7 +92,7 @@ describe("Validate Elasticsearch DS", () => {
 
     agHelper.PressEnter();
 
-    agHelper.Sleep();
+    agHelper.Sleep(2000);
     dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(
@@ -143,6 +143,13 @@ describe("Validate Elasticsearch DS", () => {
       directInput: false,
       inputFieldName: "Body",
     });
+
+    agHelper
+      .GetElement(dataSources._bodyCodeMirror)
+      .type("{downarrow}".repeat(5));
+
+    agHelper.PressEnter();
+    agHelper.Sleep(2000);
     dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
@@ -207,6 +214,6 @@ describe("Validate Elasticsearch DS", () => {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
-    dataSources.StopNDeleteContainer(containerName);
+    //dataSources.StopNDeleteContainer(containerName);
   });
 });

@@ -2,7 +2,7 @@ import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectAllPages } from "selectors/entitiesSelector";
+import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import GeneralSettings from "./GeneralSettings";
 import type { SectionHeaderProps } from "./SectionHeader";
