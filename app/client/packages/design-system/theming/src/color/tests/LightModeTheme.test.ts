@@ -555,3 +555,344 @@ describe("bgWarningSubtleActive color", () => {
     expect(bgWarningSubtleActive).toEqual("rgb(100% 91.621% 80.174%)");
   });
 });
+
+describe("fg color", () => {
+  it("should return correct color when lightness is less than 0.04", () => {
+    const { fg } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
+
+    expect(fg).toEqual("rgb(2.2326% 2.2326% 2.2326%)");
+  });
+
+  it("should return correct color when lightness is greater than 0.04", () => {
+    const { fg } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
+
+    expect(fg).toEqual("rgb(5.4369% 1.2901% 0%)");
+  });
+});
+
+describe("fgAccent color", () => {
+  it("should return correct color when lightness is less than 0.04", () => {
+    const { fgAccent } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
+
+    expect(fgAccent).toEqual("rgb(38.473% 32.008% 26.943%)");
+  });
+
+  it("should return correct color when lightness is greater than 0.04", () => {
+    const { fgAccent } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
+
+    expect(fgAccent).toEqual("rgb(48.857% 27.291% 4.3335%)");
+  });
+});
+
+describe("fgNeutral color", () => {
+  it("should return correct color when lightness is less than 0.04", () => {
+    const { fgNeutral } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
+
+    expect(fgNeutral).toEqual("rgb(33.384% 33.384% 33.384%)");
+  });
+
+  it("should return correct color when lightness is greater than 0.04 and hue is between 120 and 300", () => {
+    const { fgNeutral } = new LightModeTheme("oklch(0.45 0.1 150)").getColors();
+
+    expect(fgNeutral).toEqual("rgb(25.52% 36.593% 27.669%)");
+  });
+
+  it("should return correct color when lightness is greater than 0.04 and hue is not between 120 and 300", () => {
+    const { fgNeutral } = new LightModeTheme("oklch(0.45 0.1 110)").getColors();
+
+    expect(fgNeutral).toEqual("rgb(33.531% 33.77% 30.07%)");
+  });
+});
+
+describe("fgPositive color", () => {
+  it("should return correct color when lightness is less than 0.04", () => {
+    const { fgPositive } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+
+    expect(fgPositive).toEqual("rgb(6.7435% 63.436% 18.481%)");
+  });
+
+  it("should return correct color when lightness is greater than 0.04", () => {
+    const { fgPositive } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
+
+    expect(fgPositive).toEqual("rgb(6.7435% 63.436% 18.481%)");
+  });
+
+  it("should return correct color hue is between 116 and 165", () => {
+    const { fgPositive } = new LightModeTheme(
+      "oklch(0.45 0.1 120)",
+    ).getColors();
+
+    expect(fgPositive).toEqual("rgb(6.7435% 63.436% 18.481%)");
+  });
+
+  it("should return correct color hue is not between 116 and 165", () => {
+    const { fgPositive } = new LightModeTheme("oklch(0.45 0.1 30)").getColors();
+
+    expect(fgPositive).toEqual("rgb(6.7435% 63.436% 18.481%)");
+  });
+});
+
+describe("fgNegative color", () => {
+  it("should return correct color when lightness is less than 0.04", () => {
+    const { fgNegative } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+
+    expect(fgNegative).toEqual("rgb(100% 0% 28.453%)");
+  });
+
+  it("should return correct color when lightness is greater than 0.04", () => {
+    const { fgNegative } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
+
+    expect(fgNegative).toEqual("rgb(100% 0% 28.453%)");
+  });
+
+  it("should return correct color hue is between 5 and 49", () => {
+    const { fgNegative } = new LightModeTheme("oklch(0.45 0.1 30)").getColors();
+
+    expect(fgNegative).toEqual("rgb(100% 0% 28.453%)");
+  });
+
+  it("should return correct color hue is not between 5 and 49", () => {
+    const { fgNegative } = new LightModeTheme(
+      "oklch(0.45 0.1 120)",
+    ).getColors();
+
+    expect(fgNegative).toEqual("rgb(100% 0% 28.453%)");
+  });
+});
+
+describe("fgWarning color", () => {
+  it("should return correct color", () => {
+    const { fgWarning } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
+
+    expect(fgWarning).toEqual("rgb(71.79% 51.231% 0%)");
+  });
+});
+
+describe("fgOnAccent color ", () => {
+  it("should return correct color when ligthness is less than 0.04", () => {
+    const { fgOnAccent } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+
+    expect(fgOnAccent).toEqual("rgb(94.752% 94.752% 94.752%)");
+  });
+
+  it("should return correct color when ligthness is greater than 0.04", () => {
+    const { fgOnAccent } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
+
+    expect(fgOnAccent).toEqual("rgb(100% 92.634% 85.713%)");
+  });
+});
+
+describe("fgOnAssistive color ", () => {
+  it("should return correct color", () => {
+    const { fgOnAssistive } = new LightModeTheme(
+      "oklch(0.45 0.03 110)",
+    ).getColors();
+
+    expect(fgOnAssistive).toEqual("rgb(96.059% 96.059% 96.059%)");
+  });
+});
+
+describe("fgOnNeutral color ", () => {
+  it("should return correct color", () => {
+    const { fgOnNeutral } = new LightModeTheme(
+      "oklch(0.45 0.03 110)",
+    ).getColors();
+
+    expect(fgOnNeutral).toEqual("rgb(94.752% 94.752% 94.752%)");
+  });
+});
+
+describe("fgOnPositive color ", () => {
+  it("should return correct color", () => {
+    const { fgOnPositive } = new LightModeTheme(
+      "oklch(0.45 0.03 110)",
+    ).getColors();
+
+    expect(fgOnPositive).toEqual("rgb(89.702% 100% 89.053%)");
+  });
+});
+
+describe("fgOnNegative color ", () => {
+  it("should return correct color", () => {
+    const { fgOnNegative } = new LightModeTheme(
+      "oklch(0.45 0.03 110)",
+    ).getColors();
+
+    expect(fgOnNegative).toEqual("rgb(100% 87.612% 85.249%)");
+  });
+});
+
+describe("fgOnWarning color ", () => {
+  it("should return correct color", () => {
+    const { fgOnWarning } = new LightModeTheme(
+      "oklch(0.45 0.03 110)",
+    ).getColors();
+
+    expect(fgOnWarning).toEqual("rgb(21.953% 9.0775% 0%)");
+  });
+});
+
+describe("bd color", () => {
+  it("should return correct color", () => {
+    const { bd } = new LightModeTheme("oklch(0.45 0.5 60)").getColors();
+    expect(bd).toEqual("rgb(80.718% 72.709% 66.526%)");
+  });
+});
+
+describe("bdAccent color", () => {
+  it("should return correct color when chroma < 0.04", () => {
+    const { bd } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
+    expect(bd).toEqual("rgb(74.321% 74.321% 74.321%)");
+  });
+
+  it("should return correct color when chroma > 0.04", () => {
+    const { bd } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
+    expect(bd).toEqual("rgb(74.321% 74.321% 74.321%)");
+  });
+});
+
+describe("bdFocus color", () => {
+  it("should return correct color when lightness < 0.6", () => {
+    const { bd } = new LightModeTheme("oklch(0.45 0.4 60)").getColors();
+    expect(bd).toEqual("rgb(80.718% 72.709% 66.526%)");
+  });
+
+  it("should return correct color when lightness > 0.8", () => {
+    const { bd } = new LightModeTheme("oklch(0.85 0.03 60)").getColors();
+    expect(bd).toEqual("rgb(74.321% 74.321% 74.321%)");
+  });
+
+  it("should return correct color when chroma < 0.15", () => {
+    const { bd } = new LightModeTheme("oklch(0.85 0.1 60)").getColors();
+    expect(bd).toEqual("rgb(80.718% 72.709% 66.526%)");
+  });
+
+  it("should return correct color when hue is between 0 and 55", () => {
+    const { bd } = new LightModeTheme("oklch(0.85 0.1 30)").getColors();
+    expect(bd).toEqual("rgb(82.213% 71.61% 69.683%)");
+  });
+
+  it("should return correct color when hue is greater than 340", () => {
+    const { bd } = new LightModeTheme("oklch(0.85 0.1 350)").getColors();
+    expect(bd).toEqual("rgb(81.085% 71.278% 75.495%)");
+  });
+});
+
+describe("bdNeutral color", () => {
+  it("should return correct color when chroma < 0.04", () => {
+    const { bd } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
+    expect(bd).toEqual("rgb(74.321% 74.321% 74.321%)");
+  });
+});
+
+describe("bdNeutralHover", () => {
+  it("should return correct color", () => {
+    const { bdNeutralHover } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+    expect(bdNeutralHover).toEqual("rgb(62.05% 62.05% 62.05%)");
+  });
+});
+
+describe("bdPositive", () => {
+  it("should return correct color", () => {
+    const { bdPositive } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+    expect(bdPositive).toEqual("rgb(6.7435% 63.436% 18.481%)");
+  });
+});
+
+describe("bdPositiveHover", () => {
+  it("should return correct color", () => {
+    const { bdPositiveHover } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+    expect(bdPositiveHover).toEqual("rgb(26.362% 76.094% 31.718%)");
+  });
+});
+
+describe("bdNegative", () => {
+  it("should return correct color", () => {
+    const { bdNegative } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+    expect(bdNegative).toEqual("rgb(83.108% 4.6651% 10.252%)");
+  });
+});
+
+describe("bdNegativeHover", () => {
+  it("should return correct color", () => {
+    const { bdNegativeHover } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+    expect(bdNegativeHover).toEqual("rgb(97.525% 25.712% 23.78%)");
+  });
+});
+
+describe("bdWarning", () => {
+  it("should return correct color", () => {
+    const { bdWarning } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
+    expect(bdWarning).toEqual("rgb(85.145% 64.66% 8.0286%)");
+  });
+});
+
+describe("bdWarningHover", () => {
+  it("should return correct color", () => {
+    const { bdWarningHover } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+    expect(bdWarningHover).toEqual("rgb(98.232% 77.293% 27.893%)");
+  });
+});
+
+describe("bdOnAccent", () => {
+  it("should return correct color", () => {
+    const { bdOnAccent } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+    expect(bdOnAccent).toEqual("rgb(5.2437% 1.364% 0%)");
+  });
+});
+
+describe("bdOnNeutral", () => {
+  it("should return correct color", () => {
+    const { bdOnNeutral } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+    expect(bdOnNeutral).toEqual("rgb(46.751% 46.751% 46.751%)");
+  });
+});
+
+describe("bdOnPositive", () => {
+  it("should return correct color", () => {
+    const { bdOnPositive } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+    expect(bdOnPositive).toEqual("rgb(0% 22.552% 3.6201%)");
+  });
+});
+
+describe("bdOnNegative", () => {
+  it("should return correct color", () => {
+    const { bdOnNegative } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+    expect(bdOnNegative).toEqual("rgb(21.923% 0% 2.8118%)");
+  });
+});
+
+describe("bdOnWarning", () => {
+  it("should return correct color", () => {
+    const { bdOnWarning } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+    expect(bdOnWarning).toEqual("rgb(39.972% 27.552% 0%)");
+  });
+});
