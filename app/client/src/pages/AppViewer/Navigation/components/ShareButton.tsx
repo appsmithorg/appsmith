@@ -81,7 +81,11 @@ const ShareButton = (props: ShareButtonProps) => {
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
-          title={createMessage(APPLICATION_INVITE)}
+          title={createMessage(
+            APPLICATION_INVITE,
+            currentApplicationDetails?.name,
+            cloudHosting,
+          )}
           workspace={{ id: currentWorkspaceId }}
         />
       )}

@@ -8,7 +8,7 @@ import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import type { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getPageWidgets } from "selectors/entitiesSelector";
+import { getPageWidgets } from "@appsmith/selectors/entitiesSelector";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 import convertToAutoLayout from "utils/DSLConversions/fixedToAutoLayout";
 import type { DSLWidget } from "WidgetProvider/constants";

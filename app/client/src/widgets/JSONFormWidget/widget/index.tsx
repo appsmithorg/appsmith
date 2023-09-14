@@ -34,7 +34,7 @@ import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import type {
@@ -676,7 +676,7 @@ class JSONFormWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("isValid", isValid);
   };
 
-  getPageView() {
+  getWidgetView() {
     const isAutoHeightEnabled = isAutoHeightEnabledForWidget(this.props);
     return (
       // Warning!!! Do not ever introduce formData as a prop directly,

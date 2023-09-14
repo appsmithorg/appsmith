@@ -102,7 +102,10 @@ import { builderURL } from "RouteBuilder";
 import { APP_MODE } from "entities/App";
 import type { GitDiscardResponse } from "reducers/uiReducers/gitSyncReducer";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { getActions, getJSCollections } from "selectors/entitiesSelector";
+import {
+  getActions,
+  getJSCollections,
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
@@ -749,7 +752,11 @@ function* showConnectGitModal() {
   // currently it just opens the git sync modal assuming the APIs would
   // throw an error instead
   yield put(
-    setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+    setIsGitSyncModalOpen({
+      isOpen: true,
+      tab: GitSyncModalTab.DEPLOY,
+      isDeploying: true,
+    }),
   );
 }
 

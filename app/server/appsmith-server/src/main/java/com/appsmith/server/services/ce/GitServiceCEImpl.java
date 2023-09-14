@@ -44,13 +44,13 @@ import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.server.newaction.base.NewActionService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
@@ -1455,24 +1455,34 @@ public class GitServiceCEImpl implements GitServiceCE {
                      * Use the create branch method with isRemoteFlag or use the setStartPoint ,method in createBranch method
                      * */
                     Application srcApplication = tuple.getT2();
+                    Mono<Application> applicationMono;
 
                     // Create a new Application
                     GitApplicationMetadata srcBranchGitData = srcApplication.getGitApplicationMetadata();
-                    srcBranchGitData.setBranchName(branchName);
-                    srcBranchGitData.setDefaultApplicationId(defaultApplicationId);
-                    // Save a new application in DB and update from the parent branch application
-                    srcBranchGitData.setGitAuth(null);
-                    srcBranchGitData.setIsRepoPrivate(null);
-                    srcBranchGitData.setLastCommittedAt(Instant.now());
-                    srcApplication.setId(null);
-                    srcApplication.setPages(null);
-                    srcApplication.setPublishedPages(null);
-                    srcApplication.setGitApplicationMetadata(srcBranchGitData);
-                    srcApplication.setEditModeThemeId(null);
-                    srcApplication.setPublishedModeThemeId(null);
+                    if (branchName.equals(srcBranchGitData.getBranchName())) {
+                        /*
+                         in this case, user deleted the initial default branch and now wants to check out to that branch.
+                         as we didn't delete the application object but only the branch from git repo,
+                         we can just use this existing application without creating a new one.
+                        */
+                        applicationMono = Mono.just(srcApplication);
+                    } else {
+                        srcBranchGitData.setBranchName(branchName);
+                        srcBranchGitData.setDefaultApplicationId(defaultApplicationId);
+                        // Save a new application in DB and update from the parent branch application
+                        srcBranchGitData.setGitAuth(null);
+                        srcBranchGitData.setIsRepoPrivate(null);
+                        srcBranchGitData.setLastCommittedAt(Instant.now());
+                        srcApplication.setId(null);
+                        srcApplication.setPages(null);
+                        srcApplication.setPublishedPages(null);
+                        srcApplication.setGitApplicationMetadata(srcBranchGitData);
+                        srcApplication.setEditModeThemeId(null);
+                        srcApplication.setPublishedModeThemeId(null);
+                        applicationMono = applicationService.save(srcApplication);
+                    }
 
-                    return applicationService
-                            .save(srcApplication)
+                    return applicationMono
                             .flatMap(application1 -> fileUtils
                                     .reconstructApplicationJsonFromGitRepo(
                                             srcApplication.getWorkspaceId(),

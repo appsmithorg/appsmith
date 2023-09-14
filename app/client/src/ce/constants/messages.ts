@@ -164,7 +164,7 @@ export const INVITE_TAB = () => "Invite";
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
   `Invalid email address(es) found`;
 export const INVITE_USERS_VALIDATION_ROLE_EMPTY = () => `Please select a role`;
-export const APPLICATION_INVITE = () => "Application Invite";
+export const APPLICATION_INVITE = (name: string) => name;
 export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = () =>
   `Comma separated emails`;
 export const INVITE_USERS_ROLE_SELECT_PLACEHOLDER = () => `Select role`;
@@ -215,6 +215,15 @@ export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
 export const DELETING_APPLICATION = () => `Deleting application...`;
+export const DELETING_MULTIPLE_APPLICATION = () =>
+  `Deleting multiple applications...`;
+export const NO_PERMISSION_TO_SELECT_FOR_DELETE = () =>
+  `You don't have permission to delete this application`;
+
+export const DELETING_MULTIPLE_APPLICATION_MODAL_TITLE = () =>
+  `Delete Confirmation`;
+export const DELETING_MULTIPLE_APPLICATION_MODAL_DESC = () =>
+  `Are you sure you want to delete selected applications?`;
 
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to sign in`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
@@ -1838,6 +1847,7 @@ export const RECONNECT_BUTTON_TEXT = () => "Reconnect";
 export const SAVE_BUTTON_TEXT = () => "Save";
 export const TEST_BUTTON_TEXT = () => "Test Configuration";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "Save and authorize";
+export const SAVE_AND_RE_AUTHORIZE_BUTTON_TEXT = () => "Save and Re-Authorize";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "Don't save";
 export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";
 export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
@@ -1973,10 +1983,10 @@ export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
 
 //Datasource environment
 export const START_SWITCH_ENVIRONMENT = (environment: string) =>
-  `Switching your environment to ${environment}, and running all associated pageload actions`;
+  `Switching your environment to ${environment.toLowerCase()}, and running all associated pageload actions`;
 export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
-  `Environment switched to ${environment} successfully`;
-export const SWITCH_ENV_DISABLED_TOOLTIP_TEXT = () =>
+  `Environment switched to ${environment.toLowerCase()} successfully`;
+export const SWITCH_ENV_DISABLED_TOOLTIP_TEXT = (): string =>
   "To access environments for datasources, try out our ";
 
 export const TEST_DATASOURCE_SUCCESS = (
@@ -1984,7 +1994,7 @@ export const TEST_DATASOURCE_SUCCESS = (
   environmentName: string,
 ) => {
   return environmentName
-    ? `Test was successful, ${datasourceName} ${environmentName} environment is correctly configured.`
+    ? `Test was successful, ${datasourceName} ${environmentName.toLowerCase()} environment is correctly configured.`
     : `Test was successful, ${datasourceName} is correctly configured.`;
 };
 
