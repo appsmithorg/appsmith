@@ -621,4 +621,12 @@ export class PropertyPane {
     this.agHelper.GetNClick(this._propertyControlColorPicker(property));
     this.agHelper.GetNClick(this._colorPickerV2Color, colorOffset, true);
   }
+
+  public AssertPropertyVisibility(properties: string[], sectionTitle: string) {
+    properties.forEach((property: string) => {
+      this.agHelper.AssertElementVisibility(
+        this._propertyPanePropertyControl(sectionTitle, property),
+      );
+    });
+  }
 }

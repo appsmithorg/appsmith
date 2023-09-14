@@ -293,10 +293,13 @@ export class CommonLocators {
   _alignment = (value: string) => `//*[@data-value='${value}']`;
   _borderRadius = (value: string) => `//*[@data-value='${value}']`;
   _textInside = ".bp3-ui-text span";
+  _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
+  _hintsList = "ul.CodeMirror-hints";
   _buttonInDeployedMode = ".bp3-button";
   _treeSelectPlaceholder = ".rc-tree-select-selection-placeholder";
   _treeSelectTitle = ".rc-tree-select-tree-title";
   _newDataSourceBtn = ".datasources .t--entity-add-btn";
   _callbackAddBtn = ".action-callback-add .ads-v2-button";
   _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
+  _listText = "//span[text()='Blue']/../..";
 }
