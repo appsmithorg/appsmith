@@ -756,10 +756,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
                     profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
-                    profile.setRoles(List.of(WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED));
-                    profile.setGroups(List.of(WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED));
+                    setRolesAndGroups(profile);
                     return profile;
                 });
+    }
+
+    protected void setRolesAndGroups(UserProfileDTO profile) {
+        profile.setRoles(List.of(WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED));
+        profile.setGroups(List.of(WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED));
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {
