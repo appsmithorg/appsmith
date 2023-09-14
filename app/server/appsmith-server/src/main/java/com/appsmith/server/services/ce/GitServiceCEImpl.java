@@ -1560,7 +1560,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         return getApplicationById(applicationId);
     }
 
-    Mono<Application> getApplicationById(String applicationId) {
+    public Mono<Application> getApplicationById(String applicationId) {
         return applicationService
                 .findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
