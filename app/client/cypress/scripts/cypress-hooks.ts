@@ -9,14 +9,9 @@ export async function cypressHooks(
   const s3 = _.configureS3();
   const dbClient = _.configureDbClient();
   const runData: any = {
-    commitMsg: _.getVars().commitMsg,
     workflowId: _.getVars().runId,
     attempt: _.getVars().attempt_number,
     os: os.type(),
-    repo: _.getVars().repository,
-    committer: _.getVars().committer,
-    type: _.getVars().tag,
-    branch: _.getVars().branch,
   };
   const matrix: any = {
     matrixId: _.getVars().thisRunner,
@@ -28,47 +23,18 @@ export async function cypressHooks(
     runData.browser = runDetails.browser?.name;
     const client = await dbClient.connect();
     try {
-      const runResponse = await client.query(
-        `INSERT INTO public.attempt ("workflowId", "attempt", "browser", "os", "repo", "committer", "type", "commitMsg", "branch")
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            ON CONFLICT ("workflowId", attempt) DO NOTHING
-            RETURNING id;`,
-        [
-          runData.workflowId,
-          runData.attempt,
-          runData.browser,
-          runData.os,
-          runData.repo,
-          runData.committer,
-          runData.type,
-          runData.commitMsg,
-          runData.branch,
-        ],
+      const attemptRes = await client.query(
+        `UPDATE public."attempt" SET "browser" = $1, "os" = $2  WHERE "workflowId" = $3 AND attempt = $4 RETURNING id`,
+        [runData.browser, runData.os, runData.workflowId, runData.attempt],
       );
-
-      if (runResponse.rows.length > 0) {
-        runData.attemptId = runResponse.rows[0].id; // Save the inserted attempt ID for later updates
-      } else {
-        const res = await client.query(
-          `SELECT id FROM public.attempt WHERE "workflowId" = $1 AND attempt = $2`,
-          [runData.workflowId, runData.attempt],
-        );
-        runData.attemptId = res.rows[0].id;
-      }
-
-      const matrixResponse = await client.query(
-        `INSERT INTO public.matrix ("workflowId", "matrixId", "status", "attemptId")
-            VALUES ($1, $2, $3, $4)
-            ON CONFLICT ("matrixId", "attemptId") DO NOTHING
-            RETURNING id;`,
-        [
-          runData.workflowId,
-          matrix.matrixId,
-          matrix.matrixStatus,
-          runData.attemptId,
-        ],
+      runData.attemptId = attemptRes.rows[0].id;
+      console.log("BEFORE RUN ATTEMPT ID ====>", runData.attemptId);
+      const matrixRes = await client.query(
+        `SELECT id FROM public."matrix" WHERE "attemptId" = $1 AND "matrixId" = $2`,
+        [runData.attemptId, matrix.matrixId],
       );
-      matrix.id = matrixResponse.rows[0].id; // Save the inserted matrix ID for later updates
+      matrix.id = matrixRes.rows[0].id;
+      console.log("BEFORE RUN MATRIX ID ====>", matrix.id);
     } catch (err) {
       console.log(err);
     } finally {
@@ -84,10 +50,11 @@ export async function cypressHooks(
     try {
       if (!specData.name.includes("no_spec.ts")) {
         const specResponse = await client.query(
-          'INSERT INTO public.specs ("name", "matrixId") VALUES ($1, $2) RETURNING id',
+          `SELECT id FROM public."specs" WHERE "name" = $2 AND "matrixId" = $1`,
           [specData.name, matrix.id],
         );
-        specData.specId = specResponse.rows[0].id; // Save the inserted spec ID for later updates
+        specData.specId = specResponse.rows[0].id;
+        console.log("BEFORE SPEC SPEC ID ------->", specData.specId); // Save the inserted spec ID for later updates
       }
     } catch (err) {
       console.log(err);

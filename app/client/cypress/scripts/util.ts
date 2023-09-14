@@ -32,6 +32,7 @@ export class util {
       totalRunners: this.getEnvValue("TOTAL_RUNNERS", { required: false }),
       thisRunner: this.getEnvValue("THIS_RUNNER", { required: true }),
       cypressSpecs: this.getEnvValue("CYPRESS_SPECS", { required: false }),
+      cypressRerun: this.getEnvValue("CYPRESS_RERUN", { required: false }),
     };
   }
   public async divideSpecsIntoBalancedGroups(

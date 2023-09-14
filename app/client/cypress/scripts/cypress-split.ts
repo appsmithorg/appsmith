@@ -3,13 +3,10 @@ import type { DataItem } from "./util";
 import { util } from "./util";
 import globby from "globby";
 import minimatch from "minimatch";
+import type { PoolClient } from "pg";
 
-const fs = require("fs/promises");
 const _ = new util();
 const dbClient = _.configureDbClient();
-
-// used to roughly determine how many tests are in a file
-const testPattern = /(^|\s)(it)\(/g;
 
 // This function will get all the spec paths using the pattern
 async function getSpecFilePaths(
@@ -113,23 +110,155 @@ async function getAlreadyRunningSpecs() {
   }
 }
 
+async function createAttempt() {
+  const client = await dbClient.connect();
+  try {
+    const runResponse = await client.query(
+      `INSERT INTO public.attempt ("workflowId", "attempt", "repo", "committer", "type", "commitMsg", "branch")
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          ON CONFLICT ("workflowId", attempt) DO NOTHING
+          RETURNING id;`,
+      [
+        _.getVars().runId,
+        _.getVars().attempt_number,
+        _.getVars().repository,
+        _.getVars().committer,
+        _.getVars().tag,
+        _.getVars().commitMsg,
+        _.getVars().branch,
+      ],
+    );
+
+    if (runResponse.rows.length > 0) {
+      return runResponse.rows[0].id;
+    } else {
+      const res = await client.query(
+        `SELECT id FROM public.attempt WHERE "workflowId" = $1 AND attempt = $2`,
+        [_.getVars().runId, _.getVars().attempt_number],
+      );
+      return res.rows[0].id;
+    }
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.release();
+  }
+}
+
+async function createMatrix(attemptId: number) {
+  const client = await dbClient.connect();
+  try {
+    const matrixResponse = await client.query(
+      `INSERT INTO public.matrix ("workflowId", "matrixId", "status", "attemptId")
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT ("matrixId", "attemptId") DO NOTHING
+          RETURNING id;`,
+      [_.getVars().runId, _.getVars().thisRunner, "started", attemptId],
+    );
+    return matrixResponse.rows[0].id;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.release();
+  }
+}
+
+async function getFailedSpecsFromPreviousRun(
+  workflowId = Number(_.getVars().runId),
+  attempt_number = Number(_.getVars().attempt_number) - 1,
+) {
+  const client = await dbClient.connect();
+  try {
+    const dbRes = await client.query(
+      `SELECT name FROM public."specs" 
+      WHERE "matrixId" IN 
+      (SELECT id FROM public."matrix" 
+       WHERE "attemptId" = (
+         SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
+       )
+      ) AND status = 'fail'`,
+      [workflowId, attempt_number],
+    );
+    const specs: string[] =
+      dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
+    return specs;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.release();
+  }
+}
+
+async function addSpecsToMatrix(
+  client: PoolClient,
+  matrixId: number,
+  specs: string[],
+) {
+  try {
+    for (const spec of specs) {
+      const res = await client.query(
+        `INSERT INTO public.specs ("name", "matrixId") VALUES ($1, $2) RETURNING id`,
+        [spec, matrixId],
+      );
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function addLockAndUpdateSpecs(
+  attemptId: number,
+  matrixId: number,
+  specs: string[],
+) {
+  const client = await dbClient.connect();
+  let locked = false;
+  try {
+    while (locked) {
+      try {
+        await client.query(`BEGIN`);
+        const result = await client.query(
+          `SELECT * FROM public."attempt" WHERE id = $1 FOR UPDATE`,
+          [attemptId],
+        );
+        if (result.rows.length === 1) {
+          locked = true;
+          await addSpecsToMatrix(client, matrixId, specs);
+          await client.query(`COMMIT`);
+        } else {
+          await client.query(`ROLLBACK`);
+          await sleep(1000);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.release();
+  }
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function cypressSplit(
   on: Cypress.PluginEvents,
   config: Cypress.PluginConfigOptions,
 ) {
   try {
-    let currentRunner = 0;
-    let allRunners = 1;
     let specPattern = config.specPattern;
     let ignorePattern: string | string[] = config.excludeSpecPattern;
-    const { cypressSpecs, thisRunner, totalRunners } = _.getVars();
+    const cypressSpecs = _.getVars().cypressSpecs;
+    const defaultSpec = "cypress/scripts/no_spec.ts";
 
     if (cypressSpecs != "")
       specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
-
-    if (totalRunners != "") {
-      currentRunner = Number(thisRunner);
-      allRunners = Number(totalRunners);
+    if (_.getVars().cypressRerun === "true") {
+      specPattern = (await getFailedSpecsFromPreviousRun()) ?? defaultSpec;
+      console.log("RERUN SPEC PATTERN", specPattern);
     }
 
     let runningSpecs: string[] = (await getAlreadyRunningSpecs()) ?? [];
@@ -141,10 +270,14 @@ export async function cypressSplit(
     }
 
     const specs = await getSpecsToRun(specPattern, ignorePattern);
-    if (specs.length > 0) {
+    if (specs.length > 0 && !specs.includes(defaultSpec)) {
       config.specPattern = specs.length == 1 ? specs[0] : specs;
+
+      const attempt = await createAttempt();
+      const matrix = await createMatrix(Number(attempt));
+      await addLockAndUpdateSpecs(Number(attempt), Number(matrix), specs);
     } else {
-      config.specPattern = "cypress/scripts/no_spec.ts";
+      config.specPattern = defaultSpec;
     }
 
     return config;
