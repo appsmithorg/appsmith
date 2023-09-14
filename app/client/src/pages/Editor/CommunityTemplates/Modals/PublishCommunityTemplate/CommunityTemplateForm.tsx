@@ -1,7 +1,9 @@
-import { COMMUNITY_TEMPLATES } from "@appsmith/constants/messages";
+import {
+  COMMUNITY_TEMPLATES,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { publishCommunityTemplate } from "actions/communityTemplateActions";
 import { Button, Checkbox } from "design-system";
-import { createMessage } from "design-system-old/build/constants/messages";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "selectors/editorSelectors";
