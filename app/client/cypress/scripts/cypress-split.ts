@@ -4,6 +4,7 @@ import { util } from "./util";
 import globby from "globby";
 import minimatch from "minimatch";
 import type { PoolClient } from "pg";
+import { cli } from "cypress";
 
 const _ = new util();
 const dbClient = _.configureDbClient();
@@ -32,7 +33,7 @@ async function getSpecFilePaths(
   return filtered;
 }
 
-async function getSpecsWithTime(specs: string[]) {
+async function getSpecsWithTime(specs: string[], attemptId: number) {
   const client = await dbClient.connect();
   try {
     const queryRes = await client.query(
@@ -45,9 +46,10 @@ async function getSpecsWithTime(specs: string[]) {
     });
     console.log("ALL SPECS WITH DURATION", allSpecsWithDuration);
     const activeRunners = await _.getActiveRunners();
+    const activeRunnersFromDb = await getActiveRunnersFromDb(attemptId);
     return await _.divideSpecsIntoBalancedGroups(
       allSpecsWithDuration,
-      Number(activeRunners),
+      Number(activeRunners) - Number(activeRunnersFromDb),
     );
   } catch (err) {
     console.log(err);
@@ -56,22 +58,11 @@ async function getSpecsWithTime(specs: string[]) {
   }
 }
 
-// This function will split the specs between the runners by calculating the modulus between spec index and the totalRunners
-function splitSpecs(
-  specs: string[],
-  totalRunnersCount: number,
-  currentRunner: number,
-): string[] {
-  let specs_to_run = specs.filter((_, index) => {
-    return index % totalRunnersCount === currentRunner;
-  });
-  return specs_to_run;
-}
-
 // This function will finally get the specs as a comma separated string to pass the specs to the command
 async function getSpecsToRun(
   specPattern: string | string[] = "cypress/e2e/**/**/*.{js,ts}",
   ignorePattern: string | string[],
+  attemptId: number,
 ): Promise<string[]> {
   try {
     const specFilePaths = await getSpecFilePaths(specPattern, ignorePattern);
@@ -80,7 +71,7 @@ async function getSpecsToRun(
     if (!specFilePaths.length) {
       throw Error("No spec files found.");
     }
-    const specsToRun = await getSpecsWithTime(specFilePaths);
+    const specsToRun = await getSpecsWithTime(specFilePaths, attemptId);
     console.log("SPECS TO RUN ====>", specsToRun);
     return specsToRun === undefined
       ? []
@@ -88,6 +79,21 @@ async function getSpecsToRun(
   } catch (err) {
     console.error(err);
     process.exit(1);
+  }
+}
+
+async function getActiveRunnersFromDb(attemptId: number) {
+  const client = await dbClient.connect();
+  try {
+    const matrixRes = await client.query(
+      `SELECT * FROM public."matrix" WHERE "attemptId" = $1`,
+      [attemptId],
+    );
+    return matrixRes.rowCount;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.release();
   }
 }
 
@@ -273,13 +279,16 @@ export async function cypressSplit(
       ignorePattern = runningSpecs.concat(ignorePattern);
     }
 
-    const specs = await getSpecsToRun(specPattern, ignorePattern);
+    const attempt = await createAttempt();
+    const matrix = await createMatrix(Number(attempt));
+    const specs = await getSpecsToRun(
+      specPattern,
+      ignorePattern,
+      Number(attempt),
+    );
     console.log("GET SPECS TO RUN IN SPLIT SPECS", specs);
     if (specs.length > 0 && !specs.includes(defaultSpec)) {
       config.specPattern = specs.length == 1 ? specs[0] : specs;
-
-      const attempt = await createAttempt();
-      const matrix = await createMatrix(Number(attempt));
       await addLockAndUpdateSpecs(Number(attempt), Number(matrix), specs);
     } else {
       config.specPattern = defaultSpec;
