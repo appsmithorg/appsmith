@@ -253,7 +253,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       dataSources.TestDatasource(false);
       agHelper.WaitUntilAllToastsDisappear();
       agHelper.UpdateInputValue(
-        dataSources._host,
+        dataSources._host(),
         dataManager.dsValues[dataManager.defaultEnviorment].mssql_host,
       );
       agHelper.UpdateInputValue(

@@ -541,15 +541,15 @@ jobs:
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
-      - name: get cypress url dashboard url
-        id: dashboard_url
-        if: always()
-        run: |
-          if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-            echo ${{ steps.cypress_test.outputs.resultsUrl }} >> ~/cypress_url
-          elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-            echo ${{ steps.cypress_test_failedtest.outputs.resultsUrl }} >> ~/cypress_url
-          fi
+      # - name: get cypress url dashboard url
+      #   id: dashboard_url
+      #   if: always()
+      #   run: |
+      #     if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
+      #       echo ${{ steps.cypress_test.outputs.resultsUrl }} >> ~/cypress_url
+      #     elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
+      #       echo ${{ steps.cypress_test_failedtest.outputs.resultsUrl }} >> ~/cypress_url
+      #     fi
 
       # Force store previous run result to cache
       - name: Store the previous run result

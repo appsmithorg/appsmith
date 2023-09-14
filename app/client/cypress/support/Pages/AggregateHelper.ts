@@ -176,9 +176,8 @@ export class AggregateHelper extends ReusableHelper {
       .type(renameVal, { force: true, delay: 0 })
       .should("have.value", renameVal)
       .blur();
-    this.PressEnter();
+    this.PressEnter(); //allow lil more time for new name to settle
     this.AssertElementVisibility(this.locator._editIcon);
-    this.Sleep(300); //allow lil more time for new name to settle
   }
 
   public CheckForPageSaveError() {
@@ -572,16 +571,19 @@ export class AggregateHelper extends ReusableHelper {
     //     .click()
   }
 
-  public PressEscape() {
+  public PressEscape(sleep = 500) {
     cy.get("body").type("{esc}");
+    this.Sleep(sleep);
   }
 
-  public PressEnter() {
+  public PressEnter(sleep = 500) {
     cy.get("body").type("{enter}");
+    this.Sleep(sleep);
   }
 
-  public PressDelete() {
+  public PressDelete(sleep = 500) {
     cy.get("body").type(`{del}`, { force: true });
+    this.Sleep(sleep);
   }
 
   public SelectAllWidgets(parentWidget = ".appsmith_widget_0") {
@@ -791,6 +793,11 @@ export class AggregateHelper extends ReusableHelper {
       this.TypeText(selector, totype, index);
     }
   }
+  public ClickNClear(selector: string, force = false, index = 0) {
+    this.GetNClick(selector, index, force);
+    this.ClearTextField(selector, force, index);
+  }
+
   public ClearTextField(selector: string, force = false, index = 0) {
     this.GetElement(selector).eq(index).clear({ force });
     this.Sleep(500); //for text to clear for CI runs
