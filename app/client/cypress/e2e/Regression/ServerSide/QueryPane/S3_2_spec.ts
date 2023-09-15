@@ -117,9 +117,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
     agHelper.Sleep(2000);
 
-    // Click on the Image widget of the searched item to select the item
-    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
-
     //Verifying DeleteFile icon from UI
     DeleteS3FileFromUI(fixturePath);
 
@@ -159,8 +156,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //Verifies bug # 9922
 
     cy.wait(3000);
-    // Click on the Image widget of the searched item to select the item
-    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
 
     //Verifying DeleteFile from UI
     DeleteS3FileFromUI(fixturePath);
@@ -288,9 +283,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       1,
     );
 
-    // Click on the Image widget of the searched item to select the item
-    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
-
     //Attempt Delete & Confirm from UI
     DeleteS3FileFromUI(fixturePath);
 
@@ -361,13 +353,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       3,
     );
 
-    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
     DeleteS3FileFromUI(bulkyId + "/Georgia.jpeg", false);
-
-    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
     DeleteS3FileFromUI(bulkyId + "/Maine.jpeg", false);
-
-    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
     DeleteS3FileFromUI(bulkyId + "/NewJersey.jpeg", true);
 
     deployMode.NavigateBacktoEditor();
@@ -483,6 +470,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     fileNameToDelete = "",
     toAssertNoDataToDisplay = true,
   ) {
+    // Click on the Image widget of the searched item to select the item
+    agHelper.GetNClick(getWidgetSelector(WIDGET.IMAGE), 0, true);
     agHelper.GetNClick(dataSources._s3CrudIcons(fileNameToDelete, "Delete")); //Verifies 8684
     agHelper.AssertElementAbsence(
       locators._specificToast("Cyclic dependency found while evaluating"),

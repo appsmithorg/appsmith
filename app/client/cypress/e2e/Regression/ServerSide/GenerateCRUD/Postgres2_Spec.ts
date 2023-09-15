@@ -286,7 +286,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
   });
 
-  it("8. Verify Delete field data from Deploy page - on Vessels - existing record", () => {
+  it("7. Verify Delete field data from Deploy page - on Vessels - existing record", () => {
     table.SelectTableRow(8, 0, true, "v2");
     dataSources.AssertJSONFormHeader(8, 0, "ship_id");
 
@@ -332,7 +332,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     UpdateNVerify(8, 3, "");
   });
 
-  it("9. Verify Delete row from Deploy page - on Vessels - existing record", () => {
+  it("8. Verify Delete row from Deploy page - on Vessels - existing record", () => {
     table.SelectTableRow(1, 0, true, "v2");
     dataSources.AssertJSONFormHeader(1, 0, "ship_id");
     agHelper.ClickButton("Delete", 1);
@@ -560,7 +560,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     //   .then(($len) => expect($len).to.eq(1));
   });
 
-  it("15. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
+  it("14. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
     table.SelectTableRow(0, 0, true, "v2");
     agHelper.Sleep(2000); //since table taking time to display JSON form
 

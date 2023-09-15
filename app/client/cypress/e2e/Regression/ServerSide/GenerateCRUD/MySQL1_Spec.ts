@@ -323,7 +323,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._generatePageBtn);
     assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page");
-    //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
+    //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
