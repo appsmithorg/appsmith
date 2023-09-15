@@ -15,6 +15,7 @@ import { JSToString, stringToJS } from "./utils";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { assistiveBindingHinter } from "components/editorComponents/CodeEditor/assistiveBindingHinter";
 
 type InputTextProp = {
   label: string;
@@ -47,12 +48,14 @@ function InputText(props: InputTextProp) {
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
+        hinting={[assistiveBindingHinter]}
         input={{
           value: value,
           onChange: onChange,
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
+        positionCursorInsideBinding
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={theme}
