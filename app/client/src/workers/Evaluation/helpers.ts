@@ -1,4 +1,6 @@
+import { removeFunctionsAndSerialzeBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { Diff } from "deep-diff";
+import { applyChange } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal";
@@ -200,6 +202,12 @@ const generateDiffUpdates = (
 
       const lhs = get(oldDataTree, segmentedPath);
 
+      if (rhs === undefined) {
+        //perform diff on this node
+        attachDirectly.push({ kind: "D", lhs, path: segmentedPath });
+        return true;
+      }
+
       const isLhsLarge = isLargeCollection(lhs);
       const isRhsLarge = isLargeCollection(rhs);
       if (!isLhsLarge && !isRhsLarge) {
@@ -270,6 +278,32 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     identicalEvalPathsPatches,
   );
 
+  const sanitisedUpdates = removeFunctionsAndSerialzeBigInt(updates);
+
+  const { deleteUpdates, regularUpdates } = sanitisedUpdates.reduce(
+    (acc: any, curr: any) => {
+      const { kind, path, rhs } = curr;
+      const lhs = get(dataTree, path);
+      if (rhs === undefined) {
+        if (kind === "N") {
+          return acc;
+        }
+        if (kind === "E") {
+          acc.deleteUpdates.push({ kind: "D", path, lhs });
+        }
+      }
+      acc.regularUpdates.push(curr);
+      return acc;
+    },
+    { regularUpdates: [], deleteUpdates: [] },
+  );
+
+  const consolidatedUpdates = [...regularUpdates, ...deleteUpdates];
+
+  consolidatedUpdates.forEach((val) => {
+    applyChange(dataTree, undefined, val);
+  });
   dataTreeEvaluator?.setPrevState(dataTree);
-  return updates;
+
+  return consolidatedUpdates;
 };
