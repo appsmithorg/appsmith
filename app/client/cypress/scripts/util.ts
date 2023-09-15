@@ -122,7 +122,7 @@ export class util {
   }
 
   // This is to upload files to s3 when required
-  public uploadToS3(s3Client: AWS.S3, filePath: string, key: string) {
+  public async uploadToS3(s3Client: AWS.S3, filePath: string, key: string) {
     const fileContent = fs.readFileSync(filePath);
     console.log("FILE CONTENT ====> ", fileContent);
 
@@ -131,7 +131,7 @@ export class util {
       Key: key,
       Body: fileContent,
     };
-    return s3Client.upload(params).promise();
+    return await s3Client.upload(params).promise();
   }
 
   public async getActiveRunners() {

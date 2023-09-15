@@ -122,7 +122,7 @@ export async function cypressHooks(
                   attempt,
                 );
                 const key = `${testResponse.rows[0].id}_${specData.specId}_${attempt}`;
-                Promise.all([_.uploadToS3(s3, scr.path, key)])
+                await _.uploadToS3(s3, scr.path, key)
                   .then((res) => {
                     console.log(res);
                   })
