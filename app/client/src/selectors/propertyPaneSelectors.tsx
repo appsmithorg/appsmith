@@ -21,7 +21,7 @@ import {
 import { generateClassName } from "utils/generators";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getCanvasWidgets } from "./entitiesSelector";
+import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { getCurrentAppPositioningType } from "./editorSelectors";
 

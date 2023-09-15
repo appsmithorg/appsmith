@@ -8,7 +8,10 @@ import type { AppState } from "@appsmith/reducers";
 import type { JSCollection } from "entities/JSCollection";
 import { Classes } from "@blueprintjs/core";
 import { saveJSObjectName } from "actions/jsActionActions";
-import { getJSCollection, getPlugin } from "selectors/entitiesSelector";
+import {
+  getJSCollection,
+  getPlugin,
+} from "@appsmith/selectors/entitiesSelector";
 import NameEditorComponent from "components/utils/NameEditorComponent";
 import {
   ACTION_NAME_PLACEHOLDER,

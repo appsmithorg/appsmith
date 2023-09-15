@@ -13,7 +13,7 @@ import type { Action } from "entities/Action";
 import { saveActionName } from "actions/pluginActionActions";
 import { Spinner } from "design-system";
 import { Classes } from "@blueprintjs/core";
-import { getAction, getPlugin } from "selectors/entitiesSelector";
+import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import NameEditorComponent from "components/utils/NameEditorComponent";
 import {
