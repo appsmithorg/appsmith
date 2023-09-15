@@ -357,16 +357,16 @@ function Deploy() {
                   links={[
                     {
                       children: createMessage(READ_DOCUMENTATION),
-                      onClick: (e) => {
-                        e.preventDefault();
+                      onClick: () => {
                         AnalyticsUtil.logEvent(
                           "GS_GIT_DOCUMENTATION_LINK_CLICK",
                           {
                             source: "UPSTREAM_CHANGES_LINK_ON_GIT_DEPLOY_MODAL",
                           },
                         );
-                        window.open(upstreamErrorDocumentUrl, "_blank");
                       },
+                      to: upstreamErrorDocumentUrl,
+                      target: "_blank",
                     },
                   ]}
                 >
