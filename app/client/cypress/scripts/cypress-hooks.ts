@@ -93,12 +93,15 @@ export async function cypressHooks(
                 test.displayError,
               ],
             );
+            console.log("TEST NAME: ", test.title[1]);
+            console.log(
+              "-----------------------------------------------------",
+            );
             console.log("TEST =======> ", JSON.parse(JSON.stringify(test)));
             console.log(
-              "SCREENSHOTS =======> ",
-              JSON.parse(JSON.stringify(results.screenshots)),
+              "TEST ID=======> ",
+              JSON.parse(JSON.stringify(testResponse)),
             );
-            console.log("VIDEO =======> ", results.video);
             if (
               test.attempts.some((attempt) => attempt.state === "failed") &&
               results.screenshots.length > 0
@@ -113,9 +116,12 @@ export async function cypressHooks(
                   "TEST SCREENSHOTS INDIVIDUAL ====> ",
                   JSON.stringify(scr),
                 );
-                const key = `${testResponse.rows[0].id}_${specData.specId}_${
-                  scr.path.includes("attempt 2") ? 2 : 1
-                }`;
+                const attempt = scr.path.includes("attempt 2") ? 2 : 1;
+                console.log(
+                  "TEST SCREENSHOTS INDIVIDUAL ====> ",
+                  JSON.stringify(scr),
+                );
+                const key = `${testResponse.rows[0].id}_${specData.specId}_${attempt}`;
                 Promise.all([_.uploadToS3(s3, scr.path, key)]).catch(
                   (error) => {
                     console.log("Error in uploading screenshots:", error);
@@ -125,6 +131,7 @@ export async function cypressHooks(
             }
           }
 
+          console.log("VIDEO =======> ", results.video);
           if (
             results.tests.some((test) =>
               test.attempts.some((attempt) => attempt.state === "failed"),
@@ -133,12 +140,14 @@ export async function cypressHooks(
           ) {
             console.log("Uploading video...");
             const key = `${specData.specId}`;
+            console.log("VIDEO KEY ----> ", key);
             Promise.all([_.uploadToS3(s3, results.video, key)]).catch(
               (error) => {
                 console.log("Error in uploading video:", error);
               },
             );
           }
+          console.log("-----------------------------------------------------");
         }
       } catch (err) {
         console.log(err);
