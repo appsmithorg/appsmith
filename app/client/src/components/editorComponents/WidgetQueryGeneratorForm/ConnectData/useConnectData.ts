@@ -42,6 +42,7 @@ export function useConnectData() {
         dataTableName: config.table,
         searchableColumn: config.searchableColumn,
         alias: config.alias,
+        formType: config.otherFields?.formType,
       },
     });
   };

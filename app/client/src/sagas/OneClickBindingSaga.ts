@@ -334,13 +334,14 @@ function* BindWidgetToDatasource(
     yield put({
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_SUCCESS,
     });
-
+    const { otherFields } = action.payload;
     AnalyticsUtil.logEvent("1_CLICK_BINDING_SUCCESS", {
       widgetName: widget.widgetName,
       widgetType: widget.type,
       pluginType: plugin.type,
       pluginName: plugin.name,
       isMock: datasource.isMock,
+      formType: otherFields?.formType,
     });
   } catch (e: any) {
     Toaster.show({

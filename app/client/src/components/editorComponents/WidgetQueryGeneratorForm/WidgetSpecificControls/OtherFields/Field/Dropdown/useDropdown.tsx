@@ -22,6 +22,9 @@ import {
   createMessage,
   NO_CONNECTABLE_WIDGET_FOUND,
 } from "@appsmith/constants/messages";
+import type { AppState } from "@appsmith/reducers";
+import { getWidget } from "sagas/selectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export type OneClickDropdownFieldProps = {
   label: string;
@@ -51,9 +54,11 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
     optionType,
   } = props;
   const [message, setMessage] = useState("");
-
   const currentPageWidgets = useSelector(getCurrentPageWidgets);
-  const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
+  const { config, propertyName, updateConfig, widgetId } = useContext(
+    WidgetQueryGeneratorFormContext,
+  );
+  const widget = useSelector((state: AppState) => getWidget(state, widgetId));
   const { disabled, options: columns } = useColumns("", false);
 
   const configName = `otherFields.${name}`;
@@ -69,17 +74,21 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
   }, [name, defaultValue]);
 
   const widgetOptions: DropdownOptionType[] = Object.entries(currentPageWidgets)
-    .map(([widgetId, widget]) => {
+    .map(([currWidgetId, currWidget]) => {
       const { getOneClickBindingConnectableWidgetConfig } =
-        WidgetFactory.getWidgetMethods(widget.type);
+        WidgetFactory.getWidgetMethods(currWidget.type);
       if (getOneClickBindingConnectableWidgetConfig) {
         const { message, widgetBindPath } =
-          getOneClickBindingConnectableWidgetConfig(widget);
+          getOneClickBindingConnectableWidgetConfig(currWidget);
         return {
-          id: widgetId,
+          id: currWidgetId,
           value: widgetBindPath,
-          label: widget.widgetName,
-          icon: <StyledImage alt="widget-icon" src={widget.iconSVG} />,
+          label: currWidget.widgetName,
+          icon: <StyledImage alt="widget-icon" src={currWidget.iconSVG} />,
+          data: {
+            widgetType: currWidget.type,
+            widgetName: currWidget.widgetName,
+          },
           message,
         };
       }
@@ -117,6 +126,23 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
       if (option.message) {
         setMessage(option.message);
       }
+      AnalyticsUtil.logEvent("ONE_CLICK_BINDING_FORM_OTHER_FIELDS", {
+        widgetName: widget.widgetName,
+        widgetType: widget.type,
+        propertyName,
+        dataTableName: config.table,
+        sheetName: config.sheet,
+        formType: name === "formType" ? option.value : "",
+        pluginType: config.datasourcePluginType,
+        pluginName: config.datasourcePluginName,
+        ...(option.data && {
+          connectedWidgetType: option.data.widgetType,
+          connectedWidgetName: option.data.widgetName,
+        }),
+        ...(name === "dataIdentifier" && {
+          dataIdentifierColumn: option.value,
+        }),
+      });
     }
   };
 

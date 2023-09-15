@@ -117,11 +117,12 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
           datasourceConnectionMode: "",
         });
 
-        AnalyticsUtil.logEvent("BIND_EXISTING_QUERY_TO_WIDGET", {
+        AnalyticsUtil.logEvent("BIND_EXISTING_DATA_TO_WIDGET", {
           widgetName: widget.widgetName,
           widgetType: widget.type,
           propertyName: propertyName,
-          queryName: query.config.name,
+          entityBound: "Query",
+          entityName: query.config.name,
           pluginType: query.config.pluginType,
         });
       },
@@ -168,7 +169,14 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
                 datasourceConnectionMode: "",
               });
 
-              // TODO (Sangeeth) : Check with team for analytics event
+              AnalyticsUtil.logEvent("BIND_EXISTING_DATA_TO_WIDGET", {
+                widgetName: widget.widgetName,
+                widgetType: widget.type,
+                propertyName: propertyName,
+                entityBound: "Widget",
+                entityName: currWidget.widgetName,
+                pluginType: "",
+              });
             },
           };
         }
