@@ -1,6 +1,5 @@
 import kebabCase from "lodash/kebabCase";
 import { DarkModeTheme, LightModeTheme } from "../../color";
-import { createTypographyStringMap } from "../../typography";
 
 import type { ColorMode, ColorTypes } from "../../color";
 import type { FontFamily, Typography } from "../../typography";
@@ -123,10 +122,8 @@ export class TokensAccessor {
     return this.rootUnit;
   };
 
-  getTypography = (): string | undefined => {
-    if (this.typography) {
-      return createTypographyStringMap(this.typography, this.fontFamily);
-    }
+  getTypography = () => {
+    return this.typography;
   };
 
   getFontFamily = () => {

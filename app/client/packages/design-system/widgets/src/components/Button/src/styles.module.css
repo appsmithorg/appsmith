@@ -1,70 +1,6 @@
-import styled, { css } from "styled-components";
-import { Button as HeadlessButton } from "@design-system/headless";
+@import "../../../styles/colors.module.css";
 
-import type { ButtonProps } from "./Button";
-import type { PickRename } from "../../../utils";
-
-type StyledButtonProps = PickRename<
-  ButtonProps,
-  {
-    color: "$color";
-    variant: "$variant";
-  }
->;
-
-export const buttonStyles = css<StyledButtonProps>`
-  ${({ $color, $variant }) => {
-    if ($variant === "filled") {
-      return css`
-        background-color: var(--color-bg-${$color});
-        color: var(--color-fg-on-${$color});
-        border-color: transparent;
-
-        &[data-hovered]:not([aria-disabled]) {
-          background-color: var(--color-bg-${$color}-hover);
-        }
-
-        &[data-active]:not([aria-disabled]) {
-          background-color: var(--color-bg-${$color}-active);
-        }
-      `;
-    }
-
-    if ($variant === "outlined") {
-      return css`
-        background-color: transparent;
-        color: var(--color-fg-${$color});
-        border-color: var(--color-bd-${$color});
-
-        &[data-hovered]:not([aria-disabled]) {
-          background-color: var(--color-bg-${$color}-subtle-hover);
-        }
-
-        &[data-active]:not([aria-disabled]) {
-          background-color: var(--color-bg-${$color}-subtle-active);
-        }
-      `;
-    }
-
-    if ($variant === "ghost") {
-      return css`
-        background: transparent;
-        color: var(--color-fg-${$color});
-        border-color: transparent;
-
-        &[data-hovered]:not([aria-disabled]) {
-          background: var(--color-bg-${$color}-subtle-hover);
-        }
-
-        &[data-active]:not([aria-disabled]) {
-          background: var(--color-bg-${$color}-subtle-active);
-        }
-      `;
-    }
-  }}
-`;
-
-export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
+.button {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -75,18 +11,60 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   font-family: inherit;
   border-style: solid;
   border-width: var(--border-width-1);
-  padding-inline: var(--spacing-5);
+  padding-inline: var(--spacing-4);
   block-size: var(--sizing-8);
   min-inline-size: var(--sizing-8);
   border-radius: var(--border-radius-1);
 
-  // Note: adding important here as ADS is overriding the color of blueprint icon globally
-  // TODO(pawan): Remove this once ADS team removes the global override
+  @each $color in colors {
+    &[data-variant="filled"][data-color="$(color)"] {
+      background-color: var(--color-bg-$(color));
+      color: var(--color-fg-on-$(color));
+      border-color: transparent;
+
+      &[data-hovered]:not([aria-disabled]) {
+        background-color: var(--color-bg-$(color)-hover);
+      }
+
+      &[data-active]:not([aria-disabled]) {
+        background-color: var(--color-bg-$(color)-active);
+      }
+    }
+
+    &[data-variant="outlined"][data-color="$(color)"] {
+      background-color: transparent;
+      color: var(--color-fg-$(color));
+      border-color: var(--color-bd-$(color));
+
+      &[data-hovered]:not([aria-disabled]) {
+        background-color: var(--color-bg-$(color)-subtle-hover);
+      }
+
+      &[data-active]:not([aria-disabled]) {
+        background-color: var(--color-bg-$(color)-subtle-active);
+      }
+    }
+
+    &[data-variant="ghost"][data-color="$(color)"] {
+      background: transparent;
+      color: var(--color-fg-$(color));
+      border-color: transparent;
+
+      &[data-hovered]:not([aria-disabled]) {
+        background: var(--color-bg-$(color)-subtle-hover);
+      }
+
+      &[data-active]:not([aria-disabled]) {
+        background: var(--color-bg-$(color)-subtle-active);
+      }
+    }
+  }
+
+  /* Note: adding important here as ADS is overriding the color of blueprint icon globally */
+  /* TODO(pawan): Remove this once ADS team removes the global override */
   &[data-button] .bp3-icon {
     color: currentColor !important;
   }
-
-  ${buttonStyles}
 
   /**
   * ----------------------------------------------------------------------------
@@ -120,6 +98,8 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     display: flex;
     justify-content: center;
     align-items: center;
+    height: var(--sizing-4);
+    width: var(--sizing-4);
   }
 
   /**
@@ -162,15 +142,14 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   }
 
   &[data-loading] [data-loader] {
-    display: block;
+    display: flex;
     position: absolute;
     inset: 0;
-    display: flex;
     justify-content: center;
     align-items: center;
     border-radius: inherit;
   }
-`;
+}
 
 /**
  * We have this Bug in Firefox where we are unable to drag
@@ -178,7 +157,7 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
  *
  * We found a solution here - https://stackoverflow.com/a/43888410
  */
-export const DragContainer = styled.div`
+.dragContainer {
   &:after {
     content: "";
     top: 0;
@@ -187,4 +166,4 @@ export const DragContainer = styled.div`
     bottom: 0;
     position: absolute;
   }
-`;
+}

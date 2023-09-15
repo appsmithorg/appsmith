@@ -1,9 +1,12 @@
 import type {
-  ButtonProps as HeadlessButtonProps,
   ButtonRef as HeadlessButtonRef,
+  ButtonProps as HeadlessButtonProps,
+} from "@design-system/headless";
+import {
+  Icon as HeadlessIcon,
+  Button as HeadlessButton,
 } from "@design-system/headless";
 import React, { forwardRef } from "react";
-import { Icon as HeadlessIcon } from "@design-system/headless";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
 
 import type {
@@ -13,7 +16,7 @@ import type {
 } from "./types";
 import { Text } from "../../Text";
 import { Spinner } from "../../Spinner";
-import { DragContainer, StyledButton } from "./index.styled";
+import styles from "./styles.module.css";
 
 export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   /** variant of the button
@@ -63,7 +66,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       <>
         <span aria-hidden={isLoading ? true : undefined} data-content="">
           {icon}
-          <Text fontWeight={600} lineClamp={1} textAlign="center">
+          <Text lineClamp={1} textAlign="center">
             {children}
           </Text>
         </span>
@@ -79,13 +82,12 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
   };
 
   return (
-    <StyledButton
-      $color={color}
-      $variant={variant}
+    <HeadlessButton
       aria-busy={isLoading ? true : undefined}
       aria-disabled={
         visuallyDisabled || isLoading || props.isDisabled ? true : undefined
       }
+      className={styles.button}
       data-button=""
       data-color={color}
       data-icon-position={iconPosition === "start" ? "start" : "end"}
@@ -96,8 +98,8 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       {...rest}
     >
       {renderChildren()}
-      <DragContainer aria-hidden="true" />
-    </StyledButton>
+      <span aria-hidden="true" className={styles.dragContainer} />
+    </HeadlessButton>
   );
 };
 
