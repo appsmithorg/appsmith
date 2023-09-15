@@ -59,9 +59,8 @@ export const assistiveBindingHinter: HintHelper = (
         (e) => e.name !== currentEntityName,
       );
 
-      const str = editor.getLine(editor.lastLine());
-      const words = str.split(/[\s]+/);
-      const value = words[words.length - 1]; //last word after any white spaces
+      const word = editor.findWordAt(editor.getCursor());
+      const value = editor.getRange(word.anchor, word.head);
 
       if (value.length < 3 && value !== PARTIAL_BINDING) return false;
       const searchText = value === PARTIAL_BINDING ? "" : value;
