@@ -22,7 +22,6 @@ import { useDispatch } from "react-redux";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import {
   getCurrentAppPositioningType,
-  getCurrentPageId,
   getOccupiedSpacesSelectorForContainer,
   previewModeSelector,
 } from "selectors/editorSelectors";
@@ -40,15 +39,6 @@ import {
 } from "widgets/WidgetUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { importSvg } from "design-system-old";
-import BlankState from "pages/IDE/components/BlankState";
-import history from "utils/history";
-import { pageEntityUrl } from "RouteBuilder";
-import { PageNavState } from "pages/IDE/ideReducer";
-
-const DataIcon = importSvg(
-  () => import("pages/IDE/assets/icons/no-widgets.svg"),
-);
 
 type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -73,23 +63,10 @@ const StyledDropTarget = styled.div`
 `;
 
 function Onboarding() {
-  const currentPageId = useSelector(getCurrentPageId);
-
   return (
-    <div className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center">
-      <div>
-        <BlankState
-          buttonText="Add widgets"
-          description="Add some widgets to the canvas to start building your UI"
-          image={DataIcon}
-          onClick={() => {
-            history.push(
-              pageEntityUrl({ pageId: currentPageId || "" }, PageNavState.UI),
-            );
-          }}
-        />
-      </div>
-    </div>
+    <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
+      Drag and drop a widget here
+    </h2>
   );
 }
 

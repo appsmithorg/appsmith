@@ -162,15 +162,20 @@ const PagePaneContainer = (props: Props) => {
       }
       return null;
     }
-    return (
-      <Button
-        className="justify-self-end"
-        isIconButton
-        kind={"secondary"}
-        onClick={onClose}
-        startIcon={"close"}
-      />
-    );
+
+    if (pageState === TabState.ADD) {
+      return (
+        <Button
+          className="justify-self-end"
+          isIconButton
+          kind={"secondary"}
+          onClick={onClose}
+          startIcon={"close"}
+        />
+      );
+    }
+
+    return null;
   };
 
   const PaneListView = () => {
