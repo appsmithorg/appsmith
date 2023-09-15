@@ -42,7 +42,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
       agHelper.VisitNAssert("/applications", "getReleaseItems");
       cy.InviteGroupToWorkspace(workspaceId, GroupName, "Developer");
-      agHelper.GetNClick(homePage._visibleTextSpan("Manage Users"));
+      agHelper.GetNClick(homePage._visibleTextSpan("Manage users"));
       homePage.NavigateToHome();
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
       homePage.CreateAppInWorkspace(workspaceId, appid);
@@ -81,7 +81,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
       .should("contain.text", `App Viewer`, `Developer`);
     cy.get(RBAC.dropdownOption).should("contain.text", `Assign Custom Role`);
     cy.InviteGroupToApplication(GroupName, "Developer");
-    agHelper.GetNClick(homePage._visibleTextSpan("Manage Users"));
+    agHelper.GetNClick(homePage._visibleTextSpan("Manage users"));
     agHelper.TypeText(homePage._searchUsersInput, GroupName);
     cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
     agHelper.GetNClick(RBAC.arrowRightMembersPage, 0, true);

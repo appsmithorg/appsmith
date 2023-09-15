@@ -702,7 +702,7 @@ export const getIcon = (iconLocations: any[], pluginId: string) => {
 
 export const getExtendedId = (rowData: any, type: string) => {
   return ["Groups", "Roles"].includes(rowData.name) && type === "Tenant"
-    ? `_Tenant${rowData.name.substring(0, rowData.name.length - 1)}`
+    ? `_${type}${rowData.name.substring(0, rowData.name.length - 1)}`
     : ``;
 };
 

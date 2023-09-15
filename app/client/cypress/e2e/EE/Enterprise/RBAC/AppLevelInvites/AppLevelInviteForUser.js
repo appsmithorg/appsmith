@@ -26,7 +26,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
         Cypress.env("TESTUSERNAME2"),
         "App Viewer",
       );
-      _.agHelper.GetNClick(_.homePage._visibleTextSpan("Manage Users"));
+      _.agHelper.GetNClick(_.homePage._visibleTextSpan("Manage users"));
       _.homePage.NavigateToHome();
       _.homePage.CheckWorkspaceShareUsersCount(workspaceId, 3);
       _.homePage.CreateAppInWorkspace(workspaceId, appid);
@@ -68,7 +68,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTUSERNAME1"),
       "Developer",
     );
-    _.agHelper.GetNClick(_.homePage._visibleTextSpan("Manage Users"));
+    _.agHelper.GetNClick(_.homePage._visibleTextSpan("Manage users"));
     _.agHelper.TypeText(
       _.homePage._searchUsersInput,
       Cypress.env("TESTUSERNAME1"),

@@ -11,7 +11,7 @@ import {
 } from "@appsmith/constants/messages";
 import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
 import type { PluginType } from "entities/Action";
-import { getCurrentWorkspaceId } from "ce/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";

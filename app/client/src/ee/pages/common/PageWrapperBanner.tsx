@@ -36,7 +36,10 @@ const StyledText = styled(Text)<{ color: string }>`
   white-space: nowrap;
 `;
 
-const FlexWrapper = styled.span<{ color?: string; justify?: string }>`
+const FlexWrapper = styled.span<{
+  color?: string;
+  justify?: string;
+}>`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -45,9 +48,9 @@ const FlexWrapper = styled.span<{ color?: string; justify?: string }>`
     margin: 0 4px 0 4px;
     text-decoration: underline !important;
     color: ${(props) => props.color} !important;
+    display: inline;
   }
   .main-text {
-    margin-left: 8px;
     white-space: nowrap;
   }
   p {
@@ -56,21 +59,17 @@ const FlexWrapper = styled.span<{ color?: string; justify?: string }>`
 `;
 
 const ContentWrapper = styled.span`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+  display: inline;
   margin-right: 2px;
 `;
 
 const FlexContentWrapper = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 2px;
+  display: inline;
 `;
 
 const StyledBanner = styled(Callout)`
   position: fixed;
-  z-index: 1;
+  z-index: 2;
   width: 100%;
   display: flex;
   align-items: center;
@@ -138,7 +137,7 @@ export function PageBannerMessage(): any {
         >
           {isAdmin && <span> </span>}
           <FlexContentWrapper>
-            <p
+            <span
               className="main-text"
               dangerouslySetInnerHTML={{
                 __html: isTrial
@@ -158,7 +157,7 @@ export function PageBannerMessage(): any {
                 >
                   {createMessage(isTrial ? UPGRADE : UPDATE)}
                 </Link>
-                <p
+                <span
                   dangerouslySetInnerHTML={{
                     __html: isTrial
                       ? isEnterpriseLicense
@@ -180,7 +179,7 @@ export function PageBannerMessage(): any {
                       : "var(--ads-v2-color-fg-error)"
                   }
                   data-testid="t--non-admin-trial-expiry-warning"
-                  renderAs="p"
+                  renderAs="span"
                 >
                   {isEnterpriseLicense
                     ? createMessage(
@@ -194,7 +193,7 @@ export function PageBannerMessage(): any {
               <StyledText
                 color={color}
                 data-testid="t--already-upgraded"
-                renderAs="p"
+                renderAs="span"
               >
                 {createMessage(ALREADY_UPGRADED)}
               </StyledText>

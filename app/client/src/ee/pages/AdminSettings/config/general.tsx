@@ -17,7 +17,7 @@ import {
   APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
 } from "ce/pages/AdminSettings/config/general";
 
-import { isBrandingEnabled } from "ce/utils/planHelpers";
+import { isBrandingEnabled } from "@appsmith/utils/planHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   isProgramaticAccessControlEnabled,

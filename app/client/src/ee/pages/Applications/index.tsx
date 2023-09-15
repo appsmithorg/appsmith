@@ -38,7 +38,7 @@ export interface EE_ApplicationProps extends CE_Applications.ApplicationProps {
 export type EE_ApplicationState = CE_Applications.ApplicationState;
 
 const UpgradeBannerWrapper = styled.div`
-  margin: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
+  margin: 0 0 var(--ads-v2-spaces-7);
 `;
 
 export class Applications extends CE_AppClass<
@@ -68,7 +68,7 @@ export class Applications extends CE_AppClass<
             <CE_Applications.ApplicationsWrapper isMobile={matches}>
               {this.props.showBanner && (
                 <UpgradeBannerWrapper>
-                  <BEBanner />
+                  <BEBanner isMobile={matches} />
                 </UpgradeBannerWrapper>
               )}
               <SubHeader
