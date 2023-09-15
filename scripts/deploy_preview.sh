@@ -46,8 +46,11 @@ aws eks update-kubeconfig --region $region --name $cluster_name --profile eksci
 echo "Set the default namespace"
 kubectl config set-context --current --namespace=default
 
-echo "Getting the pods"
+echo "Getting pods info"
 kubectl get pods
+
+echo "Check if namespace already exists"
+namespace_exist=$(kubectl get ns | grep "$NAMESPACE")
 
 if [[ -n "${RECREATE-}" ]]
 then
@@ -58,17 +61,7 @@ then
 #  Placeholder to use access points more effectively
   kubectl patch pv $NAMESPACE-appsmith -p '{"metadata":{"finalizers":null}}' || true
   kubectl delete pv $NAMESPACE-appsmith --grace-period=0 --force || true
-#  Below lines are a placeholder to use access points more effectively
-#  echo "deleting Accessing points"
-#  ACCESS_POINT_ID=$(aws efs describe-access-points --file-system-id "$DP_EFS_ID" | jq -r '.AccessPoints[] | select(.Name=="'"ce$PULL_REQUEST_NUMBER"'") | .AccessPointId')
-#  echo "Deleting Accessing Point $ACCESS_POINT_ID"
-#  aws efs delete-access-point --access-point-id $ACCESS_POINT_ID
 fi
-
-#echo "Create Access Point and Access Point ID"
-### Use DP-EFS and create ACCESS_POINT
-#ACCESS_POINT=$(aws efs create-access-point --file-system-id $DP_EFS_ID --tags Key=Name,Value=ce$PULL_REQUEST_NUMBER)
-#ACCESS_POINT_ID=$(echo $ACCESS_POINT | jq -r '.AccessPointId');
 
 echo "Use kubernetes secret to Pull Image"
 kubectl create ns $NAMESPACE || true
@@ -103,3 +96,32 @@ helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespa
   --set applicationConfig.APPSMITH_MONGODB_URI="mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" \
   --set applicationConfig.APPSMITH_DISABLE_EMBEDDED_KEYCLOAK=\"1\" \
   --version $HELMCHART_VERSION
+
+appsmith_deployment_timeout=1
+echo "Wait for pods to be up and running"
+until [ \
+  "$(curl -s -w '%{http_code}' -o /dev/null "$DOMAINNAME/api/v1/health")" \
+  -eq 200 ]
+do
+  echo "waiting for appsmith to be ready"
+  if [[ $appsmith_deployment_timeout -eq 300 ]];then
+     echo "timed out"
+     break
+  fi
+  sleep 5
+  appsmith_deployment_timeout=$((appsmith_deployment_timeout+5))
+done
+
+### Add maildev for recreate and new deployments only
+if [[ ${RECREATE} == "true" || ! -n "${namespace_exist}" ]]
+then
+   echo "modify docker.env to add maildev"
+   pod_name=$(kubectl get pods -n $NAMESPACE -o json | jq '.items[0].metadata.name' | tr -d '"')
+   kubectl exec -it $pod_name -n $NAMESPACE -- bash -c "cat << EOF >> /appsmith-stacks/configuration/docker.env
+   APPSMITH_MAIL_FROM=hello@appsmith.com
+   APPSMITH_MAIL_ENABLED="true"
+   APPSMITH_MAIL_HOST="maildev.default.svc.cluster.local"
+   APPSMITH_MAIL_PORT="8025"
+   EOF"
+   kubectl exec -it $pod_name -n $NAMESPACE -- bash -c "supervisorctl restart backend"
+fi

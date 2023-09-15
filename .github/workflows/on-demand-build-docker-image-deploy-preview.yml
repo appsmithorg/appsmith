@@ -254,12 +254,6 @@ jobs:
           echo "environment variables set to deploy the image" $IMAGE_HASH
           /bin/bash ./scripts/deploy_preview.sh
 
-  notify-url:
-    needs: [build-deploy-preview]
-    runs-on: ubuntu-latest
-    if: success()
-    steps:
-      # This step creates a comment on the PR with a link to this workflow run.
       - name: Add a comment on the PR with link to Deploy-Preview
         uses: peter-evans/create-or-update-comment@v2
         with:
