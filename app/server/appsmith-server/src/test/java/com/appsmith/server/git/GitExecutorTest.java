@@ -263,8 +263,7 @@ public class GitExecutorTest {
         Mono<String> branchMono = gitExecutor
                 .createAndCheckoutToBranch(path, "test1")
                 .flatMap(s -> gitExecutor.createAndCheckoutToBranch(path, "test2"));
-        Mono<List<GitBranchDTO>> gitBranchDTOMono =
-                branchMono.then(gitExecutor.listBranches(path, "remoteUrl", "publicKey", "privateKey", false));
+        Mono<List<GitBranchDTO>> gitBranchDTOMono = branchMono.then(gitExecutor.listBranches(path));
 
         StepVerifier.create(gitBranchDTOMono).assertNext(gitBranchDTOS -> {
             assertThat(gitBranchDTOS.stream().count()).isEqualTo(3);
