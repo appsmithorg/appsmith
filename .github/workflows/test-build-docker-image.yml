@@ -255,7 +255,7 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
 
   package-master:
-    needs: ci-test
+    needs: build-docker-image
     runs-on: ubuntu-latest
     # Set permissions since we're using OIDC token authentication between Depot and GitHub
     permissions:
@@ -329,7 +329,7 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:nightly
 
   notify-slack-for-promotion:
-    needs: ci-test
+    needs: package-master
     runs-on: ubuntu-latest
 
     if: ( failure() && github.ref == 'refs/heads/master' )
