@@ -95,7 +95,7 @@ describe("Git sync modal: connect tab", function () {
     });
 
     cy.get(gitSyncLocators.copySshKey).click();
-    cy.get(gitSyncLocators.gitRepoInput).type(`{selectAll}${httpsRepoURL}`);
+    cy.get(gitSyncLocators.gitRepoInput).clear().type(`${httpsRepoURL}`);
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO());
     cy.get(gitSyncLocators.connectSubmitBtn).should("be.disabled");
 
