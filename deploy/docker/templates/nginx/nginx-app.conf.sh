@@ -17,17 +17,7 @@ if [[ $use_https == 1 ]]; then
   fi
 fi
 
-additional_upstream_headers="
-proxy_set_header X-Forwarded-Proto \$origin_scheme;
-proxy_set_header X-Forwarded-Host \$origin_host;
-proxy_set_header X-Forwarded-Port \$origin_host;
-proxy_set_header Forwarded \$final_forwarded;
-"
-
 additional_downstream_headers='
-# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
-add_header Content-Security-Policy "frame-ancestors '"${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}"'";
-
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
 add_header X-Content-Type-Options "nosniff";
 '
@@ -52,11 +42,6 @@ map \$http_forwarded \$final_forwarded {
   default '\$http_forwarded, host=\$host;proto=\$scheme';
   '' '';
 }
-
-log_format fwd '\$remote_addr - \$remote_user [\$time_local] '
-               '"\$request" \$status \$body_bytes_sent '
-               '"\$http_referer" "\$http_user_agent" '
-               's=\$origin_scheme h=\$origin_host p=\$origin_port';
 
 # redirect log to stdout for supervisor to capture
 access_log /dev/stdout;
@@ -99,8 +84,10 @@ fi
   index index.html;
   error_page 404 /;
 
+  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+  add_header Content-Security-Policy "frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}";
+
   $additional_downstream_headers
-  $additional_upstream_headers
 
   location /.well-known/acme-challenge/ {
     root /appsmith-stacks/data/certificate/certbot;
@@ -118,7 +105,9 @@ fi
 
     proxy_set_header  Host              \$http_host/supervisor/;
     proxy_set_header  X-Forwarded-For   \$proxy_add_x_forwarded_for;
-    $additional_upstream_headers
+    proxy_set_header  X-Forwarded-Proto \$origin_scheme;
+    proxy_set_header  X-Forwarded-Host  \$origin_host;
+    proxy_set_header  X-Forwarded-Port  \$origin_port;
     proxy_set_header  Connection        "";
 
     proxy_pass http://localhost:9001/;
@@ -126,6 +115,11 @@ fi
     auth_basic "Protected";
     auth_basic_user_file /etc/nginx/passwords;
   }
+
+  proxy_set_header X-Forwarded-Proto \$origin_scheme;
+  proxy_set_header X-Forwarded-Host \$origin_host;
+  proxy_set_header X-Forwarded-Port \$origin_port;
+  proxy_set_header Forwarded \$final_forwarded;
 
   location / {
     try_files /loading.html \$uri /index.html =404;
@@ -151,12 +145,6 @@ fi
 
   location /oauth2 {
     proxy_pass http://localhost:8080;
-    access_log /dev/stdout fwd;
-    # Below headers are for troubleshooting incorrect redirect_uri.
-    add_header 'X-Req-Forwarded-Proto' \$origin_scheme;
-    add_header 'X-Req-Forwarded-Host' \$origin_host;
-    add_header 'X-Req-Forwarded-Port' \$origin_port;
-    $additional_downstream_headers
   }
 
   location /login {
