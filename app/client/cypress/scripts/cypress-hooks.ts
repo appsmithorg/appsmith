@@ -90,7 +90,7 @@ export async function cypressHooks(
                 specData.specId,
                 test.state,
                 test.attempts.length,
-                JSON.stringify(test.attempts),
+                test.displayError,
               ],
             );
             console.log("TEST =======> ", JSON.parse(JSON.stringify(test)));
@@ -98,6 +98,7 @@ export async function cypressHooks(
               "SCREENSHOTS =======> ",
               JSON.parse(JSON.stringify(results.screenshots)),
             );
+            console.log("VIDEO =======> ", results.video);
             if (
               test.attempts.some((attempt) => attempt.state === "failed") &&
               results.screenshots.length > 0
@@ -105,10 +106,15 @@ export async function cypressHooks(
               const out = results.screenshots.filter((scr) =>
                 scr.path.includes(test.title[1]),
               );
+              console.log("TEST SCREENSHOTS ====> ", JSON.stringify(out));
               console.log("Uploading screenshots...");
               for (const scr of out) {
+                console.log(
+                  "TEST SCREENSHOTS INDIVIDUAL ====> ",
+                  JSON.stringify(scr),
+                );
                 const key = `${testResponse.rows[0].id}_${specData.specId}_${
-                  scr.name.includes("attempt 2") ? 2 : 1
+                  scr.path.includes("attempt 2") ? 2 : 1
                 }`;
                 Promise.all([_.uploadToS3(s3, scr.path, key)]).catch(
                   (error) => {
