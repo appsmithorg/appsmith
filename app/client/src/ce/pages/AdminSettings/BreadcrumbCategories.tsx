@@ -15,9 +15,11 @@ export const BreadcrumbCategories = {
     href: adminSettingsCategoryUrl({ category: SettingCategories.EMAIL }),
     text: "Email",
   },
-  [SettingCategories.GOOGLE_MAPS]: {
-    href: adminSettingsCategoryUrl({ category: SettingCategories.GOOGLE_MAPS }),
-    text: "Google Maps",
+  [SettingCategories.DEVELOPER_SETTINGS]: {
+    href: adminSettingsCategoryUrl({
+      category: SettingCategories.DEVELOPER_SETTINGS,
+    }),
+    text: "Developer Settings",
   },
   [SettingCategories.VERSION]: {
     href: adminSettingsCategoryUrl({ category: SettingCategories.VERSION }),
