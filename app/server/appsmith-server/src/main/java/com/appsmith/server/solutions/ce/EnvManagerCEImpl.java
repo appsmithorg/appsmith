@@ -61,7 +61,6 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -609,10 +608,10 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 existingUsersFlux.filterWhen(user -> userUtils.isSuperUser(user).map(isSuper -> !isSuper));
 
         Mono<Boolean> newUsersMono = newUsersFlux
-                .flatMap(newUsersFluxUser -> sessionUserService.getCurrentUser().flatMap(invitingUser -> userUtils
-                        .makeSuperUser(Collections.singletonList(newUsersFluxUser))
-                        .flatMap(success -> emailService.sendInstanceAdminInviteEmail(
-                                newUsersFluxUser, invitingUser, originHeader, true))))
+                .flatMap(newUsersFluxUser -> sessionUserService
+                        .getCurrentUser()
+                        .flatMap(invitingUser -> emailService.sendInstanceAdminInviteEmail(
+                                newUsersFluxUser, invitingUser, originHeader, true)))
                 .collectList()
                 .map(results -> results.stream().allMatch(result -> result));
 
