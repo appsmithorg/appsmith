@@ -146,11 +146,13 @@ export async function cypressHooks(
             console.log("Uploading video...");
             const key = `${specData.specId}`;
             console.log("VIDEO KEY ----> ", key);
-            Promise.all([_.uploadToS3(s3, results.video, key)]).catch(
-              (error) => {
+            _.uploadToS3(s3, results.video, key)
+              .then((res) => {
+                console.log(res);
+              })
+              .catch((error) => {
                 console.log("Error in uploading video:", error);
-              },
-            );
+              });
           }
         }
       } catch (err) {
