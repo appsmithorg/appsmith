@@ -93,9 +93,14 @@ export async function cypressHooks(
                 JSON.stringify(test.attempts),
               ],
             );
+            console.log("TEST =======> ", JSON.parse(JSON.stringify(test)));
+            console.log(
+              "SCREENSHOTS =======> ",
+              JSON.parse(JSON.stringify(results.screenshots)),
+            );
             if (
               test.attempts.some((attempt) => attempt.state === "failed") &&
-              results.screenshots
+              results.screenshots.length > 0
             ) {
               const out = results.screenshots.filter((scr) =>
                 scr.path.includes(test.title[1]),
@@ -132,7 +137,7 @@ export async function cypressHooks(
       } catch (err) {
         console.log(err);
       } finally {
-        await client.release();
+        client.release();
       }
     },
   );

@@ -287,11 +287,9 @@ export async function cypressSplit(
     } else {
       config.specPattern = defaultSpec;
     }
-
+    await dbClient.end();
     return config;
   } catch (err) {
     console.log(err);
-  } finally {
-    dbClient.end();
   }
 }
