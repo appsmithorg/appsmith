@@ -161,7 +161,7 @@ public class ApplicationPageServiceTest {
                     layout.setDsl(getOlderDSL());
                     return newPageService
                             .update(pageDTO.getId(), pageDTO)
-                            .flatMap(newpage -> applicationPageService.publish(pageDTO.getId(), true))
+                            .flatMap(newpage -> applicationPageService.publish(pageDTO.getApplicationId(), true))
                             .then(Mono.just(pageDTO));
                 })
                 .block();
@@ -189,7 +189,7 @@ public class ApplicationPageServiceTest {
                     layout.setDsl(getOlderDSL());
                     return newPageService
                             .update(pageDTO.getId(), pageDTO)
-                            .flatMap(newpage -> applicationPageService.publish(pageDTO.getId(), true))
+                            .flatMap(newpage -> applicationPageService.publish(pageDTO.getApplicationId(), true))
                             .then(Mono.just(pageDTO));
                 })
                 .block();
@@ -221,7 +221,7 @@ public class ApplicationPageServiceTest {
                     layout.setDsl(getOlderDSL());
                     return newPageService
                             .update(pageDTO.getId(), pageDTO)
-                            .flatMap(newpage -> applicationPageService.publish(pageDTO.getId(), true))
+                            .flatMap(newpage -> applicationPageService.publish(pageDTO.getApplicationId(), true))
                             .then(Mono.just(pageDTO));
                 })
                 .block();
@@ -250,7 +250,7 @@ public class ApplicationPageServiceTest {
                     layout.setDsl(getOlderDSL());
                     return newPageService
                             .update(pageDTO.getId(), pageDTO)
-                            .flatMap(newpage -> applicationPageService.publish(pageDTO.getId(), true))
+                            .flatMap(newpage -> applicationPageService.publish(pageDTO.getApplicationId(), true))
                             .then(Mono.just(pageDTO));
                 })
                 .block();
