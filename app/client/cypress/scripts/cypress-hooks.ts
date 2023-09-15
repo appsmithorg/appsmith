@@ -28,13 +28,11 @@ export async function cypressHooks(
         [runData.browser, runData.os, runData.workflowId, runData.attempt],
       );
       runData.attemptId = attemptRes.rows[0].id;
-      console.log("BEFORE RUN ATTEMPT ID ====>", runData.attemptId);
       const matrixRes = await client.query(
         `SELECT id FROM public."matrix" WHERE "attemptId" = $1 AND "matrixId" = $2`,
         [runData.attemptId, matrix.matrixId],
       );
       matrix.id = matrixRes.rowCount > 0 ? matrixRes.rows[0].id : "";
-      console.log("BEFORE RUN MATRIX ID ====>", matrix.id);
     } catch (err) {
       console.log(err);
     } finally {
@@ -43,7 +41,6 @@ export async function cypressHooks(
   });
 
   on("before:spec", async (spec: Cypress.Spec) => {
-    console.log("BEFORE SPEC SPEC DETAILS ------->", spec);
     specData.name = spec.relative;
     specData.matrixId = matrix.id;
     const client = await dbClient.connect();
@@ -54,7 +51,6 @@ export async function cypressHooks(
           [specData.name, matrix.id],
         );
         specData.specId = specResponse.rows[0].id;
-        console.log("BEFORE SPEC SPEC ID ------->", specData.specId); // Save the inserted spec ID for later updates
       }
     } catch (err) {
       console.log(err);
@@ -93,15 +89,6 @@ export async function cypressHooks(
                 test.displayError,
               ],
             );
-            console.log("TEST NAME: ", test.title[1]);
-            console.log(
-              "-----------------------------------------------------",
-            );
-            console.log("TEST =======> ", JSON.parse(JSON.stringify(test)));
-            console.log(
-              "TEST ID=======> ",
-              JSON.parse(JSON.stringify(testResponse)),
-            );
             if (
               test.attempts.some((attempt) => attempt.state === "failed") &&
               results.screenshots.length > 0
@@ -109,34 +96,17 @@ export async function cypressHooks(
               const out = results.screenshots.filter((scr) =>
                 scr.path.includes(test.title[1]),
               );
-              console.log("TEST SCREENSHOTS ====> ", JSON.stringify(out));
               console.log("Uploading screenshots...");
               for (const scr of out) {
-                console.log(
-                  "TEST SCREENSHOTS INDIVIDUAL ====> ",
-                  JSON.stringify(scr),
-                );
                 const attempt = scr.path.includes("attempt 2") ? 2 : 1;
-                console.log(
-                  "TEST SCREENSHOTS INDIVIDUAL ATTEMPT====> ",
-                  attempt,
-                );
                 const key = `${testResponse.rows[0].id}_${specData.specId}_${attempt}`;
-                _.uploadToS3(s3, scr.path, key)
-                  .then((res) => {
-                    console.log(res);
-                  })
-                  .catch((error) => {
-                    console.log("Error in uploading screenshots:", error);
-                  });
+                _.uploadToS3(s3, scr.path, key).catch((error) => {
+                  console.log("Error in uploading screenshots:", error);
+                });
               }
-              console.log(
-                "-----------------------------------------------------",
-              );
             }
           }
 
-          console.log("VIDEO =======> ", results.video);
           if (
             results.tests.some((test) =>
               test.attempts.some((attempt) => attempt.state === "failed"),
@@ -145,14 +115,9 @@ export async function cypressHooks(
           ) {
             console.log("Uploading video...");
             const key = `${specData.specId}`;
-            console.log("VIDEO KEY ----> ", key);
-            _.uploadToS3(s3, results.video, key)
-              .then((res) => {
-                console.log(res);
-              })
-              .catch((error) => {
-                console.log("Error in uploading video:", error);
-              });
+            _.uploadToS3(s3, results.video, key).catch((error) => {
+              console.log("Error in uploading video:", error);
+            });
           }
         }
       } catch (err) {
