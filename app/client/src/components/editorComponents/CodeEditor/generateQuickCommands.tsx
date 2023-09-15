@@ -132,7 +132,7 @@ export const generateQuickCommands = (
 ) => {
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
-    displayText: "New binding",
+    displayText: "Add a binding",
     shortcut: Shortcuts.BINDING,
     triggerCompletionsPostPick: true,
   });

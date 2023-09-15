@@ -134,8 +134,8 @@ describe("Assistive Binding", function () {
     propPane.ValidatePropertyFieldValue("Label", "{{JSObject1.myFun1.data}}");
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.TypeTextIntoField("Label", "{");
-    agHelper.GetNClickByContains(locators._hints, "New binding");
-    // After selecting "New binding", expect "{{}}" in binding
+    agHelper.GetNClickByContains(locators._hints, "Add a binding");
+    // After selecting "Add a binding", expect "{{}}" in binding
     propPane.ValidatePropertyFieldValue("Label", "{{}}");
   });
 
