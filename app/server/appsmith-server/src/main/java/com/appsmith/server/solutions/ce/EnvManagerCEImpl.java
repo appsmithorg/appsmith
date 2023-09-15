@@ -600,12 +600,16 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         return newUser;
                     }
                     return existingUser;
-                }));
+                }))
+                .cache();
 
         Flux<User> newUsersFlux = usersFlux.filter(user -> !user.isEnabled());
         Flux<User> existingUsersFlux = usersFlux.filter(User::isEnabled);
-        Flux<User> existingUsersWhichAreNotAlreadySuperUsersFlux =
-                existingUsersFlux.filterWhen(user -> userUtils.isSuperUser(user).map(isSuper -> !isSuper));
+
+        // we are sending email to existing users who are not already super-users
+        Mono<List<User>> existingUsersWhichAreNotAlreadySuperUsersMono = existingUsersFlux
+                .filterWhen(user -> userUtils.isSuperUser(user).map(isSuper -> !isSuper))
+                .collectList();
 
         Mono<Boolean> newUsersMono = newUsersFlux
                 .flatMap(newUsersFluxUser -> sessionUserService
@@ -614,9 +618,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                                 newUsersFluxUser, invitingUser, originHeader, true)))
                 .collectList()
                 .map(results -> results.stream().allMatch(result -> result));
-
-        Mono<List<User>> existingUsersWhichAreNotAlreadySuperUsersMono =
-                existingUsersWhichAreNotAlreadySuperUsersFlux.collectList();
 
         Mono<Boolean> existingUsersMono = existingUsersWhichAreNotAlreadySuperUsersMono.flatMap(users -> userUtils
                 .makeSuperUser(users)
