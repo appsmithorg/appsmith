@@ -2,21 +2,27 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.JSValue;
+import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.PEMCertificate;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
@@ -32,21 +38,22 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.newaction.base.NewActionService;
+import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
-import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,7 +71,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -78,6 +84,7 @@ import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -85,7 +92,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
@@ -129,9 +139,6 @@ public class ApplicationForkingServiceTests {
     private ApplicationPageService applicationPageService;
 
     @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
     private NewActionService newActionService;
 
     @Autowired
@@ -140,9 +147,6 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private PluginRepository pluginRepository;
 
-    @Autowired
-    private EncryptionService encryptionService;
-
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
 
@@ -150,13 +154,16 @@ public class ApplicationForkingServiceTests {
     private LayoutActionService layoutActionService;
 
     @Autowired
-    private MongoTemplate mongoTemplate;
-
-    @Autowired
     private NewPageService newPageService;
 
     @Autowired
-    private UserService userService;
+    private SessionUserService sessionUserService;
+
+    @Autowired
+    private NewPageRepository newPageRepository;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
     @Autowired
     private LayoutCollectionService layoutCollectionService;
@@ -176,11 +183,14 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private EnvironmentPermission environmentPermission;
 
+    private Plugin installedPlugin;
+
     @SneakyThrows
     @BeforeEach
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
+        installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
 
         // Run setup only once
         if (isSetupDone) {
@@ -301,21 +311,6 @@ public class ApplicationForkingServiceTests {
                 .block();
 
         isSetupDone = true;
-    }
-
-    public Mono<WorkspaceData> loadWorkspaceData(Workspace workspace) {
-        final WorkspaceData data = new WorkspaceData();
-        data.workspace = workspace;
-
-        return Mono.when(
-                        applicationService
-                                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
-                                .map(data.applications::add),
-                        datasourceService
-                                .getAllByWorkspaceIdWithStorages(workspace.getId(), Optional.of(READ_DATASOURCES))
-                                .map(data.datasources::add),
-                        getActionsInWorkspace(workspace).map(data.actions::add))
-                .thenReturn(data);
     }
 
     @Test
@@ -1203,10 +1198,558 @@ public class ApplicationForkingServiceTests {
                 .verifyComplete();
     }
 
+    public Mono<ApplicationForkingServiceTests.WorkspaceData> loadWorkspaceData(Workspace workspace) {
+        final ApplicationForkingServiceTests.WorkspaceData data = new ApplicationForkingServiceTests.WorkspaceData();
+        data.workspace = workspace;
+
+        return Mono.when(
+                        applicationService
+                                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
+                                .map(data.applications::add),
+                        datasourceService
+                                .getAllByWorkspaceIdWithStorages(workspace.getId(), Optional.of(READ_DATASOURCES))
+                                .map(data.datasources::add),
+                        getActionsInWorkspace(workspace).map(data.actions::add),
+                        getActionCollectionsInWorkspace(workspace).map(data.actionCollections::add),
+                        workspaceService
+                                .getDefaultEnvironmentId(
+                                        workspace.getId(), environmentPermission.getExecutePermission())
+                                .doOnSuccess(signal -> data.defaultEnvironmentId = signal))
+                .thenReturn(data);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplicationMultipleTimes() {
+        Workspace originalWorkspace = new Workspace();
+        originalWorkspace.setName("Source Org 1");
+        Workspace sourceWorkspace = workspaceService.create(originalWorkspace).block();
+
+        Application app1 = new Application();
+        app1.setName("awesome app");
+        app1.setWorkspaceId(sourceWorkspace.getId());
+        Application sourceApplication =
+                applicationPageService.createApplication(app1).block();
+        final String appId = sourceApplication.getId();
+        final String appName = sourceApplication.getName();
+
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Target Org 1");
+        Workspace targetWorkspace = workspaceService.create(newWorkspace).block();
+        String sourceEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(sourceWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
+
+        Mono<Void> cloneMono = Mono.just(sourceApplication)
+                .map(sourceApplication1 -> {
+                    sourceApplication1.setName(appName);
+                    sourceApplication1.setId(appId);
+                    return sourceApplication1;
+                })
+                .flatMap(sourceApplication1 -> applicationForkingService.forkApplications(
+                        targetWorkspace.getId(), sourceApplication1, sourceEnvironmentId))
+                .then();
+        // Clone this application into the same workspace thrice.
+        Mono<List<String>> resultMono = cloneMono
+                .then(cloneMono)
+                .then(cloneMono)
+                .thenMany(applicationRepository.findByWorkspaceId(targetWorkspace.getId()))
+                .map(Application::getName)
+                .collectList();
+
+        StepVerifier.create(resultMono)
+                .assertNext(names -> {
+                    assertThat(names).hasSize(3);
+                    assertThat(names).containsExactlyInAnyOrder("awesome app", "awesome app (1)", "awesome app (2)");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplicationForkWithConfigurationTrueWithActionsThrice() {
+        Workspace sourceOrg = new Workspace();
+        sourceOrg.setName("Source Org 2");
+        Workspace workspace = workspaceService.create(sourceOrg).block();
+
+        Workspace targetOrg = new Workspace();
+        targetOrg.setName("Target Org 2");
+
+        final Mono<ApplicationForkingServiceTests.WorkspaceData> resultMono = Mono.zip(
+                        workspaceService.getDefaultEnvironmentId(
+                                workspace.getId(), environmentPermission.getExecutePermission()),
+                        sessionUserService.getCurrentUser())
+                .flatMap(tuple -> {
+                    String environmentId = tuple.getT1();
+
+                    final Application app1 = new Application();
+                    app1.setName("that great app");
+                    app1.setForkWithConfiguration(Boolean.TRUE);
+                    app1.setWorkspaceId(workspace.getId());
+                    app1.setIsPublic(true);
+
+                    final Datasource ds1 = new Datasource();
+                    ds1.setName("datasource 1");
+                    ds1.setWorkspaceId(workspace.getId());
+                    ds1.setPluginId(installedPlugin.getId());
+                    DatasourceConfiguration dc = new DatasourceConfiguration();
+
+                    dc.setConnection(new Connection(
+                            Connection.Mode.READ_WRITE,
+                            Connection.Type.DIRECT,
+                            new SSLDetails(
+                                    SSLDetails.AuthType.ALLOW,
+                                    SSLDetails.CACertificateType.NONE,
+                                    new UploadedFile("keyFile", "key file content"),
+                                    new UploadedFile("certFile", "cert file content"),
+                                    new UploadedFile("caCertFile", "caCert file content"),
+                                    true,
+                                    new PEMCertificate(
+                                            new UploadedFile("pemCertFile", "pem cert file content"),
+                                            "pem cert file password")),
+                            "default db"));
+
+                    dc.setEndpoints(List.of(new Endpoint("host1", 1L), new Endpoint("host2", 2L)));
+
+                    final DBAuth auth =
+                            new DBAuth(DBAuth.Type.USERNAME_PASSWORD, "db username", "db password", "db name");
+                    auth.setCustomAuthenticationParameters(Set.of(
+                            new Property("custom auth param 1", "custom auth param value 1"),
+                            new Property("custom auth param 2", "custom auth param value 2")));
+                    auth.setIsAuthorized(true);
+                    auth.setAuthenticationResponse(new AuthenticationResponse(
+                            "token", "refreshToken", Instant.now(), Instant.now(), null, ""));
+                    dc.setAuthentication(auth);
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, dc));
+                    ds1.setDatasourceStorages(storages1);
+
+                    final Datasource ds2 = new Datasource();
+                    ds2.setName("datasource 2");
+                    ds2.setWorkspaceId(workspace.getId());
+                    ds2.setPluginId(installedPlugin.getId());
+                    DatasourceConfiguration dc2 = new DatasourceConfiguration();
+                    dc2.setAuthentication(new OAuth2(
+                            OAuth2.Type.CLIENT_CREDENTIALS,
+                            true,
+                            true,
+                            "client id",
+                            "client secret",
+                            "auth url",
+                            "access token url",
+                            "scope",
+                            Set.of("scope1", "scope2", "scope3"),
+                            true,
+                            OAuth2.RefreshTokenClientCredentialsLocation.BODY,
+                            "header prefix",
+                            Set.of(
+                                    new Property("custom token param 1", "custom token param value 1"),
+                                    new Property("custom token param 2", "custom token param value 2")),
+                            null,
+                            null,
+                            false));
+
+                    HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+                    storages2.put(environmentId, new DatasourceStorageDTO(null, environmentId, dc2));
+                    ds2.setDatasourceStorages(storages2);
+
+                    final Datasource ds3 = new Datasource();
+                    ds3.setName("datasource 3");
+                    ds3.setWorkspaceId(workspace.getId());
+                    ds3.setPluginId(installedPlugin.getId());
+                    HashMap<String, DatasourceStorageDTO> storages3 = new HashMap<>();
+                    storages3.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
+                    ds3.setDatasourceStorages(storages3);
+
+                    return applicationPageService
+                            .createApplication(app1)
+                            .flatMap(createdApp -> Mono.zip(
+                                    Mono.just(createdApp),
+                                    newPageRepository
+                                            .findByApplicationId(createdApp.getId())
+                                            .collectList(),
+                                    datasourceService.create(ds1),
+                                    datasourceService.create(ds2),
+                                    datasourceService.create(ds3)))
+                            .flatMap(tuple1 -> {
+                                final Application app = tuple1.getT1();
+                                final List<NewPage> pages = tuple1.getT2();
+                                final Datasource ds1WithId = tuple1.getT3();
+                                final Datasource ds2WithId = tuple1.getT4();
+
+                                final NewPage firstPage = pages.get(0);
+
+                                final ActionDTO action1 = new ActionDTO();
+                                action1.setName("action1");
+                                action1.setPageId(firstPage.getId());
+                                action1.setWorkspaceId(workspace.getId());
+                                action1.setDatasource(ds1WithId);
+                                action1.setPluginId(installedPlugin.getId());
+
+                                final ActionDTO action2 = new ActionDTO();
+                                action2.setPageId(firstPage.getId());
+                                action2.setName("action2");
+                                action2.setWorkspaceId(workspace.getId());
+                                action2.setDatasource(ds1WithId);
+                                action2.setPluginId(installedPlugin.getId());
+
+                                final ActionDTO action3 = new ActionDTO();
+                                action3.setPageId(firstPage.getId());
+                                action3.setName("action3");
+                                action3.setWorkspaceId(workspace.getId());
+                                action3.setDatasource(ds2WithId);
+                                action3.setPluginId(installedPlugin.getId());
+
+                                return Mono.when(
+                                                layoutActionService.createSingleAction(action1, Boolean.FALSE),
+                                                layoutActionService.createSingleAction(action2, Boolean.FALSE),
+                                                layoutActionService.createSingleAction(action3, Boolean.FALSE))
+                                        .then(Mono.zip(workspaceService.create(targetOrg), Mono.just(app)));
+                            })
+                            .flatMap(tuple1 -> {
+                                final Workspace targetOrg1 = tuple1.getT1();
+                                final String originalId = tuple1.getT2().getId();
+                                final String originalName = tuple1.getT2().getName();
+
+                                Mono<Void> clonerMono = Mono.just(tuple1.getT2())
+                                        .map(app -> {
+                                            // We reset these values here because the clone method updates them and that
+                                            // just messes with our test.
+                                            app.setId(originalId);
+                                            app.setName(originalName);
+                                            return app;
+                                        })
+                                        .flatMap(app -> applicationForkingService.forkApplications(
+                                                targetOrg1.getId(), app, environmentId))
+                                        .then();
+
+                                return clonerMono
+                                        .then(clonerMono)
+                                        .then(clonerMono)
+                                        .thenReturn(targetOrg1);
+                            });
+                })
+                .flatMap(this::loadWorkspaceData)
+                .doOnError(error -> log.error("Error in test", error));
+
+        StepVerifier.create(resultMono)
+                .assertNext(data -> {
+                    assertThat(data.workspace).isNotNull();
+                    assertThat(data.workspace.getId()).isNotNull();
+                    assertThat(data.workspace.getName()).isEqualTo("Target Org 2");
+                    assertThat(data.workspace.getPolicies()).isNotEmpty();
+
+                    assertThat(map(data.applications, Application::getName))
+                            .containsExactlyInAnyOrder("that great app", "that great app (1)", "that great app (2)");
+
+                    final Application app1 = data.applications.stream()
+                            .filter(app -> app.getName().equals("that great app"))
+                            .findFirst()
+                            .orElse(null);
+                    assert app1 != null;
+                    assertThat(app1.getPages().stream()
+                                    .filter(ApplicationPage::isDefault)
+                                    .count())
+                            .isEqualTo(1);
+
+                    final DBAuth a1 = new DBAuth();
+                    a1.setUsername("u1");
+                    final DBAuth a2 = new DBAuth();
+                    a2.setUsername("u1");
+                    assertThat(a1).isEqualTo(a2);
+
+                    final OAuth2 o1 = new OAuth2();
+                    o1.setClientId("c1");
+                    final OAuth2 o2 = new OAuth2();
+                    o2.setClientId("c1");
+                    assertThat(o1).isEqualTo(o2);
+                    assertThat(map(data.datasources, Datasource::getName))
+                            .containsExactlyInAnyOrder("datasource 1", "datasource 2");
+
+                    final Datasource ds1 = data.datasources.stream()
+                            .filter(ds -> ds.getName().equals("datasource 1"))
+                            .findFirst()
+                            .get();
+                    DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(data.defaultEnvironmentId);
+                    assertThat(storage1.getDatasourceConfiguration()
+                                    .getAuthentication()
+                                    .getIsAuthorized())
+                            .isNull();
+
+                    final Datasource ds2 = data.datasources.stream()
+                            .filter(ds -> ds.getName().equals("datasource 2"))
+                            .findFirst()
+                            .get();
+                    DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(data.defaultEnvironmentId);
+                    assertThat(storage2.getDatasourceConfiguration()
+                                    .getAuthentication()
+                                    .getIsAuthorized())
+                            .isNull();
+
+                    assertThat(getUnpublishedActionName(data.actions))
+                            .containsExactlyInAnyOrder(
+                                    "action1", "action2", "action3", "action1", "action2", "action3", "action1",
+                                    "action2", "action3");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplicationForkWithConfigurationFalseWithActionsThrice() {
+        Workspace sourceOrg = new Workspace();
+        sourceOrg.setName("Source Org 2");
+        Workspace workspace = workspaceService.create(sourceOrg).block();
+
+        Workspace targetOrg = new Workspace();
+        targetOrg.setName("Target Org 2");
+
+        final Mono<ApplicationForkingServiceTests.WorkspaceData> resultMono = Mono.zip(
+                        workspaceService.getDefaultEnvironmentId(
+                                workspace.getId(), environmentPermission.getExecutePermission()),
+                        sessionUserService.getCurrentUser())
+                .flatMap(tuple -> {
+                    String environmentId = tuple.getT1();
+                    final Application app1 = new Application();
+                    app1.setName("that great app");
+                    app1.setForkWithConfiguration(Boolean.FALSE);
+                    app1.setWorkspaceId(workspace.getId());
+                    app1.setIsPublic(true);
+
+                    final Datasource ds1 = new Datasource();
+                    ds1.setName("datasource 1");
+                    ds1.setWorkspaceId(workspace.getId());
+                    ds1.setPluginId(installedPlugin.getId());
+                    DatasourceConfiguration dc = new DatasourceConfiguration();
+
+                    dc.setConnection(new Connection(
+                            Connection.Mode.READ_WRITE,
+                            Connection.Type.DIRECT,
+                            new SSLDetails(
+                                    SSLDetails.AuthType.ALLOW,
+                                    SSLDetails.CACertificateType.NONE,
+                                    new UploadedFile("keyFile", "key file content"),
+                                    new UploadedFile("certFile", "cert file content"),
+                                    new UploadedFile("caCertFile", "caCert file content"),
+                                    true,
+                                    new PEMCertificate(
+                                            new UploadedFile("pemCertFile", "pem cert file content"),
+                                            "pem cert file password")),
+                            "default db"));
+
+                    dc.setEndpoints(List.of(new Endpoint("host1", 1L), new Endpoint("host2", 2L)));
+
+                    final DBAuth auth =
+                            new DBAuth(DBAuth.Type.USERNAME_PASSWORD, "db username", "db password", "db name");
+                    auth.setCustomAuthenticationParameters(Set.of(
+                            new Property("custom auth param 1", "custom auth param value 1"),
+                            new Property("custom auth param 2", "custom auth param value 2")));
+                    auth.setIsAuthorized(true);
+                    auth.setAuthenticationResponse(new AuthenticationResponse(
+                            "token", "refreshToken", Instant.now(), Instant.now(), null, ""));
+                    dc.setAuthentication(auth);
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, dc));
+                    ds1.setDatasourceStorages(storages1);
+
+                    final Datasource ds2 = new Datasource();
+                    ds2.setName("datasource 2");
+                    ds2.setWorkspaceId(workspace.getId());
+                    ds2.setPluginId(installedPlugin.getId());
+                    DatasourceConfiguration dc2 = new DatasourceConfiguration();
+                    dc2.setAuthentication(new OAuth2(
+                            OAuth2.Type.CLIENT_CREDENTIALS,
+                            true,
+                            true,
+                            "client id",
+                            "client secret",
+                            "auth url",
+                            "access token url",
+                            "scope",
+                            Set.of("scope1", "scope2", "scope3"),
+                            true,
+                            OAuth2.RefreshTokenClientCredentialsLocation.BODY,
+                            "header prefix",
+                            Set.of(
+                                    new Property("custom token param 1", "custom token param value 1"),
+                                    new Property("custom token param 2", "custom token param value 2")),
+                            null,
+                            null,
+                            false));
+                    HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
+                    storages2.put(environmentId, new DatasourceStorageDTO(null, environmentId, dc2));
+                    ds2.setDatasourceStorages(storages2);
+
+                    final Datasource ds3 = new Datasource();
+                    ds3.setName("datasource 3");
+                    ds3.setWorkspaceId(workspace.getId());
+                    ds3.setPluginId(installedPlugin.getId());
+                    HashMap<String, DatasourceStorageDTO> storages3 = new HashMap<>();
+                    storages3.put(environmentId, new DatasourceStorageDTO(null, environmentId, null));
+                    ds3.setDatasourceStorages(storages3);
+
+                    return applicationPageService
+                            .createApplication(app1)
+                            .flatMap(createdApp -> Mono.zip(
+                                    Mono.just(createdApp),
+                                    newPageRepository
+                                            .findByApplicationId(createdApp.getId())
+                                            .collectList(),
+                                    datasourceService.create(ds1),
+                                    datasourceService.create(ds2),
+                                    datasourceService.create(ds3)))
+                            .flatMap(tuple1 -> {
+                                final Application app = tuple1.getT1();
+                                final List<NewPage> pages = tuple1.getT2();
+                                final Datasource ds1WithId = tuple1.getT3();
+                                final Datasource ds2WithId = tuple1.getT4();
+
+                                final NewPage firstPage = pages.get(0);
+
+                                final ActionDTO action1 = new ActionDTO();
+                                action1.setName("action1");
+                                action1.setPageId(firstPage.getId());
+                                action1.setWorkspaceId(workspace.getId());
+                                action1.setDatasource(ds1WithId);
+                                action1.setPluginId(installedPlugin.getId());
+
+                                final ActionDTO action2 = new ActionDTO();
+                                action2.setPageId(firstPage.getId());
+                                action2.setName("action2");
+                                action2.setWorkspaceId(workspace.getId());
+                                action2.setDatasource(ds1WithId);
+                                action2.setPluginId(installedPlugin.getId());
+
+                                final ActionDTO action3 = new ActionDTO();
+                                action3.setPageId(firstPage.getId());
+                                action3.setName("action3");
+                                action3.setWorkspaceId(workspace.getId());
+                                action3.setDatasource(ds2WithId);
+                                action3.setPluginId(installedPlugin.getId());
+
+                                return Mono.when(
+                                                layoutActionService.createSingleAction(action1, Boolean.FALSE),
+                                                layoutActionService.createSingleAction(action2, Boolean.FALSE),
+                                                layoutActionService.createSingleAction(action3, Boolean.FALSE))
+                                        .then(Mono.zip(workspaceService.create(targetOrg), Mono.just(app)));
+                            })
+                            .flatMap(tuple1 -> {
+                                final Workspace targetOrg1 = tuple1.getT1();
+                                final String originalId = tuple1.getT2().getId();
+                                final String originalName = tuple1.getT2().getName();
+
+                                Mono<Void> clonerMono = Mono.just(tuple1.getT2())
+                                        .map(app -> {
+                                            // We reset these values here because the clone method updates them and that
+                                            // just messes with our test.
+                                            app.setId(originalId);
+                                            app.setName(originalName);
+                                            return app;
+                                        })
+                                        .flatMap(app -> applicationForkingService.forkApplications(
+                                                targetOrg1.getId(), app, environmentId))
+                                        .then();
+
+                                return clonerMono
+                                        .then(clonerMono)
+                                        .then(clonerMono)
+                                        .thenReturn(targetOrg1);
+                            });
+                })
+                .flatMap(this::loadWorkspaceData)
+                .doOnError(error -> log.error("Error in test", error));
+
+        StepVerifier.create(resultMono)
+                .assertNext(data -> {
+                    assertThat(data.workspace).isNotNull();
+                    assertThat(data.workspace.getId()).isNotNull();
+                    assertThat(data.workspace.getName()).isEqualTo("Target Org 2");
+                    assertThat(data.workspace.getPolicies()).isNotEmpty();
+
+                    assertThat(map(data.applications, Application::getName))
+                            .containsExactlyInAnyOrder("that great app", "that great app (1)", "that great app (2)");
+
+                    final Application app1 = data.applications.stream()
+                            .filter(app -> app.getName().equals("that great app"))
+                            .findFirst()
+                            .orElse(null);
+                    assert app1 != null;
+                    assertThat(app1.getPages().stream()
+                                    .filter(ApplicationPage::isDefault)
+                                    .count())
+                            .isEqualTo(1);
+
+                    final DBAuth a1 = new DBAuth();
+                    a1.setUsername("u1");
+                    final DBAuth a2 = new DBAuth();
+                    a2.setUsername("u1");
+                    assertThat(a1).isEqualTo(a2);
+
+                    final OAuth2 o1 = new OAuth2();
+                    o1.setClientId("c1");
+                    final OAuth2 o2 = new OAuth2();
+                    o2.setClientId("c1");
+                    assertThat(o1).isEqualTo(o2);
+
+                    assertThat(map(data.datasources, Datasource::getName))
+                            .containsExactlyInAnyOrder(
+                                    "datasource 1",
+                                    "datasource 1 (1)",
+                                    "datasource 1 (2)",
+                                    "datasource 2",
+                                    "datasource 2 (1)",
+                                    "datasource 2 (2)");
+
+                    final Datasource ds1 = data.datasources.stream()
+                            .filter(ds -> ds.getName().equals("datasource 1"))
+                            .findFirst()
+                            .get();
+                    DatasourceStorageDTO storage1 = ds1.getDatasourceStorages().get(data.defaultEnvironmentId);
+                    assertThat(storage1.getDatasourceConfiguration()).isNull();
+
+                    final Datasource ds2 = data.datasources.stream()
+                            .filter(ds -> ds.getName().equals("datasource 2"))
+                            .findFirst()
+                            .get();
+                    DatasourceStorageDTO storage2 = ds2.getDatasourceStorages().get(data.defaultEnvironmentId);
+                    assertThat(storage2.getDatasourceConfiguration()).isNull();
+
+                    assertThat(getUnpublishedActionName(data.actions))
+                            .containsExactlyInAnyOrder(
+                                    "action1", "action2", "action3", "action1", "action2", "action3", "action1",
+                                    "action2", "action3");
+                })
+                .verifyComplete();
+    }
+
+    private List<String> getUnpublishedActionName(List<ActionDTO> actions) {
+        List<String> names = new ArrayList<>();
+        for (ActionDTO action : actions) {
+            names.add(action.getName());
+        }
+        return names;
+    }
+
+    private <InType, OutType> List<OutType> map(List<InType> list, Function<InType, OutType> fn) {
+        return list.stream().map(fn).collect(Collectors.toList());
+    }
+
+    private Flux<ActionCollectionDTO> getActionCollectionsInWorkspace(Workspace workspace) {
+        return applicationService
+                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
+                // fetch the unpublished pages
+                .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
+                .flatMap(page -> actionCollectionService.getPopulatedActionCollectionsByViewMode(
+                        new LinkedMultiValueMap<>(Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))),
+                        false));
+    }
+
     private static class WorkspaceData {
         Workspace workspace;
         List<Application> applications = new ArrayList<>();
         List<Datasource> datasources = new ArrayList<>();
         List<ActionDTO> actions = new ArrayList<>();
+        List<ActionCollectionDTO> actionCollections = new ArrayList<>();
+        String defaultEnvironmentId;
     }
 }
