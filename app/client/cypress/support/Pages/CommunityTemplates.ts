@@ -56,8 +56,8 @@ export class CommunityTemplates {
     selector: string,
     testUserName: string,
   ) {
-    return this.agHelper.GetInputValue(selector).then((authorName) => {
-      if (authorName === "") {
+    this.agHelper.GetText(selector, "val").then((authorName) => {
+      if (typeof authorName === "string" && authorName === "") {
         this.AssertPublishButtonState(true);
         this.agHelper.UpdateInputValue(selector, testUserName);
       }
