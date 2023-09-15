@@ -4,20 +4,22 @@ import {
   propPane,
   dataManager,
   locators,
+  entityExplorer,
+  deployMode,
+  draggableWidgets,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe("Validate Oracle DS", () => {
-  let dataSourceName: string;
+  let dataSourceName: string, guid: any;
 
   before("Generate GUID", () => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
+      guid = uid;
       dataSourceName = "Oracle" + " " + uid;
     });
-  });
-
-  after("Delete Oracle DS", () => {
-    dataSources.DeleteDatasouceFromActiveTab(dataSourceName);
   });
 
   it("1. Tc #2354, #2204 - Oracle placeholder & mandatory mark verification", () => {
@@ -107,4 +109,190 @@ describe("Validate Oracle DS", () => {
     dataSources.AssertDSInActiveList(dataSourceName);
     // });
   });
+
+  it("3. Tc #2359, Tc # 2360 , Tc # 2358 - Create Insert, Alter & Select queries", () => {
+    dataSources.NavigateFromActiveDS(dataSourceName, true);
+    let query = `CREATE TABLE ${guid} (
+      aircraft_id NUMBER(5) PRIMARY KEY,
+      aircraft_type VARCHAR2(50) NOT NULL,
+      registration_number VARCHAR2(20) UNIQUE,
+      manufacturer VARCHAR2(50),
+      seating_capacity NUMBER(3),
+      maximum_speed NUMBER(5, 2),
+      range NUMBER(7, 2),
+      purchase_date DATE,
+      maintenance_last_date DATE,
+      notes CLOB
+  );`;
+    agHelper.RenameWithInPane("CreateAircraft");
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ExpandCollapseEntity(dataSourceName);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dataSourceName,
+      action: "Refresh",
+    });
+    agHelper.AssertElementVisibility(
+      entityExplorer._entityNameInExplorer(guid.toUpperCase()),
+    );
+    query = `INSERT INTO ${guid} (
+    aircraft_id,
+    aircraft_type,
+    registration_number,
+    manufacturer,
+    seating_capacity,
+    maximum_speed,
+    range,
+    purchase_date,
+    maintenance_last_date,
+    notes) VALUES (
+    1,
+    'Cargo Plane',
+    'N12345',
+    'Boeing',
+    150,
+    550.03,
+    3500.30,
+    TO_DATE('2020-01-15', 'YYYY-MM-DD'),
+    TO_DATE('September 14, 2023', 'Month DD, YYYY'),
+    'This aircraft is used for domestic flights.');`;
+    entityExplorer.ActionTemplateMenuByEntityName(guid.toUpperCase(), "SELECT");
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    let selectQuery = `SELECT * FROM ${guid} WHERE ROWNUM < 10`;
+    dataSources.EnterQuery(selectQuery);
+    dataSources.RunQueryNVerifyResponseViews();
+    query = `ALTER TABLE ${guid} ADD (raw_data RAW(16), maintenance_interval INTERVAL YEAR(3) TO MONTH);`;
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    query = `INSERT INTO ${guid} (
+    aircraft_id,
+    aircraft_type,
+    registration_number,
+    manufacturer,
+    seating_capacity,
+    maximum_speed,
+    range,
+    purchase_date,
+    maintenance_last_date,
+    notes,
+    raw_data,
+    maintenance_interval) VALUES (
+    4,
+    'Passenger Plane',
+    'N77777',
+    'Airbus',
+    100,
+    600.67,
+    3800.82,
+    TO_DATE('2017-05-25', 'YYYY-MM-DD'),
+    TO_DATE('2023-02-18', 'YYYY-MM-DD'),
+    'This aircraft is part of the international fleet.',
+    UTL_RAW.CAST_TO_RAW('raw_value'),
+    INTERVAL '1' YEAR(3) -- 1 year maintenance interval
+);`;
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.EnterQuery(selectQuery);
+    dataSources.RunQueryNVerifyResponseViews(2);
+    query = `INSERT ALL
+      INTO ${guid} (
+          aircraft_id,
+          aircraft_type,
+          registration_number,
+          manufacturer,
+          seating_capacity,
+          maximum_speed,
+          range,
+          purchase_date,
+          maintenance_last_date,
+          notes,
+          raw_data,
+          maintenance_interval
+      )
+      VALUES (
+          5,
+          'Cargo Plane',
+          'N45678',
+          'Boeing',
+          280,
+          570.00,
+          5500.00,
+          TO_DATE('2018-08-30', 'YYYY-MM-DD'),
+          TO_DATE('2022-12-12', 'YYYY-MM-DD'),
+          'This cargo aircraft is used for long-haul freight.',
+          UTL_RAW.CAST_TO_RAW('cargo_raw_data'),
+          INTERVAL '2' YEAR(3) -- Two-year maintenance interval
+      )
+      INTO ${guid} (
+          aircraft_id,
+          aircraft_type,
+          registration_number,
+          manufacturer,
+          seating_capacity,
+          maximum_speed,
+          range,
+          purchase_date,
+          maintenance_last_date,
+          notes,
+          raw_data,
+          maintenance_interval
+      )
+      VALUES (
+          6,
+          'Helicopter',
+          'N98765',
+          'Robinson',
+          2,
+          150.00,
+          350.00,
+          TO_DATE('2019-06-15', 'YYYY-MM-DD'),
+          TO_DATE('2023-08-20', 'YYYY-MM-DD'),
+          'This helicopter is used for aerial photography.',
+          UTL_RAW.CAST_TO_RAW('helicopter_raw'),
+          INTERVAL '6' MONTH -- Six-month maintenance interval
+      );
+      SELECT * FROM DUAL;`;
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.EnterQuery(selectQuery);
+    dataSources.RunQueryNVerifyResponseViews(4);
+    selectQuery = selectQuery + ` and  aircraft_id IN (1, 6)`;
+    dataSources.EnterQuery(selectQuery);
+    dataSources.RunQueryNVerifyResponseViews(2);
+    dataSources.AddSuggestedWidget(Widgets.Table);
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
+    table.ReadTableRowColumnData(0, 10, "v2").then(($cellData) => {
+      expect($cellData).to.be.empty;
+    });
+    table.ReadTableRowColumnData(0, 11, "v2").then(($cellData) => {
+      expect($cellData).to.be.empty;
+    });
+    table.ReadTableRowColumnData(1, 10, "v2").then(($cellData) => {
+      expect($cellData).not.to.be.empty;
+    });
+    table.ReadTableRowColumnData(1, 11, "v2").then(($cellData) => {
+      expect($cellData).not.to.be.empty;
+    });
+    deployMode.NavigateBacktoEditor();
+  });
+
+  after(
+    "Verify Deletion of the Oracle datasource after all created queries are deleted",
+    () => {
+      dataSources.DeleteDatasouceFromWinthinDS(dataSourceName, 409); //Since all queries exists
+      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      entityExplorer.DeleteAllQueriesForDB(dataSourceName);
+      deployMode.DeployApp();
+      deployMode.NavigateBacktoEditor();
+      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      dataSources.DeleteDatasouceFromWinthinDS(dataSourceName, 200);
+    },
+  );
 });
