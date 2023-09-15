@@ -14,7 +14,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.newaction.base.NewActionService;
+import com.appsmith.server.newactions.base.NewActionService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
