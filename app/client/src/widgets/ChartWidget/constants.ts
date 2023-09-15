@@ -43,7 +43,7 @@ export const messages = {
   ErrorTitle: "Error in Chart Data/Configuration",
   MoreDetails: "More Details",
   EmptyData: "No chart data to display",
-  Undefined: "Undefined",
+  Undefined: "Undefined 123",
   customFusionChartDeprecationMessage:
     "Custom Fusion Charts will stop being supported on March 1st 2024. Change the chart type to E-charts Custom to switch.",
   customFusionChartOptionLabel: (showDeprecationMessage: boolean) => {
