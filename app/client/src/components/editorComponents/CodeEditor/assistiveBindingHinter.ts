@@ -63,6 +63,13 @@ export const assistiveBindingHinter: HintHelper = (
       const words = str.split(/[\s]+/);
       const value = words[words.length - 1]; //last word after any white spaces
 
+      const cursor = editor.getCursor();
+      // Binding assistance should be triggered only at the end of the content being edited
+      const isLastLine = editor.lastLine() === cursor.line;
+      const isCursorAtEnd =
+        editor.getLineHandle(cursor.line).text.length === cursor.ch;
+      if (!isLastLine || !isCursorAtEnd) return false;
+
       if (value.length < 3 && value !== PARTIAL_BINDING) return false;
       const searchText = value === PARTIAL_BINDING ? "" : value;
       const list = generateAssistiveBindingCommands(
@@ -94,7 +101,6 @@ export const assistiveBindingHinter: HintHelper = (
         text: "",
         shortcut: "",
       };
-      const cursor = editor.getCursor();
       const currentLine = cursor.line;
       const currentCursorPosition =
         value === PARTIAL_BINDING ? cursor.ch + 1 : cursor.ch;
