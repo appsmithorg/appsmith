@@ -93,7 +93,7 @@ jobs:
         continue-on-error: true
         id: dashboard_url
         run: |
-          cypress_url=$(cat ~/cypress_url)
+          cypress_url="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}"
           echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
 
       - name: slack message builder
@@ -101,14 +101,17 @@ jobs:
         id: slack_notification
         run: |
           if [[ ${{ needs.ci-test.result }} == 'failure' ]]; then
-            echo "slack_message=There are cypress failures. To analyze run go <${{ steps.dashboard_url.outputs.dashboard_url }}|here>" >> $GITHUB_OUTPUT
+            echo "slack_message=There are Cypress test failures in the run. Cypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
+            echo "slack_icon=:thumbs_down:" >> $GITHUB_OUTPUT
           elif [[ ${{ needs.ci-test.result }} == 'success' ]]; then
-            echo  "slack_message=All Cypress tests passed :tada:. To analyze run go <${{ steps.dashboard_url.outputs.dashboard_url }}|here>" >> $GITHUB_OUTPUT
+            echo "slack_message=All Cypress tests passed successfully :tada: Cypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#00FF00" >> $GITHUB_OUTPUT
+            echo "slack_icon=:thumbs_up:" >> $GITHUB_OUTPUT
           else
             echo "slack_message=There are build failures. To analyze run go <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>" >> $GITHUB_OUTPUT
             echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
+            echo "slack_icon=:warning:" >> $GITHUB_OUTPUT
           fi
 
       - name: Slack Notification
@@ -118,7 +121,7 @@ jobs:
         env:
           SLACK_CHANNEL: stabilizing-cypress
           SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
-          SLACK_ICON_EMOJI: ":bell:"
+          SLACK_ICON_EMOJI: ${{steps.slack_notification.outputs.slack_icon}}
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
           SLACK_TITLE: "Result:"
           SLACK_USERNAME: Github Scheduler
