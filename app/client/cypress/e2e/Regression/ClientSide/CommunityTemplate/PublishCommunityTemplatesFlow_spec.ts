@@ -99,13 +99,13 @@ describe("excludeForAirgap", "Publish app to Community flow", () => {
 
     // TODO: Make an API request here and intercept it to happy submission
 
-    agHelper.AssertElementVisibility("Template published to community");
+    agHelper.ValidateToastMessage("Template published to community");
   });
   it("4. Publish template unhappy scenario", () => {
     prepareTemplateFormForSubmission();
 
     // TODO: Make an API request here and intercept it to unhappy submission
 
-    agHelper.AssertElementVisibility("Unable to publish");
+    agHelper.ValidateToastMessage("Unable to publish");
   });
 });
