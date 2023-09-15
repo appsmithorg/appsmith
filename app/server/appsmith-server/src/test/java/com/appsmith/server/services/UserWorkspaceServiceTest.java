@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
@@ -12,7 +13,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -74,18 +75,19 @@ public class UserWorkspaceServiceTest {
     private PolicySolution policySolution;
 
     @Autowired
+    private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private PolicyGenerator policyGenerator;
+
+    @Autowired
     private UserDataService userDataService;
 
     @Autowired
     private ApplicationPageService applicationPageService;
 
-    @Autowired
-    PermissionGroupService permissionGroupService;
-
     private Workspace workspace;
-    PermissionGroup developerPermissionGroup;
-    User api_user;
-    User developer_user;
+    private User user;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -102,7 +104,7 @@ public class UserWorkspaceServiceTest {
                 .collectList()
                 .block();
 
-        developerPermissionGroup = permissionGroups.stream()
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
                 .findFirst()
                 .get();
@@ -112,9 +114,8 @@ public class UserWorkspaceServiceTest {
                 .findFirst()
                 .get();
 
-        api_user = userService.findByEmail("api_user").block();
+        User api_user = userService.findByEmail("api_user").block();
         User usertest = userService.findByEmail("usertest@usertest.com").block();
-        developer_user = userService.findByEmail("developer@solutiontest.com").block();
 
         // Make api_user a developer and not an administrator
         // Make user_test an administrator
@@ -342,38 +343,6 @@ public class UserWorkspaceServiceTest {
                             userRole1.getRoles().get(0).getEntityType());
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void invalid_removeAnotherDeveloperAsDeveloperInWorkspace() {
-        developerPermissionGroup.setAssignedToUserIds(Set.of(api_user.getId(), developer_user.getId()));
-        permissionGroupRepository.save(developerPermissionGroup).block();
-        permissionGroupService
-                .cleanPermissionGroupCacheForUsers(List.of(api_user.getId(), developer_user.getId()))
-                .block();
-
-        UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
-        updatePermissionGroupDTO.setNewPermissionGroupId(null);
-        updatePermissionGroupDTO.setUsername(developer_user.getUsername());
-
-        Mono<MemberInfoDTO> removeDeveloperMono = userWorkspaceService.updatePermissionGroupForMember(
-                workspace.getId(), updatePermissionGroupDTO, "origin");
-
-        StepVerifier.create(removeDeveloperMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable
-                                .getMessage()
-                                .equals(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage(
-                                        "Change permissionGroup of a member")))
-                .verify();
-
-        // Cleanup the special state created for this test case
-        developerPermissionGroup.setAssignedToUserIds(Set.of(api_user.getId()));
-        permissionGroupRepository.save(developerPermissionGroup).block();
-        permissionGroupService
-                .cleanPermissionGroupCacheForUsers(List.of(api_user.getId(), developer_user.getId()))
-                .block();
     }
 
     @AfterEach

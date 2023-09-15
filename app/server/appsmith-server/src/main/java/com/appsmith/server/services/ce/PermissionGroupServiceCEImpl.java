@@ -26,7 +26,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -38,6 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
@@ -86,6 +86,9 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 .map(pg -> {
                     Set<Permission> permissions = new HashSet<>(
                             Optional.ofNullable(pg.getPermissions()).orElse(Set.of()));
+                    // Permission to unassign self is always given
+                    // so user can unassign himself from permission group
+                    permissions.add(new Permission(pg.getId(), UNASSIGN_PERMISSION_GROUPS));
                     pg.setPermissions(permissions);
                     Map<String, Policy> policyMap =
                             policySolution.generatePolicyFromPermissionGroupForObject(pg, pg.getId());
@@ -369,46 +372,5 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         List<String> usernames = users.stream().map(User::getUsername).toList();
         return bulkUnassignFromUsers(permissionGroup, users)
                 .flatMap(permissionGroup1 -> sendEventUserRemovedFromRole(permissionGroup, usernames));
-    }
-
-    @Override
-    public Mono<Boolean> leaveExplicitlyAssignedSelfRole(String permissionGroupId) {
-
-        Mono<User> currentUserMono = sessionUserService.getCurrentUser();
-
-        Mono<PermissionGroup> permissionGroupMono = repository.findById(permissionGroupId);
-
-        return Mono.zip(currentUserMono, permissionGroupMono)
-                .flatMap(tuple -> {
-                    User currentUser = tuple.getT1();
-                    PermissionGroup permissionGroup = tuple.getT2();
-
-                    String userId = currentUser.getId();
-
-                    if (!StringUtils.hasLength(userId)) {
-                        return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
-                    }
-
-                    Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
-
-                    if (!assignedToUserIds.contains(userId)) {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.USER_NOT_ASSIGNED_TO_ROLE,
-                                currentUser.getUsername(),
-                                permissionGroup.getName()));
-                    }
-
-                    assignedToUserIds.remove(userId);
-
-                    Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
-
-                    updateObj.set(path, assignedToUserIds);
-
-                    return Mono.zip(
-                            repository.updateById(permissionGroupId, updateObj),
-                            cleanPermissionGroupCacheForUsers(List.of(userId)));
-                })
-                .map(tuple -> TRUE);
     }
 }
