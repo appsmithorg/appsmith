@@ -98,7 +98,7 @@ export async function cypressHooks(
               results.screenshots
             ) {
               const out = results.screenshots.filter((scr) =>
-                scr.name.includes(test.title[1]),
+                scr.path.includes(test.title[1]),
               );
               console.log("Uploading screenshots...");
               for (const scr of out) {

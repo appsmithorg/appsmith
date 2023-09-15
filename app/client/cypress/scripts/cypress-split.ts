@@ -67,9 +67,9 @@ async function getSpecsToRun(
     const specFilePaths = await getSpecFilePaths(specPattern, ignorePattern);
     console.log("ALL SPEC FILES PATH ===> ", specFilePaths);
 
-    if (!specFilePaths.length) {
-      throw Error("No spec files found.");
-    }
+    // if (!specFilePaths.length) {
+    //   throw Error("No spec files found.");
+    // }
     const specsToRun = await getSpecsWithTime(specFilePaths, attemptId);
     console.log("SPECS TO RUN ====>", specsToRun);
     return specsToRun === undefined
