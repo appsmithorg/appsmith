@@ -2,6 +2,7 @@
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 #cypress/e2e/Regression/ServerSide/Datasources/Oracle_Spec.ts
 cypress/e2e/Regression/ClientSide/Git/GitSync/Connection_spec.js
+cypress/e2e/Regression/ClientSide/Git/GitSync/LearnMore_spec.js
 
 
 # For running all specs - uncomment below:

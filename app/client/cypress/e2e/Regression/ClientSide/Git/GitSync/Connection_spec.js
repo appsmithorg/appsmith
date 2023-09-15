@@ -56,38 +56,11 @@ describe("Git sync modal: connect tab", function () {
     cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
       "generateKey",
     );
-
-    // Stubbing window.open
-    // cy.window().then((window) => {
-    //   windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
-    //     expect(url.startsWith("https://docs.appsmith.com/")).to.be.true;
-    //     windowOpenSpy.restore();
-    //   });
-    // });
-
-    cy.window().then((window) => {
-      windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
-        if (
-          url.includes("/version-control-with-git/connecting-to-git-repository")
-        ) {
-          expect(url).to.contain(
-            "/version-control-with-git/connecting-to-git-repository",
-          );
-        } else if (url.includes("overview/managing-deploy-keys")) {
-          expect(url).to.contain("overview/managing-deploy-keys");
-        }
-        windowOpenSpy.restore();
-      });
-    });
-
-    // Click the "Learn More" link
-    cy.get(gitSyncLocators.learnMoreSshUrl).click();
     cy.get(gitSyncLocators.generateDeployKeyBtn).click();
 
     cy.wait("@generateKey").then((result) => {
       generatedKey = result.response.body.data.publicKey;
     });
-    cy.xpath(gitSyncLocators.learnMoreDeployKey).click({ force: true });
   });
 
   it("2. validates copy key and validates repo url input after key generation", function () {
