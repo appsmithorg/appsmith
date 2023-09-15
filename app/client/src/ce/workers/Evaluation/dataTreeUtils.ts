@@ -1,5 +1,5 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { get, set, unset } from "lodash";
+import { get, isObject, set, unset } from "lodash";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { removeFunctionsAndSerialzeBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 
@@ -23,7 +23,9 @@ export function makeEntityConfigsAsObjProperties(
   const newDataTree: DataTree = {};
   for (const entityName of Object.keys(dataTree)) {
     const entity = dataTree[entityName];
-    newDataTree[entityName] = Object.assign({}, entity);
+    newDataTree[entityName] = isObject(entity)
+      ? Object.assign({}, entity)
+      : entity;
   }
   const dataTreeToReturn = sanitizeDataTree
     ? removeFunctionsAndSerialzeBigInt(newDataTree)

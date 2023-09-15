@@ -4,6 +4,7 @@ import JSObjectCollection from "./JSObject/Collection";
 import JSFactory from "./JSObject/JSVariableFactory";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 import type { JSActionEntity } from "entities/DataTree/types";
+import { isObject } from "lodash";
 
 function getJSFunctionsForEntity({
   jsObject,
@@ -35,7 +36,7 @@ export function getEntityForEvalContext(
   entity: DataTreeEntity,
   entityName: string,
 ) {
-  if (entity && "ENTITY_TYPE" in entity) {
+  if (entity && isObject(entity) && "ENTITY_TYPE" in entity) {
     switch (entity.ENTITY_TYPE) {
       case ENTITY_TYPE.JSACTION: {
         const jsObjectName = entityName;
