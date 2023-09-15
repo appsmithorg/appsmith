@@ -141,10 +141,10 @@ jobs:
           SLACK_ICON_EMOJI: ${{steps.slack_notification.outputs.slack_icon}}
           SLACK_ICON: https://app.slack.com/services/B05D17E4QVB
           SLACK_TITLE: "Result:"
-          SLACK_USERNAME: Push Workflows
+          SLACK_USERNAME: Push Workflow
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
           MSG_MINIMAL: Ref,Event,Commit
-          # SLACK_FOOTER: "Appsmith Push Workflows"
+          SLACK_FOOTER: "Push Workflow"
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
 
       # Force save the CI failed spec list into a cache
