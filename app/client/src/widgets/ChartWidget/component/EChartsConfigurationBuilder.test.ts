@@ -124,7 +124,7 @@ describe("EChartsConfigurationBuilder", () => {
       axisLabel: {
         fontFamily: "fontfamily",
         color: Colors.DOVE_GRAY2,
-        overflow: "break",
+        overflow: "truncate",
         show: true,
         width: 12,
       },
@@ -617,7 +617,7 @@ describe("EChartsConfigurationBuilder", () => {
         longestLabels,
       );
       let firstSeriesName = (output.series as any[])[0].name;
-      expect(firstSeriesName).toEqual("Undefined");
+      expect(firstSeriesName).toEqual("Series");
 
       chartDataParams.seriesID1.seriesName = undefined;
       output = builder.prepareEChartConfig(
@@ -626,7 +626,7 @@ describe("EChartsConfigurationBuilder", () => {
         longestLabels,
       );
       firstSeriesName = (output.series as any[])[0].name;
-      expect(firstSeriesName).toEqual("Undefined");
+      expect(firstSeriesName).toEqual("Series");
     });
 
     it("6.9 PIE-CHART chooses a default series name for the legend if series name prop is empty", () => {
@@ -644,7 +644,7 @@ describe("EChartsConfigurationBuilder", () => {
         longestLabels,
       );
       let firstSeriesName = (output.series as any[])[0].name;
-      expect(firstSeriesName).toEqual("Undefined");
+      expect(firstSeriesName).toEqual("Series");
 
       chartDataParams.seriesName = undefined;
       output = builder.prepareEChartConfig(
@@ -655,7 +655,7 @@ describe("EChartsConfigurationBuilder", () => {
         longestLabels,
       );
       firstSeriesName = (output.series as any[])[0].name;
-      expect(firstSeriesName).toEqual("Undefined");
+      expect(firstSeriesName).toEqual("Series");
     });
 
     it("6.10 shows labels on series data if Show Labels if true otherwise false", () => {

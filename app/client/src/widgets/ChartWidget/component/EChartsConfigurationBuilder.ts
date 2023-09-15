@@ -258,8 +258,7 @@ export class EChartsConfigurationBuilder {
       fontFamily: this.fontFamily,
       color: Colors.DOVE_GRAY2,
       show: layoutConfig.yAxis.show,
-      width: (layoutConfig.yAxis.axisLabel as Record<string, unknown>).width,
-      overflow: "break",
+      ...(layoutConfig.yAxis.axisLabel as Record<string, unknown>),
     };
     return config;
   };
