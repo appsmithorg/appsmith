@@ -235,7 +235,7 @@ async function addLockGetTheSpecs(
         return specs;
       } else {
         console.log("Waiting for specs ....................");
-        await sleep(1000);
+        await sleep(5000);
         retry++;
       }
     }
