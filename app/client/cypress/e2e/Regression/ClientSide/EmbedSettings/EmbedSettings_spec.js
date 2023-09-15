@@ -68,7 +68,7 @@ describe("Embed settings options", function () {
       .its("navigator.clipboard")
       .invoke("readText")
       .then((text) => {
-        cy.wrap(text).as("deployUrl");
+        deployUrl = cy.wrap(text);
       });
     cy.enablePublicAccess();
     cy.wait(8000); //adding wait time for iframe to load fully!
@@ -84,11 +84,8 @@ describe("Embed settings options", function () {
     });
     cy.get(adminSettings.saveButton).click();
     cy.waitForServerRestart();
-    cy.get("@deployUrl").then((depUrl) => {
-      cy.log("deployUrl is " + depUrl);
-      deployUrl = depUrl;
-      cy.visit(deployUrl, { timeout: 60000 });
-    });
+    cy.log("deployUrl is " + deployUrl);
+    cy.visit(deployUrl, { timeout: 60000 });
     getIframeBody().contains("Submit").should("exist");
 
     ValidateEditModeSetting(_.embedSettings.locators._restrictedText);
