@@ -36,7 +36,8 @@ describe("Radio Widget test cases", function () {
     deployMode.DeployApp(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
-    agHelper.GetNAssertContains(widgetLocators.radioWidgetContainer, "test");
+    agHelper.AssertExistingCheckedState(
+      locators._checkboxTypeByOption("test"),"false");
     deployMode.NavigateBacktoEditor();
 
     //API
@@ -58,7 +59,8 @@ describe("Radio Widget test cases", function () {
     agHelper.GetElement("@postExecute").then((interception: any) => {
       agHelper.Sleep();
       const name = interception.response.body.data.body[0].name;
-      agHelper.GetNAssertContains(widgetLocators.radioWidgetContainer, name);
+      agHelper.AssertExistingCheckedState(
+        locators._checkboxTypeByOption(name),"false");
     });
     agHelper.AssertElementLength(widgetLocators.radioBtn, 10);
     deployMode.NavigateBacktoEditor();
@@ -79,8 +81,10 @@ describe("Radio Widget test cases", function () {
     deployMode.DeployApp(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
-    agHelper.GetNAssertContains(widgetLocators.radioWidgetContainer, "Blue");
-    agHelper.GetNAssertContains(widgetLocators.radioWidgetContainer, "Green");
+    agHelper.AssertExistingCheckedState(
+      locators._checkboxTypeByOption("Blue"),"false");
+    agHelper.AssertExistingCheckedState(
+      locators._checkboxTypeByOption("Green"),"false");
   });
 
   it("2. Validate validation errors evaluated value poup", () => {
@@ -183,7 +187,11 @@ describe("Radio Widget test cases", function () {
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
     agHelper.AssertExistingCheckedState(
-      widgetLocators.radioBtn + " input",
+      locators._checkboxTypeByOption("Blue"),
+      "false",
+    );
+    agHelper.AssertExistingCheckedState(
+      locators._checkboxTypeByOption("Green"),
       "false",
     );
 
@@ -205,7 +213,7 @@ describe("Radio Widget test cases", function () {
     deployMode.DeployApp(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
-    agHelper.AssertExistingCheckedState(widgetLocators.radioBtn + " input");
+    agHelper.AssertExistingCheckedState(locators._checkboxTypeByOption("test"));
   });
 
   it("4. Validate Label properties - Text , Position , Alignment , Width(in columns)", function () {
@@ -288,54 +296,103 @@ describe("Radio Widget test cases", function () {
       false,
     );
     agHelper
-      .GetElement(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP))
-      .invoke("height")
-      .should("be.greaterThan", 130);
-    agHelper.AssertCSS(
-      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
-      "width",
-      "432.1875px",
-    );
+      .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP))
+      .then((currentHeight) => {
+        expect(currentHeight).be.greaterThan(130);
+      })
 
-    //Disable - should throw error for non boolean values
-    deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
-    propPane.EnterJSContext("Disabled", "test", true, true);
-    agHelper.VerifyEvaluatedErrorMessage(
-      `This value does not evaluate to type boolean`,
+    agHelper.GetWidth(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP)
     );
-    propPane.EnterJSContext("Disabled", "{{!!(Text1.text)}}", true, true);
+    agHelper.GetElement("@eleWidth").then((currentWidth) => {
+      expect(currentWidth).to.be("432.1875px")
 
-    //Inline - should throw error for non boolean values
-    propPane.EnterJSContext("Inline", "test", true, true);
-    agHelper.VerifyEvaluatedErrorMessage(
-      `This value does not evaluate to type boolean`,
-    );
-    propPane.EnterJSContext("Inline", "{{Text1.text}}", true, true);
+      //Disable - should throw error for non boolean values
+      deployMode.NavigateBacktoEditor();
+      entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+      propPane.EnterJSContext("Disabled", "test", true, true);
+      agHelper.VerifyEvaluatedErrorMessage(
+        `This value does not evaluate to type boolean`,
+      );
+      propPane.EnterJSContext("Disabled", "{{!!(Text1.text)}}", true, true);
 
-    //Visible - should throw error for non boolean values
-    propPane.EnterJSContext("Visible", "test", true, true);
-    agHelper.VerifyEvaluatedErrorMessage(
-      `This value does not evaluate to type boolean`,
-    );
-    propPane.EnterJSContext("Visible", "{{!!(Text1.text)}}", true, true);
+      //Inline - should throw error for non boolean values
+      propPane.EnterJSContext("Inline", "test", true, true);
+      agHelper.VerifyEvaluatedErrorMessage(
+        `This value does not evaluate to type boolean`,
+      );
+      propPane.EnterJSContext("Inline", "{{Text1.text}}", true, true);
 
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
-    propPane.UpdatePropertyFieldValue("Text", "false");
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
-    agHelper.AssertElementEnabledDisabled(
-      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
-      0,
-      true,
-    );
-    agHelper
-      .GetElement(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP))
-      .invoke("height")
-      .should("be.greaterThan", 270);
-    agHelper.AssertCSS(
-      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
-      "width",
-      "432.1875px",
-    );
-  });
-});
+      //Visible - should throw error for non boolean values
+      propPane.EnterJSContext("Visible", "test", true, true);
+      agHelper.VerifyEvaluatedErrorMessage(
+        `This value does not evaluate to type boolean`,
+      );
+      propPane.EnterJSContext("Visible", "{{!!(Text1.text)}}", true, true);
+
+      entityExplorer.SelectEntityByName("Text1", "Widgets");
+      propPane.UpdatePropertyFieldValue("Text", "false");
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
+      agHelper.AssertElementEnabledDisabled(
+        locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+        0,
+        true,
+      );
+      agHelper
+        .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP))
+        .then((currentHeight) => {
+          expect(currentHeight).be.greaterThan(270);
+        })
+
+      agHelper.GetWidth(
+        locators._widgetInDeployed(draggableWidgets.RADIO_GROUP)
+      );
+      agHelper.GetElement("@eleWidth").then((currentWidth) => {
+        expect(currentWidth).to.be("432.1875px")
+      });
+
+      it("6. Validate set property methods for Radio group", () => {
+        deployMode.NavigateBacktoEditor();
+        //JS Object
+        jsEditor.CreateJSObject(
+          `export default {
+        myVar1: [{
+          label:'test',
+          value:'test'}],
+        myFun1 () { 
+          RadioGroup1.setData(this.myVar1);
+          RadioGroup1.isVisible? RadioGroup1.setDisabled(true):RadioGroup1.setVisibility(false)
+        }
+      }`,
+          {
+            paste: true,
+            completeReplace: true,
+            toRun: false,
+            shouldCreateNewJSObj: true,
+          },
+        );
+        entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+        propPane.EnterJSContext("Disabled", "false", true, true);
+        propPane.EnterJSContext("onSelectionChange", "{{JSObject3.myFun1();}}");
+
+        deployMode.DeployApp(
+          locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+        );
+
+        agHelper.GetElement("@postExecute").then((interception: any) => {
+          agHelper.Sleep();
+          const name = interception.response.body.data.body[0].name;
+          agHelper.AssertExistingCheckedState(
+            locators._checkboxTypeByOption(name),"false");
+        });
+        agHelper.GetNClick(widgetLocators.radioBtn, 1)
+        agHelper.AssertExistingCheckedState(
+          locators._checkboxTypeByOption("test"),"false");
+        agHelper.AssertElementEnabledDisabled(
+          locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+          0,
+          true,
+        );
+
+      });
+    });

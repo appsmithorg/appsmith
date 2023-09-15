@@ -22,9 +22,10 @@ describe("Modal Widget test cases", function () {
     entityExplorer.SelectEntityByName("Button1");
     propPane.EnterJSContext("onClick", "{{showModal('Modal1');}}");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.Sleep(); //Wait for widgets to settle
 
     //Verify that the Modal widget opens correctly when configured on a button click.
-    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.ClickButton("Submit");
     agHelper.AssertElementVisibility(locators._modal);
 
     //Verify that the Modal widget is closed and no longer visible on the screen on clicking the "X" button.
@@ -35,9 +36,9 @@ describe("Modal Widget test cases", function () {
     agHelper.AssertElementAbsence(locators._modal);
 
     //Verify that clicking outside the Modal widget closes it as expected when Quick dismiss is enabled
-    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.ClickButton("Submit");
     agHelper.AssertElementVisibility(locators._modal);
-    agHelper.GetElement("body").click(350, 150);
+    agHelper.ClickOutside(350, 150, false);
     agHelper.AssertElementAbsence(locators._modal);
   });
 
@@ -45,11 +46,12 @@ describe("Modal Widget test cases", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Button1");
     propPane.ToggleJSMode("onClick", false);
-    propPane.CreateModal("Modal2", "onClick");
-    propPane.CreateModal("Modal3", "onClick");
+    propPane.CreateModal("onClick");
+    propPane.CreateModal("onClick");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
 
-    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.ClickButton("Submit");
+    agHelper.AssertElementLength(locators._modal, 3);
     agHelper.AssertElementVisibility(locators._modal, true, 2);
     agHelper.GetNClick(
       locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
@@ -66,6 +68,8 @@ describe("Modal Widget test cases", function () {
   });
 
   it("3. Verify that scroll appears when there are multiple widgets in modal", () => {
+    agHelper.ClickButton("Submit");
+    agHelper.AssertProperty(locators._modal, "scrollTop", 0);
     deployMode.NavigateBacktoEditor();
     homePage.NavigateToHome();
 
@@ -79,7 +83,7 @@ describe("Modal Widget test cases", function () {
 
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
 
-    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.ClickButton("Submit");
     agHelper.AssertElementVisibility(locators._modal);
     agHelper.AssertElementVisibility(
       locators._modal +
@@ -91,6 +95,10 @@ describe("Modal Widget test cases", function () {
         " " +
         locators._widgetInDeployed(draggableWidgets.LIST_V2),
     );
+    agHelper
+      .GetElement(locators._modal)
+      .invoke("scrollTop")
+      .should("be.greaterThan", 400);
     agHelper.ScrollTo(locators._modal, "bottom");
     agHelper.AssertElementVisibility(
       locators._modal +
@@ -104,7 +112,7 @@ describe("Modal Widget test cases", function () {
     entityExplorer.SelectEntityByName("Modal1", "Widgets");
     propPane.SelectPropertiesDropDown("Height", "Fixed");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.ClickButton("Submit");
     agHelper.AssertElementVisibility(locators._modal);
 
     //Verify that a fixed canvas size is visible when height is selected as Fixed
@@ -120,6 +128,10 @@ describe("Modal Widget test cases", function () {
         " " +
         locators._widgetInDeployed(draggableWidgets.LIST_V2),
     );
+    agHelper
+      .GetElement(locators._modal)
+      .invoke("scrollTop")
+      .should("be.greaterThan", 400);
     agHelper.ScrollTo(locators._modal, "bottom");
     agHelper.AssertElementVisibility(
       locators._modal +
@@ -325,7 +337,7 @@ describe("Modal Widget test cases", function () {
         deployMode.DeployApp(
           locators._widgetInDeployed(draggableWidgets.BUTTON),
         );
-        agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.BUTTON));
+        agHelper.ClickButton("Submit");
         agHelper.AssertCSS(
           locators._modalWrapper,
           "background",
@@ -347,7 +359,7 @@ describe("Modal Widget test cases", function () {
         deployMode.DeployApp(
           locators._widgetInDeployed(draggableWidgets.BUTTON),
         );
-        agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.BUTTON));
+        agHelper.ClickButton("Submit");
         agHelper.AssertCSS(
           locators._modalWrapper,
           "background",
