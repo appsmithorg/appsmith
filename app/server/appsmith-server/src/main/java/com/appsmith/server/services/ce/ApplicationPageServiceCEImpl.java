@@ -33,7 +33,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
-import com.appsmith.server.newaction.base.NewActionService;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
