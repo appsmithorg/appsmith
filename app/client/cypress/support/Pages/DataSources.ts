@@ -1948,12 +1948,17 @@ export class DataSources {
               if (heightOfParentElement < totalScroll) {
                 // Index of the table present in the array of tables which will determine the presence of element inside the parent container
                 let offset = indexOfTable * elementHeight;
-                const scrollPercent = (offset / (totalScroll || 1)) * 100;
-                this.agHelper.ScrollToXY(
-                  this._dsVirtuosoElement(dsName),
+                const scrollPercent = Math.max(
+                  (offset / (totalScroll || 1)) * 100,
                   0,
-                  `${Math.max(scrollPercent, 0)}%`,
                 );
+                if (scrollPercent > 0) {
+                  this.agHelper.ScrollToXY(
+                    this._dsVirtuosoElement(dsName),
+                    0,
+                    `${scrollPercent}%`,
+                  );
+                }
               }
 
               this.agHelper.AssertElementVisibility(
