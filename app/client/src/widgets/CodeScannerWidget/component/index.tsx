@@ -156,6 +156,7 @@ export interface DisabledOverlayerProps {
 
 const CodeScannerContainer = styled.div`
   height: 100%;
+  width: 100%;
 `;
 
 const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
