@@ -31,7 +31,7 @@ function useOtherOptions(props: OtherOptionsProps) {
     updateConfig,
   } = useContext(WidgetQueryGeneratorFormContext);
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
-  const defineWidgetSourceData =
+  const isAddBindingAllowed =
     datasourceDropdownVariant === DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS;
   const { widget } = props;
   const otherOptions = useMemo(() => {
@@ -90,7 +90,7 @@ function useOtherOptions(props: OtherOptionsProps) {
         },
       });
     }
-    if (defineWidgetSourceData) {
+    if (isAddBindingAllowed) {
       options.push({
         icon: <Icon name="code" size="md" />,
         id: "writeJsonSchema",
