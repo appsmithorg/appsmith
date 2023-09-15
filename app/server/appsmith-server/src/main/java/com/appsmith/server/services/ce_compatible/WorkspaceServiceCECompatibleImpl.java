@@ -1,26 +1,27 @@
-package com.appsmith.server.services;
+package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.services.ce_compatible.WorkspaceServiceCECompatibleImpl;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.AssetService;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.ce.WorkspaceServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.Validator;
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
 
-@Slf4j
 @Service
-public class WorkspaceServiceImpl extends WorkspaceServiceCECompatibleImpl implements WorkspaceService {
-
-    public WorkspaceServiceImpl(
+public class WorkspaceServiceCECompatibleImpl extends WorkspaceServiceCEImpl implements WorkspaceServiceCECompatible {
+    public WorkspaceServiceCECompatibleImpl(
             Scheduler scheduler,
             Validator validator,
             MongoConverter mongoConverter,
@@ -37,7 +38,6 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCECompatibleImpl imple
             ModelMapper modelMapper,
             WorkspacePermission workspacePermission,
             PermissionGroupPermission permissionGroupPermission) {
-
         super(
                 scheduler,
                 validator,
