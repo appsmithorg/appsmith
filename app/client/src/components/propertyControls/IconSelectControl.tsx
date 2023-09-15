@@ -147,10 +147,10 @@ class IconSelectControl extends BaseControl<
      */
     const noneIconExists = icons.has(NONE);
 
-    if (!!!props.hideNoneIcon && !noneIconExists) {
+    if (!props.hideNoneIcon && !noneIconExists) {
       ICON_NAMES.unshift(NONE);
       icons.add(NONE);
-    } else if (!!props.hideNoneIcon && noneIconExists) {
+    } else if (props.hideNoneIcon && noneIconExists) {
       ICON_NAMES.shift();
       icons.delete(NONE);
     }
