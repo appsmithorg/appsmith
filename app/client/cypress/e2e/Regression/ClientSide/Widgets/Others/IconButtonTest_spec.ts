@@ -4,6 +4,8 @@ import {
   deployMode,
   entityExplorer,
   propPane,
+  dataSources,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Icon Button widget Tests", function () {
@@ -111,14 +113,14 @@ describe("Icon Button widget Tests", function () {
     agHelper
       .GetElement(locators._widgetInDeployed("iconbuttonwidget"))
       .realHover();
-    agHelper.AssertPopoverTooltip("1,000");
+    agHelper.AssertPopover2Tooltip("1,000");
 
     // Preview mode
     agHelper.GetNClick(locators._enterPreviewMode);
     agHelper
       .GetElement(locators._widgetInDeployed("iconbuttonwidget"))
       .realHover();
-    agHelper.AssertPopoverTooltip("1,000");
+    agHelper.AssertPopover2Tooltip("1,000");
     agHelper.GetNClick(locators._exitPreviewMode);
 
     // Deploy mode
@@ -126,8 +128,7 @@ describe("Icon Button widget Tests", function () {
     agHelper
       .GetElement(locators._widgetInDeployed("iconbuttonwidget"))
       .realHover();
-    agHelper.Sleep(1000);
-    agHelper.AssertPopoverTooltip("1,000");
+    agHelper.AssertPopover2Tooltip("1,000");
     deployMode.NavigateBacktoEditor();
   });
 

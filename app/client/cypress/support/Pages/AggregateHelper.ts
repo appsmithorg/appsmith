@@ -1647,6 +1647,11 @@ export class AggregateHelper extends ReusableHelper {
     this.GetElement(selector).should("have.class", className);
   }
 
+  public AssertPopover2Tooltip(expectedText: string) {
+    this.GetText(this.locator._popover2ToolTip, "text").then(($tooltiptxt) =>
+      expect($tooltiptxt).to.eq(expectedText),
+    );
+  }
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath
