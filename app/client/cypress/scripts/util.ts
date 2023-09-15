@@ -103,7 +103,7 @@ export class util {
       port: 5432,
       connectionTimeoutMillis: 60000,
       ssl: true,
-      keepalives: 0,
+      keepalives: 30,
     };
     const dbClient = new Pool(dbConfig);
     return dbClient;

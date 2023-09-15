@@ -4,7 +4,6 @@ import { util } from "./util";
 import globby from "globby";
 import minimatch from "minimatch";
 import type { PoolClient } from "pg";
-import { cli } from "cypress";
 
 const _ = new util();
 const dbClient = _.configureDbClient();
@@ -226,17 +225,15 @@ async function addLockAndUpdateSpecs(
   try {
     while (locked) {
       try {
-        await client.query(`BEGIN`);
         const result = await client.query(
           `SELECT * FROM public."attempt" WHERE id = $1 FOR UPDATE`,
           [attemptId],
         );
         if (result.rows.length === 1) {
           locked = true;
+          console.log("LOCKED ======> ", locked);
           await addSpecsToMatrix(client, matrixId, specs);
-          await client.query(`COMMIT`);
         } else {
-          await client.query(`ROLLBACK`);
           await sleep(1000);
         }
       } catch (err) {
