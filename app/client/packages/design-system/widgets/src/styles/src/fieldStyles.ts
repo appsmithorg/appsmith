@@ -14,13 +14,13 @@ export const fieldStyles = css<FieldStylesProps>`
     &[data-position="side"] {
       flex-direction: row;
     }
-  }
 
-  // when the label is on the side, we need to make sure the label
-  // is centered aligned in case it is a field. For field group,
-  // align-items will be  of default value, that is flex-start
-  &[data-field]:is([data-field-type="field"]):is([data-position="side"]) {
-    align-items: center;
+    // when the label is on the side, we need to make sure the label
+    // is centered aligned in case it is a field. For field group,
+    // align-items will be  of default value, that is flex-start
+    &[data-field-type="field"][data-position="side"] {
+      align-items: center;
+    }
   }
 
   /**
@@ -31,7 +31,8 @@ export const fieldStyles = css<FieldStylesProps>`
   & [data-field-label-wrapper] {
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
+    gap: var(--spacing-1);
+    height: var(--sizing-3);
   }
 
   & [data-field-label] {
@@ -46,32 +47,6 @@ export const fieldStyles = css<FieldStylesProps>`
     &[data-position="side"] {
       width: ${({ labelWidth }) => labelWidth};
     }
-  }
-
-  &[data-disabled] [data-field-label] {
-    opacity: var(--opacity-disabled);
-    cursor: default;
-  }
-
-  & [data-field-contextual-help] {
-    position: relative;
-    /* this is a hack position the icon in the center of the label */
-    height: 0px;
-    width: 1em;
-  }
-
-  & [data-field-contextual-help] button {
-    height: 1em;
-    width: 1em;
-    border-radius: 100%;
-    position: absolute;
-    inset: 0;
-    transform: translate(0, -50%);
-  }
-
-  & [data-field-contextual-help] svg {
-    width: 1.2em;
-    height: 1.2em;
   }
 
   /**
@@ -124,5 +99,15 @@ export const fieldStyles = css<FieldStylesProps>`
     gap: var(--spacing-2);
     display: flex;
     flex-direction: column;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-disabled] {
+    opacity: var(--opacity-disabled);
+    cursor: default;
   }
 `;

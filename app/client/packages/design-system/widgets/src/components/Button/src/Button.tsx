@@ -14,7 +14,7 @@ import { Text } from "../../Text";
 import { Spinner } from "../../Spinner";
 import { DragContainer, StyledButton } from "./index.styled";
 
-export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
+export interface ButtonProps extends HeadlessButtonProps {
   /** variant of the button
    * @default filled
    */

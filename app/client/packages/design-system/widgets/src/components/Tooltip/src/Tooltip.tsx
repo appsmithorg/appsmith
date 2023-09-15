@@ -1,13 +1,12 @@
 import React from "react";
-import type { TooltipRootProps } from "@design-system/headless";
+import type { TooltipOptions } from "@design-system/headless";
 
 import { TooltipRoot, TooltipContent, TooltipTrigger } from "./";
 
 export type TooltipProps = {
   tooltip?: React.ReactNode;
   children: React.ReactElement;
-  placement?: TooltipRootProps["placement"];
-};
+} & TooltipOptions;
 
 export function Tooltip(props: TooltipProps) {
   const { children, tooltip, ...rest } = props;

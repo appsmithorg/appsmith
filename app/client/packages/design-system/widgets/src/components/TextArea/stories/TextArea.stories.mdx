@@ -10,8 +10,6 @@ import { TextArea } from "@design-system/widgets";
   args={{
     label: "Label",
     placeholder: "Placeholder",
-    type: "email",
-    spellCheck: true,
   }}
 />
 
@@ -19,7 +17,7 @@ export const Template = (args) => <TextArea {...args} />;
 
 # TextArea
 
-TextArea is a component that allows users to input text.
+TextArea is a component that is similar to the native textarea element, but with a few extra features.
 
 <Canvas>
   <Story name="TextArea">{Template.bind({})}</Story>

@@ -1,10 +1,11 @@
 import type { Ref } from "react";
-import { chain, useLayoutEffect } from "@react-aria/utils";
 import React, { useCallback, useRef } from "react";
-import type { TextAreaProps } from "./types";
-import { TextInputBase } from "../../TextInput";
-import { useControlledState } from "@react-stately/utils";
 import { useTextField } from "@react-aria/textfield";
+import { chain, useLayoutEffect } from "@react-aria/utils";
+import { useControlledState } from "@react-stately/utils";
+
+import type { TextAreaProps } from "./types";
+import { TextInputBase } from "../../TextInputBase";
 
 export type TextAreaRef = Ref<HTMLDivElement>;
 
@@ -56,7 +57,7 @@ function TextArea(props: TextAreaProps, ref: TextAreaRef) {
     if (inputRef.current) {
       onHeightChange();
     }
-  }, [onHeightChange, inputValue, inputRef]);
+  }, [onHeightChange, inputValue, inputRef.current]);
 
   if (props.placeholder) {
     // eslint-disable-next-line no-console

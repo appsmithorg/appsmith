@@ -12,6 +12,7 @@ import { IconButton } from "../../IconButton";
 import { EyeOffIcon } from "./icons/EyeOffIcon";
 import { StyledTextInput } from "./index.styled";
 import { ContextualHelp } from "./ContextualHelp";
+import { getTypographyClassName } from "@design-system/theming";
 
 const ICON_SIZE = 16;
 
@@ -112,7 +113,7 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
       description={wrappedDescription}
       endIcon={renderEndIcon()}
       errorMessage={wrappedErrorMessage}
-      inputClassName="wds-body-text"
+      inputClassName={getTypographyClassName("body")}
       isRequired={isRequired}
       label={wrappedLabel}
       ref={ref}

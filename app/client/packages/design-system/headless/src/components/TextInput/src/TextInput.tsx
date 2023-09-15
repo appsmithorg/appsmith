@@ -2,8 +2,8 @@ import type { Ref } from "react";
 import React, { forwardRef, useRef } from "react";
 import { useTextField } from "@react-aria/textfield";
 
-import { TextInputBase } from "./TextInputBase";
 import type { TextInputProps } from "./types";
+import { TextInputBase } from "../../TextInputBase";
 
 export type TextInputRef = Ref<HTMLDivElement>;
 

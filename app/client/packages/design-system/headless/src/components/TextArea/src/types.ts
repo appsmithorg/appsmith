@@ -1,7 +1,5 @@
-import type {
-  OmitedSpectrumTextFieldProps,
-  TextInputBaseProps,
-} from "../../TextInput";
+import type { TextInputBaseProps } from "../../TextInputBase";
+import type { OmitedSpectrumTextFieldProps } from "../../TextInput";
 
 export interface TextAreaProps
   extends OmitedSpectrumTextFieldProps,
