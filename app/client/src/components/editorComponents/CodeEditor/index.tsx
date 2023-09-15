@@ -67,7 +67,7 @@ import {
   NAVIGATE_TO_ATTRIBUTE,
 } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import {
-  bindingHint,
+  bindingHintHelper,
   sqlHint,
 } from "components/editorComponents/CodeEditor/hintHelpers";
 
@@ -91,7 +91,7 @@ import {
   removeEventFromHighlightedElement,
   removeNewLineCharsIfRequired,
 } from "./codeEditorUtils";
-import { commandsHelper } from "./commandsHelper";
+import { slashCommandHintHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
@@ -161,6 +161,7 @@ import { getDeleteLineShortcut } from "./utils/deleteLine";
 import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import resizeObserver from "utils/resizeObserver";
+import { EMPTY_BINDING } from "../ActionCreator/constants";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -239,6 +240,7 @@ export type EditorProps = EditorStyleProps &
     jsObjectName?: string;
     // Custom gutter
     customGutter?: CodeEditorGutter;
+    positionCursorInsideBinding?: boolean;
 
     // On focus and blur event handler
     onEditorBlur?: () => void;
@@ -272,10 +274,15 @@ const getEditorIdentifier = (props: EditorProps): string => {
 };
 
 class CodeEditor extends Component<Props, State> {
+  hintHelper: HintHelper[] = [
+    bindingHintHelper,
+    slashCommandHintHelper,
+    sqlHint.hinter,
+  ];
   static defaultProps = {
     marking: [entityMarker],
-    hinting: [bindingHint, commandsHelper, sqlHint.hinter],
     lineCommentString: "//",
+    hinting: [],
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
@@ -464,8 +471,9 @@ class CodeEditor extends Component<Props, State> {
         this.hinters = CodeEditor.startAutocomplete(
           editor,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          this.props.hinting!, // ! since defaultProps are set
+          [...this.hintHelper, ...this.props.hinting!], // ! since defaultProps are set
           this.props.dynamicData,
+          this.props.entitiesForNavigation, // send navigation here
         );
 
         this.lintCode(editor);
@@ -491,6 +499,16 @@ class CodeEditor extends Component<Props, State> {
       resizeObserver.observe(this.codeEditorTarget.current, [
         this.debounceEditorRefresh,
       ]);
+    }
+    if (
+      this.props.positionCursorInsideBinding &&
+      this.props.input.value === EMPTY_BINDING
+    ) {
+      this.editor.focus();
+      this.editor.setCursor({
+        ch: 2,
+        line: 0,
+      });
     }
   }
 
@@ -954,9 +972,10 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
+    entitiesForNavigation: EntityNavigationData,
   ) {
     return hinting.map((helper) => {
-      return helper(editor, dynamicData);
+      return helper(editor, dynamicData, entitiesForNavigation);
     });
   }
 
@@ -1356,6 +1375,7 @@ class CodeEditor extends Component<Props, State> {
     const token = cm.getTokenAt(cursor);
     let showAutocomplete = false;
     const prevChar = line[cursor.ch - 1];
+    const mode = cm.getModeAt(cursor);
 
     // If the token is a comment or string, do not show autocomplete
     if (token?.type && ["comment", "string"].includes(token.type)) return;
@@ -1369,7 +1389,9 @@ class CodeEditor extends Component<Props, State> {
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
     } else if (key === "{") {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
-      showAutocomplete = prevChar === "{";
+      showAutocomplete =
+        mode.name != EditorModes.JAVASCRIPT || // for JSmode donot show autocomplete
+        prevChar === "{"; // for non JSmode mode show autocomplete. This will endup showing assistiveBindignHinter.
     } else if (key === "'" || key === '"') {
       /* Autocomplete for [ should show up only when a user attempts to write {['']} for Object property suggestions. */
       showAutocomplete = prevChar === "[";
