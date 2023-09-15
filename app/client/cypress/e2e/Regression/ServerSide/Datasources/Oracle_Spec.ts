@@ -110,7 +110,7 @@ describe("Validate Oracle DS", () => {
     // });
   });
 
-  it("3. Tc #2359, Tc # 2360 - Basic Insert, Alter & Select queries", () => {
+  it("3. Tc #2359, Tc # 2360 , Tc # 2358 - Create Insert, Alter & Select queries", () => {
     dataSources.NavigateFromActiveDS(dataSourceName, true);
     let query = `CREATE TABLE ${guid} (
       aircraft_id NUMBER(5) PRIMARY KEY,
