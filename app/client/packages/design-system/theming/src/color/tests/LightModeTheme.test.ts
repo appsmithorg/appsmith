@@ -557,13 +557,13 @@ describe("bgWarningSubtleActive color", () => {
 });
 
 describe("fg color", () => {
-  it("should return correct color when lightness is less than 0.04", () => {
+  it("should return correct color when chroma is less than 0.04", () => {
     const { fg } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
 
     expect(fg).toEqual("rgb(2.2326% 2.2326% 2.2326%)");
   });
 
-  it("should return correct color when lightness is greater than 0.04", () => {
+  it("should return correct color when chroma is greater than 0.04", () => {
     const { fg } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
 
     expect(fg).toEqual("rgb(5.4369% 1.2901% 0%)");
@@ -571,13 +571,13 @@ describe("fg color", () => {
 });
 
 describe("fgAccent color", () => {
-  it("should return correct color when lightness is less than 0.04", () => {
+  it("should return correct color when chroma is less than 0.04", () => {
     const { fgAccent } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
 
     expect(fgAccent).toEqual("rgb(38.473% 32.008% 26.943%)");
   });
 
-  it("should return correct color when lightness is greater than 0.04", () => {
+  it("should return correct color when chroma is greater than 0.04", () => {
     const { fgAccent } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
 
     expect(fgAccent).toEqual("rgb(48.857% 27.291% 4.3335%)");
@@ -585,19 +585,19 @@ describe("fgAccent color", () => {
 });
 
 describe("fgNeutral color", () => {
-  it("should return correct color when lightness is less than 0.04", () => {
+  it("should return correct color when chroma is less than 0.04", () => {
     const { fgNeutral } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
 
     expect(fgNeutral).toEqual("rgb(33.384% 33.384% 33.384%)");
   });
 
-  it("should return correct color when lightness is greater than 0.04 and hue is between 120 and 300", () => {
+  it("should return correct color when chroma is greater than 0.04 and hue is between 120 and 300", () => {
     const { fgNeutral } = new LightModeTheme("oklch(0.45 0.1 150)").getColors();
 
     expect(fgNeutral).toEqual("rgb(25.52% 36.593% 27.669%)");
   });
 
-  it("should return correct color when lightness is greater than 0.04 and hue is not between 120 and 300", () => {
+  it("should return correct color when chroma is greater than 0.04 and hue is not between 120 and 300", () => {
     const { fgNeutral } = new LightModeTheme("oklch(0.45 0.1 110)").getColors();
 
     expect(fgNeutral).toEqual("rgb(33.531% 33.77% 30.07%)");
@@ -605,7 +605,7 @@ describe("fgNeutral color", () => {
 });
 
 describe("fgPositive color", () => {
-  it("should return correct color when lightness is less than 0.04", () => {
+  it("should return correct color when chroma is less than 0.04", () => {
     const { fgPositive } = new LightModeTheme(
       "oklch(0.45 0.03 60)",
     ).getColors();
@@ -635,7 +635,7 @@ describe("fgPositive color", () => {
 });
 
 describe("fgNegative color", () => {
-  it("should return correct color when lightness is less than 0.04", () => {
+  it("should return correct color when chroma is less than 0.04", () => {
     const { fgNegative } = new LightModeTheme(
       "oklch(0.45 0.03 60)",
     ).getColors();
@@ -643,7 +643,7 @@ describe("fgNegative color", () => {
     expect(fgNegative).toEqual("rgb(100% 0% 28.453%)");
   });
 
-  it("should return correct color when lightness is greater than 0.04", () => {
+  it("should return correct color when chroma is greater than 0.04", () => {
     const { fgNegative } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
 
     expect(fgNegative).toEqual("rgb(100% 0% 28.453%)");
@@ -673,7 +673,7 @@ describe("fgWarning color", () => {
 });
 
 describe("fgOnAccent color ", () => {
-  it("should return correct color when ligthness is less than 0.04", () => {
+  it("should return correct color when chroma is less than 0.04", () => {
     const { fgOnAccent } = new LightModeTheme(
       "oklch(0.45 0.03 60)",
     ).getColors();
@@ -681,7 +681,7 @@ describe("fgOnAccent color ", () => {
     expect(fgOnAccent).toEqual("rgb(94.752% 94.752% 94.752%)");
   });
 
-  it("should return correct color when ligthness is greater than 0.04", () => {
+  it("should return correct color when chroma is greater than 0.04", () => {
     const { fgOnAccent } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
 
     expect(fgOnAccent).toEqual("rgb(100% 92.634% 85.713%)");
@@ -752,8 +752,8 @@ describe("bdAccent color", () => {
   });
 
   it("should return correct color when chroma > 0.04", () => {
-    const { bd } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
-    expect(bd).toEqual("rgb(74.321% 74.321% 74.321%)");
+    const { bd } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
+    expect(bd).toEqual("rgb(80.718% 72.709% 66.526%)");
   });
 });
 
