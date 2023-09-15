@@ -98,8 +98,9 @@ export class ProviderStyleSheet {
     );
 
     const fontFamilyCssVar =
-      fontFamily ||
-      "-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Ubuntu'";
+      fontFamily && fontFamily !== "System Default"
+        ? `${fontFamily}, sans-serif`
+        : "-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Ubuntu'";
 
     this.updateSheet(
       `${key}-fontFamily`,
@@ -111,6 +112,9 @@ export class ProviderStyleSheet {
     return new StyleSheet({
       key: `${kebabCase(providerKey)}`,
       container: document.head,
+      // For typography, we insert several rules at once, so we need to disable the speedy mode.
+      // Read more here https://github.com/emotion-js/emotion/tree/main/packages/sheet#insert
+      speedy: !providerKey.includes("typography"),
     });
   };
 

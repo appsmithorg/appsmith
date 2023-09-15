@@ -60,7 +60,7 @@ export const TypographyFontWeight = {
   900: 900,
 } as const;
 
-export type FontFamily = keyof typeof fontMetrics;
+export type FontFamily = keyof typeof fontMetrics | "System Default";
 
 export type TypographyVariantMetric = {
   capHeight: number;

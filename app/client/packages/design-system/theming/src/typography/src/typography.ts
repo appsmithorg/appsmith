@@ -40,7 +40,7 @@ export const createTypographyString = (
   fontFamily?: FontFamily,
 ) => {
   // if there is no font family, use the default font stack
-  if (!fontFamily) {
+  if (!fontFamily || fontFamily === "System Default") {
     return createStyleString(
       `${containerCLassName} .${getTypographyClassName(typographyVariant)}`,
       {
