@@ -8,10 +8,10 @@ import React, { lazy, Suspense } from "react";
 import showdown from "showdown";
 import { retryPromise } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
@@ -510,19 +510,14 @@ class RichTextEditorWidget extends BaseWidget<
     if (this.props.inputType === RTEFormats.MARKDOWN) {
       value = converter.makeHtml(value);
     }
+    const { componentHeight } = this.props;
 
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
-          compactMode={
-            !(
-              (this.props.bottomRow - this.props.topRow) /
-                GRID_DENSITY_MIGRATION_V1 >
-              1
-            )
-          }
+          compactMode={isCompactMode(componentHeight)}
           isDisabled={this.props.isDisabled}
           isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
           isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
@@ -537,7 +532,7 @@ class RichTextEditorWidget extends BaseWidget<
           labelTextColor={this.props.labelTextColor}
           labelTextSize={this.props.labelTextSize}
           labelTooltip={this.props.labelTooltip}
-          labelWidth={this.getLabelWidth()}
+          labelWidth={this.props.labelComponentWidth}
           onValueChange={this.onValueChange}
           placeholder={this.props.placeholder}
           value={value}
@@ -568,6 +563,7 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   isDirty: boolean;
+  labelComponentWidth?: number;
 }
 
 export default RichTextEditorWidget;

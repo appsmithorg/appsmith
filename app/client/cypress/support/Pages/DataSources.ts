@@ -54,7 +54,8 @@ export class DataSources {
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
-  public _host = "input[name$='.datasourceConfiguration.endpoints[0].host']";
+  public _host = (index = "0") =>
+    "input[name$='.datasourceConfiguration.endpoints[" + index + "].host']";
   public _port = "input[name$='.datasourceConfiguration.endpoints[0].port']";
   public _databaseName =
     "input[name$='.datasourceConfiguration.authentication.databaseName']";
@@ -70,7 +71,6 @@ export class DataSources {
   private defaultDatabaseName =
     "input[name*='datasourceConfiguration.connection.defaultDatabaseName']";
   private _testDs = ".t--test-datasource";
-  _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
   _dsMenuoptions = "div.t--datasource-menu-option";
@@ -189,6 +189,8 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
+  _mandatoryMark = "//span[text()='*']";
+  _deleteDSHostPort = ".t--delete-field";
 
   private _suggestedWidget = (widgetType: string, parentClass: string) =>
     "//div[contains(@class, '" +
@@ -464,7 +466,7 @@ export class DataSources {
       this._port,
       this.dataManager.dsValues[environment].postgres_port.toString(),
     );
-    this.agHelper.UpdateInputValue(this._host, hostAddress);
+    this.agHelper.UpdateInputValue(this._host(), hostAddress);
     this.agHelper.ClearNType(this._databaseName, databaseName);
     cy.get(this._username).type(
       username == ""
@@ -503,14 +505,14 @@ export class DataSources {
       ? this.dataManager.dsValues[environment].oracle_host + "  "
       : this.dataManager.dsValues[environment].oracle_host;
     const databaseName = shouldAddTrailingSpaces
-      ? this.dataManager.dsValues[environment].oracle_name + "  "
-      : this.dataManager.dsValues[environment].oracle_name;
-    this.agHelper.UpdateInputValue(this._host, hostAddress);
+      ? this.dataManager.dsValues[environment].oracle_service + "  "
+      : this.dataManager.dsValues[environment].oracle_service;
+    this.agHelper.UpdateInputValue(this._host(), hostAddress);
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].oracle_port.toString(),
     );
-    cy.get(this._databaseName).clear().type(databaseName);
+    cy.get(this._databaseName).type(databaseName);
     cy.get(this._username).type(
       username == ""
         ? this.dataManager.dsValues[environment].oracle_username
@@ -530,7 +532,7 @@ export class DataSources {
     const hostAddress = shouldAddTrailingSpaces
       ? this.dataManager.dsValues[environment].mongo_host + "  "
       : this.dataManager.dsValues[environment].mongo_host;
-    this.agHelper.UpdateInputValue(this._host, hostAddress);
+    this.agHelper.UpdateInputValue(this._host(), hostAddress);
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].mongo_port.toString(),
@@ -553,7 +555,7 @@ export class DataSources {
       ? this.dataManager.dsValues[environment].mysql_databaseName + "  "
       : this.dataManager.dsValues[environment].mysql_databaseName;
 
-    this.agHelper.UpdateInputValue(this._host, hostAddress);
+    this.agHelper.UpdateInputValue(this._host(), hostAddress);
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].mysql_port.toString(),
@@ -570,7 +572,7 @@ export class DataSources {
 
   public FillMsSqlDSForm(environment = this.dataManager.defaultEnviorment) {
     this.agHelper.UpdateInputValue(
-      this._host,
+      this._host(),
       this.dataManager.dsValues[environment].mssql_host,
     );
     this.agHelper.UpdateInputValue(
@@ -609,7 +611,7 @@ export class DataSources {
 
   public FillArangoDSForm(environment = this.dataManager.defaultEnviorment) {
     this.agHelper.UpdateInputValue(
-      this._host,
+      this._host(),
       this.dataManager.dsValues[environment].arango_host,
     );
     this.agHelper.UpdateInputValue(
@@ -677,7 +679,7 @@ export class DataSources {
     environment = this.dataManager.defaultEnviorment,
   ) {
     this.agHelper.UpdateInputValue(
-      this._host,
+      this._host(),
       this.dataManager.dsValues[environment].elastic_host,
     );
     this.agHelper.UpdateInputValue(
@@ -744,7 +746,7 @@ export class DataSources {
 
   public FillRedisDSForm(environment = this.dataManager.defaultEnviorment) {
     this.agHelper.UpdateInputValue(
-      this._host,
+      this._host(),
       this.dataManager.dsValues[environment].redis_host,
     );
     this.agHelper.UpdateInputValue(
@@ -807,7 +809,7 @@ export class DataSources {
   }
 
   public AuthAPISaveAndAuthorize() {
-    cy.get(this._saveAndAuthorizeDS).click();
+    cy.get(this._saveDs).click();
     this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
@@ -1647,7 +1649,7 @@ export class DataSources {
 
     // save datasource
     this.agHelper.Sleep(500);
-    this.agHelper.GetNClick(this._saveAndAuthorizeDS);
+    this.agHelper.GetNClick(this._saveDs);
 
     //Accept consent
     this.agHelper.GetNClick(this._consent);

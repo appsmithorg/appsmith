@@ -1,8 +1,9 @@
 import type {
-  ButtonProps as HeadlessButtonProps,
   ButtonRef as HeadlessButtonRef,
+  ButtonProps as HeadlessButtonProps,
 } from "@design-system/headless";
 import React, { forwardRef } from "react";
+import { Button as HeadlessButton } from "@design-system/headless";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
 
 import type {
@@ -12,7 +13,7 @@ import type {
 } from "./types";
 import { Text } from "../../Text";
 import { Spinner } from "../../Spinner";
-import { DragContainer, StyledButton } from "./index.styled";
+import styles from "./styles.module.css";
 
 export interface ButtonProps extends HeadlessButtonProps {
   /** variant of the button
@@ -78,13 +79,12 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
   };
 
   return (
-    <StyledButton
-      $color={color}
-      $variant={variant}
+    <HeadlessButton
       aria-busy={isLoading ? true : undefined}
       aria-disabled={
         visuallyDisabled || isLoading || props.isDisabled ? true : undefined
       }
+      className={styles.button}
       data-button=""
       data-color={color}
       data-icon-position={iconPosition === "start" ? "start" : "end"}
@@ -95,8 +95,8 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       {...rest}
     >
       {renderChildren()}
-      <DragContainer aria-hidden="true" />
-    </StyledButton>
+      <span aria-hidden="true" className={styles.dragContainer} />
+    </HeadlessButton>
   );
 };
 

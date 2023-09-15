@@ -229,7 +229,6 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             <ChartComponent
               allowScroll={this.props.allowScroll}
               borderRadius={this.props.borderRadius}
-              bottomRow={this.props.bottomRow}
               boxShadow={this.props.boxShadow}
               chartData={this.props.chartData}
               chartName={this.props.chartName}
@@ -243,13 +242,10 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
               isVisible={this.props.isVisible}
               key={this.props.widgetId}
               labelOrientation={this.props.labelOrientation}
-              leftColumn={this.props.leftColumn}
               onDataPointClick={this.onDataPointClick}
               primaryColor={this.props.accentColor ?? Colors.ROYAL_BLUE_2}
-              rightColumn={this.props.rightColumn}
               setAdaptiveYMin={this.props.setAdaptiveYMin}
               showDataPointLabel={this.props.showDataPointLabel}
-              topRow={this.props.topRow}
               widgetId={this.props.widgetId}
               xAxisName={this.props.xAxisName}
               yAxisName={this.props.yAxisName}
