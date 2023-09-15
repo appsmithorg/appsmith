@@ -157,26 +157,31 @@ describe("Text Field Property Control", () => {
     );
   });
 
-  it("12. should update field checked state when default selected changed", () => {
+  it("9. should update field checked state when default selected changed", () => {
+    //should update field checked state when default selected changed
     cy.testJsontext("defaultstate", "{{true}}");
     cy.get(`${fieldPrefix}-check input`).should("be.checked");
-  });
 
-  it("13. hides field when visible switched off", () => {
+    // hides field when visible switched off
     cy.togglebarDisable(`.t--property-control-visible input`);
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-check`).should("not.exist");
-    cy.wait(500);
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("JSONForm1");
+    cy.openFieldConfiguration("check");
     cy.togglebar(`.t--property-control-visible input`);
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-check`).should("exist");
-  });
+    deployMode.NavigateBacktoEditor();
 
-  it("14. disables field when disabled switched on", () => {
+    // disables field when disabled switched on
+    entityExplorer.SelectEntityByName("JSONForm1");
+    cy.openFieldConfiguration("check");
     cy.togglebar(`.t--property-control-disabled input`);
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-check input`).each(($el) => {
       cy.wrap($el).should("have.attr", "disabled");
     });
-
-    cy.togglebarDisable(`.t--property-control-disabled input`);
   });
 });
 
