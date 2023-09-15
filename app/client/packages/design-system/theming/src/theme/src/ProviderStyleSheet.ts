@@ -97,12 +97,14 @@ export class ProviderStyleSheet {
       createTypographyStringMap(typography, key, fontFamily),
     );
 
-    if (fontFamily) {
-      this.updateSheet(
-        `${key}-fontFamily`,
-        `.${key} {font-family: ${fontFamily}}`,
-      );
-    }
+    const fontFamilyCssVar =
+      fontFamily ||
+      "-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Ubuntu'";
+
+    this.updateSheet(
+      `${key}-fontFamily`,
+      `.${key} {font-family: ${fontFamilyCssVar}; --font-family: ${fontFamilyCssVar};}`,
+    );
   };
 
   private createSheet = (providerKey: string) => {

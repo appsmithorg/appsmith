@@ -57,7 +57,7 @@ export class TokensAccessor {
     this.rootUnit = rootUnit;
   };
 
-  updateFontFamily = (fontFamily: FontFamily) => {
+  updateFontFamily = (fontFamily?: FontFamily) => {
     this.fontFamily = fontFamily;
   };
 
