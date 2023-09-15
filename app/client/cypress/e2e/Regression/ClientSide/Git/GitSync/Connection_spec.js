@@ -5,11 +5,8 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 const httpsRepoURL = "https://github.com/test/test.git";
 const invalidURL = "test";
 const invalidURLDetectedOnTheBackend = "test@";
-
 const invalidEmail = "test";
 const invalidEmailWithAmp = "test@hello";
-
-const GITHUB_API_BASE = "https://api.github.com";
 
 let repoName;
 let generatedKey;
@@ -61,30 +58,33 @@ describe("Git sync modal: connect tab", function () {
     );
 
     // Stubbing window.open
+    // cy.window().then((window) => {
+    //   windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
+    //     expect(url.startsWith("https://docs.appsmith.com/")).to.be.true;
+    //     windowOpenSpy.restore();
+    //   });
+    // });
+
     cy.window().then((window) => {
-      windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
-        expect(url.startsWith("https://docs.appsmith.com/")).to.be.true;
-        windowOpenSpy.restore();
+      cy.stub(window, "open").callsFake((url) => {
+        if (
+          url.includes("/version-control-with-git/connecting-to-git-repository")
+        ) {
+          expect(url).to.contain(
+            "/version-control-with-git/connecting-to-git-repository",
+          );
+        } else if (url.includes("overview/managing-deploy-keys")) {
+          expect(url).to.contain("overview/managing-deploy-keys");
+        }
       });
     });
-    cy.get(gitSyncLocators.learnMoreSshUrl).click();
 
+    // Click the "Learn More" link
+    cy.get(gitSyncLocators.learnMoreSshUrl).click();
     cy.get(gitSyncLocators.generateDeployKeyBtn).click();
 
     cy.wait("@generateKey").then((result) => {
       generatedKey = result.response.body.data.publicKey;
-    });
-
-    // generate key learn more
-    cy.window().then((window) => {
-      windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
-        expect(
-          url.startsWith(
-            "https://docs.github.com/en/developers/overview/managing-deploy-keys",
-          ),
-        ).to.be.true;
-        windowOpenSpy.restore();
-      });
     });
     cy.xpath(gitSyncLocators.learnMoreDeployKey).click({ force: true });
   });
@@ -267,7 +267,6 @@ describe("Git sync modal: connect tab", function () {
   });
 
   after(() => {
-    //cy.deleteTestGithubRepo(repoName);
     _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });

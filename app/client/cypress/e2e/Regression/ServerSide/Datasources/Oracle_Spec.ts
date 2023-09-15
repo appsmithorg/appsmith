@@ -22,19 +22,6 @@ describe("Validate Oracle DS", () => {
     });
   });
 
-  after(
-    "Verify Deletion of the Oracle datasource after all created queries are deleted",
-    () => {
-      dataSources.DeleteDatasouceFromWinthinDS(dataSourceName, 409); //Since all queries exists
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
-      entityExplorer.DeleteAllQueriesForDB(dataSourceName);
-      deployMode.DeployApp();
-      deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
-      dataSources.DeleteDatasouceFromWinthinDS(dataSourceName, 200);
-    },
-  );
-
   it("1. Tc #2354, #2204 - Oracle placeholder & mandatory mark verification", () => {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Oracle");
@@ -295,4 +282,17 @@ describe("Validate Oracle DS", () => {
     });
     deployMode.NavigateBacktoEditor();
   });
+
+  after(
+    "Verify Deletion of the Oracle datasource after all created queries are deleted",
+    () => {
+      dataSources.DeleteDatasouceFromWinthinDS(dataSourceName, 409); //Since all queries exists
+      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      entityExplorer.DeleteAllQueriesForDB(dataSourceName);
+      deployMode.DeployApp();
+      deployMode.NavigateBacktoEditor();
+      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      dataSources.DeleteDatasouceFromWinthinDS(dataSourceName, 200);
+    },
+  );
 });
