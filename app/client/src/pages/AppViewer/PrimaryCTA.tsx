@@ -175,6 +175,7 @@ function PrimaryCTA(props: Props) {
             }}
             primaryColor={primaryColor}
             text={createMessage(FORK_APP)}
+            varient={ButtonVariantTypes.SECONDARY}
           />
           <ForkApplicationModal
             applicationId={currentApplication?.id || ""}
