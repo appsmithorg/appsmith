@@ -599,7 +599,7 @@ export class PropertyPane {
     this.assertHelper.AssertNetworkStatus("@updateWidgetName");
   }
 
-  public CreateModal(modalName: string, property: string) {
+  public CreateModal(property: string) {
     this.SelectPlatformFunction(property, "Show modal");
     this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
     this.agHelper.GetNClick(this._createModalButton);
