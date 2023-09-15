@@ -37,7 +37,7 @@ describe("Radio Widget test cases", function () {
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
     agHelper.AssertExistingCheckedState(
-      locators._checkboxTypeByOption("test"),"false");
+      locators._checkboxTypeByOption("test"), "false");
     deployMode.NavigateBacktoEditor();
 
     //API
@@ -60,7 +60,7 @@ describe("Radio Widget test cases", function () {
       agHelper.Sleep();
       const name = interception.response.body.data.body[0].name;
       agHelper.AssertExistingCheckedState(
-        locators._checkboxTypeByOption(name),"false");
+        locators._checkboxTypeByOption(name), "false");
     });
     agHelper.AssertElementLength(widgetLocators.radioBtn, 10);
     deployMode.NavigateBacktoEditor();
@@ -82,9 +82,9 @@ describe("Radio Widget test cases", function () {
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
     agHelper.AssertExistingCheckedState(
-      locators._checkboxTypeByOption("Blue"),"false");
+      locators._checkboxTypeByOption("Blue"), "false");
     agHelper.AssertExistingCheckedState(
-      locators._checkboxTypeByOption("Green"),"false");
+      locators._checkboxTypeByOption("Green"), "false");
   });
 
   it("2. Validate validation errors evaluated value poup", () => {
@@ -306,7 +306,7 @@ describe("Radio Widget test cases", function () {
     );
     agHelper.GetElement("@eleWidth").then((currentWidth) => {
       expect(currentWidth).to.be("432.1875px")
-
+    });
       //Disable - should throw error for non boolean values
       deployMode.NavigateBacktoEditor();
       entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
@@ -350,12 +350,13 @@ describe("Radio Widget test cases", function () {
       agHelper.GetElement("@eleWidth").then((currentWidth) => {
         expect(currentWidth).to.be("432.1875px")
       });
+    });
 
-      it("6. Validate set property methods for Radio group", () => {
-        deployMode.NavigateBacktoEditor();
-        //JS Object
-        jsEditor.CreateJSObject(
-          `export default {
+    it("6. Validate set property methods for Radio group", () => {
+      deployMode.NavigateBacktoEditor();
+      //JS Object
+      jsEditor.CreateJSObject(
+        `export default {
         myVar1: [{
           label:'test',
           value:'test'}],
@@ -364,35 +365,35 @@ describe("Radio Widget test cases", function () {
           RadioGroup1.isVisible? RadioGroup1.setDisabled(true):RadioGroup1.setVisibility(false)
         }
       }`,
-          {
-            paste: true,
-            completeReplace: true,
-            toRun: false,
-            shouldCreateNewJSObj: true,
-          },
-        );
-        entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
-        propPane.EnterJSContext("Disabled", "false", true, true);
-        propPane.EnterJSContext("onSelectionChange", "{{JSObject3.myFun1();}}");
+        {
+          paste: true,
+          completeReplace: true,
+          toRun: false,
+          shouldCreateNewJSObj: true,
+        },
+      );
+      entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+      propPane.EnterJSContext("Disabled", "false", true, true);
+      propPane.EnterJSContext("onSelectionChange", "{{JSObject3.myFun1();}}");
 
-        deployMode.DeployApp(
-          locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
-        );
+      deployMode.DeployApp(
+        locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+      );
 
-        agHelper.GetElement("@postExecute").then((interception: any) => {
-          agHelper.Sleep();
-          const name = interception.response.body.data.body[0].name;
-          agHelper.AssertExistingCheckedState(
-            locators._checkboxTypeByOption(name),"false");
-        });
-        agHelper.GetNClick(widgetLocators.radioBtn, 1)
+      agHelper.GetElement("@postExecute").then((interception: any) => {
+        agHelper.Sleep();
+        const name = interception.response.body.data.body[0].name;
         agHelper.AssertExistingCheckedState(
-          locators._checkboxTypeByOption("test"),"false");
-        agHelper.AssertElementEnabledDisabled(
-          locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
-          0,
-          true,
-        );
-
+          locators._checkboxTypeByOption(name), "false");
       });
+      agHelper.GetNClick(widgetLocators.radioBtn, 1)
+      agHelper.AssertExistingCheckedState(
+        locators._checkboxTypeByOption("test"), "false");
+      agHelper.AssertElementEnabledDisabled(
+        locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+        0,
+        true,
+      );
+
     });
+  });

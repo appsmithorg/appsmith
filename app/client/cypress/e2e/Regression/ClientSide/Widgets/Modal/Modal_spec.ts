@@ -39,6 +39,7 @@ describe("Modal Widget test cases", function () {
     agHelper.ClickButton("Submit");
     agHelper.AssertElementVisibility(locators._modal);
     agHelper.ClickOutside(350, 150, false);
+    agHelper.Sleep();
     agHelper.AssertElementAbsence(locators._modal);
   });
 
