@@ -72,7 +72,7 @@ Widget code resides in the `src/widgets` folder of the Appsmith codebase. Each w
 
 `index.ts`
 
-- This file contains the configuration for a widget.
+- This file export the widget class.
 
 `constants.tsx`
 
@@ -100,41 +100,11 @@ We can generate the folder structure using this command from the CLI -
 
 ### Widget Registration
 
-For a widget to be listed by the Appsmith application, it has to be registered with the Appsmith platform. This can be done by calling `registerWidget` with the details of the widget in the [`registerWidgets`](https://github.com/appsmithorg/appsmith/blob/24b9da6741660ab624c27fc9bbcca335779733cc/app/client/src/utils/WidgetRegistry.tsx#L109) function.
+For a widget to be listed by the Appsmith application, it has to be registered with the Appsmith platform. This can be done by exporting widget class from the [`widgets/index.tsx`](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/widgets/index.ts#L63) file.
 
-- `registerWidget` (required, void): Appsmith utility function used to register a widget.
+### Widget
 
-Arguments:
-
-- `Widget` : A class which extends [`BaseWidget`](https://github.com/appsmithorg/appsmith/blob/24b9da6741660ab624c27fc9bbcca335779733cc/app/client/src/widgets/BaseWidget.tsx#L55)
-
-- `config` : Widget configuration (`CONFIG` described below)
-
-### Widget configuration `index.ts`
-
-This exports the widget configuration as an object usually named `CONFIG`. The default export has to be the widget itself. An example is shown here
-
-<img src="./assets/widgetConfig.png" width="320px">
-
-### Configuration options
-
-- `type` (required): `Widget.getWidgetType()`, where `Widget` is the default import from the `widget/index.tsx`
-- `name` (required): The display name of this widget. This can contain spaces.
-- `iconSVG` (required): `IconSVG`, where `IconSVG` is the import from the `./icon.svg`
-- `needsMeta` (optional): `true`, if this widget stores temporary values. For example, a user input value or state.
-- `isCanvas` (optional): `true`, if this widget contains a Canvas within itself, to allow for widgets to be placed within.
-- `properties` (required):
-
-```
-    derived: Widget.getDerivedPropertiesMap(),
-    default: Widget.getDefaultPropertiesMap(),
-    meta: Widget.getMetaPropertiesMap(),
-    config: Widget.getPropertyPaneConfig(),
-```
-
-- `defaults` (required): The default properties of a widget. The platform provided common configurations:
-
-This can have the rest of the default properties for the widget. Any property not defined here will default to `undefined`. Widget developers are expected to handle these properties accordingly. - `rows` (required): Number of rows occupied by default by this widget when placed on a canvas. - `columns` (required): Number of columns occupied by default by this widget when placed on a canvas. - `widgetName` (required): The auto-generate widget name prefix, for this type of widget. _This cannot have spaces or special characters._ - `version` (required): The version number of this type of widget. - `blueprint` (optional): The [blueprint](#widget-blueprint) of the widget. - `enhancements` (optional): [Enhancements](#widget-enhancements) that can be applied over widgets.
+The widget code must be all available in the `widget` folder. `index.tsx` should export the class which extends `BaseWidget`.
 
 ### Points to consider:
 
@@ -142,12 +112,16 @@ This can have the rest of the default properties for the widget. Any property no
 - Some constants and types are provided by the Appsmith platform. These can be imported from `src/WidgetsProvider/constants`. [See more](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/WidgetsProvider/constants.ts)
 - `blueprint` and `enhancements` are powerful features that can be used to create complex widgets. We have more information [here](Link%20to%20blueprint%20and%20enhancements).
 
-### Widget
+### Static properties:
 
-The widget code must be all available in the `widget` folder. `index.tsx` should export the class which extends `BaseWidget`.
+- `type` (required, `string`): unique type of the widget. this will be used as identifier for this widget across platform.
+- `preloadConfig`: (optional): `false`, if you want to preload all the configs into platform.
 
 ### Static methods:
 
+- `getConfig` (required, `[WidgetBaseCongifuration](#WidgetBaseCongifuration)`): returns the basic widget configuration.
+- `getDefaults` (required): returns the default properties of a widget. The platform provided common configurations:
+  This can have the rest of the default properties for the widget. Any property not defined here will default to `undefined`. Widget developers are expected to handle these properties accordingly. - `rows` (required): Number of rows occupied by default by this widget when placed on a canvas. - `columns` (required): Number of columns occupied by default by this widget when placed on a canvas. - `widgetName` (required): The auto-generate widget name prefix, for this type of widget. _This cannot have spaces or special characters._ - `version` (required): The version number of this type of widget. - `blueprint` (optional): The [blueprint](#widget-blueprint) of the widget. - `enhancements` (optional): [Enhancements](#widget-enhancements) that can be applied over widgets.
 - `getPropertyPaneConfig` (required, `[PropertyPaneConfig[]](#property-pane-configuration)`): returns the [property pane](#property-pane-configuration) configuration
 - `getDerivedPropertiesMap` (optional, [DerivedPropertiesMap](#derived-properties-configuration)): returns the map of properties which can be derived from other properties. We can see more details [here](#derived-properties-configuration)
 - `getDefaultPropertiesMap` (optional, object): returns the list of properties which by default takes the value of a [default property](#default-properties-configuration)
@@ -176,6 +150,13 @@ The widget code must be all available in the `widget` folder. `index.tsx` should
   - `propertyValue` (any, required): Value of the property.
   - `actionExecution` ([DebouncedExecuteActionPayload](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/widgets/MetaHOC.tsx#L11), optional): Action if any to execute along with property update,
 - `getPageView` (ReactNode, required ): Enhanced version of React.render. This should return the React component which needs to render on the canvas.
+
+### WidgetBaseCongifuration
+
+- `name` (required): The display name of this widget. This can contain spaces.
+- `iconSVG` (required): `IconSVG`, where `IconSVG` is the import from the `./icon.svg`
+- `needsMeta` (optional): `true`, if this widget stores temporary values. For example, a user input value or state.
+- `isCanvas` (optional): `true`, if this widget contains a Canvas within itself, to allow for widgets to be placed within.
 
 ### Derived Properties Configuration
 
