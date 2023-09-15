@@ -118,16 +118,21 @@ export async function cypressHooks(
                 );
                 const attempt = scr.path.includes("attempt 2") ? 2 : 1;
                 console.log(
-                  "TEST SCREENSHOTS INDIVIDUAL ====> ",
-                  JSON.stringify(scr),
+                  "TEST SCREENSHOTS INDIVIDUAL ATTEMPT====> ",
+                  attempt,
                 );
                 const key = `${testResponse.rows[0].id}_${specData.specId}_${attempt}`;
-                Promise.all([_.uploadToS3(s3, scr.path, key)]).catch(
-                  (error) => {
+                Promise.all([_.uploadToS3(s3, scr.path, key)])
+                  .then((res) => {
+                    console.log(res);
+                  })
+                  .catch((error) => {
                     console.log("Error in uploading screenshots:", error);
-                  },
-                );
+                  });
               }
+              console.log(
+                "-----------------------------------------------------",
+              );
             }
           }
 
@@ -147,7 +152,6 @@ export async function cypressHooks(
               },
             );
           }
-          console.log("-----------------------------------------------------");
         }
       } catch (err) {
         console.log(err);
