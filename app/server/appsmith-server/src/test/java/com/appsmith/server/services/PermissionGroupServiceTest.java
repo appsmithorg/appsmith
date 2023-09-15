@@ -96,8 +96,7 @@ public class PermissionGroupServiceTest {
     @WithUserDetails(value = "api_user")
     public void invalid_leaveRole() {
 
-        // Make api_user super-user to test tenant admin functionality
-        // Todo change this to tenant admin once we introduce multitenancy
+        // Make api_user super-user before creating a new role for test setup
         userRepository
                 .findByEmail("api_user")
                 .flatMap(user -> userUtils.makeSuperUser(List.of(user)))
