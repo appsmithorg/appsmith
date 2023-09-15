@@ -1,9 +1,9 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 import type { BaseInputWidgetProps } from "./types";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 
 export const propertyPaneContentConfig = [
   {

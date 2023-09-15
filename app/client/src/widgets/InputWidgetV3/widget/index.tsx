@@ -5,23 +5,31 @@ import {
   propertyPaneContentConfig,
   propertyPaneStyleConfig,
 } from "./propertyPaneConfig";
+import IconSVG from "../icon.svg";
+import type {
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
 import InputComponent from "../component";
+import { INPUT_TYPES } from "../constants";
 import { mergeWidgetConfig } from "utils/helpers";
 import { parseText, validateInput } from "./helper";
+import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
-import BaseInputWidget from "widgets/BaseInputWidgetV2";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import derivedProperties from "./parsedDerivedProperties";
+import { BaseInputWidget } from "widgets/BaseInputWidgetV2";
 import type { InputWidgetProps, KeyDownEvent } from "./types";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { BaseInputWidgetProps } from "widgets/BaseInputWidgetV2";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { INPUT_TYPES } from "../constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
-<<<<<<< HEAD
-=======
   static getConfig() {
     return {
       name: "Input",
@@ -100,7 +108,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     };
   }
 
->>>>>>> b5b717b251 (fix merge conflicts)
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     const definitions: AutocompletionDefinitions = {
       "!doc":
@@ -266,7 +273,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     );
   };
 
-  getPageView() {
+  getWidgetView() {
     const { inputText, inputType } = this.props;
 
     const value = inputText ?? "";
@@ -286,7 +293,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         label={this.props.label}
         labelAlign={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
-        labelWidth={this.getLabelWidth()}
         maxChars={this.props.maxChars}
         maxNum={this.props.maxNum}
         minNum={this.props.minNum}
@@ -303,9 +309,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     );
   }
 
-  static getWidgetType() {
-    return "INPUT_WIDGET_V3";
-  }
+  static type = "INPUT_WIDGET_V3";
 }
 
 export { InputWidget };

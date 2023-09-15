@@ -28,8 +28,6 @@ export const fieldStyles = css<FieldStylesProps>`
   * FIELD LABEL
   *-----------------------------------------------------------------------------
   */
-<<<<<<< HEAD
-=======
   & [data-field-label-wrapper] {
     display: flex;
     align-items: center;
@@ -37,10 +35,10 @@ export const fieldStyles = css<FieldStylesProps>`
     height: var(--sizing-3);
   }
 
->>>>>>> a2cb859cb3 (code review coments fixes)
   & [data-field-label] {
     display: flex;
     align-items: center;
+    gap: var(--spacing-1);
     height: fit-content;
     color: var(--color-fg);
     font-weight: ${({ isEmphasized }) => (isEmphasized ? "bold" : "normal")};

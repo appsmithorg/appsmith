@@ -1,24 +1,3 @@
-<<<<<<< HEAD:app/client/packages/design-system/headless/src/components/TextInput/TextArea.tsx
-import { chain, useLayoutEffect } from "@react-aria/utils";
-import type { Ref } from "react";
-import React, { useCallback, useRef } from "react";
-import type { SpectrumTextFieldProps } from "@react-types/textfield";
-import type { TextInputBaseProps } from "./TextInputBase";
-import { TextInputBase } from "./TextInputBase";
-import { useControlledState } from "@react-stately/utils";
-import { useTextField } from "@react-aria/textfield";
-import type { StyleProps } from "@react-types/shared";
-
-export interface TextAreaProps
-  extends Omit<
-      SpectrumTextFieldProps,
-      keyof StyleProps | "icon" | "isQuiet" | "necessityIndicator"
-    >,
-    Pick<TextInputBaseProps, "inputClassName"> {
-  spellCheck?: boolean;
-  height?: number | string;
-}
-=======
 import type { Ref } from "react";
 import React, { useCallback, useRef } from "react";
 import { useTextField } from "@react-aria/textfield";
@@ -27,7 +6,6 @@ import { useControlledState } from "@react-stately/utils";
 
 import type { TextAreaProps } from "./types";
 import { TextInputBase } from "../../TextInputBase";
->>>>>>> a2cb859cb3 (code review coments fixes):app/client/packages/design-system/headless/src/components/TextArea/src/TextArea.tsx
 
 export type TextAreaRef = Ref<HTMLDivElement>;
 

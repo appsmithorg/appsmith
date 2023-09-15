@@ -17,11 +17,7 @@ export const Template = (args) => <TextArea {...args} />;
 
 # TextArea
 
-<<<<<<< HEAD:app/client/packages/design-system/widgets/src/components/TextArea.stories.mdx
-Switch is a component that allows the user to select one or more options from a set.
-=======
 TextArea is a component that is similar to the native textarea element, but with a few extra features.
->>>>>>> a2cb859cb3 (code review coments fixes):app/client/packages/design-system/widgets/src/components/TextArea/stories/TextArea.stories.mdx
 
 <Canvas>
   <Story name="TextArea">{Template.bind({})}</Story>
@@ -64,28 +60,6 @@ TextArea is a component that is similar to the native textarea element, but with
   {Template.bind({})}
 </Story>
 
-## Prefix and Suffix
-
-<Story
-  name="Prefix"
-  args={{
-    placeholder: "Start Visual",
-    startIcon: "$",
-  }}
->
-  {Template.bind({})}
-</Story>
-
-<Story
-  name="Suffix"
-  args={{
-    placeholder: "End Visual",
-    endIcon: "minutes",
-  }}
->
-  {Template.bind({})}
-</Story>
-
 ## Disabled
 
 <Story
@@ -93,89 +67,6 @@ TextArea is a component that is similar to the native textarea element, but with
   args={{
     placeholder: "Disabled",
     isDisabled: true,
-  }}
->
-  {Template.bind({})}
-</Story>
-
-## Loading
-
-<Story
-  name="Loading - No Icon"
-  args={{
-    placeholder: "No Icon",
-    isLoading: true,
-  }}
->
-  {Template.bind({})}
-</Story>
-
-<Story
-  name="Loading - Start Icon"
-  args={{
-    placeholder: "Only Start Icon",
-    isLoading: true,
-    startIcon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
-  }}
->
-  {Template.bind({})}
-</Story>
-
-<Story
-  name="Loading - End Icon"
-  args={{
-    placeholder: "Only End Icon",
-    isLoading: true,
-    endIcon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
-  }}
->
-  {Template.bind({})}
-</Story>
-
-<Story
-  name="Loading - Both Icons"
-  args={{
-    placeholder: "Both Start + End Icon",
-    isLoading: true,
-    endIcon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
-    startIcon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
-  }}
->
-  {Template.bind({})}
-</Story>
-
-<Story
-  name="Loading - Both Icons + Position Overriden"
-  args={{
-    placeholder: "Loading - Both Icons + Position Overriden",
-    isLoading: true,
-    endIcon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
-    startIcon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
-    loaderPosition: "end",
   }}
 >
   {Template.bind({})}

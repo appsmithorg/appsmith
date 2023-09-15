@@ -95,7 +95,7 @@ export const textInputStyles = css<HeadlessTextInputProps>`
 * ICON BUTTON ( used in password input type )
 *-----------------------------------------------------------------------------
 */
-  & [data-icon-button] {
+  & [data-field-input] [data-icon-button] {
     block-size: calc(100% - var(--spacing-1));
   }
 `;

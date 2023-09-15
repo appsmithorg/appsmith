@@ -1,8 +1,6 @@
 import type { Ref } from "react";
 import React, { forwardRef, useRef } from "react";
 import { useTextField } from "@react-aria/textfield";
-import type { StyleProps } from "@react-types/shared";
-import type { SpectrumTextFieldProps } from "@react-types/textfield";
 
 import type { TextInputProps } from "./types";
 import { TextInputBase } from "../../TextInputBase";
@@ -12,6 +10,7 @@ export type TextInputRef = Ref<HTMLDivElement>;
 function TextInput(props: TextInputProps, ref: TextInputRef) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { spellCheck, ...rest } = props;
+
   const { descriptionProps, errorMessageProps, inputProps, labelProps } =
     useTextField(rest, inputRef);
 

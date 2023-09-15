@@ -7,3 +7,4 @@ export * from "./components/Tooltip";
 export * from "./components/Radio";
 export * from "./components/Switch";
 export * from "./components/TextInput";
+export * from "./components/TextArea";

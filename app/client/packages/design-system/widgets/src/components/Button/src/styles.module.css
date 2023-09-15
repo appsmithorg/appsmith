@@ -181,7 +181,7 @@
       height: 90cqw;
     }
   }
-`;
+}
 
 /**
  * We have this Bug in Firefox where we are unable to drag

@@ -3,8 +3,8 @@ import type {
   ButtonProps as HeadlessButtonProps,
 } from "@design-system/headless";
 import React, { forwardRef } from "react";
-import { useVisuallyHidden } from "@react-aria/visually-hidden";
 import { Button as HeadlessButton } from "@design-system/headless";
+import { useVisuallyHidden } from "@react-aria/visually-hidden";
 
 import type {
   BUTTON_COLORS,

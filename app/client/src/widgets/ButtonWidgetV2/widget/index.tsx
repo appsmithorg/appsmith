@@ -1,32 +1,22 @@
 import React from "react";
 import { toast } from "design-system";
 
+import IconSVG from "../icon.svg";
 import BaseWidget from "widgets/BaseWidget";
 import ButtonComponent from "../component";
-import { propertyPaneStyleConfig } from "./styleConfig";
-<<<<<<< HEAD
-import type { ButtonComponentProps } from "../component";
-import type { RecaptchaType } from "components/constants";
-import { propertyPaneContentConfig } from "./contentConfig";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-=======
-import type { WidgetType } from "constants/WidgetConstants";
-import { propertyPaneContentConfig } from "./contentConfig";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import type { AutocompletionDefinitions } from "widgets/constants";
-import type { ButtonWidgetProps, ButtonWidgetState } from "./types";
->>>>>>> f3d232c4e5 (add input text)
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
-import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
+import { propertyPaneStyleConfig } from "./styleConfig";
+import { propertyPaneContentConfig } from "./contentConfig";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { ButtonWidgetProps, ButtonWidgetState } from "./types";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { BUTTON_COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   constructor(props: ButtonWidgetProps) {
@@ -199,15 +189,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     }
   };
 
-<<<<<<< HEAD
   getWidgetView() {
-    const disabled =
-      this.props.disabledWhenInvalid &&
-      "isFormValid" in this.props &&
-      !this.props.isFormValid;
-    const isDisabled = this.props.isDisabled || disabled;
-=======
-  getPageView() {
     const isDisabled = (() => {
       const { disabledWhenInvalid, isFormValid } = this.props;
       const isDisabledWhenFormIsInvalid =
@@ -223,7 +205,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
 
       return undefined;
     })();
->>>>>>> f3d232c4e5 (add input text)
 
     return (
       <ButtonComponent

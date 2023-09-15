@@ -3,10 +3,11 @@ import { isNil } from "lodash";
 import { Icon as BIcon } from "@blueprintjs/core";
 import { TextInput } from "@design-system/widgets";
 import { Icon, TextArea } from "@design-system/widgets";
-import { INPUT_TYPES } from "widgets/BaseInputWidgetV2/constants";
-import type { BaseInputComponentProps } from "widgets/BaseInputWidgetV2/component/types";
 
-function InputComponent(props: BaseInputComponentProps) {
+import { INPUT_TYPES } from "../constants";
+import type { InputComponentProps } from "./types";
+
+function InputComponent(props: InputComponentProps) {
   const startIcon = (() => {
     if (props.iconName && props.iconAlign === "left") {
       return (
@@ -52,8 +53,9 @@ function InputComponent(props: BaseInputComponentProps) {
       !props.autoComplete &&
       (props.inputType === INPUT_TYPES.PASSWORD ||
         props.inputType === INPUT_TYPES.EMAIL)
-    )
+    ) {
       return "off";
+    }
 
     return props.autoComplete;
   })();
@@ -86,6 +88,7 @@ function InputComponent(props: BaseInputComponentProps) {
     <ElementType
       autoComplete={autoComplete}
       autoFocus={props.autoFocus}
+      contextualHelp={props.tooltip}
       defaultValue={props.defaultValue}
       endIcon={endIcon}
       errorMessage={props.errorMessage}

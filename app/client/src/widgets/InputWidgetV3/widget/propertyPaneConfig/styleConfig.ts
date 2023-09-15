@@ -1,8 +1,8 @@
-import { ICON_NAMES } from "widgets/constants";
 import { InputTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import type { InputWidgetProps } from "../types";
+import { ICON_NAMES } from "WidgetProvider/constants";
 
 export const propertyPaneStyleConfig = [
   {

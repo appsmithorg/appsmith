@@ -1,15 +1,20 @@
-import React, { forwardRef } from "react";
-
 import type {
   TextInputRef as HeadlessTextInputRef,
   TextInputProps as HeadlessTextInputProps,
 } from "@design-system/headless";
+import React, { forwardRef, useState } from "react";
 
-import { Text } from "../Text";
-import { Spinner } from "../Spinner";
+import { Label } from "./Label";
+import { Text } from "../../Text";
+import { Spinner } from "../../Spinner";
+import { EyeIcon } from "./icons/EyeIcon";
+import { IconButton } from "../../IconButton";
+import { EyeOffIcon } from "./icons/EyeOffIcon";
 import { StyledTextInput } from "./index.styled";
+import { ContextualHelp } from "./ContextualHelp";
+import { getTypographyClassName } from "@design-system/theming";
 
-// type MyOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+const ICON_SIZE = 16;
 
 export interface TextInputProps extends HeadlessTextInputProps {
   /** position for the laoding icon */
@@ -20,11 +25,15 @@ export interface TextInputProps extends HeadlessTextInputProps {
    * @default "icon"
    */
   necessityIndicator?: "label" | "icon";
+  /** adds as span for accesiblity for necessity indicator */
   includeNecessityIndicatorInAccessibilityName?: boolean;
+  /** label for the input */
+  label?: string;
 }
 
 const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
   const {
+    contextualHelp: contextualHelpProp,
     description,
     endIcon,
     errorMessage,
@@ -34,49 +43,37 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     loaderPosition = "auto",
     necessityIndicator = "icon",
     startIcon,
+    type,
     ...rest
   } = props;
-  const necessityLabel = isRequired ? "(required)" : "(optional)";
-  const icon = (
-    <span
-      aria-label={
-        includeNecessityIndicatorInAccessibilityName ? "(required)" : undefined
-      }
-      data-field-necessity-indicator-icon=""
-    >
-      *
-    </span>
-  );
+  const [showPassword, togglePassword] = useState(false);
 
   const wrappedLabel = label && (
-    <Text>
-      {label}
-      {/* necessityLabel is hidden to screen readers if the field is required because
-       * aria-required is set on the field in that case. That will already be announced,
-       * so no need to duplicate it here. If optional, we do want it to be announced here. */}
-      {(necessityIndicator === "label" ||
-        (necessityIndicator === "icon" && isRequired)) &&
-        " \u200b"}
-      {necessityIndicator === "label" && (
-        <span
-          aria-hidden={
-            !includeNecessityIndicatorInAccessibilityName
-              ? isRequired
-              : undefined
-          }
-        >
-          {necessityLabel}
-        </span>
-      )}
-      {necessityIndicator === "icon" && isRequired && icon}
-    </Text>
+    <Label
+      includeNecessityIndicatorInAccessibilityName={
+        includeNecessityIndicatorInAccessibilityName
+      }
+      isRequired={isRequired}
+      label={label}
+      necessityIndicator={necessityIndicator}
+    />
   );
+
+  const contextualHelp = label && contextualHelpProp && (
+    <ContextualHelp contextualHelp={contextualHelpProp} />
+  );
+
   const wrappedDescription = description && (
     <Text variant="footnote">{description}</Text>
   );
+
   const wrappedErrorMessage = errorMessage && (
     <Text variant="footnote">{errorMessage}</Text>
   );
+
+  const onPressEyeIcon = () => {
+    togglePassword((prev) => !prev);
+  };
 
   const renderStartIcon = () => {
     const showLoadingIndicator =
@@ -90,6 +87,16 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
   };
 
   const renderEndIcon = () => {
+    if (type === "password") {
+      const Icon = showPassword ? EyeOffIcon : EyeIcon;
+
+      return (
+        <IconButton color="neutral" onPress={onPressEyeIcon} variant="ghost">
+          <Icon size={ICON_SIZE} />
+        </IconButton>
+      );
+    }
+
     const showLoadingIndicator =
       props.isLoading &&
       (loaderPosition === "end" ||
@@ -102,14 +109,16 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
 
   return (
     <StyledTextInput
+      contextualHelp={contextualHelp}
       description={wrappedDescription}
       endIcon={renderEndIcon()}
       errorMessage={wrappedErrorMessage}
-      inputClassName="wds-body-text"
+      inputClassName={getTypographyClassName("body")}
       isRequired={isRequired}
       label={wrappedLabel}
       ref={ref}
       startIcon={renderStartIcon()}
+      type={showPassword ? "text" : type}
       {...rest}
     />
   );
