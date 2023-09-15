@@ -52,7 +52,7 @@ export const TokenTable = ({
   prefix,
   tokens,
 }: TokenTableProps) => {
-  const renderRows = (filter: string) => {
+  const renderRows = (filter?: string) => {
     return Object.keys(tokens ?? {})
       .filter((key) => {
         if (!filter) return true;
@@ -86,6 +86,7 @@ export const TokenTable = ({
       <tbody>
         {isArray(filter) && filter.map((key) => renderRows(key))}
         {isString(filter) && renderRows(filter)}
+        {!filter && renderRows()}
       </tbody>
     </StyledTable>
   );
