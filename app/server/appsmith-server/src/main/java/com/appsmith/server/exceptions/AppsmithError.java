@@ -202,7 +202,7 @@ public enum AppsmithError {
     USER_ALREADY_EXISTS_IN_WORKSPACE(
             400,
             AppsmithErrorCode.USER_ALREADY_EXISTS_IN_WORKSPACE.getCode(),
-            "The user {0} has already been added to the workspace with role {1}. To change the role, please navigate to `Manage Users` page.",
+            "The user {0} has already been added to the workspace with role {1}. To change the role, please navigate to `Manage users` page.",
             AppsmithErrorAction.DEFAULT,
             "User already exists in this workspace",
             ErrorType.BAD_REQUEST,

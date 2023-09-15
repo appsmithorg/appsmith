@@ -23,8 +23,7 @@ import {
 import Table from "pages/Editor/QueryEditor/Table";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams } from "react-router";
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import type { ExplorerURLParams } from "ce/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   getCurrentApplicationId,
   getPagePermissions,

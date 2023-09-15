@@ -112,8 +112,6 @@ export const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   ${({ isMobile }) =>
     isMobile &&
     `
-    position: sticky;
-    top: 0;
     background-color: #fff;
     z-index: ${Indices.Layer8};
   `}
