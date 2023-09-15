@@ -40,12 +40,6 @@ import type { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
-const openDoc = (e: React.MouseEvent, url: string) => {
-  e.preventDefault();
-  e.stopPropagation();
-  window.open(url, "_blank");
-};
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -248,13 +242,13 @@ function ProgressTracker({
             links={[
               {
                 children: createMessage(customJSLibraryMessages.REPORT_ISSUE),
-                to: "#",
-                onClick: (e) => openDoc(e, EXT_LINK.reportIssue),
+                to: EXT_LINK.reportIssue,
+                target: "_blank",
               },
               {
                 children: createMessage(customJSLibraryMessages.LEARN_MORE),
-                onClick: (e) => openDoc(e, EXT_LINK.learnMore),
-                to: "#",
+                to: EXT_LINK.learnMore,
+                target: "_blank",
               },
             ]}
           >
@@ -390,20 +384,12 @@ export function Installer() {
         <div className="search-CTA mb-3 text-xs">
           <span>
             Explore libraries on{" "}
-            <Link
-              kind="primary"
-              onClick={(e) => openDoc(e, EXT_LINK.jsDelivr)}
-              to="#"
-            >
+            <Link kind="primary" target="_blank" to={EXT_LINK.jsDelivr}>
               jsDelivr
             </Link>
             {". "}
             {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
-            <Link
-              kind="primary"
-              onClick={(e) => openDoc(e, EXT_LINK.learnMore)}
-              to="#"
-            >
+            <Link kind="primary" target="_blank" to={EXT_LINK.learnMore}>
               here
             </Link>
             {"."}
@@ -457,8 +443,8 @@ function LibraryCard({
             className="library-name"
             endIcon="share-box-line"
             kind="secondary"
-            onClick={(e) => openDoc(e, lib.docsURL)}
-            to="#"
+            target="_blank"
+            to={lib.docsURL}
           >
             {lib.name}
           </Link>
