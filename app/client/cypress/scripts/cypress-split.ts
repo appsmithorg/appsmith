@@ -36,7 +36,7 @@ async function getSpecsWithTime(specs: string[], attemptId: number) {
   const client = await dbClient.connect();
   try {
     const queryRes = await client.query(
-      'SELECT * FROM public."spec_avg_duration" ORDER BY "duration" DESC',
+      'SELECT * FROM public."spec_avg_duration"',
     );
     const defaultDuration = 180000;
     const allSpecsWithDuration: DataItem[] = specs.map((spec) => {
@@ -198,11 +198,8 @@ async function getFailedSpecsFromPreviousRun(
   }
 }
 
-async function addSpecsToMatrix(
-  client: PoolClient,
-  matrixId: number,
-  specs: string[],
-) {
+async function addSpecsToMatrix(matrixId: number, specs: string[]) {
+  const client = await dbClient.connect();
   try {
     for (const spec of specs) {
       const res = await client.query(
@@ -212,32 +209,33 @@ async function addSpecsToMatrix(
     }
   } catch (err) {
     console.log(err);
+  } finally {
+    client.release();
   }
 }
 
-async function addLockAndUpdateSpecs(
-  attemptId: number,
-  matrixId: number,
-  specs: string[],
-) {
+async function addLockAndUpdateSpecs(attemptId: number, specs: string[]) {
   const client = await dbClient.connect();
+  let retry = 1;
   let locked = false;
   try {
-    while (locked) {
-      try {
-        const result = await client.query(
-          `SELECT * FROM public."attempt" WHERE id = $1 FOR UPDATE`,
+    while (retry <= 60 && !locked) {
+      const result = await client.query(
+        `UPDATE public."attempt" SET is_locked = true WHERE id = $1 AND is_locked = false RETURNING id`,
+        [attemptId],
+      );
+      if (result.rows.length === 1) {
+        locked = true;
+        console.log("LOCKED ======> ", locked);
+        const matrixRes = await createMatrix(attemptId);
+        await addSpecsToMatrix(matrixRes, specs);
+        await client.query(
+          `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
           [attemptId],
         );
-        if (result.rows.length === 1) {
-          locked = true;
-          console.log("LOCKED ======> ", locked);
-          await addSpecsToMatrix(client, matrixId, specs);
-        } else {
-          await sleep(1000);
-        }
-      } catch (err) {
-        console.log(err);
+      } else {
+        await sleep(1000);
+        retry++;
       }
     }
   } catch (err) {
@@ -277,7 +275,6 @@ export async function cypressSplit(
     }
 
     const attempt = await createAttempt();
-    const matrix = await createMatrix(Number(attempt));
     const specs = await getSpecsToRun(
       specPattern,
       ignorePattern,
@@ -286,7 +283,7 @@ export async function cypressSplit(
     console.log("GET SPECS TO RUN IN SPLIT SPECS", specs);
     if (specs.length > 0 && !specs.includes(defaultSpec)) {
       config.specPattern = specs.length == 1 ? specs[0] : specs;
-      await addLockAndUpdateSpecs(Number(attempt), Number(matrix), specs);
+      await addLockAndUpdateSpecs(Number(attempt), specs);
     } else {
       config.specPattern = defaultSpec;
     }
