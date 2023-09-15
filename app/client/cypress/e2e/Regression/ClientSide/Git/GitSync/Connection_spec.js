@@ -66,7 +66,7 @@ describe("Git sync modal: connect tab", function () {
     // });
 
     cy.window().then((window) => {
-      cy.stub(window, "open").callsFake((url) => {
+      windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
         if (
           url.includes("/version-control-with-git/connecting-to-git-repository")
         ) {
@@ -76,6 +76,7 @@ describe("Git sync modal: connect tab", function () {
         } else if (url.includes("overview/managing-deploy-keys")) {
           expect(url).to.contain("overview/managing-deploy-keys");
         }
+        windowOpenSpy.restore();
       });
     });
 
@@ -95,6 +96,7 @@ describe("Git sync modal: connect tab", function () {
     });
 
     cy.get(gitSyncLocators.copySshKey).click();
+    cy.wait(2000);
     cy.get(gitSyncLocators.gitRepoInput).clear().type(`${httpsRepoURL}`);
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO());
     cy.get(gitSyncLocators.connectSubmitBtn).should("be.disabled");
