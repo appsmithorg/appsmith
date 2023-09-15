@@ -3,7 +3,7 @@ import type { FluidConfig } from "./types";
 
 export const getFluidSpacing = (
   scaleConfig: FluidConfig,
-  rootUnitRatio: number,
+  rootUnitRatio = 1,
 ) => {
   const { maxVw, minVw, spacing } = scaleConfig;
   const { maxV, minV, ...rest } = spacing;
