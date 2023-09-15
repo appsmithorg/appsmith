@@ -1198,19 +1198,14 @@ export class AggregateHelper extends ReusableHelper {
     this.Sleep(); //for value set to settle
   }
 
-  public GetInputValue(
-    selector: string,
-  ): Cypress.Chainable<string | number | string[] | undefined> {
-    return this.GetElement(selector)
+  public ValidateFieldInputValue(selector: string, value: string) {
+    this.GetElement(selector)
       .closest("input")
       .scrollIntoView({ easing: "linear" })
-      .invoke("val");
-  }
-
-  public ValidateFieldInputValue(selector: string, value: string) {
-    this.GetInputValue(selector).then((inputValue) => {
-      expect(inputValue).to.equal(value);
-    });
+      .invoke("val")
+      .then((inputValue) => {
+        expect(inputValue).to.equal(value);
+      });
     this.Sleep(); //for value set to settle
   }
 
