@@ -480,9 +480,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       }),
     );
     dispatch(getCurrentUser());
-  },
-  [props.application.id, props.application.defaultPageId],
-);
+  }, [props.application.id, props.application.defaultPageId]);
 
   const handleMultipleSelection = (event: any) => {
     if ((event as MouseEvent).ctrlKey || (event as MouseEvent).metaKey) {
