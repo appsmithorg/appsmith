@@ -311,7 +311,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.submitBtn).click();
   cy.wait(1000);
   cy.get("body").then(($body) => {
-    if ($body.find(signupPage.roleDropdown).length > 0) {
+    if ($body.find(signupPage.useCaseDropdown).length > 0) {
       cy.get(signupPage.proficiencyGroupButton).first().click();
       cy.get(signupPage.useCaseDropdown).click();
       cy.get(signupPage.dropdownOption).click();
