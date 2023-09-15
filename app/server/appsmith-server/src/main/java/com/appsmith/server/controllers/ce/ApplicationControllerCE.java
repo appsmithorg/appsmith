@@ -17,12 +17,12 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
-import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -136,6 +136,14 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
         return applicationPageService
                 .deleteApplication(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/delete-apps")
+    public Mono<ResponseDTO<List<Application>>> deleteMultipleApps(@Valid @RequestBody List<String> ids) {
+        return applicationPageService
+                .deleteMultipleApps(ids)
+                .map(deletedResources -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResources, null));
     }
 
     @JsonView(Views.Public.class)
