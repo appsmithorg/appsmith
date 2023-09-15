@@ -23,20 +23,18 @@ export async function cypressHooks(
     runData.browser = runDetails.browser?.name;
     const client = await dbClient.connect();
     try {
-      if (!specData.name.includes("no_spec.ts")) {
-        const attemptRes = await client.query(
-          `UPDATE public."attempt" SET "browser" = $1, "os" = $2  WHERE "workflowId" = $3 AND attempt = $4 RETURNING id`,
-          [runData.browser, runData.os, runData.workflowId, runData.attempt],
-        );
-        runData.attemptId = attemptRes.rows[0].id;
-        console.log("BEFORE RUN ATTEMPT ID ====>", runData.attemptId);
-        const matrixRes = await client.query(
-          `SELECT id FROM public."matrix" WHERE "attemptId" = $1 AND "matrixId" = $2`,
-          [runData.attemptId, matrix.matrixId],
-        );
-        matrix.id = matrixRes.rows[0].id;
-        console.log("BEFORE RUN MATRIX ID ====>", matrix.id);
-      }
+      const attemptRes = await client.query(
+        `UPDATE public."attempt" SET "browser" = $1, "os" = $2  WHERE "workflowId" = $3 AND attempt = $4 RETURNING id`,
+        [runData.browser, runData.os, runData.workflowId, runData.attempt],
+      );
+      runData.attemptId = attemptRes.rows[0].id;
+      console.log("BEFORE RUN ATTEMPT ID ====>", runData.attemptId);
+      const matrixRes = await client.query(
+        `SELECT id FROM public."matrix" WHERE "attemptId" = $1 AND "matrixId" = $2`,
+        [runData.attemptId, matrix.matrixId],
+      );
+      matrix.id = matrixRes.rowCount > 0 ? matrixRes.rows[0].id : "";
+      console.log("BEFORE RUN MATRIX ID ====>", matrix.id);
     } catch (err) {
       console.log(err);
     } finally {
