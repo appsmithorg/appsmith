@@ -1,3 +1,4 @@
+<<<<<<< HEAD:app/client/packages/design-system/headless/src/components/TextInput/TextArea.tsx
 import { chain, useLayoutEffect } from "@react-aria/utils";
 import type { Ref } from "react";
 import React, { useCallback, useRef } from "react";
@@ -17,6 +18,16 @@ export interface TextAreaProps
   spellCheck?: boolean;
   height?: number | string;
 }
+=======
+import type { Ref } from "react";
+import React, { useCallback, useRef } from "react";
+import { useTextField } from "@react-aria/textfield";
+import { chain, useLayoutEffect } from "@react-aria/utils";
+import { useControlledState } from "@react-stately/utils";
+
+import type { TextAreaProps } from "./types";
+import { TextInputBase } from "../../TextInputBase";
+>>>>>>> a2cb859cb3 (code review coments fixes):app/client/packages/design-system/headless/src/components/TextArea/src/TextArea.tsx
 
 export type TextAreaRef = Ref<HTMLDivElement>;
 
@@ -68,7 +79,7 @@ function TextArea(props: TextAreaProps, ref: TextAreaRef) {
     if (inputRef.current) {
       onHeightChange();
     }
-  }, [onHeightChange, inputValue, inputRef]);
+  }, [onHeightChange, inputValue, inputRef.current]);
 
   if (props.placeholder) {
     // eslint-disable-next-line no-console

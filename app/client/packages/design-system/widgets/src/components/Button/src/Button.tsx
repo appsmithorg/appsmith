@@ -15,7 +15,7 @@ import { Text } from "../../Text";
 import { Spinner } from "../../Spinner";
 import styles from "./styles.module.css";
 
-export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
+export interface ButtonProps extends HeadlessButtonProps {
   /** variant of the button
    * @default filled
    */

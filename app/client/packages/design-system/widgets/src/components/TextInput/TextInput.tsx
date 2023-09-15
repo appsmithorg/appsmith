@@ -8,9 +8,14 @@ import type {
 import { Text } from "../Text";
 import { Spinner } from "../Spinner";
 import { StyledTextInput } from "./index.styled";
+<<<<<<< HEAD:app/client/packages/design-system/widgets/src/components/TextInput/TextInput.tsx
 import { IconButton } from "../Button";
 import { EyeOffIcon } from "./icons/EyeOffIcon";
 import { EyeIcon } from "./icons/EyeIcon";
+=======
+import { ContextualHelp } from "./ContextualHelp";
+import { getTypographyClassName } from "@design-system/theming";
+>>>>>>> a2cb859cb3 (code review coments fixes):app/client/packages/design-system/widgets/src/components/TextInput/src/TextInput.tsx
 
 const ICON_SIZE = 16;
 
@@ -124,7 +129,7 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
       description={wrappedDescription}
       endIcon={renderEndIcon()}
       errorMessage={wrappedErrorMessage}
-      inputClassName="wds-body-text"
+      inputClassName={getTypographyClassName("body")}
       isRequired={isRequired}
       label={wrappedLabel}
       ref={ref}

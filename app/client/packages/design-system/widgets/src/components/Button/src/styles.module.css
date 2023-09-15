@@ -154,10 +154,32 @@
   * ICON BUTTON
   *-----------------------------------------------------------------------------
   */
-  &:is([data-icon-button]) {
+  &[data-icon-button] {
     min-inline-size: initial;
     text-align: center;
-    padding: var(--spacing-1);
+    padding: 0;
+    container-type: inline-size;
+
+    &[data-size="small"] {
+      block-size: var(--sizing-5);
+      inline-size: var(--sizing-5);
+    }
+
+    &,
+    &[data-size="medium"] {
+      block-size: var(--sizing-7);
+      inline-size: var(--sizing-7);
+    }
+
+    &[data-size="large"] {
+      block-size: var(--sizing-9);
+      inline-size: var(--sizing-9);
+    }
+
+    & svg {
+      width: 90cqw;
+      height: 90cqw;
+    }
   }
 `;
 

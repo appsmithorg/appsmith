@@ -4,19 +4,8 @@ import { useTextField } from "@react-aria/textfield";
 import type { StyleProps } from "@react-types/shared";
 import type { SpectrumTextFieldProps } from "@react-types/textfield";
 
-import { TextInputBase } from "./TextInputBase";
-import type { TextInputBaseProps } from "./TextInputBase";
-
-type MyOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-
-export interface TextInputProps
-  extends MyOmit<
-      SpectrumTextFieldProps,
-      keyof StyleProps | "icon" | "isQuiet" | "necessityIndicator"
-    >,
-    Pick<TextInputBaseProps, "startIcon" | "endIcon" | "inputClassName"> {
-  spellCheck?: boolean;
-}
+import type { TextInputProps } from "./types";
+import { TextInputBase } from "../../TextInputBase";
 
 export type TextInputRef = Ref<HTMLDivElement>;
 
