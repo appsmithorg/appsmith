@@ -23,18 +23,20 @@ export async function cypressHooks(
     runData.browser = runDetails.browser?.name;
     const client = await dbClient.connect();
     try {
-      const attemptRes = await client.query(
-        `UPDATE public."attempt" SET "browser" = $1, "os" = $2  WHERE "workflowId" = $3 AND attempt = $4 RETURNING id`,
-        [runData.browser, runData.os, runData.workflowId, runData.attempt],
-      );
-      runData.attemptId = attemptRes.rows[0].id;
-      console.log("BEFORE RUN ATTEMPT ID ====>", runData.attemptId);
-      const matrixRes = await client.query(
-        `SELECT id FROM public."matrix" WHERE "attemptId" = $1 AND "matrixId" = $2`,
-        [runData.attemptId, matrix.matrixId],
-      );
-      matrix.id = matrixRes.rows[0].id;
-      console.log("BEFORE RUN MATRIX ID ====>", matrix.id);
+      if (!specData.name.includes("no_spec.ts")) {
+        const attemptRes = await client.query(
+          `UPDATE public."attempt" SET "browser" = $1, "os" = $2  WHERE "workflowId" = $3 AND attempt = $4 RETURNING id`,
+          [runData.browser, runData.os, runData.workflowId, runData.attempt],
+        );
+        runData.attemptId = attemptRes.rows[0].id;
+        console.log("BEFORE RUN ATTEMPT ID ====>", runData.attemptId);
+        const matrixRes = await client.query(
+          `SELECT id FROM public."matrix" WHERE "attemptId" = $1 AND "matrixId" = $2`,
+          [runData.attemptId, matrix.matrixId],
+        );
+        matrix.id = matrixRes.rows[0].id;
+        console.log("BEFORE RUN MATRIX ID ====>", matrix.id);
+      }
     } catch (err) {
       console.log(err);
     } finally {
@@ -145,17 +147,20 @@ export async function cypressHooks(
   on("after:run", async (runDetails) => {
     const client = await dbClient.connect();
     try {
-      await client.query(
-        `UPDATE public.matrix SET "status" = $1 WHERE id = $2`,
-        ["done", matrix.id],
-      );
-      await client.query(
-        `UPDATE public.attempt SET "endTime" = $1 WHERE "id" = $2`,
-        [new Date(), runData.attemptId],
-      );
+      if (!specData.name.includes("no_spec.ts")) {
+        await client.query(
+          `UPDATE public.matrix SET "status" = $1 WHERE id = $2`,
+          ["done", matrix.id],
+        );
+        await client.query(
+          `UPDATE public.attempt SET "endTime" = $1 WHERE "id" = $2`,
+          [new Date(), runData.attemptId],
+        );
+      }
     } catch (err) {
       console.log(err);
     } finally {
+      client.release();
       await dbClient.end();
     }
   });
