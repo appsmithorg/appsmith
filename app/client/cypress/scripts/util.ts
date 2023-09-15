@@ -124,6 +124,7 @@ export class util {
   // This is to upload files to s3 when required
   public uploadToS3(s3Client: AWS.S3, filePath: string, key: string) {
     const fileContent = fs.readFileSync(filePath);
+    console.log("FILE CONTENT ====> ", fileContent);
 
     const params = {
       Bucket: "appsmith-internal-cy-db",
