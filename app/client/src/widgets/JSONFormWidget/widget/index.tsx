@@ -7,7 +7,7 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
 import { contentConfig, styleConfig } from "./propertyConfig";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { FieldState, FieldThemeStylesheet, Schema } from "../constants";
@@ -30,7 +30,29 @@ import type {
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { ButtonVariantTypes } from "components/constants";
+import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import type {
+  SnipingModeProperty,
+  PropertyUpdates,
+} from "WidgetProvider/constants";
+
+import IconSVG from "../icon.svg";
+
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+
+const SUBMIT_BUTTON_DEFAULT_STYLES = {
+  buttonVariant: ButtonVariantTypes.PRIMARY,
+};
+
+const RESET_BUTTON_DEFAULT_STYLES = {
+  buttonVariant: ButtonVariantTypes.SECONDARY,
+};
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -103,6 +125,122 @@ class JSONFormWidget extends BaseWidget<
     metaInternalFieldState: {},
   };
 
+  static type = "JSON_FORM_WIDGET";
+
+  static preloadConfig = true;
+
+  static getConfig() {
+    return {
+      name: "JSON Form",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.LAYOUT],
+      needsMeta: true,
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 1,
+        defaultValue: DynamicHeight.AUTO_HEIGHT,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+      useSourceData: false,
+      animateLoading: true,
+      backgroundColor: "#fff",
+      columns: 25,
+      disabledWhenInvalid: true,
+      fixedFooter: true,
+      rows: 41,
+      schema: {},
+      scrollContents: true,
+      showReset: true,
+      title: "Form",
+      version: 1,
+      borderWidth: "1",
+      borderColor: Colors.GREY_5,
+      widgetName: "JSONForm",
+      autoGenerateForm: true,
+      fieldLimitExceeded: false,
+      sourceData: {
+        name: "John",
+        date_of_birth: "20/02/1990",
+        employee_id: 1001,
+      },
+      submitButtonLabel: "Submit",
+      resetButtonLabel: "Reset",
+      blueprint: {
+        operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (widget: JSONFormWidgetProps) => {
+              /**
+               * As submitButtonStyles are objects, the tend to override the submitButtonStyles
+               * present in the defaults so a merge is necessary to incorporate non theme related props.
+               */
+              return [
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "submitButtonStyles",
+                  propertyValue: {
+                    ...widget.submitButtonStyles,
+                    ...SUBMIT_BUTTON_DEFAULT_STYLES,
+                  },
+                },
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "resetButtonStyles",
+                  propertyValue: {
+                    ...widget.resetButtonStyles,
+                    ...RESET_BUTTON_DEFAULT_STYLES,
+                  },
+                },
+              ];
+            },
+          },
+        ],
+      },
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "sourceData",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }
@@ -538,7 +676,7 @@ class JSONFormWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("isValid", isValid);
   };
 
-  getPageView() {
+  getWidgetView() {
     const isAutoHeightEnabled = isAutoHeightEnabledForWidget(this.props);
     return (
       // Warning!!! Do not ever introduce formData as a prop directly,
@@ -580,10 +718,6 @@ class JSONFormWidget extends BaseWidget<
         widgetId={this.props.widgetId}
       />
     );
-  }
-
-  static getWidgetType(): string {
-    return "JSON_FORM_WIDGET";
   }
 }
 

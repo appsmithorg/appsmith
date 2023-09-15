@@ -3,12 +3,8 @@ import {
   unEvalTree,
   unEvalTreeWidgetSelectWidget,
 } from "workers/common/DataTreeEvaluator/mockData/mockUnEvalTree";
-import ButtonWidget, {
-  CONFIG as BUTTON_WIDGET_CONFIG,
-} from "widgets/ButtonWidget";
-import SelectWidget, {
-  CONFIG as SELECT_WIDGET_CONFIG,
-} from "widgets/SelectWidget";
+import ButtonWidget from "widgets/ButtonWidget";
+import SelectWidget from "widgets/SelectWidget";
 import type {
   DataTree,
   ConfigTree,
@@ -21,23 +17,19 @@ import {
 } from "workers/common/DataTreeEvaluator/mockData/mockConfigTree";
 
 import { getEntityPathDependencies } from "./utils/getEntityDependencies";
+import type BaseWidget from "widgets/BaseWidget";
 
 const widgetConfigMap = {};
 
-[
-  [ButtonWidget, BUTTON_WIDGET_CONFIG],
-  [SelectWidget, SELECT_WIDGET_CONFIG],
-].map(([, config]) => {
-  // @ts-expect-error: Types are not available
-  if (config.type && config.properties) {
+[ButtonWidget, SelectWidget].forEach((widget: typeof BaseWidget) => {
+  if (widget.type) {
     // @ts-expect-error: Types are not available
-    widgetConfigMap[config.type] = {
-      // @ts-expect-error: properties does not exists
-      defaultProperties: config.properties.default,
-      // @ts-expect-error: properties does not exists
-      derivedProperties: config.properties.derived,
-      // @ts-expect-error: properties does not exists
-      metaProperties: config.properties.meta,
+    widgetConfigMap[widget.type] = {
+      defaultProperties: widget.getDefaultPropertiesMap(),
+
+      derivedProperties: widget.getDerivedPropertiesMap(),
+
+      metaProperties: widget.getMetaPropertiesMap(),
     };
   }
 });

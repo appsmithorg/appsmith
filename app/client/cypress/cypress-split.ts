@@ -9,17 +9,14 @@ type GetEnvOptions = {
   required?: boolean;
 };
 
-// some default properties
-const ignoreTestFiles = [
-  "cypress/e2e/**/spec_utility.ts",
-  "cypress/e2e/GSheet/**/*",
-];
-
 // used to roughly determine how many tests are in a file
 const testPattern = /(^|\s)(it)\(/g;
 
 // This function will get all the spec paths using the pattern
-async function getSpecFilePaths(specPattern: any): Promise<string[]> {
+async function getSpecFilePaths(
+  specPattern: any,
+  ignoreTestFiles: any,
+): Promise<string[]> {
   const files = globby.sync(specPattern, {
     ignore: ignoreTestFiles,
   });
@@ -81,41 +78,40 @@ function splitSpecs(
 async function getSpecsToRun(
   totalRunnersCount = 0,
   currentRunner = 0,
-  specPattern = "cypress/e2e/**/**/*.{js,ts}",
-): Promise<string> {
-  {
-    try {
-      const specFilePaths = await sortSpecFilesByTestCount(
-        await getSpecFilePaths(specPattern),
-      );
+  specPattern: string | string[] = "cypress/e2e/**/**/*.{js,ts}",
+  ignorePattern: string | string[],
+): Promise<string[]> {
+  try {
+    const specFilePaths = await sortSpecFilesByTestCount(
+      await getSpecFilePaths(specPattern, ignorePattern),
+    );
 
-      if (!specFilePaths.length) {
-        throw Error("No spec files found.");
-      }
-      const specsToRun = splitSpecs(
-        specFilePaths,
-        totalRunnersCount,
-        currentRunner,
-      );
-
-      // TODO(aswathkk): Replace this with an API call to get the list of flaky tests
-      const flakyTestsResponse = await fetch(
-        "https://raw.githubusercontent.com/appsmithorg/appsmith/d683514c5d564ecb8928e01c37f26c6a83391912/app/client/cypress/mockFlakyTestListingAPI.json",
-      );
-      const flakyTestsJson: { flakyTests: string[] } =
-        await flakyTestsResponse.json();
-      const flakyTestsList = flakyTestsJson.flakyTests;
-
-      // Remove flaky tests from the specs to run
-      const finalSpecsToRun = specsToRun.filter(
-        (spec) => !flakyTestsList.includes(spec),
-      );
-
-      return finalSpecsToRun.join(",");
-    } catch (err) {
-      console.error(err);
-      process.exit(1);
+    if (!specFilePaths.length) {
+      throw Error("No spec files found.");
     }
+    const specsToRun = splitSpecs(
+      specFilePaths,
+      totalRunnersCount,
+      currentRunner,
+    );
+
+    // TODO(aswathkk): Replace this with an API call to get the list of flaky tests
+    const flakyTestsResponse = await fetch(
+      "https://raw.githubusercontent.com/appsmithorg/appsmith/d683514c5d564ecb8928e01c37f26c6a83391912/app/client/cypress/mockFlakyTestListingAPI.json",
+    );
+    const flakyTestsJson: { flakyTests: string[] } =
+      await flakyTestsResponse.json();
+    const flakyTestsList = flakyTestsJson.flakyTests;
+
+    // Remove flaky tests from the specs to run
+    const finalSpecsToRun = specsToRun.filter(
+      (spec) => !flakyTestsList.includes(spec),
+    );
+
+    return finalSpecsToRun;
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
   }
 }
 
@@ -149,53 +145,42 @@ function getEnvValue(
 // This is to fetch the env variables from CI
 function getArgs() {
   return {
-    totalRunners: getEnvNumber("TOTAL_RUNNERS", { required: true }),
-    thisRunner: getEnvNumber("THIS_RUNNER", { required: true }),
-    specsPattern: getEnvValue("CYPRESS_SPEC_PATTERN", { required: true }),
-    env: getEnvValue("CYPRESS_ENV", { required: false }),
-    configFile: getEnvValue("CYPRESS_CONFIG_FILE", { required: false }),
-    headless: getEnvValue("CYPRESS_HEADLESS", { required: false }),
-    browser: getEnvValue("CYPRESS_BROWSER", { required: false }),
+    totalRunners: getEnvValue("TOTAL_RUNNERS", { required: false }),
+    thisRunner: getEnvValue("THIS_RUNNER", { required: false }),
+    cypressSpecs: getEnvValue("CYPRESS_SPECS", { required: false }),
   };
 }
 
-// This will finally segregate the specs and run the command to execute cypress
-(async () => {
+export async function cypressSplit(on: any, config: any) {
   try {
-    const {
-      browser,
-      configFile,
-      env,
-      headless,
-      specsPattern,
-      thisRunner,
-      totalRunners,
-    } = getArgs();
+    let currentRunner = 0;
+    let allRunners = 1;
+    let specPattern = await config.specPattern;
+    const ignorePattern = await config.excludeSpecPattern;
+    const { cypressSpecs, thisRunner, totalRunners } = getArgs();
 
-    let command = "yarn cypress run ";
-    command += browser != "" ? `--browser ${browser} ` : "";
-    command += configFile != "" ? `--config-file ${configFile} ` : "";
-    command += env != "" ? `--env ${env} ` : "";
-    command += headless == "false" ? `--headed ` : "";
+    if (cypressSpecs != "")
+      specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
 
-    const specs = await getSpecsToRun(totalRunners, thisRunner, specsPattern);
-    const final_command = `${command} --spec "${specs}"`;
-    const commandProcess = exec(final_command);
-
-    // pipe output because we want to see the results of the run
-    if (commandProcess.stdout) {
-      commandProcess.stdout.pipe(process.stdout);
+    if (totalRunners != "") {
+      currentRunner = Number(thisRunner);
+      allRunners = Number(totalRunners);
     }
 
-    if (commandProcess.stderr) {
-      commandProcess.stderr.pipe(process.stderr);
-    }
+    const specs = await getSpecsToRun(
+      allRunners,
+      currentRunner,
+      specPattern,
+      ignorePattern,
+    );
 
-    commandProcess.on("exit", (code) => {
-      process.exit(code || 0);
-    });
+    if (specs.length > 0) {
+      config.specPattern = specs.length == 1 ? specs[0] : specs;
+    } else {
+      config.specPattern = "cypress/scripts/no_spec.ts";
+    }
+    return config;
   } catch (err) {
-    console.error(err);
-    process.exit(1);
+    console.log(err);
   }
-})();
+}

@@ -152,7 +152,7 @@ import {
 import {
   getAllDatasourceTableKeys,
   selectInstalledLibraries,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { debug } from "loglevel";
 import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
@@ -1525,7 +1525,8 @@ class CodeEditor extends Component<Props, State> {
       evaluated = evaluatedValue;
 
     if (dataTreePath) {
-      evaluated = pathEvaluatedValue;
+      evaluated =
+        pathEvaluatedValue !== undefined ? pathEvaluatedValue : evaluated;
     }
     const entityInformation = this.getEntityInformation();
 
@@ -1599,6 +1600,7 @@ class CodeEditor extends Component<Props, State> {
             currentValue={this.props.input.value}
             dataTreePath={dataTreePath}
             enableAIAssistance={this.AIEnabled}
+            entitiesForNavigation={this.props.entitiesForNavigation}
             entity={entityInformation}
             isOpen={this.state.showAIWindow}
             mode={this.props.mode}

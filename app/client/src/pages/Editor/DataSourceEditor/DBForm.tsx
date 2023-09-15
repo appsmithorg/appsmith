@@ -28,6 +28,7 @@ import {
 } from "@appsmith/constants/messages";
 import { isEnvironmentValid } from "@appsmith/utils/Environments";
 import { setDatasourceViewModeFlag } from "actions/datasourceActions";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -41,7 +42,6 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   datasource: Datasource;
   hiddenHeader?: boolean;
   datasourceName?: string;
-  showFilterComponent: boolean;
   isEnabledForDSViewModeSchema: boolean;
   isDatasourceValid: boolean;
   isPluginAllowedToPreviewData: boolean;
@@ -52,7 +52,6 @@ type Props = DatasourceDBEditorProps &
   InjectedFormProps<Datasource, DatasourceDBEditorProps>;
 
 export const Form = styled.form<{
-  showFilterComponent: boolean;
   viewMode: boolean;
 }>`
   display: flex;
@@ -61,7 +60,7 @@ export const Form = styled.form<{
     !props.viewMode && `height: ${`calc(100% - ${props?.theme.backBanner})`};`}
   overflow-y: scroll;
   padding-bottom: 20px;
-  margin-left: ${(props) => (props.showFilterComponent ? "24px" : "0px")};
+  margin-left: ${(props) => (props.viewMode ? "0px" : "24px")};
 `;
 
 export const ViewModeWrapper = styled.div`
@@ -108,7 +107,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       formConfig,
       messages,
       pluginType,
-      showFilterComponent,
       viewMode,
     } = this.props;
 
@@ -117,7 +115,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         onSubmit={(e) => {
           e.preventDefault();
         }}
-        showFilterComponent={showFilterComponent}
         viewMode={viewMode}
       >
         {messages &&
@@ -226,7 +223,9 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const hintMessages = datasource && datasource.messages;
 
-  const isDatasourceValid = isEnvironmentValid(datasource) || false;
+  const currentEnvironmentId = getCurrentEnvironmentId(state);
+  const isDatasourceValid =
+    isEnvironmentValid(datasource, currentEnvironmentId) || false;
 
   return {
     messages: hintMessages,

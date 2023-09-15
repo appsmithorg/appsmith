@@ -43,7 +43,7 @@ import {
   MediaCaptureActionTypes,
   MediaCaptureStatusTypes,
 } from "../constants";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
 import { getVideoConstraints } from "../../utils";
@@ -96,6 +96,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   justify-content: center;
   overflow: hidden;
   height: 100%;
+  width: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => boxShadow};
   background: ${({ disabled }) => (disabled ? Colors.GREY_3 : Colors.BLACK)};

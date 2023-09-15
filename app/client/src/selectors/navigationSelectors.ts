@@ -2,11 +2,11 @@ import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getDatasources,
   getJSCollections,
   getPlugins,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
@@ -36,11 +36,13 @@ export type NavigationData = {
   isMock?: boolean;
   datasourceId?: string;
   actionType?: string;
+  widgetType?: string;
+  value?: boolean | string;
 };
 export type EntityNavigationData = Record<string, NavigationData>;
 
 export const getEntitiesForNavigation = createSelector(
-  getActionsForCurrentPage,
+  getCurrentActions,
   getPlugins,
   getJSCollections,
   getWidgets,
@@ -119,6 +121,7 @@ export const getEntitiesForNavigation = createSelector(
         type: ENTITY_TYPE.WIDGET,
         url: widgetURL({ pageId, selectedWidgets: [widget.widgetId] }),
         children: result?.childNavData || {},
+        widgetType: widget.type,
       });
     });
     if (

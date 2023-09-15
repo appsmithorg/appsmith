@@ -5,7 +5,6 @@ import type {
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
 import { selectedTabValidation } from "widgets/TabsWidget/widget";
-import type { WidgetType } from "constants/WidgetConstants";
 import { migrateTabsData } from "utils/DSLMigrations";
 import { cloneDeep, get } from "lodash";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -17,7 +16,27 @@ class TabsMigratorWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
-  getPageView() {
+  static type = "TABS_MIGRATOR_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "TabsMigrator",
+      needsMeta: true,
+    };
+  }
+
+  static getDefaults() {
+    return {
+      isLoading: true,
+      rows: 1,
+      columns: 1,
+      widgetName: "Skeleton",
+      version: 1,
+      animateLoading: true,
+    };
+  }
+
+  getWidgetView() {
     return null;
   }
   static getPropertyPaneConfig() {
@@ -153,9 +172,6 @@ class TabsMigratorWidget extends BaseWidget<
         remove: ["tabs"],
       });
     }
-  }
-  static getWidgetType(): WidgetType {
-    return "TABS_MIGRATOR_WIDGET";
   }
 }
 export default TabsMigratorWidget;

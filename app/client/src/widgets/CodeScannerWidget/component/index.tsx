@@ -25,7 +25,7 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import { ScannerLayout } from "../constants";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 import { usePageVisibility } from "react-page-visibility";
 import { importSvg } from "design-system-old";
 import { getVideoConstraints } from "widgets/utils";
@@ -156,6 +156,7 @@ export interface DisabledOverlayerProps {
 
 const CodeScannerContainer = styled.div`
   height: 100%;
+  width: 100%;
 `;
 
 const DisabledOverlayer = styled.div<DisabledOverlayerProps>`

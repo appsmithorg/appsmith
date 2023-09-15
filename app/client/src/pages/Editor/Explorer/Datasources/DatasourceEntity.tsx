@@ -22,7 +22,7 @@ import {
   getAction,
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,

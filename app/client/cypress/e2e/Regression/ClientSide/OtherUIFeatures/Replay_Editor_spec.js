@@ -44,7 +44,7 @@ describe("Undo/Redo functionality", function () {
       });
       cy.get(datasourceEditor.password).should("be.empty").wait(1000);
       cy.get(datasourceEditor.saveBtn).click({ force: true });
-      dataSources.AssertDSActive(postgresDatasourceName);
+      dataSources.AssertDSInActiveList(postgresDatasourceName);
     });
   });
 
