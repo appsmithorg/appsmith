@@ -149,6 +149,7 @@ export class util {
           owner: repo[0],
           repo: repo[1],
           run_id: Number(this.getVars().runId),
+          per_page: 100,
           headers: {
             "X-GitHub-Api-Version": "2022-11-28",
           },

@@ -214,8 +214,13 @@ async function addSpecsToMatrix(matrixId: number, specs: string[]) {
   }
 }
 
-async function addLockAndUpdateSpecs(attemptId: number, specs: string[]) {
+async function addLockGetTheSpecs(
+  attemptId: number,
+  specPattern: string | string[],
+  ignorePattern: string | string[],
+) {
   const client = await dbClient.connect();
+  let specs: string[] = [];
   let retry = 1;
   let locked = false;
   try {
@@ -226,18 +231,33 @@ async function addLockAndUpdateSpecs(attemptId: number, specs: string[]) {
       );
       if (result.rows.length === 1) {
         locked = true;
-        console.log("LOCKED ======> ", locked);
-        const matrixRes = await createMatrix(attemptId);
-        await addSpecsToMatrix(matrixRes, specs);
-        await client.query(
-          `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
-          [attemptId],
-        );
+        specs = await getSpecsToRun(specPattern, ignorePattern, attemptId);
+        return specs;
       } else {
+        console.log("Waiting for specs ....................");
         await sleep(1000);
         retry++;
       }
     }
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.release();
+  }
+}
+
+async function updateTheSpecsAndReleaseLock(
+  attemptId: number,
+  specs: string[],
+) {
+  const client = await dbClient.connect();
+  try {
+    const matrixRes = await createMatrix(attemptId);
+    await addSpecsToMatrix(matrixRes, specs);
+    await client.query(
+      `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
+      [attemptId],
+    );
   } catch (err) {
     console.log(err);
   } finally {
@@ -275,15 +295,12 @@ export async function cypressSplit(
     }
 
     const attempt = await createAttempt();
-    const specs = await getSpecsToRun(
-      specPattern,
-      ignorePattern,
-      Number(attempt),
-    );
+    const specs =
+      (await addLockGetTheSpecs(attempt, specPattern, ignorePattern)) ?? [];
     console.log("GET SPECS TO RUN IN SPLIT SPECS", specs);
     if (specs.length > 0 && !specs.includes(defaultSpec)) {
       config.specPattern = specs.length == 1 ? specs[0] : specs;
-      await addLockAndUpdateSpecs(Number(attempt), specs);
+      await updateTheSpecsAndReleaseLock(attempt, specs);
     } else {
       config.specPattern = defaultSpec;
     }
