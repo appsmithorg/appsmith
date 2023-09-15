@@ -17,7 +17,7 @@ public class CloudServicesConfig {
     @Value("${appsmith.cloud_services.password}")
     private String password;
 
-    @Value("${appsmith.cloud_services.template_upload_auth_header:}")
+    @Value("${appsmith.cloud_services.template_upload_auth_header}")
     private String templateUploadAuthHeader;
 
     @Autowired
