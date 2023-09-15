@@ -126,7 +126,7 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
       if (option.message) {
         setMessage(option.message);
       }
-      AnalyticsUtil.logEvent("ONE_CLICK_BINDING_FORM_OTHER_FIELDS", {
+      AnalyticsUtil.logEvent("ONE_CLICK_BINDING_CONFIG", {
         widgetName: widget.widgetName,
         widgetType: widget.type,
         propertyName,
