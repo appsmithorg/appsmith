@@ -17,6 +17,9 @@ public class CloudServicesConfig {
     @Value("${appsmith.cloud_services.password}")
     private String password;
 
+    @Value("${appsmith.cloud_services.template_upload_auth_header}")
+    private String templateUploadAuthHeader;
+
     @Autowired
     public void setBaseUrl(@Value("${appsmith.cloud_services.base_url:}") String value) {
         baseUrl = StringUtils.isEmpty(value) ? "https://cs.appsmith.com" : value;
