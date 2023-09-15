@@ -592,29 +592,45 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .collectList()
                 .flatMap(userUtils::removeSuperUser);
 
-        Mono<Boolean> newUsersMono = Flux.fromIterable(newUsers)
-                .flatMap(email -> userService.findByEmail(email).flatMap(existingUser -> sessionUserService
-                        .getCurrentUser()
-                        .flatMap(invitingUser -> {
-                            if (existingUser == null) {
-                                User user = new User();
-                                user.setEmail(email);
-                                return emailService.sendInstanceAdminInviteEmail(
-                                        user, invitingUser, originHeader, true);
-                            }
-                            return userUtils
-                                    .isSuperUser(existingUser)
-                                    .filter(isSuperUser -> !isSuperUser)
-                                    .flatMap(isSuperUser -> userUtils
-                                            .makeSuperUser(Collections.singletonList(existingUser))
-                                            .flatMap(success -> emailService.sendInstanceAdminInviteEmail(
-                                                    existingUser, invitingUser, originHeader, false)))
-                                    .switchIfEmpty(Mono.empty()); // Skip if existingUser is already a superuser
-                        })))
-                .collectList()
-                .map(results -> results.stream().allMatch(Boolean::booleanValue));
+        Flux<User> usersFlux = Flux.fromIterable(newUsers)
+                .flatMap(email -> userService.findByEmail(email).map(existingUser -> {
+                    if (existingUser == null) {
+                        User newUser = new User();
+                        newUser.setEmail(email);
+                        newUser.setIsEnabled(false);
+                        return newUser;
+                    }
+                    return existingUser;
+                }));
 
-        return Mono.when(removedUsersMono, newUsersMono).then(Mono.just(TRUE));
+        Flux<User> newUsersFlux = usersFlux.filter(user -> !user.isEnabled());
+        Flux<User> existingUsersFlux = usersFlux.filter(User::isEnabled);
+        Flux<User> existingUsersWhichAreNotAlreadySuperUsersFlux =
+                existingUsersFlux.filterWhen(user -> userUtils.isSuperUser(user).map(isSuper -> !isSuper));
+
+        Mono<Boolean> newUsersMono = newUsersFlux
+                .flatMap(newUsersFluxUser -> sessionUserService.getCurrentUser().flatMap(invitingUser -> userUtils
+                        .makeSuperUser(Collections.singletonList(newUsersFluxUser))
+                        .flatMap(success -> emailService.sendInstanceAdminInviteEmail(
+                                newUsersFluxUser, invitingUser, originHeader, true))))
+                .collectList()
+                .map(results -> results.stream().allMatch(result -> result));
+
+        Mono<List<User>> existingUsersWhichAreNotAlreadySuperUsersMono =
+                existingUsersWhichAreNotAlreadySuperUsersFlux.collectList();
+
+        Mono<Boolean> existingUsersMono = existingUsersWhichAreNotAlreadySuperUsersMono.flatMap(users -> userUtils
+                .makeSuperUser(users)
+                .flatMap(
+                        success -> Flux.fromIterable(users)
+                                .flatMap(user -> sessionUserService
+                                        .getCurrentUser()
+                                        .flatMap(invitingUser -> emailService.sendInstanceAdminInviteEmail(
+                                                user, invitingUser, originHeader, false)))
+                                .then(Mono.just(success)) // Emit 'success' as the result
+                        ));
+
+        return Mono.when(removedUsersMono, newUsersMono, existingUsersMono).map(tuple -> TRUE);
     }
 
     @Override
