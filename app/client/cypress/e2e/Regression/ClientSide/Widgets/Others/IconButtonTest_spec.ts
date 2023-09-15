@@ -126,6 +126,7 @@ describe("Icon Button widget Tests", function () {
     agHelper
       .GetElement(locators._widgetInDeployed("iconbuttonwidget"))
       .realHover();
+    agHelper.Sleep(1000);
     agHelper.AssertPopoverTooltip("1,000");
     deployMode.NavigateBacktoEditor();
   });
