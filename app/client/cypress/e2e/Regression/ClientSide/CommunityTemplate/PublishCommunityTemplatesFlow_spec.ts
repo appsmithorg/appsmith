@@ -20,8 +20,8 @@ describe("excludeForAirgap", "Publish app to Community flow", () => {
     agHelper.GetNClick(communityTemplates.locators._publishInitiateButton);
 
     // author details check
-    const testUserName = "Rahul Barwal";
-    const testUserEmail = "rahul.barwal@appsmith.com";
+    const testUserName = "Demo user";
+    const testUserEmail = "demo-user@appsmith.com";
 
     communityTemplates.AssertChangeAuthorDetailsDisablesSubmit(
       communityForm.author.name,
