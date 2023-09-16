@@ -595,12 +595,11 @@ export class PropertyPane {
       .type(newName, { force: true })
       .should("have.value", newName)
       .blur();
-    this.agHelper.PressEnter();
+    this.agHelper.PressEnter(1000);
     this.assertHelper.AssertNetworkStatus("@updateWidgetName");
-    this.agHelper.Sleep();
   }
 
-  public CreateModal(modalName: string, property: string) {
+  public CreateModal(property: string) {
     this.SelectPlatformFunction(property, "Show modal");
     this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
     this.agHelper.GetNClick(this._createModalButton);
@@ -621,5 +620,13 @@ export class PropertyPane {
   public SelectColorFromColorPicker(property: string, colorOffset: number) {
     this.agHelper.GetNClick(this._propertyControlColorPicker(property));
     this.agHelper.GetNClick(this._colorPickerV2Color, colorOffset, true);
+  }
+
+  public AssertPropertyVisibility(properties: string[], sectionTitle: string) {
+    properties.forEach((property: string) => {
+      this.agHelper.AssertElementVisibility(
+        this._propertyPanePropertyControl(sectionTitle, property),
+      );
+    });
   }
 }
