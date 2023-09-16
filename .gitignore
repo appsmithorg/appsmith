@@ -3,6 +3,8 @@
 .env
 
 stacks
+
+/deploy/docker/fs/opt/appsmith/rts
 /deploy/docker/fs/opt/appsmith/info.json
 
 # to ignore the node_modeules folder
