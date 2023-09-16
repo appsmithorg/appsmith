@@ -44,6 +44,13 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
+import { getFocusedWidget, getSelectedWidgets } from "selectors/ui";
+import { getErrorCount } from "layoutSystems/common/widgetName/utils";
+import { WidgetNameState } from "layoutSystems/common/WidgetNamesCanvas/WidgetNameTypes";
+import type { WidgetNameData } from "layoutSystems/common/WidgetNamesCanvas/WidgetNameTypes";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -51,6 +58,15 @@ export const getEntities = (state: AppState): AppState["entities"] =>
 export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
 };
+
+const getDataTree = (state: AppState): DataTree => state.evaluations.tree;
+
+const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
+  return state.entities.canvasWidgets;
+};
+
+export const getWidgetPositions = (state: AppState) =>
+  state.entities.widgetPositions;
 
 // Returns non temp datasources
 export const getSavedDatasources = (state: AppState): Datasource[] => {
@@ -74,6 +90,125 @@ export const getDatasourceStructureById = (
   id: string,
 ): DatasourceStructure => {
   return state.entities.datasources.structure[id];
+};
+
+/**
+ * Selector to indicate if the widget name should be shown/drawn on canvas
+ */
+export const getShouldShowWidgetName = createSelector(
+  (state: AppState) => state.ui.widgetDragResize.isResizing,
+  (state: AppState) => state.ui.widgetDragResize.isDragging,
+  (state: AppState) => state.ui.editor.isPreviewMode,
+  (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  (isResizing, isDragging, isPreviewMode, isAutoCanvasResizing) => {
+    return (
+      !isResizing && !isDragging && !isPreviewMode && !isAutoCanvasResizing
+    );
+  },
+);
+
+/**
+ * selector to get information regarding the selected widget to draw it's widget name on canvas
+ */
+export const getSelectedWidgetNameData = createSelector(
+  getWidgetPositions,
+  getSelectedWidgets,
+  getWidgets,
+  getDataTree,
+  getShouldShowWidgetName,
+  (
+    positions,
+    selectedWidgets,
+    widgets,
+    dataTree,
+    shouldShowWidgetName,
+  ): WidgetNameData | undefined => {
+    if (
+      !selectedWidgets ||
+      selectedWidgets.length !== 1 ||
+      !shouldShowWidgetName
+    )
+      return;
+
+    const selectedWidgetId = selectedWidgets[0];
+
+    const selectedWidget = widgets[selectedWidgetId];
+
+    if (!selectedWidget) return;
+
+    return getWidgetNameState(selectedWidget, dataTree, positions);
+  },
+);
+
+/**
+ * selector to get information regarding the focused widget to draw it's widget name on canvas
+ */
+export const getFocusedWidgetNameData = createSelector(
+  getWidgetPositions,
+  getFocusedWidget,
+  getSelectedWidgets,
+  getWidgets,
+  getDataTree,
+  getShouldShowWidgetName,
+  (
+    positions,
+    focusedWidgetId,
+    selectedWidgets,
+    widgets,
+    dataTree,
+    shouldShowWidgetName,
+  ): WidgetNameData | undefined => {
+    if (!focusedWidgetId || !widgets || !shouldShowWidgetName) return;
+
+    const focusedWidget = widgets[focusedWidgetId];
+
+    if (!focusedWidget || selectedWidgets.indexOf(focusedWidgetId) > -1) return;
+
+    return getWidgetNameState(focusedWidget, dataTree, positions, true);
+  },
+);
+
+/**
+ * method to get the widget data required to draw widget name component on canvas
+ * @param widget widget whose widget name will be drawn on canvas
+ * @param dataTree contains evaluated widget information that is used to check of the widget has any errors
+ * @param positions positions of all the widgets in pixels
+ * @param isFocused boolean to indicate if the widget is focused
+ * @returns WidgetNameData object which contains information regarding the widget to draw it's widget name on canvas
+ */
+const getWidgetNameState = (
+  widget: WidgetProps,
+  dataTree: DataTree,
+  positions: WidgetPositions,
+  isFocused = false,
+): WidgetNameData => {
+  let nameState = isFocused ? WidgetNameState.FOCUSED : WidgetNameState.NORMAL;
+
+  const widgetName = widget.widgetName;
+
+  const widgetEntity = dataTree[widgetName];
+
+  const parentId = widget.parentId || MAIN_CONTAINER_WIDGET_ID;
+
+  if (widgetEntity) {
+    const errorObj = get(widgetEntity, EVAL_ERROR_PATH, {});
+    const errorCount = getErrorCount(errorObj);
+
+    if (errorCount > 0) {
+      nameState = WidgetNameState.ERROR;
+    }
+  }
+
+  const widgetNameData = {
+    id: widget.widgetId,
+    position: positions[widget.widgetId],
+    widgetName: widgetName,
+    parentId,
+    dragDisabled: widget.dragDisabled,
+    nameState,
+  };
+
+  return widgetNameData;
 };
 
 export const getDatasourceTableColumns =

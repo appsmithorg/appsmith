@@ -105,3 +105,16 @@ export const updatePositionsOnTabChange = (
     payload: { selectedTabWidgetId, widgetId },
   };
 };
+
+export const readWidgetPositions = (
+  widgetsProcessQueue: {
+    [widgetDOMId: string]: boolean;
+  },
+  layersProcessQueue: { [canvasId: string]: number },
+  layoutsProcessQueue: { [layoutId: string]: boolean },
+) => {
+  return {
+    type: ReduxActionTypes.READ_WIDGET_POSITIONS,
+    payload: { widgetsProcessQueue, layersProcessQueue, layoutsProcessQueue },
+  };
+};

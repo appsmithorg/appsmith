@@ -8313,6 +8313,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-reconciler@npm:~0.26.2":
+  version: 0.26.7
+  resolution: "@types/react-reconciler@npm:0.26.7"
+  dependencies:
+    "@types/react": "*"
+  checksum: 4122d2b08580f775d0aeae9bd10b68248f894096ed14c0ebbc143ef712e21b159e89d0c628bd95dd3329947fc1ee94a0cb1d2d32b32b1d5d225e70030e91e58f
+  languageName: node
+  linkType: hard
+
 "@types/react-redux@npm:^7.0.1, @types/react-redux@npm:^7.1.16":
   version: 7.1.18
   resolution: "@types/react-redux@npm:7.1.18"
@@ -10100,6 +10109,7 @@ __metadata:
     jshint: ^2.13.4
     json5: ^2.2.3
     klona: ^2.0.5
+    konva: 8.0.1
     libphonenumber-js: ^1.9.44
     linkedom: ^0.14.20
     lint-staged: ^13.2.0
@@ -10152,6 +10162,7 @@ __metadata:
     react-instantsearch-dom: ^6.4.0
     react-is: ^16.12.0
     react-json-view: ^1.21.3
+    react-konva: 17.0.2-6
     react-masonry-css: ^1.0.16
     react-media-recorder: ^1.6.1
     react-modal: ^3.15.1
@@ -20239,6 +20250,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"konva@npm:8.0.1":
+  version: 8.0.1
+  resolution: "konva@npm:8.0.1"
+  checksum: 989702028faed7981780d74bf4fa2f682627e726832745b4258af93bf0ef5bde766db0f5e5cd47a01839796698b01dbb4c9d6e8592c03321ba38a24e0b6dae3d
+  languageName: node
+  linkType: hard
+
 "labeled-stream-splicer@npm:^2.0.0":
   version: 2.0.2
   resolution: "labeled-stream-splicer@npm:2.0.2"
@@ -25175,6 +25193,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-konva@npm:17.0.2-6":
+  version: 17.0.2-6
+  resolution: "react-konva@npm:17.0.2-6"
+  dependencies:
+    "@types/react-reconciler": ~0.26.2
+    react-reconciler: ~0.26.2
+    scheduler: ^0.20.2
+  peerDependencies:
+    konva: ^8.0.1 || ^7.2.5
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 5e868f6941090243c998f2817fbc9f031f60c83e236dc3f6328c904114582cfe281a08df9b5146b3339f6e1ccf30f3707d03de85fd534fb42fbe0ee6c6531b0c
+  languageName: node
+  linkType: hard
+
 "react-lifecycles-compat@npm:^3.0.0, react-lifecycles-compat@npm:^3.0.4":
   version: 3.0.4
   resolution: "react-lifecycles-compat@npm:3.0.4"
@@ -25317,6 +25350,19 @@ __metadata:
     react: ">=16.3.0"
     react-dom: ">=16.3.0"
   checksum: f209ea396e85cc49e4f846f3ed1ed66e06bd97cc8d1043694ad9c54dd79c053d7e3a2908acfabd5f0461c36e3760518b64ec5ab244e18c651184bf279764eccb
+  languageName: node
+  linkType: hard
+
+"react-reconciler@npm:~0.26.2":
+  version: 0.26.2
+  resolution: "react-reconciler@npm:0.26.2"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+    scheduler: ^0.20.2
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 2ebceace56f547f51eaf142becefef9cca980eae4f42d90ee5a966f54a375f5082d78b71b00c40bbd9bca69e0e0f698c7d4e81cc7373437caa19831fddc1d01b
   languageName: node
   linkType: hard
 

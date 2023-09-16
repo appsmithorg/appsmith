@@ -50,6 +50,7 @@ import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
 import entityNavigationSaga from "sagas/NavigationSagas";
+import WidgetPositionSaga from "sagas/WidgetPositionsSaga";
 
 export const sagas = [
   initSagas,
@@ -104,4 +105,5 @@ export const sagas = [
   snapshotSagas,
   oneClickBindingSaga,
   entityNavigationSaga,
+  WidgetPositionSaga,
 ];

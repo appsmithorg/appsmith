@@ -37,6 +37,7 @@ import * as widgetActions from "actions/widgetActions";
 import * as uiSelectors from "selectors/ui";
 import { NavigationMethod } from "../../../utils/history";
 import { setExplorerPinnedAction } from "actions/explorerActions";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 jest.mock("constants/routes", () => {
   return {
@@ -151,7 +152,7 @@ describe("Canvas Hot Keys", () => {
       );
       spyWidgetSelection.mockClear();
 
-      const artBoard: any = component.queryByTestId("t--canvas-artboard");
+      const artBoard: any = component.queryByTestId(CANVAS_ART_BOARD);
       // deselect all other widgets
       fireEvent.click(artBoard);
       expect(spyWidgetSelection).toHaveBeenCalledWith(
@@ -275,7 +276,7 @@ describe("Cut/Copy/Paste hotkey", () => {
       </MockPageDSL>,
       { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
-    const artBoard: any = await component.queryByTestId("t--canvas-artboard");
+    const artBoard: any = await component.queryByTestId(CANVAS_ART_BOARD);
     // deselect all other widgets
     fireEvent.click(artBoard);
     act(() => {
@@ -365,7 +366,7 @@ describe("Cut/Copy/Paste hotkey", () => {
         </GlobalHotKeys>
       </MockPageDSL>,
     );
-    const artBoard: any = await component.queryByTestId("t--canvas-artboard");
+    const artBoard: any = await component.queryByTestId(CANVAS_ART_BOARD);
     // deselect all other widgets
     fireEvent.click(artBoard);
     act(() => {

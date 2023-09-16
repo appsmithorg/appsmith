@@ -17,6 +17,7 @@ import {
   useTheme,
 } from "@design-system/theming";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -78,10 +79,10 @@ const Canvas = (props: CanvasProps) => {
         <Wrapper
           $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
           background={backgroundForCanvas}
-          className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
+          className={`relative ${CANVAS_ART_BOARD} ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
             canvasWidth,
           )}`}
-          data-testid="t--canvas-artboard"
+          data-testid={CANVAS_ART_BOARD}
           id="art-board"
           ref={focusRef}
           width={canvasWidth}
