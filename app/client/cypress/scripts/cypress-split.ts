@@ -221,10 +221,10 @@ async function addLockGetTheSpecs(
 ) {
   const client = await dbClient.connect();
   let specs: string[] = [];
-  let retry = 1;
+  let counter = 1;
   let locked = false;
   try {
-    while (retry <= 60 && !locked) {
+    while (!locked) {
       const result = await client.query(
         `UPDATE public."attempt" SET is_locked = true WHERE id = $1 AND is_locked = false RETURNING id`,
         [attemptId],
@@ -241,9 +241,9 @@ async function addLockGetTheSpecs(
         specs = await getSpecsToRun(specPattern, ignorePattern, attemptId);
         return specs;
       } else {
-        console.log("Waiting for specs ....................");
+        console.log("Waiting for specs ....................", counter);
         await sleep(5000);
-        retry++;
+        counter++;
       }
     }
   } catch (err) {
