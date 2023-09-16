@@ -1,301 +1,318 @@
 /* eslint-disable no-console */
 import type { DataItem } from "./util";
-import { util } from "./util";
+import util from "./util";
 import globby from "globby";
 import minimatch from "minimatch";
 
-const _ = new util();
-const dbClient = _.configureDbClient();
+export class cypressSplit {
+  util = new util();
+  dbClient = this.util.configureDbClient();
 
-// This function will get all the spec paths using the pattern
-async function getSpecFilePaths(
-  specPattern: any,
-  ignoreTestFiles: any,
-): Promise<string[]> {
-  const files = globby.sync(specPattern, {
-    ignore: ignoreTestFiles,
-  });
-
-  // ignore the files that doesn't match
-  const ignorePatterns = [...(ignoreTestFiles || [])];
-
-  // a function which returns true if the file does NOT match
-  const doesNotMatchAllIgnoredPatterns = (file: string) => {
-    // using {dot: true} here so that folders with a '.' in them are matched
-    const MINIMATCH_OPTIONS = { dot: true, matchBase: true };
-    return ignorePatterns.every((pattern) => {
-      return !minimatch(file, pattern, MINIMATCH_OPTIONS);
+  // This function will get all the spec paths using the pattern
+  private async getSpecFilePaths(
+    specPattern: any,
+    ignoreTestFiles: any,
+  ): Promise<string[]> {
+    const files = globby.sync(specPattern, {
+      ignore: ignoreTestFiles,
     });
-  };
-  const filtered = files.filter(doesNotMatchAllIgnoredPatterns);
-  return filtered;
-}
 
-async function getSpecsWithTime(specs: string[], attemptId: number) {
-  const client = await dbClient.connect();
-  try {
-    const queryRes = await client.query(
-      'SELECT * FROM public."spec_avg_duration"',
-    );
-    const defaultDuration = 180000;
-    const allSpecsWithDuration: DataItem[] = specs.map((spec) => {
-      const match = queryRes.rows.find((obj) => obj.name === spec);
-      return match ? match : { name: spec, duration: defaultDuration };
-    });
-    const activeRunners = await _.getActiveRunners();
-    const activeRunnersFromDb = await getActiveRunnersFromDb(attemptId);
-    return await _.divideSpecsIntoBalancedGroups(
-      allSpecsWithDuration,
-      Number(activeRunners) - Number(activeRunnersFromDb),
-    );
-  } catch (err) {
-    console.log(err);
-  } finally {
-    client.release();
+    // ignore the files that doesn't match
+    const ignorePatterns = [...(ignoreTestFiles || [])];
+
+    // a function which returns true if the file does NOT match
+    const doesNotMatchAllIgnoredPatterns = (file: string) => {
+      // using {dot: true} here so that folders with a '.' in them are matched
+      const MINIMATCH_OPTIONS = { dot: true, matchBase: true };
+      return ignorePatterns.every((pattern) => {
+        return !minimatch(file, pattern, MINIMATCH_OPTIONS);
+      });
+    };
+    const filtered = files.filter(doesNotMatchAllIgnoredPatterns);
+    return filtered;
   }
-}
 
-// This function will finally get the specs as a comma separated string to pass the specs to the command
-async function getSpecsToRun(
-  specPattern: string | string[] = "cypress/e2e/**/**/*.{js,ts}",
-  ignorePattern: string | string[],
-  attemptId: number,
-): Promise<string[]> {
-  try {
-    const specFilePaths = await getSpecFilePaths(specPattern, ignorePattern);
-
-    const specsToRun = await getSpecsWithTime(specFilePaths, attemptId);
-    return specsToRun === undefined
-      ? []
-      : specsToRun[0].map((spec) => spec.name);
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
+  private async getSpecsWithTime(specs: string[], attemptId: number) {
+    const client = await this.dbClient.connect();
+    try {
+      const queryRes = await client.query(
+        'SELECT * FROM public."spec_avg_duration"',
+      );
+      const defaultDuration = 180000;
+      const allSpecsWithDuration: DataItem[] = specs.map((spec) => {
+        const match = queryRes.rows.find((obj) => obj.name === spec);
+        return match ? match : { name: spec, duration: defaultDuration };
+      });
+      const activeRunners = await this.util.getActiveRunners();
+      const activeRunnersFromDb = await this.getActiveRunnersFromDb(attemptId);
+      return await this.util.divideSpecsIntoBalancedGroups(
+        allSpecsWithDuration,
+        Number(activeRunners) - Number(activeRunnersFromDb),
+      );
+    } catch (err) {
+      console.log(err);
+    } finally {
+      client.release();
+    }
   }
-}
 
-async function getActiveRunnersFromDb(attemptId: number) {
-  const client = await dbClient.connect();
-  try {
-    const matrixRes = await client.query(
-      `SELECT * FROM public."matrix" WHERE "attemptId" = $1`,
-      [attemptId],
-    );
-    return matrixRes.rowCount;
-  } catch (err) {
-    console.log(err);
-  } finally {
-    client.release();
+  // This function will finally get the specs as a comma separated string to pass the specs to the command
+  private async getSpecsToRun(
+    specPattern: string | string[] = "cypress/e2e/**/**/*.{js,ts}",
+    ignorePattern: string | string[],
+    attemptId: number,
+  ): Promise<string[]> {
+    try {
+      const specFilePaths = await this.getSpecFilePaths(
+        specPattern,
+        ignorePattern,
+      );
+
+      const specsToRun = await this.getSpecsWithTime(specFilePaths, attemptId);
+      return specsToRun === undefined
+        ? []
+        : specsToRun[0].map((spec) => spec.name);
+    } catch (err) {
+      console.error(err);
+      process.exit(1);
+    }
   }
-}
 
-async function getAlreadyRunningSpecs() {
-  const client = await dbClient.connect();
-  try {
-    const dbRes = await client.query(
-      `SELECT name FROM public."specs" 
+  private async getActiveRunnersFromDb(attemptId: number) {
+    const client = await this.dbClient.connect();
+    try {
+      const matrixRes = await client.query(
+        `SELECT * FROM public."matrix" WHERE "attemptId" = $1`,
+        [attemptId],
+      );
+      return matrixRes.rowCount;
+    } catch (err) {
+      console.log(err);
+    } finally {
+      client.release();
+    }
+  }
+
+  private async getAlreadyRunningSpecs() {
+    const client = await this.dbClient.connect();
+    try {
+      const dbRes = await client.query(
+        `SELECT name FROM public."specs" 
       WHERE "matrixId" IN 
       (SELECT id FROM public."matrix" 
        WHERE "attemptId" = (
          SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
        )
       )`,
-      [_.getVars().runId, _.getVars().attempt_number],
-    );
-    const specs: string[] =
-      dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
-    return specs;
-  } catch (err) {
-    console.log(err);
-  } finally {
-    client.release();
+        [this.util.getVars().runId, this.util.getVars().attempt_number],
+      );
+      const specs: string[] =
+        dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
+      return specs;
+    } catch (err) {
+      console.log(err);
+    } finally {
+      client.release();
+    }
   }
-}
 
-async function createAttempt() {
-  const client = await dbClient.connect();
-  try {
-    const runResponse = await client.query(
-      `INSERT INTO public."attempt" ("workflowId", "attempt", "repo", "committer", "type", "commitMsg", "branch")
+  private async createAttempt() {
+    const client = await this.dbClient.connect();
+    try {
+      const runResponse = await client.query(
+        `INSERT INTO public."attempt" ("workflowId", "attempt", "repo", "committer", "type", "commitMsg", "branch")
           VALUES ($1, $2, $3, $4, $5, $6, $7)
           ON CONFLICT ("workflowId", attempt) DO NOTHING
           RETURNING id;`,
-      [
-        _.getVars().runId,
-        _.getVars().attempt_number,
-        _.getVars().repository,
-        _.getVars().committer,
-        _.getVars().tag,
-        _.getVars().commitMsg,
-        _.getVars().branch,
-      ],
-    );
-
-    if (runResponse.rows.length > 0) {
-      return runResponse.rows[0].id;
-    } else {
-      const res = await client.query(
-        `SELECT id FROM public."attempt" WHERE "workflowId" = $1 AND attempt = $2`,
-        [_.getVars().runId, _.getVars().attempt_number],
+        [
+          this.util.getVars().runId,
+          this.util.getVars().attempt_number,
+          this.util.getVars().repository,
+          this.util.getVars().committer,
+          this.util.getVars().tag,
+          this.util.getVars().commitMsg,
+          this.util.getVars().branch,
+        ],
       );
-      return res.rows[0].id;
-    }
-  } catch (err) {
-    console.log(err);
-  } finally {
-    client.release();
-  }
-}
 
-async function createMatrix(attemptId: number) {
-  const client = await dbClient.connect();
-  try {
-    const matrixResponse = await client.query(
-      `INSERT INTO public."matrix" ("workflowId", "matrixId", "status", "attemptId")
+      if (runResponse.rows.length > 0) {
+        return runResponse.rows[0].id;
+      } else {
+        const res = await client.query(
+          `SELECT id FROM public."attempt" WHERE "workflowId" = $1 AND attempt = $2`,
+          [this.util.getVars().runId, this.util.getVars().attempt_number],
+        );
+        return res.rows[0].id;
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      client.release();
+    }
+  }
+
+  private async createMatrix(attemptId: number) {
+    const client = await this.dbClient.connect();
+    try {
+      const matrixResponse = await client.query(
+        `INSERT INTO public."matrix" ("workflowId", "matrixId", "status", "attemptId")
           VALUES ($1, $2, $3, $4)
           ON CONFLICT ("matrixId", "attemptId") DO NOTHING
           RETURNING id;`,
-      [_.getVars().runId, _.getVars().thisRunner, "started", attemptId],
-    );
-    return matrixResponse.rows[0].id;
-  } catch (err) {
-    console.log(err);
-  } finally {
-    client.release();
+        [
+          this.util.getVars().runId,
+          this.util.getVars().thisRunner,
+          "started",
+          attemptId,
+        ],
+      );
+      return matrixResponse.rows[0].id;
+    } catch (err) {
+      console.log(err);
+    } finally {
+      client.release();
+    }
   }
-}
 
-async function getFailedSpecsFromPreviousRun(
-  workflowId = Number(_.getVars().runId),
-  attempt_number = Number(_.getVars().attempt_number) - 1,
-) {
-  const client = await dbClient.connect();
-  try {
-    const dbRes = await client.query(
-      `SELECT name FROM public."specs" 
+  private async getFailedSpecsFromPreviousRun(
+    workflowId = Number(this.util.getVars().runId),
+    attempt_number = Number(this.util.getVars().attempt_number) - 1,
+  ) {
+    const client = await this.dbClient.connect();
+    try {
+      const dbRes = await client.query(
+        `SELECT name FROM public."specs" 
       WHERE "matrixId" IN 
       (SELECT id FROM public."matrix" 
        WHERE "attemptId" = (
          SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
        )
       ) AND status = 'fail'`,
-      [workflowId, attempt_number],
-    );
-    const specs: string[] =
-      dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
-    return specs;
-  } catch (err) {
-    console.log(err);
-  } finally {
-    client.release();
-  }
-}
-
-async function addSpecsToMatrix(matrixId: number, specs: string[]) {
-  const client = await dbClient.connect();
-  try {
-    for (const spec of specs) {
-      const res = await client.query(
-        `INSERT INTO public."specs" ("name", "matrixId") VALUES ($1, $2) RETURNING id`,
-        [spec, matrixId],
+        [workflowId, attempt_number],
       );
+      const specs: string[] =
+        dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
+      return specs;
+    } catch (err) {
+      console.log(err);
+    } finally {
+      client.release();
     }
-  } catch (err) {
-    console.log(err);
-  } finally {
-    client.release();
   }
-}
 
-async function addLockGetTheSpecs(
-  attemptId: number,
-  specPattern: string | string[],
-  ignorePattern: string | string[],
-) {
-  const client = await dbClient.connect();
-  let specs: string[] = [];
-  let locked = false;
-  try {
-    while (!locked) {
-      const result = await client.query(
-        `UPDATE public."attempt" SET is_locked = true WHERE id = $1 AND is_locked = false RETURNING id`,
+  private async addSpecsToMatrix(matrixId: number, specs: string[]) {
+    const client = await this.dbClient.connect();
+    try {
+      for (const spec of specs) {
+        const res = await client.query(
+          `INSERT INTO public."specs" ("name", "matrixId") VALUES ($1, $2) RETURNING id`,
+          [spec, matrixId],
+        );
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      client.release();
+    }
+  }
+
+  private async addLockGetTheSpecs(
+    attemptId: number,
+    specPattern: string | string[],
+    ignorePattern: string | string[],
+  ) {
+    const client = await this.dbClient.connect();
+    let specs: string[] = [];
+    let locked = false;
+    try {
+      while (!locked) {
+        const result = await client.query(
+          `UPDATE public."attempt" SET is_locked = true WHERE id = $1 AND is_locked = false RETURNING id`,
+          [attemptId],
+        );
+        if (result.rows.length === 1) {
+          locked = true;
+          let runningSpecs: string[] =
+            (await this.getAlreadyRunningSpecs()) ?? [];
+          if (typeof ignorePattern === "string") {
+            runningSpecs.push(ignorePattern);
+            ignorePattern = runningSpecs;
+          } else {
+            ignorePattern = runningSpecs.concat(ignorePattern);
+          }
+          specs = await this.getSpecsToRun(
+            specPattern,
+            ignorePattern,
+            attemptId,
+          );
+          return specs;
+        } else {
+          await this.sleep(5000);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      client.release();
+    }
+  }
+
+  private async updateTheSpecsAndReleaseLock(
+    attemptId: number,
+    specs: string[],
+  ) {
+    const client = await this.dbClient.connect();
+    try {
+      const matrixRes = await this.createMatrix(attemptId);
+      await this.addSpecsToMatrix(matrixRes, specs);
+      await client.query(
+        `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
         [attemptId],
       );
-      if (result.rows.length === 1) {
-        locked = true;
-        let runningSpecs: string[] = (await getAlreadyRunningSpecs()) ?? [];
-        if (typeof ignorePattern === "string") {
-          runningSpecs.push(ignorePattern);
-          ignorePattern = runningSpecs;
-        } else {
-          ignorePattern = runningSpecs.concat(ignorePattern);
-        }
-        specs = await getSpecsToRun(specPattern, ignorePattern, attemptId);
-        return specs;
-      } else {
-        await sleep(5000);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      client.release();
+    }
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  public async cypressSplit(
+    on: Cypress.PluginEvents,
+    config: Cypress.PluginConfigOptions,
+  ) {
+    try {
+      let specPattern = config.specPattern;
+      let ignorePattern: string | string[] = config.excludeSpecPattern;
+      const cypressSpecs = this.util.getVars().cypressSpecs;
+      const defaultSpec = "cypress/scripts/no_spec.ts";
+
+      if (cypressSpecs != "")
+        specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
+      if (this.util.getVars().cypressRerun === "true") {
+        specPattern =
+          (await this.getFailedSpecsFromPreviousRun()) ?? defaultSpec;
       }
+
+      const attempt = await this.createAttempt();
+      const specs =
+        (await this.addLockGetTheSpecs(attempt, specPattern, ignorePattern)) ??
+        [];
+      if (specs.length > 0 && !specs.includes(defaultSpec)) {
+        config.specPattern = specs.length == 1 ? specs[0] : specs;
+        await this.updateTheSpecsAndReleaseLock(attempt, specs);
+      } else {
+        config.specPattern = defaultSpec;
+      }
+
+      return config;
+    } catch (err) {
+      console.log(err);
+    } finally {
+      this.dbClient.end();
     }
-  } catch (err) {
-    console.log(err);
-  } finally {
-    client.release();
-  }
-}
-
-async function updateTheSpecsAndReleaseLock(
-  attemptId: number,
-  specs: string[],
-) {
-  const client = await dbClient.connect();
-  try {
-    const matrixRes = await createMatrix(attemptId);
-    await addSpecsToMatrix(matrixRes, specs);
-    await client.query(
-      `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
-      [attemptId],
-    );
-  } catch (err) {
-    console.log(err);
-  } finally {
-    client.release();
-  }
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export async function cypressSplit(
-  on: Cypress.PluginEvents,
-  config: Cypress.PluginConfigOptions,
-) {
-  try {
-    let specPattern = config.specPattern;
-    let ignorePattern: string | string[] = config.excludeSpecPattern;
-    const cypressSpecs = _.getVars().cypressSpecs;
-    const defaultSpec = "cypress/scripts/no_spec.ts";
-
-    if (cypressSpecs != "")
-      specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
-    if (_.getVars().cypressRerun === "true") {
-      specPattern = (await getFailedSpecsFromPreviousRun()) ?? defaultSpec;
-    }
-
-    const attempt = await createAttempt();
-    const specs =
-      (await addLockGetTheSpecs(attempt, specPattern, ignorePattern)) ?? [];
-    if (specs.length > 0 && !specs.includes(defaultSpec)) {
-      config.specPattern = specs.length == 1 ? specs[0] : specs;
-      await updateTheSpecsAndReleaseLock(attempt, specs);
-    } else {
-      config.specPattern = defaultSpec;
-    }
-
-    return config;
-  } catch (err) {
-    console.log(err);
-  } finally {
-    dbClient.end();
   }
 }

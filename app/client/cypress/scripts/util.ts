@@ -8,7 +8,7 @@ export interface DataItem {
   name: string;
   duration: string;
 }
-export class util {
+export default class util {
   public getVars() {
     return {
       runId: this.getEnvValue("RUNID", { required: true }),

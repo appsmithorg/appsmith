@@ -1,5 +1,5 @@
 import os from "os";
-import { util } from "./util";
+import util from "./util";
 
 export async function cypressHooks(
   on: Cypress.PluginEvents,
