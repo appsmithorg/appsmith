@@ -4,11 +4,13 @@ set -o errexit
 
 cd "$(dirname "$0")"
 
+root="$(git rev-parse --show-toplevel)"
+
 yarn install --immutable
 yarn run tsc --noEmit
 
 rm -rf dist
-yarn run esbuild src/server.ts \
+"$root"/app/client/node_modules/.bin/esbuild src/server.ts \
   --bundle \
   --minify \
   --sourcemap \
@@ -19,4 +21,4 @@ yarn run esbuild src/server.ts \
 
 cp -vr \
   dist \
-  "$(git rev-parse --show-toplevel)"/deploy/docker/fs/opt/appsmith/rts
+  "$root"/deploy/docker/fs/opt/appsmith/rts
