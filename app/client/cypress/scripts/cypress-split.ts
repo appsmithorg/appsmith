@@ -231,6 +231,13 @@ async function addLockGetTheSpecs(
       );
       if (result.rows.length === 1) {
         locked = true;
+        let runningSpecs: string[] = (await getAlreadyRunningSpecs()) ?? [];
+        if (typeof ignorePattern === "string") {
+          runningSpecs.push(ignorePattern);
+          ignorePattern = runningSpecs;
+        } else {
+          ignorePattern = runningSpecs.concat(ignorePattern);
+        }
         specs = await getSpecsToRun(specPattern, ignorePattern, attemptId);
         return specs;
       } else {
@@ -284,14 +291,6 @@ export async function cypressSplit(
     if (_.getVars().cypressRerun === "true") {
       specPattern = (await getFailedSpecsFromPreviousRun()) ?? defaultSpec;
       console.log("RERUN SPEC PATTERN", specPattern);
-    }
-
-    let runningSpecs: string[] = (await getAlreadyRunningSpecs()) ?? [];
-    if (typeof ignorePattern === "string") {
-      runningSpecs.push(ignorePattern);
-      ignorePattern = runningSpecs;
-    } else {
-      ignorePattern = runningSpecs.concat(ignorePattern);
     }
 
     const attempt = await createAttempt();
