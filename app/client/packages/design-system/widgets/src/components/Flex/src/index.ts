@@ -8,4 +8,6 @@ export type {
   FlexDirection,
   FlexProps,
   FlexWrap,
+  Responsive,
 } from "./types";
+export type { SizingDimension, SpacingDimension } from "./dimensions";
