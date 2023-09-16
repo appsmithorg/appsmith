@@ -223,7 +223,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                         }
                         return this.save(tenant)
                                 // Fetch the tenant again from DB to make sure the downstream chain is consuming the
-                                // DB object
+                                // latest
+                                // DB object and not the modified one because of the client pertinent changes
                                 .then(repository.retrieveById(tenant.getId()))
                                 .flatMap(this::checkAndExecuteMigrationsForTenantFeatureFlags);
                     }
