@@ -10,7 +10,7 @@ yarn install --immutable
 yarn run tsc --noEmit
 
 rm -rf dist
-"$root"/app/client/node_modules/.bin/esbuild src/server.ts \
+"$root/app/client/node_modules/.bin/esbuild" src/server.ts \
   --bundle \
   --minify \
   --sourcemap \
@@ -19,6 +19,5 @@ rm -rf dist
   --outdir=dist \
   --external:dtrace-provider
 
-cp -vr \
-  dist \
-  "$root"/deploy/docker/fs/opt/appsmith/rts
+dest="$root/deploy/docker/fs/opt/appsmith/rts"
+cp -vr dist "$dest"
