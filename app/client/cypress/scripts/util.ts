@@ -39,7 +39,6 @@ export class util {
     data: DataItem[],
     numberOfGroups: number,
   ): Promise<DataItem[][]> {
-    console.log("ALL DATA IN DIVIDE SPEC BALANCE FUNCTION ====> ", data);
     // Sort data by duration in descending order
     const sortedData = [...data].sort(
       (a, b) => Number(b.duration) - Number(a.duration),
@@ -53,9 +52,7 @@ export class util {
       { length: numberOfGroups },
       () => [],
     );
-    console.log("NUMBER OF GROUPS IN BALANCE FUNCTION ====> ", groups.length);
     sortedData.forEach((item) => {
-      console.log("ITEM IN DIVIDE SPEC IN BALANCE GROUP", item);
       // Find the group with the shortest total duration and add the item to it
       const shortestGroupIndex = groups.reduce(
         (minIndex, group, currentIndex) => {
@@ -72,10 +69,6 @@ export class util {
             : minIndex;
         },
         0,
-      );
-      console.log(
-        "SHORTEST INDEX IN DIVIDE SPEC IN BALANCE GROUP",
-        shortestGroupIndex,
       );
       groups[shortestGroupIndex].push(item);
     });
@@ -124,8 +117,6 @@ export class util {
   // This is to upload files to s3 when required
   public async uploadToS3(s3Client: AWS.S3, filePath: string, key: string) {
     const fileContent = fs.readFileSync(filePath);
-    console.log("FILE CONTENT ====> ", fileContent);
-
     const params = {
       Bucket: "appsmith-internal-cy-db",
       Key: key,
@@ -160,7 +151,6 @@ export class util {
           job.status === "in_progress" &&
           job.run_attempt === Number(this.getVars().attempt_number),
       );
-      console.log("ACTIVE RUNNERS COUNT", active_runners.length);
       return active_runners.length;
     } catch (error) {
       console.error("Error:", error);

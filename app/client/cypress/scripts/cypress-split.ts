@@ -3,7 +3,6 @@ import type { DataItem } from "./util";
 import { util } from "./util";
 import globby from "globby";
 import minimatch from "minimatch";
-import type { PoolClient } from "pg";
 
 const _ = new util();
 const dbClient = _.configureDbClient();
@@ -43,7 +42,6 @@ async function getSpecsWithTime(specs: string[], attemptId: number) {
       const match = queryRes.rows.find((obj) => obj.name === spec);
       return match ? match : { name: spec, duration: defaultDuration };
     });
-    console.log("ALL SPECS WITH DURATION", allSpecsWithDuration);
     const activeRunners = await _.getActiveRunners();
     const activeRunnersFromDb = await getActiveRunnersFromDb(attemptId);
     return await _.divideSpecsIntoBalancedGroups(
@@ -65,13 +63,8 @@ async function getSpecsToRun(
 ): Promise<string[]> {
   try {
     const specFilePaths = await getSpecFilePaths(specPattern, ignorePattern);
-    console.log("ALL SPEC FILES PATH ===> ", specFilePaths);
 
-    // if (!specFilePaths.length) {
-    //   throw Error("No spec files found.");
-    // }
     const specsToRun = await getSpecsWithTime(specFilePaths, attemptId);
-    console.log("SPECS TO RUN ====>", specsToRun);
     return specsToRun === undefined
       ? []
       : specsToRun[0].map((spec) => spec.name);
@@ -221,7 +214,6 @@ async function addLockGetTheSpecs(
 ) {
   const client = await dbClient.connect();
   let specs: string[] = [];
-  let counter = 1;
   let locked = false;
   try {
     while (!locked) {
@@ -241,9 +233,7 @@ async function addLockGetTheSpecs(
         specs = await getSpecsToRun(specPattern, ignorePattern, attemptId);
         return specs;
       } else {
-        console.log("Waiting for specs ....................", counter);
         await sleep(5000);
-        counter++;
       }
     }
   } catch (err) {
@@ -290,13 +280,11 @@ export async function cypressSplit(
       specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
     if (_.getVars().cypressRerun === "true") {
       specPattern = (await getFailedSpecsFromPreviousRun()) ?? defaultSpec;
-      console.log("RERUN SPEC PATTERN", specPattern);
     }
 
     const attempt = await createAttempt();
     const specs =
       (await addLockGetTheSpecs(attempt, specPattern, ignorePattern)) ?? [];
-    console.log("GET SPECS TO RUN IN SPLIT SPECS", specs);
     if (specs.length > 0 && !specs.includes(defaultSpec)) {
       config.specPattern = specs.length == 1 ? specs[0] : specs;
       await updateTheSpecsAndReleaseLock(attempt, specs);
