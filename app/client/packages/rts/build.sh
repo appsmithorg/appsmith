@@ -19,4 +19,5 @@ esbuild src/server.ts \
 
 cp -vr \
   dist \
+  src/scim/resources/* \
   "$(git rev-parse --show-toplevel)"/deploy/docker/fs/opt/appsmith/rts
