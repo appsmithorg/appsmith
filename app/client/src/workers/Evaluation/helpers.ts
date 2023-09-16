@@ -283,13 +283,14 @@ export const generateOptimisedUpdatesAndSetPrevState = (
   const { deleteUpdates, regularUpdates } = sanitisedUpdates.reduce(
     (acc: any, curr: any) => {
       const { kind, path, rhs } = curr;
-      const lhs = get(dataTree, path);
+      // const lhs = get(dataTree, path);
       if (rhs === undefined) {
         if (kind === "N") {
           return acc;
         }
         if (kind === "E") {
-          acc.deleteUpdates.push({ kind: "D", path, lhs });
+          acc.deleteUpdates.push({ kind: "D", path });
+          return acc;
         }
       }
       acc.regularUpdates.push(curr);
@@ -304,6 +305,5 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     applyChange(dataTree, undefined, val);
   });
   dataTreeEvaluator?.setPrevState(dataTree);
-
   return consolidatedUpdates;
 };
