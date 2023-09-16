@@ -279,12 +279,10 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     identicalEvalPathsPatches,
   );
 
-  const sanitisedUpdates = removeFunctionsAndSerialzeBigInt(updates);
-
-  const { deleteUpdates, regularUpdates } = sanitisedUpdates.reduce(
+  const { deleteUpdates, regularUpdates } = updates.reduce(
     (acc: any, curr: any) => {
       const { kind, path, rhs } = curr;
-      // const lhs = get(dataTree, path);
+
       if (rhs === undefined) {
         if (kind === "N") {
           return acc;
@@ -293,8 +291,23 @@ export const generateOptimisedUpdatesAndSetPrevState = (
           acc.deleteUpdates.push({ kind: "D", path });
           return acc;
         }
+        acc.regularUpdates.push(curr);
+        return acc;
       }
-      acc.regularUpdates.push(curr);
+
+      const sanistiedRhs = removeFunctionsAndSerialzeBigInt(rhs);
+      if (sanistiedRhs === undefined) {
+        if (kind === "N") {
+          return acc;
+        }
+        if (kind === "E") {
+          acc.deleteUpdates.push({ kind: "D", path });
+          return acc;
+        }
+      }
+
+      acc.regularUpdates.push({ ...curr, rhs: sanistiedRhs });
+
       return acc;
     },
     { regularUpdates: [], deleteUpdates: [] },
