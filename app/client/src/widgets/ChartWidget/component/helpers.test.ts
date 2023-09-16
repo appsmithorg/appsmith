@@ -4,6 +4,8 @@ import {
   parseOnDataPointClickForCustomEChart,
   parseOnDataPointClickForCustomFusionChart,
   is3DChart,
+  EChartDisposalParams,
+  shouldDisposeEChartsInstance,
 } from "./helpers";
 
 describe("parseOnDataPointClickParams", () => {
@@ -177,5 +179,123 @@ describe("is3DChart", () => {
     };
 
     expect(is3DChart(config)).toEqual(false);
+  });
+});
+
+describe("shouldDisposeEChartsInstance", () => {
+  const prevChartConfig = new EChartDisposalParams();
+  const currentChartConfig = new EChartDisposalParams();
+
+  let propsEqual = false;
+
+  describe("when previous chart type is basic chart", () => {
+    beforeEach(() => {
+      prevChartConfig.isBasicChart = true;
+    });
+    it("returns true if current chart type is custom", () => {
+      currentChartConfig.isBasicChart = false;
+      expect(
+        shouldDisposeEChartsInstance({
+          prevChart: prevChartConfig,
+          currentChart: currentChartConfig,
+          propsEqual,
+        }),
+      ).toEqual(true);
+    });
+
+    it("returns false if current chart type is basic", () => {
+      currentChartConfig.isBasicChart = true;
+      expect(
+        shouldDisposeEChartsInstance({
+          prevChart: prevChartConfig,
+          currentChart: currentChartConfig,
+          propsEqual,
+        }),
+      ).toEqual(false);
+    });
+  });
+
+  describe("when previous chart type is custom chart", () => {
+    beforeEach(() => {
+      prevChartConfig.isBasicChart = false;
+    });
+
+    it("returns true if current chart type is basic", () => {
+      currentChartConfig.isBasicChart = true;
+      expect(
+        shouldDisposeEChartsInstance({
+          prevChart: prevChartConfig,
+          currentChart: currentChartConfig,
+          propsEqual,
+        }),
+      ).toEqual(true);
+    });
+
+    describe("when previous chart type is 2D", () => {
+      beforeEach(() => {
+        prevChartConfig.isCustom3DChart = false;
+      });
+
+      it("returns true if current chart type is 3D", () => {
+        currentChartConfig.isCustom3DChart = true;
+        const result = shouldDisposeEChartsInstance({
+          prevChart: prevChartConfig,
+          currentChart: currentChartConfig,
+          propsEqual,
+        });
+        expect(result).toEqual(true);
+      });
+
+      it("returns false if current chart type is 2D", () => {
+        currentChartConfig.isCustom3DChart = false;
+        const result = shouldDisposeEChartsInstance({
+          prevChart: prevChartConfig,
+          currentChart: currentChartConfig,
+          propsEqual,
+        });
+        expect(result).toEqual(true);
+      });
+    });
+
+    describe("when previous chart type is 3D", () => {
+      beforeAll(() => {
+        prevChartConfig.isCustom3DChart = true;
+      });
+      it("returns true if current chart type is 2D", () => {
+        currentChartConfig.isCustom3DChart = false;
+        const result = shouldDisposeEChartsInstance({
+          prevChart: prevChartConfig,
+          currentChart: currentChartConfig,
+          propsEqual,
+        });
+        expect(result).toEqual(true);
+      });
+
+      describe("when current chart type is 3D", () => {
+        beforeAll(() => {
+          currentChartConfig.isCustom3DChart = true;
+        });
+
+        it("returns true chart props (data and widget position) have changed", () => {
+          propsEqual = false;
+          const result = shouldDisposeEChartsInstance({
+            prevChart: prevChartConfig,
+            currentChart: currentChartConfig,
+            propsEqual,
+          });
+          expect(result).toEqual(true);
+        });
+
+        it("returns false if chart props (data and widget position) is same", () => {
+          propsEqual = true;
+          const result = shouldDisposeEChartsInstance({
+            prevChart: prevChartConfig,
+            currentChart: currentChartConfig,
+            propsEqual,
+          });
+          expect(result).toEqual(false);
+        });
+      });
+    });
   });
 });

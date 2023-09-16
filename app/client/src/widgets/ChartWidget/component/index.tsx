@@ -18,8 +18,17 @@ import type { WidgetPositionProps } from "widgets/BaseWidget";
 import { ChartErrorComponent } from "./ChartErrorComponent";
 import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
 import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
-import { isBasicEChart } from "../widget";
-import { parseOnDataPointClickParams, is3DChart } from "./helpers";
+import {
+  generateEChartInstanceDisposalParams,
+  is3DChart,
+  isBasicEChart,
+  shouldDisposeEChartsInstance,
+} from "./helpers";
+import {
+  parseOnDataPointClickParams,
+  isCustomEChart,
+  isCustomFusionChart,
+} from "./helpers";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -171,15 +180,34 @@ class ChartComponent extends React.Component<
       return;
     }
 
-    this.is3DChart =
-      this.isCustomEChart(this.props.chartType) &&
-      is3DChart(this.props.customEChartConfig);
+    // console.log("***", "prev props is ", this.prevProps.chartType)
+    // console.log("***", "current props is ", this.props.chartType)
 
-    if (this.is3DChart && !equal(this.prevProps, this.props)) {
+    this.is3DChart = is3DChart(this.props.customEChartConfig);
+    // console.log("***", "is 3d chart ", this.is3DChart)
+
+    let shouldDisposeEcharts = true;
+    if (Object.keys(this.prevProps).length == 0) {
+      shouldDisposeEcharts = true;
+      // console.log("***", "should dispose echarts because prev props is not present", shouldDisposeEcharts)
+    } else {
+      const config = generateEChartInstanceDisposalParams(
+        this.prevProps,
+        this.props,
+      );
+      // console.log("***", "params is ", config)
+      shouldDisposeEcharts = shouldDisposeEChartsInstance(config);
+    }
+
+    this.prevProps = this.props;
+    // console.log("***", "should dispose echarts", shouldDisposeEcharts)
+
+    if (shouldDisposeEcharts) {
       this.echartsInstance?.dispose();
     }
 
     if (!this.echartsInstance || this.echartsInstance.isDisposed()) {
+      // console.log("***", "rendering new chart instance")
       this.echartsInstance?.dispose();
       this.echartsInstance = echarts.init(
         this.eChartsHTMLContainer,
@@ -228,9 +256,11 @@ class ChartComponent extends React.Component<
     }
 
     let eChartOptions: Record<string, unknown> = {};
-    if (this.isCustomEChart(this.state.chartType)) {
+    if (isCustomEChart(this.state.chartType)) {
+      // console.log("***", "rendering custom e chart")
       eChartOptions = this.getCustomEChartOptions();
     } else if (isBasicEChart(this.state.chartType)) {
+      // console.log("***", "rendering basic chart")
       eChartOptions = this.getBasicEChartOptions();
     }
 
@@ -284,20 +314,20 @@ class ChartComponent extends React.Component<
     }
   }
 
-  componentDidUpdate(prevProps: ChartComponentProps) {
-    this.prevProps = prevProps;
+  componentDidUpdate() {
+    // console.log("***", "component did update called prev ", prevProps.chartType, " current chart type ", this.props.chartType)
 
     if (
-      this.isCustomFusionChart(this.props.chartType) &&
-      !this.isCustomFusionChart(this.state.chartType)
+      isCustomFusionChart(this.props.chartType) &&
+      !isCustomFusionChart(this.state.chartType)
     ) {
       this.setState({
         eChartsError: undefined,
         chartType: "CUSTOM_FUSION_CHART",
       });
     } else if (
-      this.isCustomEChart(this.props.chartType) &&
-      !this.isCustomEChart(this.state.chartType)
+      isCustomEChart(this.props.chartType) &&
+      !isCustomEChart(this.state.chartType)
     ) {
       this.echartConfiguration = {};
       this.setState({ eChartsError: undefined, chartType: "CUSTOM_ECHART" });
@@ -312,16 +342,9 @@ class ChartComponent extends React.Component<
         chartType: this.props.chartType,
       });
     } else {
+      // console.log("***", "render charting library")
       this.renderChartingLibrary();
     }
-  }
-
-  isCustomFusionChart(type: ChartType) {
-    return type == "CUSTOM_FUSION_CHART";
-  }
-
-  isCustomEChart(type: ChartType) {
-    return type == "CUSTOM_ECHART";
   }
 
   disposeFusionCharts = () => {
