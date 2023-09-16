@@ -84,6 +84,7 @@ export class DarkModeTheme implements ColorModeTheme {
       fgWarning: this.fgWarning.to("sRGB").toString(),
 
       fgOnAccent: this.fgOnAccent.to("sRGB").toString(),
+      fgOnAccentSubtle: this.fgOnAccentSubtle.to("sRGB").toString(),
       fgOnAssistive: this.fgOnAssistive.to("sRGB").toString(),
       fgOnNeutral: this.fgOnNeutral.to("sRGB").toString(),
       fgOnPositive: this.fgOnPositive.to("sRGB").toString(),
@@ -708,6 +709,10 @@ export class DarkModeTheme implements ColorModeTheme {
     }
 
     return tint;
+  }
+
+  private get fgOnAccentSubtle() {
+    return this.fg.clone();
   }
 
   private get fgOnAssistive() {
