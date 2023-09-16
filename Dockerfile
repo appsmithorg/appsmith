@@ -76,6 +76,9 @@ COPY ${PLUGIN_JARS} backend/plugins/
 # Add client UI - Application Layer
 COPY ./app/client/build editor/
 
+# Add RTS - Application Layer
+COPY ./app/client/packages/rts/dist rts/
+
 RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
   && chmod 0644 /etc/cron.d/* \
   && chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh /watchtower-hooks/*.sh \
