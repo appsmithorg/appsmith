@@ -5,6 +5,8 @@ import {
   THREE_D_CHART_SERIES_TYPES,
 } from "../constants";
 import { omit, cloneDeep } from "lodash";
+import type { ChartComponentProps } from ".";
+import equal from "fast-deep-equal/es6";
 
 export const parseOnDataPointClickParams = (evt: any, chartType: ChartType) => {
   switch (chartType) {
@@ -89,7 +91,78 @@ export const getTextWidth = (text: string, font: string) => {
   } else {
     return 0;
   }
+};
+
+export class EChartDisposalParams {
+  isBasicChart = false;
+  isCustom3DChart = false;
+
+  constructor(isBasicChart = false, isCustom3DChart = false) {
+    this.isBasicChart = isBasicChart;
+    this.isCustom3DChart = isCustom3DChart;
+  }
+
+  isCustomChart = () => {
+    return !this.isBasicChart;
+  };
+
+  isCustom2DChart = () => {
+    return !this.isCustom3DChart;
+  };
 }
+
+export const generateEChartInstanceDisposalParams = (
+  prevProps: ChartComponentProps,
+  currentProps: ChartComponentProps,
+) => {
+  const prevChartConfig = new EChartDisposalParams(
+    isBasicEChart(prevProps.chartType),
+    is3DChart(prevProps.customEChartConfig),
+  );
+  const currentChartConfig = new EChartDisposalParams(
+    isBasicEChart(currentProps.chartType),
+    is3DChart(currentProps.customEChartConfig),
+  );
+  const propsEqual = equal(prevProps, currentProps);
+  return {
+    prevChart: prevChartConfig,
+    currentChart: currentChartConfig,
+    propsEqual,
+  };
+};
+
+export const shouldDisposeEChartsInstance = (config: {
+  prevChart: EChartDisposalParams;
+  currentChart: EChartDisposalParams;
+  propsEqual: boolean;
+}) => {
+  let shouldDispose = false;
+  const prevChart = config.prevChart;
+  const currentChart = config.currentChart;
+
+  if (prevChart.isBasicChart) {
+    shouldDispose = currentChart.isCustomChart();
+  } else {
+    // Previous chart type was custom
+    if (currentChart.isBasicChart) {
+      shouldDispose = true;
+    } else {
+      // current chart type is custom chart
+      if (prevChart.isCustom3DChart) {
+        if (currentChart.isCustom2DChart()) {
+          shouldDispose = true;
+        } else {
+          // check if props have changed or not
+          shouldDispose = !config.propsEqual;
+        }
+      } else {
+        // previous chart type is 2D
+        shouldDispose = currentChart.isCustom3DChart;
+      }
+    }
+  }
+  return shouldDispose;
+};
 
 export const is3DChart = (chartConfig: Record<string, unknown>) => {
   const chartConfigKeys = Object.keys(chartConfig);
@@ -116,4 +189,23 @@ const isSeriesConfig3D = (seriesConfig: unknown) => {
   } else {
     return false;
   }
+};
+
+export const isBasicEChart = (type: ChartType) => {
+  const types: ChartType[] = [
+    "AREA_CHART",
+    "PIE_CHART",
+    "LINE_CHART",
+    "BAR_CHART",
+    "COLUMN_CHART",
+  ];
+  return types.includes(type);
+};
+
+export const isCustomFusionChart = (type: ChartType) => {
+  return type == "CUSTOM_FUSION_CHART";
+};
+
+export const isCustomEChart = (type: ChartType) => {
+  return type == "CUSTOM_ECHART";
 };
