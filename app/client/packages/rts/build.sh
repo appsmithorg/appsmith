@@ -8,7 +8,7 @@ yarn install --immutable
 yarn run tsc --noEmit
 
 rm -rf dist
-esbuild src/server.ts \
+yarn run esbuild src/server.ts \
   --bundle \
   --minify \
   --sourcemap \
