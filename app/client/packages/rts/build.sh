@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 yarn install --immutable
 yarn run tsc --noEmit
 
-rm -rf dist/
+rm -rf dist
 esbuild src/server.ts \
   --bundle \
   --minify \
