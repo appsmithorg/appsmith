@@ -1,6 +1,5 @@
 import { removeFunctionsAndSerialzeBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { Diff } from "deep-diff";
-import { applyChange } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal";
@@ -204,7 +203,9 @@ const generateDiffUpdates = (
 
       if (rhs === undefined) {
         //perform diff on this node
-        attachDirectly.push({ kind: "D", lhs, path: segmentedPath });
+        if (lhs !== undefined) {
+          attachDirectly.push({ kind: "D", lhs, path: segmentedPath });
+        }
         return true;
       }
 
@@ -301,9 +302,6 @@ export const generateOptimisedUpdatesAndSetPrevState = (
 
   const consolidatedUpdates = [...regularUpdates, ...deleteUpdates];
 
-  consolidatedUpdates.forEach((val) => {
-    applyChange(dataTree, undefined, val);
-  });
   dataTreeEvaluator?.setPrevState(dataTree);
   return consolidatedUpdates;
 };
