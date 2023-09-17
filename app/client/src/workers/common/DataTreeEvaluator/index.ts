@@ -123,6 +123,8 @@ import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import DependencyMap from "entities/DependencyMap";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
+import DataStore from "workers/Evaluation/dataStore";
+import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -342,6 +344,7 @@ export default class DataTreeEvaluator {
     const evaluationStartTime = performance.now();
 
     const evaluationOrder = this.sortedDependencies;
+    updateTreeWithData(this.oldUnEvalTree, DataStore.getDataStore());
     // Evaluate
     const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
       //we need to deep clone oldUnEvalTree because evaluateTree will mutate it
@@ -498,6 +501,7 @@ export default class DataTreeEvaluator {
         isNewWidgetAdded: false,
       };
     }
+    DataStore.update(differences);
     let isNewWidgetAdded = false;
 
     //find all differences which can lead to updating of dependency map
@@ -776,7 +780,7 @@ export default class DataTreeEvaluator {
     reValidatedPaths: string[];
   } {
     const evaluationStartTime = performance.now();
-
+    updateTreeWithData(this.evalTree, DataStore.getDataStore());
     const {
       evalMetaUpdates,
       evaluatedTree: newEvalTree,

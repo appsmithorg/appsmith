@@ -27,7 +27,7 @@ export function handleActionsDataUpdate(actionsToUpdate: UpdateActionProps[]) {
     // Update context
     set(self, `${entityName}.[${dataPath}]`, data);
     // Update the datastore
-    DataStore.setActionData(entityName, dataPath, data);
+    DataStore.setActionData(`${entityName}.${dataPath}`, data);
   }
   const updatedProperties: string[][] = actionsToUpdate.map(
     ({ dataPath, entityName }) => [entityName, dataPath],
