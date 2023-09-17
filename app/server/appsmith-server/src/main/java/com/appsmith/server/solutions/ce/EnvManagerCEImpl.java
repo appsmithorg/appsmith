@@ -21,12 +21,12 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import lombok.Getter;
@@ -73,7 +73,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_BASE_URL;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_ENABLED;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_FROM;
@@ -84,7 +83,6 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_SMTP_AUTH
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_USERNAME;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GITHUB_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_OIDC_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SECRET_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SITE_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
@@ -118,6 +116,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private final ObjectMapper objectMapper;
 
+    private final EmailService emailService;
+
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
      * `VAR_NAME=`. It also defines two named capture groups, `name` and `value`, for the variable's name and value
@@ -143,7 +143,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             ConfigService configService,
             UserUtils userUtils,
             TenantService tenantService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            EmailService emailService) {
+
         this.sessionUserService = sessionUserService;
         this.userService = userService;
         this.analyticsService = analyticsService;
@@ -159,6 +161,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.userUtils = userUtils;
         this.tenantService = tenantService;
         this.objectMapper = objectMapper;
+        this.emailService = emailService;
     }
 
     /**
@@ -168,11 +171,10 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      *
      * @param envContent String content of an env file.
      * @param changes    A map with variable name to new value.
-     * @param origin
      * @return List of string lines for updated env file content.
      */
     @Override
-    public List<String> transformEnvContent(String envContent, Map<String, String> changes, String origin) {
+    public List<String> transformEnvContent(String envContent, Map<String, String> changes) {
         final Set<String> variablesNotInWhitelist = new HashSet<>(changes.keySet());
         final Set<String> tenantConfigWhitelist = allowedTenantConfiguration();
 
@@ -195,10 +197,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             changes.put(
                     APPSMITH_MAIL_SMTP_AUTH.name(),
                     Boolean.toString(StringUtils.hasText(changes.get(APPSMITH_MAIL_USERNAME.name()))));
-        }
-
-        if (changes.containsKey(APPSMITH_OAUTH2_OIDC_CLIENT_ID.name()) && origin != null) {
-            changes.put(APPSMITH_BASE_URL.name(), org.apache.commons.lang3.StringUtils.stripEnd(origin, "/"));
         }
 
         final Set<String> remainingChangedNames = new HashSet<>(changes.keySet());
@@ -328,24 +326,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     private Mono<Tenant> updateTenantConfiguration(String tenantId, Map<String, String> changes) {
-        // Create a new mutable map, so we don't modify the original map, or end up in an error if the map is immutable.
-        changes = new HashMap<>(changes);
-
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
-
-        final String brandColorsChanges = changes.remove("brandColors");
-        if (StringUtils.hasText(brandColorsChanges)) {
-            try {
-                tenantConfiguration.setBrandColors(
-                        objectMapper.readValue(brandColorsChanges, TenantConfiguration.BrandColors.class));
-            } catch (JsonProcessingException e) {
-                // Just printing the message, since we don't need the full stack trace here. But don't share details to
-                // the client.
-                log.error("Error parsing brandColors JSON: " + e.getMessage());
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "brandColors"));
-            }
-        }
-
         // Write the changes to the tenant collection in configuration field
         return Flux.fromIterable(changes.entrySet())
                 .map(map -> {
@@ -359,12 +340,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<Void> applyChanges(Map<String, String> changes) {
-        return applyChanges(changes, "");
-    }
-
-    @Override
-    public Mono<Void> applyChanges(Map<String, String> changes, String origin) {
+    public Mono<Void> applyChanges(Map<String, String> changes, String originHeader) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant
         // configuration
         return verifyCurrentUserIsSuper()
@@ -389,7 +365,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             envFileChanges.remove(key);
                         }
                     }
-                    final List<String> changedContent = transformEnvContent(originalContent, envFileChanges, origin);
+                    final List<String> changedContent = transformEnvContent(originalContent, envFileChanges);
 
                     try {
                         Files.write(envFilePath, changedContent);
@@ -425,7 +401,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         commonConfig.setAdminEmails(changesCopy.remove(APPSMITH_ADMIN_EMAILS.name()));
                         String oldAdminEmailsCsv = originalValues.get(APPSMITH_ADMIN_EMAILS.name());
                         dependentTasks = dependentTasks
-                                .then(updateAdminUserPolicies(oldAdminEmailsCsv))
+                                .then(updateAdminUserPolicies(oldAdminEmailsCsv, originHeader))
                                 .then();
                     }
 
@@ -478,7 +454,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String origin) {
+    public Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader) {
         return Flux.fromIterable(formData.entrySet())
                 .flatMap(entry -> {
                     final String key = entry.getKey();
@@ -503,7 +479,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             });
                 })
                 .collectMap(Map.Entry::getKey, Map.Entry::getValue)
-                .flatMap(changes -> applyChanges(changes, origin));
+                .flatMap(changesMap -> this.applyChanges(changesMap, originHeader));
     }
 
     @Override
@@ -600,7 +576,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      *
      * @param oldAdminEmailsCsv comma separated email addresses that was set as admin email earlier
      */
-    private Mono<Boolean> updateAdminUserPolicies(String oldAdminEmailsCsv) {
+    private Mono<Boolean> updateAdminUserPolicies(String oldAdminEmailsCsv, String originHeader) {
         Set<String> oldAdminEmails = TextUtils.csvToSet(oldAdminEmailsCsv);
         Set<String> newAdminEmails = commonConfig.getAdminEmails();
 
@@ -613,14 +589,48 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         Mono<Boolean> removedUsersMono = Flux.fromIterable(removedUsers)
                 .flatMap(userService::findByEmail)
                 .collectList()
-                .flatMap(users -> userUtils.removeSuperUser(users));
+                .flatMap(userUtils::removeSuperUser);
 
-        Mono<Boolean> newUsersMono = Flux.fromIterable(newUsers)
-                .flatMap(userService::findByEmail)
+        Flux<User> usersFlux = Flux.fromIterable(newUsers)
+                .flatMap(email -> userService.findByEmail(email).map(existingUser -> {
+                    if (existingUser == null) {
+                        User newUser = new User();
+                        newUser.setEmail(email);
+                        newUser.setIsEnabled(false);
+                        return newUser;
+                    }
+                    return existingUser;
+                }))
+                .cache();
+
+        Flux<User> newUsersFlux = usersFlux.filter(user -> !user.isEnabled());
+        Flux<User> existingUsersFlux = usersFlux.filter(User::isEnabled);
+
+        // we are sending email to existing users who are not already super-users
+        Mono<List<User>> existingUsersWhichAreNotAlreadySuperUsersMono = existingUsersFlux
+                .filterWhen(user -> userUtils.isSuperUser(user).map(isSuper -> !isSuper))
+                .collectList();
+
+        Mono<Boolean> newUsersMono = newUsersFlux
+                .flatMap(newUsersFluxUser -> sessionUserService
+                        .getCurrentUser()
+                        .flatMap(invitingUser -> emailService.sendInstanceAdminInviteEmail(
+                                newUsersFluxUser, invitingUser, originHeader, true)))
                 .collectList()
-                .flatMap(users -> userUtils.makeSuperUser(users));
+                .map(results -> results.stream().allMatch(result -> result));
 
-        return Mono.when(removedUsersMono, newUsersMono).then(Mono.just(TRUE));
+        Mono<Boolean> existingUsersMono = existingUsersWhichAreNotAlreadySuperUsersMono.flatMap(users -> userUtils
+                .makeSuperUser(users)
+                .flatMap(
+                        success -> Flux.fromIterable(users)
+                                .flatMap(user -> sessionUserService
+                                        .getCurrentUser()
+                                        .flatMap(invitingUser -> emailService.sendInstanceAdminInviteEmail(
+                                                user, invitingUser, originHeader, false)))
+                                .then(Mono.just(success)) // Emit 'success' as the result
+                        ));
+
+        return Mono.when(removedUsersMono, newUsersMono, existingUsersMono).map(tuple -> TRUE);
     }
 
     @Override
