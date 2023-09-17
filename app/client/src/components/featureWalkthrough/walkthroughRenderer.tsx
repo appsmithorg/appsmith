@@ -216,14 +216,18 @@ const WalkthroughRenderer = ({
                     0 ${targetBounds.bh}, 
                     ${multipleHighlightsIds.reduce((acc, id) => {
                       const boundingRect = boundingRects[id];
-                      acc = `${acc} ${boundingRect.tx} ${boundingRect.bh}, 
-                      ${boundingRect.tx} ${boundingRect.ty}, 
-                      ${boundingRect.tx + boundingRect.tw} ${boundingRect.ty},
-                      ${boundingRect.tx + boundingRect.tw} ${
-                        boundingRect.ty + boundingRect.th
-                      }, 
-                      ${boundingRect.tx} ${boundingRect.ty + boundingRect.th}, 
-                      ${boundingRect.tx} ${boundingRect.bh},`;
+                      if (boundingRect) {
+                        acc = `${acc} ${boundingRect.tx} ${boundingRect.bh}, 
+                        ${boundingRect.tx} ${boundingRect.ty}, 
+                        ${boundingRect.tx + boundingRect.tw} ${boundingRect.ty},
+                        ${boundingRect.tx + boundingRect.tw} ${
+                          boundingRect.ty + boundingRect.th
+                        }, 
+                        ${boundingRect.tx} ${
+                          boundingRect.ty + boundingRect.th
+                        }, 
+                        ${boundingRect.tx} ${boundingRect.bh},`;
+                      }
                       return acc;
                     }, "")}
                     ${targetBounds.bw} ${targetBounds.bh}, 

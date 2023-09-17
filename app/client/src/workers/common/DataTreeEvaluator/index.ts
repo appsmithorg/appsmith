@@ -123,6 +123,8 @@ import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import DependencyMap from "entities/DependencyMap";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
+import DataStore from "workers/Evaluation/dataStore";
+import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -342,9 +344,11 @@ export default class DataTreeEvaluator {
     const evaluationStartTime = performance.now();
 
     const evaluationOrder = this.sortedDependencies;
+    updateTreeWithData(this.oldUnEvalTree, DataStore.getDataStore());
     // Evaluate
     const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
-      this.oldUnEvalTree,
+      //we need to deep clone oldUnEvalTree because evaluateTree will mutate it
+      klona(this.oldUnEvalTree),
       evaluationOrder,
       undefined,
       this.oldConfigTree,
@@ -497,6 +501,7 @@ export default class DataTreeEvaluator {
         isNewWidgetAdded: false,
       };
     }
+    DataStore.update(differences);
     let isNewWidgetAdded = false;
 
     //find all differences which can lead to updating of dependency map
@@ -778,12 +783,13 @@ export default class DataTreeEvaluator {
     reValidatedPaths: string[];
   } {
     const evaluationStartTime = performance.now();
-
+    updateTreeWithData(this.evalTree, DataStore.getDataStore());
     const {
       evalMetaUpdates,
       evaluatedTree: newEvalTree,
       staleMetaIds,
     } = this.evaluateTree(
+      // should not clone evalTree unnessarily because it is anyways being overwritten in the subsequent statement
       this.evalTree,
       evaluationOrder,
       {
@@ -925,7 +931,7 @@ export default class DataTreeEvaluator {
   }
 
   evaluateTree(
-    oldUnevalTree: DataTree,
+    dataTree: DataTree,
     evaluationOrder: Array<string>,
     options: {
       isFirstTree: boolean;
@@ -942,9 +948,8 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
   } {
-    const tree = klona(oldUnevalTree);
     errorModifier.updateAsyncFunctions(
-      tree,
+      dataTree,
       this.getConfigTree(),
       this.dependencyMap,
     );
@@ -1170,7 +1175,7 @@ export default class DataTreeEvaluator {
               return set(currentTree, fullPropertyPath, evalPropertyValue);
           }
         },
-        tree,
+        dataTree,
       );
 
       return {
@@ -1183,7 +1188,7 @@ export default class DataTreeEvaluator {
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
       });
-      return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds: [] };
+      return { evaluatedTree: dataTree, evalMetaUpdates, staleMetaIds: [] };
     }
   }
 
@@ -1374,10 +1379,16 @@ export default class DataTreeEvaluator {
     callbackData: Array<unknown>,
     context?: EvaluateContext,
   ) {
+    const isDynamic = isDynamicValue(userScript);
     const { jsSnippets } = getDynamicBindings(userScript);
 
     return evaluateAsync(
-      jsSnippets[0] || userScript,
+      /**
+       * jsSnippets[0] will be "" when a JS Object's function is run manually or when an empty action for a trigger field is configured.
+       * Eg. Button1.onClick = "{{}}"
+       * isDynamic will be false for JSObject's function run but will be true for action bindings.
+       */
+      isDynamic ? jsSnippets[0] : userScript,
       dataTree,
       configTree,
       context,
@@ -1468,7 +1479,9 @@ export default class DataTreeEvaluator {
     // setting parseValue in dataTree
     set(currentTree, fullPropertyPath, parsedValue);
     // setting evalPropertyValue in unParsedEvalTree
-    set(this.getUnParsedEvalTree(), fullPropertyPath, evalPropertyValue);
+    // cloning evalPropertyValue because parsedValue and evalPropertyValue could be equal, they both could share the same reference
+    //hence we are cloning evalPropertyValue to seperate them
+    set(this.getUnParsedEvalTree(), fullPropertyPath, klona(evalPropertyValue));
   }
 
   reValidateWidgetDependentProperty({

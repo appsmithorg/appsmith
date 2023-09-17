@@ -135,7 +135,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // Edit datasource, change connection string uri param and click on back button
       _.dataSources.EditDatasource();
 
-      _.agHelper.UpdateInputValue(_.dataSources._host, "jargons");
+      _.agHelper.UpdateInputValue(_.dataSources._host(), "jargons");
 
       // Assert that popup is visible
       _.dataSources.cancelDSEditAndAssertModalPopUp(true, false);
@@ -145,7 +145,7 @@ describe("datasource unsaved changes popup shows even without changes", function
 
       // validate the input field value still remains as the saved value
       _.agHelper.ValidateFieldInputValue(
-        _.dataSources._host,
+        _.dataSources._host(),
         _.dataManager.dsValues.Staging.mongo_host,
       );
 

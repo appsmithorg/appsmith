@@ -2,6 +2,7 @@ import { dataTreeEvaluator } from "./evalTree";
 import type { EvalWorkerSyncRequest } from "../types";
 import { set } from "lodash";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
+import DataStore from "../dataStore";
 
 export interface UpdateActionProps {
   entityName: string;
@@ -13,10 +14,7 @@ export default function (request: EvalWorkerSyncRequest) {
   handleActionsDataUpdate(actionsDataToUpdate);
 }
 
-export function handleActionsDataUpdate(
-  actionsToUpdate: UpdateActionProps[],
-  pathsToSkipFromEval?: string[],
-) {
+export function handleActionsDataUpdate(actionsToUpdate: UpdateActionProps[]) {
   if (!dataTreeEvaluator) {
     return {};
   }
@@ -28,9 +26,11 @@ export function handleActionsDataUpdate(
     set(evalTree, `${entityName}.[${dataPath}]`, data);
     // Update context
     set(self, `${entityName}.[${dataPath}]`, data);
+    // Update the datastore
+    DataStore.setActionData(`${entityName}.${dataPath}`, data);
   }
   const updatedProperties: string[][] = actionsToUpdate.map(
     ({ dataPath, entityName }) => [entityName, dataPath],
   );
-  evalTreeWithChanges(updatedProperties, [], pathsToSkipFromEval);
+  evalTreeWithChanges(updatedProperties, []);
 }

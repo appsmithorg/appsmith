@@ -1397,6 +1397,7 @@ function* executePluginActionSaga(
         response: payload,
       }),
     );
+
     yield put(
       updateActionData({
         entityName: pluginAction.name,
