@@ -279,10 +279,12 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     identicalEvalPathsPatches,
   );
 
-  const { deleteUpdates, regularUpdates } = updates.reduce(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const removedLhs = updates.map(({ lhs, ...rest }: any) => rest);
+  const sanitisedLhsUpdates = removeFunctionsAndSerialzeBigInt(removedLhs);
+  const { deleteUpdates, regularUpdates } = sanitisedLhsUpdates.reduce(
     (acc: any, curr: any) => {
       const { kind, path, rhs } = curr;
-
       if (rhs === undefined) {
         if (kind === "N") {
           return acc;
@@ -291,23 +293,9 @@ export const generateOptimisedUpdatesAndSetPrevState = (
           acc.deleteUpdates.push({ kind: "D", path });
           return acc;
         }
-        acc.regularUpdates.push(curr);
-        return acc;
       }
 
-      const sanistiedRhs = removeFunctionsAndSerialzeBigInt(rhs);
-      if (sanistiedRhs === undefined) {
-        if (kind === "N") {
-          return acc;
-        }
-        if (kind === "E") {
-          acc.deleteUpdates.push({ kind: "D", path });
-          return acc;
-        }
-      }
-
-      acc.regularUpdates.push({ ...curr, rhs: sanistiedRhs });
-
+      acc.regularUpdates.push(curr);
       return acc;
     },
     { regularUpdates: [], deleteUpdates: [] },
