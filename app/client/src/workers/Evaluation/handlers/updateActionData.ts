@@ -14,10 +14,7 @@ export default function (request: EvalWorkerSyncRequest) {
   handleActionsDataUpdate(actionsDataToUpdate);
 }
 
-export function handleActionsDataUpdate(
-  actionsToUpdate: UpdateActionProps[],
-  pathsToSkipFromEval?: string[],
-) {
+export function handleActionsDataUpdate(actionsToUpdate: UpdateActionProps[]) {
   if (!dataTreeEvaluator) {
     return {};
   }
@@ -35,5 +32,5 @@ export function handleActionsDataUpdate(
   const updatedProperties: string[][] = actionsToUpdate.map(
     ({ dataPath, entityName }) => [entityName, dataPath],
   );
-  evalTreeWithChanges(updatedProperties, [], pathsToSkipFromEval);
+  evalTreeWithChanges(updatedProperties, []);
 }

@@ -730,7 +730,6 @@ export default class DataTreeEvaluator {
 
   setupUpdateTreeWithDifferences(
     updatedValuePaths: string[][],
-    pathsToSkip?: string[],
   ): ReturnType<typeof DataTreeEvaluator.prototype.setupUpdateTree> {
     const localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local unEvalTree
@@ -753,9 +752,7 @@ export default class DataTreeEvaluator {
      *  if "JSObject.myVar1" is updated
      *  then => only re-evaluate values dependent on "JSObject.myVar1"
      */
-    const pathsToSkipFromEval = updatedValuePaths
-      .map((path) => path.join("."))
-      .concat(pathsToSkip || []);
+    const pathsToSkipFromEval = updatedValuePaths.map((path) => path.join("."));
 
     return {
       ...this.setupTree(localUnEvalTree, updatedValuePaths, {
