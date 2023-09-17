@@ -22,7 +22,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 
 import { entityMarker } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
-import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { DATASOURCE_URL_EXACT_MATCH_REGEX } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
@@ -42,7 +42,7 @@ import equal from "fast-deep-equal/es6";
 import {
   getDatasource,
   getDatasourcesByPluginId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import {
@@ -530,7 +530,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       tabBehaviour: TabBehaviour.INPUT,
       size: EditorSize.COMPACT,
       marking: [this.handleDatasourceHighlight(), entityMarker],
-      hinting: [bindingHint, this.handleDatasourceHint()],
+      hinting: [bindingHintHelper, this.handleDatasourceHint()],
       showLightningMenu: false,
       fill: true,
       expected: getExpectedValue({ type: ValidationTypes.SAFE_URL }),

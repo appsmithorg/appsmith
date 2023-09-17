@@ -15,6 +15,7 @@ import styled from "styled-components";
 import { isString } from "utils/helpers";
 import { JSToString, stringToJS } from "./utils";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { assistiveBindingHinter } from "components/editorComponents/CodeEditor/assistiveBindingHinter";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -64,12 +65,14 @@ export function InputText(props: {
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
+        hinting={[assistiveBindingHinter]}
         input={{
           value: value,
           onChange: onChange,
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
+        positionCursorInsideBinding
         promptMessage={
           <PromptMessage>
             Access the current cell using{" "}

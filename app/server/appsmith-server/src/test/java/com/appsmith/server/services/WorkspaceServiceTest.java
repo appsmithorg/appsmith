@@ -9,6 +9,7 @@ import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;

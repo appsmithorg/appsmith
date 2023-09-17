@@ -4,7 +4,7 @@ import {
   getAction,
   getPlugin,
   getSettingConfig,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { call, delay, put, select } from "redux-saga/effects";
 import PaneNavigation from "../PaneNavigation";
 import type { Plugin } from "api/PluginApi";

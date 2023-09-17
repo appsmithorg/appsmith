@@ -16,6 +16,7 @@ import {
   SHARE_APP,
 } from "@appsmith/constants/messages";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -36,6 +37,7 @@ const ShareButton = (props: ShareButtonProps) => {
   } = props;
 
   const selectedTheme = useSelector(getSelectedAppTheme);
+  const currentWorkspace = useSelector(getCurrentAppWorkspace);
 
   const navColorStyle =
     currentApplicationDetails?.applicationDetail?.navigationSetting
@@ -81,8 +83,12 @@ const ShareButton = (props: ShareButtonProps) => {
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
-          title={createMessage(APPLICATION_INVITE)}
-          workspace={{ id: currentWorkspaceId }}
+          title={createMessage(
+            APPLICATION_INVITE,
+            currentWorkspace?.name,
+            cloudHosting,
+          )}
+          workspace={currentWorkspace}
         />
       )}
     </>
