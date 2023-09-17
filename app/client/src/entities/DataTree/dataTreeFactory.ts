@@ -25,6 +25,7 @@ import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { Positioning } from "layoutSystems/autolayout/utils/constants";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity
@@ -81,6 +82,7 @@ type DataTreeSeed = {
   theme: AppTheme["properties"];
   metaWidgets: MetaWidgetsReduxState;
   isMobile: boolean;
+  loadingEntities: LoadingEntitiesState;
 };
 
 export type DataTreeEntityConfig =
@@ -104,6 +106,7 @@ export class DataTreeFactory {
     editorConfigs,
     isMobile,
     jsActions,
+    loadingEntities,
     metaWidgets,
     pageList,
     pluginDependencyConfig,
@@ -144,6 +147,7 @@ export class DataTreeFactory {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
+        loadingEntities,
       );
 
       dataTree[widget.widgetName] = unEvalEntity;
@@ -176,6 +180,7 @@ export class DataTreeFactory {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
+        loadingEntities,
       );
       dataTree[widget.widgetName] = unEvalEntity;
       configTree[widget.widgetName] = configEntity;

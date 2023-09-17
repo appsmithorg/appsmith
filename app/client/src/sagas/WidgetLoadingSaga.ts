@@ -10,26 +10,27 @@ import type {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { findLoadingEntities } from "utils/WidgetLoadingStateUtils";
-
+import {
+  actionExecutionCompletionActions,
+  actionExecutionRequestActions,
+} from "./ActionExecution/PluginActionSaga";
 const ACTION_EXECUTION_REDUX_ACTIONS = [
-  // Actions
-  ReduxActionTypes.RUN_ACTION_REQUEST,
-  ReduxActionTypes.RUN_ACTION_SUCCESS,
-  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_REQUEST,
-  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
-  ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
-  // Widget evalution
-  ReduxActionTypes.SET_EVALUATED_TREE,
+  ...actionExecutionCompletionActions,
+  ...actionExecutionRequestActions,
 ];
-
-function* setWidgetsLoadingSaga() {
+function* setWidgetsLoadingSaga(action: ReduxAction<unknown>) {
+  if (actionExecutionCompletionActions.includes(action.type)) {
+    // For actions that set isLoading to false,
+    // Before proceeding to update the isLoading property of dependent entities
+    // Ensure that data is already available in the dataTree and all
+    // dependent entities have been evaluated
+    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+  }
   const actions: ActionDataState = yield select(getActions);
   const isLoadingActions: string[] = actions
     .filter((action: ActionData) => action.isLoading)
@@ -61,8 +62,10 @@ function* setWidgetsLoadingSaga() {
 
 function* actionExecutionChangeListenerSaga() {
   while (true) {
-    yield take(ACTION_EXECUTION_REDUX_ACTIONS);
-    yield fork(setWidgetsLoadingSaga);
+    const action: ReduxAction<unknown> = yield take(
+      ACTION_EXECUTION_REDUX_ACTIONS,
+    );
+    yield fork(setWidgetsLoadingSaga, action);
   }
 }
 

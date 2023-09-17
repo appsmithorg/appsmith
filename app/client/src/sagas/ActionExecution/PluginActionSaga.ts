@@ -1164,7 +1164,6 @@ function* executePageLoadAction(pageAction: PageAction) {
           },
         },
       ]);
-
       yield put(
         executePluginActionError({
           actionId: pageAction.id,
@@ -1180,6 +1179,7 @@ function* executePageLoadAction(pageAction: PageAction) {
           data: payload.body,
         }),
       );
+
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
         {
@@ -1228,6 +1228,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         undefined,
         pageAction.id,
       );
+
       yield put(
         executePluginActionSuccess({
           id: pageAction.id,
@@ -1242,6 +1243,7 @@ function* executePageLoadAction(pageAction: PageAction) {
           data: payload.body,
         }),
       );
+
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
   }
@@ -1395,7 +1397,6 @@ function* executePluginActionSaga(
         response: payload,
       }),
     );
-
     yield put(
       updateActionData({
         entityName: pluginAction.name,
@@ -1403,6 +1404,7 @@ function* executePluginActionSaga(
         data: payload.body,
       }),
     );
+
     // TODO: Plugins are not always fetched before on page load actions are executed.
     try {
       let plugin: Plugin | undefined;
@@ -1463,6 +1465,7 @@ function* executePluginActionSaga(
         data: EMPTY_RESPONSE.body,
       }),
     );
+
     if (e instanceof UserCancelledActionExecutionError) {
       // Case: user cancelled the request of file upload
       if (filePickerInstrumentation.numberOfFiles > 0) {
@@ -1597,6 +1600,36 @@ function* handleUpdateActionData(
   ]);
 }
 
+export const actionExecutionRequestActions = [
+  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_REQUEST,
+  ReduxActionTypes.RUN_ACTION_REQUEST,
+];
+export const actionExecutionCompletionActions = [
+  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
+  ReduxActionTypes.RUN_ACTION_SUCCESS,
+  ReduxActionErrorTypes.RUN_ACTION_ERROR,
+  ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
+  ReduxActionTypes.RUN_ACTION_CANCELLED,
+];
+
+function* handleActionExecutionRequest() {
+  // After every action execution request
+  // wait for all dependent entities to update their isLoading state (ReduxActionTypes.SET_LOADING_ENTITIES)
+  yield take(ReduxActionTypes.SET_LOADING_ENTITIES);
+  // At this point, the isLoading property for both the API/Query and the dependent entities are updated
+  // Dispatch an action that triggers evaluation (this is required to update their isLoading properties in the dataTree)
+  yield put({ type: ReduxActionTypes.ACTION_EXECUTION_REQUEST_COMPLETE });
+}
+
+function* handleActionExecutionCompletion() {
+  // After execution is completed,
+  // wait for all dependent entities to update their isLoading state (ReduxActionTypes.SET_LOADING_ENTITIES)
+  yield take(ReduxActionTypes.SET_LOADING_ENTITIES);
+  // At this point, the isLoading property for both the API/Query and the dependent entities are updated
+  // Dispatch an action that triggers evaluation (this is required to update their isLoading properties in the dataTree)
+  yield put({ type: ReduxActionTypes.ACTION_EXECUTION_COMPLETE });
+}
+
 export function* watchPluginActionExecutionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
@@ -1611,5 +1644,10 @@ export function* watchPluginActionExecutionSagas() {
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
     takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
     takeEvery(ReduxActionTypes.UPDATE_ACTION_DATA, handleUpdateActionData),
+    takeEvery(actionExecutionRequestActions, handleActionExecutionRequest),
+    takeEvery(
+      actionExecutionCompletionActions,
+      handleActionExecutionCompletion,
+    ),
   ]);
 }
