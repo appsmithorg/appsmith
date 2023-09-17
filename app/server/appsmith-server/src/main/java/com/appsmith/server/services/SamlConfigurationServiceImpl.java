@@ -46,7 +46,7 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
 
                         return Mono.error(error);
                     })
-                    .then(envManager.applyChanges(Map.of(APPSMITH_SSO_SAML_ENABLED.toString(), "false")));
+                    .then(envManager.applyChanges(Map.of(APPSMITH_SSO_SAML_ENABLED.toString(), "false"), origin));
         }
 
         // If a trailing "/" exists in the origin header, trim it
@@ -117,6 +117,7 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
                     return Mono.error(error);
                 })
                 .flatMap(updatedConfig -> envManager.applyChanges(
-                        Map.of(APPSMITH_SSO_SAML_ENABLED.toString(), "true", APPSMITH_BASE_URL.toString(), baseUrl)));
+                        Map.of(APPSMITH_SSO_SAML_ENABLED.toString(), "true", APPSMITH_BASE_URL.toString(), baseUrl),
+                        origin));
     }
 }

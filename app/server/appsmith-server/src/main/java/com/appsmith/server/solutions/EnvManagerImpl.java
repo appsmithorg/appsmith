@@ -12,6 +12,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -59,7 +60,8 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
             UserUtils userUtils,
             TenantService tenantService,
             ObjectMapper objectMapper,
-            AssetService assetService) {
+            AssetService assetService,
+            EmailService emailService) {
 
         super(
                 sessionUserService,
@@ -76,7 +78,8 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                 configService,
                 userUtils,
                 tenantService,
-                objectMapper);
+                objectMapper,
+                emailService);
         this.assetService = assetService;
     }
 

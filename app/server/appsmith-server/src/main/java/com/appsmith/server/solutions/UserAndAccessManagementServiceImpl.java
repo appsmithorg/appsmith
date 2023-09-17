@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.annotations.FeatureFlagged;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -22,13 +23,13 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
-import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -102,16 +103,17 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
             UserRepository userRepository,
             AnalyticsService analyticsService,
             UserService userService,
-            EmailSender emailSender,
             UserGroupService userGroupService,
             TenantService tenantService,
             PermissionGroupRepository permissionGroupRepository,
             UserGroupRepository userGroupRepository,
-            PermissionGroupPermission permissionGroupPermission,
             UserDataRepository userDataRepository,
             PermissionGroupUtils permissionGroupUtils,
             EnvManager envManager,
-            ConfigRepository configRepository) {
+            ConfigRepository configRepository,
+            PermissionGroupPermission permissionGroupPermission,
+            EmailService emailService,
+            CommonConfig commonConfig) {
 
         super(
                 sessionUserService,
@@ -120,8 +122,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 userRepository,
                 analyticsService,
                 userService,
-                emailSender,
-                permissionGroupPermission);
+                permissionGroupPermission,
+                emailService,
+                commonConfig);
         this.permissionGroupService = permissionGroupService;
         this.userRepository = userRepository;
         this.userService = userService;

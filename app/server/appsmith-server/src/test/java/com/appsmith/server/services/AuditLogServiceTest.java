@@ -288,6 +288,7 @@ public class AuditLogServiceTest {
     private static Application app;
     private static Application gitConnectedApp;
     private static String workspaceName = "AuditLogsTest";
+    private static String originHeader = "http://localhost:8080";
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -3150,7 +3151,7 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET.name(), "testClientSecret"));
 
-        envManager.applyChanges(nonEmptyEnvChanges).block();
+        envManager.applyChanges(nonEmptyEnvChanges, originHeader).block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -3190,7 +3191,7 @@ public class AuditLogServiceTest {
                 .verifyComplete();
 
         // Test removing configuration
-        envManager.applyChanges(emptyEnvChanges).block();
+        envManager.applyChanges(emptyEnvChanges, originHeader).block();
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
@@ -3239,7 +3240,7 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET.name(), "testClientSecret"));
 
-        envManager.applyChanges(nonEmptyEnvChanges).block();
+        envManager.applyChanges(nonEmptyEnvChanges, originHeader).block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -3274,7 +3275,7 @@ public class AuditLogServiceTest {
                 })
                 .verifyComplete();
         // Test removing configuration
-        envManager.applyChanges(emptyEnvChanges).block();
+        envManager.applyChanges(emptyEnvChanges, originHeader).block();
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
                     // We are looking for the first event since Audit Logs sort order is DESC
@@ -3319,7 +3320,7 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_OIDC_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_OIDC_CLIENT_SECRET.name(), "testClientSecret"));
 
-        envManager.applyChanges(nonEmptyEnvChanges).block();
+        envManager.applyChanges(nonEmptyEnvChanges, originHeader).block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -3359,7 +3360,7 @@ public class AuditLogServiceTest {
                 .verifyComplete();
 
         // Test removing configuration
-        envManager.applyChanges(emptyEnvChanges).block();
+        envManager.applyChanges(emptyEnvChanges, originHeader).block();
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
@@ -3406,7 +3407,7 @@ public class AuditLogServiceTest {
         Map<String, String> nonEmptyEnvChanges = new HashMap<>(Map.of(APPSMITH_SSO_SAML_ENABLED.name(), "true"));
 
         // Test adding configuration
-        envManager.applyChanges(nonEmptyEnvChanges).block();
+        envManager.applyChanges(nonEmptyEnvChanges, originHeader).block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -3446,7 +3447,7 @@ public class AuditLogServiceTest {
                 .verifyComplete();
 
         // Test removing configuration
-        envManager.applyChanges(emptyEnvChanges).block();
+        envManager.applyChanges(emptyEnvChanges, originHeader).block();
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
@@ -3702,7 +3703,7 @@ public class AuditLogServiceTest {
                 entry(APPSMITH_REPLY_TO.name(), "testemail@test.com"),
                 entry(APPSMITH_CUSTOM_DOMAIN.name(), "testCustomDomain")));
 
-        envManager.applyChanges(envChanges).block();
+        envManager.applyChanges(envChanges, originHeader).block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);

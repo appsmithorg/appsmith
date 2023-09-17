@@ -49,10 +49,10 @@ public class InstanceAdminControllerCE {
             value = "/env",
             consumes = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<ResponseDTO<Void>> saveEnvChangesJSON(
-            @Valid @RequestBody Map<String, String> changes, @RequestHeader(name = "Origin") String origin) {
+            @Valid @RequestBody Map<String, String> changes, @RequestHeader("Origin") String originHeader) {
         log.debug("Applying env updates {}", changes.keySet());
         return envManager
-                .applyChanges(changes, origin)
+                .applyChanges(changes, originHeader)
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
 
@@ -60,11 +60,11 @@ public class InstanceAdminControllerCE {
     @PutMapping(
             value = "/env",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Mono<ResponseDTO<Void>> saveEnvChangesMultipartFormData(ServerWebExchange exchange) {
+    public Mono<ResponseDTO<Void>> saveEnvChangesMultipartFormData(
+            @RequestHeader("Origin") String originHeader, ServerWebExchange exchange) {
         log.debug("Applying env updates from form data");
         return exchange.getMultipartData()
-                .flatMap(formData -> envManager.applyChangesFromMultipartFormData(
-                        formData, exchange.getRequest().getHeaders().getOrigin()))
+                .flatMap(formData -> envManager.applyChangesFromMultipartFormData(formData, originHeader))
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
 
