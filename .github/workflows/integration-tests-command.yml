@@ -118,7 +118,7 @@ jobs:
         continue-on-error: true
         id: dashboard_url
         run: |
-          cypress_url=$(cat ~/cypress_url)
+          cypress_url="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}"
           echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
 
       # Download failed_spec list for all jobs
