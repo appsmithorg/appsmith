@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QUser;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +30,7 @@ import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
-@ChangeUnit(order = "023", id = "create-user-management-roles-for-users-tagged-in-migration-024")
+@ChangeUnit(order = "025", id = "create-user-management-roles-for-users-tagged-in-migration-024")
 public class Migration025CreateUserManagementRolesForUsersTaggedIn024 {
     private final MongoTemplate mongoTemplate;
     private final PolicySolution policySolution;
@@ -63,7 +65,16 @@ public class Migration025CreateUserManagementRolesForUsersTaggedIn024 {
             mongoTemplate.stream(optimisedQueryUsersTaggedInMigration024, User.class)
                     .forEach(user -> {
                         User userWithUpdatedPolicies = createUserManagementRoleAndGetUserWithUpdatedPolicies(user);
-                        mongoTemplate.save(userWithUpdatedPolicies);
+                        Update updateMigrationFlagAndPoliciesForUser = new Update();
+                        updateMigrationFlagAndPoliciesForUser.unset(
+                                Migration024TagUsersWithNoUserManagementRoles
+                                        .MIGRATION_FLAG_024_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE);
+                        updateMigrationFlagAndPoliciesForUser.set(
+                                fieldName(QUser.user.policies), userWithUpdatedPolicies.getPolicies());
+                        Criteria criteriaUserId = Criteria.where(fieldName(QBaseDomain.baseDomain.id))
+                                .is(user.getId());
+                        Query queryUserId = new Query(criteriaUserId);
+                        mongoTemplate.updateFirst(queryUserId, updateMigrationFlagAndPoliciesForUser, User.class);
                     });
             attempt += 1;
             countUsersTaggedInMigration024 = mongoTemplate.count(optimisedQueryUsersTaggedInMigration024, User.class);

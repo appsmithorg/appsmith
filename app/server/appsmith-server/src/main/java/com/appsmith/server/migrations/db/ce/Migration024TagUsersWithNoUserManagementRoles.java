@@ -19,7 +19,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 
 @Slf4j
 @RequiredArgsConstructor
-@ChangeUnit(order = "023", id = "tag-users-with-no-user-management-roles")
+@ChangeUnit(order = "024", id = "tag-users-with-no-user-management-roles")
 public class Migration024TagUsersWithNoUserManagementRoles {
 
     private final MongoTemplate mongoTemplate;
@@ -50,7 +50,17 @@ public class Migration024TagUsersWithNoUserManagementRoles {
 
         Criteria criteriaUsersWithNoUserManagementRoles =
                 Criteria.where(fieldName(QBaseDomain.baseDomain.id)).nin(userIdsWithUserManagementRoles);
-        Query queryUsersWithNoUserManagementRoles = new Query(criteriaUsersWithNoUserManagementRoles);
+        Criteria criteriaUsersPoliciesExists =
+                Criteria.where(fieldName(QBaseDomain.baseDomain.policies)).exists(true);
+        Criteria criteriaUsersPoliciesNotEmpty =
+                Criteria.where(fieldName(QBaseDomain.baseDomain.policies)).not().size(0);
+        Criteria criteriaUsersWithNoUserManagementRolesAndUserPoliciesExists = new Criteria()
+                .andOperator(
+                        criteriaUsersWithNoUserManagementRoles,
+                        criteriaUsersPoliciesExists,
+                        criteriaUsersPoliciesNotEmpty);
+        Query queryUsersWithNoUserManagementRoles =
+                new Query(criteriaUsersWithNoUserManagementRolesAndUserPoliciesExists);
 
         Update updateSetMigrationFlag = new Update();
         updateSetMigrationFlag.set(MIGRATION_FLAG_024_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE, Boolean.TRUE);

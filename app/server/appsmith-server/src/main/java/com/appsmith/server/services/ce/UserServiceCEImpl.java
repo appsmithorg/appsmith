@@ -474,6 +474,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         userManagementPermissionGroup.setName(savedUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
         userManagementPermissionGroup.setPermissions(Set.of(new Permission(savedUser.getId(), MANAGE_USERS)));
+        userManagementPermissionGroup.setDefaultDomainType(User.class.getSimpleName());
+        userManagementPermissionGroup.setDefaultDomainId(savedUser.getId());
 
         // Assign the permission group to the user
         userManagementPermissionGroup.setAssignedToUserIds(Set.of(savedUser.getId()));
