@@ -1,5 +1,5 @@
 import { GridDefaults } from "constants/WidgetConstants";
-import { memoize } from "lodash";
+import memo from "micro-memoize";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
@@ -77,7 +77,7 @@ export const getFixedLayoutComponentDimensions = ({
   };
 };
 
-export const getComponentDimensions = memoize(
+export const getComponentDimensions = memo(
   (
     props: BaseWidgetProps,
     appPositioningType: AppPositioningTypes,
