@@ -21,16 +21,12 @@ export enum NavigationTargetType_Dep {
 }
 
 const isValidUrlScheme = (url: string): boolean => {
-  return (
-    // Standard http call
-    url.startsWith("http://") ||
-    // Secure http call
-    url.startsWith("https://") ||
-    // Mail url to directly open email app prefilled
-    url.startsWith("mailto:") ||
-    // Tel url to directly open phone app prefilled
-    url.startsWith("tel:")
-  );
+  try {
+    new URL(url);
+  } catch (e) {
+    return false;
+  }
+  return true;
 };
 
 const isValidPageName = (
