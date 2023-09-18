@@ -659,7 +659,7 @@ jobs:
         with:
           script: |
             const { Pool } = require("pg");
-            const {DB_HOST, DB_NAME, DB_USER, DB_PWD, RUN_ID, ATTEMPT_NUMBER} = process.env
+            const { DB_HOST, DB_NAME, DB_USER, DB_PWD, RUN_ID, ATTEMPT_NUMBER } = process.env
 
             const client = await new Pool({
               user: DB_USER,
@@ -681,8 +681,10 @@ jobs:
               [RUN_ID, ATTEMPT_NUMBER],
             );
             client.release();
-            return result.rows.map((spec) => spec.name);
+            const specs = result.rows.map((spec) => spec.name);
+            console.log(specs);
+            return specs;
           
       - name: Print the output
-        run : echo "${{steps.test.output.result}}"
+        run : echo "${{steps.test.outputs.result}}"
 
