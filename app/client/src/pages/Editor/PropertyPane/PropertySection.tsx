@@ -19,6 +19,7 @@ import { setPropertySectionState } from "actions/propertyPaneActions";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 import localStorage from "utils/localStorage";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
+import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
 
 const TagContainer = styled.div``;
 
@@ -149,10 +150,17 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     );
 
     if (widgetId) {
-      if (className === "data") {
-        setIsOpen(true);
+      const isWidgetIdTableDataExist = document.querySelector(
+        `#${PROPERTY_PANE_ID} [id='${btoa(widgetId + ".tableData")}']`,
+      );
+      if (isWidgetIdTableDataExist) {
+        if (className === "data") {
+          setIsOpen(true);
+        } else {
+          setIsOpen(false);
+        }
       } else {
-        setIsOpen(false);
+        await localStorage.removeItem(WIDGET_ID_SHOW_WALKTHROUGH);
       }
     }
   };
