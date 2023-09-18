@@ -1,6 +1,6 @@
 import { selectWidgetsForCurrentPage } from "@appsmith/selectors/entitiesSelector";
 import { partialExportWidgets } from "actions/widgetActions";
-import { Button, Checkbox } from "design-system";
+import { Button, Checkbox, Text } from "design-system";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -14,6 +14,9 @@ const WidgetsExport = () => {
   };
   return (
     <div>
+      <Text kind="heading-m" renderAs="h2">
+        Widgets
+      </Text>
       {widgets?.children?.map((child) => (
         <WidgetEntity
           id={child.widgetId}

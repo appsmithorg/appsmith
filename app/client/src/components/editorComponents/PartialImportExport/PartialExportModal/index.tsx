@@ -1,6 +1,7 @@
 import { Modal, ModalContent, ModalHeader } from "design-system";
 import React from "react";
 import WidgetsExport from "./WidgetsExport";
+import DatasourcesExport from "./DatasourcesExport";
 
 type Props = {
   handleModalClose: () => void;
@@ -12,6 +13,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
       <ModalContent>
         <ModalHeader>PartiaExportModel</ModalHeader>
         <WidgetsExport />
+        <DatasourcesExport />
       </ModalContent>
     </Modal>
   );
