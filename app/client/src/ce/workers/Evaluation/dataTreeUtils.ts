@@ -1,7 +1,9 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { klona } from "klona/full";
+
 import { get, set, unset } from "lodash";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
+import rfdc from "rfdc";
+const deepCloneRfdc = rfdc({ proto: true });
 // const deepClone = (v) => JSON.parse(JSON.stringify(v));
 /**
  * This method loops through each entity object of dataTree and sets the entity config from prototype as object properties.
@@ -25,7 +27,9 @@ export function makeEntityConfigsAsObjProperties(
     const entity = dataTree[entityName];
     newDataTree[entityName] = Object.assign({}, entity);
   }
-  const dataTreeToReturn = sanitizeDataTree ? klona(newDataTree) : newDataTree;
+  const dataTreeToReturn = sanitizeDataTree
+    ? deepCloneRfdc(newDataTree)
+    : newDataTree;
 
   if (!evalProps) return dataTreeToReturn;
 
@@ -56,7 +60,7 @@ export function makeEntityConfigsAsObjProperties(
     unset(evalProps, evalPath);
   });
 
-  const sanitizedEvalProps = klona(evalProps) as EvalProps;
+  const sanitizedEvalProps = deepCloneRfdc(evalProps) as EvalProps;
   Object.entries(alreadySanitisedDataSet).forEach(([path, val]) => {
     // add it to sanitised Eval props
     set(sanitizedEvalProps, path, val);
