@@ -42,6 +42,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -74,6 +75,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
+@Service
 public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Workspace, String>
         implements WorkspaceServiceCE {
 
