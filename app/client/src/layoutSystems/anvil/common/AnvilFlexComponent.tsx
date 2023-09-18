@@ -110,7 +110,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
    * A Fill widget will expand to assume 100% of its parent's width when its parent width < 480px.
    * For other situations, it will adopt the minWidth provided in its widget config.
    * @param config Record<string, string | number> | undefined
-   * @returns Responsive<SizingDimension> | undefined
+   * @returns Record<string, string | number> | undefined
    */
   const getMinWidth = (
     config: Record<string, string | number> | undefined,
