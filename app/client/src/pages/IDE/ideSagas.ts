@@ -5,6 +5,7 @@ import { fork, put, select, takeEvery } from "redux-saga/effects";
 import type { RecentEntity } from "../../components/editorComponents/GlobalSearch/utils";
 import {
   getCurrentActions,
+  getCurrentPageId,
   getPlugins,
   selectFilesForExplorer,
 } from "@appsmith/selectors/entitiesSelector";
@@ -18,6 +19,11 @@ import type { Plugin } from "api/PluginApi";
 import { getRecentJsList, getRecentQueryList } from "./ideSelector";
 import { setRecentJsList, setRecentQueryList } from "./ideActions";
 import { FocusEntity } from "../../navigation/FocusEntity";
+import { getRecentEntities } from "../../selectors/globalSearchSelectors";
+import history from "../../utils/history";
+import { builderURL } from "../../RouteBuilder";
+import { IDEAppState } from "./ideReducer";
+import { setRecentEntities } from "../../actions/globalSearchActions";
 
 const sortItems = (items: Item[], recentEntities: RecentEntity[]) => {
   return [...items].sort((a: any, b: any) => {
@@ -129,8 +135,44 @@ function* setPageRecentListSaga(action: ReduxAction<RecentEntity[]>) {
   ]);
 }
 
+function* handleDeleteSaga(action: ReduxAction<{ id: string }>) {
+  const { id } = action.payload;
+  const pageId: string = yield select(getCurrentPageId);
+  const recentEntities: RecentEntity[] = yield select(getRecentEntities);
+  const removedEntities = recentEntities.filter((e) => e.id !== id);
+  yield put(setRecentEntities(removedEntities));
+  let suffix = "/queries";
+  let items: Item[] = yield select(getRecentQueryList);
+  const leftItems = items.filter((item) => item.key !== id);
+  yield put(setRecentQueryList(leftItems));
+  if (action.type === ReduxActionTypes.DELETE_JS_ACTION_SUCCESS) {
+    suffix = "/js";
+    items = yield select(getRecentJsList);
+    const leftItems = items.filter((item) => item.key !== id);
+    yield put(setRecentJsList(leftItems));
+  }
+  const item = leftItems[0];
+  if (item) {
+    suffix = `${suffix}/${item.key}`;
+  }
+  history.push(
+    builderURL({
+      pageId,
+      ideState: IDEAppState.Page,
+      suffix,
+    }),
+  );
+}
+
 export default function* watchIDESagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_RECENT_ENTITIES, setPageRecentListSaga),
+    takeEvery(
+      [
+        ReduxActionTypes.DELETE_ACTION_SUCCESS,
+        ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
+      ],
+      handleDeleteSaga,
+    ),
   ]);
 }

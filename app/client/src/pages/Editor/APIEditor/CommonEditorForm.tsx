@@ -514,7 +514,11 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   } = props;
   const dispatch = useDispatch();
 
-  const params = useParams<{ apiId?: string; queryId?: string }>();
+  const params = useParams<{
+    apiId?: string;
+    queryId?: string;
+    actionId?: string;
+  }>();
 
   // passing lodash's equality function to ensure that this selector does not cause a rerender multiple times.
   // it checks each value to make sure none has changed before recomputing the actions.
@@ -524,7 +528,10 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   );
 
   const currentActionConfig: Action | undefined = actions.find(
-    (action) => action.id === params.apiId || action.id === params.queryId,
+    (action) =>
+      action.id === params.actionId ||
+      action.id === params.apiId ||
+      action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
   const isChangePermitted = hasManageActionPermission(

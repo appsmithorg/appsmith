@@ -54,9 +54,9 @@ import type {
   ApiActionConfig,
   SlashCommandPayload,
 } from "entities/Action";
-import { isGraphqlPlugin } from "entities/Action";
 import {
   isAPIAction,
+  isGraphqlPlugin,
   PluginPackageName,
   PluginType,
   SlashCommand,
@@ -70,8 +70,8 @@ import {
   getActions,
   getCurrentPageNameByActionId,
   getDatasource,
-  getDatasourceStructureById,
   getDatasources,
+  getDatasourceStructureById,
   getEditorConfig,
   getPageNameByPageId,
   getPlugin,
@@ -113,9 +113,9 @@ import {
   saasEditorApiIdURL,
 } from "RouteBuilder";
 import {
-  RequestPayloadAnalyticsPath,
   checkAndLogErrorsIfCyclicDependency,
   enhanceRequestPayloadWithEventData,
+  RequestPayloadAnalyticsPath,
 } from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { toast } from "design-system";
@@ -132,6 +132,9 @@ import { setAIPromptTriggered } from "utils/storage";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+// import { getRecentQueryList } from "../pages/IDE/ideSelector";
+// import type { Item } from "../pages/IDE/components/ListView";
+// import { IDEAppState } from "../pages/IDE/ideReducer";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -500,7 +503,6 @@ export function* deleteActionSaga(
     const isApi = action.pluginType === PluginType.API;
     const isQuery = action.pluginType === PluginType.DB;
     const isSaas = action.pluginType === PluginType.SAAS;
-    const pageId: string = yield select(getCurrentPageId);
 
     const response: ApiResponse<Action> = yield ActionAPI.deleteAction(id);
     const isValidResponse: boolean = yield validateResponse(response);
@@ -532,12 +534,12 @@ export function* deleteActionSaga(
     if (!!actionPayload.payload.onSuccess) {
       actionPayload.payload.onSuccess();
     } else {
-      history.push(
-        integrationEditorURL({
-          pageId,
-          selectedTab: INTEGRATION_TABS.NEW,
-        }),
-      );
+      // history.push(
+      //   integrationEditorURL({
+      //     pageId,
+      //     selectedTab: INTEGRATION_TABS.NEW,
+      //   }),
+      // );
     }
 
     AppsmithConsole.info({

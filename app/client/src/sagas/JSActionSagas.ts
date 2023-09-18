@@ -55,7 +55,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
-import { builderURL, jsCollectionIdURL } from "RouteBuilder";
+import { jsCollectionIdURL } from "RouteBuilder";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
@@ -266,7 +266,7 @@ export function* deleteJSCollectionSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
-    const pageId: string = yield select(getCurrentPageId);
+    // const pageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -275,7 +275,7 @@ export function* deleteJSCollectionSaga(
       toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
         kind: "success",
       });
-      history.push(builderURL({ pageId }));
+      // history.push(builderURL({ pageId }));
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
         text: "JS Object was deleted",
