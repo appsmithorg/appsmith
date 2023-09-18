@@ -17,6 +17,7 @@ import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.GitDefaultCommitMessage;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -44,13 +45,12 @@ import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.newaction.base.NewActionService;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
@@ -63,6 +63,7 @@ import com.appsmith.server.solutions.ImportExportApplicationService;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
@@ -101,6 +102,7 @@ import static com.appsmith.external.constants.GitConstants.EMPTY_COMMIT_ERROR_ME
 import static com.appsmith.external.constants.GitConstants.GIT_CONFIG_ERROR;
 import static com.appsmith.external.constants.GitConstants.GIT_PROFILE_ERROR;
 import static com.appsmith.external.constants.GitConstants.MERGE_CONFLICT_BRANCH_NAME;
+import static com.appsmith.git.constants.AppsmithBotAsset.APPSMITH_BOT_EMAIL;
 import static com.appsmith.git.constants.AppsmithBotAsset.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
 import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds;
@@ -1071,41 +1073,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     String pushResult = tuple.getT1();
                     Application application = tuple.getT2();
-                    if (pushResult.contains("REJECTED_NONFASTFORWARD")) {
-
-                        return addAnalyticsForGitOperation(
-                                        AnalyticsEvents.GIT_PUSH.getEventName(),
-                                        application,
-                                        AppsmithError.GIT_UPSTREAM_CHANGES.getErrorType(),
-                                        AppsmithError.GIT_UPSTREAM_CHANGES.getMessage(),
-                                        application.getGitApplicationMetadata().getIsRepoPrivate())
-                                .flatMap(application1 ->
-                                        Mono.error(new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES)));
-                    } else if (pushResult.contains("REJECTED_OTHERREASON")
-                            || pushResult.contains("pre-receive hook declined")) {
-                        // Mostly happens when the remote branch is protected or any specific rules in place on the
-                        // branch
-                        // Since the users will be in a bad state where the changes are committed locally but they are
-                        // not able to
-                        // push them changes or revert the changes either.
-                        // TODO Support protected branch flow within Appsmith
-                        Path path = Paths.get(
-                                application.getWorkspaceId(),
-                                application.getGitApplicationMetadata().getDefaultApplicationId(),
-                                application.getGitApplicationMetadata().getRepoName());
-                        return gitExecutor
-                                .resetHard(
-                                        path,
-                                        application.getGitApplicationMetadata().getBranchName())
-                                .then(Mono.error(new AppsmithException(
-                                        AppsmithError.GIT_ACTION_FAILED,
-                                        "push",
-                                        "Unable to push changes as pre-receive hook declined. Please make sure that you don't have any rules enabled on the branch "
-                                                + application
-                                                        .getGitApplicationMetadata()
-                                                        .getBranchName())));
-                    }
-                    return Mono.just(pushResult).zipWith(Mono.just(tuple.getT2()));
+                    return pushApplicationErrorRecovery(pushResult, application).zipWith(Mono.just(tuple.getT2()));
                 })
                 // Add BE analytics
                 .flatMap(tuple -> {
@@ -1129,6 +1097,42 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
 
         return Mono.create(sink -> pushStatusMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    /**
+     * This method is used to recover from the errors that can occur during the push operation
+     * Mostly happens when the remote branch is protected or any specific rules in place on the branch.
+     * Since the users will be in a bad state where the changes are committed locally, but they are
+     * not able to push them changes or revert the changes either.
+     * 1. Push rejected due to branch protection rules on remote, reset hard prev commit
+     * @param pushResult status of git push operation
+     * @param application application data to be used for analytics
+     * @return status of the git push flow
+     */
+    private Mono<String> pushApplicationErrorRecovery(String pushResult, Application application) {
+        if (pushResult.contains("REJECTED_NONFASTFORWARD")) {
+
+            return addAnalyticsForGitOperation(
+                            AnalyticsEvents.GIT_PUSH.getEventName(),
+                            application,
+                            AppsmithError.GIT_UPSTREAM_CHANGES.getErrorType(),
+                            AppsmithError.GIT_UPSTREAM_CHANGES.getMessage(),
+                            application.getGitApplicationMetadata().getIsRepoPrivate())
+                    .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES)));
+        } else if (pushResult.contains("REJECTED_OTHERREASON") || pushResult.contains("pre-receive hook declined")) {
+            Path path = Paths.get(
+                    application.getWorkspaceId(),
+                    application.getGitApplicationMetadata().getDefaultApplicationId(),
+                    application.getGitApplicationMetadata().getRepoName());
+            return gitExecutor
+                    .resetHard(path, application.getGitApplicationMetadata().getBranchName())
+                    .then(Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED,
+                            "push",
+                            "Unable to push changes as pre-receive hook declined. Please make sure that you don't have any rules enabled on the branch "
+                                    + application.getGitApplicationMetadata().getBranchName())));
+        }
+        return Mono.just(pushResult);
     }
 
     /**
@@ -2839,6 +2843,94 @@ public class GitServiceCEImpl implements GitServiceCE {
             gitDocsDTOList.add(gitDocsDTO);
         }
         return Mono.just(gitDocsDTOList);
+    }
+
+    @Override
+    public Mono<String> autoCommitDSLMigration(String defaultApplicationId, String branchName) {
+        /*
+        1. Check the auto commit config
+        2. Get the DSL from the file system
+        3. Call the RTS end point for migrating the DSL
+        4. Commit and push application flow
+        5. In case of error due to branch protection, reset the repo to a clean state
+        6. Analytics event
+         */
+
+        return getApplicationById(defaultApplicationId).flatMap(application -> {
+            GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+            if (gitApplicationMetadata == null) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+            }
+            return fileUtils
+                    .reconstructApplicationJsonFromGitRepo(
+                            application.getWorkspaceId(),
+                            defaultApplicationId,
+                            gitApplicationMetadata.getRepoName(),
+                            branchName)
+                    .flatMap(applicationJson -> {
+
+                        // unPublished mode DSLs
+                        List<JSONObject> unPublishedDSL = applicationJson.getPageList().stream()
+                                .map(newPage -> newPage.getUnpublishedPage()
+                                        .getLayouts()
+                                        .get(0)
+                                        .getDsl())
+                                .toList();
+                        // published mode DSLs
+                        List<JSONObject> publishedDSL = applicationJson.getPageList().stream()
+                                .map(newPage -> newPage.getPublishedPage()
+                                        .getLayouts()
+                                        .get(0)
+                                        .getDsl())
+                                .toList();
+                        // Call the RTS end point for migrating the DSL
+                        // TODO: Add the endpoint for migrating the DSL
+
+                        // Apply the migrated DSLs to the applicationJson
+                        // Commit the migration changes and Push
+                        // TODO: After commit and push, do not deploy the application
+
+                        // Handle error states and clean the repo
+
+                        return Mono.just(applicationJson);
+                    })
+                    .flatMap(applicationJson -> {
+                        Path repoPath = Paths.get(
+                                application.getWorkspaceId(),
+                                defaultApplicationId,
+                                gitApplicationMetadata.getRepoName());
+                        try {
+                            return fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, branchName);
+                        } catch (IOException | GitAPIException e) {
+                            return Mono.error(
+                                    new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", e.getMessage()));
+                        }
+                    })
+                    .flatMap(path -> gitExecutor
+                            .commitApplication(
+                                    path,
+                                    DEFAULT_COMMIT_MESSAGE,
+                                    APPSMITH_BOT_USERNAME,
+                                    APPSMITH_BOT_EMAIL,
+                                    false,
+                                    false)
+                            .flatMap(status -> gitExecutor
+                                    .pushApplication(
+                                            path,
+                                            gitApplicationMetadata.getRemoteUrl(),
+                                            gitApplicationMetadata.getGitAuth().getPublicKey(),
+                                            gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                                            branchName)
+                                    .onErrorResume(error -> {
+                                        if (error instanceof TransportException) {
+                                            return Mono.error(
+                                                    new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+                                        }
+                                        return Mono.error(new AppsmithException(
+                                                AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
+                                    }))
+                            .flatMap(pushResult -> pushApplicationErrorRecovery(pushResult, application)));
+        });
     }
 
     private Mono<Application> deleteApplicationCreatedFromGitImport(
