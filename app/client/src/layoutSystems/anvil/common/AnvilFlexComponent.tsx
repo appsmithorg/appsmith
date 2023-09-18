@@ -21,7 +21,6 @@ import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/t
 import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import type { FlexComponentProps } from "layoutSystems/anvil/utils/autoLayoutTypes";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
-import type { Responsive, SizingDimension } from "@design-system/widgets";
 
 export type AnvilFlexComponentProps = FlexComponentProps & {
   hasAutoWidth: boolean;
@@ -115,7 +114,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
    */
   const getMinWidth = (
     config: Record<string, string | number> | undefined,
-  ): Responsive<SizingDimension> | undefined => {
+  ): Record<string, string | number> | undefined => {
     /**
      * If config is undefined,
      * Set base as 100% for Fill widgets.
@@ -133,7 +132,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
       base: "100%",
       [`${MOBILE_BREAKPOINT}px`]:
         config[`${MOBILE_BREAKPOINT}px`] || baseMinWidth,
-    } as Responsive<SizingDimension>;
+    };
   };
 
   // Memoize flex props to be passed to the WDS Flex component.
