@@ -1,8 +1,7 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
-import type { RenderMode, WidgetType } from "constants/WidgetConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
