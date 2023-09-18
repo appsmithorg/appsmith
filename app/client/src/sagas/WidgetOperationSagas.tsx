@@ -67,7 +67,7 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, set, uniq } from "lodash";
+import _, { cloneDeep, get, isString, set, uniq } from "lodash";
 import WidgetFactory from "WidgetProvider/factory";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
@@ -183,6 +183,7 @@ import {
   LayoutDirection,
 } from "layoutSystems/autolayout/utils/constants";
 import localStorage from "utils/localStorage";
+import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -585,6 +586,11 @@ export function* setWidgetDynamicPropertySaga(
   };
 
   widget = yield call(handleUpdateWidgetDynamicProperty, widget, update);
+
+  const propertyValue = get(widget, propertyPath);
+  if (!propertyValue && isDynamic) {
+    set(widget, propertyPath, EMPTY_BINDING);
+  }
 
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
@@ -1212,10 +1218,16 @@ function* getNewPositionsBasedOnSelectedWidgets(
   copiedLeftMostColumn: number,
 ) {
   //get Parent canvasId
-  const parentId = selectedWidgets[0].parentId || "";
+  const parentId: string | undefined = selectedWidgets[0].parentId;
 
-  // get the Id of the container widget based on the canvasId
+  // If we failed to get the parent canvas widget Id then return empty object
+  if (parentId === undefined) return {};
+
+  // get the Id of the container like widget based on the canvasId
   const containerId = getContainerIdForCanvas(parentId);
+
+  // If we failed to get the containing container like widget Id then return empty object
+  if (containerId === undefined) return {};
 
   const containerWidget = canvasWidgets[containerId];
   const canvasDOM = document.querySelector(`#${getSlidingArenaName(parentId)}`);

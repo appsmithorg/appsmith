@@ -1,14 +1,16 @@
 import type { ReactNode } from "react";
-import React from "react";
+import React, { useMemo } from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import { Banner } from "@appsmith/utils/licenseHelpers";
 import {
-  getHTMLPageTitle,
   getPageTitle,
+  getHTMLPageTitle,
 } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { useSelector } from "react-redux";
 
 export const Wrapper = styled.section<{ isFixed?: boolean }>`
   ${(props) =>
@@ -65,18 +67,26 @@ export type PageWrapperProps = {
 export function PageWrapper(props: PageWrapperProps) {
   const { isFixed = false, isSavable = false } = props;
   const isBrandingEnabled = useFeatureFlag(
-    FEATURE_FLAG.license_branding_enabled,
+    FEATURE_FLAG?.license_branding_enabled,
   );
-  const htmlPageTitleMethod = getHTMLPageTitle(isBrandingEnabled);
-  const titleSuffix = htmlPageTitleMethod();
+  const tentantConfig = useSelector(getTenantConfig);
+  const { instanceName } = tentantConfig;
 
-  const getPageTitleMethod = getPageTitle(isBrandingEnabled);
+  const titleSuffix = useMemo(
+    () => getHTMLPageTitle(isBrandingEnabled, instanceName),
+    [isBrandingEnabled, instanceName],
+  );
+
+  const pageTitle = useMemo(
+    () => getPageTitle(isBrandingEnabled, props.displayName, titleSuffix),
+    [isBrandingEnabled, props.displayName, titleSuffix],
+  );
 
   return (
     <Wrapper isFixed={isFixed}>
       <Banner />
       <Helmet>
-        <title>{getPageTitleMethod(props.displayName, titleSuffix)}</title>
+        <title>{pageTitle}</title>
       </Helmet>
       <PageBody isSavable={isSavable}>{props.children}</PageBody>
     </Wrapper>

@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "@appsmith/reducers";
-import MainContainer from "./MainContainer";
+import WidgetsEditorWrapper from "./WidgetsEditorWrapper";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -159,7 +159,7 @@ class Editor extends Component<Props> {
             </title>
           </Helmet>
           <GlobalHotKeys>
-            <MainContainer />
+            <WidgetsEditorWrapper />
             <GitSyncModal />
             <EnvDeployInfoModal />
             <DisconnectGitModal />
