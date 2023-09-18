@@ -122,7 +122,7 @@ jobs:
                     fi
                 done
               fi
-          done < ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          done < ~/failed_spec_ci/failed_spec_ci
           failed_spec_env=${failed_spec_env#,}
           echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV
 
@@ -181,6 +181,10 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
@@ -255,9 +259,9 @@ jobs:
           EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
         run: |
           if [[ ${{ github.event_name }} == 'schedule' ]]; then
-            echo "COMMIT_INFO_MESSAGE=Scheduled workflow run for gsheet tests" >> $GITHUB_ENV
+            echo "COMMIT_INFO_MESSAGE=Scheduled run for Hosted tests" >> $GITHUB_ENV
           else
-            echo "COMMIT_INFO_MESSAGE=Manual workflow run for gsheet tests" >> $GITHUB_ENV
+            echo "COMMIT_INFO_MESSAGE=Manual workflow run for Hosted tests" >> $GITHUB_ENV
           fi
 
       - name: Run the cypress test
@@ -280,6 +284,10 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
@@ -329,7 +337,7 @@ jobs:
 
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
-        if: steps.run_result.outputs.run_result == 'failedtest'
+        if: steps.run_result.outputs.run_result == 'failedtest' && env.failed_spec_env != ''
         id: cypress_test_failedtest
         uses: cypress-io/github-action@v5
         env:
@@ -348,6 +356,10 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
@@ -394,14 +406,14 @@ jobs:
           working-directory: app/client
           env: "NODE_ENV=development"
 
-      - name: Rename reports 
-        if: always()
+      - name: Rename reports
+        if: failure() && env.failed_spec_env != ''
         run: |
           mkdir -p ~/results
           mv ${{ github.workspace }}/app/client/results ~/results/${{ matrix.job }}
 
       - name: Upload cypress report
-        if: always()
+        if: failure() && env.failed_spec_env != ''
         uses: actions/upload-artifact@v3
         with:
           name: results-${{github.run_attempt}}
@@ -444,16 +456,16 @@ jobs:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}
-      
-      - name: get cypress url dashboard url
-        id: dashboard_url
-        if: always()
-        run: |
-          if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-            echo "" >> $GITHUB_OUTPUT
-          elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-            echo "" >> $GITHUB_OUTPUT
-          fi
+
+      # - name: get cypress url dashboard url
+      #   id: dashboard_url
+      #   if: always()
+      #   run: |
+      #     if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
+      #       echo "" >> $GITHUB_OUTPUT
+      #     elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
+      #       echo "" >> $GITHUB_OUTPUT
+      #     fi
 
       - name: Generate slack message
         continue-on-error: true
@@ -461,11 +473,13 @@ jobs:
         id: slack_notification
         run: |
           if [[ "${{ steps.test_status.outputs.run_result }}" == "failedtest" ]]; then
-            echo "slack_message=There are test failures in the run. Please check the <${{ steps.dashboard_url.outputs.url }}|Cypress dashboard> for more details." >> $GITHUB_OUTPUT
+            echo "slack_message=There are test failures in the run. Cypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
+            echo "slack_icon=:parachute:" >> $GITHUB_OUTPUT
           else
-            echo "slack_message=All tests passed successfully :tada: . Cypress Dashboard: <${{ steps.dashboard_url.outputs.url }}|Click here!>" >> $GITHUB_OUTPUT
+            echo "slack_message=All tests passed successfully :tada: . Cypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#00FF00" >> $GITHUB_OUTPUT
+            echo "slack_icon=:eight_spoked_asterisk:" >> $GITHUB_OUTPUT
           fi
 
       - name: Slack Notification
@@ -475,13 +489,13 @@ jobs:
         env:
           SLACK_CHANNEL: cypresspushworkflow
           SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
-          SLACK_ICON_EMOJI: ':bell:'
+          SLACK_ICON_EMOJI: ${{steps.slack_notification.outputs.slack_icon}}
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
-          SLACK_TITLE: 'Result:'
-          SLACK_USERNAME: Cloud-Hosted Tests
+          SLACK_TITLE: "Result:"
+          SLACK_USERNAME: Cloud Hosted Run
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
           MSG_MINIMAL: Ref,Event,Commit
-          SLACK_FOOTER: 'Appsmith CI runs'
+          SLACK_FOOTER: "Hosted run"
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure

@@ -15,18 +15,17 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import CheckboxGroupComponent from "../component";
 import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import IconSVG from "../icon.svg";
-
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export function defaultSelectedValuesValidation(
@@ -630,18 +629,14 @@ class CheckboxGroupWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
+    const { componentHeight } = this.props;
+
     return (
       <CheckboxGroupComponent
         accentColor={this.props.accentColor}
         borderRadius={this.props.borderRadius}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInline={this.props.isInline}
@@ -656,7 +651,7 @@ class CheckboxGroupWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         minWidth={this.props.minWidth}
         onChange={this.handleCheckboxChange}
         onSelectAllChange={this.handleSelectAllChange}
@@ -742,6 +737,7 @@ export interface CheckboxGroupWidgetProps extends WidgetProps {
   labelStyle?: string;
   accentColor: string;
   borderRadius: string;
+  labelComponentWidth?: number;
 }
 
 export default CheckboxGroupWidget;

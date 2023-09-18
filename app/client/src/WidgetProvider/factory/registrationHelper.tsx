@@ -1,12 +1,8 @@
 import React from "react";
-import withMeta from "widgets/MetaHOC";
-import { withLazyRender } from "widgets/withLazyRender";
-import withWidgetProps from "widgets/withWidgetProps";
-import { flow, identity } from "lodash";
-import * as Sentry from "@sentry/react";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import type BaseWidget from "widgets/BaseWidget";
 import WidgetFactory from ".";
+import { withBaseWidgetHOC } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 /*
  * Function to create builder for the widgets and register them in widget factory
@@ -17,14 +13,13 @@ import WidgetFactory from ".";
  */
 export const registerWidgets = (widgets: (typeof BaseWidget)[]) => {
   const widgetAndBuilders = widgets.map((widget) => {
-    const { eagerRender, needsMeta } = widget.getConfig();
+    const { eagerRender = false, needsMeta = false } = widget.getConfig();
 
-    const ProfiledWidget = flow([
-      needsMeta ? withMeta : identity,
-      withWidgetProps,
-      eagerRender ? identity : withLazyRender,
-      Sentry.withProfiler,
-    ])(widget);
+    const ProfiledWidget: any = withBaseWidgetHOC(
+      widget,
+      needsMeta,
+      eagerRender,
+    );
 
     return [
       widget,

@@ -22,18 +22,20 @@ import Pages from "pages/Editor/Explorer/Pages";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { getEditingEntityName } from "selectors/entitiesSelector";
 import {
   getExplorerActive,
   getExplorerPinned,
 } from "selectors/explorerSelector";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import styled from "styled-components";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import PartiaExportModel from "./PartialImportExport/PartialExportModal";
+import useHorizontalResize from "utils/hooks/useHorizontalResize";
+import { getEditingEntityName } from "@appsmith/selectors/entitiesSelector";
+import styled from "styled-components";
+import moment from "moment";
+import AnalyticsUtil from "../../utils/AnalyticsUtil";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>
@@ -195,6 +197,20 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       type: ReduxActionTypes.PARTIAL_IMPORT_INIT,
     });
   }, []);
+  const [hoverStartTime, setHoverStartTime] = useState(0);
+
+  const handleMouseEnter = useCallback(() => {
+    setHoverStartTime(Date.now());
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    if (hoverStartTime !== 0) {
+      const timeTaken = moment().diff(hoverStartTime, "seconds");
+      AnalyticsUtil.logEvent("TIME_TO_NAVIGATE_ENTITY_EXPLORER", { timeTaken });
+      setHoverStartTime(0);
+    }
+  }, [hoverStartTime]);
+
   return (
     <div
       className={classNames({
@@ -211,6 +227,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       {/* SIDEBAR */}
       <div
         className="flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         ref={sidebarRef}
         style={{ width: props.width }}
       >

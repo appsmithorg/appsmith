@@ -13,7 +13,7 @@ import type {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
@@ -122,13 +122,17 @@ export type GetPropertyUpdatesForQueryBinding = (
   formConfig: WidgetQueryGenerationFormConfig,
 ) => Record<string, unknown>;
 
+type SnipingModeSupportedKeys = "data" | "run" | "isDynamicPropertyPath";
+
 export type GetSnipingModeUpdates = (
-  propValueMap: Record<"data" | "run", string>,
+  propValueMap: Record<SnipingModeSupportedKeys, string | boolean>,
 ) => Array<PropertyUpdates>;
 
 export type GetCanvasHeightOffset = (widgetProps: WidgetProps) => number;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
+
+export const COMPACT_MODE_MIN_ROWS = 4;
 
 export enum BlueprintOperationTypes {
   MODIFY_PROPS = "MODIFY_PROPS",
@@ -196,8 +200,8 @@ export enum AlignWidgetTypes {
   RIGHT = "RIGHT",
 }
 
-// Minimum Rows for Widget Popups
-export const MinimumPopupRows = 12;
+// Minimum width for Widget Popups
+export const MinimumPopupWidthInPercentage = 18.75;
 
 // Default boxShadowColor used in theming migration
 export const rgbaMigrationConstantV56 = "rgba(0, 0, 0, 0.25)";
@@ -398,7 +402,10 @@ export type ThemeProp = {
   theme: Theme;
 };
 
-export type SnipingModeProperty = Record<"data" | "run", string>;
+export type SnipingModeProperty = Record<
+  SnipingModeSupportedKeys,
+  string | boolean
+>;
 
 export enum DefaultMobileCameraTypes {
   FRONT = "user",

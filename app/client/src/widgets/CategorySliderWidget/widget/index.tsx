@@ -13,7 +13,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
@@ -235,7 +235,7 @@ class CategorySliderWidget extends BaseWidget<
     }
   };
 
-  getPageView() {
+  getWidgetView() {
     const { sliderOptions, stepSize } = this.getSliderOptions();
 
     const sliderValue = sliderOptions.find(
@@ -253,7 +253,7 @@ class CategorySliderWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         loading={this.props.isLoading}
         marks={sliderOptions}
         max={stepSize * sliderOptions.length}

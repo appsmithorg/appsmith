@@ -60,7 +60,7 @@ import {
   datasourcesEditorIdURL,
   jsCollectionIdURL,
 } from "RouteBuilder";
-import { getPlugins } from "selectors/entitiesSelector";
+import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import {
   DatasourceCreateEntryPoints,
   TEMP_DATASOURCE_ID,

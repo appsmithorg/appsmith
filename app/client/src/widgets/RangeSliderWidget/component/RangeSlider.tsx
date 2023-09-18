@@ -96,6 +96,9 @@ export interface RangeSliderComponentProps
 
   /** Loading property internal to every widget  */
   loading: boolean;
+
+  /** Width of the Label in pixels, used only when Position is Left   */
+  labelComponentWidth?: number;
 }
 
 const RangeSliderComponent = (props: RangeSliderComponentProps) => {
