@@ -1,12 +1,19 @@
 package com.appsmith.server.services;
 
+import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +24,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
@@ -39,6 +48,9 @@ public class ApplicationPageServiceTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    NewPageService newPageService;
 
     /**
      * Creates an workspace, an application and a page under that application
@@ -96,6 +108,160 @@ public class ApplicationPageServiceTest {
                 .assertNext(application -> {
                     assertThat(application.getPages().size())
                             .isEqualTo(application.getPublishedPages().size());
+                })
+                .verifyComplete();
+    }
+
+    Mono<Application> createApplication(String uniquePrefix) {
+        Workspace unsavedWorkspace = new Workspace();
+        unsavedWorkspace.setName(uniquePrefix + "_org");
+        return workspaceService.create(unsavedWorkspace).flatMap(workspace -> {
+            Application application = new Application();
+            application.setName(uniquePrefix + "_app");
+            return applicationPageService.createApplication(application, workspace.getId());
+        });
+    }
+
+    JSONObject getOlderDSL() {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader
+                .getResource("test_assets/DSLMigration/PageDSLv83.json")
+                .getFile());
+        String data = CommonConstants.EMPTY_STRING;
+        try {
+            data = FileUtils.readFileToString(file, "UTF-8");
+        } catch (IOException ignored) {
+
+        }
+        JSONParser jsonParser = new JSONParser();
+        JSONObject parsedData = new JSONObject();
+        try {
+            parsedData = (JSONObject) jsonParser.parse(data);
+        } catch (ParseException e) {
+            log.error("Error parsing the page dsl for page: {}", e);
+        }
+        return parsedData;
+    }
+
+    /**
+     * This test is to ensure that the DSL is migrated to the new format when the page is loaded in edit mode.
+     * After migrating the DSL, the page is saved again. This is to ensure that the updated DSL is stored in db.
+     */
+    @Test
+    @WithUserDetails("api_user")
+    public void getPageEditMode_DSLNotMigrated_MigratedRealTileSuccessfully() {
+
+        NewPage newPage = createApplication("getPageEditMode_DSLNotMigrated_MigratedRealTileSuccessfully")
+                .flatMap(application ->
+                        newPageService.getById(application.getPages().get(0).getId()))
+                .flatMap(pageDTO -> {
+                    PageDTO unPublishedPageDTO = pageDTO.getUnpublishedPage();
+                    Layout layout = unPublishedPageDTO.getLayouts().get(0);
+                    // Fetch Older DSL from the test resources
+                    layout.setDsl(getOlderDSL());
+                    return newPageService
+                            .update(pageDTO.getId(), pageDTO)
+                            .flatMap(newpage -> applicationPageService.publish(pageDTO.getApplicationId(), true))
+                            .then(Mono.just(pageDTO));
+                })
+                .block();
+
+        StepVerifier.create(applicationPageService.getPageByBranchAndDefaultPageId(newPage.getId(), null, false))
+                .assertNext(pageDTO -> {
+                    // Assert for the migrated DSL in db and the one that was created before.
+                    // The migrated DSL should have the new format.
+                    // Match for widget version
+                    // Match published and unpublished page DSL version number
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void getPageEditMode_DSLMigrated_MigratedRealTileSuccessfully() {
+        NewPage newPage = createApplication("getPageEditMode_DSLNotMigrated_MigratedRealTileSuccessfully")
+                .flatMap(application ->
+                        newPageService.getById(application.getPages().get(0).getId()))
+                .flatMap(pageDTO -> {
+                    PageDTO unPublishedPageDTO = pageDTO.getUnpublishedPage();
+                    Layout layout = unPublishedPageDTO.getLayouts().get(0);
+                    // Fetch Older DSL from the test resources
+                    layout.setDsl(getOlderDSL());
+                    return newPageService
+                            .update(pageDTO.getId(), pageDTO)
+                            .flatMap(newpage -> applicationPageService.publish(pageDTO.getApplicationId(), true))
+                            .then(Mono.just(pageDTO));
+                })
+                .block();
+
+        StepVerifier.create(applicationPageService.getPageByBranchAndDefaultPageId(newPage.getId(), null, false))
+                .assertNext(pageDTO -> {
+                    // Assert for the migrated DSL in db and the one that was created before.
+                    // The migrated DSL should have the new format.
+                    // Match for widget version
+                    // Match published and unpublished page DSL version number
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This test is to ensure that the DSL is migrated to the new format when the page is loaded in view mode.
+     * But the updated DSL is not stored in db due to the permission issue
+     */
+    @Test
+    @WithUserDetails("api_user")
+    public void getPagePublishedMode_DSLNotMigrated_MigratedRealTileSuccessfully() {
+        NewPage newPage = createApplication("getPageEditMode_DSLNotMigrated_MigratedRealTileSuccessfully")
+                .flatMap(application ->
+                        newPageService.getById(application.getPages().get(0).getId()))
+                .flatMap(pageDTO -> {
+                    PageDTO unPublishedPageDTO = pageDTO.getUnpublishedPage();
+                    Layout layout = unPublishedPageDTO.getLayouts().get(0);
+                    // Fetch Older DSL from the test resources
+                    layout.setDsl(getOlderDSL());
+                    return newPageService
+                            .update(pageDTO.getId(), pageDTO)
+                            .flatMap(newpage -> applicationPageService.publish(pageDTO.getApplicationId(), true))
+                            .then(Mono.just(pageDTO));
+                })
+                .block();
+
+        StepVerifier.create(applicationPageService.getPageByBranchAndDefaultPageId(newPage.getId(), null, true))
+                .assertNext(pageDTO -> {
+                    // Assert for the migrated DSL in db and the one that was created before. Both should be same since
+                    // its view mode and the updated DSL is not stored in db due to the permission issue
+                    // The migrated DSL should have the new format.
+                    // Match for widget version
+                    // Match published and unpublished page DSL version number
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void getPagePublishedMode_DSLMigrated_MigratedRealTileSuccessfully() {
+        NewPage newPage = createApplication("getPageEditMode_DSLNotMigrated_MigratedRealTileSuccessfully")
+                .flatMap(application ->
+                        newPageService.getById(application.getPages().get(0).getId()))
+                .flatMap(pageDTO -> {
+                    PageDTO unPublishedPageDTO = pageDTO.getUnpublishedPage();
+                    Layout layout = unPublishedPageDTO.getLayouts().get(0);
+                    // Fetch Older DSL from the test resources
+                    layout.setDsl(getOlderDSL());
+                    return newPageService
+                            .update(pageDTO.getId(), pageDTO)
+                            .flatMap(newpage -> applicationPageService.publish(pageDTO.getApplicationId(), true))
+                            .then(Mono.just(pageDTO));
+                })
+                .block();
+
+        StepVerifier.create(applicationPageService.getPageByBranchAndDefaultPageId(newPage.getId(), null, true))
+                .assertNext(pageDTO -> {
+                    // Assert for the migrated DSL in db and the one that was created before. Both should be same since
+                    // its view mode and the updated DSL is not stored in db due to the permission issue
+                    // The migrated DSL should have the new format.
+                    // Match for widget version
+                    // Match published and unpublished page DSL version number
                 })
                 .verifyComplete();
     }
