@@ -27,10 +27,10 @@ public class DSLMigrationUtils {
 
     /**
      * This method will be used to check if the page dsl needs to be migrated or not
-     * @param pageDsl
-     * @return
+     * @param pageDslVersion Version number of the page dsl
+     * @return If the page dsl needs to be migrated or not
      */
-    public Mono<Boolean> isMigrationRequired(String pageDsl) {
+    public Mono<Boolean> isMigrationRequired(String pageDslVersion) {
         /*webClient
         .post()
         .uri(cloudServicesConfig.getBaseUrl() + "/api/v1/migration/dsl/check")
