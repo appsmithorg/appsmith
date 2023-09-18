@@ -250,7 +250,7 @@ function LogItem(props: LogItemProps) {
   const { collapsible } = props;
   return (
     <Wrapper
-      className={props.severity}
+      className={`${props.severity} ${collapsible ? "cursor-pointer" : ""}`}
       collapsed={!isOpen}
       onClick={() => {
         if (collapsible) setIsOpen(!isOpen);
