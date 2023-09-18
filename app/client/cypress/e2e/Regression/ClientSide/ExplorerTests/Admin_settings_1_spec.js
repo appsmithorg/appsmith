@@ -12,7 +12,7 @@ const routes = {
   SETTINGS: "/settings",
   GENERAL: "/settings/general",
   EMAIL: "/settings/email",
-  GOOGLE_MAPS: "/settings/google-maps",
+  DEVELOPER_SETTINGS: "/settings/developer-settings",
   AUTHENTICATION: "/settings/authentication",
   GOOGLEAUTH: "/settings/authentication/google-auth",
   GITHUBAUTH: "/settings/authentication/github-auth",
@@ -84,8 +84,8 @@ describe("Admin settings page", function () {
       cy.url().should("contain", routes.AUTHENTICATION);
       cy.get(adminsSettings.emailTab).click();
       cy.url().should("contain", routes.EMAIL);
-      cy.get(adminsSettings.googleMapsTab).click();
-      cy.url().should("contain", routes.GOOGLE_MAPS);
+      cy.get(adminsSettings.developerSettingsTab).click();
+      cy.url().should("contain", routes.DEVELOPER_SETTINGS);
       cy.get(adminsSettings.versionTab).click();
       cy.url().should("contain", routes.VERSION);
     },
@@ -105,7 +105,7 @@ describe("Admin settings page", function () {
       cy.get(adminsSettings.authenticationTab).click();
       cy.url().should("contain", routes.AUTHENTICATION);
       cy.get(adminsSettings.emailTab).click();
-      cy.get(adminsSettings.googleMapsTab).should("not.exist");
+      cy.get(adminsSettings.developerSettingsTab).should("not.exist");
       cy.url().should("contain", routes.EMAIL);
       cy.get(adminsSettings.versionTab).click();
       cy.url().should("contain", routes.VERSION);
