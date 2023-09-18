@@ -374,6 +374,11 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         }
         return requiredDefaultWorkspaceRoles.collectList().map(roles -> {
             Set<String> roleIds = roles.stream().map(PermissionGroup::getId).collect(Collectors.toSet());
+            PermissionGroup adminPermissionGroup = roles.stream()
+                    .filter(adminRoleCandidate -> adminRoleCandidate.getName().startsWith(ADMINISTRATOR))
+                    .findFirst()
+                    .get();
+
             /*
              * Making a deep copy of policies, to avoid unnecessary changes which can be reflected in other policies
              * because of the reason mentioned below.
@@ -383,6 +388,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
              */
             Set<Policy> copyPolicies =
                     role.getPolicies().stream().map(SerializationUtils::clone).collect(Collectors.toSet());
+            // Add the workspace role ids to the policies which are related to assign and read members permissions.
             copyPolicies.stream()
                     .filter(policy -> policy.getPermission()
                                     .equals(permissionGroupPermission
@@ -390,14 +396,20 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                             .getValue())
                             || policy.getPermission()
                                     .equals(permissionGroupPermission
-                                            .getUnAssignPermission()
-                                            .getValue())
-                            || policy.getPermission()
-                                    .equals(permissionGroupPermission
                                             .getMembersReadPermission()
                                             .getValue()))
                     .toList()
                     .forEach(policy -> policy.getPermissionGroups().addAll(roleIds));
+
+            // Give the workspace admin role permission to un-assign the application role.
+            copyPolicies.stream()
+                    .filter(policy -> policy.getPermission()
+                            .equals(permissionGroupPermission
+                                    .getUnAssignPermission()
+                                    .getValue()))
+                    .toList()
+                    .forEach(policy -> policy.getPermissionGroups().add(adminPermissionGroup.getId()));
+
             role.setPolicies(copyPolicies);
             return role;
         });

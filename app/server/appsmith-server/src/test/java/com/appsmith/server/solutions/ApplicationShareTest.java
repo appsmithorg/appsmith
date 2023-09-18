@@ -341,7 +341,7 @@ public class ApplicationShareTest {
                 .findFirst();
         assertThat(unAssignPolicy.isPresent()).isTrue();
         assertThat(unAssignPolicy.get().getPermissionGroups())
-                .isEqualTo(Set.of(devApplicationRole.getId(), instanceAdminRole.getId(), adminRoleId, devRoleId));
+                .isEqualTo(Set.of(instanceAdminRole.getId(), adminRoleId));
         Optional<Policy> readMembersPolicyDev = devApplicationRole.getPolicies().stream()
                 .filter(policy -> policy.getPermission().equals(AclPermission.READ_PERMISSION_GROUP_MEMBERS.getValue()))
                 .findFirst();
@@ -613,7 +613,7 @@ public class ApplicationShareTest {
                 .findFirst();
         assertThat(unAssignPolicyDev.isPresent()).isTrue();
         assertThat(unAssignPolicyDev.get().getPermissionGroups())
-                .isEqualTo(Set.of(devApplicationRole.getId(), instanceAdminRole.getId(), adminRoleId, devRoleId));
+                .isEqualTo(Set.of(instanceAdminRole.getId(), adminRoleId));
         Optional<Policy> readMembersPolicyDev = devApplicationRole.getPolicies().stream()
                 .filter(policy -> policy.getPermission().equals(AclPermission.READ_PERMISSION_GROUP_MEMBERS.getValue()))
                 .findFirst();
@@ -654,13 +654,7 @@ public class ApplicationShareTest {
                 .findFirst();
         assertThat(unAssignPolicyView.isPresent()).isTrue();
         assertThat(unAssignPolicyView.get().getPermissionGroups())
-                .isEqualTo(Set.of(
-                        viewApplicationRole.getId(),
-                        devApplicationRole.getId(),
-                        instanceAdminRole.getId(),
-                        adminRoleId,
-                        devRoleId,
-                        viewRoleId));
+                .isEqualTo(Set.of(instanceAdminRole.getId(), adminRoleId));
         Optional<Policy> readMembersPolicyView = updatedViewApplicationRole.getPolicies().stream()
                 .filter(policy -> policy.getPermission().equals(AclPermission.READ_PERMISSION_GROUP_MEMBERS.getValue()))
                 .findFirst();
@@ -933,8 +927,7 @@ public class ApplicationShareTest {
                 .findFirst();
         assertThat(unAssignPolicy.isPresent()).isTrue();
         assertThat(unAssignPolicy.get().getPermissionGroups())
-                .isEqualTo(Set.of(
-                        viewApplicationRole.getId(), instanceAdminRole.getId(), adminRoleId, devRoleId, viewRoleId));
+                .isEqualTo(Set.of(instanceAdminRole.getId(), adminRoleId));
         Optional<Policy> readMembersPolicy = viewApplicationRole.getPolicies().stream()
                 .filter(policy -> policy.getPermission().equals(AclPermission.READ_PERMISSION_GROUP_MEMBERS.getValue()))
                 .findFirst();
@@ -1175,13 +1168,7 @@ public class ApplicationShareTest {
                 .findFirst();
         assertThat(unAssignPolicy.isPresent()).isTrue();
         assertThat(unAssignPolicy.get().getPermissionGroups())
-                .isEqualTo(Set.of(
-                        viewApplicationRole.getId(),
-                        devApplicationRole.getId(),
-                        instanceAdminRole.getId(),
-                        adminRoleId,
-                        devRoleId,
-                        viewRoleId));
+                .isEqualTo(Set.of(instanceAdminRole.getId(), adminRoleId));
 
         Optional<Policy> readMembersPolicy = viewApplicationRole.getPolicies().stream()
                 .filter(policy -> policy.getPermission().equals(AclPermission.READ_PERMISSION_GROUP_MEMBERS.getValue()))
@@ -1423,8 +1410,7 @@ public class ApplicationShareTest {
                 .filter(policy -> policy.getPermission().equals(AclPermission.UNASSIGN_PERMISSION_GROUPS.getValue()))
                 .findFirst();
         assertThat(unAssignPolicyView.isPresent()).isTrue();
-        assertThat(unAssignPolicyView.get().getPermissionGroups())
-                .contains(viewApplicationRole.getId(), instanceAdminRole.getId(), adminRoleId, devRoleId, viewRoleId);
+        assertThat(unAssignPolicyView.get().getPermissionGroups()).contains(instanceAdminRole.getId(), adminRoleId);
         Optional<Policy> readMembersPolicyView = updatedViewApplicationRole.getPolicies().stream()
                 .filter(policy -> policy.getPermission().equals(AclPermission.READ_PERMISSION_GROUP_MEMBERS.getValue()))
                 .findFirst();

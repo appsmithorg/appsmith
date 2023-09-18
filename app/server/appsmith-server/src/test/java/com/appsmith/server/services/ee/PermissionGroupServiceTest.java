@@ -157,10 +157,9 @@ public class PermissionGroupServiceTest {
                             .permission(ASSIGN_PERMISSION_GROUPS.getValue())
                             .permissionGroups(Set.of(superAdminPermissionGroupId))
                             .build();
-                    // The user who created the role should be always have unassign permission on the role they created.
                     Policy unassignPgPolicy = Policy.builder()
                             .permission(UNASSIGN_PERMISSION_GROUPS.getValue())
-                            .permissionGroups(Set.of(superAdminPermissionGroupId, id))
+                            .permissionGroups(Set.of(superAdminPermissionGroupId))
                             .build();
 
                     assertThat(permissionGroup1.getPolicies())

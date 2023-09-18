@@ -130,7 +130,6 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         lateralGraph.addEdge(MANAGE_PERMISSION_GROUPS, READ_PERMISSION_GROUPS);
         lateralGraph.addEdge(DELETE_PERMISSION_GROUPS, READ_PERMISSION_GROUPS);
         lateralGraph.addEdge(READ_PERMISSION_GROUPS, ASSIGN_PERMISSION_GROUPS);
-        lateralGraph.addEdge(ASSIGN_PERMISSION_GROUPS, UNASSIGN_PERMISSION_GROUPS);
     }
 
     private void createUserGroupPolicies() {
