@@ -280,7 +280,7 @@ export class cypressSplit {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  public async cypressSplit(
+  public async splitSpecs(
     on: Cypress.PluginEvents,
     config: Cypress.PluginConfigOptions,
   ) {

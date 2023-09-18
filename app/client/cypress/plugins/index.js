@@ -216,7 +216,7 @@ module.exports = async (on, config) => {
   });
 
   if (process.env["RUNID"]) {
-    config = await cypressSplit(on, config);
+    config = await new cypressSplit().splitSpecs(on, config);
     cypressHooks(on, config);
   }
 
