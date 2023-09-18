@@ -55,8 +55,8 @@ import { areArraysEqual } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
 import { saveCopiedWidgets } from "utils/storage";
 import { createWidgetCopy } from "./WidgetOperationUtils";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
-import { getFlexLayersForSelectedWidgets } from "utils/autoLayout/AutoLayoutUtils";
+import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities

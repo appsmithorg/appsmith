@@ -1,8 +1,8 @@
+import { selectWidgetsForCurrentPage } from "@appsmith/selectors/entitiesSelector";
 import { partialExportWidgets } from "actions/widgetActions";
 import { Button, Checkbox } from "design-system";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 
 const WidgetsExport = () => {
   const dispatch = useDispatch();
