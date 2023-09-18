@@ -93,7 +93,7 @@ function ApplicationCardList({
                 size="md"
                 startIcon={"plus"}
               >
-                New Application
+                New
               </Button>
             )}
           </NoAppsFound>
