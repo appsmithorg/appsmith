@@ -106,7 +106,7 @@ jobs:
         if: needs.ci-test.result != 'success'
         shell: bash
         run: |
-          new_failed_spec_env="<ol>$(sort -u ~/combined_failed_spec_ci | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+          new_failed_spec_env="<ol>$(sort -u ~/combined_failed_spec_ci | sed 's/|cypress|cypress/<\/li>\n<li>/g' | sed -e 's/^<li>//' -e 's/<\/li>$//' -e 's/<\/li>/<\/li>\n/')</ol>"
           echo "$new_failed_spec_env"
           echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$new_failed_spec_env" >> $GITHUB_ENV
@@ -117,12 +117,18 @@ jobs:
         if: always()
         id: slack_notification
         run: |
-          if [[ "${{ needs.ci-test.result }}" != "success" ]]; then
-            echo "slack_message=There are test failures in the run.<br>${{env.new_failed_spec_env}}<br>Please check the <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Github Actions> for more details." >> $GITHUB_OUTPUT
+          if [[ ${{ needs.ci-test.result }} == 'failure' ]]; then
+            echo "slack_message=There are test failures in the run. Cypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
-          else
-            echo "slack_message=All tests passed successfully :tada: . Github Action: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click here!>" >> $GITHUB_OUTPUT
+            echo "slack_icon=:no_entry:" >> $GITHUB_OUTPUT
+          elif [[ ${{ needs.ci-test.result }} == 'success' ]]; then
+            echo "slack_message=All tests passed successfully :tada: Cypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#00FF00" >> $GITHUB_OUTPUT
+            echo "slack_icon=:white_check_mark:" >> $GITHUB_OUTPUT
+          else
+            echo "slack_message=There are build failures. To analyze run go <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>" >> $GITHUB_OUTPUT
+            echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
+            echo "slack_icon=:warning:" >> $GITHUB_OUTPUT
           fi
 
       - name: Slack Notification
@@ -132,12 +138,13 @@ jobs:
         env:
           SLACK_CHANNEL: cypresspushworkflow
           SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
+          SLACK_ICON_EMOJI: ${{steps.slack_notification.outputs.slack_icon}}
           SLACK_ICON: https://app.slack.com/services/B05D17E4QVB
-          SLACK_TITLE: 'Result:'
-          SLACK_USERNAME: Cypress Push Workflows
+          SLACK_TITLE: "Result:"
+          SLACK_USERNAME: Push Workflow
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
           MSG_MINIMAL: Ref,Event,Commit
-          SLACK_FOOTER: 'Appsmith Push Workflows'
+          SLACK_FOOTER: "Push Workflow"
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
 
       # Force save the CI failed spec list into a cache
@@ -172,7 +179,6 @@ jobs:
             echo "Integration tests have failed";
             exit 1;
           fi
-
 
   package-release:
     needs: build-docker-image
@@ -321,3 +327,40 @@ jobs:
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{ github.sha }}
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:nightly
+
+  notify-slack-for-promotion:
+    needs: ci-test
+    runs-on: ubuntu-latest
+
+    if: ( failure() && github.ref == 'refs/heads/master' )
+
+    steps:
+      - name: Notify failure on workflow run and on Slack
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o xtrace
+
+          run_url='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}'
+          common_parent_sha='${{ steps.merge.outputs.common_parent_sha }}'
+          common_parent_sha_short="$(echo "$common_parent_sha" | grep -o '^.\{8\}' || true)"
+          merged_upto_sha='${{ steps.merge.outputs.merged_upto_sha }}'
+          merged_upto_sha_short="$(echo "$merged_upto_sha" | grep -o '^.\{8\}' || true)"
+
+          details="🚨 TBP workflow failed in <$run_url|${{ github.run_id }}/attempts/${{ github.run_attempt }}>.
+
+          # This unweildy horror of a sed command, converts standard Markdown links to Slack's unweildy link syntax.
+          slack_message="$(echo "$details" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')"
+
+          # This is the ChannelId of the tech channel.
+          body="$(jq -nc \
+            --arg channel CGBPVEJ5C \
+            --arg text "$slack_message" \
+            '$ARGS.named'
+          )"
+
+          curl -v https://slack.com/api/chat.postMessage \
+            --fail-with-body \
+            --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
+            --header 'Content-Type: application/json; charset=utf-8' \
+            --data-raw "$body"

@@ -5,7 +5,7 @@ import { Text, Button } from "design-system";
 import React, { useCallback, useRef } from "react";
 import { useSelector } from "react-redux";
 import { getWidgetOptionsTree } from "sagas/selectors";
-import { getPageListAsOptions } from "selectors/entitiesSelector";
+import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";

@@ -51,7 +51,7 @@ import {
   getPluginForm,
   getPlugins,
   getSettingConfig,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { isAPIAction, isQueryAction, isSaaSAction } from "entities/Action";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
@@ -75,7 +75,7 @@ import {
 import { AppThemingMode } from "selectors/appThemingSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { startFormEvaluations } from "actions/evaluationActions";
+import { startFormEvaluations } from "@appsmith/actions/evaluationActions";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";

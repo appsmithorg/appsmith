@@ -13,7 +13,10 @@ import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { getAppMode, getJSActionFromName } from "selectors/entitiesSelector";
+import {
+  getAppMode,
+  getJSActionFromName,
+} from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
 
