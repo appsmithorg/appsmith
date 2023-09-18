@@ -597,11 +597,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .flatMap(email -> userService
                         .findByEmail(email)
                         .flatMap(user -> {
-                            log.debug("User with email {} already exists", email);
                             return Mono.just(Tuples.of(user, false));
                         })
                         .switchIfEmpty(Mono.defer(() -> {
-                            log.debug("User with email {} not found", email);
                             User newUser = new User();
                             newUser.setEmail(email);
                             newUser.setIsEnabled(false);
