@@ -644,9 +644,7 @@ jobs:
           node-version: 18
 
       - name: install pg 
-        run : |
-          npm init -y
-          npm install pg
+        run : npm install pg
       
       - name: run a script
         id: test
@@ -680,7 +678,7 @@ jobs:
                   SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
                 ) 
                 ) AND status = 'fail'`,
-              [run, attempt],
+              [RUN_ID, ATTEMPT_NUMBER],
             );
             client.release();
             return result.rows.map((spec) => spec.name);
