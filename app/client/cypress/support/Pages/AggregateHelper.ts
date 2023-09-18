@@ -594,8 +594,8 @@ export class AggregateHelper extends ReusableHelper {
     cy.get(this.locator._canvasViewport).invoke("width", `${width}px`);
   }
 
-  public ClickOutside() {
-    cy.get("body").click(0, 0, { force: true });
+  public ClickOutside(x = 0, y = 0, force = true) {
+    cy.get("body").click(x, y, { force: force });
   }
 
   public RemoveMultiSelectItems(items: string[]) {
