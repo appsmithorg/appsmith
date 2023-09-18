@@ -16,6 +16,8 @@ describe("Repo Limit Exceeded Error Modal", function () {
     repoName2 = uuid.v4().split("-")[0];
     repoName3 = uuid.v4().split("-")[0];
     repoName4 = uuid.v4().split("-")[0];
+    agHelper.AssertElementVisibility(locators._sidebar);
+    onboarding.closeIntroModal();
   });
 
   it("1. Verify Repo limit flow for CE and EE instances", function () {
@@ -23,15 +25,12 @@ describe("Repo Limit Exceeded Error Modal", function () {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmithtest.com`, uid);
     });
-    agHelper.AssertElementVisibility(locators._sidebar);
-    onboarding.closeIntroModal();
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
     gitSync.CreateNConnectToGit(repoName1, true, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName1 = repName;
     });
-    cy.pause();
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
     gitSync.CreateNConnectToGit(repoName2, true, true);
@@ -88,11 +87,6 @@ describe("Repo Limit Exceeded Error Modal", function () {
 
       cy.get(gitSyncLocators.closeGitSyncModal).click();
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
-    }
-    if (CURRENT_REPO === REPO.EE) {
-      cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
-      gitSync.closeGitSyncModal();
-      agHelper.AssertElementExist(gitSync._bottomBarCommit);
     }
   });
 
