@@ -35,6 +35,7 @@ export default class util {
       cypressRerun: this.getEnvValue("CYPRESS_RERUN", { required: false }),
     };
   }
+
   public async divideSpecsIntoBalancedGroups(
     data: DataItem[],
     numberOfGroups: number,
@@ -42,10 +43,6 @@ export default class util {
     // Sort data by duration in descending order
     const sortedData = [...data].sort(
       (a, b) => Number(b.duration) - Number(a.duration),
-    );
-    console.log(
-      "SORTED DATA IN DIVIDE SPEC BALANCE FUNCTION ====> ",
-      sortedData,
     );
 
     const groups: DataItem[][] = Array.from(
@@ -56,7 +53,7 @@ export default class util {
       // Find the group with the shortest total duration and add the item to it
       const shortestGroupIndex = groups.reduce(
         (minIndex, group, currentIndex) => {
-          const totalDurationMin = groups[minIndex].reduce(
+          const totalDuration = groups[minIndex].reduce(
             (acc, item) => acc + Number(item.duration),
             0,
           );
@@ -64,7 +61,7 @@ export default class util {
             (acc, item) => acc + Number(item.duration),
             0,
           );
-          return totalDurationCurrent < totalDurationMin
+          return totalDurationCurrent < totalDuration + numberOfGroups * 6000
             ? currentIndex
             : minIndex;
         },
