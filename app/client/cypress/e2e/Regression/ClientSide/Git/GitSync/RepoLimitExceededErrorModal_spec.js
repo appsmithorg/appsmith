@@ -45,7 +45,7 @@ describe("Repo Limit Exceeded Error Modal", function () {
     });
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
-    gitSync.CreateNConnectToGit(repoName4, true, true);
+    gitSync.CreateNConnectToGit(repoName4, false, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName4 = repName;
     });
