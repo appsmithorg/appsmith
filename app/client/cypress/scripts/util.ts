@@ -148,7 +148,7 @@ export default class util {
       );
       const active_runners = response.data.jobs.filter(
         (job) =>
-          job.status === "in_progress" &&
+          (job.status === "in_progress" || job.status === "queued") &&
           job.run_attempt === Number(this.getVars().attempt_number),
       );
       return active_runners.length;
