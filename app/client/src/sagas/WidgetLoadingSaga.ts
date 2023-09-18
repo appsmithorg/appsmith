@@ -29,36 +29,17 @@ const actionExecutionCompletionActions = [
   ReduxActionTypes.RUN_ACTION_SUCCESS,
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
   ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
-  ReduxActionTypes.RUN_ACTION_CANCELLED,
 ];
 
 const ACTION_EXECUTION_REDUX_ACTIONS = [
   // Actions
   ...actionExecutionRequestActions,
   ...actionExecutionCompletionActions,
+  ReduxActionTypes.RUN_ACTION_CANCELLED,
 
   // Widget evalution
   ReduxActionTypes.SET_EVALUATED_TREE,
 ];
-
-function* dispatchSetLoadingAction({
-  loadingEntities,
-  loadingTriggerAction,
-}: {
-  loadingEntities: Set<string>;
-  loadingTriggerAction: ReduxAction<unknown>;
-}) {
-  yield put({
-    type: ReduxActionTypes.SET_LOADING_ENTITIES,
-    payload: loadingEntities,
-  });
-
-  if (loadingTriggerAction.type !== ReduxActionTypes.SET_EVALUATED_TREE) {
-    yield put({
-      type: ReduxActionTypes.TRIGGER_EVAL,
-    });
-  }
-}
 
 function* setWidgetsLoadingSaga(action: ReduxAction<unknown>) {
   if (actionExecutionCompletionActions.includes(action.type)) {
@@ -72,9 +53,9 @@ function* setWidgetsLoadingSaga(action: ReduxAction<unknown>) {
     .map((action: ActionData) => action.config.name);
 
   if (isLoadingActions.length === 0) {
-    yield call(dispatchSetLoadingAction, {
-      loadingEntities: new Set<string>(),
-      loadingTriggerAction: action,
+    yield put({
+      type: ReduxActionTypes.SET_LOADING_ENTITIES,
+      payload: new Set<string>(),
     });
   } else {
     const inverseMap: DependencyMap = yield select(
@@ -87,10 +68,15 @@ function* setWidgetsLoadingSaga(action: ReduxAction<unknown>) {
       dataTree,
       inverseMap,
     );
+    yield put({
+      type: ReduxActionTypes.SET_LOADING_ENTITIES,
+      payload: loadingEntities,
+    });
+  }
 
-    yield call(dispatchSetLoadingAction, {
-      loadingEntities,
-      loadingTriggerAction: action,
+  if (action.type !== ReduxActionTypes.SET_EVALUATED_TREE) {
+    yield put({
+      type: ReduxActionTypes.TRIGGER_EVAL,
     });
   }
 }
