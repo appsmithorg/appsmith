@@ -24,7 +24,7 @@ import {
 } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { updateReplayEntity } from "actions/pageActions";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import type { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";

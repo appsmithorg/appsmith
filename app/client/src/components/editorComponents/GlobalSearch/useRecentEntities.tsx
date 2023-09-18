@@ -5,7 +5,7 @@ import {
   getActions,
   getAllWidgetsMap,
   getJSCollections,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";

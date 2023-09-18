@@ -39,7 +39,7 @@ import {
   getPageList,
   getPlugins,
   getPluginSettingConfigs,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { saasEditorApiIdURL } from "RouteBuilder";
 import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";
