@@ -13,13 +13,12 @@ import type {
   AutoLayoutConfig,
 } from "WidgetProvider/constants";
 import { getAnvilComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
-import type { Responsive, SizingDimension } from "@design-system/widgets";
 
 export const getAnvilDimensionsConfig = (
   props: BaseWidgetProps,
 ): {
   autoDimension: AutoDimensionOptions | undefined;
-  widgetSize: { [key: string]: Responsive<SizingDimension> };
+  widgetSize: { [key: string]: Record<string, string | number> };
 } => {
   const config: AutoLayoutConfig = getAutoLayoutWidgetConfig(props);
   return {

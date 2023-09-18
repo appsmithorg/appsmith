@@ -1,10 +1,15 @@
 import { Flex } from "@design-system/widgets";
-import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
 import type {
-  AlignSelfValues,
-  FlexDirectionValues,
-  FlexWrapValues,
-  JustifyContentValues,
+  AlignSelf,
+  FlexDirection,
+  FlexProps,
+  FlexWrap,
+  JustifyContent,
+  Responsive,
+  SizingDimension,
+  SpacingDimension,
+} from "@design-system/widgets";
+import type {
   OverflowValues,
   PositionValues,
 } from "layoutSystems/anvil/utils/autoLayoutTypes";
@@ -17,32 +22,32 @@ import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import React, { useMemo } from "react";
 import type { ReactNode } from "react";
 
-interface FlexLayoutProps {
+interface FlexLayoutProps
+  extends AlignSelf,
+    JustifyContent,
+    FlexDirection,
+    FlexWrap {
   canvasId: string;
   children: ReactNode;
   isDropTarget?: boolean;
   layoutId: string;
 
-  alignSelf?: AlignSelfValues;
   border?: string;
-  columnGap?: string;
-  flexBasis?: string;
-  flexDirection: FlexDirectionValues;
-  flexGrow?: number;
-  flexShrink?: number;
-  flexWrap?: FlexWrapValues;
-  height?: string;
-  justifyContent?: JustifyContentValues;
-  maxHeight?: string;
-  maxWidth?: string;
-  minWidth?: string;
-  minHeight?: string;
+  columnGap?: Responsive<SpacingDimension>;
+  flexBasis?: Responsive<SizingDimension>;
+  flexGrow?: Responsive<number>;
+  flexShrink?: Responsive<number>;
+  height?: Responsive<SizingDimension>;
+  maxHeight?: Responsive<SizingDimension>;
+  maxWidth?: Responsive<SizingDimension>;
+  minWidth?: Responsive<SizingDimension>;
+  minHeight?: Responsive<SizingDimension>;
   overflowX?: OverflowValues;
   overflow?: OverflowValues;
   position?: PositionValues;
-  rowGap?: string;
-  padding?: string;
-  width?: string;
+  rowGap?: Responsive<SpacingDimension>;
+  padding?: Responsive<SpacingDimension>;
+  width?: Responsive<SizingDimension>;
 }
 
 export const FlexLayout = (props: FlexLayoutProps) => {
@@ -50,11 +55,11 @@ export const FlexLayout = (props: FlexLayoutProps) => {
     return {
       alignSelf: props.alignSelf || "flex-start",
       columnGap: props.columnGap || "0px",
-      flexDirection: props.flexDirection || "column",
+      flexDirection: props.direction || "column",
       flexGrow: props.flexGrow || 0,
       flexShrink: props.flexShrink || 0,
       flexBasis: props.flexBasis || "auto",
-      flexWrap: props.flexWrap || "nowrap",
+      flexWrap: props.wrap || "nowrap",
       justifyContent: props.justifyContent || "start",
       overflowX: props.overflowX || "hidden",
       overflowY: props.overflow || "hidden",

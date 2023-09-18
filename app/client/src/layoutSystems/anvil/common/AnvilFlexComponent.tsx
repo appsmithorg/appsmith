@@ -26,7 +26,7 @@ import type { Responsive, SizingDimension } from "@design-system/widgets";
 export type AnvilFlexComponentProps = FlexComponentProps & {
   hasAutoWidth: boolean;
   hasAutoHeight: boolean;
-  widgetSize?: { [key: string]: Responsive<SizingDimension> };
+  widgetSize?: { [key: string]: Record<string, string | number> };
 };
 
 // Using a button to wrap the widget to ensure that accessibility features are included by default.
@@ -110,11 +110,11 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
    * Updates minWidth style for the widget based on its responsiveBehavior:
    * A Fill widget will expand to assume 100% of its parent's width when its parent width < 480px.
    * For other situations, it will adopt the minWidth provided in its widget config.
-   * @param config Responsive<SizingDimension> | undefined
+   * @param config Record<string, string | number> | undefined
    * @returns Responsive<SizingDimension> | undefined
    */
   const getMinWidth = (
-    config: Responsive<SizingDimension> | undefined,
+    config: Record<string, string | number> | undefined,
   ): Responsive<SizingDimension> | undefined => {
     /**
      * If config is undefined,
@@ -127,24 +127,13 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     // If widget is not a Fill widget, return the config as is.
     if (!isFillWidget) return config;
 
-    // If config is an object, update the base and mobile breakpoint.
-    if (typeof config === "object") {
-      const baseMinWidth = config["base"];
-      return {
-        ...config,
-        base: "100%",
-        [`${MOBILE_BREAKPOINT}px`]:
-          config[`${MOBILE_BREAKPOINT}px`] || baseMinWidth,
-      } as Responsive<SizingDimension>;
-    }
-    // else config is a primitive type
-    return { base: "100%", [`${MOBILE_BREAKPOINT}px`]: config };
-
-    /**
-     * config is supposed to be an object.
-     * However, type Responsive allows primitive types as well.
-     * Hence the additional checks above.
-     */
+    const baseMinWidth = config["base"];
+    return {
+      ...config,
+      base: "100%",
+      [`${MOBILE_BREAKPOINT}px`]:
+        config[`${MOBILE_BREAKPOINT}px`] || baseMinWidth,
+    } as Responsive<SizingDimension>;
   };
 
   // Memoize flex props to be passed to the WDS Flex component.

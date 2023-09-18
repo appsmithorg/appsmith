@@ -1,4 +1,3 @@
-import type { Responsive, SizingDimension } from "@design-system/widgets";
 import type {
   AutoDimensionOptions,
   AutoLayoutConfig,
@@ -33,10 +32,10 @@ export const restructureWidgetSizeConfig = (
   sizeConfig: Array<WidgetSizeConfig> | undefined,
   props: BaseWidgetProps,
 ): {
-  maxHeight: Responsive<SizingDimension>;
-  maxWidth: Responsive<SizingDimension>;
-  minHeight: Responsive<SizingDimension>;
-  minWidth: Responsive<SizingDimension>;
+  maxHeight: Record<string, string | number>;
+  maxWidth: Record<string, string | number>;
+  minHeight: Record<string, string | number>;
+  minWidth: Record<string, string | number>;
 } => {
   /**
    * Size config is stored as an array of objects.
@@ -49,10 +48,10 @@ export const restructureWidgetSizeConfig = (
    */
   // TODO: We should look into how size config is stored. Both structure and values can be updated.
   const res: {
-    maxHeight: Responsive<SizingDimension>;
-    maxWidth: Responsive<SizingDimension>;
-    minHeight: Responsive<SizingDimension>;
-    minWidth: Responsive<SizingDimension>;
+    maxHeight: Record<string, string | number>;
+    maxWidth: Record<string, string | number>;
+    minHeight: Record<string, string | number>;
+    minWidth: Record<string, string | number>;
   } = {
     maxHeight: {},
     maxWidth: {},
