@@ -116,6 +116,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
@@ -4184,6 +4185,31 @@ public class GitServiceCETest {
                     assertThat(app.getGitApplicationMetadata().getBranchName()).isEqualTo("develop");
                     assertThat(app.getGitApplicationMetadata().getGitAuth()).isNotNull();
                 })
+                .verifyComplete();
+    }
+
+    // The branch can be configured in free trial but when the user downgrades the plan,
+    // behaviour will be not same as the paid version.
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void isProtectedBranch_branchNotConfiguredInPaidVersion_notProtected() {
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        List<String> protectedBranches = List.of("master", "feature");
+        gitApplicationMetadata.setBranchProtectionRules(protectedBranches);
+        StepVerifier.create(gitService.isProtectedBranch("feature", gitApplicationMetadata))
+                .assertNext(aBoolean -> assertEquals(false, aBoolean))
+                .verifyComplete();
+    }
+
+    // Branch not configured is empty and user is in free version
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void isProtectedBranch_branchNotConfiguredInFreeVersion_notProtected() {
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        List<String> protectedBranches = List.of();
+        gitApplicationMetadata.setBranchProtectionRules(protectedBranches);
+        StepVerifier.create(gitService.isProtectedBranch("feature", gitApplicationMetadata))
+                .assertNext(aBoolean -> assertEquals(false, aBoolean))
                 .verifyComplete();
     }
 }

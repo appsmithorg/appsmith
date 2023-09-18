@@ -425,8 +425,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         boolean isSystemGenerated = isSystemGeneratedTemp;
         Mono<String> commitMono = this.getApplicationById(defaultApplicationId)
-                .flatMap(application -> gitPrivateRepoHelper
-                        .isProtectedBranch(branchName, application.getGitApplicationMetadata())
+                .flatMap(application -> isProtectedBranch(branchName, application.getGitApplicationMetadata())
                         .flatMap(status -> {
                             if (Boolean.TRUE.equals(status)) {
                                 return Mono.error(new AppsmithException(
@@ -1586,8 +1585,7 @@ public class GitServiceCEImpl implements GitServiceCE {
          * */
 
         Mono<GitPullDTO> pullMono = getApplicationById(defaultApplicationId)
-                .flatMap(application -> gitPrivateRepoHelper
-                        .isProtectedBranch(branchName, application.getGitApplicationMetadata())
+                .flatMap(application -> isProtectedBranch(branchName, application.getGitApplicationMetadata())
                         .flatMap(status -> {
                             if (Boolean.TRUE.equals(status)) {
                                 return Mono.error(new AppsmithException(
@@ -2687,8 +2685,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<Application> deleteBranch(String defaultApplicationId, String branchName) {
         Mono<Application> deleteBranchMono = getApplicationById(defaultApplicationId)
-                .flatMap(application -> gitPrivateRepoHelper
-                        .isProtectedBranch(branchName, application.getGitApplicationMetadata())
+                .flatMap(application -> isProtectedBranch(branchName, application.getGitApplicationMetadata())
                         .flatMap(status -> {
                             if (Boolean.TRUE.equals(status)) {
                                 return Mono.error(new AppsmithException(
@@ -2849,6 +2846,11 @@ public class GitServiceCEImpl implements GitServiceCE {
             gitDocsDTOList.add(gitDocsDTO);
         }
         return Mono.just(gitDocsDTOList);
+    }
+
+    @Override
+    public Mono<Boolean> isProtectedBranch(String branchName, GitApplicationMetadata gitApplicationMetadata) {
+        return Mono.just(Boolean.FALSE);
     }
 
     private Mono<Application> deleteApplicationCreatedFromGitImport(
