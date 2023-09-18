@@ -87,6 +87,7 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
       data-hovered={isHovered ? "" : undefined}
       data-invalid={validationState === "invalid" ? "" : undefined}
       data-label=""
+      data-label-position={props.labelPosition}
       data-state={dataState}
       ref={domRef}
     >

@@ -1,0 +1,23 @@
+/* Note: these styles will shared across radio, Radio and toggle components */
+.inline-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-height: var(--sizing-4);
+  position: relative;
+  cursor: pointer;
+
+  &[data-label-position="left"] {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+  }
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-disabled] {
+    opacity: var(--opacity-disabled);
+    cursor: default;
+  }
+}
