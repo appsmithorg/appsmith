@@ -6,16 +6,21 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.MockDataSet;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
@@ -52,6 +57,7 @@ public class DatasourceControllerCE {
     private final MockDataService mockDataService;
     private final DatasourceTriggerSolution datasourceTriggerSolution;
     private final DatasourceService datasourceService;
+    private final RateLimitService rateLimitService;
 
     @Autowired
     public DatasourceControllerCE(
@@ -59,12 +65,14 @@ public class DatasourceControllerCE {
             DatasourceStructureSolution datasourceStructureSolution,
             AuthenticationService authenticationService,
             MockDataService datasourceService,
-            DatasourceTriggerSolution datasourceTriggerSolution) {
+            DatasourceTriggerSolution datasourceTriggerSolution,
+            RateLimitService rateLimitService) {
         this.datasourceService = service;
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
         this.mockDataService = datasourceService;
         this.datasourceTriggerSolution = datasourceTriggerSolution;
+        this.rateLimitService = rateLimitService;
     }
 
     @JsonView(Views.Public.class)
@@ -132,9 +140,29 @@ public class DatasourceControllerCE {
             @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
 
         log.debug("Going to test the datasource with id: {}", datasourceStorageDTO.getDatasourceId());
-        return datasourceService
-                .testDatasource(datasourceStorageDTO, activeEnvironmentId)
-                .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
+        List<Endpoint> endpoints =
+                datasourceStorageDTO.getDatasourceConfiguration().getEndpoints();
+        String hostName = "";
+        if (endpoints.size() > 0) {
+            hostName = endpoints.get(0).getHost();
+        }
+        DatasourceTestResult testResult1 = new DatasourceTestResult();
+        Mono<Boolean> tryConsumeMono =
+                rateLimitService.tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, hostName);
+        System.out.println("Mono: " + tryConsumeMono);
+        tryConsumeMono.flatMap(counterIncreaseAttemptSuccessful -> {
+            System.out.println("Rate Limit Attempt: " + counterIncreaseAttemptSuccessful);
+            if (Boolean.TRUE.equals(counterIncreaseAttemptSuccessful)) {
+                return datasourceService
+                        .testDatasource(datasourceStorageDTO, activeEnvironmentId)
+                        .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
+            } else {
+                System.out.println("Rate Limit Exceeded");
+                AppsmithException exception = new AppsmithException(AppsmithError.TOO_MANY_REQUESTS);
+                return Mono.just(new ResponseDTO<>(exception.getHttpStatus(), exception.getMessage(), null));
+            }
+        });
+        return Mono.just(new ResponseDTO<>(HttpStatus.OK.value(), testResult1, null));
     }
 
     @JsonView(Views.Public.class)

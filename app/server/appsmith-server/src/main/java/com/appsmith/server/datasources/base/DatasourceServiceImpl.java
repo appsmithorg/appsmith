@@ -3,6 +3,7 @@ package com.appsmith.server.datasources.base;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -35,7 +36,8 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
             DatasourceStorageService datasourceStorageService,
-            EnvironmentPermission environmentPermission) {
+            EnvironmentPermission environmentPermission,
+            RateLimitService rateLimitService) {
 
         super(
                 repository,
@@ -51,6 +53,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 datasourcePermission,
                 workspacePermission,
                 datasourceStorageService,
-                environmentPermission);
+                environmentPermission,
+                rateLimitService);
     }
 }

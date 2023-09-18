@@ -14,6 +14,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -21,6 +22,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -81,6 +83,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     protected final DatasourceStorageService datasourceStorageService;
     private final AnalyticsService analyticsService;
     private final EnvironmentPermission environmentPermission;
+    private final RateLimitService rateLimitService;
 
     @Autowired
     public DatasourceServiceCEImpl(
@@ -97,7 +100,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
             DatasourceStorageService datasourceStorageService,
-            EnvironmentPermission environmentPermission) {
+            EnvironmentPermission environmentPermission,
+            RateLimitService rateLimitService) {
 
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -113,6 +117,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.analyticsService = analyticsService;
         this.repository = repository;
         this.environmentPermission = environmentPermission;
+        this.rateLimitService = rateLimitService;
     }
 
     @Override
@@ -435,6 +440,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<DatasourceTestResult> testDatasource(
             DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId) {
+        log.debug("Test datasource method called: ");
 
         DatasourceStorage datasourceStorage =
                 datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
@@ -529,7 +535,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     }
 
                     return datasourceTestResultMono
-                            .flatMap(datasourceTestResult -> {
+                            .zipWith(sessionUserService.getCurrentUser())
+                            .flatMap(tuple -> {
+                                DatasourceTestResult datasourceTestResult = tuple.getT1();
+                                User user = tuple.getT2();
                                 if (!CollectionUtils.isEmpty(datasourceTestResult.getInvalids())) {
                                     return analyticsService
                                             .sendObjectEvent(
@@ -540,6 +549,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                             .thenReturn(datasourceTestResult);
 
                                 } else {
+                                    // we reset the counter for datasource test after succuessful test
+                                    rateLimitService.resetCounter(
+                                            RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, "testUsername");
                                     return analyticsService
                                             .sendObjectEvent(
                                                     AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
