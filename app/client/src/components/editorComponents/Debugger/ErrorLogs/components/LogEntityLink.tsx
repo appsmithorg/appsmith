@@ -12,7 +12,7 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
-import { getPlugins } from "selectors/entitiesSelector";
+import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import EntityLink, { DebuggerLinkUI } from "../../EntityLink";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
@@ -94,6 +94,7 @@ export default function LogEntityLink(props: LogItemProps) {
             errorSubType={props.messages && props.messages[0].message.name}
             errorType={props.logType}
             id={props.source.id}
+            message={props.messages && props.messages[0]}
             name={props.source.name}
             plugin={plugin}
             pluginType={props.source.pluginType}

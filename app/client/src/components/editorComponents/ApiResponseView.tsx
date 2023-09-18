@@ -13,7 +13,7 @@ import type { SourceEntity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { getActionResponses } from "selectors/entitiesSelector";
+import { getActionResponses } from "@appsmith/selectors/entitiesSelector";
 import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
@@ -259,7 +259,6 @@ export const responseTabComponent = (
   return {
     [API_RESPONSE_TYPE_OPTIONS.JSON]: (
       <ReadOnlyEditor
-        containerHeight={tableBodyHeight}
         folding
         height={"100%"}
         input={{
@@ -272,7 +271,6 @@ export const responseTabComponent = (
     ),
     [API_RESPONSE_TYPE_OPTIONS.RAW]: (
       <ReadOnlyEditor
-        containerHeight={tableBodyHeight}
         folding
         height={"100%"}
         input={{

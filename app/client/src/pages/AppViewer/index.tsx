@@ -44,13 +44,14 @@ import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import type { FontFamily } from "@design-system/theming";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
 } from "@design-system/theming";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
-import { showProductRamps } from "utils/ProductRamps";
+import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -108,15 +109,18 @@ function AppViewer(props: Props) {
   const { theme } = useTheme({
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
     seedColor: selectedTheme.properties.colors.primaryColor,
+    fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
   });
   const focusRef = useWidgetFocus();
+
+  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
+  const canShowRamp = useSelector(showRampSelector);
 
   const workspaceId = currentApplicationDetails?.workspaceId || "";
   const showBottomBar = useSelector((state: AppState) => {
     return (
       areEnvironmentsFetched(state, workspaceId) &&
-      datasourceEnvEnabled(state) &&
-      showProductRamps(RAMP_NAME.MULTIPLE_ENV)
+      (datasourceEnvEnabled(state) || canShowRamp)
     );
   });
 
@@ -127,7 +131,7 @@ function AppViewer(props: Props) {
     editorInitializer().then(() => {
       dispatch(widgetInitialisationSuccess());
     });
-  });
+  }, []);
   /**
    * initialize the app if branch, pageId or application is changed
    */

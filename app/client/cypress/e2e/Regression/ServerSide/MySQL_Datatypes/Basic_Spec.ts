@@ -36,7 +36,7 @@ describe("MySQL Datatype tests", function () {
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
     });
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       entityExplorer._entityNameInExplorer(inputData.tableName),
     );
 
@@ -83,7 +83,9 @@ describe("MySQL Datatype tests", function () {
       });
       i % 2 && agHelper.ToggleSwitch("Bool_column");
       agHelper.ClickButton("insertRecord");
-      agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+      agHelper.AssertElementVisibility(
+        locators._buttonByText("Run InsertQuery"),
+      );
       agHelper.Sleep(2000);
     });
   });

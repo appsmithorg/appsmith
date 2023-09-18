@@ -31,7 +31,7 @@ import {
   getIsExecutingJSAction,
   getJSActions,
   getJSCollectionParseErrors,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { JSActionDropdownOption } from "./utils";
 import {
   convertJSActionsToDropdownOptions,
@@ -52,7 +52,7 @@ import {
   TabbedViewContainer,
 } from "./styledComponents";
 import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import {
   hasDeleteActionPermission,
   hasExecuteActionPermission,
@@ -92,9 +92,6 @@ const SecondaryWrapper = styled.div`
     .ads-v2-tabs,
     &.js-editor-tab {
       height: 100%;
-    }
-    .js-editor-tab .js-editor {
-      padding-top: var(--ads-v2-spaces-4);
     }
   }
 `;

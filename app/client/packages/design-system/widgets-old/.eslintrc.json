@@ -1,0 +1,7 @@
+{
+  "extends": ["../../../.eslintrc.base.json"],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
+    "react/display-name": "off"
+  }
+}

@@ -1,5 +1,8 @@
-import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
-import type { DSLWidget } from "widgets/constants";
+import {
+  Positioning,
+  ResponsiveBehavior,
+} from "layoutSystems/autolayout/utils/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import {
   fitChildWidgetsIntoLayers,
   getAutoCanvasWidget,
@@ -8,7 +11,7 @@ import {
   processGroupedWidgets,
 } from "../fixedToAutoLayout";
 
-jest.mock("utils/WidgetFactory", () => ({
+jest.mock("WidgetProvider/factory/index", () => ({
   widgetConfigMap: {
     get: jest.fn(() => {
       /**/

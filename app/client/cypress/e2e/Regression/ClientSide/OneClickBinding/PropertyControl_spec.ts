@@ -99,30 +99,24 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     propPane.ToggleJSMode("Table data", false);
 
-    oneClickBinding.ChooseAndAssertForm(
-      "Users",
-      "Users",
-      "public.users",
-      "gender",
-    );
+    oneClickBinding.ChooseAndAssertForm("Users", "Users", "public.users", {
+      searchableColumn: "gender",
+    });
 
     propPane.MoveToTab("Style");
 
     propPane.MoveToTab("Content");
 
-    oneClickBinding.ChooseAndAssertForm(
-      "sample Movies",
-      "movies",
-      "movies",
-      "status",
-    );
+    oneClickBinding.ChooseAndAssertForm("sample Movies", "movies", "movies", {
+      searchableColumn: "status",
+    });
 
     entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Mongo");
     agHelper.RenameWithInPane("myinvalidds", false);
 
-    agHelper.UpdateInputValue(dataSources._host, "127.0.0.1");
+    agHelper.UpdateInputValue(dataSources._host(), "127.0.0.1");
     agHelper.UpdateInputValue(dataSources._port, "8000");
 
     dataSources.SaveDatasource();
@@ -150,7 +144,7 @@ describe("excludeForAirgap", "One click binding control", () => {
       dataSources.CreatePlugIn("Mongo");
       agHelper.RenameWithInPane(`dummy${I}`, false);
 
-      agHelper.UpdateInputValue(dataSources._host, "127.0.0.1");
+      agHelper.UpdateInputValue(dataSources._host(), "127.0.0.1");
       agHelper.UpdateInputValue(dataSources._port, "8000");
 
       dataSources.SaveDatasource();

@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import type { CanvasWidgetStructure } from "widgets/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
@@ -12,7 +12,7 @@ import {
   getAppMode,
 } from "@appsmith/selectors/applicationSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { PageView, PageViewContainer } from "./AppPage.styled";
+import { PageView, PageViewWrapper } from "./AppPage.styled";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { APP_MODE } from "entities/App";
 import { useLocation } from "react-router";
@@ -50,7 +50,7 @@ export function AppPage(props: AppPageProps) {
   }, [props.pageId, props.pageName]);
 
   return (
-    <PageViewContainer
+    <PageViewWrapper
       hasPinnedSidebar={
         currentApplicationDetails?.applicationDetail?.navigationSetting
           ?.orientation === NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
@@ -65,7 +65,7 @@ export function AppPage(props: AppPageProps) {
         {props.widgetsStructure.widgetId &&
           WidgetFactory.createWidget(props.widgetsStructure, RenderModes.PAGE)}
       </PageView>
-    </PageViewContainer>
+    </PageViewWrapper>
   );
 }
 

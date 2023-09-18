@@ -25,9 +25,11 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import { ScannerLayout } from "../constants";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 import { usePageVisibility } from "react-page-visibility";
 import { importSvg } from "design-system-old";
+import { getVideoConstraints } from "widgets/utils";
+import { isMobile } from "react-device-detect";
 
 const CameraOfflineIcon = importSvg(
   () => import("assets/icons/widget/camera/camera-offline.svg"),
@@ -154,6 +156,7 @@ export interface DisabledOverlayerProps {
 
 const CodeScannerContainer = styled.div`
   height: 100%;
+  width: 100%;
 `;
 
 const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
@@ -415,9 +418,13 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
   const [error, setError] = useState<string>("");
   const [isImageMirrored, setIsImageMirrored] = useState(false);
   const [videoConstraints, setVideoConstraints] =
-    useState<MediaTrackConstraints>({
-      facingMode: "environment",
-    });
+    useState<MediaTrackConstraints>(
+      isMobile
+        ? {
+            facingMode: { ideal: props.defaultCamera },
+          }
+        : {},
+    );
 
   /**
    * Check if the tab is active.
@@ -458,10 +465,13 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
   const handleMediaDeviceChange = useCallback(
     (mediaDeviceInfo: MediaDeviceInfo) => {
       if (mediaDeviceInfo.kind === "videoinput") {
-        setVideoConstraints({
-          ...videoConstraints,
-          deviceId: mediaDeviceInfo.deviceId,
-        });
+        const constraints = getVideoConstraints(
+          videoConstraints,
+          isMobile,
+          "",
+          mediaDeviceInfo.deviceId,
+        );
+        setVideoConstraints(constraints);
       }
     },
     [],
@@ -629,6 +639,7 @@ export interface CodeScannerComponentProps extends ComponentProps {
   onCodeDetected: (value: string) => void;
   scannerLayout: ScannerLayout;
   shouldButtonFitContent: boolean;
+  defaultCamera: string;
 }
 
 export default CodeScannerComponent;

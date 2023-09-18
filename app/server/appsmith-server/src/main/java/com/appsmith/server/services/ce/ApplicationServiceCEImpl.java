@@ -289,6 +289,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return applicationIdMono.flatMap(appId -> repository
                 .updateById(appId, application, applicationPermission.getEditPermission())
                 .onErrorResume(error -> {
+                    log.error("failed to update application {}", appId, error);
                     if (error instanceof DuplicateKeyException) {
                         // Error message : E11000 duplicate key error collection: appsmith.application index:
                         // workspace_app_deleted_gitApplicationMetadata dup key:
@@ -630,21 +631,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     return application;
                 });
 
-        return configService
-                .getTemplateApplications()
-                .map(application -> application.getId())
-                .defaultIfEmpty("")
-                .collectList()
-                .cache()
-                .repeat()
-                .zipWith(updatedApplicationWithIsPublicFlux)
-                .map(tuple -> {
-                    List<String> templateApplicationIds = tuple.getT1();
-                    Application application = tuple.getT2();
-
-                    application.setAppIsExample(templateApplicationIds.contains(application.getId()));
-                    return application;
-                });
+        return updatedApplicationWithIsPublicFlux;
     }
 
     /**

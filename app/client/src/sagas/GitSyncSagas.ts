@@ -29,7 +29,9 @@ import type {
   GenerateSSHKeyPairResponsePayload,
   GetSSHKeyPairReduxAction,
   GetSSHKeyResponseData,
+  GitStatusParams,
 } from "actions/gitSyncActions";
+import { fetchGitRemoteStatusSuccess } from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
   connectToGitSuccess,
@@ -87,6 +89,7 @@ import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
+  getIsGitStatusLiteEnabled,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
@@ -99,7 +102,10 @@ import { builderURL } from "RouteBuilder";
 import { APP_MODE } from "entities/App";
 import type { GitDiscardResponse } from "reducers/uiReducers/gitSyncReducer";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { getActions, getJSCollections } from "selectors/entitiesSelector";
+import {
+  getActions,
+  getJSCollections,
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
@@ -231,7 +237,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     }
   } catch (error) {
     if (action.onErrorCallback) {
-      action.onErrorCallback(error as string);
+      action.onErrorCallback(error as Error, response);
     }
 
     const isRepoLimitReachedError: boolean = yield call(
@@ -522,7 +528,12 @@ function* updateLocalGitConfig(action: ReduxAction<GitConfig>) {
   }
 }
 
-function* fetchGitStatusSaga() {
+function* fetchGitStatusSaga(action: ReduxAction<GitStatusParams>) {
+  const isLiteEnabled: boolean = yield select(getIsGitStatusLiteEnabled);
+  const shouldCompareRemote = isLiteEnabled
+    ? !!action.payload?.compareRemote
+    : true;
+
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
@@ -532,6 +543,7 @@ function* fetchGitStatusSaga() {
     response = yield GitSyncAPI.getGitStatus({
       applicationId,
       branch: gitMetaData?.branchName || "",
+      compareRemote: shouldCompareRemote ? "true" : "false",
     });
     const isValidResponse: boolean = yield validateResponse(
       response,
@@ -554,6 +566,58 @@ function* fetchGitStatusSaga() {
       type: ReduxActionErrorTypes.FETCH_GIT_STATUS_ERROR,
       payload,
     });
+
+    // non api error
+    if (!response || response?.responseMeta?.success) {
+      throw error;
+    }
+  }
+}
+
+interface FetchRemoteStatusSagaAction extends ReduxAction<undefined> {
+  onSuccessCallback?: (data: any) => void;
+  onErrorCallback?: (error: Error, response?: any) => void;
+}
+
+function* fetchGitRemoteStatusSaga(action: FetchRemoteStatusSagaAction) {
+  let response: ApiResponse | undefined;
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const gitMetaData: GitApplicationMetadata = yield select(
+      getCurrentAppGitMetaData,
+    );
+    response = yield GitSyncAPI.getGitRemoteStatus({
+      applicationId,
+      branch: gitMetaData?.branchName || "",
+    });
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
+      yield put(fetchGitRemoteStatusSuccess(response?.data));
+    }
+    if (typeof action?.onSuccessCallback === "function") {
+      action.onSuccessCallback(response?.data);
+    }
+  } catch (error) {
+    const payload = { error, show: !action?.onErrorCallback };
+    if ((error as Error)?.message?.includes("Auth fail")) {
+      payload.error = new Error(createMessage(ERROR_GIT_AUTH_FAIL));
+    } else if ((error as Error)?.message?.includes("Invalid remote: origin")) {
+      payload.error = new Error(createMessage(ERROR_GIT_INVALID_REMOTE));
+    }
+
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_GIT_REMOTE_STATUS_ERROR,
+      payload,
+    });
+
+    if (typeof action?.onErrorCallback === "function") {
+      action.onErrorCallback(error as Error, response);
+    }
 
     // non api error
     if (!response || response?.responseMeta?.success) {
@@ -688,7 +752,11 @@ function* showConnectGitModal() {
   // currently it just opens the git sync modal assuming the APIs would
   // throw an error instead
   yield put(
-    setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+    setIsGitSyncModalOpen({
+      isOpen: true,
+      tab: GitSyncModalTab.DEPLOY,
+      isDeploying: true,
+    }),
   );
 }
 
@@ -812,7 +880,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
     }
   } catch (error) {
     if (action.onErrorCallback) {
-      action.onErrorCallback(error as string);
+      action.onErrorCallback(error as Error, response);
     }
 
     const isRepoLimitReachedError: boolean = yield call(
@@ -973,6 +1041,7 @@ const gitRequestActions: Record<
   [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT]: fetchLocalGitConfig,
   [ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT]: updateLocalGitConfig,
   [ReduxActionTypes.FETCH_GIT_STATUS_INIT]: fetchGitStatusSaga,
+  [ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_INIT]: fetchGitRemoteStatusSaga,
   [ReduxActionTypes.MERGE_BRANCH_INIT]: mergeBranchSaga,
   [ReduxActionTypes.FETCH_MERGE_STATUS_INIT]: fetchMergeStatusSaga,
   [ReduxActionTypes.GIT_PULL_INIT]: gitPullSaga,

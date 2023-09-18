@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import styled from "styled-components";
-import { Icon } from "design-system";
+import { Icon, Switch } from "design-system";
 import {
   Popover,
   InputGroup,
@@ -21,13 +21,20 @@ import {
   getThemePropertyBinding,
 } from "constants/ThemeConstants";
 import { getWidgets } from "sagas/selectors";
-import { extractColorsFromString } from "utils/helpers";
+import {
+  extractColorsFromString,
+  isEmptyOrNill,
+  isValidColor,
+} from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
 import { getBrandColors } from "@appsmith/selectors/tenantSelectors";
-
-const FocusTrap = require("focus-trap-react");
+import FocusTrap from "focus-trap-react";
+import {
+  createMessage,
+  FULL_COLOR_PICKER_LABEL,
+} from "@appsmith/constants/messages";
 
 const MAX_COLS = 10;
 
@@ -46,6 +53,9 @@ interface ColorPickerProps {
   isOpen?: boolean;
   placeholderText?: string;
   portalContainer?: HTMLElement;
+  onPopupClosed?: () => void;
+  isFullColorPicker?: boolean;
+  setFullColorPicker?: (value: boolean) => void;
 }
 
 /**
@@ -73,7 +83,10 @@ const ColorPickerIconContainer = styled.div`
   z-index: 1;
 `;
 
-const StyledInputGroup = styled(InputGroup)`
+const StyledInputGroup = styled(InputGroup)<{
+  $isValid?: boolean;
+  $isFullColorPicker?: boolean;
+}>`
   .${Classes.INPUT} {
     box-shadow: none;
     border: 1px solid var(--ads-v2-color-border);
@@ -83,22 +96,29 @@ const StyledInputGroup = styled(InputGroup)`
     }
   }
   &&& input {
-    padding-left: 36px;
+    padding: ${({ $isFullColorPicker }) =>
+      $isFullColorPicker ? "0px 2px" : "0 10px 0 36px"};
     height: 36px;
-    border: 1px solid var(--ads-v2-color-border);
+    border: ${({ $isValid }) =>
+      $isValid
+        ? "1px solid var(--ads-v2-color-border)"
+        : "1px solid var(--ads-v2-color-border-error)"};
     background: ${(props) =>
       props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
     color: ${(props) => props.theme.colors.propertyPane.label};
 
-    &:hover {
-      border-color: var(--ads-v2-color-border-emphasis);
-    }
-
     &:focus {
-      border: 1px solid var(--ads-v2-color-border-emphasis);
       outline: var(--ads-v2-border-width-outline) solid
         var(--ads-v2-color-outline);
       outline-offset: var(--ads-v2-offset-outline);
+    }
+
+    &:hover,
+    &:focus {
+      border-color: ${({ $isValid }) =>
+        $isValid
+          ? "var(--ads-v2-color-border-emphasis)"
+          : "var(--ads-v2-color-border-error)"};
     }
   }
 `;
@@ -117,7 +137,6 @@ interface ColorPickerPopupProps {
 
 const PopupContainer = styled.div`
   padding: 0.75rem;
-  width: 18rem;
   border-radius: var(--ads-v2-border-radius);
   border: 1px solid var(--ads-v2-color-border);
 `;
@@ -126,10 +145,9 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
   const themeColors = useSelector(getSelectedAppThemeProperties).colors;
   const brandColors = useSelector(getBrandColors);
   const widgets = useSelector(getWidgets);
-  const DSLStringified = JSON.stringify(widgets);
   const applicationColors = useMemo(() => {
-    return extractColorsFromString(DSLStringified);
-  }, [DSLStringified]);
+    return extractColorsFromString(widgets);
+  }, []);
   const {
     changeColor,
     color,
@@ -169,7 +187,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
           <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
           <section className="space-y-2">
             <h3 className="text-xs">Theme Colors</h3>
-            <div className="grid grid-cols-10 gap-2">
+            <div className="grid grid-cols-5 gap-2">
               {Object.keys(themeColors).map((colorKey, colorIndex) => (
                 <div
                   className={`${COLOR_BOX_CLASSES} ${
@@ -199,7 +217,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
       {brandColors && Object.keys(brandColors).length > 0 && (
         <section className="space-y-2">
           <h3 className="text-xs">Brand Colors</h3>
-          <div className="grid grid-cols-10 gap-2">
+          <div className="grid grid-cols-5 gap-2">
             {Object.keys(brandColors).map(
               (colorKey: string, colorIndex: number) => (
                 <div
@@ -223,7 +241,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
       {showApplicationColors && applicationColors.length > 0 && (
         <section className="space-y-2">
           <h3 className="text-xs">Application Colors</h3>
-          <div className="grid grid-cols-10 gap-2">
+          <div className="grid grid-cols-5 gap-2">
             {Object.values(applicationColors).map(
               (colorCode: string, colorIndex) => (
                 <div
@@ -246,8 +264,15 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
       )}
 
       <section className="space-y-2">
-        <h3 className="text-xs">All Colors</h3>
-        <div className="grid grid-cols-10 gap-2 t--tailwind-colors">
+        {(showThemeColors ||
+          (brandColors && Object.keys(brandColors).length > 0) ||
+          (showApplicationColors && applicationColors.length > 0)) && (
+          <h3 className="text-xs">All Colors</h3>
+        )}
+        <div
+          className="grid grid-cols-5 gap-2 t--tailwind-colors"
+          data-testid="t--all-colors"
+        >
           {Object.keys(TAILWIND_COLORS).map((colorKey, rowIndex) =>
             Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
               (singleColorKey, colIndex) => (
@@ -275,27 +300,6 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
               ),
             ),
           )}
-
-          <div
-            className={`${COLOR_BOX_CLASSES}  ${
-              color === "#fff" ? "ring-1" : ""
-            }`}
-            onClick={(e) => {
-              setColor("#fff");
-              changeColor("#fff", !e.isTrusted);
-            }}
-            tabIndex={-1}
-          />
-          <div
-            className={`${COLOR_BOX_CLASSES}  diagnol-cross ${
-              color === "transparent" ? "ring-1" : ""
-            }`}
-            onClick={(e) => {
-              setColor("transparent");
-              changeColor("transparent", !e.isTrusted);
-            }}
-            tabIndex={-1}
-          />
         </div>
       </section>
     </PopupContainer>
@@ -329,7 +333,7 @@ interface LeftIconProps {
 }
 
 function LeftIcon(props: LeftIconProps) {
-  return props.color ? (
+  return isValidColor(props.color) && !isEmptyOrNill(props.color) ? (
     <ColorIcon
       className="rounded-full cursor-pointer"
       color={props.color}
@@ -354,7 +358,12 @@ const POPOVER_MODFIER = {
 
 const ColorPickerComponent = React.forwardRef(
   (props: ColorPickerProps, containerRef: any) => {
-    const { isOpen: isOpenProp = false, placeholderText } = props;
+    const {
+      isFullColorPicker: defaultFullColorPickerValue = false,
+      isOpen: isOpenProp = false,
+      placeholderText,
+      setFullColorPicker: setDefaultFullColorPickerValue,
+    } = props;
     const popupRef = useRef<HTMLDivElement>(null);
     const inputGroupRef = useRef<HTMLInputElement>(null);
     // isClick is used to track whether the input field is in focus by mouse click or by keyboard
@@ -363,6 +372,10 @@ const ColorPickerComponent = React.forwardRef(
     const [isOpen, setIsOpen] = React.useState(isOpenProp);
     const [color, setColor] = React.useState(
       props.evaluatedColorValue || props.color,
+    );
+
+    const [isFullColorPicker, setFullColorPicker] = React.useState(
+      defaultFullColorPickerValue,
     );
 
     const debouncedOnChange = React.useCallback(
@@ -394,6 +407,8 @@ const ColorPickerComponent = React.forwardRef(
     );
 
     const handleKeydown = (e: KeyboardEvent) => {
+      if (isFullColorPicker) return;
+
       if (isOpen) {
         switch (e.key) {
           case "Escape":
@@ -417,7 +432,6 @@ const ColorPickerComponent = React.forwardRef(
             }
             break;
           case "Enter":
-          case " ":
             emitKeyPressEvent(e.key);
             (document.activeElement as any)?.click();
             setTimeout(() => {
@@ -530,7 +544,9 @@ const ColorPickerComponent = React.forwardRef(
 
     const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
-      debouncedOnChange(value, true);
+      if (isValidColor(value)) {
+        debouncedOnChange(value, true);
+      }
       setColor(value);
     };
 
@@ -543,10 +559,22 @@ const ColorPickerComponent = React.forwardRef(
     }, [props.color]);
 
     const handleInputClick = () => {
-      isClick.current = true;
+      if (isFullColorPicker && isOpen) {
+        setIsOpen(false);
+      } else {
+        isClick.current = true;
+      }
+    };
+
+    const handleFullColorPickerClick = (value: boolean) => {
+      setFullColorPicker(value);
+      setDefaultFullColorPickerValue && setDefaultFullColorPickerValue(value);
+      setIsOpen(false);
     };
 
     const handleOnInteraction = (nextOpenState: boolean) => {
+      if (isFullColorPicker && !isOpen) return;
+
       if (isOpen !== nextOpenState) {
         if (isClick.current) setIsOpen(true);
         else setIsOpen(nextOpenState);
@@ -567,19 +595,26 @@ const ColorPickerComponent = React.forwardRef(
           isOpen={isOpen}
           minimal
           modifiers={POPOVER_MODFIER}
+          onClosed={props.onPopupClosed}
           onInteraction={handleOnInteraction}
           popoverClassName="color-picker-input"
           portalContainer={props.portalContainer}
         >
           <StyledInputGroup
+            $isFullColorPicker={isFullColorPicker}
+            $isValid={isValidColor(color)}
             autoFocus={props.autoFocus}
+            data-testid="t--color-picker-input"
             inputRef={inputGroupRef}
             leftIcon={
-              <LeftIcon color={color} handleInputClick={handleInputClick} />
+              !isFullColorPicker ? (
+                <LeftIcon color={color} handleInputClick={handleInputClick} />
+              ) : null
             }
             onChange={handleChangeColor}
             onClick={handleInputClick}
             placeholder={placeholderText || "enter color name or hex"}
+            type={isFullColorPicker ? "color" : "text"}
             value={color}
           />
 
@@ -593,6 +628,14 @@ const ColorPickerComponent = React.forwardRef(
             showThemeColors={props.showThemeColors}
           />
         </Popover>
+        <div className="mt-2">
+          <Switch
+            isSelected={isFullColorPicker}
+            onChange={handleFullColorPickerClick}
+          >
+            {createMessage(FULL_COLOR_PICKER_LABEL)}
+          </Switch>
+        </div>
       </div>
     );
   },

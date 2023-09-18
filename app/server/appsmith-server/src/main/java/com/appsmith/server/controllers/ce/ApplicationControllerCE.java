@@ -17,12 +17,12 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
-import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -139,6 +139,14 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @JsonView(Views.Public.class)
+    @PostMapping("/delete-apps")
+    public Mono<ResponseDTO<List<Application>>> deleteMultipleApps(@Valid @RequestBody List<String> ids) {
+        return applicationPageService
+                .deleteMultipleApps(ids)
+                .map(deletedResources -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResources, null));
+    }
+
+    @JsonView(Views.Public.class)
     @GetMapping("/new")
     public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
         log.debug("Going to get all applications grouped by workspace");
@@ -204,7 +212,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @JsonView(Views.Public.class)
     @GetMapping("/export/{id}")
     public Mono<ResponseEntity<Object>> getApplicationFile(
-            @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @PathVariable String id, @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to export application with id: {}, branch: {}", id, branchName);
 
         return importExportApplicationService.getApplicationFile(id, branchName).map(fetchedResource -> {

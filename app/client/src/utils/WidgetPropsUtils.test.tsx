@@ -12,13 +12,13 @@ import {
   buildDslWithChildren,
 } from "test/factories/WidgetFactoryUtils";
 import { cloneDeep } from "lodash";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import {
   extractCurrentDSL,
   getDraggingSpacesFromBlocks,
   getMousePositionsOnCanvas,
 } from "./WidgetPropsUtils";
-import type { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
+import type { WidgetDraggingBlock } from "layoutSystems/common/CanvasArenas/ArenaTypes";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 describe("WidgetProps tests", () => {

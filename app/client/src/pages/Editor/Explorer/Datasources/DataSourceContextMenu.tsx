@@ -18,7 +18,7 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 
-import { getDatasource } from "selectors/entitiesSelector";
+import { getDatasource } from "@appsmith/selectors/entitiesSelector";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import { DatasourceStructureContext } from "./DatasourceStructureContainer";
@@ -93,6 +93,7 @@ export function DataSourceContextMenu(props: {
       className={props.className}
       optionTree={treeOptions as TreeDropdownOption[]}
       setConfirmDelete={setConfirmDelete}
+      triggerId={"add-datasource"}
     />
   ) : null;
 }

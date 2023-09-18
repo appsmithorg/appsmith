@@ -7,6 +7,7 @@ import {
   entityItems,
   entityExplorer,
   locators,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate API request body panel", () => {
@@ -22,12 +23,12 @@ describe("Validate API request body panel", () => {
     apiPage.CreateApi("FirstAPI", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("FORM_URLENCODED");
-    agHelper.AssertElementVisible(apiPage._bodyKey(0));
-    agHelper.AssertElementVisible(apiPage._bodyValue(0));
+    agHelper.AssertElementVisibility(apiPage._bodyKey(0));
+    agHelper.AssertElementVisibility(apiPage._bodyValue(0));
     apiPage.SelectSubTab("MULTIPART_FORM_DATA");
-    agHelper.AssertElementVisible(apiPage._bodyKey(0));
-    agHelper.AssertElementVisible(apiPage._bodyTypeDropdown);
-    agHelper.AssertElementVisible(apiPage._bodyValue(0));
+    agHelper.AssertElementVisibility(apiPage._bodyKey(0));
+    agHelper.AssertElementVisibility(apiPage._bodyTypeDropdown);
+    agHelper.AssertElementVisibility(apiPage._bodyValue(0));
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Api,
@@ -156,10 +157,10 @@ describe("Validate API request body panel", () => {
 
     apiPage.ToggleOnPageLoadRun(false); //Bug 12476
     entityExplorer.SelectEntityByName("Page1");
-    deployMode.DeployApp(locators._spanButton("Select Files"));
+    deployMode.DeployApp(locators._buttonByText("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
-    agHelper.AssertNetworkExecutionSuccess("@postExecute"); //validating Cloudinary api call
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute"); //validating Cloudinary api call
     agHelper.ValidateToastMessage("Image uploaded to Cloudinary successfully");
     agHelper.Sleep();
     cy.xpath(apiPage._imageSrc)
@@ -168,7 +169,7 @@ describe("Validate API request body panel", () => {
       .then(($src) => {
         expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
       });
-    agHelper.AssertElementVisible(locators._spanButton("Select Files")); //verifying if reset!
+    agHelper.AssertElementVisibility(locators._buttonByText("Select Files")); //verifying if reset!
     deployMode.NavigateBacktoEditor();
   });
 
@@ -185,13 +186,13 @@ describe("Validate API request body panel", () => {
     entityExplorer.SelectEntityByName("FilePicker1", "Widgets");
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
-    agHelper.AssertNetworkExecutionSuccess("@postExecute", false);
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute", false);
 
-    deployMode.DeployApp(locators._spanButton("Select Files"));
+    deployMode.DeployApp(locators._buttonByText("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
-    agHelper.AssertNetworkExecutionSuccess("@postExecute", false);
+    assertHelper.AssertNetworkExecutionSuccess("@postExecute", false);
     agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute");
-    agHelper.AssertElementVisible(locators._spanButton("Select Files")); //verifying if reset in case of failure!
+    agHelper.AssertElementVisibility(locators._buttonByText("Select Files")); //verifying if reset in case of failure!
   });
 });

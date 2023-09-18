@@ -136,8 +136,7 @@ export class JSEditor {
     this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
     // Assert that the name of the JS Object is focused when newly created
     //cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
-    this.agHelper.PressEnter(); //for name to settle
-    this.agHelper.Sleep();
+    this.agHelper.PressEnter(1000); //for name to settle
     // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
     cy.get(this._jsObjTxt).should("not.exist");
 
@@ -230,7 +229,7 @@ export class JSEditor {
   public RunJSObj() {
     this.agHelper.GetNClick(this._runButton);
     this.agHelper.Sleep(); //for function to run
-    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000);
+    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 15000);
     this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
   }
 

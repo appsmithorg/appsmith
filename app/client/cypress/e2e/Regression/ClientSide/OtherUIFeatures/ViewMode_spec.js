@@ -1,7 +1,10 @@
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
-import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
-
-const BASE_URL = Cypress.config().baseUrl;
+import {
+  agHelper,
+  deployMode,
+  draggableWidgets,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 Cypress.Commands.add("setSharedUrl", (url) => {
   Cypress.sharedStore = { url };
@@ -19,7 +22,12 @@ describe("Preview mode functionality", function () {
   });
 
   beforeEach(() => {
-    cy.getSharedUrl().then((url) => cy.visit(url, { timeout: 60000 }));
+    cy.getSharedUrl().then((url) => {
+      agHelper.VisitNAssert(url, "getPagesForViewApp"),
+        agHelper.AssertElementVisibility(
+          locators._widgetInDeployed(draggableWidgets.BUTTON),
+        );
+    });
   });
 
   it("1. on click of apps on header, it should take to application home page", function () {
@@ -27,16 +35,19 @@ describe("Preview mode functionality", function () {
     cy.get(
       `${appNavigationLocators.header} ${appNavigationLocators.backToAppsButton}`,
     ).click();
-    cy.url().should("eq", BASE_URL + "applications");
+    agHelper.AssertURL(Cypress.config().baseUrl + "applications");
   });
 
   it("2. In the published app with embed=true, there should be no header", function () {
     cy.url().then((url) => {
       url = new URL(url);
       url.searchParams.append("embed", "true");
-      cy.visit(url.toString(), { timeout: 60000 });
+      agHelper.VisitNAssert(url.toString(), "getPagesForViewApp");
+      agHelper.AssertElementVisibility(
+        locators._widgetInDeployed(draggableWidgets.BUTTON),
+      );
     });
-    cy.get(appNavigationLocators.header).should("not.exist");
+    agHelper.AssertElementAbsence(appNavigationLocators.header);
   });
 
   it("3. In the published app with embed=true&navbar=true, navigator should be visible without user settings", function () {
@@ -44,9 +55,14 @@ describe("Preview mode functionality", function () {
       url = new URL(url);
       url.searchParams.append("embed", "true");
       url.searchParams.append("navbar", "true");
-      cy.visit(url.toString(), { timeout: 60000 });
+      agHelper.VisitNAssert(url.toString(), "getPagesForViewApp");
+      agHelper.AssertElementVisibility(
+        locators._widgetInDeployed(draggableWidgets.BUTTON),
+      );
     });
-    cy.get(appNavigationLocators.header).should("exist");
-    cy.get(appNavigationLocators.userProfileDropdownButton).should("not.exist");
+    agHelper.AssertElementVisibility(appNavigationLocators.header);
+    agHelper.AssertElementAbsence(
+      appNavigationLocators.userProfileDropdownButton,
+    );
   });
 });

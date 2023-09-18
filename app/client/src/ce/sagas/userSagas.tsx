@@ -557,11 +557,13 @@ export function* leaveWorkspaceSaga(
 ) {
   try {
     const request: LeaveWorkspaceRequest = action.payload;
+    const { workspaceId } = action.payload;
     const response: ApiResponse = yield call(UserApi.leaveWorkspace, request);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+        type: ReduxActionTypes.DELETE_WORKSPACE_SUCCESS,
+        payload: workspaceId,
       });
       toast.show(`You have successfully left the workspace`, {
         kind: "success",

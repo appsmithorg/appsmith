@@ -35,7 +35,7 @@ export const CodeEditorColors = {
   STRING: "#1659df",
   OPERATOR: "#009595",
   NUMBER: "#555",
-  COMMENT: "#008000",
+  COMMENT: "var(--ads-v2-color-gray-400)",
   FUNCTION_ARGS: "hsl(288, 44%, 44%)",
 };
 
@@ -126,6 +126,7 @@ export const EditorWrapper = styled.div<{
               return "var(--ads-v2-color-border)";
           }
         }};
+      ${(props) => props.borderLess && "border: none;"}
 
       background: var(--ads-v2-color-bg);
       color: var(--ads-v2-color-fg);
@@ -139,6 +140,10 @@ export const EditorWrapper = styled.div<{
       }
       .cm-keyword {
         color: ${CodeEditorColors.KEYWORD};
+      }
+
+      .cm-comment {
+        color: ${CodeEditorColors.COMMENT};
       }
 
       .CodeMirror-foldgutter {
@@ -192,9 +197,6 @@ export const EditorWrapper = styled.div<{
       }
 
       .cm-atom + span + .cm-property,
-      .cm-variable-2 + span + .cm-property {
-        color: #364252;
-      }
 
       /* object keys, object methods */
       .cm-keyword + span + .cm-property,
@@ -387,13 +389,17 @@ export const EditorWrapper = styled.div<{
 
     &:hover {
       .CodeMirror.cm-s-duotone-light {
-        border-color: var(--ads-v2-color-border-emphasis);
+        border-color: ${(props) =>
+          props.borderLess ? "none" : "var(--ads-v2-color-border-emphasis)"};
       }
     }
 
     &:focus {
       .CodeMirror.cm-s-duotone-light {
-        border-color: var(--ads-v2-color-border-emphasis-plus);
+        border-color: ${(props) =>
+          props.borderLess
+            ? "none"
+            : "var(--ads-v2-color-border-emphasis-plus)"};
       }
     }
 

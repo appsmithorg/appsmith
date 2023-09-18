@@ -30,7 +30,7 @@ import {
 import {
   getJSCollection,
   getPageNameByPageId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
@@ -56,7 +56,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";

@@ -8,12 +8,12 @@ import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { RenderModes } from "constants/WidgetConstants";
 import { PluginType } from "entities/Action";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
 import type { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";

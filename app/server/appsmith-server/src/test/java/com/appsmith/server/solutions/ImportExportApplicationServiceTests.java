@@ -18,6 +18,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
@@ -46,6 +47,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -54,10 +56,8 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CustomJSLibService;
-import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.WorkspaceService;
@@ -237,23 +237,23 @@ public class ImportExportApplicationServiceTests {
         final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://example.org/get");
         datasourceConfiguration.setHeaders(List.of(new Property("X-Answer", "42")));
-        ds1.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage1 = new DatasourceStorage(ds1, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-        storages1.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage1));
+        storages1.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         ds1.setDatasourceStorages(storages1);
 
         Datasource ds2 = new Datasource();
         ds2.setName("DS2");
         ds2.setPluginId(installedPlugin.getId());
-        ds2.setDatasourceConfiguration(new DatasourceConfiguration());
         ds2.setWorkspaceId(workspaceId);
+        DatasourceConfiguration datasourceConfiguration2 = new DatasourceConfiguration();
         DBAuth auth = new DBAuth();
         auth.setPassword("awesome-password");
-        ds2.getDatasourceConfiguration().setAuthentication(auth);
-        DatasourceStorage datasourceStorage2 = new DatasourceStorage(ds2, defaultEnvironmentId);
+        datasourceConfiguration2.setAuthentication(auth);
         HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-        storages2.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage2));
+        storages2.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration2));
         ds2.setDatasourceStorages(storages2);
 
         jsDatasource = new Datasource();
@@ -2827,9 +2827,8 @@ public class ImportExportApplicationServiceTests {
         final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
         testDatasource.setName(datasourceName);
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, null));
         testDatasource.setDatasourceStorages(storages);
 
         datasourceService.create(testDatasource).block();
@@ -2892,9 +2891,8 @@ public class ImportExportApplicationServiceTests {
         final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
         testDatasource.setName(datasourceName);
 
-        DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, null));
         testDatasource.setDatasourceStorages(storages);
         datasourceService.create(testDatasource).block();
 
@@ -4262,11 +4260,11 @@ public class ImportExportApplicationServiceTests {
                     datasourceConfiguration.setConnection(connection);
                     datasourceConfiguration.setConnection(new Connection());
                     datasourceConfiguration.setUrl("https://mock-api.appsmith.com");
-                    datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(
+                            defaultEnvironmentId,
+                            new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource);

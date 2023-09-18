@@ -535,8 +535,12 @@ export default {
         return false;
       }
 
-      /* when there is no filter defined */
-      if (!props.filters || props.filters.length === 0) {
+      /* when there is no filter defined or when server side filtering is enabled prevent client-side filtering  */
+      if (
+        !props.filters ||
+        props.filters.length === 0 ||
+        props.enableServerSideFiltering
+      ) {
         return true;
       }
 

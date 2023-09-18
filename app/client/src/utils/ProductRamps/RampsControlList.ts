@@ -21,12 +21,17 @@ export enum RampSection {
   AppSettings = "app_settings",
   BottomBarEnvSwitcher = "bottom_bar_env_switcher",
   DSEditor = "ds_editor",
+  AdminSettings = "admin_settings",
 }
 
 export enum RampFeature {
   PrivateEmbeds = "private_embeds",
   Gac = "gac",
   MultipleEnv = "multiple_env",
+  AuditLogs = "audit_logs",
+  Branding = "branding",
+  Sso = "sso",
+  Provisioning = "provisioning",
 }
 
 export const INVITE_USER_TO_APP: SupportedRampsType = {

@@ -18,6 +18,12 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.hierynomus</groupId>
+            <artifactId>sshj</artifactId>
+            <version>0.35.0</version>
+        </dependency>
+
         <!-- Actual Junit5 implementation. Will transitively include junit-jupiter-api -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -47,7 +53,7 @@
         <dependency>
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j</artifactId>
-            <version>3.8.0</version>
+            <version>${org.pf4j.version}</version>
         </dependency>
 
         <dependency>

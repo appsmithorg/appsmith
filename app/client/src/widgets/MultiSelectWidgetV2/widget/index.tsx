@@ -2,7 +2,6 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
-import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -11,17 +10,18 @@ import { isArray, isFinite, isString, xorWith } from "lodash";
 import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import MultiSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import {
   defaultValueExpressionPrefix,
   getDefaultValueExpressionSuffix,
@@ -35,11 +35,136 @@ import {
   getLabelValueKeyOptions,
   valueKeyValidation,
 } from "./propertyUtils";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
   WidgetState
 > {
+  static type = "MULTI_SELECT_WIDGET_V2";
+
+  static getConfig() {
+    return {
+      name: "MultiSelect",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.SELECT],
+      needsMeta: true,
+      searchTags: ["dropdown", "tags"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 4,
+        defaultValue: DynamicHeight.FIXED,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 7,
+      columns: 20,
+      animateLoading: true,
+      labelText: "Label",
+      labelPosition: LabelPosition.Top,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      labelTextSize: "0.875rem",
+      sourceData: [
+        { name: "Blue", code: "BLUE" },
+        { name: "Green", code: "GREEN" },
+        { name: "Red", code: "RED" },
+      ],
+      optionLabel: "name",
+      optionValue: "code",
+      widgetName: "MultiSelect",
+      isFilterable: true,
+      serverSideFiltering: false,
+      defaultOptionValue: ["GREEN", "RED"],
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
+      placeholderText: "Select option(s)",
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+        labelTextSize: "0.875rem",
+      },
+      defaults: {
+        rows: 6.6,
+      },
+      autoDimension: {
+        height: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "160px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
+  static getMethods() {
+    return {
+      getQueryGenerationConfig(widget: WidgetProps) {
+        return {
+          select: {
+            where: `${widget.widgetName}.filterText`,
+          },
+        };
+      },
+      getPropertyUpdatesForQueryBinding(
+        queryConfig: WidgetQueryConfig,
+        widget: WidgetProps,
+        formConfig: WidgetQueryGenerationFormConfig,
+      ) {
+        let modify;
+
+        if (queryConfig.select) {
+          modify = {
+            sourceData: queryConfig.select.data,
+            optionLabel: formConfig.aliases.find((d) => d.name === "label")
+              ?.alias,
+            optionValue: formConfig.aliases.find((d) => d.name === "value")
+              ?.alias,
+            defaultOptionValue: "",
+            serverSideFiltering: true,
+            onFilterUpdate: queryConfig.select.run,
+          };
+        }
+
+        return {
+          modify,
+        };
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -78,11 +203,33 @@ class MultiSelectWidget extends BaseWidget<
               "Takes in an array of objects to display options. Bind data from an API using {{}}",
             propertyName: "sourceData",
             label: "Source Data",
-            controlType: "INPUT_TEXT",
+            controlType: "ONE_CLICK_BINDING_CONTROL",
+            controlConfig: {
+              aliases: [
+                {
+                  name: "label",
+                  isSearcheable: true,
+                  isRequired: true,
+                },
+                {
+                  name: "value",
+                  isRequired: true,
+                },
+              ],
+              sampleData: JSON.stringify(
+                [
+                  { name: "Blue", code: "BLUE" },
+                  { name: "Green", code: "GREEN" },
+                  { name: "Red", code: "RED" },
+                ],
+                null,
+                2,
+              ),
+            },
+            isJSConvertible: true,
             placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: false,
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
@@ -98,9 +245,10 @@ class MultiSelectWidget extends BaseWidget<
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "Sets the label of the option",
+            helpText:
+              "Choose or set a field from source data as the display label",
             propertyName: "optionLabel",
-            label: "Label",
+            label: "Label key",
             controlType: "DROP_DOWN",
             customJSControl: "WRAPPED_CODE_EDITOR",
             controlConfig: {
@@ -130,9 +278,9 @@ class MultiSelectWidget extends BaseWidget<
             additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
           {
-            helpText: "Sets the value of the option",
+            helpText: "Choose or set a field from source data as the value",
             propertyName: "optionValue",
-            label: "Value",
+            label: "Value key",
             controlType: "DROP_DOWN",
             customJSControl: "WRAPPED_CODE_EDITOR",
             controlConfig: {
@@ -629,26 +777,23 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
-    const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const minDropDownWidth =
+      (MinimumPopupWidthInPercentage / 100) *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
+    const { componentHeight, componentWidth } = this.props;
     const values = this.mergeLabelAndValue();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+
     return (
       <MultiSelectComponent
         accentColor={this.props.accentColor}
         allowSelectAll={this.props.allowSelectAll}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         disabled={this.props.isDisabled ?? false}
         dropDownWidth={minDropDownWidth}
         dropdownStyle={{
@@ -665,7 +810,7 @@ class MultiSelectWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
         onDropdownClose={this.onDropdownClose}
@@ -745,10 +890,6 @@ class MultiSelectWidget extends BaseWidget<
       });
     }
   };
-
-  static getWidgetType(): WidgetType {
-    return "MULTI_SELECT_WIDGET_V2";
-  }
 }
 export interface OptionValue {
   label: string;
@@ -784,6 +925,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   labelAlignment?: Alignment;
   labelWidth?: number;
   isDirty?: boolean;
+  labelComponentWidth?: number;
 }
 
 export default MultiSelectWidget;

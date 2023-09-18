@@ -8,11 +8,10 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
+const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe("Create new workspace and share with a user", function () {
-  let workspaceId;
-  let appid;
-  let currentUrl;
+  let workspaceId: string, appid: string, currentUrl: any;
 
   it("1. Create workspace and then share with a user from Application share option within application", function () {
     homePage.NavigateToHome();
@@ -44,7 +43,7 @@ describe("Create new workspace and share with a user", function () {
     agHelper.Sleep(2000);
     agHelper.GetNAssertContains(homePage._appContainer, workspaceId);
     if (CURRENT_REPO === REPO.CE) {
-      agHelper.AssertElementVisible(locators._spanButton("Share"), 0);
+      agHelper.AssertElementVisibility(locators._buttonByText("Share"));
     }
     agHelper.GetElement(homePage._applicationCard).first().trigger("mouseover");
     agHelper.AssertElementAbsence(homePage._appEditIcon);
@@ -87,6 +86,12 @@ describe("Create new workspace and share with a user", function () {
     });
     // comment toggle should not exist for anonymous users
     agHelper.AssertElementAbsence(homePage._modeSwitchToggle);
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+    )
+      .click()
+      .wait(1000);
+    agHelper.ClickButton("Copy application url");
   });
 
   it("5. login as uninvited user and then validate public access of Application", function () {
@@ -98,6 +103,12 @@ describe("Create new workspace and share with a user", function () {
     agHelper.GetText(locators._emptyPageTxt).then((text) => {
       expect(text).to.equal("This page seems to be blank");
     });
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+    )
+      .click()
+      .wait(1000);
+    agHelper.ClickButton("Copy application url");
     homePage.LogOutviaAPI();
   });
 
@@ -121,6 +132,7 @@ describe("Create new workspace and share with a user", function () {
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
     );
+    agHelper.Sleep(); //for CI
     agHelper.VisitNAssert(currentUrl);
     assertHelper.AssertNetworkStatus("@getPagesForViewApp", 404);
     homePage.LogOutviaAPI();

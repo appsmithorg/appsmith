@@ -14,14 +14,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { integrationEditorURL } from "RouteBuilder";
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getDatasourceLoading,
   getDatasources,
   getMockDatasources,
   getPluginIdPackageNamesMap,
   getPluginImages,
   getPlugins,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import { WidgetQueryGeneratorFormContext } from "../..";
@@ -37,12 +37,12 @@ import type { AppState } from "@appsmith/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
-  getCurrentEnvironment,
   getEnvironmentConfiguration,
   isEnvironmentValid,
 } from "@appsmith/utils/Environments";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getDatatype } from "utils/AppsmithUtils";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -106,6 +106,7 @@ export function useDatasource(searchText: string) {
     onSourceClose,
     propertyName,
     propertyValue,
+    sampleData,
     updateConfig,
     widgetId,
   } = useContext(WidgetQueryGeneratorFormContext);
@@ -130,6 +131,7 @@ export function useDatasource(searchText: string) {
   const plugins = useSelector(getPlugins);
 
   const workspaceId = useSelector(getCurrentWorkspaceId);
+  const currentEnvironment: string = useSelector(getCurrentEnvironmentId);
 
   const [actualDatasourceOptions, mockDatasourceOptions] = useMemo(() => {
     const availableDatasources = datasources.filter(({ pluginId }) =>
@@ -146,12 +148,12 @@ export function useDatasource(searchText: string) {
           value: datasource.name,
           data: {
             pluginId: datasource.pluginId,
-            isValid: isEnvironmentValid(datasource, getCurrentEnvironment()),
+            isValid: isEnvironmentValid(datasource, currentEnvironment),
             pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
             isSample: false,
             connectionMode: getEnvironmentConfiguration(
               datasource,
-              getCurrentEnvironment(),
+              currentEnvironment,
             )?.connection?.mode,
           },
           icon: (
@@ -321,7 +323,7 @@ export function useDatasource(searchText: string) {
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
 
   const otherOptions = useMemo(() => {
-    return [
+    const options = [
       {
         icon: <Icon name="plus" size="md" />,
         id: "Connect new datasource",
@@ -350,9 +352,37 @@ export function useDatasource(searchText: string) {
         },
       },
     ];
-  }, [currentPageId, history, propertyName]);
 
-  const queries = useSelector(getActionsForCurrentPage);
+    if (sampleData) {
+      options.push({
+        icon: <Icon name="code" size="md" />,
+        id: "Sample data",
+        label: "Sample data",
+        value: "Sample data",
+        onSelect: () => {
+          addBinding(sampleData, false);
+
+          updateConfig({
+            datasource: "",
+            datasourcePluginType: "",
+            datasourcePluginName: "",
+            datasourceConnectionMode: "",
+          });
+
+          AnalyticsUtil.logEvent("BIND_OTHER_ACTIONS", {
+            widgetName: widget.widgetName,
+            widgetType: widget.type,
+            propertyName: propertyName,
+            selectedAction: "Sample data",
+          });
+        },
+      });
+    }
+
+    return options;
+  }, [currentPageId, history, propertyName, sampleData, addBinding]);
+
+  const queries = useSelector(getCurrentActions);
 
   const queryOptions = useMemo(() => {
     return sortQueries(queries, expectedType).map((query) => ({
@@ -439,31 +469,47 @@ export function useDatasource(searchText: string) {
     ];
   }, [searchText, datasourceOptions, otherOptions, queryOptions]);
 
+  const selected = useMemo(() => {
+    let source;
+
+    if (config.datasource) {
+      source = datasourceOptions.find(
+        (option) => option.id === config.datasource,
+      );
+    } else if (
+      sampleData ===
+      (typeof propertyValue === "string"
+        ? propertyValue
+        : JSON.stringify(propertyValue, null, 2))
+    ) {
+      source = otherOptions.find((option) => option.value === "Sample data");
+    } else if (propertyValue) {
+      source = queryOptions.find((option) => option.value === propertyValue);
+    }
+
+    if (source) {
+      return (
+        <DropdownOption
+          label={source?.label?.replace("sample ", "")}
+          leftIcon={source?.icon}
+        />
+      );
+    } else {
+      return <Placeholder>Connect data</Placeholder>;
+    }
+  }, [
+    config,
+    datasourceOptions,
+    sampleData,
+    propertyValue,
+    otherOptions,
+    queryOptions,
+  ]);
+
   return {
     datasourceOptions: filteredDatasourceOptions,
     otherOptions,
-    selected: (() => {
-      let source;
-
-      if (config.datasource) {
-        source = datasourceOptions.find(
-          (option) => option.id === config.datasource,
-        );
-      } else if (propertyValue) {
-        source = queryOptions.find((option) => option.value === propertyValue);
-      }
-
-      if (source) {
-        return (
-          <DropdownOption
-            label={source?.label?.replace("sample ", "")}
-            leftIcon={source?.icon}
-          />
-        );
-      } else {
-        return <Placeholder>Connect data</Placeholder>;
-      }
-    })(),
+    selected,
     queryOptions: filteredQueryOptions,
     isSourceOpen,
     onSourceClose,

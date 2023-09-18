@@ -45,11 +45,12 @@ import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type {
   Action,
   ActionViewMode,
+  ApiAction,
   ApiActionConfig,
   SlashCommandPayload,
 } from "entities/Action";
@@ -75,7 +76,7 @@ import {
   getPageNameByPageId,
   getPlugin,
   getSettingConfig,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
 import PerformanceTracker, {
@@ -89,7 +90,7 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
-import { get, merge } from "lodash";
+import { get, isEmpty, merge } from "lodash";
 import {
   fixActionPayloadForMongoQuery,
   getConfigInitialValues,
@@ -129,6 +130,8 @@ import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { setAIPromptTriggered } from "utils/storage";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
+import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -403,19 +406,39 @@ export function* fetchActionsForPageSaga(
   }
 }
 
-export function* updateActionSaga(
-  actionPayload: ReduxAction<{ id: string; action?: Action }>,
-) {
+export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.UPDATE_ACTION_API,
       { actionid: actionPayload.payload.id },
     );
-    let action = actionPayload.payload.action;
-    if (!action) action = yield select(getAction, actionPayload.payload.id);
+
+    let action: Action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
 
     if (isAPIAction(action)) {
+      // get api action object from redux form
+      const reduxFormApiAction: ApiAction = yield select(
+        getFormValues(API_EDITOR_FORM_NAME),
+      );
+
+      // run transformation on redux form action's headers, bodyformData and queryParameters.
+      // the reason we do this is because the transformation should only be done on the raw action data from the redux form.
+      // However sometimes when we attempt to save an API as a datasource, we update the Apiaction with the datasource information and the redux form data will not be available i.e. reduxFormApiAction = undefined
+      // In this scenario we can just default to the action object - (skip the if block below).
+      if (!isEmpty(reduxFormApiAction)) {
+        action = {
+          ...action,
+          actionConfiguration: {
+            ...action.actionConfiguration,
+            headers: reduxFormApiAction.actionConfiguration.headers,
+            bodyFormData: reduxFormApiAction.actionConfiguration.bodyFormData,
+            queryParameters:
+              reduxFormApiAction.actionConfiguration.queryParameters,
+          },
+        };
+      }
+
       action = transformRestAction(action);
     }
 
@@ -425,10 +448,7 @@ export function* updateActionSaga(
       // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
-    const response: ApiResponse<Action> = yield ActionAPI.updateAction(
-      // @ts-expect-error: Types are not available
-      action,
-    );
+    const response: ApiResponse<Action> = yield ActionAPI.updateAction(action);
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -437,24 +457,10 @@ export function* updateActionSaga(
         response.data.id,
       );
 
-      if (action?.pluginType === PluginType.DB) {
-        AnalyticsUtil.logEvent("SAVE_QUERY", {
-          queryName: action.name,
-          pageName,
-        });
-      } else if (action?.pluginType === PluginType.API) {
-        AnalyticsUtil.logEvent("SAVE_API", {
-          apiId: response.data.id,
-          apiName: response.data.name,
-          pageName: pageName,
-        });
-      } else if (action?.pluginType === PluginType.SAAS) {
-        AnalyticsUtil.logEvent("SAVE_SAAS", {
-          apiId: response.data.id,
-          apiName: response.data.name,
-          pageName: pageName,
-        });
-      }
+      yield sendAnalyticsEventSaga(actionPayload.type, {
+        action,
+        pageName,
+      });
 
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.UPDATE_ACTION_API,
@@ -633,6 +639,7 @@ function* copyActionSaga(
       name: action.payload.name,
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
+
     delete copyAction.id;
     const response: ApiResponse<ActionCreateUpdateResponse> =
       yield ActionAPI.createAction(copyAction);
@@ -664,7 +671,7 @@ function* copyActionSaga(
         // @ts-expect-error: name not present on ActionCreateUpdateResponse
         actionName: response.data.name,
         pageName: pageName,
-        acitonId: response.data.id,
+        actionId: response.data.id,
         originalActionId,
         actionType: actionObject.pluginType,
       });
@@ -959,17 +966,27 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.ASK_AI: {
       const context = get(actionPayload, "payload.args", {});
+      const isJavascriptMode = context.mode === EditorModes.TEXT_WITH_BINDING;
 
       const noOfTimesAIPromptTriggered: number = yield select(
         (state) => state.ai.noOfTimesAITriggered,
       );
 
-      if (noOfTimesAIPromptTriggered < 5) {
-        const currentValue: number = yield setAIPromptTriggered();
+      const noOfTimesAIPromptTriggeredForQuery: number = yield select(
+        (state) => state.ai.noOfTimesAITriggeredForQuery,
+      );
+
+      const triggerCount = isJavascriptMode
+        ? noOfTimesAIPromptTriggered
+        : noOfTimesAIPromptTriggeredForQuery;
+
+      if (triggerCount < 5) {
+        const currentValue: number = yield setAIPromptTriggered(context.mode);
         yield put({
           type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
           payload: {
             value: currentValue,
+            mode: context.mode,
           },
         });
       }

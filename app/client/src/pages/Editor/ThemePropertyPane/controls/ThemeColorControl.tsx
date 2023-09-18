@@ -14,7 +14,6 @@ interface ThemeColorControlProps {
 
 const ColorBox = styled.div<{
   background: string;
-  // selectedColor: string;
 }>`
   background: ${({ background }) => background};
   border: 2px solid var(--ads-v2-color-border);
@@ -32,6 +31,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
   const [autoFocus, setAutoFocus] = useState(false);
   const userDefinedColors = theme.properties.colors;
   const [selectedColor, setSelectedColor] = useState<string>("primaryColor");
+  const [isFullColorPicker, setFullColorPicker] = React.useState(false);
 
   return (
     <div className="space-y-2">
@@ -46,7 +46,6 @@ function ThemeColorControl(props: ThemeColorControlProps) {
                 <ColorBox
                   background={userDefinedColors[colorName]}
                   className={selectedColor === colorName ? "selected" : ""}
-                  // selectedColor={colorName}
                   data-testid={`theme-${colorName}`}
                   onClick={() => {
                     setAutoFocus(
@@ -78,11 +77,14 @@ function ThemeColorControl(props: ThemeColorControlProps) {
               });
             }}
             color={userDefinedColors[selectedColor]}
+            isFullColorPicker={isFullColorPicker}
             isOpen={autoFocus}
             key={selectedColor}
+            onPopupClosed={() => setAutoFocus(false)}
             portalContainer={
               document.getElementById("app-settings-portal") || undefined
             }
+            setFullColorPicker={setFullColorPicker}
           />
         </div>
       )}

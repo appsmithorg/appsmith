@@ -1,5 +1,5 @@
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
-import type { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
+import type { WidgetType as FactoryWidgetType } from "WidgetProvider/factory";
 import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 export type WidgetType = FactoryWidgetType;
@@ -71,7 +71,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 83;
+export const LATEST_PAGE_VERSION = 86;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
