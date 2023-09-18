@@ -20,17 +20,14 @@ describe("Entity explorer context menu should hide on scrolling", function () {
         cy.log("Users DB created is " + $createdMockUsers);
         mockDBNameUsers = $createdMockUsers;
         dataSources.CreateQueryAfterDSSaved();
+        dataSources.AssertTableInVirtuosoList(mockDBNameUsers, "public.users");
+        entityExplorer.ExpandCollapseEntity("public.users");
 
         dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
           cy.log("Movies DB created is " + $createdMockMovies);
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
 
-          dataSources.AssertTableInVirtuosoList(
-            mockDBNameUsers,
-            "public.users",
-          );
-          entityExplorer.ExpandCollapseEntity("public.users");
           dataSources.AssertTableInVirtuosoList(mockDBNameMovies, "movies");
           entityExplorer.ExpandCollapseEntity("movies");
 
@@ -56,16 +53,14 @@ describe("Entity explorer context menu should hide on scrolling", function () {
         mockDBNameUsers = $createdMockUsers;
         dataSources.CreateQueryAfterDSSaved();
 
+        dataSources.AssertTableInVirtuosoList(mockDBNameUsers, "public.users");
+        entityExplorer.ExpandCollapseEntity("public.users");
+
         dataSources.CreateDataSource("Mongo");
         cy.get("@dsName").then(($createdMockMovies: any) => {
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
 
-          dataSources.AssertTableInVirtuosoList(
-            mockDBNameUsers,
-            "public.users",
-          );
-          entityExplorer.ExpandCollapseEntity("public.users");
           dataSources.AssertTableInVirtuosoList(
             mockDBNameMovies,
             "listingAndReviews",

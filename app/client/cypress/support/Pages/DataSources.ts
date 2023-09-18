@@ -1911,10 +1911,11 @@ export class DataSources {
     targetTableName: string,
     presence = true,
   ) {
+    const ds_entity_name = dsName.replace(/\s/g, "_");
     this.entityExplorer.ExpandCollapseEntity("Datasources");
     this.entityExplorer.ExpandCollapseEntity(dsName);
     cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
-      `getDatasourceStructureUpdated_${dsName}`,
+      `getDatasourceStructureUpdated_${ds_entity_name}`,
     );
     this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: dsName,
@@ -1922,7 +1923,7 @@ export class DataSources {
     });
 
     this.assertHelper
-      .WaitForNetworkCall(`@getDatasourceStructureUpdated_${dsName}`)
+      .WaitForNetworkCall(`@getDatasourceStructureUpdated_${ds_entity_name}`)
       .then(async (interception) => {
         const tables: any[] = interception?.response?.body.data?.tables || [];
         const indexOfTable = tables.findIndex(
