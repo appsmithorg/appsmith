@@ -1,5 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.services.ce_compatible.WorkspaceServiceCECompatible;
+import com.appsmith.server.services.ce.WorkspaceServiceCE;
 
-public interface WorkspaceService extends WorkspaceServiceCECompatible {}
+public interface WorkspaceService extends WorkspaceServiceCE {}

@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
-import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;

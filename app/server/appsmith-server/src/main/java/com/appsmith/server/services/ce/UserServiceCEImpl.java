@@ -152,7 +152,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             PermissionGroupService permissionGroupService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
-                    EmailService emailService,
+            EmailService emailService,
             RateLimitService rateLimitService,
             UserServiceHelper userServiceHelper) {
 

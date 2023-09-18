@@ -4,7 +4,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.services.ce_compatible.WorkspaceServiceCECompatibleImpl;
+import com.appsmith.server.services.ce.WorkspaceServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -18,7 +18,7 @@ import reactor.core.scheduler.Scheduler;
 
 @Slf4j
 @Service
-public class WorkspaceServiceImpl extends WorkspaceServiceCECompatibleImpl implements WorkspaceService {
+public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements WorkspaceService {
 
     public WorkspaceServiceImpl(
             Scheduler scheduler,
