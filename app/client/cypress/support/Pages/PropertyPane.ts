@@ -110,7 +110,7 @@ export class PropertyPane {
     "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span | //div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//div[@class='selected-item']/div";
-  private _createModalButton = ".t--create-modal-btn";
+  public _createModalButton = ".t--create-modal-btn";
   _pageName = (option: string) => "//a/div[text()='" + option + "']";
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -160,6 +160,8 @@ export class PropertyPane {
   _multiSelect = ".rc-select-multiple";
   _currencyChangeDropdownIcon =
     ".currency-change-dropdown-trigger .remixicon-icon";
+  _countryCodeChangeDropDown = ".t--input-country-code-change .remixicon-icon";
+  _searchCountryPlaceHolder = "[placeholder='Search by ISD code or country']";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -593,12 +595,11 @@ export class PropertyPane {
       .type(newName, { force: true })
       .should("have.value", newName)
       .blur();
-    this.agHelper.PressEnter();
+    this.agHelper.PressEnter(1000);
     this.assertHelper.AssertNetworkStatus("@updateWidgetName");
-    this.agHelper.Sleep();
   }
 
-  public CreateModal(modalName: string, property: string) {
+  public CreateModal(property: string) {
     this.SelectPlatformFunction(property, "Show modal");
     this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
     this.agHelper.GetNClick(this._createModalButton);
@@ -619,5 +620,13 @@ export class PropertyPane {
   public SelectColorFromColorPicker(property: string, colorOffset: number) {
     this.agHelper.GetNClick(this._propertyControlColorPicker(property));
     this.agHelper.GetNClick(this._colorPickerV2Color, colorOffset, true);
+  }
+
+  public AssertPropertyVisibility(properties: string[], sectionTitle: string) {
+    properties.forEach((property: string) => {
+      this.agHelper.AssertElementVisibility(
+        this._propertyPanePropertyControl(sectionTitle, property),
+      );
+    });
   }
 }

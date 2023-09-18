@@ -169,7 +169,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
   });
 
-  it("2. Edit from S3 crud pages", function () {
+  it("2. Edit from S3 Deployed crud page", function () {
     let imageNameToUpload = "Datatypes/Bridge.jpg"; //Massachusetts
     let fixturePath = uid + imageNameToUpload;
     agHelper.ClickButton("Select Files"); //1 files selected
@@ -286,7 +286,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
   });
 
-  it("3. Uploading maximum files from UI - S3 Crud page", () => {
+  it("3. Uploading maximum files from UI - S3 Deployed Crud page", () => {
     let imageNameToUpload = "Datatypes/Georgia.jpeg",
       bulkyId = "BulkUpload/" + uid;
     // Datatypes/Maine.jpeg,
@@ -433,7 +433,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
   });
 
-  it("6. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
+  it("6. Verify Adding Suggested widget with specific name functionality - S3 ", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     dataSources.NavigateFromActiveDS(datasourceName, true);
     agHelper.GetObjectName().then(($queryName) => {
@@ -441,10 +441,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
       agHelper.UpdateCodeInput(formControls.s3BucketName, bucketName);
       dataSources.RunQuery();
-      agHelper.ClickButton("Select widget"); //Binding to dragDropped table
-      agHelper.AssertElementVisibility(dataSources._snippingBanner);
-      agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.TABLE));
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      dataSources.AddSuggestedWidget(
+        Widgets.Table,
+        dataSources._addSuggestedExisting,
+      );
+
       propPane.DeleteWidgetDirectlyFromPropertyPane();
       entityExplorer.SelectEntityByName($queryName, "Queries/JS");
       agHelper.ActionContextMenuWithInPane({

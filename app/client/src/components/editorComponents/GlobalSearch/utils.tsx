@@ -9,9 +9,9 @@ import type { Datasource } from "entities/Datasource";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { getPluginByPackageName } from "selectors/entitiesSelector";
+import { getPluginByPackageName } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   CurlIconV2,
   GraphQLIconV2,

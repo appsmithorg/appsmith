@@ -1,10 +1,10 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-let guid;
+let guid: any;
 let ws1Name;
 let ws2Name;
-let app1Name;
-let repoName;
+let app1Name: any;
+let repoName: any;
 let branchName;
 
 describe("Issue 24486 - Issue with Export Application", () => {
@@ -73,7 +73,7 @@ describe("Issue 24486 - Issue with Export Application", () => {
     _.propPane.ValidatePropertyFieldValue("Label", "Submit");
   });
 
-  //   after(() => {
-  //     _.gitSync.DeleteTestGithubRepo(repoName);
-  //   });
+  after(() => {
+    _.gitSync.DeleteTestGithubRepo(repoName);
+  });
 });

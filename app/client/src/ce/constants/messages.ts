@@ -164,7 +164,7 @@ export const INVITE_TAB = () => "Invite";
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
   `Invalid email address(es) found`;
 export const INVITE_USERS_VALIDATION_ROLE_EMPTY = () => `Please select a role`;
-
+export const APPLICATION_INVITE = (name: string) => `Invite users to ${name}`;
 export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = () =>
   `Comma separated emails`;
 export const INVITE_USERS_ROLE_SELECT_PLACEHOLDER = () => `Select role`;
@@ -215,6 +215,15 @@ export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
 export const DELETING_APPLICATION = () => `Deleting application...`;
+export const DELETING_MULTIPLE_APPLICATION = () =>
+  `Deleting multiple applications...`;
+export const NO_PERMISSION_TO_SELECT_FOR_DELETE = () =>
+  `You don't have permission to delete this application`;
+
+export const DELETING_MULTIPLE_APPLICATION_MODAL_TITLE = () =>
+  `Delete Confirmation`;
+export const DELETING_MULTIPLE_APPLICATION_MODAL_DESC = () =>
+  `Are you sure you want to delete selected applications?`;
 
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to sign in`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
@@ -760,6 +769,9 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
   `Git features will no more be shown for this application`;
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 
+export const CONFIGURE_GIT = () => "Configure git";
+export const SETTINGS_GIT = () => "Settings";
+
 export const GIT_CONNECTION = () => "Git connection";
 export const GIT_IMPORT = () => "Git import";
 export const MERGE = () => "Merge";
@@ -774,11 +786,14 @@ export const IMPORT_URL_INFO = () => `Paste the remote URL here:`;
 export const REMOTE_URL_VIA = () => "Remote URL via";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
+export const GIT_USER_SETTINGS_TITLE = () => "Git author";
 
 export const USE_DEFAULT_CONFIGURATION = () => "Use default configuration";
 export const AUTHOR_NAME = () => "Author name";
 export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
 export const AUTHOR_EMAIL = () => "Author email";
+export const AUTHOR_EMAIL_CANNOT_BE_EMPTY = () =>
+  "Author email cannot be empty";
 
 export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
 export const SWITCH_BRANCHES = () => "Switch branches";
@@ -829,7 +844,6 @@ export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
 export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
   "git@example.com:user/repository.git";
 export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
-export const COPIED_SSH_KEY = () => "Copied SSH key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
   "Please enter a valid SSH URL of your repository";
@@ -972,6 +986,69 @@ export const ERROR_GIT_AUTH_FAIL = () =>
 export const ERROR_GIT_INVALID_REMOTE = () =>
   "Either the remote repository doesn't exist or is unreachable.";
 // GIT ERRORS end
+
+// Git Connect V2
+export const CHOOSE_A_GIT_PROVIDER_STEP = () => "Choose a git provider";
+export const GENERATE_SSH_KEY_STEP = () => "Generate SSH key";
+export const ADD_DEPLOY_KEY_STEP = () => "Add deploy key";
+
+export const CHOOSE_GIT_PROVIDER_QUESTION = () =>
+  "To begin with, choose your git service provider";
+export const IS_EMPTY_REPO_QUESTION = () =>
+  "Do you have an existing empty repository to connect to git?";
+export const HOW_TO_CREATE_EMPTY_REPO = () => "How to create a new repository?";
+export const IMPORT_APP_IF_NOT_EMPTY = () =>
+  "If you already have an app connected to git, you can import it to the workspace.";
+export const I_HAVE_EXISTING_REPO = () =>
+  "I have an existing appsmith app connected to git";
+export const ERROR_REPO_NOT_EMPTY_TITLE = () =>
+  "The repo you added isn't empty";
+export const ERROR_REPO_NOT_EMPTY_MESSAGE = () =>
+  "Kindly create a new repository and provide its remote SSH URL here. We require an empty repository to continue.";
+export const READ_DOCS = () => "Read Docs";
+export const COPY_SSH_URL_MESSAGE = () =>
+  "In your repo, copy the Remote SSH URL & paste it in the input field below.";
+export const REMOTE_URL_INPUT_LABEL = () => "Remote SSH URL";
+export const HOW_TO_COPY_REMOTE_URL = () =>
+  "How to copy & paste SSH remote URL";
+export const ERROR_SSH_KEY_MISCONF_TITLE = () => "SSH key misconfiguration";
+export const ERROR_SSH_KEY_MISCONF_MESSAGE = () =>
+  "It seems that your SSH key hasn't been added to your repository. To proceed, please revisit the steps below and configure your SSH key correctly.";
+export const ADD_DEPLOY_KEY_STEP_TITLE = () =>
+  "Add deploy key & give write access";
+export const HOW_TO_ADD_DEPLOY_KEY = () =>
+  "How to paste SSH Key in repo and give write access?";
+export const CONSENT_ADDED_DEPLOY_KEY = () =>
+  "I've added deploy key and gave it write access";
+export const PREVIOUS_STEP = () => "Previous step";
+export const GIT_CONNECT_SUCCESS_TITLE = () =>
+  "Successfully connected to your git remote repository";
+export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
+  "Now you can start collaborating with your team members by committing, merging and deploying your app";
+export const START_USING_GIT = () => "Start using git";
+
+export const GIT_AUTHOR = () => "Git author";
+export const DISCONNECT_GIT = () => "Disconnect git";
+export const DISCONNECT_GIT_MESSAGE = () =>
+  "Once you delete a repository, there is no going back. Please be certain.";
+export const NEED_EMPTY_REPO_MESSAGE = () =>
+  "You need an empty repository to connect to Git on Appsmith, please create one on your Git service provider to continue.";
+export const GIT_IMPORT_WAITING = () =>
+  "Please wait while we import the app...";
+export const GIT_CONNECT_WAITING = () =>
+  "Please wait while we connect to git...";
+export const CONNECT_GIT_TEXT = () => "Connect git";
+
+export const ERROR_SSH_RECONNECT_MESSAGE = () =>
+  "We couldn't connect to the repo due to a missing deploy key. You can fix this in two ways:";
+export const ERROR_SSH_RECONNECT_OPTION1 = () =>
+  "Copy the SSH key below and add it to your repository.";
+export const ERROR_SSH_RECONNECT_OPTION2 = () =>
+  "If you want to connect a new repository, you can disconnect and do that instead.";
+export const COPIED_SSH_KEY = () => "Copied SSH key";
+export const NO_COPIED_SSH_KEY = () => "Could not copy SSH key";
+// Git Connect V2 end
+
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
@@ -1770,6 +1847,7 @@ export const RECONNECT_BUTTON_TEXT = () => "Reconnect";
 export const SAVE_BUTTON_TEXT = () => "Save";
 export const TEST_BUTTON_TEXT = () => "Test Configuration";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "Save and authorize";
+export const SAVE_AND_RE_AUTHORIZE_BUTTON_TEXT = () => "Save and Re-Authorize";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "Don't save";
 export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";
 export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
@@ -1905,10 +1983,10 @@ export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
 
 //Datasource environment
 export const START_SWITCH_ENVIRONMENT = (environment: string) =>
-  `Switching your environment to ${environment}, and running all associated pageload actions`;
+  `Switching your environment to ${environment.toLowerCase()}, and running all associated pageload actions`;
 export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
-  `Environment switched to ${environment} successfully`;
-export const SWITCH_ENV_DISABLED_TOOLTIP_TEXT = () =>
+  `Environment switched to ${environment.toLowerCase()} successfully`;
+export const SWITCH_ENV_DISABLED_TOOLTIP_TEXT = (): string =>
   "To access environments for datasources, try out our ";
 
 export const TEST_DATASOURCE_SUCCESS = (
@@ -1916,7 +1994,7 @@ export const TEST_DATASOURCE_SUCCESS = (
   environmentName: string,
 ) => {
   return environmentName
-    ? `Test was successful, ${datasourceName} ${environmentName} environment is correctly configured.`
+    ? `Test was successful, ${datasourceName} ${environmentName.toLowerCase()} environment is correctly configured.`
     : `Test was successful, ${datasourceName} is correctly configured.`;
 };
 

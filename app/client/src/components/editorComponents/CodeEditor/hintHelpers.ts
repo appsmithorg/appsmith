@@ -10,10 +10,13 @@ import {
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, isString } from "lodash";
-import type { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
-import { getHintDetailsFromClassName } from "./utils/sqlHint";
+import type { getAllDatasourceTableKeys } from "@appsmith/selectors/entitiesSelector";
+import {
+  filterCompletions,
+  getHintDetailsFromClassName,
+} from "./utils/sqlHint";
 
-export const bindingHint: HintHelper = (editor) => {
+export const bindingHintHelper: HintHelper = (editor) => {
   editor.setOption("extraKeys", {
     // @ts-expect-error: Types are not available
     ...editor.options.extraKeys,
@@ -149,10 +152,11 @@ class SqlHintHelper {
     const noHints = { showHints: false, completions: null } as const;
     if (isCursorOnEmptyToken(editor) || !this.isSqlMode(editor)) return noHints;
     // @ts-expect-error: No types available
-    const completions: Hints = CodeMirror.hint.sql(editor, {
+    let completions: Hints = CodeMirror.hint.sql(editor, {
       tables: this.tables,
     });
     if (isEmpty(completions.list)) return noHints;
+    completions = filterCompletions(completions);
     return {
       completions: this.addCustomAttributesToCompletions(completions),
       showHints: true,

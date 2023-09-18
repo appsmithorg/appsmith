@@ -52,6 +52,44 @@ export const initLocalstorage = () => {
   });
 };
 
+export const addIndexedDBKey = (key, value) => {
+  cy.window().then((window) => {
+    // Opening the database
+    const request = window.indexedDB.open("Appsmith", 2);
+
+    // Handling database opening success
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+
+      // Creating a transaction to access the object store : keyvaluepairs
+      const transaction = db.transaction(["keyvaluepairs"], "readwrite");
+      const objectStore = transaction.objectStore("keyvaluepairs");
+
+      // Adding the key
+      const addRequest = objectStore.put(value, key);
+
+      // Handling add success
+      addRequest.onsuccess = () => {
+        console.log("Key added successfully");
+        // Closing the database connection
+        db.close();
+      };
+
+      // Handling add error
+      addRequest.onerror = (event) => {
+        console.log("Error adding key:", event.target.error);
+        // Closing the database connection
+        db.close();
+      };
+    };
+
+    // Handling database opening error
+    request.onerror = (event) => {
+      console.log("Error opening database:", event.target.error);
+    };
+  });
+};
+
 // Cypress.Commands.add("goToEditFromPublish", () => {
 //   cy.url().then((url) => {
 //     const urlObject = new URL(url);
@@ -984,6 +1022,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "makePageDefault",
   );
   cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApp");
+  cy.intercept("POST", "/api/v1/applications/delete-apps").as(
+    "deleteMultipleApp",
+  );
   cy.intercept("DELETE", "/api/v1/pages/*").as("deletePage");
   //cy.intercept("POST", "/api/v1/datasources").as("createDatasource");
   cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
@@ -2165,7 +2206,7 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 });
 
 Cypress.Commands.add("skipSignposting", () => {
-  onboarding.closeIntroModal();
+  onboarding.skipSignposting();
 });
 
 Cypress.Commands.add("stubPricingPage", () => {

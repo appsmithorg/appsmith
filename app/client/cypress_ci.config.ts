@@ -5,6 +5,7 @@ export default defineConfig({
   requestTimeout: 60000,
   responseTimeout: 60000,
   pageLoadTimeout: 60000,
+  videoUploadOnPasses: false,
   videoCompression: false,
   numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
@@ -33,6 +34,7 @@ export default defineConfig({
       "cypress/e2e/**/spec_utility.ts",
       "cypress/e2e/GSheet/**/**/*",
       "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
+      "cypress/e2e/Regression/ServerSide/Datasources/ElasticSearch_Basic_Spec.ts",
     ],
   },
 });

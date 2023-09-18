@@ -90,12 +90,6 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       dataSources.RunQuery();
     });
     //agHelper.ActionContextMenuWithInPane("Delete"); Since next case can continue in same template
-    featureFlagIntercept(
-      {
-        ab_ds_binding_enabled: false,
-      },
-      false,
-    );
     agHelper.RefreshPage();
   });
 
@@ -259,7 +253,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       dataSources.TestDatasource(false);
       agHelper.WaitUntilAllToastsDisappear();
       agHelper.UpdateInputValue(
-        dataSources._host,
+        dataSources._host(),
         dataManager.dsValues[dataManager.defaultEnviorment].mssql_host,
       );
       agHelper.UpdateInputValue(

@@ -10,7 +10,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { getPlugins } from "selectors/entitiesSelector";
+import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import { keyBy } from "lodash";
 import Entity from "./Entity";
 import history from "utils/history";
@@ -116,7 +116,7 @@ const Datasources = React.memo(() => {
           />
         );
       }),
-    [appWideDS, pageId],
+    [appWideDS, pageId, activeDatasourceId],
   );
 
   const onDatasourcesToggle = useCallback(

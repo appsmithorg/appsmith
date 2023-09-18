@@ -3,6 +3,9 @@ import {
   entityItems,
   apiPage,
   dataSources,
+  locators,
+  dataManager,
+  propPane,
 } from "../../../support/Objects/ObjectsCore";
 
 let appName = "";
@@ -18,9 +21,9 @@ const GRAPHQL_QUERY = `query ($myid: Int!) {
   }
 }`;
 
-const POST_ID = 4;
+let POST_ID = 4;
 
-const GRAPHQL_VARIABLES = `{
+let GRAPHQL_VARIABLES = `{
     "myid": ${POST_ID}
   }`;
 
@@ -227,6 +230,8 @@ describe("GraphQL Datasource Implementation", function () {
       });
 
       //Create Auth GraphQL to verify Delete operation
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn("Authenticated GraphQL API");
       dataSources.CreateNFillAuthenticatedGraphQLDSForm(
         datasourceName,
         "Authorization",
@@ -247,6 +252,92 @@ describe("GraphQL Datasource Implementation", function () {
     cy.get("@dsName").then(($dsName: any) => {
       dataSources.DeleteDatasouceFromActiveTab($dsName);
     });
+  });
+
+  it("6. Validate Authenticated GraphQL with Empty body & then Save as Datasource + Bug #26873", () => {
+    POST_ID = 5;
+    GRAPHQL_VARIABLES = `{
+      "myid": ${POST_ID}
+    }`;
+    dataSources.CreateDataSource("UnAuthenticatedGraphQL");
+    // cy.get("@dsName").then(($dsName: any) => {
+    //   cy.log("DS Name: " + $dsName);
+    // });
+
+    apiPage.RunAPI(false);
+    apiPage.ResponseStatusCheck("PE-ARG-5000");
+    agHelper.Sleep(3500);
+    cy.get("@postExecute").then((interception: any) => {
+      expect(interception.response.body.data.isExecutionSuccess).to.eq(false);
+      expect(interception.response.body.data.body).to.contains(
+        "Your GraphQL query body is empty. Please edit the 'Body' tab of your GraphQL API to provide a query body.",
+      );
+    });
+
+    apiPage.SelectPaneTab("Authentication");
+    agHelper.ClickButton("Save as datasource");
+
+    agHelper.AssertText(
+      locators._inputFieldByName("URL") + "//" + locators._inputField,
+      "val",
+      dataManager.dsValues[
+        dataManager.defaultEnviorment
+      ].GraphqlApiUrl_TED.replace("/graphql", ""),
+    );
+    // dataSources.SaveDSFromDialog(false); //verifies bug #26873, to uncomment below once bug is fixed
+    // cy.get("@dsName").then(($dsName: any) => {
+    //   entityExplorer.SelectEntityByName($dsName);
+    //   apiPage.SelectPaneTab("Authentication");
+    //   agHelper.ClickButton("Save as datasource");
+    // });
+    dataSources.SaveDatasource();
+    agHelper.ValidateToastMessage("datasource created");
+    agHelper.AssertElementVisibility(locators._buttonByText("Edit datasource"));
+    apiPage.SelectPaneTab("Body");
+    dataSources.UpdateGraphqlQueryAndVariable({
+      query: GRAPHQL_QUERY,
+      variable: GRAPHQL_VARIABLES,
+    });
+    apiPage.RunAPI();
+    agHelper.ClickButton("Edit datasource");
+    dataSources.AssertDataSourceInfo([
+      dataManager.dsValues[
+        dataManager.defaultEnviorment
+      ].GraphqlApiUrl_TED.replace("/graphql", ""),
+      "content-type",
+      "application/json",
+      "No",
+    ]);
+    agHelper.ClickButton("Edit");
+    dataSources.ValidateNSelectDropdown(
+      "Authentication type",
+      "None",
+      "OAuth 2.0",
+    );
+    propPane.AssertPropertiesDropDownValues("Grant type", [
+      "Client Credentials",
+      "Authorization Code",
+    ]);
+
+    propPane.AssertPropertiesDropDownValues("Add Access Token To", [
+      "Request Header",
+      "Request Header",
+    ]);
+    agHelper.AssertElementVisibility(
+      locators._visibleTextDiv("Datasource not authorized"),
+    );
+    agHelper.ClickButton("Cancel");
+    dataSources.AssertDatasourceSaveModalVisibilityAndSave(false);
+
+    //verify Same ds info are present that was present before editing the DS:
+    dataSources.AssertDataSourceInfo([
+      dataManager.dsValues[
+        dataManager.defaultEnviorment
+      ].GraphqlApiUrl_TED.replace("/graphql", ""),
+      "content-type",
+      "application/json",
+      "No",
+    ]);
   });
 
   function RunNValidateGraphQL() {

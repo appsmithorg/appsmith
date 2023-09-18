@@ -23,7 +23,7 @@ app/client/tsconfig.json @KelvinOm
 app/client/tsconfig.path.json @KelvinOm
 
 # App viewers pod
-app/client/src/widgets/* @appsmithorg/app-viewers @rajatagrawal
+app/client/src/widgets/* @appsmithorg/app-viewers
 app/client/cypress/e2e/Regression/ClientSide/Widgets/* @rajatagrawal
 app/client/src/components/propertyControls/* @appsmithorg/app-viewers
 app/client/src/sagas/OneClickBindingSaga.ts @sbalaji1192 @berzerkeer
@@ -63,15 +63,8 @@ app/client/src/actions/autoLayoutActions.ts @appsmithorg/ui-builders
 app/client/src/actions/canvasSelectionActions.ts @appsmithorg/ui-builders
 app/client/src/actions/reflowActions.ts @appsmithorg/ui-builders
 app/client/src/actions/widgetSelectionActions.ts @appsmithorg/ui-builders
-app/client/src/components/autoHeight/* @appsmithorg/ui-builders
-app/client/src/components/autoHeightOverlay/* @appsmithorg/ui-builders
-app/client/src/components/designSystems/appsmith/PositionedContainer.tsx @appsmithorg/ui-builders
-app/client/src/components/editorComponents/DraggableComponent.tsx @appsmithorg/ui-builders
-app/client/src/components/editorComponents/ResizableComponent.tsx @appsmithorg/ui-builders
-app/client/src/components/editorComponents/ResizableUtils.ts @appsmithorg/ui-builders
-app/client/src/components/editorComponents/ResizeStyledComponents.tsx @appsmithorg/ui-builders
-app/client/src/components/editorComponents/WidgetNameComponent/* @appsmithorg/ui-builders
 app/client/src/components/propertyControls/* @appsmithorg/ui-builders
+app/client/src/layoutSystems/* @appsmithorg/ui-builders
 app/client/src/normalizers/CanvasWidgetsNormalizer.tsx @appsmithorg/ui-builders
 app/client/src/pages/Editor/Canvas.tsx @appsmithorg/ui-builders
 app/client/src/pages/Editor/CanvasLayoutConversion/* @appsmithorg/ui-builders
@@ -102,7 +95,6 @@ app/client/src/selectors/canvasSelectors.ts @appsmithorg/ui-builders
 app/client/src/selectors/widgetSelectors.ts @appsmithorg/ui-builders
 app/client/src/utils/DSLConversions/* @appsmithorg/ui-builders
 app/client/src/utils/autoHeight/* @appsmithorg/ui-builders
-app/client/src/utils/autoLayout/* @appsmithorg/ui-builders
 app/client/src/utils/hooks/autoHeightUIHooks.ts @appsmithorg/ui-builders
 app/client/src/utils/hooks/useAllowEditorDragToSelect.ts @appsmithorg/ui-builders
 app/client/src/utils/hooks/useClickToSelectWidget.tsx @appsmithorg/ui-builders
@@ -111,7 +103,7 @@ app/client/src/utils/hooks/usePositionedContainerZIndex.ts @appsmithorg/ui-build
 app/client/src/utils/hooks/useReflow.ts @appsmithorg/ui-builders
 app/client/src/utils/hooks/useWidgetSelection.ts @appsmithorg/ui-builders
 app/client/src/widgets/BaseWidget.tsx @appsmithorg/ui-builders
-app/client/src/widgets/CanvasResizer.tsx @appsmithorg/ui-builders
+app/client/src/widgets/BaseWidgetHOC/* @appsmithorg/ui-builders
 app/client/src/widgets/CanvasWidget.tsx @appsmithorg/ui-builders
 app/client/src/widgets/ContainerWidget/* @appsmithorg/ui-builders
 app/client/src/widgets/MetaHOC.tsx @appsmithorg/ui-builders
@@ -217,3 +209,22 @@ app/client/cypress/e2e/Regression/ClientSide/Google/**/* @ankitakinger
 app/client/cypress/e2e/Regression/ClientSide/Github/**/* @ankitakinger
 app/client/cypress/e2e/Regression/ClientSide/FormLogin/**/* @ankitakinger
 app/client/cypress/e2e/Regression/ClientSide/Auditlogs/**/* @ankitakinger
+
+#FE pod
+app/client/src/actions/evaluationActions.ts @ApekshaBhosale
+app/client/src/ce/entities/DataTree/**/* @ApekshaBhosale
+app/client/src/ce/entities/DependencyMap/**/* @ApekshaBhosale
+app/client/src/ce/entities/workers/**/* @ApekshaBhosale
+app/client/src/ee/entities/DataTree* @ApekshaBhosale
+app/client/src/ee/entities/workers/**/* @ApekshaBhosale
+app/client/src/sagas/EvaluationsSaga.ts @ApekshaBhosale
+app/client/src/sagas/EvalWorkerActionSagas.ts @ApekshaBhosale
+app/client/src/sagas/LintingSagas.ts @ApekshaBhosale
+app/client/src/sagas/PostEvaluationSags.ts @ApekshaBhosale
+app/client/src/sagas/PostLintingSagas.ts @ApekshaBhosale
+app/client/src/workers/**/* @ApekshaBhosale
+app/client/src/sagas/JSLibrarySaga.ts @ApekshaBhosale
+app/client/src/ce/ActionExecution/ActionExecutionSagas.ts @ApekshaBhosale
+app/client/src/ee/ActionExecution/ActionExecutionSagas.ts @ApekshaBhosale
+app/client/src/ce/JSFunctionExecutionSaga.ts @ApekshaBhosale
+app/client/src/ee/JSFunctionExecutionSaga.ts @ApekshaBhosale

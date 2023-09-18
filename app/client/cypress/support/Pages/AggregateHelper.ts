@@ -176,9 +176,8 @@ export class AggregateHelper extends ReusableHelper {
       .type(renameVal, { force: true, delay: 0 })
       .should("have.value", renameVal)
       .blur();
-    this.PressEnter();
+    this.PressEnter(); //allow lil more time for new name to settle
     this.AssertElementVisibility(this.locator._editIcon);
-    this.Sleep(300); //allow lil more time for new name to settle
   }
 
   public CheckForPageSaveError() {
@@ -572,16 +571,19 @@ export class AggregateHelper extends ReusableHelper {
     //     .click()
   }
 
-  public PressEscape() {
+  public PressEscape(sleep = 500) {
     cy.get("body").type("{esc}");
+    this.Sleep(sleep);
   }
 
-  public PressEnter() {
+  public PressEnter(sleep = 500) {
     cy.get("body").type("{enter}");
+    this.Sleep(sleep);
   }
 
-  public PressDelete() {
+  public PressDelete(sleep = 500) {
     cy.get("body").type(`{del}`, { force: true });
+    this.Sleep(sleep);
   }
 
   public SelectAllWidgets(parentWidget = ".appsmith_widget_0") {
@@ -592,8 +594,8 @@ export class AggregateHelper extends ReusableHelper {
     cy.get(this.locator._canvasViewport).invoke("width", `${width}px`);
   }
 
-  public ClickOutside() {
-    cy.get("body").click(0, 0, { force: true });
+  public ClickOutside(x = 0, y = 0, force = true) {
+    cy.get("body").click(x, y, { force: force });
   }
 
   public RemoveMultiSelectItems(items: string[]) {
@@ -678,9 +680,10 @@ export class AggregateHelper extends ReusableHelper {
     force = false,
     waitTimeInterval = 500,
     ctrlKey = false,
+    metaKey = false,
   ) {
     return this.ScrollIntoView(selector, index)
-      .click({ force: force, ctrlKey: ctrlKey })
+      .click({ force: force, ctrlKey: ctrlKey, metaKey })
       .wait(waitTimeInterval);
   }
 
@@ -790,6 +793,11 @@ export class AggregateHelper extends ReusableHelper {
       this.TypeText(selector, totype, index);
     }
   }
+  public ClickNClear(selector: string, force = false, index = 0) {
+    this.GetNClick(selector, index, force);
+    this.ClearTextField(selector, force, index);
+  }
+
   public ClearTextField(selector: string, force = false, index = 0) {
     this.GetElement(selector).eq(index).clear({ force });
     this.Sleep(500); //for text to clear for CI runs
@@ -929,7 +937,7 @@ export class AggregateHelper extends ReusableHelper {
   public AssertAttribute(
     selector: string,
     attribName: string,
-    attribValue: string,
+    attribValue: any,
     index = 0,
   ) {
     return this.GetElement(selector)
@@ -940,7 +948,7 @@ export class AggregateHelper extends ReusableHelper {
   public AssertProperty(
     selector: string,
     propName: string,
-    propValue: boolean,
+    propValue: any,
     index = 0,
   ) {
     return this.GetElement(selector)
@@ -1629,6 +1637,14 @@ export class AggregateHelper extends ReusableHelper {
           expect(editorCursor.line).to.equal(cursor.line);
         });
       });
+  }
+
+  public GetAttribute(selector: string, attribName: string, index = 0) {
+    return this.GetElement(selector).eq(index).invoke("attr", attribName);
+  }
+
+  public AssertClassExists(selector: string, className: string) {
+    this.GetElement(selector).should("have.class", className);
   }
 
   //Not used:

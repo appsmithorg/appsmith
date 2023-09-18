@@ -202,7 +202,7 @@ public enum AppsmithError {
     USER_ALREADY_EXISTS_IN_WORKSPACE(
             400,
             AppsmithErrorCode.USER_ALREADY_EXISTS_IN_WORKSPACE.getCode(),
-            "The user {0} has already been added to the workspace with role {1}. To change the role, please navigate to `Manage Users` page.",
+            "The user {0} has already been added to the workspace with role {1}. To change the role, please navigate to `Manage users` page.",
             AppsmithErrorAction.DEFAULT,
             "User already exists in this workspace",
             ErrorType.BAD_REQUEST,
@@ -964,6 +964,15 @@ public enum AppsmithError {
             500,
             AppsmithErrorCode.MIGRATION_FAILED.getCode(),
             "Migration {0} failed. Reason: {1}. Note: {2}",
+            AppsmithErrorAction.DEFAULT,
+            "Migration failed",
+            ErrorType.INTERNAL_ERROR,
+            null),
+
+    FeatureFlagMigrationFailure(
+            500,
+            AppsmithErrorCode.FEATURE_FLAG_MIGRATION_FAILURE.getCode(),
+            "Migration failed for feature flag {0}, error: {1}",
             AppsmithErrorAction.DEFAULT,
             "Migration failed",
             ErrorType.INTERNAL_ERROR,

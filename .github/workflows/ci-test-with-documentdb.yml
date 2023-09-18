@@ -35,7 +35,6 @@ jobs:
         ports:
           # Opens tcp port 6379 on the host and service container
           - 6379:6379
-
       mongo:
         image: mongo
         ports:
@@ -94,12 +93,14 @@ jobs:
         run: echo "$STEPS_CONTEXT"
 
       # In case this is second attempt try restoring failed tests
+      - if: steps.run_result.outputs.run_result == 'failedtest'
+        run: echo "failed_spec_artifact=failed-spec-ci-$((${{github.run_attempt}}-1))" >> $GITHUB_ENV
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: actions/download-artifact@v3
         with:
-          name: combined_failed_spec_ci
-          path: ~/combined_failed_spec_ci
+          name: ${{ env.failed_spec_artifact }}
+          path: ~/failed_spec_ci
 
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
@@ -108,14 +109,24 @@ jobs:
         if: steps.run_result.outputs.run_result == 'failedtest'
         working-directory: app/client
         run: |
-          echo "failed_spec_env<<EOF" >> $GITHUB_ENV
-          while IFS= read -r line
-          do
-            spec_name=$(echo $line | awk -F'/' '{print $NF}')
-            failed_spec_env=$(find . -name $spec_name | sed 's|./||')
-            echo "$failed_spec_env" >> $GITHUB_ENV
-          done < ~/combined_failed_spec_ci/combined_failed_spec_ci
-          echo "EOF" >> $GITHUB_ENV
+          failed_spec_env=""
+          while IFS= read -r line || [ -n "$line" ]; do
+              file_path=$(echo "$line" | awk -F'/' '{print $(NF-1)"/"$NF}')
+              spec_name=$(echo "$file_path" | awk -F'/' '{print $NF}')
+              failed_spec=$(find . -name "$spec_name" | sed 's|./||')
+              if [ "$(echo "$failed_spec" | wc -l)" -eq 1 ]; then
+                  failed_spec_env="$failed_spec_env,$failed_spec"
+              else
+                for file in $failed_spec; do
+                    new_file_path=$(echo "$file" | awk -F'/' '{print $(NF-1)"/"$NF}')
+                    if [ "$new_file_path" == "$file_path" ]; then
+                        failed_spec_env="$failed_spec_env,$file"
+                    fi
+                done
+              fi
+          done < ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
+          failed_spec_env=${failed_spec_env#,}
+          echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV
 
       - if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         run: echo "Starting full run" && exit 0
@@ -125,12 +136,12 @@ jobs:
 
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
-      
+
       - name: Setup mongodb-tools
         run: |
           wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.6.1.deb
           sudo apt install ./mongodb-database-tools-*-100.6.1.deb
-      
+
       - name: Download mongodb archive
         run: |
           curl -o data.gz https://appsmithctl-backup-restore-test.s3.ap-south-1.amazonaws.com/docdb-data.gz
@@ -162,7 +173,6 @@ jobs:
         run: |
           chmod 400 ssh_key.pem 
           ssh -4 -o StrictHostKeyChecking=no -o ServerAliveInterval=180 -o ServerAliveCountMax=5 -i "ssh_key.pem" -L 0.0.0.0:27010:docdb-ansible-test-cluster.cluster-cz8diybf9wdj.ap-south-1.docdb.amazonaws.com:27017 ubuntu@65.1.106.35 -N -f
-      
 
       - name: Run Appsmith, CS & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
@@ -171,21 +181,20 @@ jobs:
           APPSMITH_MONGODB_URI: ${{ secrets.INTERNAL_CI_DOC_DB_URI }}
 
         run: |
-          timestamp=$(date +%s) 
-          hash=$(echo -n "$timestamp" | sha1sum | awk '{print $1}')
-          current_date=$(date -d "@$timestamp" +"%d-%m")
-          DB_NAME="ci${hash:1:3}-${current_date}"
+          timestamp=$(date +%Y%m%d%H%M%S) 
+          hash=$(hostname)
+          random=$(shuf -i 1000-9999 -n 1)
+          DB_NAME="${timestamp}-${hash}-${random}"
+          echo "DB_NAME: ${DB_NAME}"
           MONGO_CREDS=$(echo $APPSMITH_MONGODB_URI | sed 's/@.*//')
           URI="${MONGO_CREDS}@localhost:27010/${DB_NAME}?retryWrites=false&replicaSet=rs0&directConnection=true" 
-          mongorestore --uri="${URI}" --archive=data.gz --gzip --drop --nsInclude=*
+          mongorestore --uri="${URI}" --archive=data.gz --gzip --drop --nsInclude "doc-db-base.*" --nsFrom "doc-db-base.*" --nsTo "${DB_NAME}.*"
           sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos
-          docker run --name test-event-driver -d \
-            -p 22:22 -p 5001:5001 -p 3306:3306 -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3001:3000 -p 6001:6001 \
-            --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
-            -v ~/git-server/repos:/git-server/repos \
-            appsmith/test-event-driver:latest
+          docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
+          -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3001:3000 -p 6001:6001 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+          -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
           docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
             -e APPSMITH_CLOUD_SERVICES_MONGODB_URI=mongodb://host.docker.internal:27017 \
@@ -219,7 +228,6 @@ jobs:
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
-            -e APPSMITH_CLOUD_SERVICES_SIGNATURE_BASE_URL=http://host.docker.internal:8090 \
             -e APPSMITH_MONGODB_URI="${APPSMITH_MONGODB_URI}${DB_NAME}?retryWrites=false&replicaSet=rs0&directConnection=true" \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
@@ -248,7 +256,7 @@ jobs:
         working-directory: app/client
         run: |
           yarn install --immutable
-          
+
       - name: Wait until appsmith server is healthy
         run: |
           bash scripts/health_check.sh
@@ -259,7 +267,6 @@ jobs:
         env:
           APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
           APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
-          CYPRESS_URL: ${{ secrets.CYPRESS_URL }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
@@ -275,6 +282,10 @@ jobs:
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
@@ -311,12 +322,6 @@ jobs:
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
-      # - name: Set Pull Request Title
-      #   env:
-      #     EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
-      #   run: |
-      #     echo "${{ env.EVENT_COMMITS }}" | awk -F '\\\\n' '{print $1}'
-
       - name: Save Git values
         # pass env variables from this step to other steps
         # using GitHub Actions environment file
@@ -350,17 +355,19 @@ jobs:
           if [[ ${{ inputs.pr }} -ne 0 ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
-            echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
+            if [[ '${{env.EVENT_COMMITS}}' == 'null' ]]; then 
+              echo "COMMIT_INFO_MESSAGE=${{ github.event_name }} by ${{ env.COMMIT_INFO_AUTHOR }}" >> $GITHUB_ENV
+            else
+              echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
+            fi
           fi
-        
+
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         id: cypress_test
         uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
@@ -375,6 +382,10 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
@@ -401,36 +412,29 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
+          TOTAL_RUNNERS: ${{ strategy.job-total }}
+          THIS_RUNNER: ${{ strategy.job-index }}
+          CYPRESS_SPEC_PATTERN: "cypress/e2e/**/**/*"
+          CYPRESS_ENV: "NODE_ENV=development"
+          CYPRESS_CONFIG_FILE: cypress_ci_custom.config.ts
+          CYPRESS_HEADLESS: "true"
+          CYPRESS_BROWSER: ${{ env.BROWSER_PATH }}
+          RUNID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+          REPOSITORY: ${{ github.repository }}
+          COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
+          TAG: ${{ github.event_name }}
+          BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
+          CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
+          CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
-          browser: ${{ env.BROWSER_PATH }}
-          record: true
           install: false
-          parallel: true
-          config-file: cypress_ci.config.ts
-          group: "Chrome-Fat Container tests"
-          spec: "cypress/e2e/**/**/*"
           working-directory: app/client
-          # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}
-          env: "NODE_ENV=development"
-
-      # - name: Retrieve Retry Attempt Count
-      #   run: |
-      #     retry_count=$((GITHUB_RUN_NUMBER - 1))
-      #     echo "Retry attempt count: $retry_count" >> $GITHUB_OUTPUT
-
-      # - name: Save Git values for Retry
-      #   run: |
-      #     PR_NUMBER=${{ inputs.pr }}
-      #     echo COMMIT_INFO_MESSAGE=Retry-${{ env.retry_count }} of OkToTest on PR# ${{ inputs.pr }} >> $GITHUB_ENV
-
-      # - name: Set Re-try Commit Message
-      #   run: |
-      #     if [[ ${{ inputs.pr }} -ne 0 ]]; then
-      #       echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
-      #     else
-      #       echo "COMMIT_INFO_MESSAGE=Retry-${{ env.retry_count }} of Merge on PR# ${{ inputs.pr }}" >> $GITHUB_ENV
-      #     fi
+          command: yarn ts-node --require esm cypress/cypress-split.ts
 
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
@@ -439,8 +443,6 @@ jobs:
         uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
@@ -455,6 +457,10 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
+          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
+          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
+          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
@@ -480,18 +486,27 @@ jobs:
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
+          CYPRESS_ENV: "NODE_ENV=development"
+          CYPRESS_CONFIG_FILE: cypress_ci.config.ts
+          CYPRESS_HEADLESS: "true"
+          CYPRESS_BROWSER: ${{ env.BROWSER_PATH }}
+          RUNID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+          REPOSITORY: ${{ github.repository }}
+          COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
+          TAG: ${{ github.event_name }}
+          BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
+          THIS_RUNNER: ${{ strategy.job-index }}
+          CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
+          CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
-          browser: ${{ env.BROWSER_PATH }}
-          record: true
           install: false
-          parallel: true
-          config-file: cypress_ci.config.ts
-          group: "Chrome-Fat Container tests"
-          spec: ${{ env.failed_spec_env }}
           working-directory: app/client
-          # tag will be either "push" or "pull_request"
-          tag: ${{ github.event_name }}
-          env: "NODE_ENV=development"
+          command: yarn cypress run --browser ${{ env.BROWSER_PATH }} --config-file cypress_ci_custom.config.ts --spec ${{ env.failed_spec_env }}
 
       - name: Collect CI container logs
         if: failure()
@@ -508,6 +523,19 @@ jobs:
           name: dockerlogs
           path: ~/dockerlogs
 
+      - name: Rename reports
+        if: always()
+        run: |
+          mkdir -p ~/results
+          mv ${{ github.workspace }}/app/client/results ~/results/${{ matrix.job }}
+
+      - name: Upload cypress report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: results-${{github.run_attempt}}
+          path: ~/results
+
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
@@ -520,7 +548,7 @@ jobs:
       - name: Create directory for failed tests
         if: always()
         run: |
-          mkdir -p  ~/failed_spec_ci-${{github.run_attempt}}
+          mkdir -p ~/failed_spec_ci-${{github.run_attempt}}
 
       # add list failed tests to a file
       - name: In case of test failures copy them to a file
@@ -545,16 +573,16 @@ jobs:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-      
-      - name: get cypress url dashboard url
-        id: dashboard_url
-        if: always()
-        run: |
-          if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-            echo ${{ steps.cypress_test.outputs.resultsUrl }} >> ~/cypress_url
-          elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-            echo ${{ steps.cypress_test_failedtest.outputs.resultsUrl }} >> ~/cypress_url
-          fi
+
+      # - name: get cypress url dashboard url
+      #   id: dashboard_url
+      #   if: always()
+      #   run: |
+      #     if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
+      #       echo "" >> ~/cypress_url
+      #     elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
+      #       echo "" >> ~/cypress_url
+      #     fi
 
       # Force store previous run result to cache
       - name: Store the previous run result
@@ -563,7 +591,7 @@ jobs:
         with:
           path: |
             ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
+          key: ${{ github.run_id }}-dashboard-url-${{ github.run_number }}
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
