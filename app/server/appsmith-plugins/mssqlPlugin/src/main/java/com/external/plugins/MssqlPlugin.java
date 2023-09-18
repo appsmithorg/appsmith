@@ -487,7 +487,6 @@ public class MssqlPlugin extends BasePlugin {
             return preparedStatement;
         }
 
-
         /**
          * MsSQL plugin makes use of a common template that is available for SQL query which is also used for other SQL
          * type plugins e.g. Postgres to create select, insert, update, delete, find queries for the CRUD page. In
