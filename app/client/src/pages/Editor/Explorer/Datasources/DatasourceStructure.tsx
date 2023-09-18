@@ -74,9 +74,6 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
     }
   };
 
-  // eslint-disable-next-line no-console
-  console.log("heree", dbStructure);
-
   const lightningMenu =
     canCreateDatasourceActions && dbStructure.templates.length > 0 ? (
       <Menu open={active}>
