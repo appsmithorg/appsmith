@@ -3,7 +3,6 @@ import { unEvalTree } from "./mockData/mockUnEvalTree";
 import { configTree } from "./mockData/mockConfigTree";
 import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeFactory";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
 import {
   arrayAccessorCyclicDependency,
   arrayAccessorCyclicDependencyConfig,
@@ -13,9 +12,11 @@ import {
   nestedArrayAccessorCyclicDependencyConfig,
 } from "./mockData/NestedArrayAccessorTree";
 import { updateDependencyMap } from "workers/common/DependencyMap";
-import type { WidgetConfiguration } from "widgets/constants";
 import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
+import widgets from "widgets";
+import type { WidgetConfiguration } from "WidgetProvider/constants";
+import { klona } from "klona";
 
 const widgetConfigMap: Record<
   string,
@@ -25,12 +26,12 @@ const widgetConfigMap: Record<
     metaProperties: WidgetConfiguration["properties"]["meta"];
   }
 > = {};
-ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
-  if (config.type && config.properties) {
-    widgetConfigMap[config.type] = {
-      defaultProperties: config.properties.default,
-      derivedProperties: config.properties.derived,
-      metaProperties: config.properties.meta,
+widgets.map((widget) => {
+  if (widget.type) {
+    widgetConfigMap[widget.type] = {
+      defaultProperties: widget.getDefaultPropertiesMap(),
+      derivedProperties: widget.getDerivedPropertiesMap(),
+      metaProperties: widget.getMetaPropertiesMap(),
     };
   }
 });
@@ -359,7 +360,7 @@ describe("DataTreeEvaluator", () => {
             nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder5,
             unEvalUpdates,
           } = dataTreeEvaluator.setupUpdateTree(
-            nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+            klona(nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree),
             nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           );
           dataTreeEvaluator.evalAndValidateSubTree(
@@ -423,7 +424,7 @@ describe("DataTreeEvaluator", () => {
           nonDynamicFieldValidationOrder,
           unEvalUpdates,
         } = dataTreeEvaluator.setupUpdateTree(
-          nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+          klona(nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree),
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
         );
         dataTreeEvaluator.evalAndValidateSubTree(
@@ -470,7 +471,7 @@ describe("DataTreeEvaluator", () => {
           nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
           unEvalUpdates,
         } = dataTreeEvaluator.setupUpdateTree(
-          nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+          klona(nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree),
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
         );
         dataTreeEvaluator.evalAndValidateSubTree(

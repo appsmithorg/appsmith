@@ -63,7 +63,7 @@ describe("Embed settings options", function () {
     )
       .click()
       .wait(1000);
-    cy.get("[data-testid='copy-application-url']").last().click();
+    _.agHelper.ClickButton("Copy application url");
     cy.window()
       .its("navigator.clipboard")
       .invoke("readText")
@@ -109,8 +109,11 @@ describe("Embed settings options", function () {
     //   } = interception[1].response.body.data;
     //   expect(APPSMITH_ALLOWED_FRAME_ANCESTORS).to.equal("*");
     // });
-    cy.log("deployUrl is " + deployUrl);
-    cy.visit(deployUrl, { timeout: 60000 });
+    cy.get("@deployUrl").then((depUrl) => {
+      cy.log("deployUrl is " + depUrl);
+      deployUrl = depUrl;
+      cy.visit(deployUrl, { timeout: 60000 });
+    });
     getIframeBody().contains("Submit").should("exist");
     ValidateEditModeSetting(_.embedSettings.locators._allowAllText);
   });
@@ -123,8 +126,11 @@ describe("Embed settings options", function () {
     });
     cy.get(adminSettings.saveButton).click();
     cy.waitForServerRestart();
-    cy.log("deployUrl is " + deployUrl);
-    cy.visit(deployUrl, { timeout: 60000 });
+    cy.get("@deployUrl").then((depUrl) => {
+      cy.log("deployUrl is " + depUrl);
+      deployUrl = depUrl;
+      cy.visit(deployUrl, { timeout: 60000 });
+    });
     // TODO: Commented out as it is flaky
     // cy.wait(["@getEnvVariables", "@getEnvVariables"]).then((interception) => {
     //   const {

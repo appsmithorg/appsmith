@@ -3,7 +3,7 @@ import { klona } from "klona";
 import { get } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { CopiedWidgetGroup } from "./WidgetOperationUtils";
 import {
   handleIfParentIsListWidgetWhilePasting,

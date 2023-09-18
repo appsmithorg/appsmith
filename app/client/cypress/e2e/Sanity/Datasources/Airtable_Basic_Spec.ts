@@ -5,6 +5,11 @@ import {
   dataSources,
   dataManager,
   assertHelper,
+  draggableWidgets,
+  propPane,
+  deployMode,
+  locators,
+  table,
 } from "../../../support/Objects/ObjectsCore";
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
@@ -14,6 +19,10 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    dataSources.AssertDataSourceInfo([
+      "Authentication type",
+      "Personal access token",
+    ]);
   });
 
   it("1. Validate List Records", () => {
@@ -259,7 +268,16 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     });
   });
 
-  it("2. Create/Retrieve/Update/Delete records", () => {
+  it("2. Drag Drop table & verify api data to widget binding", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+    propPane.EnterJSContext("Table data", "{{Api1.data.records}}");
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("Api1", "Queries/JS");
+  });
+
+  it("3. Create/Retrieve/Update/Delete records", () => {
     let createReq = `[{"fields": {
       "Species_ID": "SF",
       "Genus": "Sigmodon",
@@ -373,12 +391,10 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
-    });
-    assertHelper.AssertNetworkStatus("@deleteDatasource", 200);
+    dataSources.DeleteDatasouceFromActiveTab(dsName, 409); //Since page was deployed in testcase #2
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitForTableEmpty("v2");
+    deployMode.NavigateBacktoEditor();
+    dataSources.DeleteDatasouceFromActiveTab(dsName);
   });
 });

@@ -3,7 +3,7 @@ name: Appsmith External Integration Test Workflow
 on:
   # This workflow is only triggered by the ok to test command dispatch
   repository_dispatch:
-    types: [ ok-to-test-command ]
+    types: [ok-to-test-command]
 
 jobs:
   notify:
@@ -20,7 +20,7 @@ jobs:
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
             Perf tests will be available at <https://app.appsmith.com/app/performance-infra-dashboard/pr-details-638dd7cd2913ba43778b915e?pr=${{ github.event.client_payload.pull_request.number }}&runId=${{ github.run_id }}_${{github.run_attempt}}>
-  
+
   server-build:
     name: server-build
     uses: ./.github/workflows/server-build.yml
@@ -52,7 +52,7 @@ jobs:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   build-docker-image:
-    needs: [ client-build, server-build, rts-build ]
+    needs: [client-build, server-build, rts-build]
     # Only run if the build step is successful
     if: success()
     name: build-docker-image
@@ -62,7 +62,7 @@ jobs:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   ci-test:
-    needs: [ build-docker-image ]
+    needs: [build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: ci-test
@@ -72,7 +72,7 @@ jobs:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   perf-test:
-    needs: [ build-docker-image ]
+    needs: [build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: perf-test
@@ -82,7 +82,7 @@ jobs:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   ci-test-result:
-    needs: [ci-test, perf-test ]
+    needs: [ci-test, perf-test]
     # Only run if the ci-test with matrices step is successful
     if: always()
     runs-on: ubuntu-latest
@@ -101,7 +101,7 @@ jobs:
         run: |
           rm -f ~/failed_spec_ci
           rm -f ~/combined_failed_spec_ci
-      
+
       # Force store previous cypress dashboard url from cache
       - name: Store the previous cypress dashboard url
         continue-on-error: true
@@ -118,7 +118,7 @@ jobs:
         continue-on-error: true
         id: dashboard_url
         run: |
-          cypress_url=$(cat ~/cypress_url)
+          cypress_url="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}"
           echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
 
       # Download failed_spec list for all jobs
@@ -128,7 +128,7 @@ jobs:
         with:
           name: failed-spec-ci-${{github.run_attempt}}
           path: ~/failed_spec_ci
-          
+
       # In case for any ci job failure, create combined failed spec
       - name: combine all specs for CI
         id: combine_ci
@@ -142,7 +142,7 @@ jobs:
           else
             echo "specs_failed=1" >> $GITHUB_OUTPUT
           fi
-            
+
       # Upload combined failed CI spec list to a file
       # This is done for debugging.
       - name: upload combined failed spec
@@ -157,7 +157,7 @@ jobs:
         run: |
           curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
 
-     # Verify CI test failures against known failures
+      # Verify CI test failures against known failures
       - name: Verify CI test failures against known failures
         if: needs.ci-test.result != 'success'
         shell: bash
@@ -176,7 +176,7 @@ jobs:
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            Cypress dashboard: <a href="${{ steps.dashboard_url.outputs.dashboard_url }}" target="_blank"> Click here!</a>
+            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank"> Click here!</a>
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
             To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
 
@@ -188,7 +188,7 @@ jobs:
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            Cypress dashboard url: <a href="${{ steps.dashboard_url.outputs.dashboard_url }}" target="_blank">Click here!</a>
+            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
             All cypress tests have passed 🎉🎉🎉
 
       # Update check run called "ci-test-result"
@@ -265,7 +265,7 @@ jobs:
         run: exit 1
 
   package:
-    needs: [ ci-test ]
+    needs: [ci-test]
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -3,8 +3,8 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
-import type { WidgetType, TextSize } from "constants/WidgetConstants";
-import { RenderModes } from "constants/WidgetConstants";
+import type { TextSize } from "constants/WidgetConstants";
+import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import type { InputComponentProps } from "../component";
 import InputComponent from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
@@ -16,10 +16,10 @@ import {
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { InputType } from "../constants";
 import { InputTypes } from "../constants";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { COMPACT_MODE_MIN_ROWS } from "WidgetProvider/constants";
 import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -31,8 +31,16 @@ import {
 import { LabelPosition } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import {
+  DefaultAutocompleteDefinitions,
+  isCompactMode,
+} from "widgets/WidgetUtils";
+import type {
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import IconSVG from "../icon.svg";
 
 export function defaultValueValidation(
   value: any,
@@ -123,6 +131,58 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     super(props);
     this.state = {
       text: props.text,
+    };
+  }
+
+  static type = "INPUT_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Input",
+      iconSVG: IconSVG,
+      needsMeta: true,
+      hideCard: true,
+      isDeprecated: true,
+      replacement: "INPUT_WIDGET_V2",
+    };
+  }
+
+  static getDefaults() {
+    return {
+      inputType: "TEXT",
+      rows: 4,
+      label: "",
+      labelPosition: LabelPosition.Left,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      columns: 20,
+      widgetName: "Input",
+      version: 1,
+      defaultText: "",
+      iconAlign: "left",
+      autoFocus: false,
+      labelStyle: "",
+      resetOnSubmit: true,
+      isRequired: false,
+      isDisabled: false,
+      allowCurrencyChange: false,
+      animateLoading: true,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "defaultText",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
     };
   }
 
@@ -889,7 +949,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     );
   };
 
-  getPageView() {
+  getWidgetView() {
     const value = this.getFormattedText();
     let isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
@@ -920,12 +980,13 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     }
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
+    const { componentHeight } = this.props;
     const minInputSingleLineHeight =
       this.props.label || this.props.tooltip
         ? // adjust height for label | tooltip extra div
-          GRID_DENSITY_MIGRATION_V1 + 4
+          COMPACT_MODE_MIN_ROWS + 4
         : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
-          GRID_DENSITY_MIGRATION_V1;
+          COMPACT_MODE_MIN_ROWS;
 
     return (
       <InputComponent
@@ -936,13 +997,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         // show label and Input side by side if true
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         currencyCountryCode={currencyCountryCode}
         decimalsInCurrency={this.props.decimalsInCurrency}
         defaultValue={this.props.defaultText}
@@ -959,11 +1014,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={(this.props.labelWidth || 0) * this.props.parentColumnSpace}
+        labelWidth={this.props.labelComponentWidth}
         multiline={
-          (this.props.bottomRow - this.props.topRow) /
-            minInputSingleLineHeight >
-            1 && this.props.inputType === "TEXT"
+          componentHeight >
+            minInputSingleLineHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT &&
+          this.props.inputType === "TEXT"
         }
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
@@ -981,10 +1036,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         {...conditionalProps}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "INPUT_WIDGET";
   }
 }
 
@@ -1033,6 +1084,7 @@ export interface InputWidgetProps extends WidgetProps {
   borderRadius: string;
   boxShadow?: string;
   primaryColor: string;
+  labelComponentWidth?: number;
 }
 
 export default InputWidget;

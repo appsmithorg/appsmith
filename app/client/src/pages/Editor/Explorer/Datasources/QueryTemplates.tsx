@@ -15,7 +15,7 @@ import {
   getAction,
   getDatasource,
   getPlugin,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { integrationEditorURL } from "RouteBuilder";
 import { MenuItem, Tag } from "design-system";
 import type { Plugin } from "api/PluginApi";

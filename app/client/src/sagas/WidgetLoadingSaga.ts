@@ -5,7 +5,7 @@ import {
   getDataTree,
 } from "selectors/dataTreeSelectors";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { getActions } from "selectors/entitiesSelector";
+import { getActions } from "@appsmith/selectors/entitiesSelector";
 import type {
   ActionData,
   ActionDataState,
