@@ -23,12 +23,6 @@ export const defaultLibraries: TJSLibrary[] = [
     name: "moment",
   },
   {
-    accessor: ["xmlParser"],
-    version: "3.17.5",
-    docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
-    name: "xmlParser",
-  },
-  {
     accessor: ["forge"],
     version: "1.3.0",
     docsURL: "https://github.com/digitalbazaar/forge",
