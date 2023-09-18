@@ -1,26 +1,10 @@
-import { css } from "styled-components";
-import type { LabelProps as HeadlessLabelProps } from "@design-system/headless";
-
-type FieldStylesProps = Pick<HeadlessLabelProps, "isEmphasized" | "labelWidth">;
-
-// NOTE: these field styles are used in every input component that has a label
-// for e.g input, select, checkbox group, toggle group, radio group, etc
-export const fieldStyles = css<FieldStylesProps>`
+/* NOTE: these field styles are used in every input component that has a label
+ for e.g input, select, checkbox group, toggle group, radio group, etc */
+.field {
   &[data-field] {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-2);
-
-    &[data-position="side"] {
-      flex-direction: row;
-    }
-
-    // when the label is on the side, we need to make sure the label
-    // is centered aligned in case it is a field. For field group,
-    // align-items will be  of default value, that is flex-start
-    &[data-field-type="field"][data-position="side"] {
-      align-items: center;
-    }
+    gap: var(--spacing-3);
   }
 
   /**
@@ -41,12 +25,6 @@ export const fieldStyles = css<FieldStylesProps>`
     gap: var(--spacing-1);
     height: fit-content;
     color: var(--color-fg);
-    font-weight: ${({ isEmphasized }) => (isEmphasized ? "bold" : "normal")};
-
-    //  when the label is on the side, we need to make sure the label is aligned
-    &[data-position="side"] {
-      width: ${({ labelWidth }) => labelWidth};
-    }
   }
 
   /**
@@ -101,14 +79,4 @@ export const fieldStyles = css<FieldStylesProps>`
     display: flex;
     flex-direction: column;
   }
-
-  /**
-  * ----------------------------------------------------------------------------
-  * DISABLED
-  *-----------------------------------------------------------------------------
-  */
-  &[data-disabled] {
-    opacity: var(--opacity-disabled);
-    cursor: default;
-  }
-`;
+}

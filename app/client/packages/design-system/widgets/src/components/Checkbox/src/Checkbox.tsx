@@ -1,12 +1,14 @@
+import clsx from "clsx";
 import React, { forwardRef } from "react";
-
 import type {
   CheckboxRef as HeadlessCheckboxRef,
   CheckboxProps as HeadlessCheckboxProps,
 } from "@design-system/headless";
+import { Checkbox as HeadlessCheckbox } from "@design-system/headless";
 
 import { Text } from "../../Text";
-import { StyledCheckbox } from "./index.styled";
+import checkboxStyles from "./styles.module.css";
+import { inlineLabelStyles } from "../../../styles";
 
 export type CheckboxProps = HeadlessCheckboxProps;
 
@@ -14,9 +16,17 @@ const _Checkbox = (props: CheckboxProps, ref: HeadlessCheckboxRef) => {
   const { children, labelPosition = "right", ...rest } = props;
 
   return (
-    <StyledCheckbox labelPosition={labelPosition} ref={ref} {...rest}>
+    <HeadlessCheckbox
+      labelPosition={labelPosition}
+      ref={ref}
+      {...rest}
+      className={clsx(
+        checkboxStyles.checkbox,
+        inlineLabelStyles["inline-label"],
+      )}
+    >
       {children && <Text>{children}</Text>}
-    </StyledCheckbox>
+    </HeadlessCheckbox>
   );
 };
 

@@ -1,12 +1,4 @@
-import styled from "styled-components";
-import { Switch as HeadlessSwitch } from "@design-system/headless";
-
-import type { SwitchProps } from ".";
-import { inlineLabelStyles } from "../../../styles";
-
-export const StyledSwitch = styled(HeadlessSwitch)<SwitchProps>`
-  ${inlineLabelStyles}
-
+.switch {
   [data-icon] {
     --gutter: 2px;
     --knob-size: var(--sizing-3);
@@ -66,4 +58,4 @@ export const StyledSwitch = styled(HeadlessSwitch)<SwitchProps>`
   &[data-focused] [data-icon] {
     box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-bd-focus);
   }
-`;
+}
