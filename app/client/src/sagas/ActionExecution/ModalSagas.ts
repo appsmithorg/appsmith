@@ -19,9 +19,7 @@ export function* openModalSaga(action: TShowModalDescription) {
   }
   yield put(action);
   AppsmithConsole.info({
-    text: action.payload.modalName
-      ? `showModal('${action.payload.modalName}') was triggered`
-      : `showModal() was triggered`,
+    text: `showModal('${modalName ?? ""}') was triggered`,
   });
 }
 
