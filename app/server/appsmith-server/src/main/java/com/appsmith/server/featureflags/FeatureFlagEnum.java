@@ -24,21 +24,12 @@ public enum FeatureFlagEnum {
     // ------------------- End of features for testing -------------------------------------------------------------- //
 
     // ------------------- These are actual feature flags meant to be used across the product ----------------------- //
-    release_datasource_environments_enabled,
     APP_NAVIGATION_LOGO_UPLOAD,
     release_embed_hide_share_settings_enabled,
     ab_mock_mongo_schema_enabled,
 
     // Add EE flags below this line, to avoid conflicts.
     RBAC,
-    ask_ai,
-    ask_ai_sql,
-    ask_ai_js,
-    license_session_limit_enabled,
-    /**
-     * feature flag for scim provisioning
-     */
-    license_scim_enabled,
 
     /**
      * feature flag for knowledge base generation
@@ -51,13 +42,58 @@ public enum FeatureFlagEnum {
      */
     release_connection_pool_size,
 
+    // Feature flags which should not be deleted
+    release_datasource_environments_enabled,
+    ask_ai,
+    ask_ai_sql,
+    ask_ai_js,
+    license_session_limit_enabled,
+    /**
+     * feature flag for scim provisioning
+     */
+    license_scim_enabled,
     /**
      * Feature flag to enable the audit log functionality
      */
     license_audit_logs_enabled,
 
     /**
-     * Flag to detect if unlimited private repos are supported for the tenant
+     * Feature flag to detect if unlimited private repos are supported for the tenant
      */
     license_git_unlimited_repo_enabled,
+
+    /**
+     * Feature flag to detect if custom branding is supported for the tenant
+     */
+    license_branding_enabled,
+
+    /**
+     * Feature flag to detect if GAC i.e. custom roles and groups are supported for the tenant
+     */
+    license_gac_enabled,
+
+    /**
+     * Feature flag to detect if message listener is supported for the tenant
+     */
+    license_message_listener_enabled,
+
+    /**
+     * Feature flag to detect if programmatic access control is supported for the tenant
+     */
+    license_pac_enabled,
+
+    /**
+     * Feature flag to detect if private embeds are supported for the tenant
+     */
+    license_private_embeds_enabled,
+
+    /**
+     * Feature flag to detect if SSO OIDC is supported for the tenant
+     */
+    license_sso_oidc_enabled,
+
+    /**
+     * Feature flag to detect if SSO SAML is supported for the tenant
+     */
+    license_sso_saml_enabled,
 }
