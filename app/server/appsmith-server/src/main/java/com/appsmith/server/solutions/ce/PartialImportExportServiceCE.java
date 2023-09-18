@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportFileDTO;
@@ -13,5 +12,6 @@ public interface PartialImportExportServiceCE {
 
     Mono<ExportFileDTO> getPartialApplicationFile(String applicationId, PartialImportExportDTO entities);
 
-    Mono<ApplicationImportDTO> importPartialApplicationFromJson(String applicationId, String pageId, Part importedDoc);
+    Mono<ApplicationImportDTO> importPartialApplicationFromFile(
+            String applicationId, String workspaceId, String pageId, Part importedDoc);
 }

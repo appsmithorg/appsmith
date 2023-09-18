@@ -221,16 +221,18 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/partial/export/{id}")
+    @PostMapping("/partial/export/{id}")
     public Mono<ResponseEntity<Object>> getPartialApplicationFile(
             @PathVariable String id, @Valid @RequestBody PartialImportExportDTO entities) {
         log.debug("Going to partially export application with id: {}", id);
-
-        return partialImportExportService.getPartialApplicationFile(id, entities).map(fetchedResource -> {
-            HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
-            Object applicationResource = fetchedResource.getApplicationResource();
-            return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
-        });
+        System.out.println("======Partial export========");
+        return partialImportExportService
+                .getPartialApplicationFile(id, entities)
+                .map(fetchedResource -> {
+                    HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
+                    Object applicationResource = fetchedResource.getApplicationResource();
+                    return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
+                });
     }
 
     @JsonView(Views.Public.class)
@@ -293,14 +295,17 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping(value = "/partial/import/{applicationId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(
+            value = "/partial/import/{applicationId}/{workspaceId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ApplicationImportDTO>> importPartialApplicationFromFile(
             @RequestPart("file") Mono<Part> fileMono,
             @PathVariable String applicationId,
+            @PathVariable String workspaceId,
             @RequestParam(name = FieldName.PAGE_ID, required = false) String pageId) {
         log.debug("Going to import partial application with id: {}", applicationId);
-        return fileMono.flatMap(file ->
-                        partialImportExportService.importPartialApplicationFromJson(applicationId, pageId, file))
+        return fileMono.flatMap(file -> partialImportExportService.importPartialApplicationFromFile(
+                        applicationId, workspaceId, pageId, file))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 

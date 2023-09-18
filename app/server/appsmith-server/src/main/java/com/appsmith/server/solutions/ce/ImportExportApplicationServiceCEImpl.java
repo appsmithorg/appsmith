@@ -1705,7 +1705,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         });
     }
 
-    private Mono<List<CustomJSLibApplicationDTO>> getCustomJslibImportMono(List<CustomJSLib> customJSLibs) {
+    public Mono<List<CustomJSLibApplicationDTO>> getCustomJslibImportMono(List<CustomJSLib> customJSLibs) {
         if (customJSLibs == null) {
             customJSLibs = new ArrayList<>();
         }
@@ -1801,7 +1801,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @param appendToApp     whether applicationJson will be appended to the existing app or not
      * @return Updated application
      */
-    private Mono<Application> importApplicationInWorkspace(
+    public Mono<Application> importApplicationInWorkspace(
             String workspaceId,
             ApplicationJson applicationJson,
             String applicationId,

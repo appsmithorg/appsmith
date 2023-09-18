@@ -3,9 +3,12 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.ExportFileDTO;
+import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Mono;
 
@@ -106,4 +109,14 @@ public interface ImportExportApplicationServiceCE {
 
     Mono<ApplicationImportDTO> getApplicationImportDTO(
             String applicationId, String workspaceId, Application application);
+
+    Mono<Application> importApplicationInWorkspace(
+            String workspaceId,
+            ApplicationJson applicationJson,
+            String applicationId,
+            String branchName,
+            boolean appendToApp,
+            ImportApplicationPermissionProvider permissionProvider);
+
+    Mono<List<CustomJSLibApplicationDTO>> getCustomJslibImportMono(List<CustomJSLib> customJSLibs);
 }
