@@ -638,15 +638,16 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v3
       - name: initialize node js
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          
-      - run: npm ci
-      - name: install pg
-        run: npm install pg
+
+      - name: install pg 
+        run : |
+          npm init -y
+          npm ci
+          npm install pg
       
       - name: run a script
         id: test
