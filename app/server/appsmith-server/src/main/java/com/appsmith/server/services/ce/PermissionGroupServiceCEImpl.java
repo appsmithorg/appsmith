@@ -405,9 +405,9 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
                     updateObj.set(path, assignedToUserIds);
 
-                    return Mono.zip(
-                            repository.updateById(permissionGroupId, updateObj),
-                            cleanPermissionGroupCacheForUsers(List.of(userId)));
+                    return repository
+                            .updateById(permissionGroupId, updateObj)
+                            .then(cleanPermissionGroupCacheForUsers(List.of(userId)));
                 })
                 .map(tuple -> TRUE);
     }
