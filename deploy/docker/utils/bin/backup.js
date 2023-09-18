@@ -136,7 +136,7 @@ async function createManifestFile(path) {
 async function exportDockerEnvFile(destFolder, encryptArchive) {
   console.log('Exporting docker environment file');
   const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', { encoding: 'utf8' });
-  const cleaned_content = removeSensitiveEnvData(content);
+  let cleaned_content = removeSensitiveEnvData(content);
   if (encryptArchive){ 
     cleaned_content += '\nAPPSMITH_ENCRYPTION_SALT=' + process.env.APPSMITH_ENCRYPTION_SALT +
     '\nAPPSMITH_ENCRYPTION_PASSWORD=' + process.env.APPSMITH_ENCRYPTION_PASSWORD
@@ -196,7 +196,7 @@ function removeSensitiveEnvData(content) {
   // Remove encryption and Mongodb data from docker.env
   const output_lines = []
   content.split(/\r?\n/).forEach(line => {
-    if (!line.startsWith("APPSMITH_MONGODB")) {
+    if (!line.startsWith("APPSMITH_ENCRYPTION") && !line.startsWith("APPSMITH_MONGODB")) {
       output_lines.push(line)
     }
   });
