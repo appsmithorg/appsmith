@@ -1,15 +1,14 @@
 import { createSelector } from "reselect";
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getAppData,
   getPluginDependencyConfig,
   getPluginEditorConfigs,
-  getJSCollectionsForCurrentPage,
-} from "./entitiesSelector";
+  getCurrentJSCollections,
+} from "@appsmith/selectors/entitiesSelector";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
-  getIsMobileBreakPoint,
   getMetaWidgets,
   getWidgetsForEval,
   getWidgetsMeta,
@@ -26,15 +25,28 @@ import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
-const getAppPositioningType = (state: AppState) =>
-  AppPositioningTypes[
-    state.ui.applications.currentApplication?.applicationDetail?.appPositioning
-      ?.type || AppPositioningTypes.FIXED
-  ];
+export const getLoadingEntities = (state: AppState) =>
+  state.evaluations.loadingEntities;
+
+/**
+ * This selector is created to combine a couple of data points required by getUnevaluatedDataTree selector.
+ * Current version of reselect package only allows upto 12 arguments. Hence, this workaround.
+ * TODO: Figure out a better way to do this in a separate task. Or update the package if possible.
+ */
+const getLayoutSystemPayload = (state: AppState) => ({
+  // appPositioning?.type instead of appPositioning.type is for legacy applications that may not have the appPositioning object.
+  // All new applications will have appPositioning.type
+  appPositioningType:
+    AppPositioningTypes[
+      state.ui.applications.currentApplication?.applicationDetail
+        ?.appPositioning?.type || AppPositioningTypes.FIXED
+    ],
+  isMobile: state.ui.mainCanvas.isMobile,
+});
 
 export const getUnevaluatedDataTree = createSelector(
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
+  getCurrentActions,
+  getCurrentJSCollections,
   getWidgetsForEval,
   getWidgetsMeta,
   getPageList,
@@ -43,8 +55,8 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
   getMetaWidgets,
-  getIsMobileBreakPoint,
-  getAppPositioningType,
+  getLayoutSystemPayload,
+  getLoadingEntities,
   (
     actions,
     jsActions,
@@ -56,8 +68,8 @@ export const getUnevaluatedDataTree = createSelector(
     pluginDependencyConfig,
     selectedAppThemeProperty,
     metaWidgets,
-    isMobile,
-    appPositioningType,
+    layoutSystemPayload,
+    loadingEntities,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -71,17 +83,14 @@ export const getUnevaluatedDataTree = createSelector(
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
       metaWidgets,
-      isMobile,
-      appPositioningType,
+      loadingEntities,
+      ...layoutSystemPayload,
     });
   },
 );
 
 export const getEvaluationInverseDependencyMap = (state: AppState) =>
   state.evaluations.dependencies.inverseDependencyMap;
-
-export const getLoadingEntities = (state: AppState) =>
-  state.evaluations.loadingEntities;
 
 export const getIsWidgetLoading = createSelector(
   [getLoadingEntities, (_state: AppState, widgetName: string) => widgetName],

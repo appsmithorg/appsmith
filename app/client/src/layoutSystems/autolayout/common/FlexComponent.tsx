@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
-import { RenderModes } from "constants/WidgetConstants";
+import type { RenderMode, WidgetType } from "constants/WidgetConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
@@ -43,13 +43,6 @@ export function FlexComponent(props: FlexComponentProps) {
   const stopEventPropagation = (e: any) => {
     !isSnipingMode && e.stopPropagation();
   };
-
-  const wrappedChildren = (children: ReactNode) =>
-    props.renderMode === RenderModes.PAGE ? (
-      <div className="w-full h-full">{children}</div>
-    ) : (
-      children
-    );
 
   const className = useMemo(
     () =>
@@ -120,7 +113,7 @@ export function FlexComponent(props: FlexComponentProps) {
       onClickCapture={onClickFn}
       style={flexComponentStyle}
     >
-      {wrappedChildren(props.children)}
+      {props.children}
     </FlexWidget>
   );
 }

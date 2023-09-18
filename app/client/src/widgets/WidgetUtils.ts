@@ -34,10 +34,10 @@ import {
   COMPACT_MODE_MIN_ROWS,
   rgbaMigrationConstantV56,
 } from "../WidgetProvider/constants";
-import type { ContainerWidgetProps } from "./ContainerWidget/widget";
 import type { SchemaItem } from "./JSONFormWidget/constants";
 import { WIDGET_COMPONENT_BOUNDARY_CLASS } from "constants/componentClassNameConstants";
 import punycode from "punycode";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 type SanitizeOptions = {
   existingKeys?: string[];
@@ -775,11 +775,17 @@ export const isAutoHeightEnabledForWidget = (props: WidgetProps) => {
 
 /**
  * Check if a container is scrollable or has scrollbars
+ * "Container" here is any container like widget (Eg: Container, Tabs, etc)
+ * @param widget: FlattenedWidgetProps
+ * returns boolean
  */
 export function checkContainerScrollable(
-  widget: ContainerWidgetProps<WidgetProps>,
+  widget: FlattenedWidgetProps,
 ): boolean {
   // if both scrolling and auto height is disabled, container is not scrollable
+  // If auto height is enabled, the container is expected to be scrollable,
+  // or the widget should already be in view.
+  // If auto height is disabled, the container is scrollable only if scrolling is enabled
   return !(
     !isAutoHeightEnabledForWidget(widget) &&
     widget.shouldScrollContents === false
