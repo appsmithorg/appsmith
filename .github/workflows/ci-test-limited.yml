@@ -646,7 +646,6 @@ jobs:
       - name: install pg 
         run : |
           npm init -y
-          npm ci
           npm install pg
       
       - name: run a script
