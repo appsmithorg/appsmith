@@ -44,6 +44,7 @@ import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import type { FontFamily } from "@design-system/theming";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
@@ -108,6 +109,7 @@ function AppViewer(props: Props) {
   const { theme } = useTheme({
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
     seedColor: selectedTheme.properties.colors.primaryColor,
+    fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
   });
   const focusRef = useWidgetFocus();
 
