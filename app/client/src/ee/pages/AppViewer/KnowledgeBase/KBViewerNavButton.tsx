@@ -1,3 +1,5 @@
+export * from "ce/pages/AppViewer/KnowledgeBase/KBViewerNavButton";
+
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Tooltip } from "design-system";
 import { AI_KB_MENU_CLICK, KB_BUTTON_TOOLTIP } from "./constants";

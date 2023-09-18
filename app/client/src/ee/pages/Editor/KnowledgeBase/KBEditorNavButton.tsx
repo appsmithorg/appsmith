@@ -1,3 +1,5 @@
+export * from "ce/pages/Editor/KnowledgeBase/KBEditorNavButton";
+
 import React from "react";
 import { Button, Link, Text, Tooltip } from "design-system";
 import styled from "styled-components";
