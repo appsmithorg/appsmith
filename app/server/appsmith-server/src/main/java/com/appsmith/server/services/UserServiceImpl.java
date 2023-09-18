@@ -50,7 +50,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             PermissionGroupService permissionGroupService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
-            RedirectHelper redirectHelper,
+            EmailService emailService,
             RateLimitService rateLimitService,
             UserServiceHelper userServiceHelper) {
         super(
@@ -76,7 +76,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 permissionGroupService,
                 userUtils,
                 emailVerificationTokenRepository,
-                redirectHelper,
+                emailService,
                 rateLimitService,
                 userServiceHelper);
     }
