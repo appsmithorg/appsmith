@@ -90,7 +90,6 @@ public class UserWorkspaceServiceUnitTest {
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
                 .flatMap(permissionGroup -> {
                     permissionGroup.setDefaultDomainId(null);
-                    permissionGroup.setDefaultDomainType(null);
                     return permissionGroupRepository.save(permissionGroup);
                 })
                 .collectList()
