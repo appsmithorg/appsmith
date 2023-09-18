@@ -8,7 +8,7 @@ import {
   getIsFetchingSinglePluginForm,
   getDatasourcesStructure,
   getNumberOfEntitiesInCurrentPage,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 
 import type { Datasource } from "entities/Datasource";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
@@ -60,7 +60,7 @@ import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
 import { PluginPackageName } from "entities/Action";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
-import { getPluginImages } from "selectors/entitiesSelector";
+import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";

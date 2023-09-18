@@ -2,11 +2,11 @@ import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getDatasources,
   getJSCollections,
   getPlugins,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
@@ -28,11 +28,13 @@ export type NavigationData = {
   name: string;
   id: string;
   type: ENTITY_TYPE;
+  isfunction?: boolean;
   url: string | undefined;
   navigable: boolean;
   children: EntityNavigationData;
   key?: string;
   pluginName?: string;
+  pluginId?: string;
   isMock?: boolean;
   datasourceId?: string;
   actionType?: string;
@@ -42,7 +44,7 @@ export type NavigationData = {
 export type EntityNavigationData = Record<string, NavigationData>;
 
 export const getEntitiesForNavigation = createSelector(
-  getActionsForCurrentPage,
+  getCurrentActions,
   getPlugins,
   getJSCollections,
   getWidgets,
@@ -88,6 +90,7 @@ export const getEntitiesForNavigation = createSelector(
         children: {},
         // Adding below data as it is required for analytical events
         pluginName: plugin?.name,
+        pluginId: plugin?.id,
         datasourceId: datasource?.id,
         isMock: datasource?.isMock,
         actionType:
