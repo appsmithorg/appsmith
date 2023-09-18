@@ -226,18 +226,18 @@ public class Application extends BaseDomain {
         if (application.getPublishedApplicationDetail() == null) {
             application.setPublishedApplicationDetail(new ApplicationDetail());
         }
-        AppPositioning unpublishedAppPositioning =
-                application.getUnpublishedApplicationDetail().getAppPositioning() == null
+        LayoutSystem unpublishedLayoutSystem =
+                application.getUnpublishedApplicationDetail().getLayoutSystem() == null
                         ? null
-                        : new AppPositioning(
-                                application.getUnpublishedApplicationDetail().getAppPositioning().type);
-        this.getUnpublishedApplicationDetail().setAppPositioning(unpublishedAppPositioning);
-        AppPositioning publishedAppPositioning =
-                application.getPublishedApplicationDetail().getAppPositioning() == null
+                        : new LayoutSystem(
+                                application.getUnpublishedApplicationDetail().getLayoutSystem().type);
+        this.getUnpublishedApplicationDetail().setLayoutSystem(unpublishedLayoutSystem);
+        LayoutSystem publishedLayoutSystem =
+                application.getPublishedApplicationDetail().getLayoutSystem() == null
                         ? null
-                        : new AppPositioning(
-                                application.getPublishedApplicationDetail().getAppPositioning().type);
-        this.getPublishedApplicationDetail().setAppPositioning(publishedAppPositioning);
+                        : new LayoutSystem(
+                                application.getPublishedApplicationDetail().getLayoutSystem().type);
+        this.getPublishedApplicationDetail().setLayoutSystem(publishedLayoutSystem);
         this.getUnpublishedApplicationDetail()
                 .setNavigationSetting(
                         application.getUnpublishedApplicationDetail().getNavigationSetting() == null
@@ -391,21 +391,22 @@ public class Application extends BaseDomain {
     }
 
     /**
-     * AppPositioning captures widget positioning Mode of the application
+     * LayoutSystem captures widget positioning Mode of the application
      */
     @Data
     @NoArgsConstructor
-    public static class AppPositioning {
+    public static class LayoutSystem {
         @JsonView(Views.Public.class)
         Type type;
 
-        public AppPositioning(Type type) {
+        public LayoutSystem(Type type) {
             this.type = type;
         }
 
         public enum Type {
             FIXED,
-            AUTO
+            AUTO,
+            ANVIL
         }
     }
 }

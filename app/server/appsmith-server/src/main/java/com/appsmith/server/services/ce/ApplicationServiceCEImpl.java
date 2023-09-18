@@ -364,10 +364,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             presetApplicationDetail.setNavigationSetting(requestNavSetting);
                         }
 
-                        Application.AppPositioning requestAppPositioning =
-                                application.getUnpublishedApplicationDetail().getAppPositioning();
-                        if (requestAppPositioning != null) {
-                            presetApplicationDetail.setAppPositioning(requestAppPositioning);
+                        Application.LayoutSystem requestLayoutSystem =
+                                application.getUnpublishedApplicationDetail().getLayoutSystem();
+                        if (requestLayoutSystem != null) {
+                            presetApplicationDetail.setLayoutSystem(requestLayoutSystem);
                         }
 
                         application.setUnpublishedApplicationDetail(presetApplicationDetail);

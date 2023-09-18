@@ -2670,7 +2670,7 @@ public class ApplicationServiceCETest {
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
         testApplication
                 .getUnpublishedApplicationDetail()
-                .setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
+                .setLayoutSystem(new Application.LayoutSystem(Application.LayoutSystem.Type.FIXED));
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
@@ -2714,10 +2714,10 @@ public class ApplicationServiceCETest {
                                     .getDsl());
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
-                    assertThat(application.getPublishedApplicationDetail().getAppPositioning())
+                    assertThat(application.getPublishedApplicationDetail().getLayoutSystem())
                             .isEqualTo(application
                                     .getUnpublishedApplicationDetail()
-                                    .getAppPositioning());
+                                    .getLayoutSystem());
                     assertThat(application.getPublishedApplicationDetail().getNavigationSetting())
                             .isEqualTo(application
                                     .getUnpublishedApplicationDetail()
@@ -2748,7 +2748,7 @@ public class ApplicationServiceCETest {
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
         testApplication
                 .getUnpublishedApplicationDetail()
-                .setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
+                .setLayoutSystem(new Application.LayoutSystem(Application.LayoutSystem.Type.FIXED));
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
@@ -2856,7 +2856,7 @@ public class ApplicationServiceCETest {
         gitConnectedApp.setUnpublishedApplicationDetail(new ApplicationDetail());
         gitConnectedApp
                 .getUnpublishedApplicationDetail()
-                .setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
+                .setLayoutSystem(new Application.LayoutSystem(Application.LayoutSystem.Type.FIXED));
 
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
@@ -2902,10 +2902,10 @@ public class ApplicationServiceCETest {
                     assertThat(newPage.getDefaultResources()).isNotNull();
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
-                    assertThat(application.getPublishedApplicationDetail().getAppPositioning())
+                    assertThat(application.getPublishedApplicationDetail().getLayoutSystem())
                             .isEqualTo(application
                                     .getUnpublishedApplicationDetail()
-                                    .getAppPositioning());
+                                    .getLayoutSystem());
                     assertThat(application.getPublishedApplicationDetail().getNavigationSetting())
                             .isEqualTo(application
                                     .getUnpublishedApplicationDetail()
