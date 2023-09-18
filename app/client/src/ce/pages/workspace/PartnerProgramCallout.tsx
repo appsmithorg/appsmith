@@ -15,17 +15,19 @@ type PartnerProgramCalloutProps = {
 export default function PartnerProgramCallout(
   props: PartnerProgramCalloutProps,
 ) {
-  const link: CalloutLinkProps = {
-    children: createMessage(PARTNER_PROGRAM_CALLOUT_LINK),
-    to: "https://www.appsmith.com/partner-program",
-    endIcon: "share-box-line",
-  };
+  const links: CalloutLinkProps[] = [
+    {
+      children: createMessage(PARTNER_PROGRAM_CALLOUT_LINK),
+      to: "https://www.appsmith.com/partner-program",
+      endIcon: "share-box-line",
+    },
+  ];
 
   return (
     <Callout
       data-testid="partner-program-callout"
       isClosable
-      links={[link]}
+      links={links}
       onClose={props.onClose}
     >
       {createMessage(PARTNER_PROGRAM_CALLOUT, props.email)}
