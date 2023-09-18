@@ -40,7 +40,7 @@ export DOMAINNAME=ee-"$PULL_REQUEST_NUMBER".dp.appsmith.com
 
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm-ee.appsmith.com"
-export HELMCHART_VERSION="3.0.5"
+export HELMCHART_VERSION="3.0.7"
 
 
 aws eks update-kubeconfig --region $region --name $cluster_name --profile eksci
