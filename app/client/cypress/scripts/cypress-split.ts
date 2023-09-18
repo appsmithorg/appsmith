@@ -34,13 +34,19 @@ export class cypressSplit {
 
   private async getSpecsWithTime(specs: string[], attemptId: number) {
     const client = await this.dbClient.connect();
+    const defaultDuration = 180000;
+    const specsMap = new Map();
     try {
       const queryRes = await client.query(
         'SELECT * FROM public."spec_avg_duration" ORDER BY duration DESC',
       );
-      const defaultDuration = 180000;
-      const allSpecsWithDuration: DataItem[] = specs.map((spec) => {
-        const match = queryRes.rows.find((obj) => obj.name === spec);
+
+      queryRes.rows.forEach((obj) => {
+        specsMap.set(obj.name, obj);
+      });
+
+      const allSpecsWithDuration = specs.map((spec) => {
+        const match = specsMap.get(spec);
         return match ? match : { name: spec, duration: defaultDuration };
       });
       const activeRunners = await this.util.getActiveRunners();
