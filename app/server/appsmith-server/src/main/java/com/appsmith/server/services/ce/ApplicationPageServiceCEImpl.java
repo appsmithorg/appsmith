@@ -266,6 +266,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(newPage -> {
                     return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage, viewMode));
                 })
+                .flatMap(page -> {
+                    // Call the DSL Utils for on demand migration of the page.
+                    // Based on view mode save the migrated DSL to the database
+                    return Mono.just(page);
+                })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
 
