@@ -8,7 +8,7 @@ export default defineConfig({
   pageLoadTimeout: 60000,
   videoCompression: false,
   videoUploadOnPasses: false,
-  numTestsKeptInMemory: 5,
+  numTestsKeptInMemory: 1,
   experimentalMemoryManagement: true,
   reporter: "cypress-mochawesome-reporter",
   reporterOptions: {
