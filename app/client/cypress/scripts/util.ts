@@ -61,9 +61,7 @@ export default class util {
             (acc, item) => acc + Number(item.duration),
             0,
           );
-          return totalDurationCurrent < totalDuration + numberOfGroups * 6000
-            ? currentIndex
-            : minIndex;
+          return totalDurationCurrent < totalDuration ? currentIndex : minIndex;
         },
         0,
       );
