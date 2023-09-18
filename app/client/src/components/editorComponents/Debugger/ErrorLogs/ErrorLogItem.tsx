@@ -203,6 +203,11 @@ const ErrorLogItem = (props: LogItemProps) => {
     }
   };
 
+  // Needs serialization here because message can be a object.
+  const errorDescription =
+    props.pluginErrorDetails?.title ??
+    JSON.stringify(props.messages?.[0].message.message || "");
+
   const { collapsable } = props;
 
   return (
@@ -270,9 +275,7 @@ const ErrorLogItem = (props: LogItemProps) => {
               data-testid="t--debugger-log-message"
               onClick={(e) => e.stopPropagation()}
             >
-              {props.pluginErrorDetails
-                ? props.pluginErrorDetails.title
-                : props.messages && props.messages[0].message.message}
+              {errorDescription}
             </span>
           </div>
         )}
