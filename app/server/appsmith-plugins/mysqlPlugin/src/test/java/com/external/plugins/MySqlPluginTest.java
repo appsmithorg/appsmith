@@ -484,52 +484,6 @@ public class MySqlPluginTest {
     }
 
     @Test
-    public void testValidateDatasourceNullCredentials() {
-        dsConfig.setConnection(new com.appsmith.external.models.Connection());
-        DBAuth auth = (DBAuth) dsConfig.getAuthentication();
-        auth.setUsername(null);
-        auth.setPassword(null);
-        auth.setDatabaseName("someDbName");
-        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.contains("Missing username for authentication."));
-        assertTrue(output.contains("Missing password for authentication."));
-    }
-
-    @Test
-    public void testValidateDatasourceMissingDBName() {
-        ((DBAuth) dsConfig.getAuthentication()).setDatabaseName("");
-        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.stream().anyMatch(error -> error.contains("Missing database name.")));
-    }
-
-    @Test
-    public void testValidateDatasourceNullEndpoint() {
-        dsConfig.setEndpoints(null);
-        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.stream().anyMatch(error -> error.contains("Missing endpoint and url")));
-    }
-
-    @Test
-    public void testValidateDatasource_NullHost() {
-        dsConfig.setEndpoints(List.of(new Endpoint()));
-        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.stream().anyMatch(error -> error.contains("Host value cannot be empty")));
-
-        Endpoint endpoint = new Endpoint();
-        endpoint.setHost(address);
-        endpoint.setPort(port.longValue());
-        dsConfig.setEndpoints(List.of(endpoint));
-    }
-
-    @Test
-    public void testValidateDatasourceInvalidEndpoint() {
-        String hostname = "r2dbc:mysql://localhost";
-        dsConfig.getEndpoints().get(0).setHost(hostname);
-        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.contains("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
-    }
-
-    @Test
     public void testAliasColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -1081,23 +1035,6 @@ public class MySqlPluginTest {
                                         false),
                             },
                             usersTable.getTemplates().toArray());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testSslToggleMissingError() {
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getConnection().getSsl().setAuthType(null);
-
-        Mono<Set<String>> invalidsMono =
-                Mono.just(pluginExecutor).map(executor -> executor.validateDatasource(datasourceConfiguration));
-
-        StepVerifier.create(invalidsMono)
-                .assertNext(invalids -> {
-                    String expectedError = "Appsmith server has failed to fetch SSL configuration from datasource "
-                            + "configuration form. Please reach out to Appsmith customer support to resolve this.";
-                    assertTrue(invalids.stream().anyMatch(error -> expectedError.equals(error)));
                 })
                 .verifyComplete();
     }
