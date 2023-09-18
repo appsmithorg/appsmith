@@ -39,7 +39,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
-import com.appsmith.server.helpers.GitRepoHelper;
+import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -143,7 +143,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final WorkspaceService workspaceService;
     private final RedisUtils redisUtils;
     private final ObservationRegistry observationRegistry;
-    private final GitRepoHelper gitRepoHelper;
+    private final GitPrivateRepoHelper gitPrivateRepoHelper;
 
     private static final Duration RETRY_DELAY = Duration.ofSeconds(1);
     private static final Integer MAX_RETRIES = 20;
@@ -425,7 +425,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         boolean isSystemGenerated = isSystemGeneratedTemp;
         Mono<String> commitMono = this.getApplicationById(defaultApplicationId)
-                .flatMap(application -> gitRepoHelper
+                .flatMap(application -> gitPrivateRepoHelper
                         .isProtectedBranch(branchName, application.getGitApplicationMetadata())
                         .flatMap(status -> {
                             if (Boolean.TRUE.equals(status)) {
@@ -463,8 +463,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return applicationService
                                             .save(defaultApplication)
                                             // Check if the private repo count is less than the allowed repo count
-                                            .flatMap(
-                                                    application -> gitRepoHelper.isRepoLimitReached(workspaceId, false))
+                                            .flatMap(application ->
+                                                    gitPrivateRepoHelper.isRepoLimitReached(workspaceId, false))
                                             .flatMap(isRepoLimitReached -> {
                                                 if (Boolean.FALSE.equals(isRepoLimitReached)) {
                                                     return Mono.just(defaultApplication);
@@ -749,7 +749,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.just(application);
                     }
                     // Check the limit for number of private repo
-                    return gitRepoHelper
+                    return gitPrivateRepoHelper
                             .isRepoLimitReached(application.getWorkspaceId(), true)
                             .flatMap(isRepoLimitReached -> {
                                 if (Boolean.FALSE.equals(isRepoLimitReached)) {
@@ -1586,7 +1586,7 @@ public class GitServiceCEImpl implements GitServiceCE {
          * */
 
         Mono<GitPullDTO> pullMono = getApplicationById(defaultApplicationId)
-                .flatMap(application -> gitRepoHelper
+                .flatMap(application -> gitPrivateRepoHelper
                         .isProtectedBranch(branchName, application.getGitApplicationMetadata())
                         .flatMap(status -> {
                             if (Boolean.TRUE.equals(status)) {
@@ -2437,19 +2437,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (!isRepoPrivate) {
                         return Mono.just(gitAuth).zipWith(applicationMono);
                     }
-                    return gitRepoHelper.isRepoLimitReached(workspaceId, true).flatMap(isRepoLimitReached -> {
-                        if (Boolean.FALSE.equals(isRepoLimitReached)) {
-                            return Mono.just(gitAuth).zipWith(applicationMono);
-                        }
-                        return addAnalyticsForGitOperation(
-                                        AnalyticsEvents.GIT_IMPORT.getEventName(),
-                                        newApplication,
-                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
-                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
-                                        true)
-                                .flatMap(user ->
-                                        Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
-                    });
+                    return gitPrivateRepoHelper
+                            .isRepoLimitReached(workspaceId, true)
+                            .flatMap(isRepoLimitReached -> {
+                                if (Boolean.FALSE.equals(isRepoLimitReached)) {
+                                    return Mono.just(gitAuth).zipWith(applicationMono);
+                                }
+                                return addAnalyticsForGitOperation(
+                                                AnalyticsEvents.GIT_IMPORT.getEventName(),
+                                                newApplication,
+                                                AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
+                                                AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
+                                                true)
+                                        .flatMap(user -> Mono.error(
+                                                new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
+                            });
                 })
                 .flatMap(tuple -> {
                     GitAuth gitAuth = tuple.getT1();
@@ -2685,7 +2687,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<Application> deleteBranch(String defaultApplicationId, String branchName) {
         Mono<Application> deleteBranchMono = getApplicationById(defaultApplicationId)
-                .flatMap(application -> gitRepoHelper
+                .flatMap(application -> gitPrivateRepoHelper
                         .isProtectedBranch(branchName, application.getGitApplicationMetadata())
                         .flatMap(status -> {
                             if (Boolean.TRUE.equals(status)) {
