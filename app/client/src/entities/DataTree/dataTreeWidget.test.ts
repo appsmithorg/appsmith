@@ -304,7 +304,7 @@ describe("generateDataTreeWidget", () => {
       isMetaPropDirty: true,
     };
 
-    const result = generateDataTreeWidget(widget, widgetMetaProps);
+    const result = generateDataTreeWidget(widget, widgetMetaProps, new Set());
     expect(result.unEvalEntity).toStrictEqual(expectedData);
     expect(result.configEntity).toStrictEqual(expectedConfig);
   });

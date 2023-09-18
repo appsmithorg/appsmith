@@ -25,6 +25,9 @@ import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
 
+export const getLoadingEntities = (state: AppState) =>
+  state.evaluations.loadingEntities;
+
 export const getUnevaluatedDataTree = createSelector(
   getCurrentActions,
   getCurrentJSCollections,
@@ -37,6 +40,7 @@ export const getUnevaluatedDataTree = createSelector(
   getSelectedAppThemeProperties,
   getMetaWidgets,
   getIsMobileBreakPoint,
+  getLoadingEntities,
   (
     actions,
     jsActions,
@@ -49,6 +53,7 @@ export const getUnevaluatedDataTree = createSelector(
     selectedAppThemeProperty,
     metaWidgets,
     isMobile,
+    loadingEntities,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -63,15 +68,13 @@ export const getUnevaluatedDataTree = createSelector(
       theme: selectedAppThemeProperty,
       metaWidgets,
       isMobile,
+      loadingEntities,
     });
   },
 );
 
 export const getEvaluationInverseDependencyMap = (state: AppState) =>
   state.evaluations.dependencies.inverseDependencyMap;
-
-export const getLoadingEntities = (state: AppState) =>
-  state.evaluations.loadingEntities;
 
 export const getIsWidgetLoading = createSelector(
   [getLoadingEntities, (_state: AppState, widgetName: string) => widgetName],
