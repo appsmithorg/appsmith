@@ -36,7 +36,7 @@ export class cypressSplit {
     const client = await this.dbClient.connect();
     try {
       const queryRes = await client.query(
-        'SELECT * FROM public."spec_avg_duration"',
+        'SELECT * FROM public."spec_avg_duration" ORDER BY duration DESC',
       );
       const defaultDuration = 180000;
       const allSpecsWithDuration: DataItem[] = specs.map((spec) => {

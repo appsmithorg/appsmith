@@ -40,16 +40,11 @@ export default class util {
     data: DataItem[],
     numberOfGroups: number,
   ): Promise<DataItem[][]> {
-    // Sort data by duration in descending order
-    const sortedData = [...data].sort(
-      (a, b) => Number(b.duration) - Number(a.duration),
-    );
-
     const groups: DataItem[][] = Array.from(
       { length: numberOfGroups },
       () => [],
     );
-    sortedData.forEach((item) => {
+    data.forEach((item) => {
       // Find the group with the shortest total duration and add the item to it
       const shortestGroupIndex = groups.reduce(
         (minIndex, group, currentIndex) => {
