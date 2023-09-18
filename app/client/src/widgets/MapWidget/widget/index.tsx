@@ -29,6 +29,8 @@ const DisabledContainer = styled.div<{
 }>`
   background-color: white;
   height: 100%;
+  width: 100%;
+  overflow: scroll;
   text-align: center;
   display: flex;
   flex-direction: column;

@@ -24,7 +24,7 @@ import {
   getDatasourceStructureById,
   getPluginNameFromId,
   getPluginTemplates,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { get } from "lodash";
 import { SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE } from "constants/Datasource";
 import TemplateMenu from "./QueryEditor/TemplateMenu";
