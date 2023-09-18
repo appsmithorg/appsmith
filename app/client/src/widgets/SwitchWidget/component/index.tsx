@@ -39,8 +39,7 @@ const SwitchComponentContainer = styled.div<{
   ${({ minHeight }) => `
     ${minHeight ? `min-height: ${minHeight}px;` : undefined}`};
 
-  ${({ width }) => `
-    ${width ? `width: ${width};` : undefined}`};
+  width: 100%;
 
   ${BlueprintControlTransform}
 `;

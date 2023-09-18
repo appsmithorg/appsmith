@@ -3,7 +3,6 @@ import adminSettings from "../../../../locators/AdminsSettings";
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe("Embed settings options", function () {
-  let deployUrl;
   const getIframeBody = () => {
     // get the iframe > document > body
     // and retry until the body element is not empty
@@ -64,12 +63,7 @@ describe("Embed settings options", function () {
       .click()
       .wait(1000);
     _.agHelper.ClickButton("Copy application url");
-    cy.window()
-      .its("navigator.clipboard")
-      .invoke("readText")
-      .then((text) => {
-        cy.wrap(text).as("deployUrl");
-      });
+    cy.window().its("navigator.clipboard").invoke("readText").as("deployUrl");
     cy.enablePublicAccess();
     cy.wait(8000); //adding wait time for iframe to load fully!
     getIframeBody().contains("Submit").should("exist");
@@ -84,13 +78,9 @@ describe("Embed settings options", function () {
     });
     cy.get(adminSettings.saveButton).click();
     cy.waitForServerRestart();
-    cy.get("@deployUrl").then((depUrl) => {
-      cy.log("deployUrl is " + depUrl);
-      deployUrl = depUrl;
-      cy.visit(deployUrl, { timeout: 60000 });
-    });
+    cy.log("deployUrl is " + this.deployUrl);
+    cy.visit(this.deployUrl, { timeout: 60000 });
     getIframeBody().contains("Submit").should("exist");
-
     ValidateEditModeSetting(_.embedSettings.locators._restrictedText);
   });
 
@@ -109,8 +99,8 @@ describe("Embed settings options", function () {
     //   } = interception[1].response.body.data;
     //   expect(APPSMITH_ALLOWED_FRAME_ANCESTORS).to.equal("*");
     // });
-    cy.log("deployUrl is " + deployUrl);
-    cy.visit(deployUrl, { timeout: 60000 });
+    cy.log("deployUrl is " + this.deployUrl);
+    cy.visit(this.deployUrl, { timeout: 60000 });
     getIframeBody().contains("Submit").should("exist");
     ValidateEditModeSetting(_.embedSettings.locators._allowAllText);
   });
@@ -123,8 +113,8 @@ describe("Embed settings options", function () {
     });
     cy.get(adminSettings.saveButton).click();
     cy.waitForServerRestart();
-    cy.log("deployUrl is " + deployUrl);
-    cy.visit(deployUrl, { timeout: 60000 });
+    cy.log("deployUrl is " + this.deployUrl);
+    cy.visit(this.deployUrl, { timeout: 60000 });
     // TODO: Commented out as it is flaky
     // cy.wait(["@getEnvVariables", "@getEnvVariables"]).then((interception) => {
     //   const {

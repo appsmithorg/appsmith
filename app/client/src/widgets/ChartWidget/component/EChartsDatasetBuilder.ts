@@ -1,36 +1,73 @@
-import type { AllChartData, ChartType } from "../constants";
+import type { AllChartData, ChartType, LongestLabelParams } from "../constants";
 import { XAxisCategory } from "../constants";
 
 export class EChartsDatasetBuilder {
-  static chartData(
-    chartType: ChartType,
-    chartData: AllChartData,
-  ): AllChartData {
-    if (chartType == "PIE_CHART") {
+  chartDataProp: AllChartData;
+  chartType: ChartType;
+  filteredChartData: AllChartData;
+
+  maxXLabelString = "";
+  maxXLabelLength = 0;
+
+  maxYLabelString = "";
+  maxYLabelLength = 0;
+
+  constructor(chartType: ChartType, chartDataProp: AllChartData) {
+    this.chartDataProp = chartDataProp;
+    this.chartType = chartType;
+    this.filteredChartData = this.filterChartData();
+  }
+
+  longestDataLabels(): LongestLabelParams {
+    return {
+      x: this.maxXLabelString,
+      y: this.maxYLabelString,
+    };
+  }
+
+  filterChartData(): AllChartData {
+    if (this.chartType == "PIE_CHART") {
       // return only first series data
-      const firstSeriesKey = Object.keys(chartData)[0];
-      return { [firstSeriesKey]: chartData[firstSeriesKey] };
+      const firstSeriesKey = Object.keys(this.chartDataProp)[0];
+      return { [firstSeriesKey]: this.chartDataProp[firstSeriesKey] };
     } else {
-      return chartData;
+      return this.chartDataProp;
     }
   }
 
-  static datasetFromData(allSeriesData: AllChartData) {
+  checkForLongestLabel(x: number | string, y: number | string) {
+    const xString = x.toString();
+    const yString = y.toString();
+
+    if (xString.length > this.maxXLabelLength) {
+      this.maxXLabelLength = xString.length;
+      this.maxXLabelString = xString;
+    }
+
+    if (yString.length > this.maxYLabelLength) {
+      this.maxYLabelLength = yString.length;
+      this.maxYLabelString = yString;
+    }
+  }
+
+  datasetFromData() {
     // ["Category", "seriesID1", "seriesID2"]
     const dimensions: string[] = [XAxisCategory];
 
     // { Product1 : { "series1" : yValue1 }, "series2" : yValue2 }
     const categories: Record<string, Record<string, unknown>> = {};
 
-    Object.keys(allSeriesData).forEach((seriesID) => {
+    Object.keys(this.filteredChartData).forEach((seriesID) => {
       dimensions.push(seriesID);
 
-      const seriesData = allSeriesData[seriesID];
+      const seriesData = this.filteredChartData[seriesID];
       const datapoints = seriesData.data;
 
       for (const datapoint of datapoints) {
         const categoryName = datapoint.x;
         const value = datapoint.y;
+
+        this.checkForLongestLabel(categoryName, value);
 
         if (!categories[categoryName]) {
           categories[categoryName] = {};
