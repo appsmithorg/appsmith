@@ -309,7 +309,7 @@ function ApiResponseView(props: Props) {
   const {
     disabled,
     match: {
-      params: { apiId },
+      params: { actionId: apiId },
     },
     responseDataTypes,
     responseDisplayFormat,

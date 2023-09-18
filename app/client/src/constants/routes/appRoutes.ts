@@ -110,6 +110,7 @@ export type AppViewerRouteParams = {
 export type APIEditorRouteParams = {
   pageId: string;
   apiId?: string;
+  actionId?: string;
 };
 
 export type ProviderViewerRouteParams = {
