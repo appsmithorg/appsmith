@@ -329,7 +329,7 @@ public class ApplicationServiceTest {
 
         // Assign the permission group to the user
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
     }
 

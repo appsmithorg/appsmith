@@ -261,7 +261,8 @@ public class CreateDBTablePageSolutionEETests {
                             Set.of(new PermissionGroupCompactDTO(customRole.getId(), customRole.getName())));
 
                     // Now assign the user to the role
-                    return userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO);
+                    return userAndAccessManagementService.changeRoleAssociations(
+                            updateRoleAssociationDTO, "originHeader");
                 });
 
         updateRoleFromDefaultRoleToCustomRole.block();

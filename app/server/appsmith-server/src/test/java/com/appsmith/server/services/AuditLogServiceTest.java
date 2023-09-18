@@ -3151,7 +3151,7 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET.name(), "testClientSecret"));
 
-        envManager.applyChanges(nonEmptyEnvChanges, originHeader).block();
+        envManager.applyChanges(nonEmptyEnvChanges, "origin").block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -3191,7 +3191,7 @@ public class AuditLogServiceTest {
                 .verifyComplete();
 
         // Test removing configuration
-        envManager.applyChanges(emptyEnvChanges, originHeader).block();
+        envManager.applyChanges(emptyEnvChanges, "origin").block();
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
@@ -3240,7 +3240,7 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET.name(), "testClientSecret"));
 
-        envManager.applyChanges(nonEmptyEnvChanges, originHeader).block();
+        envManager.applyChanges(nonEmptyEnvChanges, "origin").block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -3275,7 +3275,7 @@ public class AuditLogServiceTest {
                 })
                 .verifyComplete();
         // Test removing configuration
-        envManager.applyChanges(emptyEnvChanges, originHeader).block();
+        envManager.applyChanges(emptyEnvChanges, "origin").block();
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
                     // We are looking for the first event since Audit Logs sort order is DESC
@@ -3320,7 +3320,7 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_OIDC_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_OIDC_CLIENT_SECRET.name(), "testClientSecret"));
 
-        envManager.applyChanges(nonEmptyEnvChanges, originHeader).block();
+        envManager.applyChanges(nonEmptyEnvChanges, "origin").block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -3360,7 +3360,7 @@ public class AuditLogServiceTest {
                 .verifyComplete();
 
         // Test removing configuration
-        envManager.applyChanges(emptyEnvChanges, originHeader).block();
+        envManager.applyChanges(emptyEnvChanges, "origin").block();
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
@@ -3407,7 +3407,7 @@ public class AuditLogServiceTest {
         Map<String, String> nonEmptyEnvChanges = new HashMap<>(Map.of(APPSMITH_SSO_SAML_ENABLED.name(), "true"));
 
         // Test adding configuration
-        envManager.applyChanges(nonEmptyEnvChanges, originHeader).block();
+        envManager.applyChanges(nonEmptyEnvChanges, "origin").block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -3447,7 +3447,7 @@ public class AuditLogServiceTest {
                 .verifyComplete();
 
         // Test removing configuration
-        envManager.applyChanges(emptyEnvChanges, originHeader).block();
+        envManager.applyChanges(emptyEnvChanges, "origin").block();
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
@@ -3703,7 +3703,7 @@ public class AuditLogServiceTest {
                 entry(APPSMITH_REPLY_TO.name(), "testemail@test.com"),
                 entry(APPSMITH_CUSTOM_DOMAIN.name(), "testCustomDomain")));
 
-        envManager.applyChanges(envChanges, originHeader).block();
+        envManager.applyChanges(envChanges, "origin").block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -4328,7 +4328,7 @@ public class AuditLogServiceTest {
         assignUserGroups.setRolesAdded(Set.of(permissionGroupCompactDTO));
 
         Boolean changeRoleAssociationAssignUserGroups = userAndAccessManagementService
-                .changeRoleAssociations(assignUserGroups)
+                .changeRoleAssociations(assignUserGroups, "originHeader")
                 .block();
         assertThat(changeRoleAssociationAssignUserGroups).isTrue();
         params = getAuditLogRequest(
@@ -4393,7 +4393,7 @@ public class AuditLogServiceTest {
         unassignUserGroups.setRolesRemoved(Set.of(permissionGroupCompactDTO));
 
         Boolean changeRoleAssociationUnassignUserGroups = userAndAccessManagementService
-                .changeRoleAssociations(unassignUserGroups)
+                .changeRoleAssociations(unassignUserGroups, "originHeader")
                 .block();
         assertThat(changeRoleAssociationUnassignUserGroups).isTrue();
         params = getAuditLogRequest(
@@ -4455,7 +4455,7 @@ public class AuditLogServiceTest {
         assignUser.setRolesAdded(Set.of(permissionGroupCompactDTO));
 
         Boolean changeRoleAssociationAssignUser = userAndAccessManagementService
-                .changeRoleAssociations(assignUser)
+                .changeRoleAssociations(assignUser, "originHeader")
                 .block();
         assertThat(changeRoleAssociationAssignUser).isTrue();
         params = getAuditLogRequest(
@@ -4516,7 +4516,7 @@ public class AuditLogServiceTest {
         unassignUser.setRolesRemoved(Set.of(permissionGroupCompactDTO));
 
         Boolean changeRoleAssociationUnassignUsers = userAndAccessManagementService
-                .changeRoleAssociations(unassignUser)
+                .changeRoleAssociations(unassignUser, originHeader)
                 .block();
         assertThat(changeRoleAssociationUnassignUsers).isTrue();
         params = getAuditLogRequest(
@@ -4904,7 +4904,7 @@ public class AuditLogServiceTest {
         assignUser.setRolesAdded(Set.of(permissionGroupCompactDTO));
 
         Boolean changeRoleAssociationAssignUser = userAndAccessManagementService
-                .changeRoleAssociations(assignUser)
+                .changeRoleAssociations(assignUser, "originHeader")
                 .block();
         assertThat(changeRoleAssociationAssignUser).isTrue();
 
@@ -5108,7 +5108,7 @@ public class AuditLogServiceTest {
         inviteUsersToApplicationDTO.setRoleType(FieldName.APPLICATION_DEVELOPER);
 
         List<MemberInfoDTO> membersInvited = applicationService
-                .inviteToApplication(inviteUsersToApplicationDTO)
+                .inviteToApplication(inviteUsersToApplicationDTO, originHeader)
                 .block();
         List<PermissionGroup> defaultRolesForApplication = permissionGroupService
                 .getAllDefaultRolesForApplication(createdApplication, Optional.empty())
@@ -5277,7 +5277,7 @@ public class AuditLogServiceTest {
         inviteUsersToApplicationDTO.setRoleType(FieldName.APPLICATION_DEVELOPER);
 
         List<MemberInfoDTO> membersInvited = applicationService
-                .inviteToApplication(inviteUsersToApplicationDTO)
+                .inviteToApplication(inviteUsersToApplicationDTO, originHeader)
                 .block();
         List<PermissionGroup> defaultRolesForApplication = permissionGroupService
                 .getAllDefaultRolesForApplication(createdApplication, Optional.empty())

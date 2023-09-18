@@ -6,10 +6,13 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -29,6 +32,8 @@ import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -95,6 +100,12 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     private final PermissionGroupUtils permissionGroupUtils;
     private final EnvManager envManager;
     private final ConfigRepository configRepository;
+    private final SessionUserService sessionUserService;
+    private final WorkspaceService workspaceService;
+    private final EmailService emailService;
+
+    private final ApplicationService applicationService;
+    private final ConfigService configService;
 
     public UserAndAccessManagementServiceImpl(
             SessionUserService sessionUserService,
@@ -107,13 +118,15 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
             TenantService tenantService,
             PermissionGroupRepository permissionGroupRepository,
             UserGroupRepository userGroupRepository,
+            PermissionGroupPermission permissionGroupPermission,
             UserDataRepository userDataRepository,
             PermissionGroupUtils permissionGroupUtils,
             EnvManager envManager,
             ConfigRepository configRepository,
-            PermissionGroupPermission permissionGroupPermission,
+            ConfigService configService,
             EmailService emailService,
-            CommonConfig commonConfig) {
+            CommonConfig commonConfig,
+            ApplicationService applicationService) {
 
         super(
                 sessionUserService,
@@ -125,6 +138,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 permissionGroupPermission,
                 emailService,
                 commonConfig);
+
         this.permissionGroupService = permissionGroupService;
         this.userRepository = userRepository;
         this.userService = userService;
@@ -138,6 +152,11 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         this.permissionGroupUtils = permissionGroupUtils;
         this.envManager = envManager;
         this.configRepository = configRepository;
+        this.sessionUserService = sessionUserService;
+        this.workspaceService = workspaceService;
+        this.emailService = emailService;
+        this.configService = configService;
+        this.applicationService = applicationService;
     }
 
     @Override
@@ -271,7 +290,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     }
 
     @Override
-    public Mono<Boolean> changeRoleAssociations(UpdateRoleAssociationDTO updateRoleAssociationDTO) {
+    public Mono<Boolean> changeRoleAssociations(
+            UpdateRoleAssociationDTO updateRoleAssociationDTO, String originHeader) {
         Set<UserCompactDTO> userDTOs = updateRoleAssociationDTO.getUsers();
         Set<UserGroupCompactDTO> groupDTOs = updateRoleAssociationDTO.getGroups();
         Set<PermissionGroupCompactDTO> rolesAddedDTOs = updateRoleAssociationDTO.getRolesAdded();
@@ -302,7 +322,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                             permissionGroupService.getSessionUserPermissionGroupIds(),
                             permissionGroupPermission.getAssignPermission(),
                             AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION)
-                    .thenMany(rolesToBeAddedFlux);
+                    .thenMany(rolesToBeAddedFlux)
+                    .cache();
+
             isMultipleRolesFromWorkspacePresentMono =
                     rolesAddedFlux.collectList().flatMap(this::containsPermissionGroupsFromSameWorkspace);
         }
@@ -331,10 +353,12 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                         newUser.setEmail(username.toLowerCase());
                         newUser.setIsEnabled(false);
                         return userService.findByEmail(username).switchIfEmpty(userService.userCreate(newUser, false));
-                    });
+                    })
+                    .cache();
             instanceRoleUpdatedForUsersAndEnvAdminEmailsUpdatedMono =
                     this.checkInstanceAdminUpdatedAndUpdateAdminEmails(roleIdsToBeUpdated);
         }
+
         if (!CollectionUtils.isEmpty(groupDTOs)) {
             groupFlux = userGroupRepository
                     .findAllById(
@@ -400,11 +424,23 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     return permissionGroupService.cleanPermissionGroupCacheForUsers(userIds);
                 });
 
+        Mono<Tenant> tenantConfigMono = tenantService.getTenantConfiguration();
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser();
+        Flux<User> finalUserFlux = userFlux;
+        Flux<PermissionGroup> finalRolesAddedFlux = rolesAddedFlux;
+
         return Mono.when(isMultipleRolesFromWorkspacePresentMono)
                 .then(Mono.when(rolesFromSameWorkspaceExistsInUsersMono, rolesFromSameWorkspaceExistsInUserGroupsMono))
                 .then(Mono.when(bulkAssignToRolesFlux.collectList(), bulkUnassignFromRolesFlux.collectList()))
                 .then(cleanCacheForUsersMono)
-                .then(instanceRoleUpdatedForUsersAndEnvAdminEmailsUpdatedMono);
+                .then(instanceRoleUpdatedForUsersAndEnvAdminEmailsUpdatedMono)
+                .then(tenantConfigMono)
+                .flatMap(tenant -> sendUserInvitationEmails(
+                        currentUserMono,
+                        finalUserFlux.collectList(),
+                        finalRolesAddedFlux.collectList(),
+                        tenant.getTenantConfiguration().getInstanceName(),
+                        originHeader));
     }
 
     @Override
@@ -532,16 +568,99 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
 
         Mono<List<User>> inviteIndividualUsersMono = Mono.just(List.of());
         Mono<Boolean> inviteGroupsMono = Mono.just(TRUE);
+        Mono<List<User>> sendEmailsMono = Mono.just(List.of());
 
         List<String> usernames = inviteUsersDTO.getUsernames();
         if (!CollectionUtils.isEmpty(usernames)) {
-            inviteIndividualUsersMono = super.inviteUsers(inviteUsersDTO, originHeader);
+            inviteIndividualUsersMono =
+                    super.inviteUsers(inviteUsersDTO, originHeader).cache();
         }
 
         Set<String> groups = inviteUsersDTO.getGroups();
         String permissionGroupId = inviteUsersDTO.getPermissionGroupId();
 
         if (!CollectionUtils.isEmpty(groups)) {
+            Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
+
+            Mono<PermissionGroup> permissionGroupMono = permissionGroupService
+                    .getById(inviteUsersDTO.getPermissionGroupId(), permissionGroupPermission.getAssignPermission())
+                    .filter(permissionGroup ->
+                            permissionGroup.getDefaultDomainType().equals(Workspace.class.getSimpleName())
+                                    && StringUtils.hasText(permissionGroup.getDefaultDomainId()))
+                    .switchIfEmpty(
+                            Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ROLE)))
+                    .cache();
+            // Get workspace from the default group.
+            Mono<Workspace> workspaceMono = permissionGroupMono
+                    .flatMap(permissionGroup -> workspaceService.getById(permissionGroup.getDefaultDomainId()))
+                    .cache();
+
+            // Get all the default permision groups of the workspace
+            Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceMono
+                    .flatMap(workspace -> permissionGroupService
+                            .findAllByIds(workspace.getDefaultPermissionGroups())
+                            .collectList())
+                    .cache();
+
+            // find all unique users from the groups
+            Mono<List<UserGroup>> groupListMono =
+                    userGroupRepository.findAllById(groups).collectList();
+            Mono<List<User>> uniqueUserListMono = groupListMono
+                    .flatMapMany(Flux::fromIterable)
+                    .flatMap(userGroup -> Flux.fromIterable(userGroup.getUsers()))
+                    .distinct()
+                    .collectList()
+                    .flatMap(userIds ->
+                            userService.findAllByIdsIn(new HashSet<>(userIds)).collectList());
+
+            // find users who haven't been invited yet via user invite flow
+            Mono<List<User>> groupsUsersWithNoEmailsSentMono = Mono.zip(uniqueUserListMono, inviteIndividualUsersMono)
+                    .map(tuple -> {
+                        List<User> uniqueUsers = tuple.getT1();
+                        List<User> inviteIndividualUsers = tuple.getT2();
+
+                        Set<String> idsToRemove =
+                                inviteIndividualUsers.stream().map(User::getId).collect(Collectors.toSet());
+
+                        return uniqueUsers.stream()
+                                .filter(user -> !idsToRemove.contains(user.getId()))
+                                .toList();
+                    });
+
+            /* send mails to the users who haven't been invited yet via user invite flow
+             * only if they don't belong to the workspace already
+             */
+            sendEmailsMono = groupsUsersWithNoEmailsSentMono.flatMap(
+                    users -> Mono.zip(currentUserMono, permissionGroupMono, workspaceMono, defaultPermissionGroupsMono)
+                            .flatMap(tuple -> {
+                                User currentUser = tuple.getT1();
+                                PermissionGroup permissionGroup = tuple.getT2();
+                                Workspace workspace = tuple.getT3();
+                                List<PermissionGroup> defaultPermissionGroups = tuple.getT4();
+
+                                return Flux.fromIterable(users)
+                                        .flatMap(user -> {
+                                            boolean shouldSkip = defaultPermissionGroups.stream()
+                                                    .anyMatch(pg -> pg.getAssignedToUserIds()
+                                                            .contains(user.getId()));
+
+                                            if (shouldSkip) {
+                                                return Mono.empty();
+                                            } else {
+                                                return emailService
+                                                        .sendInviteUserToWorkspaceEmail(
+                                                                currentUser,
+                                                                user,
+                                                                workspace,
+                                                                permissionGroup,
+                                                                originHeader,
+                                                                false)
+                                                        .thenReturn(user); // Return the user after processing
+                                            }
+                                        })
+                                        .collectList(); // Collect the list of users after sending emails
+                            }));
+
             Set<UserGroupCompactDTO> groupCompactDTOS =
                     groups.stream().map(id -> new UserGroupCompactDTO(id, null)).collect(Collectors.toSet());
 
@@ -549,12 +668,14 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
             updateRoleAssociationDTO.setGroups(groupCompactDTOS);
             updateRoleAssociationDTO.setRolesAdded(Set.of(new PermissionGroupCompactDTO(permissionGroupId, null)));
 
-            inviteGroupsMono = this.changeRoleAssociations(updateRoleAssociationDTO);
+            inviteGroupsMono = this.changeRoleAssociations(updateRoleAssociationDTO, originHeader);
         }
 
         Mono<Boolean> finalInviteGroupsMono = inviteGroupsMono;
-        // First invite the user and then invite the groups.
-        return inviteIndividualUsersMono.flatMap(users -> finalInviteGroupsMono.thenReturn(users));
+        Mono<List<User>> finalSendEmailsMono = sendEmailsMono;
+
+        return inviteIndividualUsersMono.flatMap(
+                users -> finalInviteGroupsMono.then(finalSendEmailsMono).thenReturn(users));
     }
 
     // Takes a list of PermissionGroups and from them, extract the Highest level of permission, if there exists
@@ -671,6 +792,97 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .findByName(INSTANCE_CONFIG)
                 .map(configObj -> configObj.getConfig().getAsString(DEFAULT_PERMISSION_GROUP))
                 .doOnNext(id -> instanceAdminRoleId = id);
+    }
+
+    private Mono<Boolean> sendUserInvitationEmails(
+            Mono<User> invitingUser,
+            Mono<List<User>> invitedUsers,
+            Mono<List<PermissionGroup>> rolesAdded,
+            String instanceName,
+            String originHeader) {
+
+        return Mono.zip(invitingUser, invitedUsers, rolesAdded).flatMap(tuple -> {
+            User inviter = tuple.getT1();
+            List<User> invitedUserList = tuple.getT2();
+            List<PermissionGroup> rolesAddedList = tuple.getT3();
+            List<PermissionGroup> workspaceRoles = getWorkspaceRoles(rolesAddedList);
+            List<PermissionGroup> applicationRoles = getApplicationRoles(rolesAddedList);
+            List<PermissionGroup> notWorkspaceOrApplicationRoles = rolesAddedList.stream()
+                    .filter(role -> !workspaceRoles.contains(role) && !applicationRoles.contains(role))
+                    .toList();
+
+            Mono<Boolean> workspaceInviteEmailsMono = Flux.fromIterable(invitedUserList)
+                    .flatMap(invitedUser -> Flux.fromIterable(workspaceRoles)
+                            .flatMap(role -> workspaceService
+                                    .getById(role.getDefaultDomainId())
+                                    .flatMap(workspace -> emailService.sendInviteUserToWorkspaceEmail(
+                                            inviter,
+                                            invitedUser,
+                                            workspace,
+                                            role,
+                                            originHeader,
+                                            !invitedUser.isEnabled()))
+                                    .map(success -> true)
+                                    .onErrorReturn(false))
+                            .collectList()
+                            .map(successList -> successList.stream().allMatch(Boolean::booleanValue)))
+                    .collectList()
+                    .map(successList -> successList.stream().allMatch(Boolean::booleanValue))
+                    .defaultIfEmpty(false);
+
+            Mono<Boolean> applicationInviteEmailsMono = Flux.fromIterable(invitedUserList)
+                    .flatMap(invitedUser -> Flux.fromIterable(applicationRoles)
+                            .flatMap(role -> applicationService
+                                    .getById(role.getDefaultDomainId())
+                                    .flatMap(application -> emailService.sendInviteUserToApplicationEmail(
+                                            inviter,
+                                            invitedUser,
+                                            application,
+                                            role.getName(),
+                                            originHeader,
+                                            instanceName,
+                                            !invitedUser.isEnabled()))
+                                    .map(success -> true)
+                                    .onErrorReturn(false))
+                            .collectList()
+                            .map(successList -> successList.stream().allMatch(Boolean::booleanValue)))
+                    .collectList()
+                    .map(successList -> successList.stream().allMatch(Boolean::booleanValue))
+                    .defaultIfEmpty(false);
+
+            Mono<Boolean> notWorkspaceOrApplicationInviteEmailsMono = Flux.fromIterable(invitedUserList)
+                    .flatMap(invitedUser -> Flux.fromIterable(notWorkspaceOrApplicationRoles)
+                            .flatMap(role -> emailService.sendInviteUserToInstanceEmail(
+                                    inviter, invitedUser, role.getName(), instanceName, originHeader))
+                            .all(success -> success)
+                            .defaultIfEmpty(false))
+                    .all(success -> success)
+                    .defaultIfEmpty(false);
+
+            return Mono.zip(
+                            workspaceInviteEmailsMono,
+                            applicationInviteEmailsMono,
+                            notWorkspaceOrApplicationInviteEmailsMono)
+                    .map(tuple1 -> tuple1.getT1() && tuple1.getT2() && tuple1.getT3());
+        });
+    }
+
+    private List<PermissionGroup> getWorkspaceRoles(List<PermissionGroup> permissionGroups) {
+        return permissionGroups.stream()
+                .filter(permissionGroup -> {
+                    String entityType = permissionGroup.getDefaultDomainType();
+                    return entityType != null && entityType.equals(Workspace.class.getSimpleName());
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<PermissionGroup> getApplicationRoles(List<PermissionGroup> permissionGroups) {
+        return permissionGroups.stream()
+                .filter(permissionGroup -> {
+                    String entityType = permissionGroup.getDefaultDomainType();
+                    return entityType != null && entityType.equals(Application.class.getSimpleName());
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

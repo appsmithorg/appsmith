@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -88,9 +89,10 @@ public class PermissionGroupController {
 
     @PutMapping("/associate")
     public Mono<ResponseDTO<Boolean>> updatePermissionGroupsAssociation(
-            @RequestBody UpdateRoleAssociationDTO updateRoleAssociationDTO) {
+            @RequestBody UpdateRoleAssociationDTO updateRoleAssociationDTO,
+            @RequestHeader("Origin") String originHeader) {
         return userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, originHeader)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

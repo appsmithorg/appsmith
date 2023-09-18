@@ -17,7 +17,7 @@ public interface UserAndAccessManagementService extends UserAndAccessManagementS
 
     Mono<Boolean> deleteUser(String userId);
 
-    Mono<Boolean> changeRoleAssociations(UpdateRoleAssociationDTO updateRoleAssociationDTO);
+    Mono<Boolean> changeRoleAssociations(UpdateRoleAssociationDTO updateRoleAssociationDTO, String originHeader);
 
     Mono<Boolean> unAssignUsersAndGroupsFromAllAssociatedRoles(List<User> users, List<UserGroup> groups);
 }

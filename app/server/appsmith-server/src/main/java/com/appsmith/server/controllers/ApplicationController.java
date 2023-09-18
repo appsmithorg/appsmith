@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -69,9 +70,11 @@ public class ApplicationController extends ApplicationControllerCE {
 
     @PostMapping("/invite")
     public Mono<ResponseDTO<List<MemberInfoDTO>>> inviteToApplication(
-            @RequestBody InviteUsersToApplicationDTO inviteToApplicationDTO) {
+            @RequestBody InviteUsersToApplicationDTO inviteToApplicationDTO,
+            @RequestHeader("Origin") String originHeader) {
         log.debug("Inviting entities to application: {}", inviteToApplicationDTO.getApplicationId());
-        Mono<List<MemberInfoDTO>> memberInfoDTOSMono = service.inviteToApplication(inviteToApplicationDTO);
+        Mono<List<MemberInfoDTO>> memberInfoDTOSMono =
+                service.inviteToApplication(inviteToApplicationDTO, originHeader);
         return memberInfoDTOSMono.map(
                 invitedEntitiesDTO -> new ResponseDTO<>(HttpStatus.OK.value(), invitedEntitiesDTO, null));
     }

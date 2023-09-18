@@ -206,6 +206,8 @@ public class ApplicationShareTest {
     User apiUser = null;
     User testUser = null;
 
+    String originHeader = "http://localhost:8080";
+
     @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
@@ -2034,8 +2036,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setRoleType(APPLICATION_DEVELOPER);
         inviteToApplicationDTO.setUsernames(usersToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
 
         Optional<PermissionGroup> appDeveloperRole = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(
@@ -2120,8 +2123,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setRoleType(APPLICATION_VIEWER);
         inviteToApplicationDTO.setUsernames(usersToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
 
         Optional<PermissionGroup> appViewerRole = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(
@@ -2233,8 +2237,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setRoleType(APPLICATION_DEVELOPER);
         inviteToApplicationDTO.setUsernames(usersToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
 
         Optional<PermissionGroup> appDeveloperRole = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(
@@ -2322,8 +2327,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setRoleType(APPLICATION_VIEWER);
         inviteToApplicationDTO.setUsernames(usersToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
 
         Optional<PermissionGroup> appViewerRole = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(
@@ -2412,7 +2418,7 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setUsernames(usersToInvite);
 
         Mono<List<MemberInfoDTO>> memberInvitedInfoDTOSMono =
-                applicationService.inviteToApplication(inviteToApplicationDTO);
+                applicationService.inviteToApplication(inviteToApplicationDTO, originHeader);
 
         StepVerifier.create(memberInvitedInfoDTOSMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -2468,8 +2474,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setRoleType(APPLICATION_VIEWER);
         inviteToApplicationDTO.setUsernames(usersToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
 
         Optional<PermissionGroup> appViewerRole = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(
@@ -2554,8 +2561,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setRoleType(APPLICATION_DEVELOPER);
         inviteToApplicationDTO.setUsernames(usersToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
 
         PermissionGroup appDeveloperRole =
                 permissionGroupRepository.findById(applicationDevRole.getId()).block();
@@ -2632,8 +2640,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setRoleType(APPLICATION_VIEWER);
         inviteToApplicationDTO.setUsernames(usersToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
 
         Optional<PermissionGroup> appViewerRole = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(
@@ -2719,7 +2728,7 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setUsernames(usersToInvite);
 
         Mono<List<MemberInfoDTO>> memberInvitedInfoDTOSMono =
-                applicationService.inviteToApplication(inviteToApplicationDTO);
+                applicationService.inviteToApplication(inviteToApplicationDTO, originHeader);
 
         StepVerifier.create(memberInvitedInfoDTOSMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -2772,8 +2781,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setRoleType(APPLICATION_VIEWER);
         inviteToApplicationDTO.setUsernames(usersToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
 
         PermissionGroup appViewerRole =
                 permissionGroupRepository.findById(applicationViewRole.getId()).block();
@@ -2841,8 +2851,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setRoleType(APPLICATION_VIEWER);
         inviteToApplicationDTO.setGroups(groupIdsToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
 
         Optional<PermissionGroup> appViewerRole = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(
@@ -2921,8 +2932,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setGroups(groupIdsToInvite);
         inviteToApplicationDTO.setUsernames(usersToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
 
         Optional<PermissionGroup> appViewerRole = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(
@@ -2999,8 +3011,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setRoleType(APPLICATION_VIEWER);
         inviteToApplicationDTO.setUsernames(usersToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
         assertThat(memberInvitedInfoDTOS).isNotNull();
 
         PermissionGroup appViewerRole = permissionGroupRepository
@@ -3121,8 +3134,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setUsernames(usersToInvite);
         inviteToApplicationDTO.setGroups(groupIdsToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
         assertThat(memberInvitedInfoDTOS).isNotNull();
 
         Optional<PermissionGroup> appViewerRole = permissionGroupRepository
@@ -3320,8 +3334,9 @@ public class ApplicationShareTest {
         inviteToApplicationDTO.setUsernames(usersToInvite);
         inviteToApplicationDTO.setGroups(groupIdsToInvite);
 
-        List<MemberInfoDTO> memberInvitedInfoDTOS =
-                applicationService.inviteToApplication(inviteToApplicationDTO).block();
+        List<MemberInfoDTO> memberInvitedInfoDTOS = applicationService
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
         assertThat(memberInvitedInfoDTOS).isNotNull();
 
         Optional<PermissionGroup> appViewerRole = permissionGroupRepository
@@ -3462,8 +3477,12 @@ public class ApplicationShareTest {
         inviteToViewRoleApplicationDTO.setRoleType(APPLICATION_VIEWER);
         inviteToViewRoleApplicationDTO.setGroups(groupIdsToInvite);
 
-        applicationService.inviteToApplication(inviteToDevRoleApplicationDTO).block();
-        applicationService.inviteToApplication(inviteToViewRoleApplicationDTO).block();
+        applicationService
+                .inviteToApplication(inviteToDevRoleApplicationDTO, originHeader)
+                .block();
+        applicationService
+                .inviteToApplication(inviteToViewRoleApplicationDTO, originHeader)
+                .block();
 
         List<MemberInfoDTO> defaultApplicationMembers = applicationMemberService
                 .getAllMembersForApplication(createdApplication.getId())
@@ -3577,9 +3596,11 @@ public class ApplicationShareTest {
         inviteToApplicationAndWorkspaceDTO2.setUsernames(usersToInviteToApplicationAndWorkspaceList);
         inviteToApplicationAndWorkspaceDTO2.setGroups(groupIdsToInviteToApplicationAndWorkspace);
 
-        applicationService.inviteToApplication(inviteToApplicationDTO).block();
         applicationService
-                .inviteToApplication(inviteToApplicationAndWorkspaceDTO1)
+                .inviteToApplication(inviteToApplicationDTO, originHeader)
+                .block();
+        applicationService
+                .inviteToApplication(inviteToApplicationAndWorkspaceDTO1, originHeader)
                 .block();
         userAndAccessManagementService.inviteUsers(inviteToWorkspaceDTO, "test").block();
         userAndAccessManagementService

@@ -381,7 +381,7 @@ public class PermissionGroupServiceTest {
         updateRoleAssociationDTO.setRolesAdded(Set.of(
                 new PermissionGroupCompactDTO(createdPermissionGroup.getId(), createdPermissionGroup.getName())));
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         PermissionGroup updatedPermissionGroup = permissionGroupService
@@ -435,7 +435,7 @@ public class PermissionGroupServiceTest {
 
         // Now assign the users to the roles
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         Mono<Tuple2<PermissionGroup, PermissionGroup>> permissionGroupsPostUpdateMono = Mono.zip(
@@ -518,7 +518,7 @@ public class PermissionGroupServiceTest {
 
         // Now assign the users to the roles
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         Mono<Tuple2<PermissionGroup, PermissionGroup>> permissionGroupsPostUpdateMono = Mono.zip(
@@ -645,7 +645,7 @@ public class PermissionGroupServiceTest {
                 new PermissionGroupCompactDTO(createdPermissionGroup3.getId(), createdPermissionGroup3.getName())));
 
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         /**
@@ -672,7 +672,7 @@ public class PermissionGroupServiceTest {
                 new PermissionGroupCompactDTO(createdPermissionGroup3.getId(), createdPermissionGroup3.getName())));
 
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         updateRoleAssociationDTO.setGroups(Set.of());
@@ -683,7 +683,7 @@ public class PermissionGroupServiceTest {
                 new PermissionGroupCompactDTO(createdPermissionGroup2.getId(), createdPermissionGroup2.getName())));
 
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         Mono<Workspace> workspaceMonoWithPermission = workspaceService

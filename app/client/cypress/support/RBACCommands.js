@@ -869,11 +869,15 @@ Cypress.Commands.add("AddIntercepts", () => {
   cy.intercept("POST", "/api/v1/user-groups").as("createGroup");
   cy.intercept("PUT", "/api/v1/user-groups/*").as("renameGroup");
   cy.intercept("DELETE", "/api/v1/user-groups/*").as("deleteGroup");
-  cy.intercept("POST", "api/v1/user-groups/invite").as("inviteUser");
+  cy.intercept("POST", "api/v1/user-groups/invite", (req) => {
+    req.headers["origin"] = "Cypress";
+  }).as("inviteUser");
   cy.intercept("DELETE", "api/v1/users/id/*").as("deleteUser");
   cy.intercept("PUT", "/api/v1/user-groups/*").as("updateGroup");
   cy.intercept("GET", "/api/v1/users/manage/all").as("fetchUsers");
-  cy.intercept("PUT", "/api/v1/roles/associate").as("associateRoles");
+  cy.intercept("PUT", "/api/v1/roles/associate", (req) => {
+    req.headers["origin"] = "Cypress";
+  }).as("associateRoles");
   cy.intercept("GET", "/api/v1/audit-logs/*").as("fetchAuditLogs");
   cy.intercept("POST", "/api/v1/user-groups/invite", (req) => {
     req.headers["origin"] = "Cypress";
