@@ -88,28 +88,32 @@ const QuerySidebar = (props: Props) => {
     },
     [fileOperations],
   );
-  const toListActions: Item[] = actions.map((action) => ({
-    ...action,
-    selected: action.key === actionId,
-  }));
+  const toListActions: Item[] = actions.map((action) => {
+    const config = getActionConfig(action.type);
+    const url = config?.getURL(
+      pageId,
+      action.key,
+      action.type,
+      pluginGroups[action.pluginId],
+    );
+    return {
+      ...action,
+      selected: action.key === actionId,
+      url,
+    };
+  });
 
-  const listItemClick = useCallback(
-    (a: { type?: PluginType; key: string; pluginId: string; name: string }) => {
-      if (a.type) {
-        const config = getActionConfig(a.type);
-        const url = config?.getURL(
-          pageId,
-          a.key,
-          a.type,
-          pluginGroups[a.pluginId],
-        );
-        if (url) {
-          history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
-        }
-      }
-    },
-    [plugins],
-  );
+  const listItemClick = (a: {
+    type?: PluginType;
+    key: string;
+    pluginId: string;
+    name: string;
+    url?: string;
+  }) => {
+    if (a.url) {
+      history.push(a.url, { invokedBy: NavigationMethod.EntityExplorer });
+    }
+  };
 
   useLayoutEffect(() => {
     if (!actionId) {

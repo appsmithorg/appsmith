@@ -76,6 +76,20 @@ function* setQueryRecentListSaga(recentEntities: RecentEntity[]) {
   );
   if (indexOfCurrentItem > 3 || indexOfCurrentItem === -1) {
     yield put(setRecentQueryList(newSortedList));
+  } else {
+    const latestSortedList: Array<Item> = sortedItems
+      .filter((s) => {
+        const item = queryItems.find((j) => j.key === s.key);
+        return !!item;
+      })
+      .map((s) => {
+        const item = queryItems.find((j) => j.key === s.key) || { name: "" };
+        return {
+          ...s,
+          name: item.name,
+        };
+      });
+    yield put(setRecentQueryList(latestSortedList));
   }
 }
 
@@ -119,6 +133,20 @@ function* setJsRecentListSaga(recentEntities: RecentEntity[]) {
   );
   if (indexOfCurrentItem > 3 || indexOfCurrentItem === -1) {
     yield put(setRecentJsList(newSortedList));
+  } else {
+    const latestSortedList: Array<Item> = sortedItems
+      .filter((s) => {
+        const item = jsItems.find((j) => j.key === s.key);
+        return !!item;
+      })
+      .map((s) => {
+        const item = jsItems.find((j) => j.key === s.key) || { name: "" };
+        return {
+          ...s,
+          name: item.name,
+        };
+      });
+    yield put(setRecentJsList(latestSortedList));
   }
 }
 
@@ -164,6 +192,14 @@ function* handleDeleteSaga(action: ReduxAction<{ id: string }>) {
   );
 }
 
+function* resetEntityListSaga() {
+  const recentEntities: RecentEntity[] = yield select(getRecentEntities);
+  yield all([
+    fork(setQueryRecentListSaga, recentEntities),
+    fork(setJsRecentListSaga, recentEntities),
+  ]);
+}
+
 export default function* watchIDESagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_RECENT_ENTITIES, setPageRecentListSaga),
@@ -173,6 +209,14 @@ export default function* watchIDESagas() {
         ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
       ],
       handleDeleteSaga,
+    ),
+    takeEvery(
+      [
+        ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
+        ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS,
+        ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
+      ],
+      resetEntityListSaga,
     ),
   ]);
 }

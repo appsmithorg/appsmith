@@ -38,19 +38,19 @@ function JSObjects(props: Props) {
     dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
   }, []);
   const sortedJsList: Item[] = useSelector(getRecentJsList);
-  const toListActions = sortedJsList.map((a: any) => ({
-    ...a,
-    selected: a.key === collectionId,
-  }));
-
+  const toListActions = sortedJsList.map((a: any) => {
+    const url = jsCollectionIdURL({
+      pageId,
+      collectionId: a.key,
+    });
+    return {
+      ...a,
+      selected: a.key === collectionId,
+      url,
+    };
+  });
   const listItemClick = useCallback((a) => {
-    history.push(
-      jsCollectionIdURL({
-        pageId,
-        collectionId: a.key,
-      }),
-      { invokedBy: NavigationMethod.EntityExplorer },
-    );
+    history.push(a.url, { invokedBy: NavigationMethod.EntityExplorer });
   }, []);
 
   useLayoutEffect(() => {
