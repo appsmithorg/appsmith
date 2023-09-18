@@ -19,6 +19,7 @@ const oneClickBinding = new OneClickBinding();
 
 describe("Validate MsSQL connection & basic querying with UI flows", () => {
   let dsName: any,
+    dsName1: any,
     query: string,
     containerName = "mssqldb";
 
@@ -286,11 +287,11 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       false,
     );
     cy.get("@dsName").then(($dsName) => {
-      dsName = $dsName;
+      dsName1 = $dsName;
       entityExplorer.AddNewPage();
       entityExplorer.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
+      agHelper.GetNClickByContains(dataSources._dropdownOption, dsName1);
     });
 
     assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
@@ -321,16 +322,16 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     //Should not be able to delete ds until app is published again
     //coz if app is published & shared then deleting ds may cause issue, So!
     cy.get("@dsName").then(($dsName) => {
-      dsName = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
+      dsName1 = $dsName;
+      dataSources.DeleteDatasouceFromActiveTab(dsName1 as string, 409);
       agHelper.WaitUntilAllToastsDisappear();
     });
     deployMode.DeployApp(locators._emptyPageTxt);
     agHelper.Sleep(3000);
     deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
-      dsName = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
+      dsName1 = $dsName;
+      dataSources.DeleteDatasouceFromActiveTab(dsName1 as string, 200);
     });
     agHelper.WaitUntilAllToastsDisappear();
   });
@@ -345,8 +346,8 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       false,
     );
     cy.get("@dsName").then(($dsName) => {
-      dsName = $dsName;
-      dataSources.NavigateFromActiveDS(dsName, false);
+      dsName1 = $dsName;
+      dataSources.NavigateFromActiveDS(dsName1, false);
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
       agHelper.GetNClickByContains(
         dataSources._dropdownOption,
@@ -367,7 +368,8 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
 
   after("Verify Deletion of the datasource", () => {
     cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource"); //Since intercept from before is not working
-    dataSources.DeleteDatasouceFromWinthinDS(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
+    //dataSources.StopNDeleteContainer(containerName); //commenting to check if MsSQL specific container deletion is causing issues
   });
 
   function GenerateCRUDNValidateDeployPage(
