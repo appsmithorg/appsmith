@@ -692,10 +692,10 @@ jobs:
           
       - name: Print the output
         run : |
-          parsed=${{steps.test.output.result}} | jq -r .
+          parsed=${{steps.test.outputs.result}} | jq -r .
           echo "$parsed.spec"
           echo "$parsed.count"
           cat ${{steps.test.output.result.spec}} | sort -u >> ~/combined_failed_spec_ci
-          echo "SPECS: ${{steps.test.output.result.spec}}"
-          echo "COUNT: ${{steps.test.output.result.count}}"
+          echo "SPECS: ${{steps.test.outputs.result.spec}}"
+          echo "COUNT: ${{steps.test.outputs.result.count}}"
           cat ~/combined_failed_spec_ci
