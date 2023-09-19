@@ -689,5 +689,5 @@ jobs:
           
       - name: Print the output
         run : |
-          cat ${{steps.test.outputs.result.spec}} | sort -u >> ~/combined_failed_spec_ci
+          cat ${{steps.test.outputs.result}} | sort -u >> ~/combined_failed_spec_ci
           cat ~/combined_failed_spec_ci
