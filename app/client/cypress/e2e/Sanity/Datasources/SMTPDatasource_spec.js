@@ -68,8 +68,11 @@ describe("SMTP datasource test cases using ted", function () {
       "Couldn't find a valid recipient address. Please check your action configuration",
     );
     // verify an error is thrown when sender address is not added
-    cy.xpath("//input[@class='bp3-input']").eq(0).clear();
-    cy.xpath("//input[@class='bp3-input']").eq(1).type("qwerty@appsmith.com");
+    cy.xpath("//input[@class='bp3-input']").eq(0).clear().wait(500);
+    cy.xpath("//input[@class='bp3-input']")
+      .eq(1)
+      .type("qwerty@appsmith.com")
+      .wait(500);
     cy.get("span.bp3-button-text:contains('Run query')")
       .closest("div")
       .click()
