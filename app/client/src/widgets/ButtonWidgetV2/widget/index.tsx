@@ -17,7 +17,7 @@ import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { BUTTON_COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
@@ -47,12 +47,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   }
 
   static getFeatures() {
-    return {
-      dynamicHeight: {
-        sectionIndex: 0,
-        active: false,
-      },
-    };
+    return null;
   }
 
   static getDefaults() {
@@ -200,7 +195,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     }
   };
 
-  getPageView() {
+  getWidgetView() {
     const disabled =
       this.props.disabledWhenInvalid &&
       "isFormValid" in this.props &&

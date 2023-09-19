@@ -38,8 +38,6 @@ import { updateWidgetMetaPropAndEval } from "actions/metaActions";
 import { focusWidget, showModal } from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
-import AppsmithConsole from "utils/AppsmithConsole";
-
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
@@ -50,7 +48,7 @@ import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutUpdateSagas";
 import {
   FlexLayerAlignment,
   LayoutDirection,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/autolayout/utils/constants";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -119,12 +117,6 @@ export function* showModalByNameSaga(
       widget.widgetName === action.payload.modalName,
   );
   if (modal) {
-    AppsmithConsole.info({
-      text: action.payload.modalName
-        ? `showModal('${action.payload.modalName}') was triggered`
-        : `showModal() was triggered`,
-    });
-
     yield put(showModal(modal.widgetId));
   }
 }

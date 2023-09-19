@@ -2,29 +2,24 @@ import React from "react";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import SwitchComponent from "../component";
-
 import { ValidationTypes } from "constants/WidgetValidation";
-
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { AlignWidgetTypes } from "WidgetProvider/constants";
-
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
 } from "WidgetProvider/constants";
-
 import IconSVG from "../icon.svg";
-
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
@@ -369,7 +364,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <SwitchComponent
         accentColor={this.props.accentColor}

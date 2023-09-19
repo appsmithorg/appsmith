@@ -55,7 +55,7 @@ const getCurrentItemsViewBindingTemplate = () => ({
   suffix: "]}}",
 });
 
-export const DEFAULT_TEMPLATE_BOTTOM_ROW = 10;
+export const DEFAULT_TEMPLATE_HEIGHT = 100;
 
 export enum DynamicPathType {
   CURRENT_ITEM = "currentItem",
@@ -512,7 +512,7 @@ class ListWidget extends BaseWidget<
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
       primaryKeys: this.primaryKeys,
       scrollElement: this.componentRef.current,
-      templateBottomRow: this.getTemplateBottomRow(),
+      templateHeight: this.getTemplateHeight(),
       widgetName: this.props.widgetName,
       pageNo,
       pageSize,
@@ -674,24 +674,15 @@ class ListWidget extends BaseWidget<
     return flattenedChildCanvasWidgets?.[mainContainerId];
   };
 
-  getTemplateBottomRow = () => {
-    if (
-      this.props.appPositioningType === AppPositioningTypes.AUTO &&
-      this.props.isMobile
-    ) {
-      return (
-        this.getMainContainer()?.mobileBottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW
-      );
-    }
-    return this.getMainContainer()?.bottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW;
+  getTemplateHeight = () => {
+    return this.getMainContainer()?.componentHeight || DEFAULT_TEMPLATE_HEIGHT;
   };
 
   getContainerRowHeight = () => {
-    const { itemSpacing = 0, listData, parentRowSpace } = this.props;
-    const templateBottomRow = this.getTemplateBottomRow();
+    const { itemSpacing = 0, listData } = this.props;
     const containerVerticalPadding = WIDGET_PADDING * 2;
     const itemsCount = (listData || []).length;
-    const templateHeight = templateBottomRow * parentRowSpace;
+    const templateHeight = this.getTemplateHeight();
 
     const averageItemSpacing = itemsCount
       ? (itemSpacing - containerVerticalPadding) *
@@ -707,7 +698,7 @@ class ListWidget extends BaseWidget<
 
     const itemsCount = (listData || []).length;
 
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     const spaceAvailableWithoutPaginationControls =
       componentHeight - WIDGET_PADDING * 2;
@@ -868,7 +859,7 @@ class ListWidget extends BaseWidget<
   mainMetaCanvasWidget = () => {
     const { flattenedChildCanvasWidgets = {}, mainCanvasId = "" } = this.props;
     const mainCanvasWidget = flattenedChildCanvasWidgets[mainCanvasId] || {};
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     const metaMainCanvas = klona(mainCanvasWidget) ?? {};
 
     const { metaWidgetId, metaWidgetName } =
@@ -889,7 +880,7 @@ class ListWidget extends BaseWidget<
   };
 
   mainMetaCanvasWidgetBottomRow = () => {
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     if (this.props.infiniteScroll) {
       return Math.max(
@@ -1351,17 +1342,12 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  getPageView() {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-    const {
-      infiniteScroll,
-      isLoading,
-      parentColumnSpace,
-      parentRowSpace,
-      selectedItemKey,
-    } = this.props;
+  getWidgetView() {
+    const { componentHeight, componentWidth } = this.props;
+    const { infiniteScroll, isLoading, parentColumnSpace, selectedItemKey } =
+      this.props;
     const startIndex = this.metaWidgetGenerator.getStartIndex();
-    const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
+    const templateHeight = this.getTemplateHeight();
 
     if (isLoading) {
       return (

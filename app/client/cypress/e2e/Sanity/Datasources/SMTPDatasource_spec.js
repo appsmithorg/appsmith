@@ -53,18 +53,30 @@ describe("SMTP datasource test cases using ted", function () {
 
   it("2. On canvas, passing wrong email address in widgets should give error", function () {
     // verify an error is thrown when recipient address is not added
-    cy.xpath("//input[@class='bp3-input']").eq(0).type("test@appsmith.com");
-    cy.get("span.bp3-button-text:contains('Run query')").closest("div").click();
+    cy.xpath("//input[@class='bp3-input']")
+      .eq(0)
+      .type("test@appsmith.com")
+      .wait(500);
+    cy.get("span.bp3-button-text:contains('Run query')")
+      .closest("div")
+      .click()
+      .wait(500);
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
     });
-    agHelper.ValidateToastMessage(
+    agHelper.WaitUntilToastDisappear(
       "Couldn't find a valid recipient address. Please check your action configuration",
     );
     // verify an error is thrown when sender address is not added
-    cy.xpath("//input[@class='bp3-input']").eq(0).clear();
-    cy.xpath("//input[@class='bp3-input']").eq(1).type("qwerty@appsmith.com");
-    cy.get("span.bp3-button-text:contains('Run query')").closest("div").click();
+    cy.xpath("//input[@class='bp3-input']").eq(0).clear().wait(500);
+    cy.xpath("//input[@class='bp3-input']")
+      .eq(1)
+      .type("qwerty@appsmith.com")
+      .wait(500);
+    cy.get("span.bp3-button-text:contains('Run query')")
+      .closest("div")
+      .click()
+      .wait(500);
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
     });
@@ -92,30 +104,18 @@ describe("SMTP datasource test cases using ted", function () {
     cy.get("button").contains("1 files selected");
     agHelper.ClickButton("Run query");
     agHelper.ValidateToastMessage("Sent the email successfully");
-    // cy.exec("exim -bp", { failOnNonZeroExit: false }).then((result) => {
-    //   const { stdout, stderr, code } = result;
 
-    //   // Log the command output
-    //   cy.log("exim -bp stdout:", stdout); // result is empty
-    //   cy.log("exim -bp stderr:", stderr);
-    //   cy.log("exim -bp result:", result);
-    //   expect(code).to.eq(0); //(0 indicates success)
-    //   //expect(stdout).to.contain("qwerty@appsmith.com");//not working here since stdout is empty
-    // });
-
-    //To try further
-    // const tedUrl = "http://localhost:5001/v1/parent";
-
-    // cy.request({
-    //   method: "GET",
-    //   url: tedUrl,
-    //   qs: {
-    //     cmd: "exim -bp",
-    //   },
-    // }).then((res) => {
-    //   cy.log("exim -bp output is", res.body.stdout);
-    //   cy.log(res.body.stderr);
-    //   //expect(res.status).equal(200);
-    // });
+    //Verifying if mail is sent/received using ted
+    const tedUrl = "http://localhost:5001/v1/cmd";
+    cy.request({
+      method: "GET",
+      url: tedUrl,
+      qs: {
+        cmd: "exim -bp",
+      },
+    }).then((res) => {
+      expect(res.status).equal(200);
+      expect(JSON.stringify(res.body)).to.contain("qwerty@appsmith.com");
+    });
   });
 });
