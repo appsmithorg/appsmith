@@ -9,6 +9,8 @@ import {
   draggableWidgets,
   table,
   entityItems,
+  apiPage,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
@@ -383,6 +385,25 @@ WHERE aircraft_type = 'Passenger Plane'`;
     });
     entityExplorer.SelectEntityByName("Page1", "Pages");
     entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+  });
+
+  it("7. Tc #2365  - Query settings tab validations", () => {
+    apiPage.ToggleOnPageLoadRun(false);
+    apiPage.ToggleConfirmBeforeRunning(true);
+    dataSources.ToggleUsePreparedStatement(false);
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitForTableEmpty("v2");
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 500);
+    propPane.EnterJSContext("onClick", `{{Query1.run()}}`);
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    agHelper.ClickButton("Submit");
+    jsEditor.ConfirmationClick("No");
+    agHelper.AssertContains("cancelled");
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.ClickButton("Submit");
+    jsEditor.ConfirmationClick("Yes");
+    table.WaitUntilTableLoad(0, 0, "v2");
   });
 
   after(
