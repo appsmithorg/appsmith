@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "./AppViewerButton";
 import { AUTH_LOGIN_URL } from "constants/routes";
@@ -22,7 +22,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { viewerURL } from "RouteBuilder";
-import { useHistory } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import { useHref } from "pages/Editor/utils";
 import type { NavigationSetting } from "constants/AppConstants";
 import { Icon, Tooltip } from "design-system";
@@ -70,6 +70,48 @@ function PrimaryCTA(props: Props) {
   const [isForkModalOpen, setIsForkModalOpen] = useState(false);
   const isPreviewMode = useSelector(previewModeSelector);
   const dispatch = useDispatch();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+
+  useEffect(() => {
+    if (queryParams.get("fork") === "true") {
+      handleForkModalOpen();
+    } else {
+      handleForkModalClose();
+    }
+  }, []);
+
+  const appendOrDeleteForkParam = (appendOrDelete: "apend" | "delete") => {
+    const url = new URL(window.location.href);
+
+    if (appendOrDelete === "apend" && !url.searchParams.has("fork")) {
+      url.searchParams.append("fork", "true");
+      history.push(url.toString().slice(url.origin.length));
+    } else if (appendOrDelete === "delete" && url.searchParams.has("fork")) {
+      url.searchParams.delete("fork");
+      history.push(url.toString().slice(url.origin.length));
+    }
+  };
+
+  const handleForkModalOpen = () => {
+    setIsForkModalOpen(true);
+    appendOrDeleteForkParam("apend");
+  };
+
+  const handleForkModalClose = () => {
+    setIsForkModalOpen(false);
+    appendOrDeleteForkParam("delete");
+  };
+
+  useEffect(() => {
+    // delete "fork" param from url if user is not logged in
+    if (
+      currentApplication?.forkingEnabled &&
+      currentUser?.username === ANONYMOUS_USERNAME
+    ) {
+      appendOrDeleteForkParam("delete");
+    }
+  }, [currentApplication?.forkingEnabled, currentUser?.username]);
 
   const appViewerURL = useHref(viewerURL, {
     pageId: currentPageID,
@@ -171,7 +213,7 @@ function PrimaryCTA(props: Props) {
             insideSidebar={insideSidebar}
             navColorStyle={navColorStyle}
             onClick={() => {
-              setIsForkModalOpen(true);
+              handleForkModalOpen();
             }}
             primaryColor={primaryColor}
             text={createMessage(FORK_APP)}
@@ -179,8 +221,9 @@ function PrimaryCTA(props: Props) {
           />
           <ForkApplicationModal
             applicationId={currentApplication?.id || ""}
+            handleClose={handleForkModalClose}
+            handleOpen={handleForkModalOpen}
             isModalOpen={isForkModalOpen}
-            setModalClose={setIsForkModalOpen}
           />
         </div>
       );

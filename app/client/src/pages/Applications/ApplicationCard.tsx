@@ -411,8 +411,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
       </Menu>
       <ForkApplicationModal
         applicationId={applicationId}
+        handleClose={() => {
+          setForkApplicationModalOpen(false);
+        }}
         isModalOpen={isForkApplicationModalopen}
-        setModalClose={setForkApplicationModalOpen}
       />
     </>
   );
