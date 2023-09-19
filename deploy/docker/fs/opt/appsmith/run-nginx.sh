@@ -65,14 +65,13 @@ if [[ -n ${APPSMITH_CUSTOM_DOMAIN-} ]] && [[ -z ${DYNO-} ]]; then
   fi
 fi
 
-bash /opt/appsmith/templates/nginx-app.conf.sh "$use_https" "${APPSMITH_CUSTOM_DOMAIN-}" > /etc/nginx/sites-available/default
+/opt/appsmith/templates/nginx-app.conf.sh "$use_https" "${APPSMITH_CUSTOM_DOMAIN-}" > "$TMP/nginx-app.conf"
+
+cp -r /opt/appsmith/editor/* "$NGINX_WWW_PATH"
 
 apply-env-vars() {
   original="$1"
   served="$2"
-  if [[ ! -f $original ]]; then
-    cp -v "$served" "$original"
-  fi
   node -e '
   const fs = require("fs")
   const content = fs.readFileSync("'"$original"'", "utf8").replace(
@@ -86,6 +85,6 @@ apply-env-vars() {
   popd
 }
 
-apply-env-vars /opt/appsmith/index.html.original /opt/appsmith/editor/index.html
+apply-env-vars /opt/appsmith/editor/index.html "$NGINX_WWW_PATH/index.html"
 
 exec nginx -g "daemon off;error_log stderr info;"

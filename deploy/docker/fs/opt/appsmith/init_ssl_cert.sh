@@ -9,10 +9,7 @@ init_ssl_cert() {
   mkdir -p "$data_path/www"
 
   echo "Re-generating nginx config template with domain"
-  bash "/opt/appsmith/templates/nginx-app.conf.sh" "0" "$APPSMITH_CUSTOM_DOMAIN" \
-    | envsubst "$(printf '$%s,' $(env | grep -Eo '^APPSMITH_[A-Z0-9_]+'))" \
-    | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' \
-    > /etc/nginx/sites-available/default
+  "/opt/appsmith/templates/nginx-app.conf.sh" "0" "$APPSMITH_CUSTOM_DOMAIN" > /etc/nginx/sites-available/default
 
   echo "Start Nginx to verify certificate"
   nginx
