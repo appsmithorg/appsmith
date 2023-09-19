@@ -689,5 +689,7 @@ jobs:
           
       - name: Print the output
         run : |
-          cat ${{steps.test.outputs.result}} | sort -u >> ~/combined_failed_spec_ci
+          failed_specs=$(echo ${{steps.test.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
+          echo "$failed_specs"
+          echo $failed_specs >> ~/combined_failed_spec_ci
           cat ~/combined_failed_spec_ci
