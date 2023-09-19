@@ -8,11 +8,6 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
 import { Text } from "design-system";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { IDEAppState } from "pages/IDE/ideReducer";
-import { builderURL } from "RouteBuilder";
-import history from "utils/history";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -66,7 +61,6 @@ export const BetaLabel = styled.div`
 function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
-  const currentPageId: string = useSelector(getCurrentPageId);
 
   const { isOpened: isWalkthroughOpened, popFeature } =
     useContext(WalkthroughContext) || {};
@@ -90,14 +84,14 @@ function WidgetCard(props: CardProps) {
       });
     deselectAll();
 
-    history.push(
-      builderURL({
-        pageId: currentPageId ?? currentPageId,
-        persistExistingParams: true,
-        ideState: IDEAppState.Page,
-        suffix: "/ui",
-      }),
-    );
+    // history.push(
+    //   builderURL({
+    //     pageId: currentPageId ?? currentPageId,
+    //     persistExistingParams: true,
+    //     ideState: IDEAppState.Page,
+    //     suffix: "/ui",
+    //   }),
+    // );
 
     closeWalkthrough();
   };

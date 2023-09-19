@@ -62,7 +62,7 @@ const IconWrapper = styled.div<{ backgroundColor: string }>`
   background-color: ${(props) => props.backgroundColor};
 `;
 
-const DataMainEmptyState = () => {
+const AddMainEmptyState = () => {
   return (
     <Container>
       <AddNewCards />
@@ -125,4 +125,4 @@ const WidgetPane = () => {
   );
 };
 
-export default DataMainEmptyState;
+export default AddMainEmptyState;

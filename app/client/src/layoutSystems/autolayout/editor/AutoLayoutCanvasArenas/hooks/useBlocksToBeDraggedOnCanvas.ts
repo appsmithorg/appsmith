@@ -12,9 +12,7 @@ import { DropTargetContext } from "components/editorComponents/DropTargetCompone
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useContext, useEffect, useRef } from "react";
 import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
 import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
@@ -67,7 +65,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
   widgetId,
 }: AutoCanvasDraggingArenaProps) => {
   const dispatch = useDispatch();
-  const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
   const lastDraggedCanvas = useRef<string | undefined>(undefined);
 
@@ -201,9 +198,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
 
     //Addition of setTimeout to wait for the new widget to be added to the canvas before selecting
     //TODO: this should be moved to the sagas to avoid this setTimeout
-    setTimeout(() => {
-      selectWidget(SelectionRequestType.One, [widgetPayload.newWidgetId]);
-    }, 100);
+    // setTimeout(() => {
+    //   selectWidget(SelectionRequestType.One, [widgetPayload.newWidgetId]);
+    // }, 100);
   };
 
   const rowRef = useRef(snapRows);
