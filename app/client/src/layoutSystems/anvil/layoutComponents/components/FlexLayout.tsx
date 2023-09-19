@@ -44,7 +44,7 @@ interface FlexLayoutProps
   minWidth?: Responsive<SizingDimension>;
   minHeight?: Responsive<SizingDimension>;
   overflowX?: OverflowValues;
-  overflow?: OverflowValues;
+  overflowY?: OverflowValues;
   position?: PositionValues;
   rowGap?: Responsive<SpacingDimension>;
   padding?: Responsive<SpacingDimension>;
@@ -80,10 +80,10 @@ export const FlexLayout = (props: FlexLayoutProps) => {
     return {
       border: props.border || "none",
       overflowX: props.overflowX || "hidden",
-      overflowY: props.overflow || "hidden",
+      overflowY: props.overflowY || "hidden",
       position: props.position || "relative",
     };
-  }, [props.border, props.overflowX, props.overflow, props.position]);
+  }, [props.border, props.overflowX, props.overflowY, props.position]);
 
   return (
     <Flex
