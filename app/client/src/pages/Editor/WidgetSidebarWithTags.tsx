@@ -88,9 +88,9 @@ function WidgetSidebarWithTags({
     }
   };
 
-  useEffect(() => {
-    if (isActive) searchInputRef.current?.focus();
-  }, [isActive]);
+  // useEffect(() => {
+  //   if (isActive) searchInputRef.current?.focus();
+  // }, [isActive]);
 
   const search = debounce((value: string) => {
     filterCards(value.toLowerCase());
@@ -137,7 +137,6 @@ function WidgetSidebarWithTags({
         <div className="sticky top-0 px-3 mt-0.5">
           <SearchInput
             autoComplete="off"
-            autoFocus
             id={ENTITY_EXPLORER_SEARCH_ID}
             onChange={search}
             placeholder="Search widgets"
