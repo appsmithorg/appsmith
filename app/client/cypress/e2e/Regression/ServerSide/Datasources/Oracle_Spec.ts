@@ -67,7 +67,7 @@ describe("Validate Oracle DS", () => {
     });
   });
 
-  it("2. Tc #2357, #2356, #2355, #2354 Oracle connection errors", () => {
+  it("2. Tc #2357, #2356, #2355, #2354 Verify Oracle connection errors", () => {
     dataSources.TestDatasource(false);
     agHelper.ValidateToastMessage("Missing endpoint");
     agHelper.ValidateToastMessage("Missing authentication details");
@@ -283,7 +283,7 @@ describe("Validate Oracle DS", () => {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("4. Tc #2361, #2362  - Update & Delete queries", () => {
+  it("4. Tc #2362  - Update query validation", () => {
     entityExplorer.SelectEntityByName("Query1", "Queries/JS");
     query = `UPDATE ${guid}
 SET
@@ -315,6 +315,46 @@ WHERE aircraft_type = 'Passenger Plane'`;
     table.ReadTableRowColumnData(1, 11, "v2").then(($cellData) => {
       expect($cellData).to.eq("0-6");
     });
+    deployMode.NavigateBacktoEditor();
+  });
+
+  it("5. Tc #2361  - Delete query validation", () => {
+    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    query = `DELETE FROM ${guid}
+    WHERE
+        (aircraft_type = 'Cargo Plane' AND seating_capacity <= 100)
+        OR
+        (aircraft_type = 'Passenger Plane' AND purchase_date < TO_DATE('2020-01-01', 'YYYY-MM-DD'))
+        OR
+        (aircraft_type = 'Helicopter' AND manufacturer = 'Robinson' AND maintenance_interval = INTERVAL '6' MONTH)`;
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    selectQuery = `SELECT * FROM ${guid}`;
+    dataSources.EnterQuery(selectQuery);
+    dataSources.RunQueryNVerifyResponseViews(2);
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      dataSources._addSuggestedExisting,
+    );
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
+    for (let i = 0; i < 2; i++) {
+      table.ReadTableRowColumnData(i, 1, "v2").then(($cellData) => {
+        expect($cellData).to.eq("Cargo Plane");
+      });
+    }
+
+    table.OpenNFilterTable("MAINTENANCE_INTERVAL", "not empty");
+    table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
+      expect($cellData).to.eq("5");
+    });
+    agHelper
+      .GetText(table._showPageItemsCount)
+      .then(($count) => expect($count).contain("1"));
+    table.CloseFilter();
+    agHelper
+      .GetText(table._filtersCount)
+      .then(($count) => expect($count).contain("1"));
     deployMode.NavigateBacktoEditor();
   });
 
