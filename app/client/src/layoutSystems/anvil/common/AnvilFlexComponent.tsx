@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from "react";
-import type { ReactNode } from "react";
 import styled from "styled-components";
 import { Flex } from "@design-system/widgets";
 import { useSelector } from "react-redux";
@@ -18,7 +17,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/anvil/utils/constants";
 import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
-import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { AnvilFlexComponentProps } from "../utils/types";
 
@@ -88,14 +87,6 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
       )} t--widget-${props.widgetName.toLowerCase()} anvil-layout`,
     [props.parentId, props.widgetId, props.widgetType, props.widgetName],
   );
-
-  // TODO: This wrapper was introduced to solve a bug with Map widget. Will be removed as part of a fix in another task.
-  const wrappedChildren = (children: ReactNode) =>
-    props.renderMode === RenderModes.PAGE ? (
-      <div className="w-full h-full">{children}</div>
-    ) : (
-      children
-    );
 
   const isFillWidget = props.responsiveBehavior === ResponsiveBehavior.Fill;
 
@@ -176,7 +167,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
         onClickCapture={onClickFn}
         onHoverZIndex={onHoverZIndex}
       >
-        {wrappedChildren(props.children)}
+        {props.children}
       </FlexComponentWrapper>
     </Flex>
   );

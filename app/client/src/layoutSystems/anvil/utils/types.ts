@@ -5,7 +5,6 @@ import type {
   ResponsiveBehavior,
 } from "./constants";
 import type { WidgetType } from "WidgetProvider/factory";
-import type { RenderMode } from "constants/WidgetConstants";
 
 export interface DropZone {
   top?: number;
@@ -40,7 +39,6 @@ export interface AnvilFlexComponentProps {
   flexVerticalAlignment: FlexVerticalAlignment;
   focused?: boolean;
   parentId?: string;
-  renderMode?: RenderMode;
   responsiveBehavior?: ResponsiveBehavior;
   selected?: boolean;
   widgetId: string;

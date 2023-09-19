@@ -36,7 +36,6 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
       hasAutoWidth={!!props.hasAutoWidth}
       isResizeDisabled={props.resizeDisabled}
       parentId={props.parentId}
-      renderMode={props.renderMode}
       responsiveBehavior={props.responsiveBehavior}
       selected={props.selected}
       widgetId={props.widgetId}
