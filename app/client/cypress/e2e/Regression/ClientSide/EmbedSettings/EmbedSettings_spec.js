@@ -90,9 +90,9 @@ describe("Embed settings options", function () {
     });
     getIframeBody().contains("Submit").should("exist");
     ValidateEditModeSetting(_.embedSettings.locators._restrictedText);
-  });
+    // });
 
-  it("2. Allow embedding everywhere", function () {
+    // it("2. Allow embedding everywhere", function () {
     _.homePage.NavigateToHome();
     cy.get(".admin-settings-menu-option").click();
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
@@ -114,9 +114,9 @@ describe("Embed settings options", function () {
     });
     getIframeBody().contains("Submit").should("exist");
     ValidateEditModeSetting(_.embedSettings.locators._allowAllText);
-  });
+    // });
 
-  it("3. Disable everywhere", function () {
+    // it("3. Disable everywhere", function () {
     _.homePage.NavigateToHome();
     cy.get(".admin-settings-menu-option").click();
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
