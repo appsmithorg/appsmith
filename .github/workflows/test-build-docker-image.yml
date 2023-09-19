@@ -141,7 +141,7 @@ jobs:
           SLACK_ICON_EMOJI: ${{steps.slack_notification.outputs.slack_icon}}
           SLACK_ICON: https://app.slack.com/services/B05D17E4QVB
           SLACK_TITLE: "Result:"
-          SLACK_USERNAME: Push Workflow
+          SLACK_USERNAME: ${{ toJson(github.event.commits[0].message) | awk -F '\\\\n' '{print $1}' | sed 's/^"//;s/"$//' }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
           MSG_MINIMAL: Ref,Event,Commit
           SLACK_FOOTER: "Push Workflow"
