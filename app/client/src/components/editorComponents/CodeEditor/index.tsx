@@ -472,7 +472,7 @@ class CodeEditor extends Component<Props, State> {
         this.hinters = CodeEditor.startAutocomplete(
           editor,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          [...this.hintHelper, ...this.props.hinting!], // ! since defaultProps are set
+          this.props.hinting!, // ! since defaultProps are set
           this.props.dynamicData,
           this.props.entitiesForNavigation, // send navigation here
         );
