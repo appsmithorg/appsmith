@@ -240,7 +240,7 @@ export const isValueValidURL = (value: string) => {
       }
     }
     const str = value.substring(indices[0], indices[1] + 1);
-    return isValidURL(str);
+    return isValidURL(str) || isValidURL(`https://${str}`);
   }
 };
 

@@ -20,15 +20,6 @@ export enum NavigationTargetType_Dep {
   NEW_WINDOW = "NEW_WINDOW",
 }
 
-const isValidUrlScheme = (url: string): boolean => {
-  try {
-    new URL(url);
-  } catch (e) {
-    return false;
-  }
-  return true;
-};
-
 const isValidPageName = (
   pageNameOrUrl: string,
   pageList: Page[],
@@ -43,24 +34,7 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
 
   const page = isValidPageName(pageNameOrUrl, pageList);
 
-  if (isValidURL(pageNameOrUrl)) {
-    AnalyticsUtil.logEvent("NAVIGATE", {
-      navUrl: pageNameOrUrl,
-    });
-
-    let url = pageNameOrUrl + getQueryStringfromObject(params);
-
-    // Add a default protocol if it doesn't exist.
-    if (!isValidUrlScheme(url)) {
-      url = "https://" + url;
-    }
-
-    if (target === NavigationTargetType.SAME_WINDOW) {
-      window.location.assign(url);
-    } else if (target === NavigationTargetType.NEW_WINDOW) {
-      window.open(url, "_blank");
-    }
-  } else if (page) {
+  if (page) {
     const currentPageId: string = yield select(getCurrentPageId);
 
     AnalyticsUtil.logEvent("NAVIGATE", {
@@ -88,7 +62,6 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(path, "_blank");
     }
-
     AppsmithConsole.info({
       text: `navigateTo('${page.pageName}') was triggered`,
       state: {
@@ -96,6 +69,25 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
       },
     });
   } else {
-    throw new TriggerFailureError("Enter a valid URL or page name");
+    let url = pageNameOrUrl + getQueryStringfromObject(params);
+    if (!isValidURL(url)) {
+      url = `https://${url}`;
+      if (!isValidURL(url))
+        throw new TriggerFailureError("Enter a valid URL or page name");
+    }
+    if (target === NavigationTargetType.SAME_WINDOW) {
+      window.location.assign(url);
+    } else if (target === NavigationTargetType.NEW_WINDOW) {
+      window.open(url, "_blank");
+    }
+    AppsmithConsole.info({
+      text: `navigateTo('${url}') was triggered`,
+      state: {
+        params,
+      },
+    });
+    AnalyticsUtil.logEvent("NAVIGATE", {
+      navUrl: pageNameOrUrl,
+    });
   }
 }
