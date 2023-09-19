@@ -26,15 +26,20 @@ import {
 import GitSyncStatusbar from "../../components/Statusbar";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
+const StyledModalBody = styled(ModalBody)`
+  flex: 1;
+  overflow-y: initial;
+  display: flex;
+  flex-direction: column;
+  min-height: min-content;
+  max-height: calc(
+    100vh - 200px - 32px - 56px - 44px
+  ); // 200px offset, 32px outer padding, 56px footer, 44px header
+`;
+
 interface StyledModalFooterProps {
   loading?: boolean;
 }
-
-const StepContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  max-height: 580px;
-`;
 
 const StyledModalFooter = styled(ModalFooter)<StyledModalFooterProps>`
   justify-content: space-between;
@@ -216,7 +221,7 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
 
   return (
     <>
-      <ModalBody>
+      <StyledModalBody>
         {possibleSteps.includes(activeStep) && (
           <Steps
             activeKey={activeStep}
@@ -224,18 +229,16 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
             steps={steps}
           />
         )}
-        <StepContent>
-          {activeStep === GIT_CONNECT_STEPS.CHOOSE_PROVIDER && (
-            <ChooseGitProvider {...stepProps} />
-          )}
-          {activeStep === GIT_CONNECT_STEPS.GENERATE_SSH_KEY && (
-            <GenerateSSH {...stepProps} />
-          )}
-          {activeStep === GIT_CONNECT_STEPS.ADD_DEPLOY_KEY && (
-            <AddDeployKey {...stepProps} connectLoading={loading} />
-          )}
-        </StepContent>
-      </ModalBody>
+        {activeStep === GIT_CONNECT_STEPS.CHOOSE_PROVIDER && (
+          <ChooseGitProvider {...stepProps} />
+        )}
+        {activeStep === GIT_CONNECT_STEPS.GENERATE_SSH_KEY && (
+          <GenerateSSH {...stepProps} />
+        )}
+        {activeStep === GIT_CONNECT_STEPS.ADD_DEPLOY_KEY && (
+          <AddDeployKey {...stepProps} connectLoading={loading} />
+        )}
+      </StyledModalBody>
       <StyledModalFooter loading={loading}>
         {loading && (
           <StatusbarWrapper className="t--connect-statusbar">
