@@ -46,7 +46,7 @@ const DEFAULT_OPTIONS = {
   prevTemplateWidgets: {},
   primaryKeys: data.map((d) => d.id.toString()),
   scrollElement: null,
-  templateBottomRow: 12,
+  templateHeight: 120,
   widgetName: "List1",
   pageNo: 1,
   pageSize: 2,
@@ -611,10 +611,10 @@ describe("#generate", () => {
     expect(result.removedMetaWidgetIds.length).toEqual(0);
   });
 
-  it("doesn't re-generates meta widgets when templateBottomRow changes", () => {
+  it("doesn't re-generates meta widgets when templateHeight changes", () => {
     const { generator, options } = init();
 
-    options.templateBottomRow += 100;
+    options.templateHeight += 1000;
 
     const result = generator.withOptions(options).generate();
     const count = Object.keys(result.metaWidgets).length;
