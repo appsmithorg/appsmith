@@ -5,7 +5,7 @@ import { getCanvasAndMetaWidgets } from "sagas/selectors";
 import type {
   AlignmentColumnInfo,
   FlexBoxAlignmentColumnInfo,
-} from "layoutSystems/anvil/utils/types";
+} from "layoutSystems/autolayout/utils/types";
 import { getAlignmentColumnInfo } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import { getIsAutoLayoutMobileBreakPoint } from "./editorSelectors";
 import type {

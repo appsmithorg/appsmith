@@ -2,7 +2,7 @@ import type {
   AlignmentChildren,
   AlignmentInfo,
   Row,
-} from "../../anvil/utils/types";
+} from "../../autolayout/utils/types";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,

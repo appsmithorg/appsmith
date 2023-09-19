@@ -4,22 +4,8 @@ import type {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "./constants";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { WidgetType } from "WidgetProvider/factory";
 import type { RenderMode } from "constants/WidgetConstants";
-
-export type AlignmentColumnInfo = {
-  [key in FlexLayerAlignment]: number;
-};
-
-export type FlexBoxAlignmentColumnInfo = {
-  [key: number]: AlignmentColumnInfo;
-};
-
-export type AlignmentColumnData = {
-  alignment: FlexLayerAlignment;
-  columns: number;
-};
 
 export interface DropZone {
   top?: number;
@@ -42,30 +28,6 @@ export interface HighlightInfo {
   canvasId: string; // widgetId of the canvas to which the highlight belongs.
   dropZone: DropZone; // size of the drop zone of this highlight.
 }
-
-/**
- * Start: Position utils types
- */
-
-export interface AlignmentChildren {
-  widget: FlattenedWidgetProps;
-  columns: number;
-  rows: number;
-}
-
-export interface AlignmentInfo {
-  alignment: FlexLayerAlignment;
-  columns: number;
-  children: AlignmentChildren[];
-}
-
-export interface Row extends AlignmentInfo {
-  height: number;
-}
-
-/**
- * End: Position utils types
- */
 
 export interface AnvilFlexComponentProps {
   alignment: FlexVerticalAlignment;
