@@ -43,7 +43,7 @@ describe("Numeric Datatype tests", function () {
   it("2. Creating SELECT query - numerictypes + Bug 14493", () => {
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.numerictypes",
-      "SELECT",
+      "Select",
     );
     dataSources.RunQuery();
     agHelper
@@ -57,7 +57,7 @@ describe("Numeric Datatype tests", function () {
     VALUES ({{Insertbigint.text}}, {{Insertdecimal.text}}, {{Insertnumeric.text}})`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.numerictypes",
-      "INSERT",
+      "Insert",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("insertRecord");
@@ -69,7 +69,7 @@ describe("Numeric Datatype tests", function () {
   WHERE serialid = {{Table1.selectedRow.serialid}};`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.numerictypes",
-      "UPDATE",
+      "Update",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
@@ -77,7 +77,7 @@ describe("Numeric Datatype tests", function () {
     query = `DELETE FROM public."numerictypes"`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.numerictypes",
-      "DELETE",
+      "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteAllRecords");
@@ -85,7 +85,7 @@ describe("Numeric Datatype tests", function () {
     query = `drop table public."numerictypes"`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.numerictypes",
-      "DELETE",
+      "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
@@ -94,7 +94,7 @@ describe("Numeric Datatype tests", function () {
     WHERE serialId ={{Table1.selectedRow.serialid}}`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.numerictypes",
-      "DELETE",
+      "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");

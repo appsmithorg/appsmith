@@ -42,7 +42,7 @@ describe("Array Datatype tests", function () {
     //Creating SELECT query - arraytypes + Bug 14493
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.arraytypes",
-      "SELECT",
+      "Select",
     );
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();

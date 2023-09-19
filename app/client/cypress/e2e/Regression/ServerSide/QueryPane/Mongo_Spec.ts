@@ -336,7 +336,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   it("4. Validate 'Find by ID' record from new collection & verify query response", () => {
     entityExplorer.ActionTemplateMenuByEntityName(
       "AuthorNAwards",
-      "Find by ID",
+      "Find by id",
     );
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
     agHelper.EnterValue(`{"_id": ObjectId("51df07b094c6acd67e492f41")}`, {

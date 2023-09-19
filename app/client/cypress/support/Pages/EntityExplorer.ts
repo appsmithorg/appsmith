@@ -2,12 +2,8 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "./AssertHelper";
 
 type templateActions =
-  | "SELECT"
-  | "INSERT"
-  | "UPDATE"
-  | "DELETE"
   | "Find"
-  | "Find by ID"
+  | "Find by id"
   | "Insert"
   | "Update"
   | "Delete"

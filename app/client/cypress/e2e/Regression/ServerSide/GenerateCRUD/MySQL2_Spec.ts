@@ -80,7 +80,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("2. Validate Select record from Postgress datasource & verify query response", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("Stores", "SELECT");
+    entityExplorer.ActionTemplateMenuByEntityName("Stores", "Select");
     dataSources.RunQueryNVerifyResponseViews(10);
     dataSources.AssertQueryTableResponse(5, "2112");
     dataSources.AssertQueryTableResponse(6, "Mike's Liquors");

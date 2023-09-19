@@ -44,7 +44,7 @@ describe("Boolean & Enum Datatype tests", function () {
     //Select query:
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.boolenumtypes",
-      "SELECT",
+      "Select",
     );
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();

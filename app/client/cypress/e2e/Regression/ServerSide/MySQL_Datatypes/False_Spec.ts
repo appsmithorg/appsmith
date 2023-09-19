@@ -34,7 +34,7 @@ describe("MySQL Datatype tests", function () {
   it("1. False Cases & Long Integer as query param", () => {
     entityExplorer.ActionTemplateMenuByEntityName(
       inputData.tableName,
-      "INSERT",
+      "Insert",
     );
     agHelper.RenameWithInPane("falseCases");
     inputData.falseResult.forEach((res_array, i) => {

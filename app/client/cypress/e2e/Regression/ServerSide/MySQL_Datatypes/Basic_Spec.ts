@@ -43,7 +43,7 @@ describe("MySQL Datatype tests", function () {
     //Creating SELECT query
     entityExplorer.ActionTemplateMenuByEntityName(
       inputData.tableName,
-      "SELECT",
+      "Select",
     );
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
@@ -55,7 +55,7 @@ describe("MySQL Datatype tests", function () {
     query = inputData.query.insertRecord;
     entityExplorer.ActionTemplateMenuByEntityName(
       inputData.tableName,
-      "INSERT",
+      "Insert",
     );
     agHelper.RenameWithInPane("insertRecord");
     dataSources.EnterQuery(query);
@@ -63,7 +63,7 @@ describe("MySQL Datatype tests", function () {
     query = inputData.query.dropTable;
     entityExplorer.ActionTemplateMenuByEntityName(
       inputData.tableName,
-      "DELETE",
+      "Delete",
     );
     agHelper.RenameWithInPane("dropTable");
     dataSources.EnterQuery(query);

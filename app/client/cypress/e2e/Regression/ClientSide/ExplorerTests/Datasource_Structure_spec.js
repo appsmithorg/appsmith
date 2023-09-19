@@ -58,7 +58,7 @@ describe("Entity explorer datasource structure", function () {
     cy.get(".t--structure-template-menu-popover").last().contains("Suggested");
     cy.get(".t--structure-template-menu-popover")
       .last()
-      .contains("SELECT")
+      .contains("Select")
       .click({ force: true });
     cy.wait("@createNewApi").should(
       "have.nested.property",

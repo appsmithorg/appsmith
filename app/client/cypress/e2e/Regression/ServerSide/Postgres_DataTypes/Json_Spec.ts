@@ -51,7 +51,7 @@ describe("Json & JsonB Datatype tests", function () {
   });
 
   it("2. Creating SELECT query - jsonbooks + Bug 14493", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("public.jsonbooks", "SELECT");
+    entityExplorer.ActionTemplateMenuByEntityName("public.jsonbooks", "Select");
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
     agHelper
@@ -376,7 +376,7 @@ describe("Json & JsonB Datatype tests", function () {
   it("16. Creating SELECT query - jsonBbooks + Bug 14493", () => {
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.jsonBbooks",
-      "SELECT",
+      "Select",
     );
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
