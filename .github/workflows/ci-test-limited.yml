@@ -660,7 +660,8 @@ jobs:
         with:
           script: |
             const { Pool } = require("pg");
-            const {DB_HOST, DB_NAME, DB_USER, DB_PWD, RUN_ID, ATTEMPT_NUMBER} = process.env
+            const { ATTEMPT_NUMBER, DB_HOST, DB_NAME, DB_PWD, DB_USER, RUN_ID } =
+              process.env;
 
             const client = await new Pool({
               user: DB_USER,
@@ -685,7 +686,7 @@ jobs:
             console.log(specs);
             return {
               spec: specs,
-              count: specs.length
+              count: specs.length,
             };
           
       - name: Print the output
