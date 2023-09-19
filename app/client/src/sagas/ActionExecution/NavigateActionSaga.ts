@@ -11,7 +11,7 @@ import { setDataUrl } from "sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { TriggerFailureError } from "./errorUtils";
-import { isValidURL } from "utils/URLUtils";
+import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import type { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
 import { NavigationTargetType } from "workers/Evaluation/fns/navigateTo";
 
@@ -70,7 +70,15 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
     });
   } else {
     let url = pageNameOrUrl + getQueryStringfromObject(params);
+
     if (!isValidURL(url)) {
+      const looksLikeURL = matchesURLPattern(url);
+
+      // Filter out cases like navigateTo("1");
+      if (!looksLikeURL)
+        throw new TriggerFailureError("Enter a valid URL or page name");
+
+      // Default to https protocol to support navigation to URLs like www.google.com
       url = `https://${url}`;
       if (!isValidURL(url))
         throw new TriggerFailureError("Enter a valid URL or page name");
