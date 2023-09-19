@@ -13,7 +13,7 @@ import { ProgressType, ProgressVariant } from "../constants";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   static type = "PROGRESS_WIDGET";

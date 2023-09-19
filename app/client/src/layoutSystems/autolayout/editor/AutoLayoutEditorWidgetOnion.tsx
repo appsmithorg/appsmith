@@ -7,7 +7,7 @@ import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
 import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 import FlexComponent from "../common/FlexComponent";
 import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
-import { FlexVerticalAlignment } from "layoutSystems/anvil/utils/constants";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 import { AutoResizableLayer } from "../common/resizer/AutoResizableLayer";
 
 /**

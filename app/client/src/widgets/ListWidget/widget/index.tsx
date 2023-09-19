@@ -1,7 +1,7 @@
 import {
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/anvil/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
