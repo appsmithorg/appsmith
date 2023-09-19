@@ -3,6 +3,7 @@
 
 import React from "react";
 import type {
+  // LayoutComponentChildrenMap,
   LayoutComponentProps,
   LayoutComponentType,
 } from "../utils/anvilTypes";
@@ -25,12 +26,16 @@ const Row = (props: LayoutComponentProps) => {
 
 Row.type = "ROW" as LayoutComponentType;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-Row.renderChildren = (props: LayoutComponentProps) => {
+Row.renderChildren = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  props: LayoutComponentProps,
+  // childrenMap: LayoutComponentChildrenMap,
+) => {
+  // TODO: Call WidgetFactory.createWidget directly or a utility that abstracts repeated code
   return (
     <>
-      <div>one</div>
-      <div>two</div>
+      <div>one (ROW)</div>
+      <div>two (ROW)</div>
     </>
   );
 };

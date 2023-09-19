@@ -1,4 +1,6 @@
-export type LayoutComponentType = "ROW" | "COLUMN";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+export type LayoutComponentType = "ROW";
 
 export interface LayoutComponentProps {
   children?: React.ReactNode; // Children of layout component.
@@ -14,6 +16,8 @@ export interface LayoutComponentProps {
   insertChild?: boolean; // Identifies which of the child layout components in childTemplate to add new widgets to.
   isPermanent?: boolean; // Whether the layout component can exist without any children.
 }
+
+export type LayoutComponentChildrenMap = { [id: string]: WidgetProps };
 
 export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   // add all other static props here
