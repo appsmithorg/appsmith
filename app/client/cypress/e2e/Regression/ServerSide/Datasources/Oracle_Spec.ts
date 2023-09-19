@@ -388,7 +388,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
   });
 
   it("7. Tc #2365  - Query settings tab validations", () => {
-    apiPage.ToggleOnPageLoadRun(false);
+    apiPage.ToggleOnPageLoadRun(false); // ALl above cases validated for onpage load run with confirmation dialog set to false
     apiPage.ToggleConfirmBeforeRunning(true);
     dataSources.ToggleUsePreparedStatement(false);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
@@ -398,12 +398,13 @@ WHERE aircraft_type = 'Passenger Plane'`;
     propPane.EnterJSContext("onClick", `{{Query1.run()}}`);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     agHelper.ClickButton("Submit");
-    jsEditor.ConfirmationClick("No");
+    jsEditor.ConfirmationClick("No"); //Handling both No & Yes from confirmation dialog
     agHelper.AssertContains("cancelled");
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.ClickButton("Submit");
     jsEditor.ConfirmationClick("Yes");
     table.WaitUntilTableLoad(0, 0, "v2");
+    deployMode.NavigateBacktoEditor();
   });
 
   after(
