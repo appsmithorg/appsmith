@@ -679,7 +679,7 @@ jobs:
                   SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
                 ) 
                 ) AND status = 'fail'`,
-              [run, attempt],
+              [RUN_ID, ATTEMPT_NUMBER],
             );
             const specs = result.rows.map((spec) => spec.name);
             console.log(specs);
