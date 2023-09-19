@@ -261,7 +261,7 @@ function LogItem(props: LogItemProps) {
           color={
             props.severity === Severity.ERROR
               ? "var(--ads-v2-colors-response-error-icon-default-fg)"
-              : ""
+              : "inherit"
           }
           name={props.icon}
           size="md"
@@ -298,7 +298,7 @@ function LogItem(props: LogItemProps) {
               </span>
             )}
             <span
-              className="debugger-label t--debugger-log-message"
+              className="debugger-label t--debugger-log-message cursor-text"
               onClick={(e) => e.stopPropagation()}
             >
               {props.text}
