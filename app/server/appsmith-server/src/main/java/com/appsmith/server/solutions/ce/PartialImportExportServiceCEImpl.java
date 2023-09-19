@@ -46,14 +46,8 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
         return customJSLibService
                 .getAllJSLibsInApplicationForExport(applicationId, null, false)
                 .flatMap(customJSLibs -> {
-                    System.out.println("Alll libs====== " + customJSLibs.toString());
                     List<CustomJSLib> updatedCustomJSLibList = customJSLibs.stream()
                             .filter(customJSLib -> customJSLibSet.contains(customJSLib.getName()))
-                            //                            .peek(customJSLib -> {
-                            //                                customJSLib.setId(null);
-                            //                                customJSLib.setCreatedAt(null);
-                            //                                customJSLib.setUpdatedAt(null);
-                            //                            })
                             .toList();
                     return Mono.just(updatedCustomJSLibList);
                 });
@@ -105,8 +99,6 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
     }
 
     private Mono<Application> importCustomJsLibs(String applicationId, List<CustomJSLib> customJSLibList) {
-        System.out.println("========= Importing =======");
-        System.out.println(customJSLibList);
         return Flux.fromIterable(customJSLibList)
                 .flatMap(customJSLib -> customJSLibService.addJSLibToApplication(applicationId, customJSLib, "", false))
                 .then(applicationService.findById(applicationId));

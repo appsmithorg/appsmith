@@ -8,7 +8,14 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.dtos.*;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.GitAuthDTO;
+import com.appsmith.server.dtos.PartialImportExportDTO;
+import com.appsmith.server.dtos.ReleaseItemsDTO;
+import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
@@ -225,7 +232,6 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseEntity<Object>> getPartialApplicationFile(
             @PathVariable String id, @Valid @RequestBody PartialImportExportDTO entities) {
         log.debug("Going to partially export application with id: {}", id);
-        System.out.println("======Partial export========");
         return partialImportExportService
                 .getPartialApplicationFile(id, entities)
                 .map(fetchedResource -> {
