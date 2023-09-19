@@ -11,7 +11,11 @@ const PublishedInfo = () => {
     (text: () => string, index: number, correct: boolean) => (
       <ItemWrapper key={index}>
         <Icon
-          color={correct ? "green" : "red"}
+          color={
+            correct
+              ? "var(--ads-v2-colors-response-success-icon-default-fg)"
+              : "var(--ads-v2-colors-response-error-icon-default-fg)"
+          }
           name={correct ? "check-line" : "close"}
         />
         <Text kind="body-m" renderAs="p">

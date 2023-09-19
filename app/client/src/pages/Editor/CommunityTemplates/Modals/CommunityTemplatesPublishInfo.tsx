@@ -54,7 +54,11 @@ const PublishedAppInstructions = () => {
     <>
       <InfoContainer>
         <VerticalCenterContainer>
-          <Icon color="green" name="oval-check" size="lg" />
+          <Icon
+            color="var(--ads-v2-colors-response-success-icon-default-fg)"
+            name="oval-check"
+            size="lg"
+          />
           <Text kind="heading-s" renderAs="h2">
             {createMessage(COMMUNITY_TEMPLATES.modals.publishedInfo.title)}
           </Text>
