@@ -1501,10 +1501,14 @@ class CodeEditor extends Component<Props, State> {
   };
 
   isBindingPromptOpen = () => {
-    return showBindingPrompt(
-      this.showFeatures(),
-      this.props.input.value,
-      this.state.hinterOpen,
+    const completionActive = _.get(this.editor, "state.completionActive");
+
+    return (
+      showBindingPrompt(
+        this.showFeatures(),
+        this.props.input.value,
+        this.state.hinterOpen,
+      ) && !completionActive
     );
   };
 
