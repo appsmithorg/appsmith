@@ -1,0 +1,266 @@
+{
+  "color": {
+    "bg": {
+      "value": "rgb(97.488% 97.871% 100%)",
+      "type": "color"
+    },
+    "bg-accent": {
+      "value": "rgb(33.333% 23.922% 91.373%)",
+      "type": "color"
+    },
+    "bg-accent-hover": {
+      "value": "rgb(38.033% 31.188% 98.353%)",
+      "type": "color"
+    },
+    "bg-accent-active": {
+      "value": "rgb(31.537% 20.805% 88.597%)",
+      "type": "color"
+    },
+    "bg-accent-subtle-hover": {
+      "value": "rgb(91.308% 92.034% 100%)",
+      "type": "color"
+    },
+    "bg-accent-subtle-active": {
+      "value": "rgb(86.728% 87.915% 100%)",
+      "type": "color"
+    },
+    "bg-assistive": {
+      "value": "rgb(3.6713% 2.414% 16.412%)",
+      "type": "color"
+    },
+    "bg-neutral": {
+      "value": "rgb(27.359% 28.199% 35.2%)",
+      "type": "color"
+    },
+    "bg-neutral-hover": {
+      "value": "rgb(32.654% 33.544% 40.754%)",
+      "type": "color"
+    },
+    "bg-neutral-active": {
+      "value": "rgb(26.32% 27.149% 34.105%)",
+      "type": "color"
+    },
+    "bg-neutral-subtle-hover": {
+      "value": "rgb(92.856% 93.277% 96.189%)",
+      "type": "color"
+    },
+    "bg-neutral-subtle-active": {
+      "value": "rgb(88.971% 89.388% 92.276%)",
+      "type": "color"
+    },
+    "bg-positive": {
+      "value": "rgb(6.7435% 63.436% 18.481%)",
+      "type": "color"
+    },
+    "bg-positive-hover": {
+      "value": "rgb(18.172% 69.721% 25.266%)",
+      "type": "color"
+    },
+    "bg-positive-active": {
+      "value": "rgb(0% 60.947% 15.563%)",
+      "type": "color"
+    },
+    "bg-positive-subtle-hover": {
+      "value": "rgb(84.848% 100% 84.841%)",
+      "type": "color"
+    },
+    "bg-positive-subtle-active": {
+      "value": "rgb(80.049% 98.746% 80.116%)",
+      "type": "color"
+    },
+    "bg-negative": {
+      "value": "rgb(83.108% 4.6651% 10.252%)",
+      "type": "color"
+    },
+    "bg-negative-hover": {
+      "value": "rgb(90.296% 17.3% 17.376%)",
+      "type": "color"
+    },
+    "bg-negative-active": {
+      "value": "rgb(80.244% 0% 6.8069%)",
+      "type": "color"
+    },
+    "bg-negative-subtle-hover": {
+      "value": "rgb(100% 93.667% 92.497%)",
+      "type": "color"
+    },
+    "bg-negative-subtle-active": {
+      "value": "rgb(100% 88.348% 86.422%)",
+      "type": "color"
+    },
+    "bg-warning": {
+      "value": "rgb(85.145% 64.66% 8.0286%)",
+      "type": "color"
+    },
+    "bg-warning-hover": {
+      "value": "rgb(89.037% 68.413% 15.627%)",
+      "type": "color"
+    },
+    "bg-warning-active": {
+      "value": "rgb(83.854% 63.416% 4.0505%)",
+      "type": "color"
+    },
+    "bg-warning-subtle-hover": {
+      "value": "rgb(100% 97.012% 87.859%)",
+      "type": "color"
+    },
+    "bg-warning-subtle-active": {
+      "value": "rgb(99.63% 92.81% 78.869%)",
+      "type": "color"
+    },
+    "fg": {
+      "value": "rgb(1.6475% 1.7126% 6.8084%)",
+      "type": "color"
+    },
+    "fg-accent": {
+      "value": "rgb(33.333% 23.922% 91.373%)",
+      "type": "color"
+    },
+    "fg-neutral": {
+      "value": "rgb(37.193% 38.537% 50.855%)",
+      "type": "color"
+    },
+    "fg-positive": {
+      "value": "rgb(6.7435% 63.436% 18.481%)",
+      "type": "color"
+    },
+    "fg-negative": {
+      "value": "rgb(100% 0% 28.453%)",
+      "type": "color"
+    },
+    "fg-warning": {
+      "value": "rgb(71.79% 51.231% 0%)",
+      "type": "color"
+    },
+    "fg-on-accent": {
+      "value": "rgb(91.588% 90.378% 100%)",
+      "type": "color"
+    },
+    "fg-on-assistive": {
+      "value": "rgb(94.469% 95.075% 100%)",
+      "type": "color"
+    },
+    "fg-on-neutral": {
+      "value": "rgb(93.156% 94.218% 100%)",
+      "type": "color"
+    },
+    "fg-on-positive": {
+      "value": "rgb(89.702% 100% 89.053%)",
+      "type": "color"
+    },
+    "fg-on-negative": {
+      "value": "rgb(100% 87.612% 85.249%)",
+      "type": "color"
+    },
+    "fg-on-warning": {
+      "value": "rgb(21.953% 9.0775% 0%)",
+      "type": "color"
+    },
+    "bd-accent": {
+      "value": "rgb(33.333% 23.922% 91.373%)",
+      "type": "color"
+    },
+    "bd-focus": {
+      "value": "rgb(78.161% 34.431% 0%)",
+      "type": "color"
+    },
+    "bd-neutral": {
+      "value": "rgb(37.869% 38.922% 47.553%)",
+      "type": "color"
+    },
+    "bd-neutral-hover": {
+      "value": "rgb(49.162% 50.308% 59.345%)",
+      "type": "color"
+    },
+    "bd-positive": {
+      "value": "rgb(6.7435% 63.436% 18.481%)",
+      "type": "color"
+    },
+    "bd-positive-hover": {
+      "value": "rgb(26.362% 76.094% 31.718%)",
+      "type": "color"
+    },
+    "bd-negative": {
+      "value": "rgb(83.108% 4.6651% 10.252%)",
+      "type": "color"
+    },
+    "bd-negative-hover": {
+      "value": "rgb(97.525% 25.712% 23.78%)",
+      "type": "color"
+    },
+    "bd-warning": {
+      "value": "rgb(85.145% 64.66% 8.0286%)",
+      "type": "color"
+    },
+    "bd-warning-hover": {
+      "value": "rgb(98.232% 77.293% 27.893%)",
+      "type": "color"
+    },
+    "bd-on-accent": {
+      "value": "rgb(0% 0% 0%)",
+      "type": "color"
+    },
+    "bd-on-neutral": {
+      "value": "rgb(0.1663% 0.0515% 1.6668%)",
+      "type": "color"
+    },
+    "bd-on-positive": {
+      "value": "rgb(0% 22.552% 3.6201%)",
+      "type": "color"
+    },
+    "bd-on-negative": {
+      "value": "rgb(21.923% 0% 2.8118%)",
+      "type": "color"
+    },
+    "bd-on-warning": {
+      "value": "rgb(39.972% 27.552% 0%)",
+      "type": "color"
+    }
+  },
+  "borderRadius": {
+    "1": {
+      "value": "0px",
+      "type": "borderRadius"
+    }
+  },
+  "boxShadow": {
+    "1": {
+      "value": "0 2px 2px 0 rgba(0, 0, 0, 0.2)",
+      "type": "boxShadow"
+    }
+  },
+  "borderWidth": {
+    "1": {
+      "value": "1px",
+      "type": "borderWidth"
+    },
+    "2": {
+      "value": "2px",
+      "type": "borderWidth"
+    }
+  },
+  "opacity": {
+    "disabled": {
+      "value": 0.3,
+      "type": "opacity"
+    }
+  },
+  "zIndex": {
+    "1": {
+      "value": 3,
+      "type": "zIndex"
+    },
+    "2": {
+      "value": 4,
+      "type": "zIndex"
+    },
+    "3": {
+      "value": 10,
+      "type": "zIndex"
+    },
+    "99": {
+      "value": 9999,
+      "type": "zIndex"
+    }
+  }
+}

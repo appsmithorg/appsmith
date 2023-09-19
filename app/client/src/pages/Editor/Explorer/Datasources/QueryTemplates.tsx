@@ -15,7 +15,7 @@ import {
   getAction,
   getDatasource,
   getPlugin,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { integrationEditorURL } from "RouteBuilder";
 import { MenuItem } from "design-system";
 import type { Plugin } from "api/PluginApi";
@@ -111,10 +111,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
 
       if (isWalkthroughOpened) {
         popFeature && popFeature("SCHEMA_QUERY_CREATE");
-        setFeatureWalkthroughShown(
-          FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
-          true,
-        );
+        setFeatureWalkthroughShown(FEATURE_WALKTHROUGH_KEYS.ds_schema, true);
       }
 
       history.push(
@@ -174,10 +171,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
 
       if (isWalkthroughOpened) {
         popFeature && popFeature("SCHEMA_QUERY_UPDATE");
-        setFeatureWalkthroughShown(
-          FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
-          true,
-        );
+        setFeatureWalkthroughShown(FEATURE_WALKTHROUGH_KEYS.ds_schema, true);
       }
 
       showUndoRedoToast(

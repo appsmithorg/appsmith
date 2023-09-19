@@ -7,13 +7,13 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
@@ -147,15 +147,14 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
     public Mono<Object> updateDatasourceAndSetAuthentication(Object connection, DatasourceStorage datasourceStorage) {
         Mono<DatasourceStorage> datasourceStorageMono = Mono.just(datasourceStorage);
-        if (connection instanceof UpdatableConnection) {
+        if (connection instanceof UpdatableConnection updatableConnection) {
             datasourceStorage.setUpdatedAt(Instant.now());
             datasourceStorage
                     .getDatasourceConfiguration()
-                    .setAuthentication(((UpdatableConnection) connection)
-                            .getAuthenticationDTO(datasourceStorage
-                                    .getDatasourceConfiguration()
-                                    .getAuthentication()));
-            datasourceStorageMono = datasourceStorageService.save(datasourceStorage);
+                    .setAuthentication(updatableConnection.getAuthenticationDTO(
+                            datasourceStorage.getDatasourceConfiguration().getAuthentication()));
+            datasourceStorageMono = datasourceStorageService.updateDatasourceStorage(
+                    datasourceStorage, datasourceStorage.getEnvironmentId(), Boolean.FALSE);
         }
         return datasourceStorageMono.thenReturn(connection);
     }

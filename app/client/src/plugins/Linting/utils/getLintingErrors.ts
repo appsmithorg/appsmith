@@ -227,7 +227,7 @@ function getAssignmentExpressionErrors({
     const methodName = get(setterAccessorMap, `${objectName}.${propertyName}`);
 
     const suggestionSentence = methodName
-      ? `Use ${methodName}(value) setter method instead.`
+      ? `Use ${methodName}(value) instead.`
       : `Use ${objectName} setter method instead.`;
 
     const lintErrorMessage = !isValidProperty

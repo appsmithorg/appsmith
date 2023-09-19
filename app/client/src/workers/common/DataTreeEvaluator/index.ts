@@ -18,7 +18,7 @@ import {
   isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import type {
   DataTree,
   DataTreeEntity,
@@ -113,6 +113,7 @@ import {
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   getValidatedTree,
+  setToEvalPathsIdenticalToState,
   validateActionProperty,
   validateAndParseWidgetProperty,
 } from "./validationUtils";
@@ -164,8 +165,18 @@ export default class DataTreeEvaluator {
    * Sanitized eval values and errors
    */
   evalProps: EvalProps = {};
+  //when attaching values to __evaluations__ segment of the state there are cases where this value is identical to the widget property
+  //in those cases do not it to the dataTree and update this map. The main thread can decompress these updates and we can minimise the data transfer
+  evalPathsIdenticalToState: any = {};
   undefinedEvalValuesMap: Record<string, boolean> = {};
 
+  prevState = {};
+  setPrevState(state: any) {
+    this.prevState = state;
+  }
+  getPrevState() {
+    return this.prevState;
+  }
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -177,6 +188,9 @@ export default class DataTreeEvaluator {
     this.widgetConfigMap = widgetConfigMap;
   }
 
+  getEvalPathsIdenticalToState(): Record<string, string> {
+    return this.evalPathsIdenticalToState || {};
+  }
   getEvalTree() {
     return this.evalTree;
   }
@@ -330,7 +344,8 @@ export default class DataTreeEvaluator {
     const evaluationOrder = this.sortedDependencies;
     // Evaluate
     const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
-      this.oldUnEvalTree,
+      //we need to deep clone oldUnEvalTree because evaluateTree will mutate it
+      klona(this.oldUnEvalTree),
       evaluationOrder,
       undefined,
       this.oldConfigTree,
@@ -344,6 +359,7 @@ export default class DataTreeEvaluator {
         evaluatedTree,
         {
           evalProps: this.evalProps,
+          evalPathsIdenticalToState: this.evalPathsIdenticalToState,
         },
         this.oldConfigTree,
       ),
@@ -766,6 +782,7 @@ export default class DataTreeEvaluator {
       evaluatedTree: newEvalTree,
       staleMetaIds,
     } = this.evaluateTree(
+      // should not clone evalTree unnessarily because it is anyways being overwritten in the subsequent statement
       this.evalTree,
       evaluationOrder,
       {
@@ -907,7 +924,7 @@ export default class DataTreeEvaluator {
   }
 
   evaluateTree(
-    oldUnevalTree: DataTree,
+    dataTree: DataTree,
     evaluationOrder: Array<string>,
     options: {
       isFirstTree: boolean;
@@ -924,9 +941,8 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
   } {
-    const tree = klona(oldUnevalTree);
     errorModifier.updateAsyncFunctions(
-      tree,
+      dataTree,
       this.getConfigTree(),
       this.dependencyMap,
     );
@@ -1028,6 +1044,7 @@ export default class DataTreeEvaluator {
                 evalPropertyValue,
                 unEvalPropertyValue,
                 evalProps: this.evalProps,
+                evalPathsIdenticalToState: this.evalPathsIdenticalToState,
               });
 
               this.setParsedValue({
@@ -1078,13 +1095,19 @@ export default class DataTreeEvaluator {
                 }
               }
 
-              set(
-                this.evalProps,
-                getEvalValuePath(fullPropertyPath),
-                evalPropertyValue,
-              );
-              set(currentTree, fullPropertyPath, evalPropertyValue);
+              if (!propertyPath) return currentTree;
 
+              const evalPath = getEvalValuePath(fullPropertyPath);
+              setToEvalPathsIdenticalToState({
+                evalPath,
+                evalPathsIdenticalToState: this.evalPathsIdenticalToState,
+                evalProps: this.evalProps,
+                isParsedValueTheSame: true,
+                statePath: fullPropertyPath,
+                value: evalPropertyValue,
+              });
+
+              set(currentTree, fullPropertyPath, evalPropertyValue);
               return currentTree;
             }
             case ENTITY_TYPE.JSACTION: {
@@ -1113,14 +1136,22 @@ export default class DataTreeEvaluator {
                   !hasUnEvalValueModified && prevEvaluatedValue
                     ? prevEvaluatedValue
                     : evalPropertyValue;
-                set(
-                  this.evalProps,
-                  getEvalValuePath(fullPropertyPath, {
-                    isPopulated: true,
-                    fullPath: true,
-                  }),
-                  evalValue,
-                );
+
+                const evalPath = getEvalValuePath(fullPropertyPath, {
+                  isPopulated: true,
+                  //what is the purpose of this argument
+                  fullPath: true,
+                });
+
+                setToEvalPathsIdenticalToState({
+                  evalPath,
+                  evalPathsIdenticalToState: this.evalPathsIdenticalToState,
+                  evalProps: this.evalProps,
+                  isParsedValueTheSame: true,
+                  statePath: fullPropertyPath,
+                  value: evalValue,
+                });
+
                 set(currentTree, fullPropertyPath, evalValue);
                 JSObjectCollection.setVariableValue(
                   evalValue,
@@ -1137,7 +1168,7 @@ export default class DataTreeEvaluator {
               return set(currentTree, fullPropertyPath, evalPropertyValue);
           }
         },
-        tree,
+        dataTree,
       );
 
       return {
@@ -1150,7 +1181,7 @@ export default class DataTreeEvaluator {
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
       });
-      return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds: [] };
+      return { evaluatedTree: dataTree, evalMetaUpdates, staleMetaIds: [] };
     }
   }
 
@@ -1177,7 +1208,7 @@ export default class DataTreeEvaluator {
 
   sortDependencies(
     dependencyMap: DependencyMap,
-    diffs?: (DataTreeDiff | DataTreeDiff[])[],
+    diffs?: DataTreeDiff[],
   ): Array<string> {
     const result = DependencyMapUtils.sortDependencies(dependencyMap);
     if (result.success) {
@@ -1196,6 +1227,13 @@ export default class DataTreeEvaluator {
         entityType = entity.ENTITY_TYPE;
       }
       const dependencies = dependencyMap.dependencies;
+
+      // We are only interested in logging potential system-generated cyclic dependency errors to Sentry
+      // If a cyclic dependency error occurs without a user editing a dynamic field, that is a potential system-generated cyclic dependency error
+
+      const logToSentry = !diffs
+        ? false
+        : !diffs.some((val) => val.event === DataTreeDiffEvent.EDIT);
       this.errors.push({
         type: EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR,
         message: "Cyclic dependency found while evaluating.",
@@ -1204,6 +1242,7 @@ export default class DataTreeEvaluator {
           entityType,
           dependencyMap: dependencies,
           diffs,
+          logToSentry,
         },
       });
       logError("CYCLICAL DEPENDENCY MAP", dependencies);
@@ -1333,10 +1372,16 @@ export default class DataTreeEvaluator {
     callbackData: Array<unknown>,
     context?: EvaluateContext,
   ) {
+    const isDynamic = isDynamicValue(userScript);
     const { jsSnippets } = getDynamicBindings(userScript);
 
     return evaluateAsync(
-      jsSnippets[0] || userScript,
+      /**
+       * jsSnippets[0] will be "" when a JS Object's function is run manually or when an empty action for a trigger field is configured.
+       * Eg. Button1.onClick = "{{}}"
+       * isDynamic will be false for JSObject's function run but will be true for action bindings.
+       */
+      isDynamic ? jsSnippets[0] : userScript,
       dataTree,
       configTree,
       context,
@@ -1427,7 +1472,9 @@ export default class DataTreeEvaluator {
     // setting parseValue in dataTree
     set(currentTree, fullPropertyPath, parsedValue);
     // setting evalPropertyValue in unParsedEvalTree
-    set(this.getUnParsedEvalTree(), fullPropertyPath, evalPropertyValue);
+    // cloning evalPropertyValue because parsedValue and evalPropertyValue could be equal, they both could share the same reference
+    //hence we are cloning evalPropertyValue to seperate them
+    set(this.getUnParsedEvalTree(), fullPropertyPath, klona(evalPropertyValue));
   }
 
   reValidateWidgetDependentProperty({
@@ -1461,6 +1508,7 @@ export default class DataTreeEvaluator {
             fullPath,
           ) as unknown as string,
           evalProps: this.evalProps,
+          evalPathsIdenticalToState: this.evalPathsIdenticalToState,
         });
       });
     }

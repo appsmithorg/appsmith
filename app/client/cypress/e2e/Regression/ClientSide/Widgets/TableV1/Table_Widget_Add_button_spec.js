@@ -82,7 +82,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.get(widgetsPage.buttonColor)
       .click({ force: true })
       .clear()
-      .type(color1, { force: true });
+      .type(color1, { force: true, delay: 0 });
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color1);
 
     // Changing the color again to reproduce issue #9526
@@ -92,7 +92,7 @@ describe("Table Widget property pane feature validation", function () {
       .clear()
       // following wait is required to reproduce #9526
       .wait(600)
-      .type(color2);
+      .type(color2, { delay: 0 });
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color2);
   });
 
@@ -174,7 +174,7 @@ describe("Table Widget property pane feature validation", function () {
       .click()
       .clear()
       .click({ force: true })
-      .type(color1);
+      .type(color1, { delay: 0 });
 
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color1);
 
@@ -185,7 +185,7 @@ describe("Table Widget property pane feature validation", function () {
       .click({ force: true })
       // following wait is required to reproduce #9526
       .wait(500)
-      .type(color2);
+      .type(color2, { delay: 0 });
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color2);
 
     // Add a Menu item 1

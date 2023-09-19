@@ -1,3 +1,6 @@
+import { Colors } from "constants/Colors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+
 export type ChartType =
   | "LINE_CHART"
   | "BAR_CHART"
@@ -5,12 +8,18 @@ export type ChartType =
   | "COLUMN_CHART"
   | "AREA_CHART"
   | "SCATTER_CHART"
+  | "CUSTOM_ECHART"
   | "CUSTOM_FUSION_CHART";
 
 export const XAxisCategory = "Category";
 export interface ChartDataPoint {
-  x: any;
-  y: any;
+  x: number | string;
+  y: number | string;
+}
+
+export interface LongestLabelParams {
+  x: string;
+  y: string;
 }
 
 export interface ChartData {
@@ -29,17 +38,31 @@ export interface AllChartData {
 }
 
 export interface ChartSelectedDataPoint {
-  x: any;
-  y: any;
-  seriesTitle: string;
+  x: unknown | undefined;
+  y: unknown | undefined;
+  seriesTitle: string | undefined;
+  rawEventData?: Record<string, unknown>;
 }
 
 export const messages = {
   ErrorTitle: "Error in Chart Data/Configuration",
   MoreDetails: "More Details",
   EmptyData: "No chart data to display",
-  Undefined: "Undefined",
+  Undefined: "Series",
+  customFusionChartDeprecationMessage:
+    "Custom Fusion Charts will stop being supported on March 1st 2024. Change the chart type to E-charts Custom to switch.",
+  customFusionChartOptionLabel: (showDeprecationMessage: boolean) => {
+    return showDeprecationMessage
+      ? "Custom Fusion Charts (deprecated)"
+      : "Custom Fusion Charts";
+  },
 };
+
+export const CUSTOM_ECHART_FEATURE_FLAG =
+  FEATURE_FLAG["release_custom_echarts_enabled"];
+
+export const FUSION_CHART_DEPRECATION_FLAG =
+  FEATURE_FLAG["deprecate_custom_fusioncharts_enabled"];
 
 export const CUSTOM_CHART_TYPES = [
   "area2d",
@@ -164,3 +187,139 @@ export const LABEL_ORIENTATION_COMPATIBLE_CHARTS = [
   "AREA_CHART",
   "COLUMN_CHART",
 ];
+
+export const DefaultEChartConfig = {
+  dataset: {
+    source: [
+      ["Day", "Baidu", "Google", "Bing"],
+      ["Mon", 620, 120, 60],
+      ["Tue", 732, 132, 72],
+      ["Wed", 701, 101, 71],
+      ["Thu", 734, 134, 74],
+      ["Fri", 1090, 290, 190],
+      ["Sat", 1130, 230, 130],
+      ["Sun", 1120, 220, 110],
+    ],
+  },
+  tooltip: {
+    trigger: "axis",
+    axisPointer: {
+      type: "shadow",
+    },
+  },
+  title: {
+    text: "Search Engine Usage",
+    left: "center",
+    textStyle: {
+      width: 200,
+      overflow: "truncate",
+    },
+  },
+  legend: {
+    top: 40,
+    type: "scroll",
+  },
+  grid: {
+    left: 15,
+    right: 15,
+    bottom: 30,
+    top: 100,
+    containLabel: true,
+  },
+  xAxis: [
+    {
+      type: "category",
+    },
+  ],
+  yAxis: [
+    {
+      type: "value",
+    },
+  ],
+  series: [
+    {
+      type: "bar",
+      stack: "Search Engine",
+    },
+    {
+      type: "bar",
+      stack: "Search Engine",
+    },
+    {
+      type: "bar",
+      stack: "Search Engine",
+    },
+  ],
+};
+
+export const DefaultEChartsBasicChartsData = {
+  seriesName: "2023",
+  data: [
+    {
+      x: "Product1",
+      y: 20000,
+    },
+    {
+      x: "Product2",
+      y: 22000,
+    },
+    {
+      x: "Product3",
+      y: 32000,
+    },
+  ],
+};
+
+export const DefaultFusionChartConfig = {
+  type: "column2d",
+  dataSource: {
+    data: [
+      {
+        label: "Product1",
+        value: 20000,
+      },
+      {
+        label: "Product2",
+        value: 22000,
+      },
+      {
+        label: "Product3",
+        value: 32000,
+      },
+    ],
+    chart: {
+      caption: "Sales Report",
+      xAxisName: "Product Line",
+      yAxisName: "Revenue($)",
+      theme: "fusion",
+      alignCaptionWithCanvas: 1,
+      // Caption styling =======================
+      captionFontSize: "24",
+      captionAlignment: "center",
+      captionPadding: "20",
+      captionFontColor: Colors.THUNDER,
+      // legend position styling ==========
+      legendIconSides: "4",
+      legendIconBgAlpha: "100",
+      legendIconAlpha: "100",
+      legendPosition: "top",
+      // Canvas styles ========
+      canvasPadding: "0",
+      // Chart styling =======
+      chartLeftMargin: "20",
+      chartTopMargin: "10",
+      chartRightMargin: "40",
+      chartBottomMargin: "10",
+      // Axis name styling ======
+      xAxisNameFontSize: "14",
+      labelFontSize: "12",
+      labelFontColor: Colors.DOVE_GRAY2,
+      xAxisNameFontColor: Colors.DOVE_GRAY2,
+
+      yAxisNameFontSize: "14",
+      yAxisValueFontSize: "12",
+      yAxisValueFontColor: Colors.DOVE_GRAY2,
+      yAxisNameFontColor: Colors.DOVE_GRAY2,
+    },
+  },
+};

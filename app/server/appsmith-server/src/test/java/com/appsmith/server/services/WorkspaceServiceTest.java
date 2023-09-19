@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -10,6 +9,7 @@ import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
@@ -399,8 +399,7 @@ public class WorkspaceServiceTest {
                             .filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst()
                             .ifPresent(policy -> assertThat(policy.getPermissionGroups())
-                                    .containsAll(
-                                            Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId())));
+                                    .containsAll(Set.of(adminPermissionGroup.getId())));
 
                     // Assert viewer permission group policies
                     viewerPermissionGroup.getPolicies().stream()
@@ -423,7 +422,7 @@ public class WorkspaceServiceTest {
                             .filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst()
                             .ifPresent(policy -> assertThat(policy.getPermissionGroups())
-                                    .containsAll(Set.of(adminPermissionGroup.getId(), viewerPermissionGroup.getId())));
+                                    .containsAll(Set.of(adminPermissionGroup.getId())));
                 })
                 .verifyComplete();
     }
@@ -1132,9 +1131,8 @@ public class WorkspaceServiceTest {
                     datasource.setName("test datasource");
                     datasource.setWorkspaceId(workspace1.getId());
                     datasource.setPluginId(plugin.getId());
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, null));
                     datasource.setDatasourceStorages(storages);
                     return datasourceService.create(datasource);
                 });

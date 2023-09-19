@@ -24,7 +24,6 @@ import {
   getRenderMode,
   getMetaWidgetChildrenStructure,
   getMetaWidget,
-  getFlattenedChildCanvasWidgets,
   previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
@@ -40,13 +39,14 @@ import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   defaultAutoLayoutWidgets,
   Positioning,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -63,6 +63,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       type,
       widgetId,
     } = props;
+
     const isPreviewMode = useSelector(previewModeSelector);
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
@@ -82,6 +83,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const evaluatedWidget = useSelector((state: AppState) =>
       getWidgetEvalValues(state, widgetName),
     );
+
     const isLoading = useSelector((state: AppState) =>
       getIsWidgetLoading(state, widgetName),
     );
@@ -242,7 +244,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       renderMode === RenderModes.CANVAS &&
       !isPreviewMode;
 
-    widgetProps.maincanvasWidth = mainCanvasWidth;
+    widgetProps.mainCanvasWidth = mainCanvasWidth;
 
     // We don't render invisible widgets in view mode
     if (shouldCollapseWidgetInViewOrPreviewMode) {
@@ -316,7 +318,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           : undefined,
       };
     }
-
     return <WrappedWidget {...widgetProps} />;
   }
 

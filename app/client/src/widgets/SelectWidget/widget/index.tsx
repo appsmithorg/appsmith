@@ -1,7 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -9,11 +8,12 @@ import equal from "fast-deep-equal/es6";
 import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
@@ -28,7 +28,7 @@ import {
   getDefaultValueExpressionSuffix,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import {
   defaultOptionValueValidation,
   labelKeyValidation,
@@ -36,10 +36,150 @@ import {
   getLabelValueKeyOptions,
   valueKeyValidation,
 } from "./propertyUtils";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import type {
+  SnipingModeProperty,
+  PropertyUpdates,
+} from "WidgetProvider/constants";
+
+import IconSVG from "../icon.svg";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {
     super(props);
+  }
+  static type = "SELECT_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Select",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.SELECT],
+      needsMeta: true,
+      searchTags: ["dropdown"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 4,
+        defaultValue: DynamicHeight.FIXED,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 7,
+      columns: 20,
+      placeholderText: "Select option",
+      labelText: "Label",
+      labelPosition: LabelPosition.Top,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      sourceData: [
+        { name: "Blue", code: "BLUE" },
+        { name: "Green", code: "GREEN" },
+        { name: "Red", code: "RED" },
+      ],
+      optionLabel: "name",
+      optionValue: "code",
+      serverSideFiltering: false,
+      widgetName: "Select",
+      defaultOptionValue: "GREEN",
+      version: 1,
+      isFilterable: true,
+      isRequired: false,
+      isDisabled: false,
+      animateLoading: true,
+      labelTextSize: "0.875rem",
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "sourceData",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+      getQueryGenerationConfig(widget: WidgetProps) {
+        return {
+          select: {
+            where: `${widget.widgetName}.filterText`,
+          },
+        };
+      },
+      getPropertyUpdatesForQueryBinding(
+        queryConfig: WidgetQueryConfig,
+        widget: WidgetProps,
+        formConfig: WidgetQueryGenerationFormConfig,
+      ) {
+        let modify;
+
+        if (queryConfig.select) {
+          modify = {
+            sourceData: queryConfig.select.data,
+            optionLabel: formConfig.aliases.find((d) => d.name === "label")
+              ?.alias,
+            optionValue: formConfig.aliases.find((d) => d.name === "value")
+              ?.alias,
+            defaultOptionValue: "",
+            serverSideFiltering: true,
+            onFilterUpdate: queryConfig.select.run,
+          };
+        }
+
+        return {
+          modify,
+        };
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+        labelTextSize: "0.875rem",
+      },
+      defaults: {
+        rows: 6.6,
+      },
+      autoDimension: {
+        height: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -79,7 +219,30 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               "Takes in an array of objects to display options. Bind data from an API using {{}}",
             propertyName: "sourceData",
             label: "Source Data",
-            controlType: "INPUT_TEXT",
+            controlType: "ONE_CLICK_BINDING_CONTROL",
+            controlConfig: {
+              aliases: [
+                {
+                  name: "label",
+                  isSearcheable: true,
+                  isRequired: true,
+                },
+                {
+                  name: "value",
+                  isRequired: true,
+                },
+              ],
+              sampleData: JSON.stringify(
+                [
+                  { name: "Blue", code: "BLUE" },
+                  { name: "Green", code: "GREEN" },
+                  { name: "Red", code: "RED" },
+                ],
+                null,
+                2,
+              ),
+            },
+            isJSConvertible: true,
             placeholderText: '[{ "label": "label1", "value": "value1" }]',
             isBindProperty: true,
             isTriggerProperty: false,
@@ -98,9 +261,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "Sets the label of the option",
+            helpText:
+              "Choose or set a field from source data as the display label",
             propertyName: "optionLabel",
-            label: "Label",
+            label: "Label key",
             controlType: "DROP_DOWN",
             customJSControl: "WRAPPED_CODE_EDITOR",
             controlConfig: {
@@ -131,9 +295,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
           {
-            helpText: "Sets the value of the option",
+            helpText: "Choose or set a field from source data as the value",
             propertyName: "optionValue",
-            label: "Value",
+            label: "Value key",
             controlType: "DROP_DOWN",
             customJSControl: "WRAPPED_CODE_EDITOR",
             controlConfig: {
@@ -602,28 +766,24 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   isStringOrNumber = (value: any): value is string | number =>
     isString(value) || isNumber(value);
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const dropDownWidth =
+      (MinimumPopupWidthInPercentage / 100) *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
 
     const selectedIndex = findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     return (
       <SelectComponent
         accentColor={this.props.accentColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         disabled={this.props.isDisabled}
         dropDownWidth={dropDownWidth}
         filterText={this.props.filterText}
@@ -641,7 +801,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         onDropdownClose={this.onDropdownClose}
         onDropdownOpen={this.onDropdownOpen}
         onFilterChange={this.onFilterChange}
@@ -725,10 +885,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       });
     }
   };
-
-  static getWidgetType(): WidgetType {
-    return "SELECT_WIDGET";
-  }
 }
 
 export interface SelectWidgetProps extends WidgetProps {
@@ -752,6 +908,7 @@ export interface SelectWidgetProps extends WidgetProps {
   onFilterUpdate: string;
   isDirty?: boolean;
   filterText: string;
+  labelComponentWidth?: number;
 }
 
 export default SelectWidget;

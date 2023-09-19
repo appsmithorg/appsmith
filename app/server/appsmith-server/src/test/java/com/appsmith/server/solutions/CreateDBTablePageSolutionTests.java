@@ -4,7 +4,6 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
@@ -14,7 +13,9 @@ import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.DatasourceStructure.TableType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
@@ -29,12 +30,11 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.DatasourceStructureService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +61,9 @@ import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
 
 @Slf4j
 @ExtendWith(SpringExtension.class)
@@ -159,16 +162,18 @@ public class CreateDBTablePageSolutionTests {
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
 
+    private PluginExecutor spyMockPluginExecutor = spy(new MockPluginExecutor());
+
     private final CRUDPageResourceDTO resource = new CRUDPageResourceDTO();
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(spyMockPluginExecutor));
         Mockito.when(pluginExecutorHelper.getPluginExecutorFromPackageName(Mockito.anyString()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
+                .thenReturn(Mono.just(spyMockPluginExecutor))
+                .thenReturn(Mono.just(spyMockPluginExecutor));
 
         if (testWorkspace == null) {
             Workspace workspace = new Workspace();
@@ -211,12 +216,14 @@ public class CreateDBTablePageSolutionTests {
             testDatasource.setPluginId(postgreSQLPlugin.getId());
             testDatasource.setWorkspaceId(testWorkspace.getId());
             testDatasource.setName("CRUD-Page-Table-DS");
-            datasourceConfiguration.setUrl("http://test.com");
-            testDatasource.setDatasourceConfiguration(datasourceConfiguration);
 
-            DatasourceStorage datasourceStorage = new DatasourceStorage(testDatasource, testDefaultEnvironmentId);
+            datasourceConfiguration.setUrl("http://test.com");
+
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+            storages.put(
+                    testDefaultEnvironmentId,
+                    new DatasourceStorageDTO(
+                            testDatasource.getId(), testDefaultEnvironmentId, datasourceConfiguration));
             testDatasource.setDatasourceStorages(storages);
 
             Datasource datasource = datasourceService.create(testDatasource).block();
@@ -538,11 +545,11 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(testWorkspace.getId());
                     datasource.setName("MySql-CRUD-Page-Table-With-Less-Columns-DS");
-                    datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(
+                            testDefaultEnvironmentId,
+                            new DatasourceStorageDTO(null, testDefaultEnvironmentId, datasourceConfiguration));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource);
@@ -628,10 +635,11 @@ public class CreateDBTablePageSolutionTests {
             datasource.setPluginId(plugin.getId());
             datasource.setWorkspaceId(testWorkspace.getId());
             datasource.setName("MySql-CRUD-Page-Table-DS");
-            datasource.setDatasourceConfiguration(datasourceConfiguration);
-            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
+
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+            storages.put(
+                    testDefaultEnvironmentId,
+                    new DatasourceStorageDTO(null, testDefaultEnvironmentId, datasourceConfiguration));
             datasource.setDatasourceStorages(storages);
 
             return datasourceService.create(datasource).flatMap(datasource1 -> {
@@ -711,10 +719,11 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(testWorkspace.getId());
                     datasource.setName("Redshift-CRUD-Page-Table-DS");
-                    datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
+
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(
+                            testDefaultEnvironmentId,
+                            new DatasourceStorageDTO(null, testDefaultEnvironmentId, datasourceConfiguration));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource).flatMap(datasource1 -> {
@@ -841,10 +850,11 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(testWorkspace.getId());
                     datasource.setName("Snowflake-CRUD-Page-Table-DS");
-                    datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
+
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(
+                            testDefaultEnvironmentId,
+                            new DatasourceStorageDTO(null, testDefaultEnvironmentId, datasourceConfiguration));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource).flatMap(datasource1 -> {
@@ -901,6 +911,21 @@ public class CreateDBTablePageSolutionTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullPageIdForS3() {
+        /**
+         * Define handling for sanitizeGenerateCRUDPageTemplateInfo method for S3 plugin on spyMockPluginExecutor.
+         */
+        doAnswer(invocation -> {
+                    List<ActionConfiguration> actionConfigurationList = invocation.getArgument(0);
+                    Map<String, String> mappedColumnsAndTableName = invocation.getArgument(1);
+                    String bucketName = invocation.getArgument(2);
+                    Map<String, Object> formData =
+                            actionConfigurationList.get(0).getFormData();
+                    mappedColumnsAndTableName.put(
+                            (String) ((Map<?, ?>) formData.get("bucket")).get("data"), bucketName);
+                    return Mono.empty();
+                })
+                .when(spyMockPluginExecutor)
+                .sanitizeGenerateCRUDPageTemplateInfo(any(), any(), any());
 
         resource.setApplicationId(testApp.getId());
         StringBuilder pluginName = new StringBuilder();
@@ -910,11 +935,12 @@ public class CreateDBTablePageSolutionTests {
             datasource.setPluginId(plugin.getId());
             datasource.setWorkspaceId(testWorkspace.getId());
             datasource.setName("S3-CRUD-Page-Table-DS");
-            datasource.setDatasourceConfiguration(datasourceConfiguration);
             pluginName.append(plugin.getName());
-            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
+
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+            storages.put(
+                    testDefaultEnvironmentId,
+                    new DatasourceStorageDTO(null, testDefaultEnvironmentId, datasourceConfiguration));
             datasource.setDatasourceStorages(storages);
 
             return datasourceService.create(datasource).flatMap(datasource1 -> {
@@ -995,12 +1021,12 @@ public class CreateDBTablePageSolutionTests {
                     Datasource datasource = new Datasource();
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(testWorkspace.getId());
-                    datasource.setDatasourceConfiguration(datasourceConfiguration);
                     datasource.setName("Google-Sheet-CRUD-Page-Table-DS");
 
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(
+                            testDefaultEnvironmentId,
+                            new DatasourceStorageDTO(null, testDefaultEnvironmentId, datasourceConfiguration));
                     datasource.setDatasourceStorages(storages);
 
                     return datasourceService.create(datasource).flatMap(datasource1 -> {
@@ -1072,10 +1098,11 @@ public class CreateDBTablePageSolutionTests {
             datasource.setPluginId(plugin.getId());
             datasource.setWorkspaceId(testWorkspace.getId());
             datasource.setName("Mongo-CRUD-Page-Table-DS");
-            datasource.setDatasourceConfiguration(datasourceConfiguration);
-            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, testDefaultEnvironmentId);
+
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(testDefaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+            storages.put(
+                    testDefaultEnvironmentId,
+                    new DatasourceStorageDTO(null, testDefaultEnvironmentId, datasourceConfiguration));
             datasource.setDatasourceStorages(storages);
 
             return datasourceService.create(datasource).flatMap(datasource1 -> {

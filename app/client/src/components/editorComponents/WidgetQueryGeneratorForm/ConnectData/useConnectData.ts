@@ -1,10 +1,10 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
 import { PluginPackageName } from "entities/Action";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
-import { getPluginPackageFromDatasourceId } from "selectors/entitiesSelector";
+import { getPluginPackageFromDatasourceId } from "@appsmith/selectors/entitiesSelector";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetQueryGeneratorFormContext } from "..";
@@ -14,29 +14,43 @@ import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns"
 export function useConnectData() {
   const dispatch = useDispatch();
 
-  const { config, propertyName, widgetId } = useContext(
+  const { aliases, config, propertyName, widgetId } = useContext(
     WidgetQueryGeneratorFormContext,
   );
 
   const widget = useSelector((state: AppState) => getWidget(state, widgetId));
 
-  const { columns, primaryColumn } = useColumns("");
+  const { columns, primaryColumn } = useColumns("", false);
 
   const isLoading = useSelector(
     getisOneClickBindingConnectingForWidget(widgetId),
   );
 
   const onClick = () => {
+    const searchableColumn = (() => {
+      if (config.searchableColumn) {
+        return config.searchableColumn;
+      } else {
+        const alias = aliases?.find((d) => d.isSearcheable)?.name;
+
+        return alias && config.alias[alias];
+      }
+    })();
+
     const payload = {
       tableName: config.table,
       sheetName: config.sheet,
       datasourceId: config.datasource,
       widgetId: widgetId,
       tableHeaderIndex: config.tableHeaderIndex,
-      searchableColumn: config.searchableColumn,
+      searchableColumn,
       columns: columns.map((column) => column.name),
       primaryColumn,
       connectionMode: config.datasourceConnectionMode,
+      aliases: Object.entries(config.alias).map(([key, value]) => ({
+        name: key,
+        alias: value,
+      })),
     };
 
     dispatch({
@@ -54,6 +68,7 @@ export function useConnectData() {
       additionalData: {
         dataTableName: config.table,
         searchableColumn: config.searchableColumn,
+        alias: config.alias,
       },
     });
   };
@@ -64,10 +79,17 @@ export function useConnectData() {
 
   const show = !!config.datasource;
 
-  const disabled =
-    !config.table ||
-    (selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
-      !isValidGsheetConfig(config));
+  const disabled = useMemo(() => {
+    return (
+      !config.table ||
+      (selectedDatasourcePluginPackageName ===
+        PluginPackageName.GOOGLE_SHEETS &&
+        !isValidGsheetConfig(config)) ||
+      aliases?.some((alias) => {
+        return alias.isRequired && !config.alias[alias.name];
+      })
+    );
+  }, [config, aliases]);
 
   return {
     show,

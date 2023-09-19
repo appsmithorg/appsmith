@@ -29,7 +29,11 @@ describe("Test Top + Stacked navigation style", function () {
     const pageName = "Page9 - with long long name";
     deployMode.DeployApp();
     agHelper.AssertElementLength(appSettings.locators._scrollArrows, 2);
-    agHelper.AssertElementVisible(appSettings.locators._scrollArrows, 1);
+    agHelper.AssertElementVisibility(
+      appSettings.locators._scrollArrows,
+      true,
+      1,
+    );
     agHelper
       .GetElement(appSettings.locators._navigationMenuItem)
       .contains(pageName)
@@ -56,7 +60,7 @@ describe("Test Top + Stacked navigation style", function () {
       0,
       true,
     );
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       appSettings.locators._getActivePage(pageName),
     );
   });
@@ -98,16 +102,16 @@ describe("Test Top + Stacked navigation style", function () {
     agHelper
       .GetElement(appSettings.locators._scrollArrows)
       .first()
-      .trigger("mousedown");
+      .trigger("mousedown", { force: true });
     agHelper.Sleep(1500);
     agHelper
       .GetElement(appSettings.locators._scrollArrows)
       .first()
       .trigger("mouseup", { force: true });
-    agHelper
-      .GetElement(appSettings.locators._navigationMenuItem)
-      .contains(pageName)
-      .should("be.visible");
+    agHelper.GetNAssertContains(
+      `${appSettings.locators._navigationMenuItem} span`,
+      pageName,
+    );
   });
 
   it("4. Navigation's background should be default to white, and should change when background color is set to theme", () => {
@@ -131,10 +135,10 @@ describe("Test Top + Stacked navigation style", function () {
       0,
     );
     //Application name, share button, edit button, and user dropdown should be available in the app header
-    agHelper.AssertElementVisible(appSettings.locators._applicationName);
-    agHelper.AssertElementVisible(appSettings.locators._shareButton);
-    agHelper.AssertElementVisible(locators._backToEditor);
-    agHelper.AssertElementVisible(homePage._profileMenu);
+    agHelper.AssertElementVisibility(appSettings.locators._applicationName);
+    agHelper.AssertElementVisibility(appSettings.locators._shareButton);
+    agHelper.AssertElementVisibility(locators._backToEditor);
+    agHelper.AssertElementVisibility(homePage._profileMenu);
   });
 
   it("5. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
@@ -143,11 +147,11 @@ describe("Test Top + Stacked navigation style", function () {
       `${appSettings.locators._header} ${appSettings.locators._shareButton}`,
     );
     agHelper.Sleep(1000);
-    agHelper.AssertElementVisible(appSettings.locators._modal);
+    agHelper.AssertElementVisibility(appSettings.locators._modal);
     agHelper.GetNClick(appSettings.locators._modalClose, 0, true);
     // User profile dropdown
     agHelper.GetNClick(homePage._profileMenu);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       appSettings.locators._userProfileDropdownMenu,
     );
   });

@@ -81,7 +81,8 @@ export class CommonLocators {
     item +
     "']/ancestor::div[@role='menuitem']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
-  _visibleTextSpan = (spanText: string) => `//span[text()="` + spanText + `"]`;
+  _visibleTextSpan = (spanText: string, isCss = false) =>
+    isCss ? `span:contains("${spanText}")` : `//span[text()="${spanText}"]`;
   _openWidget = ".widgets .t--entity-add-btn";
   _dropHere = ".t--drop-target";
   _editPage = "[data-testid=onboarding-tasks-datasource-text], .t--drop-target";
@@ -93,8 +94,6 @@ export class CommonLocators {
   _responseTab = "[data-testid=t--tab-response]";
   _modal = ".t--modal-widget";
   _closeModal = "button:contains('Close')";
-  _buttonText = (btnText: string) =>
-    "//*[contains(@class, 'bp3-button-text') and text()='" + btnText + "']";
   _entityProperties = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
@@ -105,8 +104,8 @@ export class CommonLocators {
     "']/parent::div[contains(@class, 't--entity-name editing')]/input";
   _jsToggle = (controlToToggle: string) =>
     ".t--property-control-" + controlToToggle + " .t--js-toggle";
-  _spanButton = (btnVisibleText: string) =>
-    `//span[text()="${btnVisibleText}"]/ancestor::button`;
+  _buttonByText = (btnVisibleText: string) =>
+    `//span[text()="${btnVisibleText}"]/ancestor::button | //button[text()="${btnVisibleText}" or @title="${btnVisibleText}"]`;
   _selectPropPageDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
@@ -159,8 +158,12 @@ export class CommonLocators {
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _evalPopup = ".evaluated-value-popup";
-  _checkboxGroupOptions = (option: string) =>
-    "//div[contains(text(),'" + option + "')]/parent::label/input";
+  _checkboxTypeByOption = (option: string) =>
+    "//div[contains(text(),'" +
+    option +
+    "')]/parent::label/input | //label[contains(text(),'" +
+    option +
+    "')]/input";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
@@ -252,6 +255,8 @@ export class CommonLocators {
   _appEditMenu = "[data-testid='t--application-edit-menu']";
   _appEditMenuBtn = "[data-testid='t--application-edit-menu-cta']";
   _appEditMenuSettings = "[data-testid='t--application-edit-menu-settings']";
+  _appEditExportSettings =
+    "[data-testid='t--application-edit-menu-export-application']";
   _appThemeSettings = "#t--theme-settings-header";
   _appChangeThemeBtn = ".t--change-theme-btn";
   _appThemeCard = ".t--theme-card";
@@ -273,4 +278,29 @@ export class CommonLocators {
   public ds_editor_env_filter = (envName: string) =>
     `[data-testid="t--ds-data-filter-${envName}"]`;
   _textWidgetContaioner = ".t--text-widget-container span";
+  _label = ".bp3-label";
+  _input = ".bp3-input";
+  _tooltipIcon = ".bp3-popover-target svg";
+  _checkboxHelpIcon = ".bp3-popover-target svg";
+  _checkboxWidgetLabel = ".t--checkbox-widget-label";
+  _buttonWidgetInForm =
+    "//*[contains(@class,'t--widget-buttonwidget')]//button[contains(@class,'bp3-button')]";
+  _walkthrough_overlay = `.t--walkthrough-overlay`;
+  _autoHeightHandles = "[data-testid='t-auto-height-overlay-handles']";
+  _autoHeightMin = "[data-testid='t--auto-height-overlay-handles-min']";
+  _autoHeightMax = "[data-testid='t--auto-height-overlay-handles-max']";
+  _position = (value: string) => `//*[@data-value='${value}']`;
+  _alignment = (value: string) => `//*[@data-value='${value}']`;
+  _borderRadius = (value: string) => `//*[@data-value='${value}']`;
+  _textInside = ".bp3-ui-text span";
+  _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
+  _hintsList = "ul.CodeMirror-hints";
+  _buttonInDeployedMode = ".bp3-button";
+  _treeSelectPlaceholder = ".rc-tree-select-selection-placeholder";
+  _treeSelectTitle = ".rc-tree-select-tree-title";
+  _newDataSourceBtn = ".datasources .t--entity-add-btn";
+  _callbackAddBtn = ".action-callback-add .ads-v2-button";
+  _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
+  _listText = "//span[text()='Blue']/../..";
+  _popover2ToolTip = ".bp3-popover2-content";
 }

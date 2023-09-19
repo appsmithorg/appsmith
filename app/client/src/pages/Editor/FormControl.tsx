@@ -24,13 +24,13 @@ import {
   getDatasourceStructureById,
   getPluginNameFromId,
   getPluginTemplates,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { get } from "lodash";
 import { SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE } from "constants/Datasource";
 import TemplateMenu from "./QueryEditor/TemplateMenu";
 import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
-import { getCurrentEditingEnvID } from "@appsmith/utils/Environments";
 import type { Datasource, DatasourceStructure } from "entities/Datasource";
+import { getCurrentEditingEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -47,6 +47,7 @@ function FormControl(props: FormControlProps) {
   );
 
   const dispatch = useDispatch();
+  const currentEditingEnvId = useSelector(getCurrentEditingEnvironmentId);
 
   // adding this to prevent excessive rerendering
   const [convertFormToRaw, setConvertFormToRaw] = useState(false);
@@ -55,7 +56,7 @@ function FormControl(props: FormControlProps) {
   let formValueForEvaluatingHiddenObj = formValues;
   if (!!formValues && formValues.hasOwnProperty("datasourceStorages")) {
     formValueForEvaluatingHiddenObj = (formValues as Datasource)
-      .datasourceStorages[getCurrentEditingEnvID()];
+      .datasourceStorages[currentEditingEnvId];
   }
   const hidden = isHidden(formValueForEvaluatingHiddenObj, props.config.hidden);
   const configErrors: EvaluationError[] = useSelector(
@@ -199,7 +200,7 @@ function FormControl(props: FormControlProps) {
         >
           <div
             className={`t--form-control-${props.config.controlType}`}
-            data-replay-id={btoa(props.config.configProperty)}
+            data-location-id={btoa(props.config.configProperty)}
           >
             {showTemplate &&
             !convertFormToRaw &&

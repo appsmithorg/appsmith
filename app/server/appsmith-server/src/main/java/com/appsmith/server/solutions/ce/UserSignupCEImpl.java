@@ -8,7 +8,6 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserState;
-import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -18,6 +17,7 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.EnvManager;
@@ -76,6 +76,7 @@ public class UserSignupCEImpl implements UserSignupCE {
     private final CommonConfig commonConfig;
     private final UserUtils userUtils;
     private final NetworkUtils networkUtils;
+    private final EmailService emailService;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -91,7 +92,8 @@ public class UserSignupCEImpl implements UserSignupCE {
             EnvManager envManager,
             CommonConfig commonConfig,
             UserUtils userUtils,
-            NetworkUtils networkUtils) {
+            NetworkUtils networkUtils,
+            EmailService emailService) {
 
         this.userService = userService;
         this.userDataService = userDataService;
@@ -103,6 +105,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         this.commonConfig = commonConfig;
         this.userUtils = userUtils;
         this.networkUtils = networkUtils;
+        this.emailService = emailService;
     }
 
     /**
@@ -126,15 +129,16 @@ public class UserSignupCEImpl implements UserSignupCE {
                     AppsmithError.INVALID_PASSWORD_LENGTH, LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH));
         }
 
-        Mono<UserSignupDTO> createUserAndSendEmailMono = userService
-                .createUserAndSendEmail(user, exchange.getRequest().getHeaders().getOrigin())
+        // only creating user, welcome email will be sent post user email verification
+        Mono<UserSignupDTO> createUserMono = userService
+                .createUser(user)
                 .elapsed()
                 .map(pair -> {
                     log.debug("UserSignupCEImpl::Time taken for create user and send email: {} ms", pair.getT1());
                     return pair.getT2();
                 });
 
-        return Mono.zip(createUserAndSendEmailMono, exchange.getSession(), ReactiveSecurityContextHolder.getContext())
+        return Mono.zip(createUserMono, exchange.getSession(), ReactiveSecurityContextHolder.getContext())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
                 .flatMap(tuple -> {
                     final User savedUser = tuple.getT1().getUser();
@@ -231,7 +235,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                 });
     }
 
-    public Mono<User> signupAndLoginSuper(UserSignupRequestDTO userFromRequest, ServerWebExchange exchange) {
+    public Mono<User> signupAndLoginSuper(
+            UserSignupRequestDTO userFromRequest, String originHeader, ServerWebExchange exchange) {
         Mono<User> userMono = userService
                 .isUsersEmpty()
                 .flatMap(isEmpty -> {
@@ -279,17 +284,22 @@ public class UserSignupCEImpl implements UserSignupCE {
                                 return pair.getT2();
                             });
 
-                    Mono<EnvChangesResponseDTO> applyEnvManagerChangesMono = envManager
-                            .applyChanges(Map.of(
-                                    APPSMITH_DISABLE_TELEMETRY.name(),
-                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
-                                    APPSMITH_ADMIN_EMAILS.name(),
-                                    user.getEmail()))
+                    Mono<Void> applyEnvManagerChangesMono = envManager
+                            .applyChanges(
+                                    Map.of(
+                                            APPSMITH_DISABLE_TELEMETRY.name(),
+                                            String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
+                                            APPSMITH_ADMIN_EMAILS.name(),
+                                            user.getEmail()),
+                                    originHeader)
+                            // We need a non-empty value for `.elapsed` to work.
+                            .thenReturn(true)
                             .elapsed()
                             .map(pair -> {
                                 log.debug("UserSignupCEImpl::Time taken to apply env changes: {} ms", pair.getT1());
                                 return pair.getT2();
-                            });
+                            })
+                            .then();
 
                     /*
                      * Here, we have decided to move these 2 analytics events to a separate thread.
@@ -328,7 +338,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         });
     }
 
-    public Mono<Void> signupAndLoginSuperFromFormData(ServerWebExchange exchange) {
+    public Mono<Void> signupAndLoginSuperFromFormData(String originHeader, ServerWebExchange exchange) {
         return exchange.getFormData()
                 .map(formData -> {
                     final UserSignupRequestDTO user = new UserSignupRequestDTO();
@@ -355,7 +365,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     }
                     return user;
                 })
-                .flatMap(user -> signupAndLoginSuper(user, exchange))
+                .flatMap(user -> signupAndLoginSuper(user, originHeader, exchange))
                 .then()
                 .onErrorResume(error -> {
                     String referer = exchange.getRequest().getHeaders().getFirst("referer");

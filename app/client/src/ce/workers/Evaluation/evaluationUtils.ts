@@ -18,7 +18,7 @@ import type {
 } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import _, { difference, find, get, has, isNil, set } from "lodash";
-import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
@@ -418,17 +418,17 @@ export function isDataTreeEntity(entity: unknown) {
   return !!entity && typeof entity === "object" && "ENTITY_TYPE" in entity;
 }
 
+export const removeFunctionsAndSerialzeBigInt = (value: any) =>
+  JSON.parse(
+    JSON.stringify(value, (_, v) => (typeof v === "bigint" ? v.toString() : v)),
+  );
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
 // Check issue https://github.com/appsmithorg/appsmith/issues/719
 export const removeFunctions = (value: any) => {
   if (_.isFunction(value)) {
     return "Function call";
   } else if (_.isObject(value)) {
-    return JSON.parse(
-      JSON.stringify(value, (_, v) =>
-        typeof v === "bigint" ? v.toString() : v,
-      ),
-    );
+    return removeFunctionsAndSerialzeBigInt(value);
   } else {
     return value;
   }

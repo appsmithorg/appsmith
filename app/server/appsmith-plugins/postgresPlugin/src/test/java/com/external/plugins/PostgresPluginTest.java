@@ -530,20 +530,23 @@ public class PostgresPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Template[] {
                                 new DatasourceStructure.Template(
-                                        "SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;"),
+                                        "SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;", true),
                                 new DatasourceStructure.Template(
                                         "INSERT",
                                         "INSERT INTO public.\"possessions\" (\"title\", \"user_id\")\n"
-                                                + "  VALUES ('', 1);"),
+                                                + "  VALUES ('', 1);",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "UPDATE",
                                         "UPDATE public.\"possessions\" SET\n" + "    \"title\" = '',\n"
                                                 + "    \"user_id\" = 1\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM public.\"possessions\"\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
                             },
                             possessionsTable.getTemplates().toArray());
 
@@ -579,7 +582,8 @@ public class PostgresPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[] {
-                                new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;"),
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"users\" LIMIT 10;", true),
                                 new DatasourceStructure.Template(
                                         "INSERT",
                                         "INSERT INTO public.\"users\" "
@@ -588,7 +592,8 @@ public class PostgresPluginTest {
                                                 + "\"interval1\", \"numbers\", \"texts\", \"rating\")\n  "
                                                 + "VALUES ('', '', '', '2019-07-01', '2019-07-01', '18:32:45', "
                                                 + "'04:05:06 PST', TIMESTAMP '2019-07-01 10:00:00', TIMESTAMP WITH TIME ZONE "
-                                                + "'2019-07-01 06:30:00 CET', 1, '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);"),
+                                                + "'2019-07-01 06:30:00 CET', 1, '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "UPDATE",
                                         "UPDATE public.\"users\" SET\n" + "    \"username\" = '',\n"
@@ -604,11 +609,13 @@ public class PostgresPluginTest {
                                                 + "    \"numbers\" = '{1, 2, 3}',\n"
                                                 + "    \"texts\" = '{\"first\", \"second\"}',\n"
                                                 + "    \"rating\" = 1.0\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM public.\"users\"\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
                             },
                             usersTable.getTemplates().toArray());
 
@@ -639,12 +646,13 @@ public class PostgresPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Template[] {
                                 new DatasourceStructure.Template(
-                                        "SELECT", "SELECT * FROM sample_schema.\"sample_table\" LIMIT 10;"),
+                                        "SELECT", "SELECT * FROM sample_schema.\"sample_table\" LIMIT 10;", true),
                                 new DatasourceStructure.Template(
                                         "INSERT",
                                         "INSERT INTO sample_schema.\"sample_table\" "
                                                 + "(\"username\", \"email\", \"numbers\", \"texts\", \"rating\")\n  "
-                                                + "VALUES ('', '', '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);"),
+                                                + "VALUES ('', '', '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "UPDATE",
                                         "UPDATE sample_schema.\"sample_table\" SET\n" + "    \"username\" = '',\n"
@@ -652,11 +660,13 @@ public class PostgresPluginTest {
                                                 + "    \"numbers\" = '{1, 2, 3}',\n"
                                                 + "    \"texts\" = '{\"first\", \"second\"}',\n"
                                                 + "    \"rating\" = 1.0\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM sample_schema.\"sample_table\"\n"
-                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
                             },
                             sampleTable.getTemplates().toArray());
                 })

@@ -11,7 +11,7 @@ import { Divider } from "design-system";
 import { useSelector } from "react-redux";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { filterInternalProperties } from "utils/FilterInternalProperties";
-import { getJSCollections } from "selectors/entitiesSelector";
+import { getJSCollections } from "@appsmith/selectors/entitiesSelector";
 
 export type PeekOverlayStateProps = {
   objectName: string;

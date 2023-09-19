@@ -15,7 +15,8 @@ type templateActions =
   | "Distinct"
   | "Aggregate"
   | "Select"
-  | "Create";
+  | "Create"
+  | "List files";
 
 interface EntityActionParams {
   entityNameinLeftSidebar: string;
@@ -47,7 +48,7 @@ export class EntityExplorer {
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
   _entityNameInExplorer = (entityNameinLeftSidebar: string) =>
-    "//div[contains(@class, 't--entity-name')][text()='" +
+    "//div[contains(@class, 't--entity-explorer')]//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
     "']";
   private _expandCollapseArrow = (entityNameinLeftSidebar: string) =>
@@ -171,8 +172,9 @@ export class EntityExplorer {
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._expandCollapseArrow(entityName),
+      true,
       index,
       30000,
     );
@@ -307,13 +309,7 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragNDropWidget(
-    widgetType: string,
-    x = 300,
-    y = 100,
-    parentWidgetType = "",
-    dropTargetId = "",
-  ) {
+  public SearchWidgetPane(widgetType: string) {
     this.NavigateToSwitcher("Widgets");
     this.agHelper.Sleep();
     this.agHelper.ClearTextField(this.locator._entityExplorersearch);
@@ -322,6 +318,20 @@ export class EntityExplorer {
       widgetType.split("widget")[0].trim(),
     );
     this.agHelper.Sleep(500);
+  }
+
+  public DragNDropWidget(
+    widgetType: string,
+    x = 300,
+    y = 100,
+    parentWidgetType = "",
+    dropTargetId = "",
+    skipWidgetSearch = false,
+  ) {
+    if (!skipWidgetSearch) {
+      this.SearchWidgetPane(widgetType);
+    }
+
     cy.get(this.locator._widgetPageIcon(widgetType))
       .first()
       .trigger("dragstart", { force: true })
@@ -356,8 +366,16 @@ export class EntityExplorer {
     y = 100,
     parentWidgetType = "",
     dropTargetId = "",
+    skipWidgetSearch = false,
   ) {
-    this.DragNDropWidget(widgetType, x, y, parentWidgetType, dropTargetId);
+    this.DragNDropWidget(
+      widgetType,
+      x,
+      y,
+      parentWidgetType,
+      dropTargetId,
+      skipWidgetSearch,
+    );
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
     if (widgetType === "modalwidget") {
       cy.get(".t--modal-widget").should("exist");

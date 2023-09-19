@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { PluginType } from "entities/Action";
 import { Button, toast } from "design-system";
 import {
@@ -9,12 +9,18 @@ import {
 } from "@appsmith/constants/messages";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { noop } from "utils/AppsmithUtils";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { getFeatureWalkthroughShown } from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import { actionsExistInCurrentPage } from "@appsmith/selectors/entitiesSelector";
+import { SignpostingWalkthroughConfig } from "../FirstTimeUserOnboarding/Utils";
 
 type NewActionButtonProps = {
   datasource?: Datasource;
@@ -31,9 +37,35 @@ function NewActionButton(props: NewActionButtonProps) {
   const [isSelected, setIsSelected] = useState(false);
 
   const dispatch = useDispatch();
-  const actions = useSelector((state: AppState) => state.entities.actions);
+  const actionExist = useSelector(actionsExistInCurrentPage);
   const currentPageId = useSelector(getCurrentPageId);
-  const currentEnvironment = getCurrentEnvironment();
+  const currentEnvironment = useSelector(getCurrentEnvironmentId);
+
+  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const adapativeSignposting = useSelector(adaptiveSignpostingEnabled);
+  const {
+    isOpened: isWalkthroughOpened,
+    popFeature,
+    pushFeature,
+  } = useContext(WalkthroughContext) || {};
+  const closeWalkthrough = () => {
+    if (isWalkthroughOpened && popFeature) {
+      popFeature();
+    }
+  };
+  useEffect(() => {
+    if (adapativeSignposting && signpostingEnabled && !actionExist) {
+      checkAndShowWalkthrough();
+    }
+  }, [actionExist, signpostingEnabled]);
+  const checkAndShowWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.create_query,
+    );
+    !isFeatureWalkthroughShown &&
+      pushFeature &&
+      pushFeature(SignpostingWalkthroughConfig.CREATE_A_QUERY);
+  };
 
   const createQueryAction = useCallback(
     (e) => {
@@ -52,6 +84,9 @@ function NewActionButton(props: NewActionButtonProps) {
         return;
       }
 
+      // Close signposting walkthrough on click of create query button
+      closeWalkthrough();
+
       if (currentPageId) {
         setIsSelected(true);
         if (datasource) {
@@ -65,12 +100,13 @@ function NewActionButton(props: NewActionButtonProps) {
         }
       }
     },
-    [dispatch, actions, currentPageId, datasource, pluginType],
+    [dispatch, currentPageId, datasource, pluginType, closeWalkthrough],
   );
 
   return (
     <Button
       className="t--create-query"
+      id={"create-query"}
       isDisabled={!!disabled}
       isLoading={isSelected || props.isLoading}
       kind={isNewQuerySecondaryButton ? "secondary" : "primary"}

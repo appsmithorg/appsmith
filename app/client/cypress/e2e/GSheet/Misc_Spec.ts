@@ -119,7 +119,7 @@ describe("GSheet Miscellaneous Tests", function () {
     assertHelper.AssertNetworkStatus("@getActions", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     //deploy the app and verify the table data
@@ -142,7 +142,7 @@ describe("GSheet Miscellaneous Tests", function () {
     });
 
     //Validating loaded JSON form
-    agHelper.GetElement(locators._spanButton("Update")).then((selector) => {
+    agHelper.GetElement(locators._buttonByText("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
@@ -176,7 +176,7 @@ describe("GSheet Miscellaneous Tests", function () {
     assertHelper.AssertNetworkStatus("@getActions", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     //deploy the app and verify the table data
@@ -199,7 +199,7 @@ describe("GSheet Miscellaneous Tests", function () {
     });
 
     //Validating loaded JSON form
-    agHelper.GetElement(locators._spanButton("Update")).then((selector) => {
+    agHelper.GetElement(locators._buttonByText("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {

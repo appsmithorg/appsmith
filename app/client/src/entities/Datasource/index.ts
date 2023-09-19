@@ -53,6 +53,7 @@ export interface DatasourceAuthentication {
   authenticationStatus?: string;
   authenticationType?: string;
   secretExists?: Record<string, boolean>;
+  isAuthorized?: boolean;
 }
 
 export interface DatasourceColumns {
@@ -77,6 +78,7 @@ export interface QueryTemplate {
   title: string;
   body: string;
   pluginSpecifiedTemplates?: Array<{ key?: string; value?: unknown }>;
+  suggested: boolean;
 }
 export interface DatasourceTable {
   type: string;

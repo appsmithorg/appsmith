@@ -122,6 +122,18 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     }
 
     @Override
+    public Mono<T> retrieveById(ID id) {
+        Query query = new Query(getIdCriteria(id));
+        query.addCriteria(notDeleted());
+
+        return mongoOperations
+                .query(entityInformation.getJavaType())
+                .inCollection(entityInformation.getCollectionName())
+                .matching(query)
+                .one();
+    }
+
+    @Override
     public Mono<T> findById(ID id) {
         return this.findByIdAndFieldNames(id, null);
     }
@@ -161,7 +173,9 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                 .flatMapMany(principal -> {
                     Query query = new Query(notDeleted());
                     return mongoOperations.find(
-                            query, entityInformation.getJavaType(), entityInformation.getCollectionName());
+                            query.cursorBatchSize(10000),
+                            entityInformation.getJavaType(),
+                            entityInformation.getCollectionName());
                 });
     }
 

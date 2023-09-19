@@ -2,29 +2,43 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.solutions.EnvManager;
 import jakarta.validation.Validator;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.Map;
+
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
+import static java.lang.Boolean.TRUE;
 
 public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, String> implements TenantServiceCE {
 
     private String tenantId = null;
 
     private final ConfigService configService;
+
+    private final EnvManager envManager;
+
+    private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
     public TenantServiceCEImpl(
             Scheduler scheduler,
@@ -33,9 +47,13 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             ReactiveMongoTemplate reactiveMongoTemplate,
             TenantRepository repository,
             AnalyticsService analyticsService,
-            ConfigService configService) {
+            ConfigService configService,
+            @Lazy EnvManager envManager,
+            FeatureFlagMigrationHelper featureFlagMigrationHelper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.configService = configService;
+        this.envManager = envManager;
+        this.featureFlagMigrationHelper = featureFlagMigrationHelper;
     }
 
     @Override
@@ -64,8 +82,24 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     if (oldtenantConfiguration == null) {
                         oldtenantConfiguration = new TenantConfiguration();
                     }
-                    AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldtenantConfiguration);
-                    tenant.setTenantConfiguration(oldtenantConfiguration);
+                    Mono<Map<String, String>> envMono = Mono.empty();
+                    // instance admin is setting the email verification to true but the SMTP settings are not configured
+                    if (tenantConfiguration.getEmailVerificationEnabled() == Boolean.TRUE) {
+                        envMono = envManager.getAllNonEmpty().flatMap(properties -> {
+                            String mailHost = properties.get("APPSMITH_MAIL_HOST");
+                            if (mailHost == null || mailHost == "") {
+                                return Mono.error(new AppsmithException(AppsmithError.INVALID_SMTP_CONFIGURATION));
+                            }
+                            return Mono.empty();
+                        });
+                    }
+                    return envMono.then(Mono.zip(Mono.just(oldtenantConfiguration), Mono.just(tenant)));
+                })
+                .flatMap(tuple2 -> {
+                    Tenant tenant = tuple2.getT2();
+                    TenantConfiguration oldConfig = tuple2.getT1();
+                    AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldConfig);
+                    tenant.setTenantConfiguration(oldConfig);
                     return repository.updateById(tenantId, tenant, MANAGE_TENANT);
                 });
     }
@@ -131,7 +165,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration) {
-        return getDefaultTenantId().flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration));
+        return getDefaultTenantId()
+                .flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration))
+                .flatMap(updatedTenant -> getTenantConfiguration());
     }
 
     /**
@@ -153,5 +189,57 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         clientTenant.setUserPermissions(dbTenant.getUserPermissions());
 
         return clientTenant;
+    }
+
+    @Override
+    public Mono<Tenant> save(Tenant tenant) {
+        return repository.save(tenant);
+    }
+
+    /**
+     * This function checks if there are any pending migrations for feature flags and execute them.
+     * @param tenant    tenant for which the migrations need to be executed
+     * @return          tenant with migrations executed
+     */
+    @Override
+    public Mono<Tenant> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant) {
+        if (!isMigrationRequired(tenant)) {
+            return Mono.just(tenant);
+        }
+        Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
+                tenant.getTenantConfiguration().getFeaturesWithPendingMigration();
+
+        FeatureFlagEnum featureFlagEnum =
+                featureMigrationTypeMap.keySet().stream().findFirst().orElse(null);
+        return featureFlagMigrationHelper
+                .checkAndExecuteMigrationsForFeatureFlag(tenant, featureFlagEnum)
+                .flatMap(isSuccessful -> {
+                    if (TRUE.equals(isSuccessful)) {
+                        featureMigrationTypeMap.remove(featureFlagEnum);
+                        if (CollectionUtils.isNullOrEmpty(featureMigrationTypeMap)) {
+                            tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.COMPLETED);
+                        } else {
+                            tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.IN_PROGRESS);
+                        }
+                        return this.save(tenant)
+                                // Fetch the tenant again from DB to make sure the downstream chain is consuming the
+                                // latest
+                                // DB object and not the modified one because of the client pertinent changes
+                                .then(repository.retrieveById(tenant.getId()))
+                                .flatMap(this::checkAndExecuteMigrationsForTenantFeatureFlags);
+                    }
+                    return Mono.error(
+                            new AppsmithException(AppsmithError.FeatureFlagMigrationFailure, featureFlagEnum, ""));
+                });
+    }
+
+    private boolean isMigrationRequired(Tenant tenant) {
+        return tenant.getTenantConfiguration() != null
+                && (!CollectionUtils.isNullOrEmpty(
+                                tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
+                        || (CollectionUtils.isNullOrEmpty(
+                                        tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
+                                && !MigrationStatus.COMPLETED.equals(
+                                        tenant.getTenantConfiguration().getMigrationStatus())));
     }
 }

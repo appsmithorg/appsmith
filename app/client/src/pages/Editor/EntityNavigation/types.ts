@@ -1,11 +1,16 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import type { EntityPane } from "./factory";
+import type { ENTITY_TYPE } from "entities/AppsmithConsole";
+import type { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 
 export interface EntityInfo {
-  entityType: EntityPane;
+  entityType: ENTITY_TYPE;
   id: string;
   // The propertyPath to a control field
   propertyPath?: string;
+  position?: {
+    ch: number;
+    line: number;
+  };
 }
 
 export interface PropertyPaneNavigationConfig {
@@ -25,4 +30,16 @@ export interface IPanelStack {
 export interface IMatchedSection {
   id?: string;
   propertyName: string;
+}
+
+export interface IApiPaneNavigationConfig {
+  tabIndex?: number;
+}
+
+export interface IQueryPaneNavigationConfig {
+  tab: string;
+}
+
+export interface IJSPaneNavigationConfig {
+  tab: JSEditorTab;
 }

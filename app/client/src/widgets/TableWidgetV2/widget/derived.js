@@ -178,12 +178,7 @@ export default {
       },
     };
     const compactMode = props.compactMode || "DEFAULT";
-    const componentHeight =
-      (props.appPositioningType === "AUTO" && props.isMobile
-        ? props.mobileBottomRow - props.mobileTopRow
-        : props.bottomRow - props.topRow) *
-        props.parentRowSpace -
-      10;
+    const componentHeight = props.componentHeight - 10;
     const tableSizes = TABLE_SIZES[compactMode];
 
     let pageSize =
@@ -535,8 +530,12 @@ export default {
         return false;
       }
 
-      /* when there is no filter defined */
-      if (!props.filters || props.filters.length === 0) {
+      /* when there is no filter defined or when server side filtering is enabled prevent client-side filtering  */
+      if (
+        !props.filters ||
+        props.filters.length === 0 ||
+        props.enableServerSideFiltering
+      ) {
         return true;
       }
 

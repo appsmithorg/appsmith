@@ -110,7 +110,7 @@ describe("Rating widet testcases", () => {
     // make the widget read only
     propPane.TogglePropertyState("Read only", "On");
     deployMode.DeployApp();
-    agHelper.AssertElementVisible(RATING_WIDGET.ratingwidget);
+    agHelper.AssertElementVisibility(RATING_WIDGET.ratingwidget);
     // assert even after clicking on stars, the stars are not changed since its read only
     agHelper.GetNClick(RATING_WIDGET.star_icon, 12, true, 0);
     agHelper.AssertElementLength(RATING_WIDGET.star_icon_filled(100), 3);
@@ -137,7 +137,7 @@ describe("Rating widet testcases", () => {
     deployMode.NavigateBacktoEditor();
     agHelper.GetNClick(RATING_WIDGET.ratingwidget);
     // open a modal on clicking ratings
-    propPane.CreateModal("Thanks for rating us!", "onChange");
+    propPane.CreateModal("onChange");
     // deploy app and click on stars and close the modal
     deployMode.DeployApp();
     agHelper.GetNClick(RATING_WIDGET.star_icon, 5, true, 0);

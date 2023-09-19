@@ -18,6 +18,7 @@ export default {
   adminEmails: ".t--admin-settings-APPSMITH_ADMIN_EMAILS input",
   fromAddress: ".t--admin-settings-APPSMITH_MAIL_FROM input",
   restartNotice: ".t--admin-settings-restart-notice",
+  appsmithStarting: "p:contains('Appsmith is starting')",
   appsmithLogo: ".t--appsmith-logo",
   appsmithHeader: "[data-testid='t--appsmith-page-header']",
   loginWithGoogle: "[data-testid='login-with-Google']",
@@ -31,6 +32,9 @@ export default {
   auditLogs: ".t--settings-category-audit-logs",
   provisioning: ".t--settings-category-provisioning",
   upgrageLeftPane: "[data-testid='t--enterprise-settings-category-item-be']",
+  brandingSubmitButton: ".t--settings-branding-submit-button",
   businessTag: "[data-testid='t--business-tag']",
   enterpriseTag: "[data-testid='t--enterprise-tag']",
+  enableEmailVerificationInput: "[data-testid='emailVerificationEnabled']",
+  adminSettingsCallout: "[data-testid='admin-settings-group-link']",
 };

@@ -7,7 +7,7 @@ import {
   apiPage,
   draggableWidgets,
   locators,
-  tedTestConfig,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Linting of entity properties", () => {
@@ -20,7 +20,7 @@ describe("Linting of entity properties", () => {
     const invalidProperty = "unknownProperty";
     // create Api1
     apiPage.CreateAndFillApi(
-      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     // Edit Button onclick property
     entityExplorer.SelectEntityByName("Button1", "Widgets");
@@ -33,11 +33,10 @@ describe("Linting of entity properties", () => {
     cy.wait(200);
     cy.focused().blur();
     propPane.UpdatePropertyFieldValue("Label", `{{Api1.${invalidProperty}}}`);
-    cy.get(locators._lintErrorElement)
-      .should("have.length", 2)
-      .first()
-      .trigger("mouseover");
+    agHelper.AssertElementLength(locators._lintErrorElement, 2);
+    agHelper.HoverElement(locators._lintErrorElement);
     agHelper.AssertContains(`"${invalidProperty}" doesn't exist in Api1`);
+    agHelper.GetNClick(locators._canvas);
   });
 
   it("2. Shows correct lint error when wrong JSObject property is binded", () => {
@@ -70,10 +69,8 @@ describe("Linting of entity properties", () => {
       `{{JSObject1.${invalidProperty}}}`,
     );
     // Assert lint errors
-    cy.get(locators._lintErrorElement)
-      .should("have.length", 2)
-      .first()
-      .trigger("mouseover");
+    agHelper.AssertElementLength(locators._lintErrorElement, 2);
+    agHelper.HoverElement(locators._lintErrorElement);
     agHelper.AssertContains(`"${invalidProperty}" doesn't exist in JSObject1`);
 
     // Edit JS Object and add "unknown" function
@@ -94,10 +91,8 @@ describe("Linting of entity properties", () => {
     });
     // select button, and assert that lint error is present
     entityExplorer.SelectEntityByName("Button1", "Widgets");
-    cy.get(locators._lintErrorElement)
-      .should("have.length", 2)
-      .first()
-      .trigger("mouseover");
+    agHelper.AssertElementLength(locators._lintErrorElement, 2);
+    agHelper.HoverElement(locators._lintErrorElement);
     agHelper.AssertContains(`'JSObject1' is not defined`);
     // create js object
     jsEditor.CreateJSObject(

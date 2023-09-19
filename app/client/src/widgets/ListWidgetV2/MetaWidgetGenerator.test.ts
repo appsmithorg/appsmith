@@ -3,22 +3,17 @@ import { klona } from "klona";
 
 import type { ConstructorProps, GeneratorOptions } from "./MetaWidgetGenerator";
 import MetaWidgetGenerator from "./MetaWidgetGenerator";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { nestedListInput, simpleListInput } from "./testData";
 import { RenderModes } from "constants/WidgetConstants";
 import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
 import type { LevelData } from "./widget";
-
-import { registerWidget } from "utils/WidgetRegisterHelpers";
-import ImageWidget, { CONFIG as ImageWidgetConfig } from "widgets/ImageWidget";
-import TextWidget, { CONFIG as TextWidgetConfig } from "widgets/TextWidget";
-import ListWidget, { CONFIG as ListWidgetConfig } from "widgets/ListWidgetV2";
-import CanvasWidget, {
-  CONFIG as CanvasWidgetConfig,
-} from "widgets/CanvasWidget";
-import ContainerWidget, {
-  CONFIG as ContainerWidgetConfig,
-} from "widgets/ContainerWidget";
+import ImageWidget from "widgets/ImageWidget";
+import TextWidget from "widgets/TextWidget";
+import ListWidget from "widgets/ListWidgetV2";
+import CanvasWidget from "widgets/CanvasWidget";
+import ContainerWidget from "widgets/ContainerWidget";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
 type Validator = {
   widgetType: string;
@@ -51,7 +46,7 @@ const DEFAULT_OPTIONS = {
   prevTemplateWidgets: {},
   primaryKeys: data.map((d) => d.id.toString()),
   scrollElement: null,
-  templateBottomRow: 12,
+  templateHeight: 120,
   widgetName: "List1",
   pageNo: 1,
   pageSize: 2,
@@ -232,11 +227,13 @@ const validateMetaWidgetType = (
 };
 
 beforeAll(() => {
-  registerWidget(ImageWidget, ImageWidgetConfig);
-  registerWidget(TextWidget, TextWidgetConfig);
-  registerWidget(ListWidget, ListWidgetConfig);
-  registerWidget(CanvasWidget, CanvasWidgetConfig);
-  registerWidget(ContainerWidget, ContainerWidgetConfig);
+  registerWidgets([
+    ImageWidget,
+    TextWidget,
+    ListWidget,
+    CanvasWidget,
+    ContainerWidget,
+  ]);
 });
 
 describe("#generate", () => {
@@ -614,10 +611,10 @@ describe("#generate", () => {
     expect(result.removedMetaWidgetIds.length).toEqual(0);
   });
 
-  it("doesn't re-generates meta widgets when templateBottomRow changes", () => {
+  it("doesn't re-generates meta widgets when templateHeight changes", () => {
     const { generator, options } = init();
 
-    options.templateBottomRow += 100;
+    options.templateHeight += 1000;
 
     const result = generator.withOptions(options).generate();
     const count = Object.keys(result.metaWidgets).length;
