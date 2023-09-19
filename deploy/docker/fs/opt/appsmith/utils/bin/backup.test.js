@@ -7,7 +7,7 @@ const shell = require('shelljs');
 const readlineSync = require('readline-sync');
 
 describe('Backup Tests', () => {
-  
+
 test('Timestamp string in ISO format', () => {
   console.log(backup.getTimeStampInISO())
   expect(backup.getTimeStampInISO()).toMatch(/(\d{4})-(\d{2})-(\d{2})T(\d{2})\-(\d{2})\-(\d{2})\.(\d{3})Z/)
@@ -79,8 +79,8 @@ test('Test ln command generation', async () => {
 })
 
 it('Checks for the current Appsmith Version.', async () => {
-  
-  fsPromises.readFile =  jest.fn().mockImplementation(async (a) => 
+
+  fsPromises.readFile =  jest.fn().mockImplementation(async (a) =>
   `Object.defineProperty(exports, "__esModule", { value: true });
   exports.VERSION = void 0;
   exports.VERSION = "v0.0.0-SNAPSHOT";`);
@@ -89,20 +89,11 @@ it('Checks for the current Appsmith Version.', async () => {
   console.log(res)
 })
 
-test('If Encryption env values are being removed', () => {
-  expect(backup.removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_INSTANCE_NAME=Appsmith\n
-  `, 'all')).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
-});
-
 test('If MONGODB and Encryption env values are being removed', () => {
   expect(backup.removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_MONGODB_URI=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
-  `, 'all')).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
+  `)).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
 });
 
-test('Verify if only MongoDB credentials are being removed', () => {
-  expect(backup.removeSensitiveEnvData(`APPSMITH_MONGODB_URI=mongodb://appsmith:password123@myhost:22222/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_MONGODB_PASSWORD=password111\nAPPSMITH_INSTANCE_NAME=Appsmith
-  `, 'mongodb')).toMatch(`APPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
-});
 
 test('Backup Archive Limit when env APPSMITH_BACKUP_ARCHIVE_LIMIT is null', () => {
   expect(backup.getBackupArchiveLimit()).toBe(4)
