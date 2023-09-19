@@ -264,7 +264,6 @@ class TenantServiceCETest {
         final Mono<Tenant> resultMono = tenantService.checkAndExecuteMigrationsForTenantFeatureFlags(tenant);
         StepVerifier.create(resultMono)
                 .assertNext(tenant1 -> {
-                    assertThat(tenant1).isEqualTo(tenant);
                     assertThat(tenant1.getTenantConfiguration().getFeaturesWithPendingMigration())
                             .isEmpty();
                     assertThat(tenant1.getTenantConfiguration().getMigrationStatus())

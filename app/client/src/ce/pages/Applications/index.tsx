@@ -93,8 +93,8 @@ import {
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import WorkspaceMenu from "./WorkspaceMenu";
-import ApplicationCardList from "./ApplicationCardList";
+import WorkspaceMenu from "@appsmith/pages/Applications/WorkspaceMenu";
+import ApplicationCardList from "@appsmith/pages/Applications/ApplicationCardList";
 import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
@@ -112,8 +112,6 @@ export const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   ${({ isMobile }) =>
     isMobile &&
     `
-    position: sticky;
-    top: 0;
     background-color: #fff;
     z-index: ${Indices.Layer8};
   `}
