@@ -1,11 +1,9 @@
 /* NOTE: these field styles are used in every input component that has a label
  for e.g input, select, checkbox group, toggle group, radio group, etc */
 .field {
-  &[data-field] {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-  }
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
 
   /**
   * ----------------------------------------------------------------------------
@@ -49,21 +47,22 @@
   /**
   * ----------------------------------------------------------------------------
   * FIELD GROUP
+  * fields group refers group components like checkbox group, radio group, etc
   *-----------------------------------------------------------------------------
   */
   & [data-field-group] {
     gap: var(--spacing-2);
     display: flex;
     flex-direction: column;
+  }
 
-    &[data-orientation="horizontal"] {
-      gap: var(--spacing-4);
-      flex-direction: row;
-    }
+  &[data-disabled] [data-field-group] [data-label] {
+    cursor: default;
+  }
 
-    &[data-disabled] [data-label] {
-      cursor: default;
-    }
+  & [data-field-group][data-orientation="horizontal"] {
+    gap: var(--spacing-4);
+    flex-direction: row;
   }
 
   /**
