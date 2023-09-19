@@ -22,7 +22,7 @@ additional_downstream_headers='
 add_header X-Content-Type-Options "nosniff";
 '
 
-cat <<EOF
+cat <<EOF > "$TMP/nginx-app.conf"
 map \$http_x_forwarded_proto \$origin_scheme {
   default \$http_x_forwarded_proto;
   '' \$scheme;

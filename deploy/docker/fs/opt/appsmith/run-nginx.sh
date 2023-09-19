@@ -65,7 +65,7 @@ if [[ -n ${APPSMITH_CUSTOM_DOMAIN-} ]] && [[ -z ${DYNO-} ]]; then
   fi
 fi
 
-/opt/appsmith/templates/nginx-app.conf.sh "$use_https" "${APPSMITH_CUSTOM_DOMAIN-}" > "$TMP/nginx-app.conf"
+/opt/appsmith/templates/nginx-app.conf.sh "$use_https" "${APPSMITH_CUSTOM_DOMAIN-}"
 
 cp -r /opt/appsmith/editor/* "$NGINX_WWW_PATH"
 

@@ -451,7 +451,7 @@ mkdir -p /appsmith-stacks/data/{backup,restore}
 mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 # Stop nginx gracefully
-nginx -c "$NGINX_CONF_PATH" -s quit
+nginx -s quit
 
 # Handle CMD command
 exec "$@"
