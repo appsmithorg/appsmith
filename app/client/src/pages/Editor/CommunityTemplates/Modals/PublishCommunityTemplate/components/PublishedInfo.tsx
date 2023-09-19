@@ -13,8 +13,8 @@ const PublishedInfo = () => {
         <Icon
           color={
             correct
-              ? "var(--ads-v2-colors-response-success-icon-default-fg)"
-              : "var(--ads-v2-colors-response-error-icon-default-fg)"
+              ? "var(--ads-v2-color-fg-success)"
+              : "var(--ads-v2-color-fg-error)"
           }
           name={correct ? "check-line" : "close"}
         />

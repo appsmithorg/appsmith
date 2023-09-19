@@ -55,7 +55,7 @@ const PublishedAppInstructions = () => {
       <InfoContainer>
         <VerticalCenterContainer>
           <Icon
-            color="var(--ads-v2-colors-response-success-icon-default-fg)"
+            color="var(--ads-v2-color-fg-success)"
             name="oval-check"
             size="lg"
           />
