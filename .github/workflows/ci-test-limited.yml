@@ -639,13 +639,11 @@ jobs:
 
   
     steps:
-      - uses: actions/checkout
       - name: initialize node js
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      
-      - run: npm ci
+
       - name: install pg
         run: npm install pg
       
