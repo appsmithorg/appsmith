@@ -133,6 +133,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                 .one();
     }
 
+    @Override
     public Mono<T> findById(ID id) {
         return this.findByIdAndFieldNames(id, null);
     }
