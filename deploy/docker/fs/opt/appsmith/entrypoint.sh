@@ -6,7 +6,6 @@ stacks_path=/appsmith-stacks
 
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
-export NGINX_WWW_PATH="$TMP/www"  # export for use in supervisor process editor.conf and supervisor plugin starting-page-init.py
 
 mkdir -pv "$SUPERVISORD_CONF_TARGET" "$NGINX_WWW_PATH"
 
@@ -401,8 +400,6 @@ init_loading_pages(){
   cat <<EOF > "$TMP/nginx-app.conf"
     server {
       listen ${PORT:-80} default_server;
-      server_name _;
-      root "$NGINX_WWW_PATH";
       location / {
         try_files \$uri \$uri/ /index.html =404;
       }
