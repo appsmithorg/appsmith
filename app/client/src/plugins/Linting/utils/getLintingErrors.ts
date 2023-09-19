@@ -51,8 +51,8 @@ function generateLintingGlobalData(data: Record<string, unknown>) {
     globalData[dataKey] = true;
   }
   // Add all js libraries
-  const libAccessors = ([] as string[]).concat(
-    ...JSLibraries.map((lib) => lib.accessor),
+  const libAccessors = JSLibraries.flatMap((l) =>
+    l.accessor.map((a) => a.modified),
   );
   libAccessors.forEach((accessor) => (globalData[accessor] = true));
   // Add all supported web apis

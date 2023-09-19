@@ -93,7 +93,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     toast.show(
       createMessage(
         customJSLibraryMessages.INSTALLED_ALREADY,
-        alreadyInstalledLibrary.accessor,
+        alreadyInstalledLibrary.accessor.map((l) => l.modified),
       ),
       {
         kind: "info",

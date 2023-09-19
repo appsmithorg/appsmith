@@ -81,7 +81,12 @@ function resetWorkerGlobalScope() {
     //TODO: Remove this once we have a better way to handle this
     if (["evaluationVersion", "window", "document", "location"].includes(key))
       continue;
-    if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
+    if (
+      JSLibraries.find((lib) =>
+        lib.accessor.map((a) => a.modified).includes(key),
+      )
+    )
+      continue;
     if (libraryReservedIdentifiers[key]) continue;
     try {
       // @ts-expect-error: Types are not available

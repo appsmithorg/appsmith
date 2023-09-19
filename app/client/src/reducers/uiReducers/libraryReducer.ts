@@ -53,13 +53,13 @@ const jsLibraryReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: (
     state: LibraryState,
     action: ReduxAction<{
-      accessor: string[];
+      accessor: TJSLibrary["accessor"];
       url: string;
       version: string;
     }>,
   ) => {
     const { accessor, url, version } = action.payload;
-    const name = accessor[accessor.length - 1] as string;
+    const name = accessor[accessor.length - 1].modified;
     const recommendedLibrary = recommendedLibraries.find(
       (lib) => lib.url === url,
     );
