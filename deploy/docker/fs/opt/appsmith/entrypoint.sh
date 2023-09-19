@@ -68,7 +68,7 @@ init_env_file() {
   TEMPLATES_PATH="/opt/appsmith/templates"
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
-  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\"'\"'/; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
+  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
 
   echo "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
