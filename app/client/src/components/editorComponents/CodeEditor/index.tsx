@@ -1600,7 +1600,12 @@ class CodeEditor extends Component<Props, State> {
         </div>
 
         <div className="absolute bottom-[6px] right-[6px] z-4">
-          <AskAIButton mode={this.props.mode} />
+          <AskAIButton
+            mode={this.props.mode}
+            onClick={() => {
+              this.setState({ showAIWindow: true });
+            }}
+          />
         </div>
 
         <EvaluatedValuePopup

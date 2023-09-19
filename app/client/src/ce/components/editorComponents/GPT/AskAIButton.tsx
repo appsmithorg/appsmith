@@ -2,6 +2,7 @@ import type { TEditorModes } from "components/editorComponents/CodeEditor/Editor
 
 type AskAIButtonProps = {
   mode: TEditorModes;
+  onClick: () => void;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
