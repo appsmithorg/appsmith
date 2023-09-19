@@ -146,23 +146,19 @@ public class DatasourceControllerCE {
         if (endpoints.size() > 0) {
             hostName = endpoints.get(0).getHost();
         }
-        DatasourceTestResult testResult1 = new DatasourceTestResult();
-        Mono<Boolean> tryConsumeMono =
-                rateLimitService.tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, hostName);
-        System.out.println("Mono: " + tryConsumeMono);
-        tryConsumeMono.flatMap(counterIncreaseAttemptSuccessful -> {
-            System.out.println("Rate Limit Attempt: " + counterIncreaseAttemptSuccessful);
-            if (Boolean.TRUE.equals(counterIncreaseAttemptSuccessful)) {
-                return datasourceService
-                        .testDatasource(datasourceStorageDTO, activeEnvironmentId)
-                        .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
-            } else {
-                System.out.println("Rate Limit Exceeded");
-                AppsmithException exception = new AppsmithException(AppsmithError.TOO_MANY_REQUESTS);
-                return Mono.just(new ResponseDTO<>(exception.getHttpStatus(), exception.getMessage(), null));
-            }
-        });
-        return Mono.just(new ResponseDTO<>(HttpStatus.OK.value(), testResult1, null));
+        return rateLimitService
+                .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, hostName)
+                .flatMap(counterIncreaseAttemptSuccessful -> {
+                    if (Boolean.TRUE.equals(counterIncreaseAttemptSuccessful)) {
+                        return datasourceService
+                                .testDatasource(datasourceStorageDTO, activeEnvironmentId)
+                                .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
+                    } else {
+                        AppsmithException exception = new AppsmithException(AppsmithError.TOO_MANY_REQUESTS);
+                        return Mono.just(new ResponseDTO<>(
+                                exception.getHttpStatus(), new DatasourceTestResult(exception.getMessage()), null));
+                    }
+                });
     }
 
     @JsonView(Views.Public.class)

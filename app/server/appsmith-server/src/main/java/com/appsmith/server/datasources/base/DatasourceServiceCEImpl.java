@@ -7,6 +7,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
@@ -534,6 +535,13 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         datasourceTestResultMono = Mono.just(new DatasourceTestResult(storage.getInvalids()));
                     }
 
+                    List<Endpoint> endpoints =
+                            datasourceStorage.getDatasourceConfiguration().getEndpoints();
+                    String hostName = "";
+                    if (endpoints.size() > 0) {
+                        hostName = endpoints.get(0).getHost();
+                    }
+
                     return datasourceTestResultMono
                             .zipWith(sessionUserService.getCurrentUser())
                             .flatMap(tuple -> {
@@ -550,8 +558,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
                                 } else {
                                     // we reset the counter for datasource test after succuessful test
+                                    // TODO: need to replace localhost with actual hostName
                                     rateLimitService.resetCounter(
-                                            RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, "testUsername");
+                                            RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, "localhost");
                                     return analyticsService
                                             .sendObjectEvent(
                                                     AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
