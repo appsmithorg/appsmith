@@ -4,7 +4,7 @@ import styled from "styled-components";
 export const WellContainer = styled.div`
   padding: 16px;
   border-radius: 4px;
-  background-color: var(--ads-color-background-secondary);
+  background-color: var(--ads-v2-color-gray-100);
   margin-bottom: 16px;
   flex: 1;
   flex-shrink: 1;
