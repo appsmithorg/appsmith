@@ -37,7 +37,6 @@ import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -395,7 +394,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
              * may end up reflecting in a different policy as well.
              */
             Set<Policy> copyPolicies =
-                    role.getPolicies().stream().map(SerializationUtils::clone).collect(Collectors.toSet());
+                    role.getPolicies().stream().map(Policy::new).collect(Collectors.toSet());
             // Add the workspace role ids to the policies which are related to assign and read members permissions.
             copyPolicies.stream()
                     .filter(policy -> policy.getPermission()
