@@ -8,6 +8,7 @@ import {
   deployMode,
   draggableWidgets,
   table,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
@@ -356,6 +357,32 @@ WHERE aircraft_type = 'Passenger Plane'`;
       .GetText(table._filtersCount)
       .then(($count) => expect($count).contain("1"));
     deployMode.NavigateBacktoEditor();
+  });
+
+  it("6. Tc #2363  - Copy & Move query validations", () => {
+    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Copy to page",
+      subAction: "Page1",
+      toastToValidate: "copied to page",
+    });
+    agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
+    dataSources.RunQueryNVerifyResponseViews(2);
+    entityExplorer.AddNewPage();
+    entityExplorer.SelectEntityByName("Page1", "Pages");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Move to page",
+      subAction: "Page2",
+      toastToValidate: "moved to page",
+    });
+    agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
+    dataSources.RunQueryNVerifyResponseViews(2);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    entityExplorer.SelectEntityByName("Page1", "Pages");
+    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
   });
 
   after(
