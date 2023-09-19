@@ -22,9 +22,8 @@ import type {
   WidgetConfig,
 } from "./types";
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { Positioning } from "layoutSystems/autolayout/utils/constants";
+import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity
@@ -81,6 +80,8 @@ type DataTreeSeed = {
   theme: AppTheme["properties"];
   metaWidgets: MetaWidgetsReduxState;
   isMobile: boolean;
+  appPositioningType: AppPositioningTypes;
+  loadingEntities: LoadingEntitiesState;
 };
 
 export type DataTreeEntityConfig =
@@ -101,9 +102,11 @@ export class DataTreeFactory {
   static create({
     actions,
     appData,
+    appPositioningType,
     editorConfigs,
     isMobile,
     jsActions,
+    loadingEntities,
     metaWidgets,
     pageList,
     pluginDependencyConfig,
@@ -144,16 +147,13 @@ export class DataTreeFactory {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
+        loadingEntities,
+        appPositioningType,
+        isMobile,
       );
 
       dataTree[widget.widgetName] = unEvalEntity;
-      if (
-        widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Vertical
-      ) {
-        dataTree[widget.widgetName].appPositioningType =
-          AppPositioningTypes.AUTO;
-      }
-      dataTree[widget.widgetName].isMobile = isMobile;
+
       configTree[widget.widgetName] = configEntity;
     });
 
@@ -176,6 +176,7 @@ export class DataTreeFactory {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
+        loadingEntities,
       );
       dataTree[widget.widgetName] = unEvalEntity;
       configTree[widget.widgetName] = configEntity;
