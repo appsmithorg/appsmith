@@ -98,7 +98,7 @@ import ApplicationCardList from "./ApplicationCardList";
 import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
-import ResourcesLoader from "./ResourcesLoader";
+import ResourceListLoader from "./ResourceListLoader";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -712,10 +712,9 @@ export function ApplicationsSection(props: any) {
                 )}
               </WorkspaceDropDown>
               {isLoadingResources && (
-                <ResourcesLoader
+                <ResourceListLoader
                   isMobile={isMobile}
                   resources={applications}
-                  workspaceId={workspace.id}
                 />
               )}
               {!isLoadingResources && (
