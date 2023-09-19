@@ -81,6 +81,9 @@ kubectl create secret docker-registry $SECRET \
 echo "Add appsmith-ee to helm repo"
 AWS_REGION=us-east-2 helm repo add appsmith-ee $HELMCHART_URL;
 helm repo update;
+helm plugin install https://github.com/helm/helm-mapkubeapis -n $NAMESPACE
+helm plugin ls
+helm mapkubeapis $CHARTNAME -n $NAMESPACE
 
 echo "Deploy appsmith helm chart"
 helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespace --recreate-pods \
