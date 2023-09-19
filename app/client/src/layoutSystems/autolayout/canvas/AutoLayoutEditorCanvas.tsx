@@ -6,14 +6,13 @@ import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayo
 import React from "react";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import ContainerComponent from "widgets/ContainerWidget/component";
 import { AutoCanvasDraggingArena } from "../editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
 import { AutoLayoutCanvasView } from "./AutoLayoutCanvasView";
 import { getDirection } from "./utils";
 
-export const AutoLayoutEditorCanvas = (props: CanvasWidgetStructure) => {
+export const AutoLayoutEditorCanvas = (props: BaseWidgetProps) => {
   const canvasProps: CanvasProps = {
     ...props,
     parentRowSpace: 1,
@@ -71,8 +70,8 @@ export const AutoLayoutEditorCanvas = (props: CanvasWidgetStructure) => {
         />
         <AutoLayoutCanvasView
           direction={direction}
-          widgetProps={props}
           renderMode={RenderModes.CANVAS}
+          widgetProps={props}
         />
       </ContainerComponent>
     </DropTargetComponent>

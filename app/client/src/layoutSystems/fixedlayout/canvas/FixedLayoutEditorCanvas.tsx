@@ -16,17 +16,6 @@ import { FixedCanvasDraggingArena } from "../editor/FixedLayoutCanvasArenas/Fixe
 export type CanvasProps = ContainerWidgetProps<WidgetProps>;
 
 export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
-  const canvasProps: CanvasProps = {
-    ...props,
-    parentRowSpace: 1,
-    parentColumnSpace: 1,
-    topRow: 0,
-    leftColumn: 0,
-    containerStyle: "none",
-    detachFromLayout: true,
-    minHeight: props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
-    shouldScrollContents: false,
-  };
   const { snapGrid } = getSnappedGrid(props, props.componentWidth);
   const { snapColumnSpace } = snapGrid;
   const snapRows = getCanvasSnapRows(props.bottomRow);
@@ -41,7 +30,7 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
       snapColumnSpace={snapColumnSpace}
       widgetId={props.widgetId}
     >
-      <ContainerComponent {...canvasProps}>
+      <ContainerComponent {...props}>
         <FixedCanvasDraggingArena
           {...snapGrid}
           canExtend={props.canExtend}
@@ -67,13 +56,13 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
           widgetType={props.type}
         />
         {renderChildren(
-          canvasProps.children,
-          !!canvasProps.shouldScrollContents,
-          canvasProps.widgetId,
+          props.children,
+          !!props.shouldScrollContents,
+          props.widgetId,
           RenderModes.CANVAS,
           {
-            componentHeight: canvasProps.componentHeight,
-            componentWidth: canvasProps.componentWidth,
+            componentHeight: props.componentHeight,
+            componentWidth: props.componentWidth,
           },
           {
             parentColumnSpace: snapColumnSpace,

@@ -10,7 +10,6 @@ import { scrollCSS } from "widgets/WidgetUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { RenderMode } from "constants/WidgetConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import WidgetFactory from "WidgetProvider/factory";
 import { useModalWidth } from "./useModalWidth";
 import type {
   Alignment,

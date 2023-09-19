@@ -20,7 +20,9 @@ function buildFlattenedChildCanvasWidgets(
   flattenedChildCanvasWidgets: Record<string, FlattenedWidgetProps> = {},
 ) {
   const parentWidget = canvasWidgets[parentWidgetId];
-  const { propertyEnhancer } = getLayoutSystem(renderMode, appPositioningType);
+  const {
+    widgetSystem: { propertyEnhancer },
+  } = getLayoutSystem(renderMode, appPositioningType);
   parentWidget?.children?.forEach((childId) => {
     const childWidget = canvasWidgets[childId];
     let parentRowSpace =

@@ -12,7 +12,6 @@ import React from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import TabsComponent from "../component";
@@ -36,6 +35,7 @@ import {
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import { LayoutSystemBasedCanvas } from "layoutSystems/LayoutSystemBasedCanvas";
 
 export function selectedTabValidation(
   value: unknown,

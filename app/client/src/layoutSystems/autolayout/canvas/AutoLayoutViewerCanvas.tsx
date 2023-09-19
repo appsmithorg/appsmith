@@ -24,8 +24,8 @@ export const AutoLayoutViewerCanvas = (props: BaseWidgetProps) => {
     <ContainerComponent {...canvasProps}>
       <AutoLayoutCanvasView
         direction={direction}
-        widgetProps={props}
         renderMode={RenderModes.PAGE}
+        widgetProps={props}
       />
     </ContainerComponent>
   );

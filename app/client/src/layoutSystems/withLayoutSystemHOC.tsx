@@ -9,11 +9,7 @@ import {
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAutoLayoutSystem } from "./autolayout";
 import { getFixedLayoutSystem } from "./fixedlayout";
-
-export type LayoutSystem = {
-  LayoutSystemWrapper: (props: WidgetProps) => any;
-  propertyEnhancer: (props: WidgetProps) => WidgetProps;
-};
+import type { LayoutSystem } from "./types";
 
 export const getLayoutSystem = (
   renderMode: RenderModes,
@@ -38,15 +34,13 @@ const LayoutSystemWrapper = ({
   // based on appPositioningType and renderMode
   // get the layout system wrapper(adds layout system specific functionality) and
   // properties enhancer(adds/modifies properties of a widget based on layout system)
-  const { LayoutSystemWrapper, propertyEnhancer } = getLayoutSystem(
-    renderMode,
-    appPositioningType,
-  );
+  const { widgetSystem } = getLayoutSystem(renderMode, appPositioningType);
+  const { propertyEnhancer, WidgetWrapper } = widgetSystem;
   const enhancedProperties = propertyEnhancer(widgetProps);
   return (
-    <LayoutSystemWrapper {...enhancedProperties}>
+    <WidgetWrapper {...enhancedProperties}>
       <Widget {...enhancedProperties} />
-    </LayoutSystemWrapper>
+    </WidgetWrapper>
   );
 };
 

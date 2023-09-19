@@ -1,18 +1,13 @@
 import type { MouseEventHandler } from "react";
 import React from "react";
-
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import WidgetFactory from "WidgetProvider/factory";
 import type { ContainerStyle } from "../component";
 import ContainerComponent from "../component";
-
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-
 import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { Positioning } from "layoutSystems/autolayout/utils/constants";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";

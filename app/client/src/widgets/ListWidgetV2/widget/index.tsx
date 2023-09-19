@@ -17,7 +17,6 @@ import Loader from "../component/Loader";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
 import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
 import MetaWidgetGenerator from "../MetaWidgetGenerator";
-import WidgetFactory from "WidgetProvider/factory";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type {
   CanvasWidgetStructure,
@@ -1208,7 +1207,12 @@ class ListWidget extends BaseWidget<
               },
             };
           });
-          return <LayoutSystemBasedCanvas canvasProps={child as WidgetProps} />;
+          return (
+            <LayoutSystemBasedCanvas
+              canvasProps={child as WidgetProps}
+              key={child.widgetId}
+            />
+          );
         },
       );
 

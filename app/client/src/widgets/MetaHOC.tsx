@@ -1,6 +1,5 @@
 import React from "react";
 import type { WidgetProps } from "./BaseWidget";
-import type BaseWidget from "./BaseWidget";
 import { debounce, fromPairs, isEmpty } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -43,7 +42,7 @@ export interface WithMeta {
 type WidgetMetaProps = { metaState: Record<string, unknown> };
 type metaHOCProps = WidgetProps & WidgetMetaProps;
 
-function withMeta(WrappedWidget: typeof BaseWidget) {
+function withMeta(WrappedWidget: any) {
   class MetaHOC extends React.PureComponent<metaHOCProps> {
     static contextType = EditorContext;
     context!: React.ContextType<typeof EditorContext>;
