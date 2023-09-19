@@ -274,15 +274,10 @@ const getEditorIdentifier = (props: EditorProps): string => {
 };
 
 class CodeEditor extends Component<Props, State> {
-  hintHelper: HintHelper[] = [
-    bindingHintHelper,
-    slashCommandHintHelper,
-    sqlHint.hinter,
-  ];
   static defaultProps = {
     marking: [entityMarker],
     lineCommentString: "//",
-    hinting: [],
+    hinting: [bindingHintHelper, slashCommandHintHelper, sqlHint.hinter],
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
@@ -449,7 +444,6 @@ class CodeEditor extends Component<Props, State> {
         editor.on("postPick", this.handleSlashCommandSelection);
         editor.on("mousedown", this.handleClick);
         editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
-        editor.on("trigger-ai", () => this.setState({ showAIWindow: true }));
         CodeMirror.on(
           editor.getWrapperElement(),
           "mousemove",
@@ -472,7 +466,7 @@ class CodeEditor extends Component<Props, State> {
         this.hinters = CodeEditor.startAutocomplete(
           editor,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          [...this.hintHelper, ...this.props.hinting!], // ! since defaultProps are set
+          this.props.hinting!, // ! since defaultProps are set
           this.props.dynamicData,
           this.props.entitiesForNavigation, // send navigation here
         );
@@ -515,6 +509,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleSlashCommandSelection = (...args: any) => {
     const [command] = args;
+
     if (command === APPSMITH_AI) {
       this.props.executeCommand({
         actionType: SlashCommand.ASK_AI,
@@ -1283,7 +1278,6 @@ class CodeEditor extends Component<Props, State> {
       example: expected?.example,
       mode: this.props.mode,
     };
-
     if (dataTreePath) {
       const { entityName, propertyPath } =
         getEntityNameAndPropertyPath(dataTreePath);
@@ -1502,12 +1496,14 @@ class CodeEditor extends Component<Props, State> {
   };
 
   isBindingPromptOpen = () => {
+    const completionActive = _.get(this.editor, "state.completionActive");
+
     return (
       showBindingPrompt(
         this.showFeatures(),
         this.props.input.value,
         this.state.hinterOpen,
-      ) && !_.get(this.editor, "state.completionActive")
+      ) && !completionActive
     );
   };
 
@@ -1688,6 +1684,7 @@ class CodeEditor extends Component<Props, State> {
                   showLightningMenu={this.props.showLightningMenu}
                 />
               </div>
+
               {this.props.link && (
                 <a
                   className="linkStyles"
