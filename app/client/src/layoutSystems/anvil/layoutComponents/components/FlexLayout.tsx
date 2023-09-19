@@ -1,10 +1,15 @@
 import { Flex } from "@design-system/widgets";
-import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
 import type {
-  AlignSelfValues,
-  FlexDirectionValues,
-  FlexWrapValues,
-  JustifyContentValues,
+  AlignSelf,
+  FlexDirection,
+  FlexProps,
+  FlexWrap,
+  JustifyContent,
+  Responsive,
+  SizingDimension,
+  SpacingDimension,
+} from "@design-system/widgets";
+import type {
   OverflowValues,
   PositionValues,
 } from "layoutSystems/anvil/utils/autoLayoutTypes";
@@ -13,56 +18,55 @@ import {
   MOBILE_ROW_GAP,
   ROW_GAP,
 } from "layoutSystems/anvil/utils/constants";
+import { getLayoutClassName } from "layoutSystems/anvil/utils/layoutUtils";
 import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import React, { useMemo } from "react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
-interface FlexLayoutProps {
+interface FlexLayoutProps
+  extends AlignSelf,
+    JustifyContent,
+    FlexDirection,
+    FlexWrap {
+  canvasId: string;
   children: ReactNode;
+  isDropTarget?: boolean;
+  layoutId: string;
 
-  alignSelf?: AlignSelfValues;
   border?: string;
-  columnGap?: string;
-  flexBasis?: string;
-  flexDirection: FlexDirectionValues;
-  flexGrow?: number;
-  flexShrink?: number;
-  flexWrap?: FlexWrapValues;
-  height?: string;
-  justifyContent?: JustifyContentValues;
-  maxHeight?: string;
-  maxWidth?: string;
-  minWidth?: string;
-  minHeight?: string;
+  columnGap?: Responsive<SpacingDimension>;
+  flexBasis?: Responsive<SizingDimension>;
+  flexGrow?: Responsive<number>;
+  flexShrink?: Responsive<number>;
+  height?: Responsive<SizingDimension>;
+  maxHeight?: Responsive<SizingDimension>;
+  maxWidth?: Responsive<SizingDimension>;
+  minWidth?: Responsive<SizingDimension>;
+  minHeight?: Responsive<SizingDimension>;
   overflowX?: OverflowValues;
-  overflow?: OverflowValues;
+  overflowY?: OverflowValues;
   position?: PositionValues;
-  rowGap?: string;
-  padding?: string;
-  width?: string;
+  rowGap?: Responsive<SpacingDimension>;
+  padding?: Responsive<SpacingDimension>;
+  width?: Responsive<SizingDimension>;
 }
 
 export const FlexLayout = (props: FlexLayoutProps) => {
-  const layoutStyle: FlexProps = useMemo(() => {
+  const flexProps: FlexProps = useMemo(() => {
     return {
       alignSelf: props.alignSelf || "flex-start",
-      columnGap: props.columnGap || 0,
-      display: "flex",
-      flexDirection: props.flexDirection || "column",
+      columnGap: props.columnGap || "0px",
+      flexDirection: props.direction || "column",
       flexGrow: props.flexGrow || 0,
       flexShrink: props.flexShrink || 0,
       flexBasis: props.flexBasis || "auto",
-      flexWrap: props.flexWrap || "nowrap",
+      flexWrap: props.wrap || "nowrap",
       justifyContent: props.justifyContent || "start",
-      overflowX: props.overflowX || "hidden",
-      overflowY: props.overflow || "hidden",
       height: props.height || "auto",
       maxHeight: props.maxHeight || "none",
       minWidth: props.minWidth || "none",
       minHeight: props.minHeight || "none",
-      position: props.position || "relative",
       width: props.width || "auto",
-      border: props.border || "none",
       padding: props.padding || "none",
       rowGap: props.rowGap || {
         base: addPixelToSize(MOBILE_ROW_GAP),
@@ -71,5 +75,23 @@ export const FlexLayout = (props: FlexLayoutProps) => {
     };
   }, [props]);
 
-  return <Flex {...layoutStyle}>{props.children}</Flex>;
+  // The following properties aren't included in type FlexProps but can be passed as style.
+  const styleProps: CSSProperties = useMemo(() => {
+    return {
+      border: props.border || "none",
+      overflowX: props.overflowX || "hidden",
+      overflowY: props.overflowY || "hidden",
+      position: props.position || "relative",
+    };
+  }, [props.border, props.overflowX, props.overflowY, props.position]);
+
+  return (
+    <Flex
+      {...flexProps}
+      className={getLayoutClassName(props.canvasId, props.layoutId)}
+      style={styleProps}
+    >
+      {props.children}
+    </Flex>
+  );
 };

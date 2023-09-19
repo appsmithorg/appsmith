@@ -1022,6 +1022,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "makePageDefault",
   );
   cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApp");
+  cy.intercept("POST", "/api/v1/applications/delete-apps").as(
+    "deleteMultipleApp",
+  );
   cy.intercept("DELETE", "/api/v1/pages/*").as("deletePage");
   //cy.intercept("POST", "/api/v1/datasources").as("createDatasource");
   cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource");

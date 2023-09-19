@@ -14,7 +14,7 @@ import EntityPlaceholder from "../Entity/Placeholder";
 import DatasourceStructure from "./DatasourceStructure";
 import { SearchInput, Text } from "design-system";
 import styled from "styled-components";
-import { getIsFetchingDatasourceStructure } from "selectors/entitiesSelector";
+import { getIsFetchingDatasourceStructure } from "@appsmith/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import DatasourceStructureLoadingContainer from "./DatasourceStructureLoadingContainer";

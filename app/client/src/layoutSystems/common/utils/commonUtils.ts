@@ -42,7 +42,7 @@ export const restructureWidgetSizeConfig = (
    * Each object has a viewportMinWidth and a configuration function that returns the minMax sizes at the viewport.
    * e.g [{ viewportMinWidth: 0, configuration: (props) => ({ maxHeight: 400, minWidth: 100 })}]
    *
-   * WDS flex component requires the same information in a different structure:
+   * WDS flex component requires the same information in a different structure (Responsive<T>):
    * minWidth: { base: '100px', '480px': '200px'  }, // default min width is 100px. However, above container width of 480px, min width changes to 200px.
    * maxHeight: { base: 400 },
    */

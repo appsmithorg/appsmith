@@ -12,7 +12,12 @@ const Row = (props: LayoutComponentProps) => {
   const { layoutStyle } = props;
 
   return (
-    <FlexLayout flexDirection="row" {...(layoutStyle || {})}>
+    <FlexLayout
+      canvasId="test-canvas-id"
+      direction="row"
+      layoutId={props.layoutId}
+      {...(layoutStyle || {})}
+    >
       {props.children}
     </FlexLayout>
   );

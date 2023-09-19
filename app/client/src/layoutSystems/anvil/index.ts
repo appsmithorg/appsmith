@@ -2,7 +2,6 @@ import { RenderModes } from "constants/WidgetConstants";
 import { AnvilEditorWrapper } from "./editor/AnvilEditorWrapper";
 import { AnvilViewerWrapper } from "./viewer/AnvilViewerWrapper";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { getAnvilComponentDimensions } from "utils/ComponentSizeUtils";
 import {
   getAutoDimensionsConfig,
   getAutoLayoutWidgetConfig,
@@ -14,6 +13,7 @@ import type {
   AutoLayoutConfig,
 } from "WidgetProvider/constants";
 import { registerLayoutComponents } from "./utils/layoutUtils";
+import { getAnvilComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
 
 export const getAnvilDimensionsConfig = (
   props: BaseWidgetProps,

@@ -115,16 +115,23 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
   const getMinWidth = (
     config: Record<string, string | number> | undefined,
   ): Record<string, string | number> | undefined => {
+    /**
+     * If config is undefined,
+     * Set base as 100% for Fill widgets.
+     */
     if (!config)
       return isFillWidget
         ? { base: "100%", [`${MOBILE_BREAKPOINT}px`]: "" }
         : undefined;
+    // If widget is not a Fill widget, return the config as is.
     if (!isFillWidget) return config;
-    const minWidth = config["base"];
+
+    const baseMinWidth = config["base"];
     return {
       ...config,
       base: "100%",
-      [`${MOBILE_BREAKPOINT}px`]: config[`${MOBILE_BREAKPOINT}px`] || minWidth,
+      [`${MOBILE_BREAKPOINT}px`]:
+        config[`${MOBILE_BREAKPOINT}px`] || baseMinWidth,
     };
   };
 

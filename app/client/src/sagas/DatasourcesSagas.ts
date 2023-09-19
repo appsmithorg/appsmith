@@ -45,10 +45,12 @@ import {
   getPluginByPackageName,
   getDatasourcesUsedInApplicationByActions,
   getEntityExplorerDatasources,
-} from "selectors/entitiesSelector";
+  getUnconfiguredDatasources,
+} from "@appsmith/selectors/entitiesSelector";
 import {
   addMockDatasourceToWorkspace,
   setDatasourceViewModeFlag,
+  setUnconfiguredDatasourcesDuringImport,
 } from "actions/datasourceActions";
 import type {
   UpdateDatasourceSuccessAction,
@@ -159,6 +161,7 @@ import {
   getCurrentEditingEnvironmentId,
   getCurrentEnvironmentDetails,
 } from "@appsmith/selectors/environmentSelectors";
+import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -522,6 +525,14 @@ function* updateDatasourceSaga(
         kind: "success",
       });
 
+      const unconfiguredDSList: Datasource[] = yield select(
+        getUnconfiguredDatasources,
+      );
+      const updatedList = unconfiguredDSList.filter(
+        (d: Datasource) => d.id !== datasourcePayload?.id,
+      );
+      yield put(setUnconfiguredDatasourcesDuringImport(updatedList));
+
       const expandDatasourceId = state.ui.datasourcePane.expandDatasourceId;
 
       // Dont redirect if action payload has an onSuccess
@@ -646,6 +657,8 @@ function* getOAuthAccessTokenSaga(
     return;
   }
   try {
+    // wait for envs to be fetched
+    yield call(waitForFetchEnvironments);
     // Get access token for datasource
     const response: ApiResponse<TokenResponse> = yield OAuthApi.getAccessToken(
       datasourceId,
