@@ -40,12 +40,6 @@ export const textInputStyles = css<HeadlessTextInputProps>`
     box-shadow: 0 0 0 2px var(--color-bd-focus);
   }
 
-  & [data-field-input][data-disabled] {
-    opacity: var(--opacity-disabled);
-    cursor: default;
-    user-select: none;
-  }
-
   /**
 * ----------------------------------------------------------------------------
 * ERROR

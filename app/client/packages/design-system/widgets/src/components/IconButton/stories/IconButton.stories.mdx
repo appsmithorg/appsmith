@@ -7,11 +7,7 @@ import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
   title="Design-system/Widgets/IconButton"
   component={IconButton}
   args={{
-    children: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
+    icon: EmotionHappyLineIcon,
   }}
 />
 
@@ -63,11 +59,7 @@ Just like Button component, There are 3 variants of the icon button component.
           <IconButton
             variant={variant}
             color={color}
-            children={
-              <Icon>
-                <EmotionHappyLineIcon />
-              </Icon>
-            }
+            icon={EmotionHappyLineIcon}
           />
         </div>
       )),
@@ -83,14 +75,7 @@ Just like Button component, There are 3 variants of the icon button component.
   <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
     {["small", "medium", "large"].map((size) => (
       <div key={size} style={{ marginBottom: 10 }}>
-        <IconButton
-          size={size}
-          children={
-            <Icon>
-              <EmotionHappyLineIcon />
-            </Icon>
-          }
-        />
+        <IconButton size={size} icon={EmotionHappyLineIcon} />
       </div>
     ))}
   </div>
@@ -113,11 +98,7 @@ Just like Button component, There are 3 variants of the icon button component.
   name="Loading State"
   args={{
     isLoading: true,
-    children: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
+    icon: EmotionHappyLineIcon,
     onPress: () => alert("on pressed"),
   }}
 >

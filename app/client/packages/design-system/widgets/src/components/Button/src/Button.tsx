@@ -2,8 +2,12 @@ import type {
   ButtonRef as HeadlessButtonRef,
   ButtonProps as HeadlessButtonProps,
 } from "@design-system/headless";
+import classNames from "classnames";
 import React, { forwardRef } from "react";
-import { Button as HeadlessButton } from "@design-system/headless";
+import {
+  Button as HeadlessButton,
+  Icon as HeadlessIcon,
+} from "@design-system/headless";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
 
 import type {
@@ -14,6 +18,7 @@ import type {
 import { Text } from "../../Text";
 import { Spinner } from "../../Spinner";
 import styles from "./styles.module.css";
+import { getTypographyClassName } from "@design-system/theming";
 
 export interface ButtonProps extends HeadlessButtonProps {
   /** variant of the button
@@ -27,7 +32,7 @@ export interface ButtonProps extends HeadlessButtonProps {
   /** Indicates the loading state of the button */
   isLoading?: boolean;
   /** Icon to be used in the button of the button */
-  icon?: React.ReactNode;
+  icon?: React.ComponentType;
   /** Indicates the position of icon of the button
    * @default accent
    */
@@ -46,7 +51,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
   const {
     children,
     color = "accent",
-    icon,
+    icon: Icon,
     iconPosition = "start",
     isLoading,
     loadingText = "Loading...",
@@ -62,7 +67,11 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
     return (
       <>
         <span aria-hidden={isLoading ? true : undefined} data-content="">
-          {icon}
+          {Icon && (
+            <HeadlessIcon>
+              <Icon />
+            </HeadlessIcon>
+          )}
           {children && (
             <Text fontWeight={600} lineClamp={1} textAlign="center">
               {children}
@@ -84,7 +93,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       aria-disabled={
         visuallyDisabled || isLoading || props.isDisabled ? true : undefined
       }
-      className={styles.button}
+      className={classNames(styles.button, getTypographyClassName("body"))}
       data-button=""
       data-color={color}
       data-icon-position={iconPosition === "start" ? "start" : "end"}

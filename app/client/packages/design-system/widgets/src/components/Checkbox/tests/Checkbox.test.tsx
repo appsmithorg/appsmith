@@ -1,6 +1,5 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { Icon } from "@design-system/headless";
 import { Checkbox } from "@design-system/widgets";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
@@ -73,15 +72,7 @@ describe("@design-system/widgets/Checkbox", () => {
   });
 
   it("should be able to render custom icon", () => {
-    const { container } = render(
-      <Checkbox
-        icon={
-          <Icon>
-            <EmotionHappyLineIcon />
-          </Icon>
-        }
-      />,
-    );
+    const { container } = render(<Checkbox icon={EmotionHappyLineIcon} />);
 
     const icon = container.querySelector("label [data-icon]") as HTMLElement;
     expect(icon).toBeInTheDocument();

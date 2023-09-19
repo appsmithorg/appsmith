@@ -12,9 +12,12 @@ const _ContextualHelp = (props: ContextualProps) => {
 
   return (
     <Tooltip interaction="click" tooltip={contextualHelp}>
-      <IconButton color="neutral" size="small" variant="ghost">
-        <QuestionMarkIcon />
-      </IconButton>
+      <IconButton
+        color="neutral"
+        icon={QuestionMarkIcon}
+        size="small"
+        variant="ghost"
+      />
     </Tooltip>
   );
 };

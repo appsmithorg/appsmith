@@ -98,8 +98,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: var(--sizing-4);
-    width: var(--sizing-4);
+    height: 1.5em;
+    width: 1.5em;
   }
 
   /**
@@ -176,9 +176,9 @@
       inline-size: var(--sizing-9);
     }
 
-    & svg {
-      width: 90cqw;
-      height: 90cqw;
+    & [data-icon] {
+      width: 80cqw;
+      height: 80cqw;
     }
   }
 }

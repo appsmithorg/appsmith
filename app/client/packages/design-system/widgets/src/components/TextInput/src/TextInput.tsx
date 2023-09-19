@@ -14,8 +14,6 @@ import { StyledTextInput } from "./index.styled";
 import { ContextualHelp } from "./ContextualHelp";
 import { getTypographyClassName } from "@design-system/theming";
 
-const ICON_SIZE = 16;
-
 export interface TextInputProps extends HeadlessTextInputProps {
   /** position for the laoding icon */
   loaderPosition?: "auto" | "start" | "end";
@@ -91,9 +89,12 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
       const Icon = showPassword ? EyeOffIcon : EyeIcon;
 
       return (
-        <IconButton color="neutral" onPress={onPressEyeIcon} variant="ghost">
-          <Icon size={ICON_SIZE} />
-        </IconButton>
+        <IconButton
+          color="neutral"
+          icon={Icon}
+          onPress={onPressEyeIcon}
+          variant="ghost"
+        />
       );
     }
 
