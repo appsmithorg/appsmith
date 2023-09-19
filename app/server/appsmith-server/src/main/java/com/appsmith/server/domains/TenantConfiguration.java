@@ -8,6 +8,7 @@ import com.appsmith.server.migrations.db.Migration009EE01CreateDefaultLogoAsset;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,7 +53,7 @@ public class TenantConfiguration extends TenantConfigurationCE {
     // for single image shipping to CE and BE customers. Upon selecting one of these versions, the client grants access
     // to the respective tenant. This variable acts as an indication for client to block the access if the selection is
     // pending.
-    Boolean isActivated = Boolean.FALSE;
+    Boolean isActivated;
 
     public String getBrandLogoUrl() {
         return assetToUrl(whiteLabelLogo, DEFAULT_APPSMITH_LOGO);
@@ -89,7 +90,7 @@ public class TenantConfiguration extends TenantConfigurationCE {
         this.brandColors = tenantConfiguration.getBrandColors();
         this.showRolesAndGroups = tenantConfiguration.getShowRolesAndGroups();
         this.singleSessionPerUserEnabled = tenantConfiguration.getSingleSessionPerUserEnabled();
-        this.isActivated = tenantConfiguration.getIsActivated();
+        this.isActivated = ObjectUtils.defaultIfNull(tenantConfiguration.getIsActivated(), false);
 
         boolean isLicenseExist = null != tenantConfiguration.getLicense()
                 && !StringUtils.isEmpty(tenantConfiguration.getLicense().getKey());

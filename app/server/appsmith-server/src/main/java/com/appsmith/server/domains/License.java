@@ -27,7 +27,7 @@ public class License extends LicenseCE {
     Map<String, Boolean> tenantFeatures;
 
     // Field to detect previous license plan which will be used to provide the appropriate messaging on UI
-    LicensePlan previousPlan = LicensePlan.FREE;
+    LicensePlan previousPlan;
 
     @Transient
     ChangeType changeType;

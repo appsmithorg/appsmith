@@ -10,7 +10,11 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LicenseTest {
 
@@ -43,10 +47,10 @@ class LicenseTest {
 
         assertEquals(license.getKey(), licenseKey);
         assertEquals(license.getPlan(), LicensePlan.SELF_SERVE);
-        assertEquals(license.getPreviousPlan(), LicensePlan.FREE);
+        assertNull(license.getPreviousPlan());
         assertFalse(license.getActive());
         assertEquals(license.getOrigin(), LicenseOrigin.SELF_SERVE);
-        assertEquals(license.getChangeType(), License.ChangeType.UPGRADE);
+        assertEquals(license.getChangeType(), License.ChangeType.NO_CHANGE);
         assertNotEquals(license.getExpiry(), responseDTO.getExpiry());
         assertEquals(license.getExpiry(), licenseExpiry);
         assertEquals(license.getStatus(), LicenseStatus.EXPIRED);

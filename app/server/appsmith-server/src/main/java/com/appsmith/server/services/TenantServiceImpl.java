@@ -39,7 +39,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
 import java.time.Instant;
@@ -223,7 +222,13 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             final LicensePlan previousPlan = license.getPlan();
             license.setPlan(LicensePlan.FREE);
             license.setPreviousPlan(previousPlan);
-            return licenseAPIManager.downgradeTenantToFreePlan(tenant).flatMap(isSuccessful -> {
+
+            Mono<Boolean> downgradeToFreePlanOnCS =
+                    StringUtils.isNullOrEmpty(tenantConfiguration.getLicense().getKey())
+                            ? Mono.just(Boolean.TRUE)
+                            : licenseAPIManager.downgradeTenantToFreePlan(tenant);
+
+            return downgradeToFreePlanOnCS.flatMap(isSuccessful -> {
                 if (Boolean.TRUE.equals(isSuccessful)) {
                     License updatedLicense = new License();
                     updatedLicense.setPlan(LicensePlan.FREE);
@@ -231,8 +236,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     updatedLicense.setActive(false);
                     tenant.getTenantConfiguration().setLicense(updatedLicense);
                     return this.save(tenant)
-                            .flatMap(updatedTenant ->
-                                    this.forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations(tenant))
+                            // Fetch the tenant again from DB to make sure the downstream chain is consuming the latest
+                            // DB object and not the modified one because of the client pertinent changes
+                            .then(repository.retrieveById(tenant.getId()))
+                            .flatMap(this::forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations)
                             .then(syncLicensePlansAndRunFeatureBasedMigrations());
                 }
                 return Mono.error(new AppsmithException(AppsmithError.TENANT_DOWNGRADE_EXCEPTION));
@@ -262,6 +269,9 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     license.setPreviousPlan(license.getPlan());
                     return this.save(tenant);
                 })
+                // Fetch the tenant again from DB to make sure the downstream chain is consuming the latest
+                // DB object and not the modified one because of the client pertinent changes
+                .flatMap(savedTenant -> repository.retrieveById(savedTenant.getId()))
                 .map(tenantWithUpdatedMigration -> {
                     // Run the migrations in a separate thread, as we expect the migrations can run for few seconds
                     this.checkAndExecuteMigrationsForTenantFeatureFlags(tenantWithUpdatedMigration)
@@ -350,6 +360,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                         tenantMono = Mono.just(tenant);
                     } else {
                         tenantMono = this.save(tenant)
+                                // Fetch the tenant again from DB to make sure the downstream chain is consuming the
+                                // latest
+                                // DB object and not the modified one because of the client pertinent changes
+                                .then(repository.retrieveById(tenant.getId()))
                                 .flatMap(this::forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations)
                                 .then(syncLicensePlansAndRunFeatureBasedMigrations());
                     }
@@ -381,7 +395,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     private Mono<Tenant> checkTenantLicense(Tenant tenant) {
         Mono<License> licenseMono = licenseAPIManager.licenseCheck(tenant).onErrorResume(throwable -> {
             Objects.requireNonNull(this.checkAndUpdateLicenseExpiryWithinInstance(tenant))
-                    .subscribeOn(Schedulers.boundedElastic())
+                    .subscribeOn(scheduler)
                     .subscribe();
             log.debug("Error while validating license: {}", throwable.getMessage(), throwable);
             return Mono.error(throwable);
@@ -555,7 +569,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     } else {
                         tenantConfig.setMigrationStatus(MigrationStatus.PENDING);
                     }
-                    return this.save(tenant);
+                    return this.save(tenant)
+                            // Fetch the tenant again from DB to make sure the downstream chain is consuming the latest
+                            // DB object and not the modified one because of the client pertinent changes
+                            .then(repository.retrieveById(tenant.getId()));
                 });
     }
 }

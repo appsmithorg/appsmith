@@ -63,6 +63,7 @@ import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATUR
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -265,7 +266,7 @@ public class TenantServiceTest {
         // Assert that `isActivated` does not get modified for invalid license
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant1 -> {
-                    assertFalse(tenant1.getTenantConfiguration().getIsActivated());
+                    assertNull(tenant1.getTenantConfiguration().getIsActivated());
                 })
                 .verifyComplete();
     }
