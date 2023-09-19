@@ -449,7 +449,6 @@ class CodeEditor extends Component<Props, State> {
         editor.on("postPick", this.handleSlashCommandSelection);
         editor.on("mousedown", this.handleClick);
         editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
-        editor.on("trigger-ai", () => this.setState({ showAIWindow: true }));
         CodeMirror.on(
           editor.getWrapperElement(),
           "mousemove",
@@ -515,6 +514,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleSlashCommandSelection = (...args: any) => {
     const [command] = args;
+
     if (command === APPSMITH_AI) {
       this.props.executeCommand({
         actionType: SlashCommand.ASK_AI,
@@ -1283,7 +1283,6 @@ class CodeEditor extends Component<Props, State> {
       example: expected?.example,
       mode: this.props.mode,
     };
-
     if (dataTreePath) {
       const { entityName, propertyPath } =
         getEntityNameAndPropertyPath(dataTreePath);
@@ -1502,12 +1501,14 @@ class CodeEditor extends Component<Props, State> {
   };
 
   isBindingPromptOpen = () => {
+    const completionActive = _.get(this.editor, "state.completionActive");
+
     return (
       showBindingPrompt(
         this.showFeatures(),
         this.props.input.value,
         this.state.hinterOpen,
-      ) && !_.get(this.editor, "state.completionActive")
+      ) && !completionActive
     );
   };
 
@@ -1688,6 +1689,7 @@ class CodeEditor extends Component<Props, State> {
                   showLightningMenu={this.props.showLightningMenu}
                 />
               </div>
+
               {this.props.link && (
                 <a
                   className="linkStyles"
