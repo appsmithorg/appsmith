@@ -33,13 +33,18 @@ const SubHeaderWrapper = styled.div<{
   width: 100%;
   display: flex;
   justify-content: space-between;
-  ${(props) => (props.isBannerVisible ? "margin-top: 96px" : "")};
   background: var(--ads-v2-color-bg);
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
-  ${({ isMobile }) =>
+  ${({ isBannerVisible, isMobile }) =>
     isMobile
-      ? "padding: 12px 16px; margin: 0px;"
-      : `padding: ${CONTAINER_WRAPPER_PADDING} ${CONTAINER_WRAPPER_PADDING} 12px ${CONTAINER_WRAPPER_PADDING} ; position: sticky; top: 0; align-items: center;`}
+      ? `padding: 12px 16px;
+        position: sticky; ${
+          isBannerVisible ? "top: 80px; margin-top: 80px" : "top: 0; margin: 0"
+        };
+        `
+      : `padding: ${CONTAINER_WRAPPER_PADDING} ${CONTAINER_WRAPPER_PADDING} 12px ${CONTAINER_WRAPPER_PADDING} ; position: sticky; ${
+          isBannerVisible ? "top: 40px; margin-top: 40px" : "top: 0"
+        }; align-items: center;`}
 `;
 const SearchContainer = styled.div<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};

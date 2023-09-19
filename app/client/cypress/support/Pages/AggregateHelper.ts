@@ -594,8 +594,8 @@ export class AggregateHelper extends ReusableHelper {
     cy.get(this.locator._canvasViewport).invoke("width", `${width}px`);
   }
 
-  public ClickOutside() {
-    cy.get("body").click(0, 0, { force: true });
+  public ClickOutside(x = 0, y = 0, force = true) {
+    cy.get("body").click(x, y, { force: force });
   }
 
   public RemoveMultiSelectItems(items: string[]) {
@@ -1646,7 +1646,11 @@ export class AggregateHelper extends ReusableHelper {
   public AssertClassExists(selector: string, className: string) {
     this.GetElement(selector).should("have.class", className);
   }
-
+  public AssertPopover2Tooltip(expectedText: string) {
+    this.GetText(this.locator._popover2ToolTip, "text").then(($tooltiptxt) =>
+      expect($tooltiptxt).to.eq(expectedText),
+    );
+  }
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath
