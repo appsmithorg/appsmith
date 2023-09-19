@@ -16,9 +16,10 @@ import { LightModeTheme } from "@design-system/theming";
 const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;
 const DEFAULT_BRANDING_PRIMARY_COLOR = "#D7D7D7";
-export const APPSMITH_BRAND_PRIMARY_COLOR = getComputedStyle(
-  document.documentElement,
-).getPropertyValue("--ads-v2-color-bg-brand");
+export const APPSMITH_BRAND_PRIMARY_COLOR =
+  getComputedStyle(document.documentElement).getPropertyValue(
+    "--ads-v2-color-bg-brand",
+  ) || DEFAULT_BRANDING_PRIMARY_COLOR;
 export const APPSMITH_BRAND_BG_COLOR = "#F1F5F9";
 export const APPSMITH_BRAND_FAVICON_URL = getAssetUrl(
   `${ASSETS_CDN_URL}/appsmith-favicon-orange.ico`,
