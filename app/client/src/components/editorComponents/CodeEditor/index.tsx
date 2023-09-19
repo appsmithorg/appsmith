@@ -274,15 +274,10 @@ const getEditorIdentifier = (props: EditorProps): string => {
 };
 
 class CodeEditor extends Component<Props, State> {
-  hintHelper: HintHelper[] = [
-    bindingHintHelper,
-    slashCommandHintHelper,
-    sqlHint.hinter,
-  ];
   static defaultProps = {
     marking: [entityMarker],
     lineCommentString: "//",
-    hinting: [],
+    hinting: [bindingHintHelper, slashCommandHintHelper, sqlHint.hinter],
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
