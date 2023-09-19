@@ -302,6 +302,7 @@ export class CommonLocators {
   _callbackAddBtn = ".action-callback-add .ads-v2-button";
   _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
   _listText = "//span[text()='Blue']/../..";
+  _popover2ToolTip = ".bp3-popover2-content";
   _jsonFormSubmitBtn = ".t--jsonform-submit-btn";
   _jsonFormResetBtn = ".t--jsonform-reset-btn";
   _draggableFieldConfig = (fieldName: string) =>
