@@ -1,10 +1,11 @@
-import { removeFunctionsAndSerialzeBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal";
 import produce from "immer";
 import { get, isNumber, isObject, set } from "lodash";
+import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
 export interface DiffReferenceState {
   kind: "referenceState";
@@ -202,10 +203,11 @@ const generateDiffUpdates = (
       const lhs = get(oldDataTree, segmentedPath);
 
       if (rhs === undefined) {
-        //perform diff on this node
+        //if an undefined value is being set it should be a delete
         if (lhs !== undefined) {
           attachDirectly.push({ kind: "D", lhs, path: segmentedPath });
         }
+        // if the lhs is also undefined ignore diff on this node
         return true;
       }
 
@@ -279,30 +281,22 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     identicalEvalPathsPatches,
   );
 
+  //remove lhs from diff to reduce the size of diff upload, it is not necessary
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const removedLhs = updates.map(({ lhs, ...rest }: any) => rest);
-  const sanitisedLhsUpdates = removeFunctionsAndSerialzeBigInt(removedLhs);
-  const { deleteUpdates, regularUpdates } = sanitisedLhsUpdates.reduce(
-    (acc: any, curr: any) => {
-      const { kind, path, rhs } = curr;
-      if (rhs === undefined) {
-        if (kind === "N") {
-          return acc;
-        }
-        if (kind === "E") {
-          acc.deleteUpdates.push({ kind: "D", path });
-          return acc;
-        }
-      }
 
-      acc.regularUpdates.push(curr);
-      return acc;
-    },
-    { regularUpdates: [], deleteUpdates: [] },
-  );
-
-  const consolidatedUpdates = [...regularUpdates, ...deleteUpdates];
+  let serialisedUpdates = "[]";
+  try {
+    // serialise bigInt values and convert the updates to a string over here to minismise the cost of transfer
+    // to the main thread. In the main thread parse this object there.
+    serialisedUpdates = serialiseToBigInt(removedLhs);
+  } catch (error) {
+    dataTreeEvaluator.errors.push({
+      type: EvalErrorTypes.SERIALIZATION_ERROR,
+      message: (error as Error).message,
+    });
+  }
 
   dataTreeEvaluator?.setPrevState(dataTree);
-  return consolidatedUpdates;
+  return serialisedUpdates;
 };

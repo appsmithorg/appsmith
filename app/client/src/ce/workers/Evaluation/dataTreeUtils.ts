@@ -1,10 +1,14 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 
 import { get, set, unset } from "lodash";
-import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import rfdc from "rfdc";
+import type { EvalProps } from "workers/common/DataTreeEvaluator";
+//rfdc is much more performant in perfomring deepclone than klona
+// Setting proto to true copies prototype properties as well as own properties into the new object.
+// This supposedly gives a 2% increase in perfomance https://github.com/davidmarkclements/rfdc/blob/master/readme.md#requirerfdcopts---proto-false-circles-false---cloneobj--obj2
+
 const deepCloneRfdc = rfdc({ proto: true });
-// const deepClone = (v) => JSON.parse(JSON.stringify(v));
+
 /**
  * This method loops through each entity object of dataTree and sets the entity config from prototype as object properties.
  * This is done to send back dataTree in the format expected by mainThread.
