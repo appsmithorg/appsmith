@@ -137,7 +137,7 @@ describe("Rating widet testcases", () => {
     deployMode.NavigateBacktoEditor();
     agHelper.GetNClick(RATING_WIDGET.ratingwidget);
     // open a modal on clicking ratings
-    propPane.CreateModal("Thanks for rating us!", "onChange");
+    propPane.CreateModal("onChange");
     // deploy app and click on stars and close the modal
     deployMode.DeployApp();
     agHelper.GetNClick(RATING_WIDGET.star_icon, 5, true, 0);
