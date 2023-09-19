@@ -57,6 +57,7 @@ export const fieldStyles = css<FieldStylesProps>`
   & [data-field-necessity-indicator-icon] {
     width: var(--spacing-2);
     height: var(--spacing-2);
+    color: var(--color-fg-negative);
   }
 
   /**

@@ -165,7 +165,6 @@
       inline-size: var(--sizing-5);
     }
 
-    &,
     &[data-size="medium"] {
       block-size: var(--sizing-7);
       inline-size: var(--sizing-7);

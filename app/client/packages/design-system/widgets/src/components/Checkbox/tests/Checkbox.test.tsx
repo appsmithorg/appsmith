@@ -1,11 +1,12 @@
 import React from "react";
 import "@testing-library/jest-dom";
+import type { ComponentProps } from "react";
 import { Checkbox } from "@design-system/widgets";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 
 // Adapted from remixicon-react/EmotionHappyLineIcon (https://github.com/Remix-Design/RemixIcon/blob/f88a51b6402562c6c2465f61a3e845115992e4c6/icons/User%20%26%20Faces/emotion-happy-line.svg)
-const EmotionHappyLineIcon = ({ ...props }: Record<string, string>) => {
+const EmotionHappyLineIcon = (props: ComponentProps<"svg">) => {
   return (
     <svg
       fill="currentColor"
