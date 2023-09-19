@@ -15,6 +15,7 @@ import { OverridingPropertyType } from "./types";
 import { setOverridingProperty } from "./utils";
 import { error } from "loglevel";
 import WidgetFactory from "WidgetProvider/factory";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 
 /**
  *
@@ -343,6 +344,7 @@ const generateDataTreeWidgetWithoutMetaMemoized = memoize(
 export const generateDataTreeWidget = (
   widget: FlattenedWidgetProps,
   widgetMetaProps: Record<string, unknown> = {},
+  loadingEntities: LoadingEntitiesState,
 ) => {
   const {
     dataTreeWidgetWithoutMetaProps: dataTreeWidget,
@@ -376,6 +378,7 @@ export const generateDataTreeWidget = (
   });
 
   dataTreeWidget["meta"] = meta;
+  dataTreeWidget["isLoading"] = loadingEntities.has(widget.widgetName);
 
   return {
     unEvalEntity: { ...dataTreeWidget, type: widget.type },
