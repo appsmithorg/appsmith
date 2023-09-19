@@ -150,6 +150,7 @@ function SetupForm(props: SetupFormProps) {
     proficiencyInput.type = "text";
     proficiencyInput.name = "proficiency";
     proficiencyInput.style.display = "none";
+    proficiencyInput.value = props.proficiency as string;
     form.appendChild(proficiencyInput);
 
     const useCaseInput = document.createElement("input");
