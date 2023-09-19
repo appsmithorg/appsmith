@@ -344,10 +344,10 @@ init_postgres() {
         chown -R postgres:postgres "$POSTGRES_DB_PATH"
     else
       echo "Initializing local postgresql database"
-      mkdir -p "$POSTGRES_DB_PATH"
+      mkdir -p "$POSTGRES_DB_PATH" "$TMP/postgres-stats"
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-      chown postgres:postgres "$POSTGRES_DB_PATH"
+      chown postgres:postgres "$POSTGRES_DB_PATH" "$TMP/postgres-stats"
 
       # Initialize the postgres db file system
       su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
