@@ -12,7 +12,7 @@ import {
 import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe("Validate Oracle DS", () => {
-  let dataSourceName: string, guid: any;
+  let dataSourceName: string, guid: any, query: string, selectQuery: string;
 
   before("Generate GUID", () => {
     agHelper.GenerateUUID();
@@ -112,7 +112,7 @@ describe("Validate Oracle DS", () => {
 
   it("3. Tc #2359, Tc # 2360 , Tc # 2358 - Create Insert, Alter & Select queries", () => {
     dataSources.NavigateFromActiveDS(dataSourceName, true);
-    let query = `CREATE TABLE ${guid} (
+    query = `CREATE TABLE ${guid} (
       aircraft_id NUMBER(5) PRIMARY KEY,
       aircraft_type VARCHAR2(50) NOT NULL,
       registration_number VARCHAR2(20) UNIQUE,
@@ -164,7 +164,7 @@ describe("Validate Oracle DS", () => {
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
-    let selectQuery = `SELECT * FROM ${guid} WHERE ROWNUM < 10`;
+    selectQuery = `SELECT * FROM ${guid} WHERE ROWNUM < 10`;
     dataSources.EnterQuery(selectQuery);
     dataSources.RunQueryNVerifyResponseViews();
     query = `ALTER TABLE ${guid} ADD (raw_data RAW(16), maintenance_interval INTERVAL YEAR(3) TO MONTH);`;
@@ -279,6 +279,41 @@ describe("Validate Oracle DS", () => {
     });
     table.ReadTableRowColumnData(1, 11, "v2").then(($cellData) => {
       expect($cellData).not.to.be.empty;
+    });
+    deployMode.NavigateBacktoEditor();
+  });
+
+  it("4. Tc #2361, #2362  - Update & Delete queries", () => {
+    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    query = `UPDATE ${guid}
+SET
+    maximum_speed = CASE
+        WHEN seating_capacity <= 100 THEN 400.89
+        WHEN seating_capacity > 100 AND seating_capacity <= 200 THEN 500.96
+        ELSE 600.00
+    END,
+    maintenance_interval = CASE
+        WHEN seating_capacity <= 50 THEN INTERVAL '3' MONTH
+        WHEN seating_capacity > 50 AND seating_capacity <= 150 THEN TO_YMINTERVAL('0-6')
+        ELSE TO_YMINTERVAL('1-0')
+    END
+WHERE aircraft_type = 'Passenger Plane'`;
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    selectQuery = selectQuery + ` or  aircraft_type = 'Passenger Plane'`;
+    dataSources.EnterQuery(selectQuery);
+    dataSources.RunQueryNVerifyResponseViews(3);
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      dataSources._addSuggestedExisting,
+    );
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
+    table.ReadTableRowColumnData(1, 5, "v2").then(($cellData) => {
+      expect($cellData).to.eq("400.89");
+    });
+    table.ReadTableRowColumnData(1, 11, "v2").then(($cellData) => {
+      expect($cellData).to.eq("0-6");
     });
     deployMode.NavigateBacktoEditor();
   });
