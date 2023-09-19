@@ -125,7 +125,7 @@ export const restructureWidgetSizeConfig = (
   );
 };
 
-const addPixelToSize = (size: number | string): string => {
+export const addPixelToSize = (size: number | string): string => {
   if (!size) return "";
   return typeof size === "string" ? size : `${size}px`;
 };

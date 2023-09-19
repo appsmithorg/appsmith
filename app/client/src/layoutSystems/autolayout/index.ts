@@ -2,11 +2,11 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { AutoLayoutEditorWrapper } from "./editor/AutoLayoutEditorWrapper";
 import { AutoLayoutViewerWrapper } from "./viewer/AutoLayoutViewerWrapper";
+import { getAutoLayoutComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
 import {
   getAutoDimensionsConfig,
   getAutoLayoutWidgetConfig,
 } from "layoutSystems/common/utils/commonUtils";
-import { getAutoLayoutComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
 import type { AutoDimensionOptions } from "WidgetProvider/constants";
 
 /**
