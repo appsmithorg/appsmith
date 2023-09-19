@@ -17,6 +17,7 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PartialImportExportService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -74,6 +75,9 @@ public class ApplicationControllerTest {
 
     @MockBean
     SessionUserService sessionUserService;
+
+    @MockBean
+    PartialImportExportService partialImportExportService;
 
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();
