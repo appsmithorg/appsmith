@@ -102,7 +102,7 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName, overwriteEn
     await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
     '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
   }
- 
+
 
 
   console.log('Restoring docker environment file completed');
@@ -168,6 +168,7 @@ async function run() {
         const decryptSuccess = await decryptArchive(encryptedBackupFilePath, backupFilePath);
         if (!decryptSuccess){
           console.log('You have entered the incorrect password multiple times. Aborting the restore process.')
+          await fsPromises.rm(backupFilePath, { force: true });
           process.exit(errorCode)
         }
       }
