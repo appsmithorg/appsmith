@@ -12,7 +12,6 @@ export const FEATURE_FLAG = {
     "release_embed_hide_share_settings_enabled",
   ab_gsheet_schema_enabled: "ab_gsheet_schema_enabled",
   ab_wds_enabled: "ab_wds_enabled",
-  release_widgetdiscovery_enabled: "release_widgetdiscovery_enabled",
   release_table_serverside_filtering_enabled:
     "release_table_serverside_filtering_enabled",
   release_custom_echarts_enabled: "release_custom_echarts_enabled",
@@ -42,7 +41,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_embed_hide_share_settings_enabled: false,
   ab_gsheet_schema_enabled: false,
   ab_wds_enabled: false,
-  release_widgetdiscovery_enabled: false,
   release_table_serverside_filtering_enabled: false,
   release_custom_echarts_enabled: false,
   license_branding_enabled: false,
