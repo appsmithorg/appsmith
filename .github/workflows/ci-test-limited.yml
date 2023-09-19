@@ -693,3 +693,13 @@ jobs:
           echo "$failed_specs"
           echo $failed_specs >> ~/combined_failed_spec_ci
           cat ~/combined_failed_spec_ci
+            # Upload combined failed CI spec list to a file
+
+      # This is done for debugging.
+      - name: upload combined failed spec
+        if: needs.ci-test.result != 'success'
+        uses: actions/upload-artifact@v3
+        with:
+          name: combined_failed_spec_ci
+          path: ~/combined_failed_spec_ci
+
