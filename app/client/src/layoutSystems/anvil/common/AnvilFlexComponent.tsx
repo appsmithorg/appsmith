@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from "react";
+import type { MouseEvent } from "react";
 import styled from "styled-components";
 import { Flex } from "@design-system/widgets";
 import { useSelector } from "react-redux";
@@ -17,7 +18,7 @@ import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/t
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { AnvilFlexComponentProps } from "../utils/types";
-import { MOBILE_BREAKPOINT } from "../utils/constants";
+import { getResponsiveMinWidth } from "../utils/widgetUtils";
 
 // Using a button to wrap the widget to ensure that accessibility features are included by default.
 const FlexComponentWrapper = styled.button<{ onHoverZIndex: number }>`
@@ -72,44 +73,21 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     isSelected,
   );
 
-  const stopEventPropagation = (e: any) => {
+  const stopEventPropagation = (e: MouseEvent<HTMLElement>) => {
     !isSnipingMode && e.stopPropagation();
   };
 
   const className = useMemo(
     () =>
-      `auto-layout-parent-${props.parentId} auto-layout-child-${
+      `anvil-layout-parent-${props.parentId} anvil-layout-child-${
         props.widgetId
       } ${widgetTypeClassname(
         props.widgetType,
-      )} t--widget-${props.widgetName.toLowerCase()} anvil-layout`,
+      )} t--widget-${props.widgetName.toLowerCase()}`,
     [props.parentId, props.widgetId, props.widgetType, props.widgetName],
   );
 
   const isFillWidget = props.responsiveBehavior === ResponsiveBehavior.Fill;
-
-  /**
-   * Updates minWidth style for the widget based on its responsiveBehavior:
-   * A Fill widget will expand to assume 100% of its parent's width when its parent width < 480px.
-   * For other situations, it will adopt the minWidth provided in its widget config.
-   * @param config Record<string, string | number> | undefined
-   * @returns Record<string, string | number> | undefined
-   */
-  const getMinWidth = (
-    config: Record<string, string | number> | undefined,
-  ): Record<string, string | number> | undefined => {
-    if (!config)
-      return isFillWidget
-        ? { base: "100%", [`${MOBILE_BREAKPOINT}px`]: "" }
-        : undefined;
-    if (!isFillWidget) return config;
-    const minWidth = config["base"];
-    return {
-      ...config,
-      base: "100%",
-      [`${MOBILE_BREAKPOINT}px`]: config[`${MOBILE_BREAKPOINT}px`] || minWidth,
-    };
-  };
 
   // Memoize flex props to be passed to the WDS Flex component.
   // If the widget is being resized => update width and height to auto.
@@ -122,7 +100,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
       height:
         props.hasAutoHeight || isCurrentWidgetResizing
           ? "auto"
-          : props.componentHeight.toString(),
+          : `${props.componentHeight}px`,
       maxHeight:
         props.widgetSize?.maxHeight &&
         Object.keys(props.widgetSize?.maxHeight).length
@@ -139,12 +117,12 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
           ? props.widgetSize?.minHeight
           : undefined,
       // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
-      minWidth: getMinWidth(props.widgetSize?.minWidth),
+      minWidth: getResponsiveMinWidth(props.widgetSize?.minWidth, isFillWidget),
       padding: WIDGET_PADDING + "px",
       width:
         isFillWidget || props.hasAutoWidth || isCurrentWidgetResizing
           ? "auto"
-          : props.componentWidth.toString(),
+          : `${props.componentWidth}px`,
     };
   }, [
     isCurrentWidgetResizing,

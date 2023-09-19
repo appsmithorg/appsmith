@@ -271,7 +271,7 @@ describe("Layout System HOC's Tests", () => {
         .mockImplementation(() => AppPositioningTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
-        "anvil-layout auto-layout-child-" + widgetProps.widgetId,
+        "anvil-layout-child-" + widgetProps.widgetId,
       )[0];
       expect(flexPositionedLayer).toBeTruthy();
     });
@@ -289,7 +289,7 @@ describe("Layout System HOC's Tests", () => {
         .mockImplementation(() => AppPositioningTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
-        "anvil-layout auto-layout-child-" + widgetProps.widgetId,
+        "anvil-layout-child-" + widgetProps.widgetId,
       )[0];
       const overlayLayer =
         component.container.getElementsByClassName("bp3-overlay")[0];
@@ -308,7 +308,7 @@ describe("Layout System HOC's Tests", () => {
         .mockImplementation(() => AppPositioningTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
-        "anvil-layout auto-layout-child-" + widgetProps.widgetId,
+        "anvil-layout-child-" + widgetProps.widgetId,
       )[0];
       expect(flexPositionedLayer).toBeFalsy();
     });
@@ -326,7 +326,7 @@ describe("Layout System HOC's Tests", () => {
         .mockImplementation(() => AppPositioningTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
-        "anvil-layout auto-layout-child-" + widgetProps.widgetId,
+        "anvil-layout-child-" + widgetProps.widgetId,
       )[0];
       const overlayLayer =
         component.container.getElementsByClassName("bp3-overlay")[0];
@@ -345,7 +345,7 @@ describe("Layout System HOC's Tests", () => {
         .mockImplementation(() => AppPositioningTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
-        "anvil-layout auto-layout-child-" + widgetProps.widgetId,
+        "anvil-layout-child-" + widgetProps.widgetId,
       )[0];
       expect(flexPositionedLayer).toBeTruthy();
     });
@@ -361,7 +361,7 @@ describe("Layout System HOC's Tests", () => {
         .mockImplementation(() => AppPositioningTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
-        "anvil-layout auto-layout-child-" + widgetProps.widgetId,
+        "anvil-layout-child-" + widgetProps.widgetId,
       )[0];
       expect(flexPositionedLayer).toBeFalsy();
     });
