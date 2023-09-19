@@ -110,10 +110,51 @@ describe("Validate Oracle DS", () => {
     dataSources.ValidateNSelectDropdown("SSL mode", "Disable");
     agHelper.GoBack(); //Do not edit anythin, go back to active ds list, ensure no modal is opened
     dataSources.AssertDSInActiveList(dataSourceName);
-    // });
   });
 
-  it("3. Tc #2359, Tc # 2360 , Tc # 2358 - Create Insert, Alter & Select queries", () => {
+  it("3. Tc #2359, Tc # 2360 , Tc # 2358, Tc # 2366 - Create Insert, Alter & Select queries, Widgets to query binding", () => {
+    const currentDate = new Date().toISOString().slice(0, 10);
+
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.DATEPICKER, 200, 50);
+    propPane.SelectPropertiesDropDown("Date format", "YYYY-MM-DD");
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 500, 50);
+    propPane.EnterJSContext(
+      "Source Data",
+      `[{
+    "name": "Cargo Plane",
+    "value": "Cargo Plane"
+  },
+  {
+    "name": "Passenger Plane",
+    "code": "Passenger Plane"
+  },
+  {
+    "name": "Helicopter",
+    "code": "Helicopter"
+  }]`,
+    );
+    propPane.UpdatePropertyFieldValue("Default selected value", "Cargo Plane");
+    propPane.AssertPropertiesDropDownValues("Label key", [
+      "name",
+      "code",
+      "value",
+    ]);
+    propPane.SelectPropertiesDropDown(
+      "Label key",
+      "value",
+      "Action",
+      0,
+      0,
+      true,
+    );
+    propPane.SelectPropertiesDropDown(
+      "Value key",
+      "name",
+      "Action",
+      0,
+      1,
+      true,
+    );
     dataSources.NavigateFromActiveDS(dataSourceName, true);
     query = `CREATE TABLE ${guid} (
       aircraft_id NUMBER(5) PRIMARY KEY,
@@ -151,25 +192,34 @@ describe("Validate Oracle DS", () => {
     maintenance_last_date,
     notes) VALUES (
     1,
-    'Cargo Plane',
+    '{{Select1.selectedOptionLabel}}',
     'N12345',
     'Boeing',
     150,
     550.03,
     3500.30,
     TO_DATE('2020-01-15', 'YYYY-MM-DD'),
-    TO_DATE('September 14, 2023', 'Month DD, YYYY'),
-    'This aircraft is used for domestic flights.');`;
+    TO_DATE('{{DatePicker1.formattedDate}}', 'YYYY-MM-DD'),
+    'This aircraft is used for domestic flights.')`;
     entityExplorer.ActionTemplateMenuByEntityName(guid.toUpperCase(), "SELECT");
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
     dataSources.EnterQuery(query);
+    agHelper.VerifyEvaluatedValue(
+      `INSERT INTO ${guid} (\n    aircraft_id,\n    aircraft_type,\n    registration_number,\n    manufacturer,\n    seating_capacity,\n    maximum_speed,\n    range,\n    purchase_date,\n    maintenance_last_date,\n    notes) VALUES (\n    1,\n    $1,\n    'N12345',\n    'Boeing',\n    150,\n    550.03,\n    3500.30,\n    TO_DATE('2020-01-15', 'YYYY-MM-DD'),\n    TO_DATE($2, 'YYYY-MM-DD'),\n    'This aircraft is used for domestic flights.')`,
+    );
+    dataSources.ToggleUsePreparedStatement(false);
+    agHelper.GetNClick(locators._codeEditorTarget);
+    agHelper.VerifyEvaluatedValue(
+      `INSERT INTO ${guid} (\n    aircraft_id,\n    aircraft_type,\n    registration_number,\n    manufacturer,\n    seating_capacity,\n    maximum_speed,\n    range,\n    purchase_date,\n    maintenance_last_date,\n    notes) VALUES (\n    1,\n    'Cargo Plane',\n    'N12345',\n    'Boeing',\n    150,\n    550.03,\n    3500.30,\n    TO_DATE('2020-01-15', 'YYYY-MM-DD'),\n    TO_DATE('${currentDate}', 'YYYY-MM-DD'),\n    'This aircraft is used for domestic flights.')`,
+    );
     dataSources.RunQuery();
     selectQuery = `SELECT * FROM ${guid} WHERE ROWNUM < 10`;
     dataSources.EnterQuery(selectQuery);
     dataSources.RunQueryNVerifyResponseViews();
+    dataSources.ToggleUsePreparedStatement(true);
     query = `ALTER TABLE ${guid} ADD (raw_data RAW(16), maintenance_interval INTERVAL YEAR(3) TO MONTH);`;
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
@@ -390,7 +440,6 @@ WHERE aircraft_type = 'Passenger Plane'`;
   it("7. Tc #2365  - Query settings tab validations", () => {
     apiPage.ToggleOnPageLoadRun(false); // ALl above cases validated for onpage load run with confirmation dialog set to false
     apiPage.ToggleConfirmBeforeRunning(true);
-    dataSources.ToggleUsePreparedStatement(false);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitForTableEmpty("v2");
     deployMode.NavigateBacktoEditor();
