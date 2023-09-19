@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +21,8 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { Spinner } from "design-system";
 import AddDatasourceModal from "./DataState/AddDatasourceModal";
+import { fetchPage, updateCurrentPage } from "../../actions/pageActions";
+import { useParams } from "react-router";
 
 const Body = styled.div<{ leftPaneWidth: number }>`
   height: calc(100vh - 40px);
@@ -38,6 +40,8 @@ const StyledCenteredWrapper = styled(CenteredWrapper)`
 
 const IDE = function () {
   const dispatch = useDispatch();
+  const [lastPage, setLastPage] = useState("");
+  const { pageId } = useParams<{ pageId?: string }>();
   useEffect(() => {
     editorInitializer().then(() => {
       dispatch(widgetInitialisationSuccess());
@@ -52,6 +56,14 @@ const IDE = function () {
   );
   const isEditorInitialized = useSelector(getIsEditorInitialized);
   const leftPaneWidth = useSelector(getIdeSidebarWidth);
+
+  useEffect(() => {
+    if (pageId && lastPage !== pageId) {
+      dispatch(updateCurrentPage(pageId));
+      dispatch(fetchPage(pageId));
+      setLastPage(pageId);
+    }
+  }, [pageId]);
 
   if (!isEditorInitialized) {
     return (

@@ -11,11 +11,8 @@ import {
 } from "constants/routes";
 import { SentryRoute } from "@appsmith/AppRouter";
 import DataMainPane from "./DataState/MainPane";
-import PageMainPane from "./PageState/MainPane";
-import AddMainPane from "./AddState/MainPane";
-import SettingsMainPane from "./SettingsState/MainPane";
-import LibMainPane from "./LibraryState/MainPane";
 import DataMainEmptyState from "./DataState/EmptyState";
+import WidgetsEditor from "../Editor/WidgetsEditor";
 
 const Container = styled.div`
   background-color: white;
@@ -38,14 +35,10 @@ const MainPane = () => {
           exact
           path={IDE_DATA_DETAIL_PATH}
         />
-        <SentryRoute component={PageMainPane} path={IDE_PAGE_PATH} />
-        <SentryRoute component={AddMainPane} exact path={IDE_ADD_PATH} />
-        <SentryRoute component={LibMainPane} exact path={IDE_LIB_PATH} />
-        <SentryRoute
-          component={SettingsMainPane}
-          exact
-          path={IDE_SETTINGS_PATH}
-        />
+        <SentryRoute component={WidgetsEditor} path={IDE_PAGE_PATH} />
+        <SentryRoute component={WidgetsEditor} exact path={IDE_ADD_PATH} />
+        <SentryRoute component={WidgetsEditor} exact path={IDE_LIB_PATH} />
+        <SentryRoute component={WidgetsEditor} exact path={IDE_SETTINGS_PATH} />
       </Switch>
     </Container>
   );

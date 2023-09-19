@@ -25,7 +25,6 @@ import { useIDENavState } from "../hooks";
 import useWindowDimensions from "../../../utils/hooks/useWindowDimensions";
 import PropertyPane from "./components/PropertyPane";
 import { PageNavState } from "../ideReducer";
-import { fetchPage, updateCurrentPage } from "../../../actions/pageActions";
 
 const Container = styled.div`
   background-color: #f1f5f9;
@@ -94,14 +93,6 @@ const PageLeftPane = () => {
   );
   const [navState] = useIDENavState();
   const [width] = useWindowDimensions();
-
-  useEffect(() => {
-    if (matchParams?.params.pageId) {
-      const pageId = matchParams.params.pageId;
-      dispatch(updateCurrentPage(pageId));
-      dispatch(fetchPage(pageId));
-    }
-  }, [matchParams?.params.pageId]);
 
   useEffect(() => {
     const { pageNav } = navState;
