@@ -3,6 +3,7 @@ import React from "react";
 import WidgetsExport from "./WidgetsExport";
 import DatasourcesExport from "./DatasourcesExport";
 import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
+import CustomJSLibsExport from "./CustomJSLibsExport";
 
 type Props = {
   handleModalClose: () => void;
@@ -16,6 +17,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         <WidgetsExport />
         <JSObjectsNQueriesExport />
         <DatasourcesExport />
+        <CustomJSLibsExport />
       </ModalContent>
     </Modal>
   );
