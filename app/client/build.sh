@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+REACT_APP_CLOUD_HOSTING=true
 
 GIT_SHA=$(eval git rev-parse HEAD)
 echo $GIT_SHA
