@@ -6,12 +6,16 @@ const utils = require('./utils');
 const Constants = require('./constants');
 const logger = require('./logger');
 const mailer = require('./mailer');
+const tty = require('tty');
+const readlineSync = require('readline-sync');
 
 const command_args = process.argv.slice(3);
 
 async function run() {
   const timestamp = getTimeStampInISO();
   let errorCode = 0;
+  let backupRootPath, archivePath, encryptionPassword;
+  let encryptArchive = false;
   try {
     const check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1';
     shell.exec(check_supervisord_status_cmd, function (code) {
@@ -27,7 +31,15 @@ async function run() {
 
     checkAvailableBackupSpace(availSpaceInBytes);
 
-    const backupRootPath = await generateBackupRootPath();
+    if (!command_args.includes('--non-interactive') && (tty.isatty(process.stdout.fd))){
+      encryptionPassword = getEncryptionPasswordFromUser();
+      if (encryptionPassword == -1){
+        throw new Error('Backup process aborted because a valid enctyption password could not be obtained from the user');
+      }
+      encryptArchive = true;
+    }
+
+    backupRootPath = await generateBackupRootPath();
     const backupContentsPath = getBackupContentsPath(backupRootPath, timestamp);
 
     await fsPromises.mkdir(backupContentsPath);
@@ -37,14 +49,22 @@ async function run() {
     await createGitStorageArchive(backupContentsPath);
 
     await createManifestFile(backupContentsPath);
-    await exportDockerEnvFile(backupContentsPath);
+    await exportDockerEnvFile(backupContentsPath, encryptArchive);
 
-    const archivePath = await createFinalArchive(backupRootPath, timestamp);
-
-    await fsPromises.rm(backupRootPath, { recursive: true, force: true });
-
-    logger.backup_info('Finished taking a backup at' + archivePath);
-
+    archivePath = await createFinalArchive(backupRootPath, timestamp);
+    // shell.exec("openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -in " + archivePath + " -out " + archivePath + ".enc");
+    if (encryptArchive){
+        const encryptedArchivePath = await encryptBackupArchive(archivePath,encryptionPassword);
+        logger.backup_info('Finished creating an encrypted a backup archive at ' + encryptedArchivePath);
+    }
+    else {
+      logger.backup_info('Finished creating a backup archive at ' + archivePath);
+      console.log('********************************************************* IMPORTANT!!! *************************************************************');
+      console.log('*** Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file **')
+      console.log('*** These values are not included in the backup export.                                                                           **');
+      console.log('************************************************************************************************************************************');
+    }
+    
   } catch (err) {
     errorCode = 1;
     await logger.backup_error(err.stack);
@@ -58,9 +78,37 @@ async function run() {
       }
     }
   } finally {
+    await fsPromises.rm(backupRootPath, { recursive: true, force: true });
+    if (encryptArchive) {
+       await fsPromises.rm(archivePath, { recursive: true, force: true });
+    }
     await postBackupCleanup();
     process.exit(errorCode);
   }
+}
+async function encryptBackupArchive(archivePath, encryptionPassword){
+  const encryptedArchivePath = archivePath + '.enc';
+  await utils.execCommand(['openssl', 'enc', '-aes-256-cbc', '-pbkdf2', '-iter', 100000, '-in', archivePath, '-out', encryptedArchivePath, '-k', encryptionPassword ])
+  return encryptedArchivePath;
+}
+
+function getEncryptionPasswordFromUser(){ 
+  for (const _ of [1, 2, 3]) 
+  { 
+    const encryptionPwd1 = readlineSync.question('Enter a password to encrypt the backup archive: ', { hideEchoBack: true });
+    const encryptionPwd2 = readlineSync.question('Enter the above password again: ', { hideEchoBack: true });
+    if (encryptionPwd1 === encryptionPwd2){
+       if (encryptionPwd1){
+        return encryptionPwd1;
+       }
+       console.error("Invalid input. Empty password is not allowed, please try again.")
+    }
+    else {
+      console.error("The passwords do not match, please try again.");
+    }
+  } 
+  console.error("Aborting backup process, failed to obtain valid encryption password.");
+  return -1 
 }
 
 async function exportDatabase(destFolder) {
@@ -85,15 +133,17 @@ async function createManifestFile(path) {
   await fsPromises.writeFile(path + '/manifest.json', JSON.stringify(manifest_data));
 }
 
-async function exportDockerEnvFile(destFolder) {
+async function exportDockerEnvFile(destFolder, encryptArchive) {
   console.log('Exporting docker environment file');
   const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', { encoding: 'utf8' });
-  const cleaned_content = removeSensitiveEnvData(content)
+  let cleaned_content = removeSensitiveEnvData(content);
+  if (encryptArchive){ 
+    cleaned_content += '\nAPPSMITH_ENCRYPTION_SALT=' + process.env.APPSMITH_ENCRYPTION_SALT +
+    '\nAPPSMITH_ENCRYPTION_PASSWORD=' + process.env.APPSMITH_ENCRYPTION_PASSWORD
+  }
+ 
   await fsPromises.writeFile(destFolder + '/docker.env', cleaned_content);
   console.log('Exporting docker environment file done.');
-  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!! Important !!!!!!!!!!!!!!!!!!!!!!!!!!');
-  console.log('!!! Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file because those values are not included in the backup export.');
-  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
 }
 
 async function executeMongoDumpCMD(destFolder, appsmithMongoURI) {
@@ -147,7 +197,7 @@ function removeSensitiveEnvData(content) {
   const output_lines = []
   content.split(/\r?\n/).forEach(line => {
     if (!line.startsWith("APPSMITH_ENCRYPTION") && !line.startsWith("APPSMITH_MONGODB")) {
-      output_lines.push(line);
+      output_lines.push(line)
     }
   });
   return output_lines.join('\n')
@@ -195,5 +245,7 @@ module.exports = {
   executeCopyCMD,
   removeSensitiveEnvData,
   getBackupArchiveLimit,
-  removeOldBackups
+  removeOldBackups,
+  getEncryptionPasswordFromUser,
+  encryptBackupArchive,
 };
