@@ -75,7 +75,7 @@ describe("Embed settings options", function () {
     _.deployMode.NavigateToHomeDirectly();
   });
 
-  it("1. Limit embedding", function () {
+  it("1. Limit embedding then Allow embedding everywhere then Disable everywhere", function () {
     cy.get(".admin-settings-menu-option").click();
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
       cy.get("input").eq(1).click();
