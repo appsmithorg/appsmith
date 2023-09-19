@@ -25,7 +25,7 @@ import type {
   AlignmentInfo,
   DropZone,
   HighlightInfo,
-} from "../../anvil/utils/autoLayoutTypes";
+} from "../../anvil/utils/types";
 import { getTotalRowsOfAllChildren } from "./heightUpdateUtils";
 import { DEFAULT_HIGHLIGHT_SIZE } from "../common/flexCanvas/FlexBoxComponent";
 import type { FlexLayer, LayerChild } from "./types";

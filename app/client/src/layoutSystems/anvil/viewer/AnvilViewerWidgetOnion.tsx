@@ -28,9 +28,7 @@ export const AnvilViewerWidgetOnion = (props: BaseWidgetProps) => {
       focused={props.focused}
       hasAutoHeight={!!props.hasAutoHeight}
       hasAutoWidth={!!props.hasAutoWidth}
-      isMobile={props.isMobile || false}
       isResizeDisabled={props.resizeDisabled}
-      parentColumnSpace={props.parentColumnSpace}
       parentId={props.parentId}
       renderMode={props.renderMode}
       responsiveBehavior={props.responsiveBehavior}

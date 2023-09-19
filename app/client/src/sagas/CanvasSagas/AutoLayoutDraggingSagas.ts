@@ -23,7 +23,7 @@ import {
   updateExistingLayer,
   updateRelationships,
 } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
-import type { HighlightInfo } from "layoutSystems/anvil/utils/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/anvil/utils/types";
 import { updatePositionsOfParentAndSiblings } from "layoutSystems/autolayout/utils/positionUtils";
 import {
   getCanvasWidth,

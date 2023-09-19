@@ -1,12 +1,12 @@
+import type { ReactNode } from "react";
 import type {
   FlexLayerAlignment,
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "./constants";
-import type { ReactNode } from "react";
-import type { RenderMode } from "constants/WidgetConstants";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { WidgetType } from "WidgetProvider/factory";
+import type { RenderMode } from "constants/WidgetConstants";
 
 export type AlignmentColumnInfo = {
   [key in FlexLayerAlignment]: number;
@@ -67,21 +67,22 @@ export interface Row extends AlignmentInfo {
  * End: Position utils types
  */
 
-export type FlexComponentProps = {
+export interface AnvilFlexComponentProps {
   alignment: FlexVerticalAlignment;
   children: ReactNode;
   componentHeight: number;
   componentWidth: number;
+  hasAutoWidth: boolean;
+  hasAutoHeight: boolean;
+  isResizeDisabled?: boolean;
+  flexVerticalAlignment: FlexVerticalAlignment;
   focused?: boolean;
   parentId?: string;
+  renderMode?: RenderMode;
   responsiveBehavior?: ResponsiveBehavior;
   selected?: boolean;
-  isResizeDisabled?: boolean;
   widgetId: string;
   widgetName: string;
+  widgetSize?: { [key: string]: Record<string, string | number> };
   widgetType: WidgetType;
-  parentColumnSpace: number;
-  flexVerticalAlignment: FlexVerticalAlignment;
-  isMobile: boolean;
-  renderMode: RenderMode;
-};
+}

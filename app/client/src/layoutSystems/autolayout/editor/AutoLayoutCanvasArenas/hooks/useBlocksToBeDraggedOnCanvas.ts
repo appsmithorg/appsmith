@@ -18,7 +18,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useContext, useEffect, useRef } from "react";
 import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
 import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
-import type { HighlightInfo } from "layoutSystems/anvil/utils/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/anvil/utils/types";
 import {
   LayoutDirection,
   AlignItems,

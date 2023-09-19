@@ -19,14 +19,8 @@ import {
 } from "layoutSystems/anvil/utils/constants";
 import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
 import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
-import type { FlexComponentProps } from "layoutSystems/anvil/utils/autoLayoutTypes";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
-
-export type AnvilFlexComponentProps = FlexComponentProps & {
-  hasAutoWidth: boolean;
-  hasAutoHeight: boolean;
-  widgetSize?: { [key: string]: Record<string, string | number> };
-};
+import type { AnvilFlexComponentProps } from "../utils/types";
 
 // Using a button to wrap the widget to ensure that accessibility features are included by default.
 const FlexComponentWrapper = styled.button<{ onHoverZIndex: number }>`

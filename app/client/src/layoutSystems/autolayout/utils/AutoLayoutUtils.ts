@@ -31,7 +31,7 @@ import {
 import type {
   AlignmentColumnData,
   AlignmentColumnInfo,
-} from "layoutSystems/anvil/utils/autoLayoutTypes";
+} from "layoutSystems/anvil/utils/types";
 import type { FlexLayer, LayerChild } from "./types";
 
 export type ReadableSnapShotDetails = {

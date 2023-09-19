@@ -4,7 +4,7 @@ import {
   ResponsiveBehavior,
   ROW_GAP,
 } from "layoutSystems/anvil/utils/constants";
-import type { HighlightInfo } from "../../anvil/utils/autoLayoutTypes";
+import type { HighlightInfo } from "../../anvil/utils/types";
 import { getWidgetHeight } from "./flexWidgetUtils";
 import type { VerticalHighlightsPayload } from "./highlightUtils";
 import {

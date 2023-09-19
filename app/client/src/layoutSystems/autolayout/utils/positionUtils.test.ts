@@ -3,7 +3,7 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/anvil/utils/constants";
-import type { AlignmentInfo, Row } from "../../anvil/utils/autoLayoutTypes";
+import type { AlignmentInfo, Row } from "../../anvil/utils/types";
 import { RenderModes } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
