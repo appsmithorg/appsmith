@@ -158,7 +158,6 @@ export default class DataTreeEvaluator {
    */
   validationDependencyMap: DependencyMap = new DependencyMap();
   validationDependencies: Record<string, string[]> = {};
-  sortedValidationDependencies: SortedDependencies = [];
   inverseValidationDependencies: Record<string, string[]> = {};
 
   /**
@@ -282,8 +281,8 @@ export default class DataTreeEvaluator {
     this.inverseValidationDependencies = inverseValidationDependencies;
 
     const sortDependenciesStartTime = performance.now();
-    this.sortedDependencies = this.sortDependencies(this.dependencyMap);
-    this.sortedValidationDependencies = this.sortDependencies(
+    this.sortedDependencies = this.sortDependencies(
+      this.dependencyMap,
       this.validationDependencyMap,
     );
     const sortDependenciesEndTime = performance.now();
@@ -1207,9 +1206,13 @@ export default class DataTreeEvaluator {
 
   sortDependencies(
     dependencyMap: DependencyMap,
+    validationDependencyMap?: DependencyMap,
     diffs?: DataTreeDiff[],
   ): Array<string> {
-    const result = DependencyMapUtils.sortDependencies(dependencyMap);
+    const result = DependencyMapUtils.sortDependencies(
+      dependencyMap,
+      validationDependencyMap,
+    );
     if (result.success) {
       return result.sortedDependencies;
     } else {
