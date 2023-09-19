@@ -3,7 +3,9 @@ package com.appsmith.server.aspect;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.services.FeatureFlagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,10 +65,7 @@ public class FeatureFlaggedMethodInvokerAspect {
         }
         // For non-reactive methods with feature flagging annotation we will have to convert featureFlagMono to
         // synchronous call using .block()
-        String errorMessage = "Only reactive objects Mono and Flux are supported";
-        AppsmithException exception = getInvalidAnnotationUsageException(method, errorMessage);
-        log.error(exception.getMessage());
-        throw exception;
+        return invokeMethod(isFeatureFlagEnabled(flagName), joinPoint, method);
     }
 
     private Object invokeMethod(Boolean isFeatureSupported, ProceedingJoinPoint joinPoint, Method method) {
@@ -102,5 +101,12 @@ public class FeatureFlaggedMethodInvokerAspect {
                 method.getDeclaringClass().getSimpleName(),
                 method.getName(),
                 error);
+    }
+
+    boolean isFeatureFlagEnabled(FeatureFlagEnum flagName) {
+        CachedFeatures cachedFeatures = featureFlagService.getCachedTenantFeatureFlags();
+        return cachedFeatures != null
+                && !CollectionUtils.isNullOrEmpty(cachedFeatures.getFeatures())
+                && Boolean.TRUE.equals(cachedFeatures.getFeatures().get(flagName.name()));
     }
 }
