@@ -688,7 +688,7 @@ jobs:
             return specs;
           
       - name: Set the output
-        if: failed_specs
+        id: failed_specs
         run : |
           failed_specs=$(echo ${{steps.test.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
           echo "specs=$failed_spec" >> $GITHUB_OUTPUT
@@ -699,4 +699,3 @@ jobs:
           echo "${{steps.failed_specs.outputs.specs}}"
           echo "${{steps.failed_specs.outputs.spec_count}}"
       
-
