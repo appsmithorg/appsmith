@@ -162,7 +162,7 @@ export class PropertyPane {
     ".currency-change-dropdown-trigger .remixicon-icon";
   _countryCodeChangeDropDown = ".t--input-country-code-change .remixicon-icon";
   _searchCountryPlaceHolder = "[placeholder='Search by ISD code or country']";
-
+  _dataIcon = (icon: string) => `[data-icon="${icon}"]`;
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
   }
@@ -599,7 +599,7 @@ export class PropertyPane {
     this.assertHelper.AssertNetworkStatus("@updateWidgetName");
   }
 
-  public CreateModal(modalName: string, property: string) {
+  public CreateModal(property: string) {
     this.SelectPlatformFunction(property, "Show modal");
     this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
     this.agHelper.GetNClick(this._createModalButton);
@@ -620,5 +620,13 @@ export class PropertyPane {
   public SelectColorFromColorPicker(property: string, colorOffset: number) {
     this.agHelper.GetNClick(this._propertyControlColorPicker(property));
     this.agHelper.GetNClick(this._colorPickerV2Color, colorOffset, true);
+  }
+
+  public AssertPropertyVisibility(properties: string[], sectionTitle: string) {
+    properties.forEach((property: string) => {
+      this.agHelper.AssertElementVisibility(
+        this._propertyPanePropertyControl(sectionTitle, property),
+      );
+    });
   }
 }
