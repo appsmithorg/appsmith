@@ -53,18 +53,30 @@ describe("SMTP datasource test cases using ted", function () {
 
   it("2. On canvas, passing wrong email address in widgets should give error", function () {
     // verify an error is thrown when recipient address is not added
-    cy.xpath("//input[@class='bp3-input']").eq(0).type("test@appsmith.com");
-    cy.get("span.bp3-button-text:contains('Run query')").closest("div").click();
+    cy.xpath("//input[@class='bp3-input']")
+      .eq(0)
+      .type("test@appsmith.com")
+      .wait(500);
+    cy.get("span.bp3-button-text:contains('Run query')")
+      .closest("div")
+      .click()
+      .wait(500);
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
     });
-    agHelper.ValidateToastMessage(
+    agHelper.WaitUntilToastDisappear(
       "Couldn't find a valid recipient address. Please check your action configuration",
     );
     // verify an error is thrown when sender address is not added
-    cy.xpath("//input[@class='bp3-input']").eq(0).clear();
-    cy.xpath("//input[@class='bp3-input']").eq(1).type("qwerty@appsmith.com");
-    cy.get("span.bp3-button-text:contains('Run query')").closest("div").click();
+    cy.xpath("//input[@class='bp3-input']").eq(0).clear().wait(500);
+    cy.xpath("//input[@class='bp3-input']")
+      .eq(1)
+      .type("qwerty@appsmith.com")
+      .wait(500);
+    cy.get("span.bp3-button-text:contains('Run query')")
+      .closest("div")
+      .click()
+      .wait(500);
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
     });
