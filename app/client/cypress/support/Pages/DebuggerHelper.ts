@@ -46,6 +46,8 @@ export class DebuggerHelper {
     _intercomOption: "#intercom-trigger",
     _intercomConsentText: "[data-testid='t--intercom-consent-text']",
     _logsTab: "[data-testid='t--tab-LOGS_TAB']",
+    _debuggerFilterClear:
+      "//input[@data-testid='t--debugger-search']/following-sibling::span",
   };
 
   ClickDebuggerIcon(

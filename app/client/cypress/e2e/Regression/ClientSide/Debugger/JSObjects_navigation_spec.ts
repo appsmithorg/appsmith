@@ -22,6 +22,7 @@ describe("excludeForAirgap", "JSObjects", () => {
       entityType: entityItems.JSObject,
     });
   });
+
   it("2. Focus and position cursor on the ch,line having an error", () => {
     const JS_OBJECT_BODY = `export default {
         myVar1: [],
@@ -53,6 +54,7 @@ describe("excludeForAirgap", "JSObjects", () => {
       entityType: entityItems.JSObject,
     });
   });
+
   it("3. Bug 24990 Clears logs filter using backspace", function () {
     const JS_OBJECT_BODY = `export default {
       myVar1: [],
