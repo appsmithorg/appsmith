@@ -49,6 +49,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -591,20 +593,22 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .collectList()
                 .flatMap(userUtils::removeSuperUser);
 
-        Flux<User> usersFlux = Flux.fromIterable(newUsers)
-                .flatMap(email -> userService.findByEmail(email).map(existingUser -> {
-                    if (existingUser == null) {
-                        User newUser = new User();
-                        newUser.setEmail(email);
-                        newUser.setIsEnabled(false);
-                        return newUser;
-                    }
-                    return existingUser;
-                }))
+        Flux<Tuple2<User, Boolean>> usersFlux = Flux.fromIterable(newUsers)
+                .flatMap(email -> userService
+                        .findByEmail(email)
+                        .flatMap(user -> {
+                            return Mono.just(Tuples.of(user, false));
+                        })
+                        .switchIfEmpty(Mono.defer(() -> {
+                            User newUser = new User();
+                            newUser.setEmail(email);
+                            newUser.setIsEnabled(false);
+                            return Mono.just(Tuples.of(newUser, true));
+                        })))
                 .cache();
 
-        Flux<User> newUsersFlux = usersFlux.filter(user -> !user.isEnabled());
-        Flux<User> existingUsersFlux = usersFlux.filter(User::isEnabled);
+        Flux<User> newUsersFlux = usersFlux.filter(Tuple2::getT2).map(Tuple2::getT1);
+        Flux<User> existingUsersFlux = usersFlux.filter(tuple -> !tuple.getT2()).map(Tuple2::getT1);
 
         // we are sending email to existing users who are not already super-users
         Mono<List<User>> existingUsersWhichAreNotAlreadySuperUsersMono = existingUsersFlux
