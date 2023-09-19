@@ -38,7 +38,7 @@ export DBNAME=ce"$PULL_REQUEST_NUMBER"
 export DOMAINNAME=ce-"$PULL_REQUEST_NUMBER".dp.appsmith.com
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm-ee.appsmith.com"
-export HELMCHART_VERSION="3.0.5"
+export HELMCHART_VERSION="3.0.7"
 
 
 aws eks update-kubeconfig --region $region --name $cluster_name --profile eksci
@@ -81,6 +81,7 @@ kubectl create secret docker-registry $SECRET \
 echo "Add appsmith-ee to helm repo"
 AWS_REGION=us-east-2 helm repo add appsmith-ee $HELMCHART_URL;
 helm repo update;
+helm mapkubeapis $CHARTNAME -n $NAMESPACE
 
 echo "Deploy appsmith helm chart"
 helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespace --recreate-pods \
