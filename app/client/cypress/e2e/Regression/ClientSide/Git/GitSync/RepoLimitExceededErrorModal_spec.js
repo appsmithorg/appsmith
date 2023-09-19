@@ -20,7 +20,7 @@ describe("Repo Limit Exceeded Error Modal", function () {
     onboarding.closeIntroModal();
   });
 
-  it("1. Verify Repo limit flow for CE and EE instances", function () {
+  it("1. Verify Repo limit flow for CE instance", function () {
     homePage.LogOutviaAPI();
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmithtest.com`, uid);
