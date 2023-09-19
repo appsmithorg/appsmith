@@ -1,4 +1,4 @@
-import type { AlignmentColumnData } from "../../anvil/utils/types";
+import type { AlignmentColumnData } from "../../autolayout/utils/types";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
