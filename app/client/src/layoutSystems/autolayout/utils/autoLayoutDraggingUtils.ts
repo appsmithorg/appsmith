@@ -1,4 +1,4 @@
-import { FlexLayerAlignment } from "layoutSystems/anvil/utils/constants";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { isArray } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetPositions } from "./positionUtils";

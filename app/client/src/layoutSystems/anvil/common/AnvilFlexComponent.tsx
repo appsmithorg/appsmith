@@ -12,14 +12,12 @@ import {
   isWidgetSelected,
 } from "selectors/widgetSelectors";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
-import {
-  MOBILE_BREAKPOINT,
-  ResponsiveBehavior,
-} from "layoutSystems/anvil/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { AnvilFlexComponentProps } from "../utils/types";
+import { MOBILE_BREAKPOINT } from "../utils/constants";
 
 // Using a button to wrap the widget to ensure that accessibility features are included by default.
 const FlexComponentWrapper = styled.button<{ onHoverZIndex: number }>`

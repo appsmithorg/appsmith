@@ -2,7 +2,7 @@ import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
-import { FlexVerticalAlignment } from "../utils/constants";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 /**
  * AnvilViewerWidgetOnion

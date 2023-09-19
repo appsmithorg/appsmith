@@ -2,7 +2,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import {
   LayoutDirection,
   ResponsiveBehavior,
-} from "../../../anvil/utils/constants";
+} from "../../../common/utils/constants";
 
 /**
  * MAIN CONTAINER

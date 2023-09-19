@@ -3,8 +3,7 @@ import {
   FlexLayerAlignment,
   ResponsiveBehavior,
   ROW_GAP,
-} from "layoutSystems/anvil/utils/constants";
-import type { HighlightInfo } from "../../anvil/utils/types";
+} from "layoutSystems/common/utils/constants";
 import { getWidgetHeight } from "./flexWidgetUtils";
 import type { VerticalHighlightsPayload } from "./highlightUtils";
 import {
@@ -12,6 +11,7 @@ import {
   generateHighlightsForAlignment,
   generateVerticalHighlights,
 } from "./highlightUtils";
+import type { HighlightInfo } from "layoutSystems/common/utils/types";
 
 describe("test HighlightUtils methods", () => {
   describe("test deriveHighlightsFromLayers method", () => {

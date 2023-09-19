@@ -8,7 +8,7 @@ import {
   Positioning,
   ResponsiveBehavior,
   Spacing,
-} from "layoutSystems/anvil/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 export interface LayoutProperties {

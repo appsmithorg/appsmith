@@ -5,7 +5,7 @@ import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponen
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
 import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
-import { FlexVerticalAlignment } from "../utils/constants";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 /**
  * AnvilEditorWidgetOnion

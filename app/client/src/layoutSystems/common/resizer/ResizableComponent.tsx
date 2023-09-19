@@ -29,7 +29,7 @@ import {
   isWidgetSelected,
 } from "selectors/widgetSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import {
   getWidgetHeight,
   getWidgetWidth,
