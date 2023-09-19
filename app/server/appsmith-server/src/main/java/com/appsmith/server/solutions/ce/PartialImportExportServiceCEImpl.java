@@ -18,10 +18,12 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -61,12 +63,12 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
         ApplicationJson appJson = new ApplicationJson();
         appJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
         appJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-
+        appJson.setCustomJSLibList(new ArrayList<>());
+        appJson.setActionList(new ArrayList<>());
+        appJson.setActionCollectionList(new ArrayList<>());
+        appJson.setDatasourceList(new ArrayList<>());
         Application tempApp = new Application();
         Set<String> customJSLibSet = new HashSet<>(entities.getCustomJSLibList());
-        System.out.println("===== Selected custom js lib =========");
-        System.out.println(customJSLibSet);
-        System.out.println("======================================");
         AclPermission aclPermission = applicationPermission.getExportPermission();
         return applicationService
                 .findById(applicationId, aclPermission)
@@ -102,16 +104,15 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
         });
     }
 
-    private Mono<Application> importCustomJsLibs(Application application, List<CustomJSLib> customJSLibList) {
-        return importExportApplicationService
-                .getCustomJslibImportMono(customJSLibList)
-                .flatMap(customJSLibApplicationDTOS -> {
-                    application.setUnpublishedCustomJSLibs(new HashSet<>(customJSLibApplicationDTOS));
-                    return Mono.just(application);
-                });
+    private Mono<Application> importCustomJsLibs(String applicationId, List<CustomJSLib> customJSLibList) {
+        System.out.println("========= Importing =======");
+        System.out.println(customJSLibList);
+        return Flux.fromIterable(customJSLibList)
+                .flatMap(customJSLib -> customJSLibService.addJSLibToApplication(applicationId, customJSLib, "", false))
+                .then(applicationService.findById(applicationId));
     }
 
-    private Mono<ApplicationImportDTO> importPartialApplicationFromJson(
+    public Mono<ApplicationImportDTO> importPartialApplicationFromJson(
             String applicationId, String workspaceId, ApplicationJson applicationJson) {
         // Update the application JSON to prepare it for merging inside an existing application
         if (applicationJson.getExportedApplication() != null) {
@@ -138,7 +139,7 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
                     .build();
             return applicationService
                     .findById(applicationId, permissionProvider.getRequiredPermissionOnTargetApplication())
-                    .flatMap(application -> importCustomJsLibs(application, applicationJson.getCustomJSLibList()))
+                    .flatMap(application -> importCustomJsLibs(applicationId, applicationJson.getCustomJSLibList()))
                     .flatMap(application -> applicationService.update(applicationId, application))
                     .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
                             applicationId, workspaceId, application));

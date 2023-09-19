@@ -14,4 +14,7 @@ public interface PartialImportExportServiceCE {
 
     Mono<ApplicationImportDTO> importPartialApplicationFromFile(
             String applicationId, String workspaceId, String pageId, Part importedDoc);
+
+    Mono<ApplicationImportDTO> importPartialApplicationFromJson(
+            String applicationId, String workspaceId, ApplicationJson applicationJson);
 }

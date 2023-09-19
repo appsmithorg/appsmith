@@ -65,6 +65,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 .flatMap(updatedJSLibDTOList -> {
                     Map<String, Object> fieldNameValueMap =
                             Map.of(FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList);
+                    System.out.println("*********** updated js lib ************");
                     return applicationService.update(applicationId, fieldNameValueMap, branchName);
                 })
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
