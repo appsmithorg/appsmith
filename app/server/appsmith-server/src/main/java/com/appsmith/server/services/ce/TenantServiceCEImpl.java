@@ -141,7 +141,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             return tenant;
         });
 
-        return Mono.zip(dbTenantMono, clientTenantMono).map(tuple -> {
+        return Mono.zip(dbTenantMono, clientTenantMono).flatMap(tuple -> {
             Tenant dbTenant = tuple.getT1();
             Tenant clientTenant = tuple.getT2();
             return getClientPertinentTenant(dbTenant, clientTenant);
@@ -176,7 +176,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
      * @param clientTenant Tenant object that is sent to the client, can be null
      * @return Tenant
      */
-    protected Tenant getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
+    protected Mono<Tenant> getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
         if (clientTenant == null) {
             clientTenant = new Tenant();
             clientTenant.setTenantConfiguration(new TenantConfiguration());
@@ -188,7 +188,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         tenantConfiguration.copyNonSensitiveValues(dbTenant.getTenantConfiguration());
         clientTenant.setUserPermissions(dbTenant.getUserPermissions());
 
-        return clientTenant;
+        return Mono.just(clientTenant);
     }
 
     @Override

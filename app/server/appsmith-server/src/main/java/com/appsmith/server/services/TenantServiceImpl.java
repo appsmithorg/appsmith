@@ -68,6 +68,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
     private final AssetService assetService;
     private final ObjectMapper objectMapper;
+    private final BrandingService brandingService;
     private final SessionLimiterService sessionLimiterService;
 
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
@@ -97,7 +98,9 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             ObjectMapper objectMapper,
             CacheableFeatureFlagHelper cacheableFeatureFlagHelper,
             SessionLimiterService sessionLimiterService,
-            FeatureFlagMigrationHelper featureFlagMigrationHelper) {
+            FeatureFlagMigrationHelper featureFlagMigrationHelper,
+            BrandingService brandingService) {
+
         super(
                 scheduler,
                 validator,
@@ -116,6 +119,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         this.assetService = assetService;
         this.objectMapper = objectMapper;
         this.cacheableFeatureFlagHelper = cacheableFeatureFlagHelper;
+        this.brandingService = brandingService;
         this.sessionLimiterService = sessionLimiterService;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
         this.scheduler = scheduler;
@@ -133,7 +137,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
 
     @Override
     public Mono<Tenant> getTenantConfiguration() {
-        return Mono.zip(this.getDefaultTenant(), super.getTenantConfiguration()).map(tuple -> {
+        return Mono.zip(this.getDefaultTenant(), super.getTenantConfiguration()).flatMap(tuple -> {
             final Tenant dbTenant = tuple.getT1();
             final Tenant clientTenant = tuple.getT2();
             final TenantConfiguration config = clientTenant.getTenantConfiguration();
@@ -289,7 +293,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      */
     public Mono<Tenant> updateTenantLicenseKey(UpdateLicenseKeyDTO updateLicenseKeyDTO) {
         return saveTenantLicenseKey(updateLicenseKeyDTO.getKey(), updateLicenseKeyDTO.getIsDryRun())
-                .map(tuple -> getClientPertinentTenant(tuple.getT1(), null));
+                .flatMap(tuple -> getClientPertinentTenant(tuple.getT1(), null));
     }
 
     /**
@@ -384,7 +388,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, FieldName.DEFAULT)))
                 .flatMap(this::checkTenantLicense)
                 .flatMap(this::save)
-                .map(tenant -> getClientPertinentTenant(tenant, null));
+                .flatMap(tenant -> getClientPertinentTenant(tenant, null));
     }
 
     /**
@@ -499,13 +503,18 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     // TODO replace the null setting with @JsonProperty(access = JsonProperty.Access.READ_ONLY) for
                     //  `isActivated` field to make the field read only for client
                     updateForTenantConfig.setIsActivated(null);
-                    // update tenant config specific to session limits
-                    return sessionLimiterService
-                            .updateTenantConfiguration(updateForTenantConfig)
-                            .flatMap(updatedTenantConfigs ->
-                                    updateTenantConfiguration(defaultTenant.getId(), updatedTenantConfigs));
+                    return updateTenantConfiguration(defaultTenant.getId(), updateForTenantConfig);
                 })
                 .flatMap(updatedTenant -> getTenantConfiguration());
+    }
+
+    @Override
+    public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
+        return brandingService
+                .updateTenantConfiguration(tenantConfiguration)
+                .flatMap(sessionLimiterService::updateTenantConfiguration)
+                .flatMap(updatedTenantConfiguration ->
+                        super.updateTenantConfiguration(tenantId, updatedTenantConfiguration));
     }
 
     /**
@@ -574,5 +583,21 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                             // DB object and not the modified one because of the client pertinent changes
                             .then(repository.retrieveById(tenant.getId()));
                 });
+    }
+
+    /**
+     * This method overrides some DB stored tenant configuration based on the feature flag and then return
+     * the Tenant with values that are pertinent to the client
+     * @param dbTenant Original tenant from the database
+     * @param clientTenant Tenant object that is sent to the client, can be null
+     * @return Tenant - return value for client consumer
+     */
+    @Override
+    protected Mono<Tenant> getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
+        TenantConfiguration tenantConfiguration = dbTenant.getTenantConfiguration();
+        return brandingService.getTenantConfiguration(tenantConfiguration).flatMap(updatedTenantConfiguration -> {
+            dbTenant.setTenantConfiguration(updatedTenantConfiguration);
+            return super.getClientPertinentTenant(dbTenant, clientTenant);
+        });
     }
 }

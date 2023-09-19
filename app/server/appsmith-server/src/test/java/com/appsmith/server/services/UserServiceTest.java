@@ -21,6 +21,7 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
@@ -123,9 +124,16 @@ public class UserServiceTest {
     @SpyBean
     CommonConfig commonConfig;
 
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
     @BeforeEach
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled))
+                .thenReturn(Mono.just(true));
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_audit_logs_enabled))
+                .thenReturn(Mono.just(true));
     }
     // Test the update workspace flow.
     @Test

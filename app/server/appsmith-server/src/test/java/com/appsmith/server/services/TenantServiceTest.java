@@ -21,6 +21,7 @@ import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -62,6 +63,7 @@ import java.util.UUID;
 import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -105,10 +107,13 @@ public class TenantServiceTest {
     @Autowired
     UserGroupRepository userGroupRepository;
 
+    @Autowired
+    BrandingService brandingService;
+
     @SpyBean
     CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
 
-    @MockBean
+    @SpyBean
     FeatureFlagService featureFlagService;
 
     private Tenant tenant;
@@ -128,7 +133,9 @@ public class TenantServiceTest {
         User api_user = userRepository.findByEmail("api_user").block();
         // Todo change this to tenant admin once we introduce multitenancy
         userUtils.makeSuperUser(List.of(api_user)).block();
-        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
+        when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled)).thenReturn(Mono.just(true));
+        when(featureFlagService.check(FeatureFlagEnum.license_session_limit_enabled))
+                .thenReturn(Mono.just(true));
     }
 
     @Test
@@ -542,6 +549,66 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
+    public void test_defaultBranding_whenFeatureFlagDisabled() {
+        when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled)).thenReturn(Mono.just(false));
+        Mono<Tenant> tenantMono = tenantService.getTenantConfiguration();
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant -> {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    assertTrue(tenantConfiguration.getBrandLogoUrl().contains(Url.ASSET_URL));
+                    assertEquals(
+                            TenantConfiguration.DEFAULT_APPSMITH_FEVICON, tenantConfiguration.getBrandFaviconUrl());
+
+                    TenantConfiguration.BrandColors brandColors = tenantConfiguration.getBrandColors();
+                    assertEquals(TenantConfiguration.DEFAULT_BACKGROUND_COLOR, brandColors.getBackground());
+                    assertEquals(TenantConfiguration.DEFAULT_PRIMARY_COLOR, brandColors.getPrimary());
+                    assertEquals(TenantConfiguration.DEFAULT_FONT_COLOR, brandColors.getFont());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_updateBrandingNotAllowed_whenFeatureFlagDisabled() {
+        TenantConfiguration defaultTenantConfiguration = new TenantConfiguration();
+        defaultTenantConfiguration.setWhiteLabelEnable(Boolean.FALSE.toString());
+        defaultTenantConfiguration.setWhiteLabelFavicon(TenantConfiguration.DEFAULT_APPSMITH_FEVICON);
+        defaultTenantConfiguration.setWhiteLabelLogo(TenantConfiguration.DEFAULT_APPSMITH_LOGO);
+
+        TenantConfiguration.BrandColors defaultBrandColors = new TenantConfiguration.BrandColors();
+        defaultBrandColors.setPrimary(TenantConfiguration.DEFAULT_PRIMARY_COLOR);
+        defaultBrandColors.setFont(TenantConfiguration.DEFAULT_FONT_COLOR);
+        defaultBrandColors.setBackground(TenantConfiguration.DEFAULT_BACKGROUND_COLOR);
+        defaultTenantConfiguration.setBrandColors(defaultBrandColors);
+
+        Tenant defaultTenant = tenantService.getDefaultTenant().block();
+        tenantService
+                .updateTenantConfiguration(defaultTenant.getId(), defaultTenantConfiguration)
+                .block();
+
+        Mono<Part> favicon = Mono.just(createMockFilePart(1024));
+        Mono<Part> icon = Mono.just(createMockFilePart(2048));
+
+        // updating it from default value but since feature flag is disabled, update shouldn't happen
+        when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled)).thenReturn(Mono.just(false));
+        Mono<Tenant> tenantMono = tenantService.updateDefaultTenantConfiguration(Mono.empty(), icon, favicon);
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant -> {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    assertTrue(tenantConfiguration.getBrandLogoUrl().contains(Url.ASSET_URL));
+                    assertEquals(
+                            TenantConfiguration.DEFAULT_APPSMITH_FEVICON, tenantConfiguration.getBrandFaviconUrl());
+
+                    TenantConfiguration.BrandColors brandColors = tenantConfiguration.getBrandColors();
+                    assertEquals(TenantConfiguration.DEFAULT_BACKGROUND_COLOR, brandColors.getBackground());
+                    assertEquals(TenantConfiguration.DEFAULT_PRIMARY_COLOR, brandColors.getPrimary());
+                    assertEquals(TenantConfiguration.DEFAULT_FONT_COLOR, brandColors.getFont());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
     public void removeTenantLicenseKey_removeExistingLicense_success() {
 
         License license = new License();
@@ -680,14 +747,13 @@ public class TenantServiceTest {
         assertTenantConfigurations(
                 newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, false, true, true);
 
-        when(featureFlagService.check(any())).thenReturn(Mono.just(false));
         Mono<String> update2_singleSessionPerUserEnabled = Mono.just("{\"singleSessionPerUserEnabled\": false}");
 
         Tenant defaultTenantPostUpdate2 = tenantService
                 .updateDefaultTenantConfiguration(update2_singleSessionPerUserEnabled, Mono.empty(), Mono.empty())
                 .block();
         TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
-        assertThat(newTenantConfiguration2.getSingleSessionPerUserEnabled()).isTrue();
+        assertThat(newTenantConfiguration2.getSingleSessionPerUserEnabled()).isFalse();
         assertTenantConfigurations(
                 newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, false, true, true);
     }

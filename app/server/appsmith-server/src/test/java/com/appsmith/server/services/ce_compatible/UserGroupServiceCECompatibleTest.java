@@ -172,6 +172,7 @@ class UserGroupServiceCECompatibleTest {
     void testRemoveUsersFromProvisionGroup() {
         // Test setup started
         mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, true);
+        mockFeatureFlag(FeatureFlagEnum.license_branding_enabled, true);
         String testName = "testRemoveUsersFromProvisionGroup";
         User user1 = new User();
         user1.setEmail(testName + "_provisioned_user1@appsmith.com");
