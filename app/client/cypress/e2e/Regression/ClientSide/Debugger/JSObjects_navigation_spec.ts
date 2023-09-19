@@ -53,4 +53,40 @@ describe("excludeForAirgap", "JSObjects", () => {
       entityType: entityItems.JSObject,
     });
   });
+  it("3. Bug 24990 Clears logs filter using backspace", function () {
+    const JS_OBJECT_BODY = `export default {
+      myVar1: [],
+      myVar2: {},
+      myFun1 () {
+          //	write code here
+          return [1,2,3]
+      },
+      async myFun2 () {
+          return []
+      }
+  }`;
+    jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+    jsEditor.SelectFunctionDropdown("myFun1");
+    jsEditor.RunJSObj();
+    debuggerHelper.ClickLogsTab();
+    agHelper.AssertText(
+      debuggerHelper.locators._debuggerFilter,
+      "val",
+      "JSObject1",
+    );
+    agHelper.TypeText(
+      debuggerHelper.locators._debuggerFilter,
+      "{backspace}{backspace}{backspace}{backspace}{backspace}{backspace}{backspace}{backspace}{backspace}",
+      { delay: 50, parseSpecialCharSeq: true },
+    );
+    agHelper.AssertText(debuggerHelper.locators._debuggerFilter, "val", "");
+    debuggerHelper.DebuggerLogsFilter("JSObject1");
+    debuggerHelper.DebuggerLogsFilter("{backspace}");
+    agHelper.AssertText(debuggerHelper.locators._debuggerFilter, "val", "");
+  });
 });
