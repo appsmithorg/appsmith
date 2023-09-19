@@ -18,9 +18,10 @@ import {
   MOBILE_ROW_GAP,
   ROW_GAP,
 } from "layoutSystems/anvil/utils/constants";
+import { getLayoutClassName } from "layoutSystems/anvil/utils/layoutUtils";
 import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import React, { useMemo } from "react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 interface FlexLayoutProps
   extends AlignSelf,
@@ -51,7 +52,7 @@ interface FlexLayoutProps
 }
 
 export const FlexLayout = (props: FlexLayoutProps) => {
-  const layoutStyle: FlexProps = useMemo(() => {
+  const flexProps: FlexProps = useMemo(() => {
     return {
       alignSelf: props.alignSelf || "flex-start",
       columnGap: props.columnGap || "0px",
@@ -61,15 +62,11 @@ export const FlexLayout = (props: FlexLayoutProps) => {
       flexBasis: props.flexBasis || "auto",
       flexWrap: props.wrap || "nowrap",
       justifyContent: props.justifyContent || "start",
-      overflowX: props.overflowX || "hidden",
-      overflowY: props.overflow || "hidden",
       height: props.height || "auto",
       maxHeight: props.maxHeight || "none",
       minWidth: props.minWidth || "none",
       minHeight: props.minHeight || "none",
-      position: props.position || "relative",
       width: props.width || "auto",
-      border: props.border || "none",
       padding: props.padding || "none",
       rowGap: props.rowGap || {
         base: addPixelToSize(MOBILE_ROW_GAP),
@@ -78,5 +75,23 @@ export const FlexLayout = (props: FlexLayoutProps) => {
     };
   }, [props]);
 
-  return <Flex {...layoutStyle}>{props.children}</Flex>;
+  // The following properties aren't included in type FlexProps but can be passed as style.
+  const styleProps: CSSProperties = useMemo(() => {
+    return {
+      border: props.border || "none",
+      overflowX: props.overflowX || "hidden",
+      overflowY: props.overflow || "hidden",
+      position: props.position || "relative",
+    };
+  }, [props.border, props.overflowX, props.overflow, props.position]);
+
+  return (
+    <Flex
+      {...flexProps}
+      className={getLayoutClassName(props.canvasId, props.layoutId)}
+      style={styleProps}
+    >
+      {props.children}
+    </Flex>
+  );
 };
