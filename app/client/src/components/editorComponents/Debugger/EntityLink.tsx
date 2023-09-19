@@ -5,7 +5,7 @@ import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getAction, getDatasource } from "selectors/entitiesSelector";
+import { getAction, getDatasource } from "@appsmith/selectors/entitiesSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
@@ -177,17 +177,20 @@ function DebuggerEntityLink(props: {
   entityType: ENTITY_TYPE;
   uiComponent: DebuggerLinkUI;
 }) {
-  const onClick = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
-    props.onClick();
-  };
+  const handleClick = useCallback(
+    (e) => {
+      e.stopPropagation();
+      props.onClick();
+    },
+    [props.onClick],
+  );
 
   switch (props.uiComponent) {
     case DebuggerLinkUI.ENTITY_TYPE:
       return (
         <span className="debugger-entity">
           [
-          <Link kind="secondary" onClick={onClick} to="">
+          <Link kind="secondary" onClick={handleClick}>
             {props.name}
           </Link>
           ]
@@ -197,8 +200,7 @@ function DebuggerEntityLink(props: {
       return (
         <Link
           className="debugger-entity-link t--debugger-log-entity-link"
-          onClick={onClick}
-          to=""
+          onClick={handleClick}
         >
           {props.name}
         </Link>

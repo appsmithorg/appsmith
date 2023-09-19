@@ -116,7 +116,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     dataSources.CreatePlugIn("Mongo");
     agHelper.RenameWithInPane("myinvalidds", false);
 
-    agHelper.UpdateInputValue(dataSources._host, "127.0.0.1");
+    agHelper.UpdateInputValue(dataSources._host(), "127.0.0.1");
     agHelper.UpdateInputValue(dataSources._port, "8000");
 
     dataSources.SaveDatasource();
@@ -144,7 +144,7 @@ describe("excludeForAirgap", "One click binding control", () => {
       dataSources.CreatePlugIn("Mongo");
       agHelper.RenameWithInPane(`dummy${I}`, false);
 
-      agHelper.UpdateInputValue(dataSources._host, "127.0.0.1");
+      agHelper.UpdateInputValue(dataSources._host(), "127.0.0.1");
       agHelper.UpdateInputValue(dataSources._port, "8000");
 
       dataSources.SaveDatasource();

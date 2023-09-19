@@ -12,14 +12,10 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { trimQueryString } from "utils/helpers";
 import history from "utils/history";
-import WidgetSidebar from "../WidgetSidebar";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
-import {
-  adaptiveSignpostingEnabled,
-  selectFeatureFlags,
-} from "@appsmith/selectors/featureFlagsSelectors";
+import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { getFeatureWalkthroughShown } from "utils/storage";
@@ -27,7 +23,7 @@ import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import {
   actionsExistInCurrentPage,
   widgetsExistCurrentPage,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { SignpostingWalkthroughConfig } from "../FirstTimeUserOnboarding/Utils";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
@@ -52,7 +48,6 @@ function ExplorerContent() {
   const pageId = useSelector(getCurrentPageId);
   const location = useLocation();
   const activeSwitchIndex = useSelector(getExplorerSwitchIndex);
-  const featureFlags = useSelector(selectFeatureFlags);
 
   const setActiveSwitchIndex = (index: number) => {
     dispatch(setExplorerSwitchIndex(index));
@@ -148,11 +143,7 @@ function ExplorerContent() {
         />
       </div>
 
-      {featureFlags.release_widgetdiscovery_enabled ? (
-        <WidgetSidebarWithTags isActive={activeOption === "widgets"} />
-      ) : (
-        <WidgetSidebar isActive={activeOption === "widgets"} />
-      )}
+      <WidgetSidebarWithTags isActive={activeOption === "widgets"} />
 
       <EntityExplorer isActive={activeOption === "explorer"} />
     </div>

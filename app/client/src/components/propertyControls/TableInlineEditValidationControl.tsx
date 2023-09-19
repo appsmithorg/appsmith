@@ -24,6 +24,9 @@ import {
   createMessage,
   TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
 } from "@appsmith/constants/messages";
+import { assistiveBindingHinter } from "components/editorComponents/CodeEditor/assistiveBindingHinter";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 
 export const PromptMessage = styled.span`
   line-height: 17px;
@@ -81,12 +84,18 @@ export function InputText(props: InputTextProp) {
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
+        hinting={[
+          bindingHintHelper,
+          assistiveBindingHinter,
+          slashCommandHintHelper,
+        ]}
         input={{
           value: value,
           onChange: onChange,
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
+        positionCursorInsideBinding
         promptMessage={<PromptMessage>{promptMessage}</PromptMessage>}
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}

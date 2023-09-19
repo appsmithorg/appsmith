@@ -501,8 +501,7 @@ function PopoverContent(props: PopoverContentProps) {
   if (hasError) {
     error = errors[0];
   }
-  const openDebugger = (event: React.MouseEvent) => {
-    event.preventDefault();
+  const openDebugger = () => {
     dispatch(showDebugger());
   };
 
@@ -545,14 +544,7 @@ function PopoverContent(props: PopoverContentProps) {
 
           {errorNavigationUrl ? (
             <AsyncFunctionErrorView>
-              <Link
-                onClick={(e: React.MouseEvent) => {
-                  e.preventDefault();
-                  openDebugger(e);
-                }}
-              >
-                {`See error (${modText()} D)`}
-              </Link>
+              <Link onClick={openDebugger}>{`See error (${modText()} D)`}</Link>
               <Link target={"_self"} to={errorNavigationUrl}>
                 View source
               </Link>
