@@ -64,16 +64,6 @@ describe("Entity explorer tests related to widgets and validation", function () 
     WIDGETS_CATALOG.Content = ["Progress", "Rating", "Text"];
   }
 
-  before(() => {
-    featureFlagIntercept(
-      {
-        release_widgetdiscovery_enabled: true,
-      },
-      false,
-    );
-    agHelper.RefreshPage();
-  });
-
   const getTotalNumberOfWidgets = () => {
     return Object.values(WIDGETS_CATALOG).reduce(
       (totalLength, widgets) => totalLength + widgets.length,
