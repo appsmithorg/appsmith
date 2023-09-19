@@ -16,7 +16,7 @@ export function resetJSLibraries() {
   JSLibraries.length = 0;
   JSLibraries.push(...defaultLibraries);
   const defaultLibraryAccessors = defaultLibraries.map(
-    (lib) => lib.accessor[0],
+    (lib) => lib.accessor[0].modified,
   );
   for (const key of Object.keys(libraryReservedIdentifiers)) {
     if (defaultLibraryAccessors.includes(key)) continue;

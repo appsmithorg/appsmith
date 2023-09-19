@@ -801,7 +801,7 @@ class CodeEditor extends Component<Props, State> {
 
   isPathLibrary = (paths: string[]) => {
     return !!this.props.installedLibraries.find((installedLib) =>
-      installedLib.accessor.find((accessor) => accessor === paths[0]),
+      installedLib.accessor.find((accessor) => accessor.modified === paths[0]),
     );
   };
 

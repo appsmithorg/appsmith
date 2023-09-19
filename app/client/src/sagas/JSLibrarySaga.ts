@@ -102,8 +102,8 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     return;
   }
 
-  const takenAccessors = ([] as string[]).concat(
-    ...installedLibraries.map((lib) => lib.accessor),
+  const takenAccessors = installedLibraries.flatMap((i) =>
+    i.accessor.map((a) => a.modified),
   );
 
   const { accessor, defs, error, success } = yield call(
@@ -336,6 +336,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
 
     if (!success) {
       if (mode === APP_MODE.EDIT) {
+        // This is to display failed installations on entity explorer so that users can decide to uninstall if necessary
         yield put({
           type: ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
           payload: libraries.map((lib) => ({
