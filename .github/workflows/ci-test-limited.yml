@@ -687,19 +687,16 @@ jobs:
             console.log(specs);
             return specs;
           
-      - name: Print the output
+      - name: Set the output
+        if: failed_specs
         run : |
           failed_specs=$(echo ${{steps.test.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
-          echo "$failed_specs"
-          echo $failed_specs >> ~/combined_failed_spec_ci
-          cat ~/combined_failed_spec_ci
-            # Upload combined failed CI spec list to a file
+          echo "specs=$failed_spec" >> $GITHUB_OUTPUT
+          echo "spec_count=$(echo $failed_spec | wc -l)" >> $GITHUB_OUTPUT
 
-      # This is done for debugging.
-      - name: upload combined failed spec
-        if: needs.ci-test.result != 'success'
-        uses: actions/upload-artifact@v3
-        with:
-          name: combined_failed_spec_ci
-          path: ~/combined_failed_spec_ci
+      - name: print the values
+        run : |
+          echo "${{steps.failed_specs.outputs.specs}}"
+          echo "${{steps.failed_specs.outputs.spec_count}}"
+      
 
