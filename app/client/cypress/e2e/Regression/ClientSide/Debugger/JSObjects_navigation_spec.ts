@@ -90,5 +90,8 @@ describe("excludeForAirgap", "JSObjects", () => {
     debuggerHelper.DebuggerLogsFilter("JSObject1");
     debuggerHelper.DebuggerLogsFilter("{backspace}");
     agHelper.AssertText(debuggerHelper.locators._debuggerFilter, "val", "");
+    debuggerHelper.DebuggerLogsFilter("JSObject1");
+    agHelper.GetNClick(debuggerHelper.locators._debuggerFilterClear);
+    agHelper.AssertText(debuggerHelper.locators._debuggerFilter, "val", "");
   });
 });
