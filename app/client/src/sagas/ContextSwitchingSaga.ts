@@ -64,7 +64,10 @@ function* waitForPathLoad(currentPath: string, previousPath?: string) {
     const currentFocus = identifyIDEEntityFromPath(currentPath);
     const prevFocus = identifyIDEEntityFromPath(previousPath);
 
-    if (currentFocus.pageId !== prevFocus.pageId) {
+    if (
+      !isIDEStateChange(prevFocus, currentFocus) &&
+      currentFocus.pageId !== prevFocus.pageId
+    ) {
       yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
     }
   }
@@ -94,7 +97,7 @@ function* storeStateOfPath(
   for (const selectorInfo of selectors) {
     state[selectorInfo.name] = yield select(selectorInfo.selector);
   }
-  if (entityInfo.entity === FocusEntity.PAGE) {
+  if ([FocusEntity.PAGE, FocusEntity.IDE].includes(entityInfo.entity)) {
     if (shouldStoreURLForFocus(fromPath)) {
       if (fromPath) {
         state._routingURL = fromPath;
@@ -118,7 +121,10 @@ function* setStateOfPath(key: string, entityInfo: FocusEntityInfo) {
     for (const selectorInfo of selectors) {
       yield put(selectorInfo.setter(focusHistory.state[selectorInfo.name]));
     }
-    if (entityInfo.entity === FocusEntity.PAGE) {
+    if (
+      entityInfo.entity === FocusEntity.PAGE ||
+      entityInfo.entity === FocusEntity.IDE
+    ) {
       if (focusHistory.state._routingURL) {
         const params = history.location.search;
         history.push(`${focusHistory.state._routingURL}${params ?? ""}`);
@@ -221,13 +227,25 @@ const getEntityParentUrl = (
   return "";
 };
 
-const isPageChange = (prevPath: string, currentPath: string) => {
-  const prevFocusEntityInfo = identifyIDEEntityFromPath(prevPath);
-  const currFocusEntityInfo = identifyIDEEntityFromPath(currentPath);
-  if (prevFocusEntityInfo.pageId === "" || currFocusEntityInfo.pageId === "") {
+const isPageChange = (
+  prevPathEntityInfo: FocusEntityInfo,
+  currentPathEntityInfo: FocusEntityInfo,
+) => {
+  if (isIDEStateChange(prevPathEntityInfo, currentPathEntityInfo)) return false;
+  if (prevPathEntityInfo.pageId === "" || currentPathEntityInfo.pageId === "") {
     return false;
   }
-  return prevFocusEntityInfo.pageId !== currFocusEntityInfo.pageId;
+  return prevPathEntityInfo.pageId !== currentPathEntityInfo.pageId;
+};
+
+const isIDEStateChange = (
+  prevPathEntityInfo: FocusEntityInfo,
+  currentPathEntityInfo: FocusEntityInfo,
+) => {
+  return (
+    prevPathEntityInfo.entity === FocusEntity.IDE ||
+    currentPathEntityInfo.entity === FocusEntity.IDE
+  );
 };
 
 function* getEntitiesForStore(previousPath: string, currentPath: string) {
@@ -235,13 +253,28 @@ function* getEntitiesForStore(previousPath: string, currentPath: string) {
   const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
   const prevFocusEntityInfo = identifyIDEEntityFromPath(previousPath);
   const currentFocusEntityInfo = identifyIDEEntityFromPath(currentPath);
-  if (isPageChange(previousPath, currentPath)) {
+  if (isPageChange(prevFocusEntityInfo, currentFocusEntityInfo)) {
     if (prevFocusEntityInfo.pageId) {
       entities.push({
         key: `${prevFocusEntityInfo.pageId}#${branch}`,
         entityInfo: {
           entity: FocusEntity.PAGE,
           id: prevFocusEntityInfo.pageId,
+        },
+      });
+    }
+  }
+
+  if (isIDEStateChange(prevFocusEntityInfo, currentFocusEntityInfo)) {
+    if (
+      currentFocusEntityInfo.entity === FocusEntity.IDE &&
+      prevFocusEntityInfo.pageId !== ""
+    ) {
+      entities.push({
+        key: `${currentFocusEntityInfo.id}_${prevFocusEntityInfo.pageId}`,
+        entityInfo: {
+          entity: FocusEntity.IDE,
+          id: currentFocusEntityInfo.id,
         },
       });
     }
@@ -285,8 +318,9 @@ function* getEntitiesForSet(
   }
   const branch: string | undefined = yield select(getCurrentGitBranch);
   const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
+  const prevEntityInfo = identifyIDEEntityFromPath(previousPath);
   const currentEntityInfo = identifyIDEEntityFromPath(currentPath);
-  if (isPageChange(previousPath, currentPath)) {
+  if (isPageChange(prevEntityInfo, currentEntityInfo)) {
     if (currentEntityInfo.pageId) {
       entities.push({
         key: `${currentEntityInfo.pageId}#${branch}`,
@@ -299,6 +333,27 @@ function* getEntitiesForSet(
       const focusHistory: FocusState = yield select(
         getCurrentFocusInfo,
         `${currentEntityInfo.pageId}#${branch}`,
+      );
+      if (has(focusHistory, "state._routingURL")) {
+        return entities;
+      }
+    }
+  }
+  if (isIDEStateChange(prevEntityInfo, currentEntityInfo)) {
+    if (
+      prevEntityInfo.entity === FocusEntity.IDE &&
+      currentEntityInfo.pageId !== ""
+    ) {
+      entities.push({
+        key: `${prevEntityInfo.id}_${currentEntityInfo.pageId}`,
+        entityInfo: {
+          entity: FocusEntity.IDE,
+          id: prevEntityInfo.id,
+        },
+      });
+      const focusHistory: FocusState = yield select(
+        getCurrentFocusInfo,
+        currentEntityInfo.id,
       );
       if (has(focusHistory, "state._routingURL")) {
         return entities;

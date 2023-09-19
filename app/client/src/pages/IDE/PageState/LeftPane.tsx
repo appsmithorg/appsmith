@@ -96,6 +96,9 @@ const PageLeftPane = () => {
 
   useEffect(() => {
     const { pageNav } = navState;
+    if (!pageNav) {
+      navigatePageEntity(PageNavState.UI);
+    }
     if (pageNav) {
       if (pageNav === PageNavState.UI) {
         dispatch(setIdeSidebarWidth(300));
@@ -111,9 +114,11 @@ const PageLeftPane = () => {
 
   const navigatePageEntity = useCallback(
     (location: PageNavState) => {
-      history.push(
-        pageEntityUrl({ pageId: matchParams?.params.pageId || "" }, location),
-      );
+      if (location !== matchParams?.params.pageNav) {
+        history.push(
+          pageEntityUrl({ pageId: matchParams?.params.pageId || "" }, location),
+        );
+      }
     },
     [location.pathname],
   );

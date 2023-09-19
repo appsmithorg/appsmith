@@ -34,6 +34,7 @@ export enum FocusEntity {
   QUERY = "QUERY",
   JS_OBJECT = "JS_OBJECT",
   PROPERTY_PANE = "PROPERTY_PANE",
+  IDE = "IDE",
   NONE = "NONE",
 }
 
@@ -202,7 +203,10 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
 }
 
 export function identifyIDEEntityFromPath(path: string): FocusEntityInfo {
-  const ideStateMatch = matchPath<{ ideState?: IDEAppState }>(path, IDE_PATH);
+  const ideStateMatch = matchPath<{ ideState?: IDEAppState; appId: string }>(
+    path,
+    IDE_PATH,
+  );
 
   if (ideStateMatch) {
     const { ideState } = ideStateMatch.params;
@@ -269,8 +273,19 @@ export function identifyIDEEntityFromPath(path: string): FocusEntityInfo {
               id: pageId,
             };
           }
+        } else {
+          return {
+            entity: FocusEntity.IDE,
+            pageId,
+            id: ideStateMatch.params.appId,
+          };
         }
       }
+    } else if (ideState) {
+      return {
+        id: ideStateMatch.params.appId,
+        entity: FocusEntity.IDE,
+      };
     }
   }
 

@@ -277,4 +277,5 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: DefaultDebuggerContext,
     },
   ],
+  [FocusEntity.IDE]: [],
 };

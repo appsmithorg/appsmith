@@ -6,7 +6,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { setIdePageTabState } from "../ideActions";
 import { datasourcesEditorURL, pageEntityUrl } from "RouteBuilder";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import { PageNavState, TabState } from "../ideReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import WidgetSidebarWithTags from "pages/Editor/WidgetSidebarWithTags";
@@ -91,6 +91,9 @@ const AddNewCards = () => {
         onClick={() => {
           history.push(
             pageEntityUrl({ pageId: currentPageId }, PageNavState.QUERIES),
+            {
+              invokedBy: NavigationMethod.CommandClick,
+            },
           );
           dispatch(setIdePageTabState(TabState.ADD));
         }}
