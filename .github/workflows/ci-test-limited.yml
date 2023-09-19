@@ -685,17 +685,9 @@ jobs:
             client.release();
             const specs = result.rows.map((spec) => spec.name);
             console.log(specs);
-            return {
-              spec: specs,
-              count: specs.length,
-            };
+            return specs;
           
       - name: Print the output
         run : |
-          parsed=${{steps.test.outputs.result}} | jq -r .
-          echo "$parsed.spec"
-          echo "$parsed.count"
-          cat ${{steps.test.output.result.spec}} | sort -u >> ~/combined_failed_spec_ci
-          echo "SPECS: ${{steps.test.outputs.result.spec}}"
-          echo "COUNT: ${{steps.test.outputs.result.count}}"
+          cat ${{steps.test.outputs.result.spec}} | sort -u >> ~/combined_failed_spec_ci
           cat ~/combined_failed_spec_ci
