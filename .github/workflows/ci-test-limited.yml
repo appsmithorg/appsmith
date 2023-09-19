@@ -684,14 +684,10 @@ jobs:
             );
             const specs = result.rows.map((spec) => spec.name);
             console.log(specs);
-            return {
-              spec: specs,
-              count: specs.length,
-            };
+            return specs;
           
       - name: Print the output
         run : |
           cat ${{steps.test.output.result.spec}} | sort -u >> ~/combined_failed_spec_ci
           echo "SPECS: ${{steps.test.output.result.spec}}"
-          echo "COUNT: ${{steps.test.output.result.count}}"
           cat ~/combined_failed_spec_ci
