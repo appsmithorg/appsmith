@@ -1601,6 +1601,7 @@ class CodeEditor extends Component<Props, State> {
 
         <div className="absolute bottom-[6px] right-[6px] z-4">
           <AskAIButton
+            entity={entityInformation}
             mode={this.props.mode}
             onClick={() => {
               this.setState({ showAIWindow: true });

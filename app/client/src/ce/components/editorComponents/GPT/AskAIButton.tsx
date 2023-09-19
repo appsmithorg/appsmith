@@ -1,8 +1,12 @@
-import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import type {
+  FieldEntityInformation,
+  TEditorModes,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 
 type AskAIButtonProps = {
   mode: TEditorModes;
   onClick: () => void;
+  entity: FieldEntityInformation;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
