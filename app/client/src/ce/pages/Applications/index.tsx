@@ -93,8 +93,8 @@ import {
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import WorkspaceMenu from "./WorkspaceMenu";
-import ApplicationCardList from "./ApplicationCardList";
+import WorkspaceMenu from "@appsmith/pages/Applications/WorkspaceMenu";
+import ApplicationCardList from "@appsmith/pages/Applications/ApplicationCardList";
 import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
