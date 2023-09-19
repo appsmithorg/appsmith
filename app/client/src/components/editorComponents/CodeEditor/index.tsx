@@ -274,15 +274,10 @@ const getEditorIdentifier = (props: EditorProps): string => {
 };
 
 class CodeEditor extends Component<Props, State> {
-  hintHelper: HintHelper[] = [
-    bindingHintHelper,
-    slashCommandHintHelper,
-    sqlHint.hinter,
-  ];
   static defaultProps = {
     marking: [entityMarker],
     lineCommentString: "//",
-    hinting: [],
+    hinting: [bindingHintHelper, slashCommandHintHelper, sqlHint.hinter],
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
@@ -471,7 +466,7 @@ class CodeEditor extends Component<Props, State> {
         this.hinters = CodeEditor.startAutocomplete(
           editor,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          [...this.hintHelper, ...this.props.hinting!], // ! since defaultProps are set
+          this.props.hinting!, // ! since defaultProps are set
           this.props.dynamicData,
           this.props.entitiesForNavigation, // send navigation here
         );
