@@ -13,4 +13,4 @@ async function applyNginxChanges() {
   await fs.writeFile("/etc/nginx/nginx.conf", modContents);
 }
 
-applyNginxChanges().catch();
+await applyNginxChanges();
