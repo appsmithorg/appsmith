@@ -41,7 +41,7 @@ describe("Video widget tests", function () {
     //Wait for video to end
     agHelper.Sleep(5000);
     agHelper.AssertProperty(widgetLocators.video, "ended", true);
-  })
+  });
 
   it("2. Verify Basic Functionality of Video Widget - muted", function () {
     deployMode.NavigateBacktoEditor();

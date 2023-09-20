@@ -303,7 +303,9 @@ describe("Radio Widget test cases", function () {
       0,
       false,
     );
-    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP))
+    agHelper.GetNClick(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+    );
     agHelper
       .GetWidgetCSSHeight(
         locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
