@@ -1207,7 +1207,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     {
       statusCode: 200,
     },
-  ).as("xhrCall");
+  ).as("docsCall");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
