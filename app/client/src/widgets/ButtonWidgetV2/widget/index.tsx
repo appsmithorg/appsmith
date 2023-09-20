@@ -1,33 +1,27 @@
 import React from "react";
 import { toast } from "design-system";
 
+import IconSVG from "../icon.svg";
 import BaseWidget from "widgets/BaseWidget";
 import ButtonComponent from "../component";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { propertyPaneStyleConfig } from "./styleConfig";
-import type { ButtonComponentProps } from "../component";
-import type { RecaptchaType } from "components/constants";
 import { propertyPaneContentConfig } from "./contentConfig";
+import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { ButtonWidgetProps, ButtonWidgetState } from "./types";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import { BUTTON_COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
-import IconSVG from "../icon.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
-import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { BUTTON_COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
-  onButtonClickBound: () => void;
-
   constructor(props: ButtonWidgetProps) {
     super(props);
-    this.onButtonClickBound = this.onButtonClick.bind(this);
-    this.onRecaptchaSubmitError = this.onRecaptchaSubmitError.bind(this);
-    this.onRecaptchaSubmitSuccess = this.onRecaptchaSubmitSuccess.bind(this);
+
     this.state = {
       isLoading: false,
     };
@@ -130,7 +124,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return {};
   }
 
-  onButtonClick() {
+  onButtonClick = () => {
     if (this.props.onClick) {
       this.setState({ isLoading: true });
 
@@ -151,7 +145,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
 
       return;
     }
-  }
+  };
 
   hasOnClickAction = () => {
     const { isDisabled, onClick, onReset, resetFormOnClick } = this.props;
@@ -159,7 +153,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return Boolean((onClick || onReset || resetFormOnClick) && !isDisabled);
   };
 
-  onRecaptchaSubmitSuccess(token: string) {
+  onRecaptchaSubmitSuccess = (token: string) => {
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
       triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
@@ -168,13 +162,13 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         callback: this.handleActionComplete,
       },
     });
-  }
+  };
 
   onRecaptchaSubmitError = (error: string) => {
     toast.show(error, { kind: "error" });
 
     if (this.hasOnClickAction()) {
-      this.onButtonClickBound();
+      this.onButtonClick();
     }
   };
 
@@ -196,11 +190,21 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   };
 
   getWidgetView() {
-    const disabled =
-      this.props.disabledWhenInvalid &&
-      "isFormValid" in this.props &&
-      !this.props.isFormValid;
-    const isDisabled = this.props.isDisabled || disabled;
+    const isDisabled = (() => {
+      const { disabledWhenInvalid, isFormValid } = this.props;
+      const isDisabledWhenFormIsInvalid =
+        disabledWhenInvalid && "isFormValid" in this.props && !isFormValid;
+
+      return this.props.isDisabled || isDisabledWhenFormIsInvalid;
+    })();
+
+    const onPress = (() => {
+      if (this.hasOnClickAction()) {
+        return this.onButtonClick;
+      }
+
+      return undefined;
+    })();
 
     return (
       <ButtonComponent
@@ -214,7 +218,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         maxWidth={this.props.maxWidth}
         minHeight={this.props.minHeight}
         minWidth={this.props.minWidth}
-        onPress={this.hasOnClickAction() ? this.onButtonClickBound : undefined}
+        onPress={onPress}
         onRecaptchaSubmitError={this.onRecaptchaSubmitError}
         onRecaptchaSubmitSuccess={this.onRecaptchaSubmitSuccess}
         recaptchaKey={this.props.googleRecaptchaKey}
@@ -226,25 +230,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       />
     );
   }
-}
-
-export interface ButtonWidgetProps extends WidgetProps {
-  text?: string;
-  isVisible?: boolean;
-  isDisabled?: boolean;
-  resetFormOnClick?: boolean;
-  googleRecaptchaKey?: string;
-  recaptchaType?: RecaptchaType;
-  disabledWhenInvalid?: boolean;
-  buttonType?: ButtonComponentProps["type"];
-  iconName?: ButtonComponentProps["iconName"];
-  buttonVariant?: ButtonComponentProps["variant"];
-  iconAlign?: ButtonComponentProps["iconPosition"];
-  buttonColor?: ButtonComponentProps["color"];
-}
-
-interface ButtonWidgetState extends WidgetState {
-  isLoading: boolean;
 }
 
 export { ButtonWidget };

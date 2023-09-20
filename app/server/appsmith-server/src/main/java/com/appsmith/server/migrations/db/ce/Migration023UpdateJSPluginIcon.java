@@ -18,8 +18,8 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
 
 @RequiredArgsConstructor
-@ChangeUnit(order = "022", id = "update-js-plugin-icon")
-public class Migration022UpdateJSPluginIcon {
+@ChangeUnit(order = "023", id = "update-js-plugin-icon")
+public class Migration023UpdateJSPluginIcon {
     private final MongoTemplate mongoTemplate;
 
     @RollbackExecution
