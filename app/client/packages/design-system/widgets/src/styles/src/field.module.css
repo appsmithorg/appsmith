@@ -1,9 +1,22 @@
 /* NOTE: these field styles are used in every input component that has a label
  for e.g input, select, checkbox group, toggle group, radio group, etc */
+<<<<<<< HEAD:app/client/packages/design-system/widgets/src/styles/src/field.module.css
 .field {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3);
+=======
+.field{
+  &[data-field] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+
+    &[data-position="side"] {
+      flex-direction: row;
+    }
+  }
+>>>>>>> 5c4832fbede6c4dd4d8f26b848296587ee60cb6a:app/client/packages/design-system/widgets/src/styles/src/fieldStyles.ts
 
   /**
   * ----------------------------------------------------------------------------
@@ -77,5 +90,15 @@
     gap: var(--spacing-2);
     display: flex;
     flex-direction: column;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-disabled] {
+    opacity: var(--opacity-disabled);
+    cursor: default;
   }
 }
