@@ -186,45 +186,63 @@ jobs:
       run:
         shell: bash
     steps:
-      # Deleting the existing dir's if any
-      - name: Delete existing directories
+      - name: Setup node
         if: needs.ci-test-limited.result != 'success'
-        run: |
-          rm -f ~/failed_spec_ci
-          rm -f ~/combined_failed_spec_ci
-
-      # Force store previous cypress dashboard url from cache
-      - name: Store the previous cypress dashboard url
-        if: success()
-        uses: actions/cache@v3
+        uses: actions/setup-node@v3
         with:
-          path: |
-            ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
-          restore-keys: |
-            ${{ github.run_id }}-dashboard-url
+          node-version: 18
 
-      - name: Print cypress dashboard url
-        id: dashboard_url
-        run: |
-          cypress_url="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}"
-          echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
-
-      # Download failed_spec list for all jobs
-      - uses: actions/download-artifact@v3
+      - name: install pg
         if: needs.ci-test-limited.result != 'success'
-        id: download_ci
+        run : npm install pg
+
+      - name: Fetch the failed specs
+        if: needs.ci-test-limited.result != 'success'
+        id: failed_specs
+        env:
+          DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          RUN_ID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+        uses: actions/github-script@v6
         with:
-          name: failed-spec-ci-${{github.run_attempt}}
-          path: ~/failed_spec_ci
+          script: |
+            const { Pool } = require("pg");
+            const { DB_HOST, DB_NAME, DB_USER, DB_PWD, RUN_ID, ATTEMPT_NUMBER } = process.env
+
+            const client = await new Pool({
+              user: DB_USER,
+              host: DB_HOST,
+              database: DB_NAME,
+              password: DB_PWD,
+              port: 5432,
+              connectionTimeoutMillis: 60000,
+            }).connect();
+
+            const result = await client.query(
+              `SELECT DISTINCT name FROM public."specs" 
+                WHERE "matrixId" IN 
+                (SELECT id FROM public."matrix" 
+                WHERE "attemptId" = (
+                  SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
+                  ) 
+                ) AND status = 'fail'`,
+              [RUN_ID, ATTEMPT_NUMBER],
+            );
+            client.release();
+            return result.rows.map((spec) => spec.name);
 
       # In case for any ci job failure, create combined failed spec
-      - name: "combine all specs for CI"
+      - name: combine all specs for CI
+        id: combine_ci
         if: needs.ci-test-limited.result != 'success'
         run: |
-          echo "Debugging: failed specs in ~/failed_spec_ci/failed_spec_ci*"
-          cat ~/failed_spec_ci/failed_spec_ci*
-          cat ~/failed_spec_ci/failed_spec_ci* | sort -u >> ~/combined_failed_spec_ci
+          failed_specs=$(echo ${{steps.test.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
+          while read -r line; do
+            echo "$line" >> ~/combined_failed_spec_ci
+          done <<< "$failed_specs"
 
       # Upload combined failed CI spec list to a file
       # This is done for debugging.
@@ -285,45 +303,63 @@ jobs:
       run:
         shell: bash
     steps:
-      # Deleting the existing dir's if any
-      - name: Delete existing directories
+      - name: Setup node
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
-        run: |
-          rm -f ~/failed_spec_ci
-          rm -f ~/combined_failed_spec_ci
-
-      # Force store previous cypress dashboard url from cache
-      - name: Store the previous cypress dashboard url
-        if: success()
-        uses: actions/cache@v3
+        uses: actions/setup-node@v3
         with:
-          path: |
-            ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
-          restore-keys: |
-            ${{ github.run_id }}-dashboard-url
+          node-version: 18
 
-      - name: Print cypress dashboard url
-        id: dashboard_url
-        run: |
-          cypress_url="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}"
-          echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
-
-      # Download failed_spec list for all jobs
-      - uses: actions/download-artifact@v3
+      - name: install pg
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
-        id: download_ci
+        run : npm install pg
+
+      - name: Fetch the failed specs
+        if: needs.ci-test-limited-existing-docker-image.result != 'success'
+        id: failed_specs
+        env:
+          DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          RUN_ID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+        uses: actions/github-script@v6
         with:
-          name: failed-spec-ci-${{github.run_attempt}}
-          path: ~/failed_spec_ci
+          script: |
+            const { Pool } = require("pg");
+            const { DB_HOST, DB_NAME, DB_USER, DB_PWD, RUN_ID, ATTEMPT_NUMBER } = process.env
+
+            const client = await new Pool({
+              user: DB_USER,
+              host: DB_HOST,
+              database: DB_NAME,
+              password: DB_PWD,
+              port: 5432,
+              connectionTimeoutMillis: 60000,
+            }).connect();
+
+            const result = await client.query(
+              `SELECT DISTINCT name FROM public."specs" 
+                WHERE "matrixId" IN 
+                (SELECT id FROM public."matrix" 
+                WHERE "attemptId" = (
+                  SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
+                  ) 
+                ) AND status = 'fail'`,
+              [RUN_ID, ATTEMPT_NUMBER],
+            );
+            client.release();
+            return result.rows.map((spec) => spec.name);
 
       # In case for any ci job failure, create combined failed spec
-      - name: "combine all specs for CI"
+      - name: combine all specs for CI
+        id: combine_ci
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
         run: |
-          echo "Debugging: failed specs in ~/failed_spec_ci/failed_spec_ci*"
-          cat ~/failed_spec_ci/failed_spec_ci*
-          cat ~/failed_spec_ci/failed_spec_ci* | sort -u >> ~/combined_failed_spec_ci
+          failed_specs=$(echo ${{steps.test.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
+          while read -r line; do
+            echo "$line" >> ~/combined_failed_spec_ci
+          done <<< "$failed_specs"
 
       # Upload combined failed CI spec list to a file
       # This is done for debugging.

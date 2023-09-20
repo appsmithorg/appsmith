@@ -95,48 +95,63 @@ jobs:
           PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
         run: echo "$PAYLOAD_CONTEXT"
 
-      # Deleting the existing dir's if any
-      - name: Delete existing directories
+      - name: Setup node
         if: needs.ci-test.result != 'success'
-        run: |
-          rm -f ~/failed_spec_ci
-          rm -f ~/combined_failed_spec_ci
-
-      # Force store previous cypress dashboard url from cache
-      - name: Store the previous cypress dashboard url
-        continue-on-error: true
-        if: success()
-        uses: actions/cache@v3
+        uses: actions/setup-node@v3
         with:
-          path: |
-            ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
-          restore-keys: |
-            ${{ github.run_id }}-dashboard-url
+          node-version: 18
 
-      - name: Print cypress dashboard url
-        continue-on-error: true
-        id: dashboard_url
-        run: |
-          cypress_url="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}"
-          echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
-
-      # Download failed_spec list for all jobs
-      - uses: actions/download-artifact@v3
+      - name: install pg
         if: needs.ci-test.result != 'success'
-        id: download_ci
+        run : npm install pg
+
+      - name: Fetch the failed specs
+        if: needs.ci-test.result != 'success'
+        id: failed_specs
+        env:
+          DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          RUN_ID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+        uses: actions/github-script@v6
         with:
-          name: failed-spec-ci-${{github.run_attempt}}
-          path: ~/failed_spec_ci
+          script: |
+            const { Pool } = require("pg");
+            const { DB_HOST, DB_NAME, DB_USER, DB_PWD, RUN_ID, ATTEMPT_NUMBER } = process.env
+
+            const client = await new Pool({
+              user: DB_USER,
+              host: DB_HOST,
+              database: DB_NAME,
+              password: DB_PWD,
+              port: 5432,
+              connectionTimeoutMillis: 60000,
+            }).connect();
+
+            const result = await client.query(
+              `SELECT DISTINCT name FROM public."specs" 
+                WHERE "matrixId" IN 
+                (SELECT id FROM public."matrix" 
+                WHERE "attemptId" = (
+                  SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
+                  ) 
+                ) AND status = 'fail'`,
+              [RUN_ID, ATTEMPT_NUMBER],
+            );
+            client.release();
+            return result.rows.map((spec) => spec.name);
 
       # In case for any ci job failure, create combined failed spec
       - name: combine all specs for CI
         id: combine_ci
         if: needs.ci-test.result != 'success'
         run: |
-          echo "Debugging: failed specs in ~/failed_spec_ci/failed_spec_ci*"
-          cat ~/failed_spec_ci/failed_spec_ci*
-          cat ~/failed_spec_ci/failed_spec_ci* | sort -u >> ~/combined_failed_spec_ci
+          failed_specs=$(echo ${{steps.test.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
+          while read -r line; do
+            echo "$line" >> ~/combined_failed_spec_ci
+          done <<< "$failed_specs"
           if [[ -z $(grep '[^[:space:]]' ~/combined_failed_spec_ci) ]] ; then
             echo "specs_failed=0" >> $GITHUB_OUTPUT
           else
@@ -156,7 +171,7 @@ jobs:
         shell: bash
         run: |
           curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
-
+     
       # Verify CI test failures against known failures
       - name: Verify CI test failures against known failures
         if: needs.ci-test.result != 'success'
@@ -181,7 +196,18 @@ jobs:
             To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
 
       - name: Add a comment on the PR when ci-test is success
-        if: needs.ci-test.result == 'success' || steps.combine_ci.outputs.specs_failed == '0'
+        if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '0'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
+            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
+            It seems like there are some failures 😔. We are not able to recognize it, please check this manually <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">here.</a>
+
+      - name: Add a comment on the PR when ci-test is success
+        if: needs.ci-test.result == 'success' && steps.combine_ci.outputs.specs_failed == '0'
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
