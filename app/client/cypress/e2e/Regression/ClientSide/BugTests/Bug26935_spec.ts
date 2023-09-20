@@ -1,6 +1,5 @@
 import {
   agHelper,
-  locators,
   entityExplorer,
   propPane,
   apiPage,
@@ -12,7 +11,7 @@ import {
 describe("Bug26935- Widget isLoading property", function () {
   before(() => {
     // Create Api1
-    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/photos");
+    apiPage.CreateAndFillApi(dataManager.paginationUrl(100, 1));
     // Table1
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 100, 100);
 
