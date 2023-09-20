@@ -13,6 +13,7 @@ import {
   deployMode,
   entityExplorer,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("JSON Form Widget Form Bindings", () => {
@@ -120,7 +121,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
 
     // make name field required
@@ -145,7 +146,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
 
     // make name field required
@@ -180,7 +181,7 @@ describe("JSON Form Widget Form Bindings", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
 
     cy.togglebar(`${propertyControlPrefix}-hiddenfieldsindata input`);
@@ -207,7 +208,7 @@ describe("JSON Form Widget Form Bindings", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
 
     cy.togglebarDisable(`${propertyControlPrefix}-hiddenfieldsindata input`);

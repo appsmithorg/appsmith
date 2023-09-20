@@ -3,10 +3,10 @@ const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const jsonform = require("../../../../../locators/jsonFormWidget.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const locators = ObjectsRegistry.CommonLocators;
 const {
   deployMode,
   entityExplorer,
+  locators,
 } = require("../../../../../support/Objects/ObjectsCore");
 
 describe("JsonForm widget basis c usecases", function () {

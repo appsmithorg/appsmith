@@ -4,6 +4,7 @@ import {
   entityExplorer,
   deployMode,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
@@ -23,7 +24,7 @@ describe("Text Field Property Control", () => {
     };
     agHelper.AddDsl("jsonFormDslWithoutSchema");
     cy.openPropertyPane("jsonformwidget");
-    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
 
@@ -34,7 +35,7 @@ describe("Text Field Property Control", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("switch");
     // assert default property
@@ -91,7 +92,7 @@ describe("Text Field Property Control", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("state");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select/);
@@ -124,7 +125,7 @@ describe("Text Field Property Control", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("hobbies");
     // assert valid default value
@@ -175,7 +176,7 @@ describe("Text Field Property Control", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
     cy.openFieldConfiguration("radio");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");

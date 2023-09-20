@@ -4,6 +4,7 @@ import {
   deployMode,
   entityExplorer,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("JSON Form Widget AutoGenerate Disabled", () => {
@@ -43,7 +44,7 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
     };
 
     entityExplorer.SelectEntityByName("JSONForm1");
-    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     propPane.UpdatePropertyFieldValue(
       "Source data",
       JSON.stringify(sourceData),
@@ -145,7 +146,7 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
     };
 
     entityExplorer.SelectEntityByName("JSONForm1");
-    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     propPane.UpdatePropertyFieldValue(
       "Source data",
       JSON.stringify(sourceData),
