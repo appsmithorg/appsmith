@@ -227,6 +227,8 @@ describe("generateDataTreeWidget", () => {
       widgetId: "123",
       widgetName: "Input1",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      componentWidth: 0,
+      componentHeight: 0,
       defaultText: "",
       type: "INPUT_WIDGET_V2",
       deepObj: {
@@ -304,7 +306,7 @@ describe("generateDataTreeWidget", () => {
       isMetaPropDirty: true,
     };
 
-    const result = generateDataTreeWidget(widget, widgetMetaProps);
+    const result = generateDataTreeWidget(widget, widgetMetaProps, new Set());
     expect(result.unEvalEntity).toStrictEqual(expectedData);
     expect(result.configEntity).toStrictEqual(expectedConfig);
   });

@@ -41,7 +41,8 @@ export const StyledText = styled.div<StyledTextProp>`
     getFontWeight($fontWeight, $isBold)};
   font-style: ${({ $isItalic }) => ($isItalic ? "italic" : "normal")};
   text-align: ${({ $textAlign }) => $textAlign};
-  width: 100%;
+  // using auto instead of 100% so that text doesnot push everything to the edge
+  width: auto;
 
   color: ${({ color }) => {
     switch (true) {

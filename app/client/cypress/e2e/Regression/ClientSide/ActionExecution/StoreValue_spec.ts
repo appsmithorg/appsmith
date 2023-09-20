@@ -4,6 +4,7 @@ import {
   jsEditor,
   propPane,
   deployMode,
+  debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("storeValue Action test", () => {
@@ -197,5 +198,41 @@ describe("storeValue Action test", () => {
     agHelper.ClickButton("ShowStore");
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0);
     deployMode.NavigateBacktoEditor();
+  });
+
+  it("4. Bug 24882. StoreValue, removeValue and clearStore should emit platform generated logs", function () {
+    const jsObjectBody = `export default {
+      storeFns: () => {
+        storeValue("xyz", 123);
+        removeValue("xyz");
+        clearStore();
+      }
+    }`;
+
+    jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: true,
+      shouldCreateNewJSObj: true,
+    });
+
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 400, 400);
+    entityExplorer.SelectEntityByName("Button3", "Widgets");
+    propPane.UpdatePropertyFieldValue("Label", "Test store logs");
+    cy.get("@jsObjName").then((jsObj: any) => {
+      propPane.SelectJSFunctionToExecute(
+        "onClick",
+        jsObj as string,
+        "storeFns",
+      );
+    });
+    agHelper.ClickButton("Test store logs");
+
+    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.ClickLogsTab();
+    debuggerHelper.changeLogsGroup("System Logs");
+    debuggerHelper.DoesConsoleLogExist("storeValue('xyz', '123', true)");
+    debuggerHelper.DoesConsoleLogExist("removeValue('xyz')");
+    debuggerHelper.DoesConsoleLogExist("clearStore()");
   });
 });
