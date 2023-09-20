@@ -98,6 +98,10 @@ helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespa
   --set persistence.efs.volumeHandle=$DP_EFS_ID:/ce/ce$PULL_REQUEST_NUMBER \
   --set resources.requests.cpu="1m" \
   --set resources.requests.memory="1Mi" \
+  --set applicationConfig.APPSMITH_API_BASE_URL="http://localhost:8080/api/v1" \
+  --set applicationConfig.APPSMITH_REDIS_URL="redis://127.0.0.1:6379" \
+  --set applicationConfig.APPSMITH_ENCRYPTION_PASSWORD="obYwdTiwlFbs6" \
+  --set applicationConfig.APPSMITH_ENCRYPTION_SALT="tqcnUJBCXQ9CB" \
   --set applicationConfig.APPSMITH_SENTRY_DSN="https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547" \
   --set applicationConfig.APPSMITH_SENTRY_ENVIRONMENT="$NAMESPACE" \
   --set applicationConfig.APPSMITH_MONGODB_URI="mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" \
