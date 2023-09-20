@@ -691,15 +691,11 @@ jobs:
         id: failed_specs
         run : |
           failed_specs=$(echo ${{steps.test.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
-          echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           while read -r line; do
-            echo "$line" >> $GITHUB_ENV
+            echo "$line" > ~/combined_failed_spec_ci
           done <<< "$failed_specs"
-          echo "EOF" >> $GITHUB_ENV
-          echo "spec_count=$(echo $failed_specs | wc -l)" >> $GITHUB_ENV
 
       - name: print the values
         run : |
-          echo "${{env.failed_spec_env}}"
-          echo "${{env.spec_count}}"
+          cat ~/combined_failed_spec_ci
       
