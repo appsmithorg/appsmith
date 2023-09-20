@@ -10,6 +10,8 @@ public class InMemoryCacheableRepositoryHelper {
 
     private String defaultTenantId = null;
 
+    private String instanceAdminPermissionGroupId = null;
+
     public Set<String> getAnonymousUserPermissionGroupIds() {
         return anonymousUserPermissionGroupIds;
     }
@@ -24,5 +26,13 @@ public class InMemoryCacheableRepositoryHelper {
 
     public void setDefaultTenantId(String defaultTenantId) {
         this.defaultTenantId = defaultTenantId;
+    }
+
+    public void setInstanceAdminPermissionGroupId(String instanceAdminPermissionGroupId) {
+        this.instanceAdminPermissionGroupId = instanceAdminPermissionGroupId;
+    }
+
+    public String getInstanceAdminPermissionGroupId() {
+        return instanceAdminPermissionGroupId;
     }
 }

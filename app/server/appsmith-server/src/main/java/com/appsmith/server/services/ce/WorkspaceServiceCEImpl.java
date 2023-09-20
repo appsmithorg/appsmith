@@ -18,6 +18,7 @@ import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -89,6 +90,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final ModelMapper modelMapper;
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
+    private final WorkspaceServiceHelper workspaceServiceHelper;
 
     @Autowired
     public WorkspaceServiceCEImpl(
@@ -107,7 +109,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             PolicySolution policySolution,
             ModelMapper modelMapper,
             WorkspacePermission workspacePermission,
-            PermissionGroupPermission permissionGroupPermission) {
+            PermissionGroupPermission permissionGroupPermission,
+            WorkspaceServiceHelper workspaceServiceHelper) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
@@ -120,6 +123,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.modelMapper = modelMapper;
         this.workspacePermission = workspacePermission;
         this.permissionGroupPermission = permissionGroupPermission;
+        this.workspaceServiceHelper = workspaceServiceHelper;
     }
 
     @Override
@@ -170,7 +174,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         }
 
         // Does the user have permissions to create a workspace?
-        Mono<Boolean> createWorkspaceAllowedMono = isCreateWorkspaceAllowed(isDefault);
+        Mono<Boolean> createWorkspaceAllowedMono = workspaceServiceHelper.isCreateWorkspaceAllowed(isDefault);
 
         // Populate all the required fields for a valid workspace
         prepareWorkspaceToCreate(workspace, user);
@@ -233,11 +237,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             createdWorkspace = policySolution.addPoliciesToExistingObject(policyMap, createdWorkspace);
         }
         return repository.save(createdWorkspace);
-    }
-
-    @Override
-    public Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
-        return Mono.just(TRUE);
     }
 
     @Override

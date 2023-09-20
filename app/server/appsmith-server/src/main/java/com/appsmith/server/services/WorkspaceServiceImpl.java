@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -36,7 +37,8 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
             PolicySolution policySolution,
             ModelMapper modelMapper,
             WorkspacePermission workspacePermission,
-            PermissionGroupPermission permissionGroupPermission) {
+            PermissionGroupPermission permissionGroupPermission,
+            WorkspaceServiceHelper workspaceServiceHelper) {
 
         super(
                 scheduler,
@@ -54,6 +56,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                 policySolution,
                 modelMapper,
                 workspacePermission,
-                permissionGroupPermission);
+                permissionGroupPermission,
+                workspaceServiceHelper);
     }
 }
