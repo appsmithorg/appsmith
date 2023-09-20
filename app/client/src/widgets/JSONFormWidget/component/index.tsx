@@ -176,18 +176,7 @@ function JSONFormComponent<TValues>(
       );
     }
 
-    if (!isSchemaEmpty && showConnectDataOverlay) {
-      return (
-        <InfoMessage fixHeight={fixMessageHeight}>
-          Source data is empty.&nbsp;
-          {renderMode === RenderModes.PAGE
-            ? "Please contact your developer for more information"
-            : "Source data is required to display custom fields."}
-        </InfoMessage>
-      );
-    }
-
-    if (showConnectDataOverlay || isSchemaEmpty) {
+    if (showConnectDataOverlay && isSchemaEmpty) {
       return (
         <div style={{ height: "200px" }}>
           <ConnectDataOverlay
