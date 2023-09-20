@@ -61,6 +61,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
           {...labelProps}
           elementType={elementType}
           labelAlign={labelAlign}
+          labelPosition={labelPosition}
         >
           {label}
         </Label>
