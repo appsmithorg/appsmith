@@ -105,7 +105,7 @@ public class PartialImportExportServiceTests {
     @WithUserDetails(value = "api_user")
     public void exportNoEntitiesTest() {
         PartialImportExportDTO entities = createEmptyEntities();
-        StepVerifier.create(partialImportExportService.exportPartialApplicationById(savedApplicationId, entities))
+        StepVerifier.create(partialImportExportService.exportApplicationById(savedApplicationId, entities))
                 .assertNext(applicationJson -> {
                     assertThat(applicationJson.getActionList()).isEmpty();
                     assertThat(applicationJson.getDatasourceList()).isEmpty();
@@ -120,7 +120,7 @@ public class PartialImportExportServiceTests {
     public void exportExistingCustomLibTest() {
         PartialImportExportDTO entities = createEmptyEntities();
         entities.setCustomJSLibList(List.of("TestLib1"));
-        StepVerifier.create(partialImportExportService.exportPartialApplicationById(savedApplicationId, entities))
+        StepVerifier.create(partialImportExportService.exportApplicationById(savedApplicationId, entities))
                 .assertNext(applicationJson -> {
                     assertThat(applicationJson.getActionList()).isEmpty();
                     assertThat(applicationJson.getDatasourceList()).isEmpty();
@@ -146,7 +146,7 @@ public class PartialImportExportServiceTests {
     public void exportNonExistingCustomLibTest() {
         PartialImportExportDTO entities = createEmptyEntities();
         entities.setCustomJSLibList(List.of("some_random_lib"));
-        StepVerifier.create(partialImportExportService.exportPartialApplicationById(savedApplicationId, entities))
+        StepVerifier.create(partialImportExportService.exportApplicationById(savedApplicationId, entities))
                 .assertNext(applicationJson -> {
                     assertThat(applicationJson.getActionList()).isEmpty();
                     assertThat(applicationJson.getDatasourceList()).isEmpty();
@@ -162,8 +162,8 @@ public class PartialImportExportServiceTests {
         ApplicationJson appJson = new ApplicationJson();
         appJson.setExportedApplication(savedApplication);
         appJson.setCustomJSLibList(List.of(existingLib));
-        StepVerifier.create(partialImportExportService.importPartialApplicationFromJson(
-                        savedApplicationId, workspaceId, appJson))
+        StepVerifier.create(
+                        partialImportExportService.importApplicationFromJson(savedApplicationId, workspaceId, appJson))
                 .assertNext(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
                     List<CustomJSLibApplicationDTO> customJSLibApplicationDTOList =
@@ -183,8 +183,8 @@ public class PartialImportExportServiceTests {
         CustomJSLib newCustomJsLib =
                 new CustomJSLib("NewLib", Set.of("accessor_new"), "url_new", "docsUrl_new", "1.0", "defs_string");
         appJson.setCustomJSLibList(List.of(newCustomJsLib));
-        StepVerifier.create(partialImportExportService.importPartialApplicationFromJson(
-                        savedApplicationId, workspaceId, appJson))
+        StepVerifier.create(
+                        partialImportExportService.importApplicationFromJson(savedApplicationId, workspaceId, appJson))
                 .assertNext(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
                     List<CustomJSLibApplicationDTO> customJSLibApplicationDTOList = new ArrayList<>(

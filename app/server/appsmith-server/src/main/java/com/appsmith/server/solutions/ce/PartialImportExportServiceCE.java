@@ -8,13 +8,13 @@ import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Mono;
 
 public interface PartialImportExportServiceCE {
-    Mono<ApplicationJson> exportPartialApplicationById(String applicationId, PartialImportExportDTO entities);
+    Mono<ApplicationJson> exportApplicationById(String applicationId, PartialImportExportDTO entities);
 
-    Mono<ExportFileDTO> getPartialApplicationFile(String applicationId, PartialImportExportDTO entities);
+    Mono<ExportFileDTO> getApplicationFile(String applicationId, PartialImportExportDTO entities);
 
-    Mono<ApplicationImportDTO> importPartialApplicationFromFile(
+    Mono<ApplicationImportDTO> importApplicationFromFile(
             String applicationId, String workspaceId, String pageId, Part importedDoc);
 
-    Mono<ApplicationImportDTO> importPartialApplicationFromJson(
+    Mono<ApplicationImportDTO> importApplicationFromJson(
             String applicationId, String workspaceId, ApplicationJson applicationJson);
 }

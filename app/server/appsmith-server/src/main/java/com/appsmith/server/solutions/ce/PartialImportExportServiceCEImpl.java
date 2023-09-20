@@ -53,7 +53,7 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
                 });
     }
 
-    public Mono<ApplicationJson> exportPartialApplicationById(String applicationId, PartialImportExportDTO entities) {
+    public Mono<ApplicationJson> exportApplicationById(String applicationId, PartialImportExportDTO entities) {
         ApplicationJson appJson = new ApplicationJson();
         appJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
         appJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
@@ -79,8 +79,8 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
 
     // TODO: As of now, this function is almost the same as the one in ImportExportServiceCEImpl.
     //  Refactor this to avoid duplication
-    public Mono<ExportFileDTO> getPartialApplicationFile(String applicationId, PartialImportExportDTO entities) {
-        return exportPartialApplicationById(applicationId, entities).map(applicationJson -> {
+    public Mono<ExportFileDTO> getApplicationFile(String applicationId, PartialImportExportDTO entities) {
+        return exportApplicationById(applicationId, entities).map(applicationJson -> {
             String fileStr = gson.toJson(applicationJson);
             String applicationName = applicationJson.getExportedApplication().getName();
             Object jsonObject = gson.fromJson(fileStr, Object.class);
@@ -104,7 +104,7 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
                 .then(applicationService.findById(applicationId));
     }
 
-    public Mono<ApplicationImportDTO> importPartialApplicationFromJson(
+    public Mono<ApplicationImportDTO> importApplicationFromJson(
             String applicationId, String workspaceId, ApplicationJson applicationJson) {
         // Update the application JSON to prepare it for merging inside an existing application
         if (applicationJson.getExportedApplication() != null) {
@@ -138,7 +138,7 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
         });
     }
 
-    public Mono<ApplicationImportDTO> importPartialApplicationFromFile(
+    public Mono<ApplicationImportDTO> importApplicationFromFile(
             String applicationId, String workspaceId, String pageId, Part importedDoc) {
         return DataBufferUtils.join(importedDoc.content())
                 .map(dataBuffer -> {
@@ -150,7 +150,7 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
                 .flatMap(jsonString -> {
                     Type fileType = new TypeToken<ApplicationJson>() {}.getType();
                     ApplicationJson applicationJson = gson.fromJson(jsonString, fileType);
-                    return importPartialApplicationFromJson(applicationId, workspaceId, applicationJson);
+                    return importApplicationFromJson(applicationId, workspaceId, applicationJson);
                 });
     }
 }
