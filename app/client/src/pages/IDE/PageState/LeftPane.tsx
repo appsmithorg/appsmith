@@ -96,9 +96,6 @@ const PageLeftPane = () => {
 
   useEffect(() => {
     const { pageNav } = navState;
-    if (!pageNav) {
-      navigatePageEntity(PageNavState.UI);
-    }
     if (pageNav) {
       if (pageNav === PageNavState.UI) {
         dispatch(setIdeSidebarWidth(300));

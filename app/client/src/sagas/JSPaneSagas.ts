@@ -30,7 +30,7 @@ import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import type { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import { executeJSFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { JSUpdate } from "utils/JSPaneUtils";
@@ -154,6 +154,9 @@ function* handleJSCollectionCreatedSaga(
         editName: true,
       },
     }),
+    {
+      invokedBy: NavigationMethod.CommandClick,
+    },
   );
 }
 

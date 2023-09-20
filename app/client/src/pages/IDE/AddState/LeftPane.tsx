@@ -5,9 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { setIdePageTabState } from "../ideActions";
-import { datasourcesEditorURL, pageEntityUrl } from "RouteBuilder";
+import { builderURL, datasourcesEditorURL } from "RouteBuilder";
 import history, { NavigationMethod } from "utils/history";
-import { PageNavState, TabState } from "../ideReducer";
+import { IDEAppState, PageNavState, TabState } from "../ideReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import WidgetSidebarWithTags from "pages/Editor/WidgetSidebarWithTags";
 
@@ -90,7 +90,11 @@ const AddNewCards = () => {
       <NewCard
         onClick={() => {
           history.push(
-            pageEntityUrl({ pageId: currentPageId }, PageNavState.QUERIES),
+            builderURL({
+              pageId: currentPageId,
+              ideState: IDEAppState.Page,
+              suffix: `/${PageNavState.QUERIES}`,
+            }),
             {
               invokedBy: NavigationMethod.CommandClick,
             },
@@ -105,6 +109,16 @@ const AddNewCards = () => {
       </NewCard>
       <NewCard
         onClick={() => {
+          history.push(
+            builderURL({
+              pageId: currentPageId,
+              ideState: IDEAppState.Page,
+              suffix: `/${PageNavState.JS}`,
+            }),
+            {
+              invokedBy: NavigationMethod.CommandClick,
+            },
+          );
           dispatch(createNewJSCollection(currentPageId, "ENTITY_EXPLORER"));
         }}
       >

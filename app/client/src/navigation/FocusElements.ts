@@ -216,11 +216,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setQueryPaneConfigSelectedTabIndex,
       defaultValue: 0,
     },
-    {
-      name: FocusElement.IDEPageTabState,
-      selector: getIdePageTabState,
-      setter: setIdePageTabState,
-    },
   ],
   [FocusEntity.PROPERTY_PANE]: [
     {
