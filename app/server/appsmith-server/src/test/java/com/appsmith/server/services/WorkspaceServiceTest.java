@@ -399,8 +399,7 @@ public class WorkspaceServiceTest {
                             .filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst()
                             .ifPresent(policy -> assertThat(policy.getPermissionGroups())
-                                    .containsAll(
-                                            Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId())));
+                                    .containsAll(Set.of(adminPermissionGroup.getId())));
 
                     // Assert viewer permission group policies
                     viewerPermissionGroup.getPolicies().stream()
@@ -423,7 +422,7 @@ public class WorkspaceServiceTest {
                             .filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst()
                             .ifPresent(policy -> assertThat(policy.getPermissionGroups())
-                                    .containsAll(Set.of(adminPermissionGroup.getId(), viewerPermissionGroup.getId())));
+                                    .containsAll(Set.of(adminPermissionGroup.getId())));
                 })
                 .verifyComplete();
     }

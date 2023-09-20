@@ -61,18 +61,21 @@ describe("Validates Derived Properties", () => {
       gridGap: 0,
       parentRowSpace: 10,
       topRow: 9,
+      componentHeight: 770,
       listData: [{}, {}],
     };
-    // decrease ListWidget height (bottomRow changes)
+    // decrease ListWidget height (bottomRow and componentHeight changes)
     const input2 = {
       ...input1,
       bottomRow: 56,
+      componentHeight: 470,
     };
 
-    // increase ListWidget height (bottomRow changes)
+    // increase ListWidget height (bottomRow and componentHeight changes)
     const input3 = {
       ...input1,
       bottomRow: 340,
+      componentHeight: 3310,
     };
 
     // increase ListItem height (templateBottomRow changes)
@@ -80,6 +83,7 @@ describe("Validates Derived Properties", () => {
       ...input1,
       templateBottomRow: DEFAULT_LIST_ITEM_HEIGHT * 2,
       bottomRow: 340,
+      componentHeight: 3310,
     };
 
     // undefined listData

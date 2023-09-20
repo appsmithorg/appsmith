@@ -489,10 +489,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
+    // Remove if not used
     public Mono<List<String>> findAllPageIdsInApplication(
             String applicationId, AclPermission aclPermission, Boolean view) {
         return findNewPagesByApplicationId(applicationId, aclPermission)
                 .flatMap(newPage -> {
+                    // Look if the page is migrated
+                    // Real time migration
                     if (Boolean.TRUE.equals(view)) {
                         if (newPage.getPublishedPage().getDeletedAt() != null) {
                             return Mono.just(newPage.getId());
@@ -646,6 +649,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 });
     }
 
+    // Remove the code
     @Override
     public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, AclPermission permission) {

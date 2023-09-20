@@ -162,7 +162,7 @@ export class PropertyPane {
     ".currency-change-dropdown-trigger .remixicon-icon";
   _countryCodeChangeDropDown = ".t--input-country-code-change .remixicon-icon";
   _searchCountryPlaceHolder = "[placeholder='Search by ISD code or country']";
-
+  _dataIcon = (icon: string) => `[data-icon="${icon}"]`;
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
   }
@@ -277,6 +277,7 @@ export class PropertyPane {
     action: "Action" | "Page" = "Action",
     index = 0,
     optionIndex = 0,
+    force = false,
   ) {
     if (action == "Action")
       this.agHelper.GetNClick(this._selectPropDropdown(endpoint), index);
@@ -285,7 +286,11 @@ export class PropertyPane {
         this.locator._selectPropPageDropdown(endpoint),
         index,
       );
-    this.agHelper.GetNClick(this._dropDownValue(dropdownOption), optionIndex);
+    this.agHelper.GetNClick(
+      this._dropDownValue(dropdownOption),
+      optionIndex,
+      force,
+    );
   }
 
   public AssertPropertiesDropDownCurrentValue(
