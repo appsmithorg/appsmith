@@ -10,7 +10,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import ContainerComponent from "widgets/ContainerWidget/component";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { DropTargetComponentWrapper } from "../common/dropTargetWrapper/DropTargetComponentWrapper";
+import { DropTargetComponentWrapper } from "../../common/dropTargetWrapper/DropTargetComponentWrapper";
 import { FixedCanvasDraggingArena } from "../editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
 
 export type CanvasProps = ContainerWidgetProps<WidgetProps>;

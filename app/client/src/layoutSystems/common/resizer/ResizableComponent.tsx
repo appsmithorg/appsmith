@@ -47,7 +47,7 @@ import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
-import { DropTargetContext } from "../../../components/editorComponents/DropTargetComponent";
+import { DropTargetContext } from "../dropTargetWrapper/DropTargetComponent";
 import {
   BottomHandleStyles,
   BottomLeftHandleStyles,

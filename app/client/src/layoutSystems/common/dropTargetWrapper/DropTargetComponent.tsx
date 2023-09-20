@@ -17,7 +17,6 @@ import styled from "styled-components";
 
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { calculateDropTargetRows } from "./DropTargetUtils";
-import DragLayerComponent from "./DragLayerComponent";
 import { useDispatch } from "react-redux";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import {
@@ -39,6 +38,7 @@ import {
 } from "widgets/WidgetUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import DragLayerComponent from "./DragLayerComponent";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;

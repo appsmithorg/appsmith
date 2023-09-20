@@ -12,7 +12,7 @@ import type {
 } from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import { widgetOperationParams } from "utils/WidgetPropsUtils";
-import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
+import { DropTargetContext } from "layoutSystems/common/dropTargetWrapper/DropTargetComponent";
 import equal from "fast-deep-equal/es6";
 import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
 import { useDispatch, useSelector } from "react-redux";
