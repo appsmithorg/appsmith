@@ -63,10 +63,6 @@ export async function cypressHooks(
     "after:spec",
     async (spec: Cypress.Spec, results: CypressCommandLine.RunResult) => {
       const client = await dbClient.connect();
-      console.log(
-        "ALL THE SCREENSHOTS --------->",
-        JSON.stringify(results.screenshots),
-      );
       try {
         if (!specData.name.includes("no_spec.ts")) {
           await client.query(
@@ -102,11 +98,9 @@ export async function cypressHooks(
               );
               console.log("Uploading screenshots...");
               for (const scr of out) {
-                console.log("SCREENSHOTS FOR TEST-------->", scr);
                 const attempt = scr.path.includes("attempt 2") ? 2 : 1;
                 const key = `${testResponse.rows[0].id}_${specData.specId}_${attempt}`;
                 await _.uploadToS3(s3, scr.path, key);
-                console.log("SCREENSHOT UPLOADED-----------------------------");
               }
             }
           }
@@ -120,7 +114,6 @@ export async function cypressHooks(
             console.log("Uploading video...");
             const key = `${specData.specId}`;
             await _.uploadToS3(s3, results.video, key);
-            console.log("VIDEO UPLOADED-----------------------------");
           }
         }
       } catch (err) {
