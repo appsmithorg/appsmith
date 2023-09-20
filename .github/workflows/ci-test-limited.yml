@@ -113,7 +113,6 @@ jobs:
         run: |
           run_result_env=$(cat ~/run_result)
           echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
-          echo "RUN RESULT ------> $run_result_env"
           if [[ "$run_result_env" == "failedtest" ]]; then
             echo "rerun=true" >> $GITHUB_OUTPUT
           else
