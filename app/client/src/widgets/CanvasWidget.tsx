@@ -30,6 +30,8 @@ import { FixedCanvasDraggingArena } from "layoutSystems/fixedlayout/editor/Fixed
 import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
+import { renderLayouts } from "layoutSystems/anvil/layoutComponents/LayoutComponetsHOC";
+import type { LayoutComponentProps } from "layoutSystems/anvil/utils/anvilTypes";
 
 class CanvasWidget extends ContainerWidget {
   static type = "CANVAS_WIDGET";
@@ -81,7 +83,13 @@ class CanvasWidget extends ContainerWidget {
     };
   }
 
+  renderAsLayoutComponent() {
+    const layout = this.props.layout as LayoutComponentProps[];
+    return <>{renderLayouts(layout)}</>;
+  }
+
   renderAsDropTarget() {
+    if (this.props.layout) return this.renderAsLayoutComponent();
     const canvasProps = this.getCanvasProps();
     const { snapColumnSpace } = this.getSnapSpaces();
     return (

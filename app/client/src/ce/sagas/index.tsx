@@ -50,6 +50,7 @@ import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
 import entityNavigationSaga from "sagas/NavigationSagas";
+import anvilSagas from "sagas/CanvasSagas/AnvilSagas";
 
 export const sagas = [
   initSagas,
@@ -100,6 +101,7 @@ export const sagas = [
   LintingSaga,
   autoLayoutUpdateSagas,
   autoLayoutDraggingSagas,
+  anvilSagas,
   layoutConversionSagas,
   snapshotSagas,
   oneClickBindingSaga,

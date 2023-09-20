@@ -4,6 +4,7 @@ import type {
   LayoutComponentProps,
 } from "../utils/anvilTypes";
 import LayoutFactory from "./LayoutFactory";
+import { CanvasDraggingArena } from "../editor/CanvasArena/CanvasDraggingArena";
 
 // TODO: Move this function to utils directory
 export function renderLayouts(layouts: LayoutComponentProps[]) {
@@ -21,7 +22,7 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
       if (rendersWidgets) {
         // TODO: Create the widget using WidgetFactory and send them to LayoutComponent
         // const childrenMap = {
-        //   widget1: WidgetFactory.createWidget()
+        //   widget1: WidgetFactory.createWidget(widgetProps, RenderModes.CANVAS),
         // }
         return Component.renderChildren(props);
       } else {
@@ -31,7 +32,16 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
 
     return (
       <Component {...props}>
-        {isDropTarget && <div>dragging arena will be added here</div>}
+        {isDropTarget && (
+          <CanvasDraggingArena
+            canExtend
+            snapColumnSpace={18.40625}
+            snapRowSpace={10}
+            snapRows={129}
+            widgetId="0"
+            {...props}
+          />
+        )}
         {renderChildren()}
       </Component>
     );

@@ -1,4 +1,5 @@
 import type { WidgetProps } from "widgets/BaseWidget";
+import type { HighlightInfo } from "./autoLayoutTypes";
 
 export type LayoutComponentType = "ROW";
 
@@ -24,4 +25,6 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   type: LayoutComponentType;
   getWidth: (arg0: any) => number;
   renderChildren: (props: LayoutComponentProps) => React.ReactNode;
+  deriveHighlights: (canvasId: string) => HighlightInfo[];
+  extactChildWidgetIds: (props: LayoutComponentProps) => string[];
 }

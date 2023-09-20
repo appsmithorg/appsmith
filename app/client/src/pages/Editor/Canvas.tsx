@@ -18,6 +18,7 @@ import {
   useTheme,
 } from "@design-system/theming";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { generateReactKey } from "widgets/WidgetUtils";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -91,7 +92,25 @@ const Canvas = (props: CanvasProps) => {
         >
           {props.widgetsStructure.widgetId &&
             WidgetFactory.createWidget(
-              props.widgetsStructure,
+              // props.widgetsStructure,
+              // TODO: This is just added to test out Layout Comoonents temporarily.
+              {
+                ...props.widgetsStructure,
+                layout: [
+                  {
+                    layoutId: generateReactKey(),
+                    layoutType: "ROW",
+                    layoutStyle: {
+                      height: "500px",
+                      border: "1px dotted black",
+                    },
+                    rendersWidgets: true,
+                    isDropTarget: true,
+                    layout: [],
+                  },
+                ],
+              } as any,
+
               RenderModes.CANVAS,
             )}
         </Wrapper>
