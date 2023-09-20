@@ -310,7 +310,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     );
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
     //Delete the test data
     entityExplorer.ExpandCollapseEntity("Pages");
     entityExplorer.ActionContextMenuByEntityName({
@@ -363,7 +363,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     );
 
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
+    table.WaitUntilTableLoad(0, 0, "v2");
   });
 
   after("Verify Deletion of the datasource", () => {
@@ -384,18 +384,18 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.ClickButton("Got it");
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
-    table.WaitUntilTableLoad();
+    deployMode.DeployApp(locators._widgetInDeployed("tablewidgetv2"));
+    table.WaitUntilTableLoad(0, 0, "v2");
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 
