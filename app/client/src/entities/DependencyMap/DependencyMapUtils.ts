@@ -12,28 +12,15 @@ type SortDependencies =
 
 export class DependencyMapUtils {
   // inspired by https://www.npmjs.com/package/toposort#sorting-dependencies
-  static sortDependencies(
-    dependencyMap: DependencyMap,
-    validationDependencyMap?: DependencyMap,
-  ): SortDependencies {
+  static sortDependencies(dependencyMap: DependencyMap): SortDependencies {
     const dependencyTree: Array<[string, string | undefined]> = [];
     const dependencies = dependencyMap.rawDependencies;
-    const validationDependencies = validationDependencyMap?.rawDependencies;
-
     for (const [node, deps] of dependencies.entries()) {
-      const validationDeps = validationDependencies?.get(node);
-
-      if (!deps.size && !validationDeps?.size) {
-        // Set no dependency
-        dependencyTree.push([node, undefined]);
-        continue;
-      }
-
       if (deps.size) {
         deps.forEach((dep) => dependencyTree.push([node, dep]));
-      }
-      if (validationDeps?.size) {
-        validationDeps.forEach((dep) => dependencyTree.push([node, dep]));
+      } else {
+        // Set no dependency
+        dependencyTree.push([node, undefined]);
       }
     }
 

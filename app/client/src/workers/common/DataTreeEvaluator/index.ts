@@ -112,7 +112,6 @@ import {
 } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
-  getValidatedTree,
   setToEvalPathsIdenticalToState,
   validateActionProperty,
   validateAndParseWidgetProperty,
@@ -348,19 +347,15 @@ export default class DataTreeEvaluator {
       undefined,
       this.oldConfigTree,
     );
+    this.setEvalTree(evaluatedTree);
+
     const evaluationEndTime = performance.now();
     const validationStartTime = performance.now();
     // Validate Widgets
-
-    this.setEvalTree(
-      getValidatedTree(
-        evaluatedTree,
-        {
-          evalProps: this.evalProps,
-          evalPathsIdenticalToState: this.evalPathsIdenticalToState,
-        },
-        this.oldConfigTree,
-      ),
+    this.validateEvalDependentPaths(
+      evaluationOrder,
+      evaluatedTree,
+      this.oldConfigTree,
     );
 
     const validationEndTime = performance.now();
@@ -798,7 +793,7 @@ export default class DataTreeEvaluator {
       ...evaluationOrder,
       ...nonDynamicFieldValidationOrder,
     ]);
-    const reValidatedPaths = this.reValidateTree(
+    const reValidatedPaths = this.validateEvalDependentPaths(
       [...validationOrder],
       newEvalTree,
       configTree,
@@ -1053,9 +1048,15 @@ export default class DataTreeEvaluator {
                 fullPropertyPath,
                 parsedValue,
                 propertyPath,
-                evalPropertyValue,
                 isNewWidget,
               });
+
+              // setting evalPropertyValue in unParsedEvalTree
+              set(
+                this.getUnParsedEvalTree(),
+                fullPropertyPath,
+                evalPropertyValue,
+              );
 
               staleMetaIds = staleMetaIds.concat(
                 getStaleMetaStateIds({
@@ -1206,13 +1207,9 @@ export default class DataTreeEvaluator {
 
   sortDependencies(
     dependencyMap: DependencyMap,
-    validationDependencyMap?: DependencyMap,
     diffs?: DataTreeDiff[],
   ): Array<string> {
-    const result = DependencyMapUtils.sortDependencies(
-      dependencyMap,
-      validationDependencyMap,
-    );
+    const result = DependencyMapUtils.sortDependencies(dependencyMap);
     if (result.success) {
       return result.sortedDependencies;
     } else {
@@ -1435,7 +1432,6 @@ export default class DataTreeEvaluator {
     currentTree,
     entity,
     evalMetaUpdates,
-    evalPropertyValue,
     fullPropertyPath,
     isNewWidget,
     parsedValue,
@@ -1449,7 +1445,6 @@ export default class DataTreeEvaluator {
     isNewWidget: boolean;
     parsedValue: unknown;
     propertyPath: string;
-    evalPropertyValue: unknown;
   }) {
     const overwriteObj = overrideWidgetProperties({
       entity,
@@ -1467,18 +1462,16 @@ export default class DataTreeEvaluator {
     }
     // setting parseValue in dataTree
     set(currentTree, fullPropertyPath, parsedValue);
-    // setting evalPropertyValue in unParsedEvalTree
-    set(this.getUnParsedEvalTree(), fullPropertyPath, evalPropertyValue);
   }
 
-  reValidateWidgetDependentProperty({
+  validateEntityDependentProperty({
     configTree,
     currentTree,
+    entity,
     fullPropertyPath,
-    widget,
   }: {
     fullPropertyPath: string;
-    widget: WidgetEntity;
+    entity: WidgetEntity;
     currentTree: DataTree;
     configTree: ConfigTree;
   }): string[] {
@@ -1492,7 +1485,7 @@ export default class DataTreeEvaluator {
       pathsToRevalidate.forEach((fullPath) => {
         validateAndParseWidgetProperty({
           fullPropertyPath: fullPath,
-          widget,
+          widget: entity,
           currentTree,
           configTree,
           // we supply non-transformed evaluated value
@@ -1509,19 +1502,19 @@ export default class DataTreeEvaluator {
     return reValidatedPaths;
   }
 
-  reValidateTree(
-    validationOrder: string[],
+  validateEvalDependentPaths(
+    pathsEvaluated: string[],
     currentTree: DataTree,
     configTree: ConfigTree,
   ) {
     const reValidatedPaths: string[] = [];
-    validationOrder.forEach((fullPropertyPath) => {
+    pathsEvaluated.forEach((fullPropertyPath) => {
       const { entityName, propertyPath } =
         getEntityNameAndPropertyPath(fullPropertyPath);
       const entity = currentTree[entityName];
       if (isWidget(entity) && !isPathDynamicTrigger(entity, propertyPath)) {
-        const pathsValidated = this.reValidateWidgetDependentProperty({
-          widget: entity,
+        const pathsValidated = this.validateEntityDependentProperty({
+          entity,
           fullPropertyPath,
           currentTree,
           configTree,
