@@ -172,16 +172,20 @@ function* handleDeleteSaga(action: ReduxAction<{ id: string }>) {
   let suffix = "/queries";
   let items: Item[] = yield select(getRecentQueryList);
   const leftItems = items.filter((item) => item.key !== id);
+  const item = leftItems[0];
+  if (item) {
+    suffix = `${suffix}/${item.key}`;
+  }
   yield put(setRecentQueryList(leftItems));
   if (action.type === ReduxActionTypes.DELETE_JS_ACTION_SUCCESS) {
     suffix = "/js";
     items = yield select(getRecentJsList);
     const leftItems = items.filter((item) => item.key !== id);
+    const item = leftItems[0];
+    if (item) {
+      suffix = `${suffix}/${item.key}`;
+    }
     yield put(setRecentJsList(leftItems));
-  }
-  const item = leftItems[0];
-  if (item) {
-    suffix = `${suffix}/${item.key}`;
   }
   history.push(
     builderURL({
