@@ -467,7 +467,6 @@ class CodeEditor extends Component<Props, State> {
           editor,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           this.props.hinting!, // ! since defaultProps are set
-          this.props.dynamicData,
           this.props.entitiesForNavigation, // send navigation here
         );
 
@@ -966,11 +965,10 @@ class CodeEditor extends Component<Props, State> {
   static startAutocomplete(
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
-    dynamicData: DataTree,
     entitiesForNavigation: EntityNavigationData,
   ) {
     return hinting.map((helper) => {
-      return helper(editor, dynamicData, entitiesForNavigation);
+      return helper(editor, entitiesForNavigation);
     });
   }
 
