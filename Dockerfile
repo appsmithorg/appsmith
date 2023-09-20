@@ -53,8 +53,8 @@ RUN rm -rf \
 VOLUME [ "/appsmith-stacks" ]
 
 # ------------------------------------------------------------------------
-ENV TMP="/tmp/appsmith" \
-  NGINX_WWW_PATH="$TMP/www"
+ENV TMP="/tmp/appsmith"
+ENV NGINX_WWW_PATH="$TMP/www"
 
 # Add backend server - Application Layer
 ARG JAR_FILE=./app/server/dist/server-*.jar
