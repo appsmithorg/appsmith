@@ -19,7 +19,7 @@ import {
 } from "selectors/apiPaneSelectors";
 import {
   getAllEntityCollapsibleStates,
-  getAllPropertySectionState,
+  // getAllPropertySectionState,
   getAllSubEntityCollapsibleStates,
   getCodeEditorHistory,
   getExplorerSwitchIndex,
@@ -30,7 +30,7 @@ import {
 import {
   getAllDatasourceCollapsibleState,
   getDsViewModeValues,
-  getSelectedWidgets,
+  // getSelectedWidgets,
 } from "selectors/ui";
 
 import {
@@ -40,32 +40,32 @@ import {
 import { updateExplorerWidthAction } from "actions/explorerActions";
 import { setJsPaneConfigSelectedTab } from "actions/jsPaneActions";
 import {
-  setAllPropertySectionState,
+  // setAllPropertySectionState,
   setFocusablePropertyPaneField,
-  setPropertyPaneWidthAction,
-  setSelectedPropertyPanels,
+  // setPropertyPaneWidthAction,
+  // setSelectedPropertyPanels,
 } from "actions/propertyPaneActions";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+// import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   DEFAULT_ENTITY_EXPLORER_WIDTH,
-  DEFAULT_PROPERTY_PANE_WIDTH,
+  // DEFAULT_PROPERTY_PANE_WIDTH,
 } from "constants/AppConstants";
 import { PluginPackageName } from "entities/Action";
 import { FocusEntity } from "navigation/FocusEntity";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+// import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getExplorerWidth } from "selectors/explorerSelector";
 import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
 import {
   getFocusablePropertyPaneField,
-  getPropertyPaneWidth,
-  getSelectedPropertyPanel,
+  // getPropertyPaneWidth,
+  // getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { getDebuggerContext } from "selectors/debuggerSelectors";
 import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
-import { NavigationMethod } from "../utils/history";
+// import { NavigationMethod } from "../utils/history";
 import { JSEditorTab } from "../reducers/uiReducers/jsPaneReducer";
 import { getIdePageTabState } from "pages/IDE/ideSelector";
 import { setIdePageTabState } from "pages/IDE/ideActions";
@@ -143,35 +143,35 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     },
   ],
   [FocusEntity.CANVAS]: [
-    {
-      name: FocusElement.PropertySections,
-      selector: getAllPropertySectionState,
-      setter: setAllPropertySectionState,
-      defaultValue: {},
-    },
-    {
-      name: FocusElement.SelectedPropertyPanel,
-      selector: getSelectedPropertyPanel,
-      setter: setSelectedPropertyPanels,
-      defaultValue: {},
-    },
-    {
-      name: FocusElement.SelectedWidgets,
-      selector: getSelectedWidgets,
-      setter: (widgetIds: string[]) =>
-        selectWidgetInitAction(
-          SelectionRequestType.Multiple,
-          widgetIds,
-          NavigationMethod.ContextSwitching,
-        ),
-      defaultValue: [],
-    },
-    {
-      name: FocusElement.PropertyPaneWidth,
-      selector: getPropertyPaneWidth,
-      setter: setPropertyPaneWidthAction,
-      defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
-    },
+    // {
+    //   name: FocusElement.PropertySections,
+    //   selector: getAllPropertySectionState,
+    //   setter: setAllPropertySectionState,
+    //   defaultValue: {},
+    // },
+    // {
+    //   name: FocusElement.SelectedPropertyPanel,
+    //   selector: getSelectedPropertyPanel,
+    //   setter: setSelectedPropertyPanels,
+    //   defaultValue: {},
+    // },
+    // // {
+    // //   name: FocusElement.SelectedWidgets,
+    // //   selector: getSelectedWidgets,
+    // //   setter: (widgetIds: string[]) =>
+    // //     selectWidgetInitAction(
+    // //       SelectionRequestType.Multiple,
+    // //       widgetIds,
+    // //       NavigationMethod.ContextSwitching,
+    // //     ),
+    // //   defaultValue: [],
+    // // },
+    // {
+    //   name: FocusElement.PropertyPaneWidth,
+    //   selector: getPropertyPaneWidth,
+    //   setter: setPropertyPaneWidthAction,
+    //   defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
+    // },
   ],
   [FocusEntity.DATASOURCE]: [
     {

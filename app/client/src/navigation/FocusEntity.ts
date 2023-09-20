@@ -63,6 +63,7 @@ export function shouldStoreURLForFocus(path: string) {
     FocusEntity.JS_OBJECT,
     FocusEntity.DATASOURCE,
     FocusEntity.PROPERTY_PANE,
+    FocusEntity.CANVAS,
   ];
 
   const entity = identifyIDEEntityFromPath(path)?.entity;
@@ -234,7 +235,7 @@ export function identifyIDEEntityFromPath(path: string): FocusEntityInfo {
               };
             }
             return {
-              entity: FocusEntity.PAGE,
+              entity: FocusEntity.CANVAS,
               pageId,
               id: pageId,
             };
