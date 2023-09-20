@@ -87,7 +87,7 @@ export class DeployMode {
   }
 
   // Stubbing window.open to open in the same tab
-  public StubbingWindow(timeout = 60000) {
+  public StubbingWindow(timeout = 1000) {
     cy.window({ timeout }).then((window: any) => {
       cy.stub(window, "open")
         .as("windowStub")
@@ -138,7 +138,7 @@ export class DeployMode {
     expectedUrl: string,
     networkCall: string,
   ) {
-    this.StubbingWindow(0);
+    this.StubbingWindow();
     this.agHelper.GetNClick(selector, 0, false, 0);
     // cy.window().then((win) => {
     //   win.location.reload();
