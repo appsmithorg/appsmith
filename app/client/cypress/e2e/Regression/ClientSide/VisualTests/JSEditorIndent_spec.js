@@ -8,7 +8,7 @@ import {
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe.skip("JSEditor Indendation - Visual tests", () => {
+describe("JSEditor Indendation - Visual tests", () => {
   it("6. TC 1933 - jSEditor prettify verification on cloned application", () => {
     const appname = localStorage.getItem("AppName");
     jsEditor.CreateJSObject(

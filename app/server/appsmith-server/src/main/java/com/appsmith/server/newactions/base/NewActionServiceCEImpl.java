@@ -664,7 +664,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<NewAction> findAllById(Iterable<String> id) {
-        return repository.findAllByIdIn(id).flatMap(this::sanitizeAction);
+        return repository.findAllById(id).flatMap(this::sanitizeAction);
     }
 
     @Override
@@ -1908,7 +1908,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
 
         return repository
-                .findAllByIdIn(actionIds)
+                .findAllById(actionIds)
                 .map(newAction -> {
                     // Update collectionId and defaultCollectionIds in actionDTOs
                     ActionDTO unpublishedAction = newAction.getUnpublishedAction();
@@ -1960,7 +1960,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * This method is used to publish actions of an application. It does two things:
      * 1. it deletes actions which are deleted from the edit mode.
      * 2. It updates actions in bulk by setting publishedAction=unpublishedAction
-     *
      * @param applicationId
      * @param permission
      * @return
