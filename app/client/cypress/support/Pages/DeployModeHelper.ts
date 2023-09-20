@@ -140,9 +140,14 @@ export class DeployMode {
   ) {
     this.StubbingWindow();
     this.agHelper.GetNClick(selector, 0, false, 4000); //timeout new url to settle loading
-    cy.window().then((win) => {
-      win.location.reload();
-    }); //only reload page to get new url
+    // cy.window().then((win) => {
+    //   win.location.reload();
+    // });
+    cy.url().then((url) => {
+      cy.window().then((window) => {
+        window.location.href = url;
+      }); //only reload page to get new url
+    });
     cy.get("@windowStub").should("be.calledOnce");
     cy.url().should("contain", expectedUrl);
     this.assertHelper.AssertDocumentReady();
