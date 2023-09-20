@@ -92,12 +92,13 @@ public class Migration025CreateUserManagementRolesForUsersTaggedIn024 {
         userManagementRole.setName(user.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
         userManagementRole.setPermissions(Set.of(new Permission(user.getId(), MANAGE_USERS)));
+        userManagementRole.setDefaultDomainId(user.getId());
+        userManagementRole.setDefaultDomainType(User.class.getSimpleName());
 
         // Assign the permission group to the user
         userManagementRole.setAssignedToUserIds(Set.of(user.getId()));
 
-        PermissionGroup savedUserManagementRole =
-                mongoTemplate.save(userManagementRole, PermissionGroup.class.getSimpleName());
+        PermissionGroup savedUserManagementRole = mongoTemplate.save(userManagementRole);
 
         Map<String, Policy> crudUserPolicies =
                 policySolution.generatePolicyFromPermissionGroupForObject(savedUserManagementRole, user.getId());
