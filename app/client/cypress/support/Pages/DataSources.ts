@@ -1275,7 +1275,6 @@ export class DataSources {
     testNSave = true,
     environment = this.dataManager.defaultEnviorment,
     assetEnvironmentSelected = false,
-    leaveDBNameEmpty = true,
     // function to be executed before filling the datasource form
     preDSConfigAction?: (arg?: string) => void,
   ) {
@@ -1309,7 +1308,7 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "MongoDB")
           this.FillMongoDSForm(environment);
         else if (DataSourceKVP[dsType] == "Microsoft SQL Server")
-          this.FillMsSqlDSForm(environment, leaveDBNameEmpty);
+          this.FillMsSqlDSForm(environment);
         else if (DataSourceKVP[dsType] == "Airtable") this.FillAirtableDSForm();
         else if (DataSourceKVP[dsType] == "ArangoDB")
           this.FillArangoDSForm(environment);
