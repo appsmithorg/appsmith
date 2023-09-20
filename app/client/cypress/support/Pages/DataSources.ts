@@ -150,7 +150,7 @@ export class DataSources {
     `//div/span[text()='Result:']/span[number(substring-before(normalize-space(text()), ' Record')) >= ${recordCount}]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
-    "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
+    "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox'], input[name='actionConfiguration.formData.preparedStatement.data'][type='checkbox']";
   _queriesOnPageText = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "') .t--queries-for-DB";
   _mockDB = (dbName: string) =>
@@ -570,7 +570,10 @@ export class DataSources {
     );
   }
 
-  public FillMsSqlDSForm(environment = this.dataManager.defaultEnviorment) {
+  public FillMsSqlDSForm(
+    environment = this.dataManager.defaultEnviorment,
+    leaveDBNameEmpty = true,
+  ) {
     this.agHelper.UpdateInputValue(
       this._host(),
       this.dataManager.dsValues[environment].mssql_host,
@@ -579,7 +582,14 @@ export class DataSources {
       this._port,
       this.dataManager.dsValues[environment].mssql_port.toString(),
     );
-    this.agHelper.ClearTextField(this._databaseName);
+
+    if (leaveDBNameEmpty) {
+      this.agHelper.ClearTextField(this._databaseName);
+    } else {
+      const databaseName =
+        this.dataManager.dsValues[environment].mssql_databaseName;
+      this.agHelper.ClearNType(this._databaseName, databaseName);
+    }
     // this.agHelper.UpdateInputValue(
     //   this._databaseName,
     //   datasourceFormData["mssql-databaseName"],
@@ -856,7 +866,7 @@ export class DataSources {
     this.ValidateDSDeletion(expectedRes);
   }
 
-  public DeleteDatasouceFromWinthinDS(
+  public DeleteDatasourceFromWithinDS(
     datasourceName: string,
     expectedRes: number | number[] = 200 || 409 || [200 | 409],
   ) {
@@ -1207,17 +1217,13 @@ export class DataSources {
     });
   }
 
-  public ToggleUsePreparedStatement(enable = true || false) {
-    if (enable)
-      cy.get(this._usePreparedStatement).check({
-        force: true,
-      });
-    else
-      cy.get(this._usePreparedStatement).uncheck({
-        force: true,
-      });
-
-    this.agHelper.AssertAutoSave();
+  ToggleUsePreparedStatement(
+    enable = true || false,
+    toNavigateToSettings = false,
+  ) {
+    toNavigateToSettings && this.apiPage.SelectPaneTab("Settings");
+    if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
+    else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
@@ -1269,6 +1275,7 @@ export class DataSources {
     testNSave = true,
     environment = this.dataManager.defaultEnviorment,
     assetEnvironmentSelected = false,
+    leaveDBNameEmpty = true,
     // function to be executed before filling the datasource form
     preDSConfigAction?: (arg?: string) => void,
   ) {
@@ -1302,7 +1309,7 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "MongoDB")
           this.FillMongoDSForm(environment);
         else if (DataSourceKVP[dsType] == "Microsoft SQL Server")
-          this.FillMsSqlDSForm(environment);
+          this.FillMsSqlDSForm(environment, leaveDBNameEmpty);
         else if (DataSourceKVP[dsType] == "Airtable") this.FillAirtableDSForm();
         else if (DataSourceKVP[dsType] == "ArangoDB")
           this.FillArangoDSForm(environment);

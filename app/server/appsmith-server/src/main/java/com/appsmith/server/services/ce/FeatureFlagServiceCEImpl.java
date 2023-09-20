@@ -46,6 +46,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
     private static final long FEATURE_FLAG_CACHE_TIME_MIN = 120;
 
+    private CachedFeatures cachedTenantFeatureFlags;
+
     private Mono<Boolean> checkAll(String featureName, User user) {
         Boolean check = check(featureName, user);
 
@@ -206,7 +208,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         return tenantService
                 .getDefaultTenantId()
                 .flatMap(cacheableFeatureFlagHelper::fetchCachedTenantFeatures)
-                .map(CachedFeatures::getFeatures);
+                .map(cachedFeatures -> {
+                    cachedTenantFeatureFlags = cachedFeatures;
+                    return cachedFeatures.getFeatures();
+                });
     }
 
     /**
@@ -217,5 +222,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     @Override
     public Mono<Tenant> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant) {
         return tenantService.checkAndExecuteMigrationsForTenantFeatureFlags(tenant);
+    }
+
+    @Override
+    public CachedFeatures getCachedTenantFeatureFlags() {
+        return this.cachedTenantFeatureFlags;
     }
 }
