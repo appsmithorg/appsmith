@@ -2,7 +2,7 @@ import { ContainerWidget } from "widgets/ContainerWidget/widget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { Positioning } from "layoutSystems/anvil/utils/constants";
+import { Positioning } from "layoutSystems/common/utils/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
@@ -11,7 +11,7 @@ import { Colors } from "constants/Colors";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
-} from "layoutSystems/anvil/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import IconSVG from "../icon.svg";

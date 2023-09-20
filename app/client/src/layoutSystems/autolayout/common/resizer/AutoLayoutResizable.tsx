@@ -38,7 +38,7 @@ import {
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
-} from "layoutSystems/anvil/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import { useReflow } from "utils/hooks/useReflow";
 import PerformanceTracker, {
   PerformanceTransactionName,

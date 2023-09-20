@@ -23,7 +23,7 @@ import type {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/anvil/utils/constants";
+} from "layoutSystems/common/utils/constants";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;

@@ -2,7 +2,7 @@ import {
   FlexLayerAlignment,
   MOBILE_ROW_GAP,
   ROW_GAP,
-} from "layoutSystems/anvil/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import {
   FLEXBOX_PADDING,
   GridDefaults,
@@ -23,12 +23,11 @@ import { getAlignmentSizeInfo, getWrappedAlignmentInfo } from "./positionUtils";
 import type {
   AlignmentChildren,
   AlignmentInfo,
-  DropZone,
-  HighlightInfo,
-} from "../../anvil/utils/autoLayoutTypes";
+} from "../../autolayout/utils/types";
 import { getTotalRowsOfAllChildren } from "./heightUpdateUtils";
 import { DEFAULT_HIGHLIGHT_SIZE } from "../common/flexCanvas/FlexBoxComponent";
 import type { FlexLayer, LayerChild } from "./types";
+import type { DropZone, HighlightInfo } from "layoutSystems/common/utils/types";
 
 /**
  * @param allWidgets : CanvasWidgetsReduxState

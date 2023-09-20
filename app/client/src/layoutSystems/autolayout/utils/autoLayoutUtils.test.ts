@@ -1,4 +1,4 @@
-import type { AlignmentColumnData } from "../../anvil/utils/autoLayoutTypes";
+import type { AlignmentColumnData } from "../../autolayout/utils/types";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -13,7 +13,7 @@ import {
   updateFlexLayersOnDelete,
 } from "./AutoLayoutUtils";
 import { data, dataForgetCanvasDimensions } from "./testData";
-import { FlexLayerAlignment } from "../../anvil/utils/constants";
+import { FlexLayerAlignment } from "../../common/utils/constants";
 import { AUTO_LAYOUT_CONTAINER_PADDING } from "constants/WidgetConstants";
 import type { FlexLayer, LayerChild } from "./types";
 

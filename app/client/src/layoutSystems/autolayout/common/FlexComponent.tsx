@@ -14,7 +14,7 @@ import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainer
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
-import type { FlexComponentProps } from "../../anvil/utils/autoLayoutTypes";
+import type { FlexComponentProps } from "../../autolayout/utils/types";
 
 const FlexWidget = styled.div`
   position: relative;

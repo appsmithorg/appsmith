@@ -8,7 +8,7 @@ import {
   type LayoutDirection,
   ROW_GAP,
   FlexLayerAlignment,
-} from "layoutSystems/anvil/utils/constants";
+} from "layoutSystems/common/utils/constants";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.

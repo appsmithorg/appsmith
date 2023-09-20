@@ -11,7 +11,7 @@ import {
   alterLayoutForDesktop,
   alterLayoutForMobile,
 } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
-import { Positioning } from "layoutSystems/anvil/utils/constants";
+import { Positioning } from "layoutSystems/common/utils/constants";
 import {
   getTopRow,
   getBottomRow,

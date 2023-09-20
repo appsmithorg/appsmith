@@ -5,7 +5,6 @@ import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponen
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
 import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
-import { FlexVerticalAlignment } from "../utils/constants";
 
 /**
  * AnvilEditorWidgetOnion
@@ -25,22 +24,12 @@ import { FlexVerticalAlignment } from "../utils/constants";
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
     <AnvilFlexComponent
-      alignment={props.alignment}
       componentHeight={props.componentHeight}
       componentWidth={props.componentWidth}
-      flexVerticalAlignment={
-        props.flexVerticalAlignment || FlexVerticalAlignment.Bottom
-      }
-      focused={props.focused}
       hasAutoHeight={!!props.hasAutoHeight}
       hasAutoWidth={!!props.hasAutoWidth}
-      isMobile={props.isMobile || false}
       isResizeDisabled={props.resizeDisabled}
-      parentColumnSpace={props.parentColumnSpace}
       parentId={props.parentId}
-      renderMode={props.renderMode}
-      responsiveBehavior={props.responsiveBehavior}
-      selected={props.selected}
       widgetId={props.widgetId}
       widgetName={props.widgetName}
       widgetSize={props.widgetSize}

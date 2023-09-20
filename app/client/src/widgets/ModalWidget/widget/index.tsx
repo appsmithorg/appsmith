@@ -11,7 +11,7 @@ import {
   type Spacing,
   ResponsiveBehavior,
   Positioning,
-} from "layoutSystems/anvil/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import { generateClassName } from "utils/generators";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
