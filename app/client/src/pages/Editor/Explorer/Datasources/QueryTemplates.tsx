@@ -30,6 +30,7 @@ import { UndoRedoToastContext, showUndoRedoToast } from "utils/replayHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SUGGESTED_TAG, createMessage } from "@appsmith/constants/messages";
+import { transformTextToSentenceCase } from "pages/Editor/utils";
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
@@ -195,10 +196,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
     ],
   );
 
-  const transformText = (s: string) => {
-    return s.slice(0, 1).toUpperCase() + s.slice(1).toLowerCase();
-  };
-
   return (
     <>
       {props.templates.map((template) => {
@@ -214,7 +211,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
               props.onSelect();
             }}
           >
-            {transformText(template.title)}
+            {transformTextToSentenceCase(template.title)}
             {template?.suggested && (
               <Tag className="suggested_template" isClosable={false} size="md">
                 {createMessage(SUGGESTED_TAG)}
