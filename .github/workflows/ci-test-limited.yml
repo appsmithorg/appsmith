@@ -112,43 +112,11 @@ jobs:
         id: run_result
         run: |
           run_result_env=$(cat ~/run_result)
-          echo "::set-output name=run_result::$run_result_env"
-
-      # In case this is second attempt try restoring failed tests
-      - if: steps.run_result.outputs.run_result == 'failedtest'
-        run: echo "failed_spec_artifact=failed-spec-ci-$((${{github.run_attempt}}-1))" >> $GITHUB_ENV
-      - name: Restore the previous failed combine result
-        if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.failed_spec_artifact }}
-          path: ~/failed_spec_ci
-
-      # failed_spec_env will contain list of all failed specs
-      # We are using environment variable instead of regular to support multiline
-      - name: Get failed_spec
-        id: failed_spec
-        if: steps.run_result.outputs.run_result == 'failedtest'
-        working-directory: app/client
-        run: |
-          failed_spec_env=""
-          while IFS= read -r line || [ -n "$line" ]; do
-              file_path=$(echo "$line" | awk -F'/' '{print $(NF-1)"/"$NF}')
-              spec_name=$(echo "$file_path" | awk -F'/' '{print $NF}')
-              failed_spec=$(find . -name "$spec_name" | sed 's|./||')
-              if [ "$(echo "$failed_spec" | wc -l)" -eq 1 ]; then
-                  failed_spec_env="$failed_spec_env,$failed_spec"
-              else
-                for file in $failed_spec; do
-                    new_file_path=$(echo "$file" | awk -F'/' '{print $(NF-1)"/"$NF}')
-                    if [ "$new_file_path" == "$file_path" ]; then
-                        failed_spec_env="$failed_spec_env,$file"
-                    fi
-                done
-              fi
-          done < ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
-          failed_spec_env=${failed_spec_env#,}
-          echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV
+          echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
+          if [[ '$run_result_env' == 'failedtest' ]]; then
+            echo "rerun=true" >> $GITHUB_OUTPUT
+          else
+            echo "rerun=false" >> $GITHUB_OUTPUT
 
       # Get specs to run
       - name: Get specs to run
@@ -270,7 +238,6 @@ jobs:
         env:
           APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
           APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
-          CYPRESS_URL: ${{ secrets.CYPRESS_URL }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
@@ -326,12 +293,6 @@ jobs:
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
-      # - name: Set Pull Request Title
-      #   env:
-      #     EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
-      #   run: |
-      #     echo "test: Cypress (#24586)\n\n## Description\r\n- This PR adds the No Error toast to NavigateBacktoEditor() which\r\nsometimes results in Edit page not being load in CI runs" | awk -F '\\\\n' '{sub(/.*#/, "#", $1); sub(/).*/, "", $1); print $1}'
-
       - name: Save Git values
         # pass env variables from this step to other steps
         # using GitHub Actions environment file
@@ -374,66 +335,19 @@ jobs:
           fi
 
       - name: Run the cypress test
-        id: cypress_test
-        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
-          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
-          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
-          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
-          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
-          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
-          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
-          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
-          CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
-          CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
-          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
-          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
-          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
-          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
-          CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
-          CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
-          CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
-          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
-          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
-          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
-          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
-          CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
-          CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
-          CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
-          CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
-          CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
-          CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
-          CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
-          CYPRESS_EXCLUDE_TAGS: "airgap"
-          CYPRESS_AIRGAPPED: false
-          APPSMITH_DISABLE_TELEMETRY: true
-          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
-          CYPRESS_VERIFY_TIMEOUT: 100000
           RUNID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
           REPOSITORY: ${{ github.repository }}
           COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
           TAG: ${{ github.event_name }}
           BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
-          TOTAL_RUNNERS: ${{ strategy.job-total }}
           THIS_RUNNER: ${{ strategy.job-index }}
           CYPRESS_SPECS: ${{ env.specs_to_run }}
+          CYPRESS_RERUN: ${{steps.run_result.outputs.rerun}}
           CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
           CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
           CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
@@ -445,80 +359,6 @@ jobs:
           install: false
           config-file: cypress_ci_custom.config.ts
           spec: ${{ env.specs_to_run }}
-          working-directory: app/client
-          env: "NODE_ENV=development"
-
-      # In case of second attempt only run failed specs
-      - name: Run the cypress test with failed tests
-        id: cypress_test_failedtest
-        if: steps.run_result.outputs.run_result == 'failedtest' && env.failed_spec_env != ''
-        uses: cypress-io/github-action@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
-          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
-          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
-          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
-          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
-          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
-          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
-          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
-          CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
-          CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
-          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
-          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
-          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
-          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
-          CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
-          CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
-          CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
-          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
-          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
-          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
-          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
-          CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
-          CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
-          CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
-          CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
-          CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
-          CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
-          CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
-          CYPRESS_EXCLUDE_TAGS: "airgap"
-          CYPRESS_AIRGAPPED: false
-          APPSMITH_DISABLE_TELEMETRY: true
-          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
-          CYPRESS_VERIFY_TIMEOUT: 100000
-          RUNID: ${{ github.run_id }}
-          ATTEMPT_NUMBER: ${{ github.run_attempt }}
-          REPOSITORY: ${{ github.repository }}
-          COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
-          TAG: ${{ github.event_name }}
-          BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
-          THIS_RUNNER: ${{ strategy.job-index }}
-          CYPRESS_SPECS: ${{ env.failed_spec_env }}
-          CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
-          CYPRESS_DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
-          CYPRESS_DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
-          CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
-          CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
-          CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
-        with:
-          browser: ${{ env.BROWSER_PATH }}
-          install: false
-          config-file: cypress_ci_custom.config.ts
           working-directory: app/client
           env: "NODE_ENV=development"
 
@@ -538,13 +378,13 @@ jobs:
           path: ~/dockerlogs
 
       - name: Rename reports
-        if: failure() && env.failed_spec_env != ''
+        if: failure()
         run: |
           mkdir -p ~/results
           mv ${{ github.workspace }}/app/client/results ~/results/${{ matrix.job }}
 
       - name: Upload cypress report
-        if: failure() && env.failed_spec_env != ''
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: results-${{github.run_attempt}}
@@ -556,28 +396,6 @@ jobs:
         run: |
           echo "::set-output name=run_result::failedtest"
           echo "failedtest" > ~/run_result
-
-      # Create a directory ~/failed_spec_ci and add a dummy file
-      # This will ensure upload and download steps are successful
-      - name: Create directory for failed tests
-        if: always()
-        run: |
-          mkdir -p  ~/failed_spec_ci-${{github.run_attempt}}
-
-      # add list failed tests to a file
-      - name: In case of test failures copy them to a file
-        if: failure()
-        run: |
-          cd ${{ github.workspace }}/app/client/cypress/
-          find screenshots -type f \( -iname "*\(attempt 2\).png" -o -iname "*before all hook*" -o -iname "*after all hook*" \) | sed 's/screenshots/cypress\/e2e/g'| sed 's:/[^/]*$::' | sort -u > ~/failed_spec_ci-${{github.run_attempt}}/failed_spec_ci-${{ matrix.job }}
-
-      # Upload failed test list using common path for all matrix job
-      - name: Upload failed test list artifact
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: failed-spec-ci-${{github.run_attempt}}
-          path: ~/failed_spec_ci-${{github.run_attempt}}
 
       # Force store previous run result to cache
       - name: Store the previous run result
@@ -597,25 +415,6 @@ jobs:
         with:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
-
-      # - name: get cypress url dashboard url
-      #   id: dashboard_url
-      #   if: always()
-      #   run: |
-      #     if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-      #       echo "" >> ~/cypress_url
-      #     elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-      #       echo "" >> ~/cypress_url
-      #     fi
-
-      # Force store previous run result to cache
-      - name: Store the previous run result
-        if: success()
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
 
       # Set status = success
       - name: Save the status of the run
