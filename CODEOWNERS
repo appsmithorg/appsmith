@@ -69,13 +69,10 @@ app/client/src/normalizers/CanvasWidgetsNormalizer.tsx @appsmithorg/ui-builders
 app/client/src/pages/Editor/Canvas.tsx @appsmithorg/ui-builders
 app/client/src/pages/Editor/CanvasLayoutConversion/* @appsmithorg/ui-builders
 app/client/src/pages/Editor/PropertyPane/* @appsmithorg/ui-builders
-app/client/src/pages/Editor/WidgetsMultiSelectBox.tsx @appsmithorg/ui-builders
-app/client/src/pages/common/CanvasArenas/* @appsmithorg/ui-builders
 app/client/src/reducers/entityReducers/autoHeightReducers/* @appsmithorg/ui-builders
 app/client/src/reducers/entityReducers/canvasWidgetsReducer.ts @appsmithorg/ui-builders
 app/client/src/reducers/entityReducers/widgetConfigReducer.ts @appsmithorg/ui-builders
 app/client/src/reflow/* @appsmithorg/ui-builders
-app/client/src/resizable/* @appsmithorg/ui-builders
 app/client/src/sagas/AutoLayoutUpdateSagas.tsx @appsmithorg/ui-builders
 app/client/src/sagas/CanvasSagas/* @appsmithorg/ui-builders
 app/client/src/sagas/ReplaySaga.ts @appsmithorg/ui-builders
