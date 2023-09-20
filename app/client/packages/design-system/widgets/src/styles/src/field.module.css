@@ -1,26 +1,34 @@
 /* NOTE: these field styles are used in every input component that has a label
  for e.g input, select, checkbox group, toggle group, radio group, etc */
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3);
+.field{
+  &[data-field] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+
+    &[data-position="side"] {
+      flex-direction: row;
+    }
+  }
 
   /**
   * ----------------------------------------------------------------------------
   * FIELD LABEL
   *-----------------------------------------------------------------------------
   */
+  & [data-field-label-wrapper] {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    height: var(--sizing-3);
+  }
+
   & [data-field-label] {
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
+    gap: var(--spacing-1);
     height: fit-content;
     color: var(--color-fg);
-  }
-
-  &[data-disabled] [data-field-label] {
-    opacity: var(--opacity-disabled);
-    cursor: default;
   }
 
   /**
@@ -31,6 +39,7 @@
   & [data-field-necessity-indicator-icon] {
     width: var(--spacing-2);
     height: var(--spacing-2);
+    color: var(--color-fg-negative);
   }
 
   /**
@@ -47,22 +56,21 @@
   /**
   * ----------------------------------------------------------------------------
   * FIELD GROUP
-  * fields group refers group components like checkbox group, radio group, etc
   *-----------------------------------------------------------------------------
   */
   & [data-field-group] {
     gap: var(--spacing-2);
     display: flex;
     flex-direction: column;
-  }
 
-  &[data-disabled] [data-field-group] [data-label] {
-    cursor: default;
-  }
+    &[data-orientation="horizontal"] {
+      gap: var(--spacing-4);
+      flex-direction: row;
+    }
 
-  & [data-field-group][data-orientation="horizontal"] {
-    gap: var(--spacing-4);
-    flex-direction: row;
+    &[data-disabled] [data-label] {
+      cursor: default;
+    }
   }
 
   /**
@@ -70,9 +78,19 @@
   * FIELD WRAPPER
   *-----------------------------------------------------------------------------
   */
-  & [data-field-wrapper] {
-    gap: var(--spacing-3);
+  & [data-field-input-wrapper] {
+    gap: var(--spacing-2);
     display: flex;
     flex-direction: column;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-disabled] {
+    opacity: var(--opacity-disabled);
+    cursor: default;
   }
 }
