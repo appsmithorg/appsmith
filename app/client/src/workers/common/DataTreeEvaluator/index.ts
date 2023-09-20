@@ -280,10 +280,7 @@ export default class DataTreeEvaluator {
     this.inverseValidationDependencies = inverseValidationDependencies;
 
     const sortDependenciesStartTime = performance.now();
-    this.sortedDependencies = this.sortDependencies(
-      this.dependencyMap,
-      this.validationDependencyMap,
-    );
+    this.sortedDependencies = this.sortDependencies(this.dependencyMap);
     const sortDependenciesEndTime = performance.now();
 
     const secondCloneStartTime = performance.now();

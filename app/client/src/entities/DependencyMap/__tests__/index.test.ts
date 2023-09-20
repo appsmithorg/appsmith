@@ -57,7 +57,6 @@ describe("Tests for DependencyMap", () => {
 });
 describe("Tests for DependencyMapUtils", () => {
   const dependencyMap = new DependencyMap();
-  const validationDependencyMap = new DependencyMap();
   const testNodes: Record<string, true> = {
     "appsmith.geolocation.getCurrentPosition": true,
     "appsmith.geolocation.watchPosition": true,
@@ -2542,10 +2541,7 @@ describe("Tests for DependencyMapUtils", () => {
   }
   DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
 
-  const result = DependencyMapUtils.sortDependencies(
-    dependencyMap,
-    validationDependencyMap,
-  );
+  const result = DependencyMapUtils.sortDependencies(dependencyMap);
   expect(result.success).toBe(true);
   if (result.success) {
     expect(result.sortedDependencies).toStrictEqual([
