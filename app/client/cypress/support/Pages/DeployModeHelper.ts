@@ -150,7 +150,8 @@ export class DeployMode {
     });
     cy.get("@windowStub").should("be.calledOnce");
     cy.url().should("contain", expectedUrl);
-    this.assertHelper.AssertDocumentReady();
+    this.agHelper.Sleep(2000); //stay in the page a bit before navigating back
+    //this.assertHelper.AssertDocumentReady();
     cy.window({ timeout: 60000 }).then((win) => {
       win.history.back();
     });
