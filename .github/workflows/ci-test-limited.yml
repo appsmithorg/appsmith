@@ -692,7 +692,7 @@ jobs:
         run : |
           failed_specs=$(echo ${{steps.test.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
           while read -r line; do
-            echo "$line" > ~/combined_failed_spec_ci
+            echo "$line" >> ~/combined_failed_spec_ci
           done <<< "$failed_specs"
 
       - name: print the values
