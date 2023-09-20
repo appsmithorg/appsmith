@@ -89,6 +89,9 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             Query query = new Query();
             query.addCriteria(andCriteria);
 
+            // Since we are only interested in the permission group ids, we can project only the id field.
+            query.fields().include(fieldName(QPermissionGroup.permissionGroup.id));
+
             return query;
         });
 
