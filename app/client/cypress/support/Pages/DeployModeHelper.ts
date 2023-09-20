@@ -139,10 +139,11 @@ export class DeployMode {
     networkCall: string,
   ) {
     this.StubbingWindow();
-    this.agHelper.GetNClick(selector, 0, false, 4000); //timeout new url to settle loading
+    this.agHelper.GetNClick(selector, 0, false, 0);
     // cy.window().then((win) => {
     //   win.location.reload();
     // });
+    this.agHelper.Sleep(4000); //Waiting a bit for new url to settle loading
     cy.url().then((url) => {
       cy.window().then((window) => {
         window.location.href = url;

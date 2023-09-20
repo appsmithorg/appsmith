@@ -687,7 +687,8 @@ export class AggregateHelper extends ReusableHelper {
       ctrlKey: ctrlKey,
       metaKey,
     });
-    return clickedChain.wait(waitTimeInterval);
+    cy.wait(waitTimeInterval);
+    return clickedChain;
   }
 
   public GetClosestNClick(
