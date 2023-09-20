@@ -9,7 +9,6 @@ import {
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
-  getIsMobileBreakPoint,
   getMetaWidgets,
   getWidgetsForEval,
   getWidgetsMeta,
@@ -24,6 +23,26 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
+
+export const getLoadingEntities = (state: AppState) =>
+  state.evaluations.loadingEntities;
+
+/**
+ * This selector is created to combine a couple of data points required by getUnevaluatedDataTree selector.
+ * Current version of reselect package only allows upto 12 arguments. Hence, this workaround.
+ * TODO: Figure out a better way to do this in a separate task. Or update the package if possible.
+ */
+const getLayoutSystemPayload = (state: AppState) => ({
+  // layoutSystem?.type instead of layoutSystem.type is for legacy applications that may not have the layoutSystem object.
+  // All new applications will have layoutSystem.type
+  layoutSystemType:
+    LayoutSystemTypes[
+      state.ui.applications.currentApplication?.applicationDetail?.layoutSystem
+        ?.type || LayoutSystemTypes.FIXED
+    ],
+  isMobile: state.ui.mainCanvas.isMobile,
+});
 
 export const getUnevaluatedDataTree = createSelector(
   getCurrentActions,
@@ -36,7 +55,8 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
   getMetaWidgets,
-  getIsMobileBreakPoint,
+  getLayoutSystemPayload,
+  getLoadingEntities,
   (
     actions,
     jsActions,
@@ -48,7 +68,8 @@ export const getUnevaluatedDataTree = createSelector(
     pluginDependencyConfig,
     selectedAppThemeProperty,
     metaWidgets,
-    isMobile,
+    layoutSystemPayload,
+    loadingEntities,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -62,16 +83,14 @@ export const getUnevaluatedDataTree = createSelector(
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
       metaWidgets,
-      isMobile,
+      loadingEntities,
+      ...layoutSystemPayload,
     });
   },
 );
 
 export const getEvaluationInverseDependencyMap = (state: AppState) =>
   state.evaluations.dependencies.inverseDependencyMap;
-
-export const getLoadingEntities = (state: AppState) =>
-  state.evaluations.loadingEntities;
 
 export const getIsWidgetLoading = createSelector(
   [getLoadingEntities, (_state: AppState, widgetName: string) => widgetName],

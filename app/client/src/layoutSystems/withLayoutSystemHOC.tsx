@@ -12,7 +12,7 @@ export type LayoutSystem = {
   propertyEnhancer: (props: WidgetProps) => WidgetProps;
 };
 
-const getLayoutSystem = (
+export const getLayoutSystem = (
   renderMode: RenderModes,
   layoutSystemType: LayoutSystemTypes,
 ): LayoutSystem => {

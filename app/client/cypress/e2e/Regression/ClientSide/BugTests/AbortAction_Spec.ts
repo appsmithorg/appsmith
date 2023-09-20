@@ -49,7 +49,7 @@ describe("Abort Action Execution", function () {
         action: "Delete",
         entityType: entityItems.Query,
       });
-      dataSources.DeleteDatasouceFromWinthinDS($dsName as unknown as string);
+      dataSources.DeleteDatasourceFromWithinDS($dsName as unknown as string);
     });
   });
 });

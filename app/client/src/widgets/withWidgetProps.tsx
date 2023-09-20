@@ -24,7 +24,6 @@ import {
   getRenderMode,
   getMetaWidgetChildrenStructure,
   getMetaWidget,
-  getFlattenedChildCanvasWidgets,
   previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
@@ -47,6 +46,7 @@ import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
