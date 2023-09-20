@@ -2,17 +2,17 @@ import {
   agHelper,
   locators,
   entityExplorer,
-  jsEditor,
   propPane,
   apiPage,
   dataManager,
   draggableWidgets,
+  deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Assistive Binding", function () {
+describe("Bug26935- Widget isLoading property", function () {
   before(() => {
     // Create Api1
-    apiPage.CreateAndFillApi(dataManager.paginationUrl(100, 1));
+    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/photos");
     // Table1
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 100, 100);
 
@@ -36,6 +36,17 @@ describe("Assistive Binding", function () {
     agHelper.AssertContains("Table1 isLoading: false");
     agHelper.ClickButton("Submit");
     // After triggering API execution, check that isLoading is set to true
+    agHelper.AssertContains("Table1 isLoading: true");
+    agHelper.Sleep(2000);
+    agHelper.AssertContains("Table1 isLoading: false");
+
+    deployMode.DeployApp();
+    // onpageload API execution, check that isLoading is set to true
+    agHelper.AssertContains("Table1 isLoading: true");
+    agHelper.Sleep(2000);
+    agHelper.AssertContains("Table1 isLoading: false");
+    // After triggering API execution, check that isLoading is set to true
+    agHelper.ClickButton("Submit");
     agHelper.AssertContains("Table1 isLoading: true");
     agHelper.Sleep(2000);
     agHelper.AssertContains("Table1 isLoading: false");
