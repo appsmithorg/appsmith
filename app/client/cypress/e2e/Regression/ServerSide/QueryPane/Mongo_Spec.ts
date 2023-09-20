@@ -841,7 +841,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     // assertHelper.AssertNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Friends pages are still using this ds
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Friends pages are still using this ds
   });
 
   function GenerateCRUDNValidateDeployPage(

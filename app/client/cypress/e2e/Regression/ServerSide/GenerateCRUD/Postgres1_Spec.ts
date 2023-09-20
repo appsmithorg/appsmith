@@ -116,7 +116,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
   it("4. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Suppliers Page - 1 still using this ds
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Suppliers Page - 1 still using this ds
   });
 
   function GenerateCRUDNValidateDeployPage(
