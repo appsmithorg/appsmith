@@ -18,12 +18,16 @@ const initialState: WidgetPositions = {};
  */
 const widgetPositionsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.UPDATE_WIDGET_POSITIONS]: (
-    state: WidgetPositions,
+    WidgetPositionState: WidgetPositions,
     action: ReduxAction<WidgetPositions>,
   ) => {
     const widgetPositions = action.payload;
 
-    return { ...state, ...widgetPositions };
+    const widgetIds = Object.keys(widgetPositions);
+
+    for (const widgetId of widgetIds) {
+      WidgetPositionState[widgetId] = { ...widgetPositions[widgetId] };
+    }
   },
 });
 
