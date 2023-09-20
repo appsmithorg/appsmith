@@ -274,7 +274,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   assertHelper.AssertNetworkStatus("@getLibraries");
   assertHelper.AssertNetworkStatus("@getPlugins");
 
-  cy.get("#sidebar").should("be.visible");
+  cy.get("#sidebar", { timeout: 60000 }).should("be.visible");
   cy.wait("@getPluginForm") //replacing this since flaky in CI - to monitor
     .its("response.body.responseMeta.status")
     .should("eq", 200);
