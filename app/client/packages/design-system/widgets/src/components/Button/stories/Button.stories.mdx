@@ -1,5 +1,4 @@
-import { Button } from "@design-system/widgets";
-import { Icon } from "@design-system/headless";
+import { Button, BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
 import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
 
@@ -62,8 +61,8 @@ There are 3 variants of the button component.
 
 <Story name="Semantic">
   <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-    {["filled", "outlined", "ghost"].map((variant) =>
-      ["accent", "neutral", "positive", "negative", "warning"].map((color) => (
+    {Object.values(BUTTON_VARIANTS).map((variant) =>
+      Object.values(COLORS).map((color) => (
         <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
           <Button variant={variant} color={color} children={color} />
         </div>

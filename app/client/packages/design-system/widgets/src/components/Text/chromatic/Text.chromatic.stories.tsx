@@ -1,10 +1,9 @@
 import React from "react";
 import {
-  TypographyColor,
-  TypographyVariant,
-  TypographyFontWeight,
+  TYPOGRAPHY_VARIANTS,
+  TYPOGRAPHY_FONT_WEIGHTS,
 } from "@design-system/theming";
-import { Text } from "@design-system/widgets";
+import { Text, COLORS } from "@design-system/widgets";
 import { StoryGrid } from "@design-system/storybook";
 import type { Meta, StoryObj } from "@storybook/react";
 
@@ -46,19 +45,19 @@ export const LightMode: Story = {
       <Text isItalic>isItalic</Text>
       <Text isBold>isBold</Text>
 
-      {Object.values(TypographyVariant).map((variant) => (
+      {Object.values(TYPOGRAPHY_VARIANTS).map((variant) => (
         <Text key={variant} variant={variant}>
           variant — {variant}
         </Text>
       ))}
 
-      {Object.values(TypographyColor).map((color) => (
+      {Object.values(COLORS).map((color) => (
         <Text color={color} key={color}>
           color — {color}
         </Text>
       ))}
 
-      {Object.values(TypographyFontWeight).map((fontWeight) => (
+      {Object.values(TYPOGRAPHY_FONT_WEIGHTS).map((fontWeight) => (
         <Text fontWeight={fontWeight} key={fontWeight}>
           fontWeight — {fontWeight}
         </Text>
