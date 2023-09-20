@@ -2,7 +2,7 @@ import type {
   ButtonRef as HeadlessButtonRef,
   ButtonProps as HeadlessButtonProps,
 } from "@design-system/headless";
-import classNames from "classnames";
+import clsx from "clsx";
 import React, { forwardRef } from "react";
 import {
   Button as HeadlessButton,
@@ -93,7 +93,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       aria-disabled={
         visuallyDisabled || isLoading || props.isDisabled ? true : undefined
       }
-      className={classNames(styles.button, getTypographyClassName("body"))}
+      className={clsx(styles.button, getTypographyClassName("body"))}
       data-button=""
       data-color={color}
       data-icon-position={iconPosition === "start" ? "start" : "end"}
