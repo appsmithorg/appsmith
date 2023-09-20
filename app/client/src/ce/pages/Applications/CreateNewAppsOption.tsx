@@ -65,10 +65,12 @@ const FiltersWrapper = styled.div`
 const TemplateWrapper = styled.div`
   display: flex;
   flex-grow: 1;
+  overflow: hidden;
 `;
 
 const TemplateContentWrapper = styled.div`
   flex-grow: 1;
+  overflow: auto;
 `;
 
 const OptionWrapper = styled.div`
