@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @Slf4j
@@ -72,5 +73,15 @@ public class EmailSenderTest {
                 throw exc;
             }
         }
+    }
+
+    @Test
+    public void itShouldNotSendMailWhenConfiguredBaseURLDoesNotMatchOriginHeader() {
+        Mockito.when(emailConfig.getBaseURL()).thenReturn("abc");
+
+        boolean mailSent = emailSender
+                .sendMail("abc@gmail.com", "abc", "def", Collections.emptyMap(), "def")
+                .block();
+        assertFalse(mailSent);
     }
 }
