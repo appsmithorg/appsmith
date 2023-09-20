@@ -1,8 +1,8 @@
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-#cypress/e2e/Sanity/Datasources/MsSQL_Basic_Spec.ts
-#cypress/e2e/Regression/ClientSide/OtherUIFeatures/Omnibar_spec.js
-#cypress/e2e/Regression/ServerSide/QueryPane/GoogleSheets_spec.ts
+cypress/e2e/Regression/ClientSide/OtherUIFeatures/Omnibar_spec.js
+cypress/e2e/Regression/ServerSide/QueryPane/GoogleSheets_spec.ts
+cypress/e2e/Regression/ClientSide/Binding/Button_Text_WithRecaptcha_spec.js
 
 
 # For running all specs - uncomment below:
