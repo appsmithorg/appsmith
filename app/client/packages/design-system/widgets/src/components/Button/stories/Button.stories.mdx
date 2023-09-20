@@ -72,7 +72,7 @@ There are 3 variants of the button component.
   </div>
 </Story>
 
-## States
+## Disabled
 
 <Story
   name="Disabled State"
@@ -83,6 +83,8 @@ There are 3 variants of the button component.
 >
   {Template.bind({})}
 </Story>
+
+## Loading
 
 <Story
   name="Loading State"
@@ -101,11 +103,7 @@ There are 3 variants of the button component.
   name="With Icon"
   args={{
     children: "With Icon",
-    icon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
+    icon: EmotionHappyLineIcon,
   }}
 >
   {Template.bind({})}
@@ -117,11 +115,7 @@ There are 3 variants of the button component.
   name="Icon Position - Start"
   args={{
     children: "Icon Start",
-    icon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
+    icon: EmotionHappyLineIcon,
   }}
 >
   {Template.bind({})}
@@ -131,11 +125,7 @@ There are 3 variants of the button component.
   name="Icon Position - End"
   args={{
     children: "Icon End",
-    icon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
+    icon: EmotionHappyLineIcon,
     iconPosition: "end",
   }}
 >
