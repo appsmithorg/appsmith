@@ -84,10 +84,10 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
     /**
      * Creates a new instance
      *
-     * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
+     * @param clientRegistrationRepository  the repository to resolve the {@link ClientRegistration}
      * @param commonConfig
      * @param redirectHelper
-     * @param oauth2ClientManager
+     * @param oauth2ClientManager           Client repository manager to get client repository based on registration id
      */
     public CustomServerOAuth2AuthorizationRequestResolverCE(
             ReactiveClientRegistrationRepository clientRegistrationRepository,
@@ -109,7 +109,7 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
      * @param authorizationRequestMatcher  the matcher that determines if the request is a match and extracts the
      *                                     {@link #DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME} from the path variables.
      * @param redirectHelper
-     * @param ouath2ClientManager
+     * @param ouath2ClientManager          Client repository manager to get client repository based on registration id
      */
     public CustomServerOAuth2AuthorizationRequestResolverCE(
             ReactiveClientRegistrationRepository clientRegistrationRepository,
@@ -148,6 +148,12 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
         });
     }
 
+    /**
+     * Method to find the client registration repository based on the registration id
+     *
+     * @param clientRegistration    Registration id of the client
+     * @return                      Client registration repository
+     */
     private Mono<ClientRegistration> findByRegistrationId(String clientRegistration) {
         BaseClientRegistrationRepository customClientRegistrationRepository =
                 this.ouath2ClientManager.findClientRegistrationRepositoryByRegistrationId(clientRegistration);
