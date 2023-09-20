@@ -1,13 +1,13 @@
+import clsx from "clsx";
 import type {
   ButtonRef as HeadlessButtonRef,
   ButtonProps as HeadlessButtonProps,
 } from "@design-system/headless";
-import clsx from "clsx";
-import React, { forwardRef } from "react";
 import {
   Button as HeadlessButton,
   Icon as HeadlessIcon,
 } from "@design-system/headless";
+import React, { forwardRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
 
 import type {
