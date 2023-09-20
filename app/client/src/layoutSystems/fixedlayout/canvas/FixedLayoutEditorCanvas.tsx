@@ -2,7 +2,7 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
 import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
-import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
+import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
 import React, { useMemo } from "react";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
