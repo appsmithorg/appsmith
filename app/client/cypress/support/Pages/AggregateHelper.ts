@@ -682,13 +682,13 @@ export class AggregateHelper extends ReusableHelper {
     ctrlKey = false,
     metaKey = false,
   ) {
-    let clickedChain = this.ScrollIntoView(selector, index).click({
-      force: force,
-      ctrlKey: ctrlKey,
-      metaKey,
-    });
-    cy.wait(waitTimeInterval);
-    return clickedChain;
+    return this.ScrollIntoView(selector, index)
+      .click({
+        force: force,
+        ctrlKey: ctrlKey,
+        metaKey,
+      })
+      .wait(waitTimeInterval);
   }
 
   public GetClosestNClick(
