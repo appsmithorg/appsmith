@@ -179,7 +179,7 @@ export default {
     };
     const compactMode = props.compactMode || "DEFAULT";
     const componentHeight =
-      (props.appPositioningType === "AUTO" && props.isMobile
+      (props.layoutSystemType === "AUTO" && props.isMobile
         ? props.mobileBottomRow - props.mobileTopRow
         : props.bottomRow - props.topRow) *
         props.parentRowSpace -

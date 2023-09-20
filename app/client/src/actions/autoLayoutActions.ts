@@ -1,6 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import type {
   CONVERSION_STATES,
   SnapShotDetails,
@@ -28,9 +28,7 @@ export const updateLayoutForMobileBreakpointAction = (
   };
 };
 
-export const updateLayoutPositioning = (
-  positioningType: AppPositioningTypes,
-) => {
+export const updateLayoutPositioning = (positioningType: LayoutSystemTypes) => {
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT_POSITIONING,
     payload: positioningType,

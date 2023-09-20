@@ -23,7 +23,7 @@ import type {
 } from "./types";
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import { Positioning } from "layoutSystems/autolayout/utils/constants";
 
 export type UnEvalTreeEntityObject =
@@ -150,8 +150,7 @@ export class DataTreeFactory {
       if (
         widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Vertical
       ) {
-        dataTree[widget.widgetName].appPositioningType =
-          AppPositioningTypes.AUTO;
+        dataTree[widget.widgetName].layoutSystemType = LayoutSystemTypes.AUTO;
       }
       dataTree[widget.widgetName].isMobile = isMobile;
       configTree[widget.widgetName] = configEntity;

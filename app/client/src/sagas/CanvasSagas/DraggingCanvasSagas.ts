@@ -19,7 +19,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidget, getWidgets, getWidgetsMeta } from "sagas/selectors";
@@ -30,7 +30,7 @@ import {
 } from "sagas/WidgetBlueprintSagas";
 import {
   getCanvasWidth,
-  getCurrentAppPositioningType,
+  getCurrentLayoutSystemType,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
@@ -335,11 +335,11 @@ function* moveWidgetsSaga(
       );
     }
 
-    const appPositioningType: AppPositioningTypes = yield select(
-      getCurrentAppPositioningType,
+    const layoutSystemType: LayoutSystemTypes = yield select(
+      getCurrentLayoutSystemType,
     );
     let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
-    if (appPositioningType === AppPositioningTypes.AUTO) {
+    if (layoutSystemType === LayoutSystemTypes.AUTO) {
       /**
        * If previous parent is an auto-layout container,
        * then update the flex layers.

@@ -15,7 +15,7 @@ import type {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type {
   AppLayoutConfig,
-  AppPositioningTypeConfig,
+  LayoutSystemTypeConfig,
 } from "reducers/entityReducers/pageListReducer";
 import type { DSLWidget } from "WidgetProvider/constants";
 
@@ -1182,7 +1182,7 @@ export interface ApplicationPayload {
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
-    appPositioning?: AppPositioningTypeConfig;
+    layoutSystem?: LayoutSystemTypeConfig;
     navigationSetting?: NavigationSetting;
   };
   collapseInvisibleWidgets?: boolean;

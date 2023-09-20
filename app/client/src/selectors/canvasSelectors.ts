@@ -1,6 +1,6 @@
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import { createSelector } from "reselect";
-import { getCurrentAppPositioningType } from "./editorSelectors";
+import { getCurrentLayoutSystemType } from "./editorSelectors";
 import type { AppState } from "@appsmith/reducers";
 
 export const getIsDraggingForSelection = (state: AppState) => {
@@ -8,8 +8,8 @@ export const getIsDraggingForSelection = (state: AppState) => {
 };
 
 export const getIsAutoLayout = createSelector(
-  getCurrentAppPositioningType,
-  (appPositionType: AppPositioningTypes): boolean => {
-    return appPositionType === AppPositioningTypes.AUTO;
+  getCurrentLayoutSystemType,
+  (layoutSystemType: LayoutSystemTypes): boolean => {
+    return layoutSystemType === LayoutSystemTypes.AUTO;
   },
 );

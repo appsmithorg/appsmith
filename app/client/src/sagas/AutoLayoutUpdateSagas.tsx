@@ -27,14 +27,14 @@ import {
   getWidgets,
   getWidgetsMeta,
 } from "./selectors";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import {
   getCurrentApplicationId,
-  getCurrentAppPositioningType,
+  getCurrentLayoutSystemType,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
@@ -146,11 +146,11 @@ export function* updateLayoutForMobileCheckpoint(
  * @returns
  */
 export function* updateLayoutPositioningSaga(
-  actionPayload: ReduxAction<AppPositioningTypes>,
+  actionPayload: ReduxAction<LayoutSystemTypes>,
 ) {
   try {
-    const currPositioningType: AppPositioningTypes = yield select(
-      getCurrentAppPositioningType,
+    const currPositioningType: LayoutSystemTypes = yield select(
+      getCurrentLayoutSystemType,
     );
     const payloadPositioningType = actionPayload.payload;
 
@@ -159,7 +159,7 @@ export function* updateLayoutPositioningSaga(
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
     //Convert fixed layout to auto-layout
-    if (payloadPositioningType === AppPositioningTypes.AUTO) {
+    if (payloadPositioningType === LayoutSystemTypes.AUTO) {
       const nestedDSL = nestDSL(allWidgets);
 
       const autoDSL = convertDSLtoAuto(nestedDSL);
@@ -193,8 +193,8 @@ export function* updateLayoutPositioningSaga(
 export function* recalculateAutoLayoutColumnsAndSave(
   widgets?: CanvasWidgetsReduxState,
 ) {
-  const appPositioningType: AppPositioningTypes = yield select(
-    getCurrentAppPositioningType,
+  const layoutSystemType: LayoutSystemTypes = yield select(
+    getCurrentLayoutSystemType,
   );
   const mainCanvasProps: MainCanvasReduxState = yield select(
     getMainCanvasProps,
@@ -203,7 +203,7 @@ export function* recalculateAutoLayoutColumnsAndSave(
   yield put(
     updateLayoutForMobileBreakpointAction(
       MAIN_CONTAINER_WIDGET_ID,
-      appPositioningType === AppPositioningTypes.AUTO
+      layoutSystemType === LayoutSystemTypes.AUTO
         ? mainCanvasProps?.isMobile
         : false,
       mainCanvasProps.width,
@@ -425,13 +425,13 @@ function* processAutoLayoutDimensionUpdatesSaga() {
 }
 
 export function* updateApplicationLayoutType(
-  positioningType: AppPositioningTypes,
+  positioningType: LayoutSystemTypes,
 ) {
   const applicationId: string = yield select(getCurrentApplicationId);
   yield put(
     updateApplication(applicationId || "", {
       applicationDetail: {
-        appPositioning: {
+        layoutSystem: {
           type: positioningType,
         },
       },

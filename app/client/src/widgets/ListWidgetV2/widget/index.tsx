@@ -44,7 +44,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
@@ -676,7 +676,7 @@ class ListWidget extends BaseWidget<
 
   getTemplateBottomRow = () => {
     if (
-      this.props.appPositioningType === AppPositioningTypes.AUTO &&
+      this.props.layoutSystemType === LayoutSystemTypes.AUTO &&
       this.props.isMobile
     ) {
       return (
@@ -1186,7 +1186,7 @@ class ListWidget extends BaseWidget<
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.positioning = this.props.positioning;
-          if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+          if (this.props.layoutSystemType === LayoutSystemTypes.AUTO) {
             child.isListWidgetCanvas = true;
           }
           child.children = child.children?.map((container, viewIndex) => {
@@ -1195,7 +1195,7 @@ class ListWidget extends BaseWidget<
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
             if (
-              this.props.appPositioningType === AppPositioningTypes.AUTO &&
+              this.props.layoutSystemType === LayoutSystemTypes.AUTO &&
               container.children?.[0]
             ) {
               container.children[0].isListWidgetCanvas = true;

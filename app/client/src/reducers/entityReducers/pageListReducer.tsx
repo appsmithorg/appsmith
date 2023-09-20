@@ -253,12 +253,12 @@ export interface AppLayoutConfig {
   type: SupportedLayouts;
 }
 
-export enum AppPositioningTypes {
+export enum LayoutSystemTypes {
   FIXED = "FIXED",
   AUTO = "AUTO",
 }
-export interface AppPositioningTypeConfig {
-  type: AppPositioningTypes;
+export interface LayoutSystemTypeConfig {
+  type: LayoutSystemTypes;
 }
 
 export interface PageListReduxState {

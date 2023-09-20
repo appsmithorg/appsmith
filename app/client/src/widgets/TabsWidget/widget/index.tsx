@@ -9,7 +9,7 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { find } from "lodash";
 import React from "react";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import type { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import WidgetFactory from "WidgetProvider/factory";
@@ -545,7 +545,7 @@ class TabsWidget extends BaseWidget<
         selectedTabWidgetId={this.getSelectedTabWidgetId()}
         shouldScrollContents={
           this.props.shouldScrollContents &&
-          this.props.appPositioningType !== AppPositioningTypes.AUTO
+          this.props.layoutSystemType !== LayoutSystemTypes.AUTO
         }
       >
         {this.renderComponent()}
@@ -577,7 +577,7 @@ class TabsWidget extends BaseWidget<
       (item) => item.widgetId === selectedTabWidgetId,
     )[0];
     const positioning: Positioning =
-      this.props.appPositioningType == AppPositioningTypes.AUTO
+      this.props.layoutSystemType == LayoutSystemTypes.AUTO
         ? Positioning.Vertical
         : Positioning.Fixed;
     childWidgetData.positioning = positioning;

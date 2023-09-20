@@ -11,13 +11,13 @@ import type { SnapShotDetails } from "reducers/uiReducers/layoutConversionReduce
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import {
-  getAppPositioningType,
+  getLayoutSystemType,
   getCurrentApplicationId,
 } from "selectors/editorSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 //Saga to create application snapshot
@@ -86,8 +86,8 @@ function* restoreApplicationFromSnapshotSaga() {
       applicationId,
     });
 
-    const currentAppPositioningType: AppPositioningTypes = yield select(
-      getAppPositioningType,
+    const currentLayoutSystemType: LayoutSystemTypes = yield select(
+      getLayoutSystemType,
     );
 
     const isValidResponse: boolean = yield validateResponse(
@@ -113,9 +113,9 @@ function* restoreApplicationFromSnapshotSaga() {
     //update layout positioning type from
     yield call(
       updateApplicationLayoutType,
-      currentAppPositioningType === AppPositioningTypes.FIXED
-        ? AppPositioningTypes.AUTO
-        : AppPositioningTypes.FIXED,
+      currentLayoutSystemType === LayoutSystemTypes.FIXED
+        ? LayoutSystemTypes.AUTO
+        : LayoutSystemTypes.FIXED,
     );
 
     if (isValidResponse) {

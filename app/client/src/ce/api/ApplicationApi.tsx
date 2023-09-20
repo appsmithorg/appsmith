@@ -5,7 +5,7 @@ import type { AppColorCode } from "constants/DefaultTheme";
 import type { IconNames } from "design-system";
 import type {
   AppLayoutConfig,
-  AppPositioningTypeConfig,
+  LayoutSystemTypeConfig,
 } from "reducers/entityReducers/pageListReducer";
 import type { APP_MODE } from "entities/App";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
@@ -117,7 +117,7 @@ export type UpdateApplicationPayload = {
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
-    appPositioning?: AppPositioningTypeConfig;
+    layoutSystem?: LayoutSystemTypeConfig;
   };
   forkingEnabled?: boolean;
 };
