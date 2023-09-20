@@ -18,7 +18,6 @@ export interface SwitchProps
   extends Omit<SpectrumSwitchProps, keyof StyleProps>,
     Validation,
     InlineLabelProps {
-  icon?: React.ReactNode;
   className?: string;
 }
 
