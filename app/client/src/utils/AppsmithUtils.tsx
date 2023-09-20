@@ -36,6 +36,23 @@ export const initializeAnalyticsAndTrackers = () => {
               return null;
             }
           }
+          // Handle Non-Error rejections
+          if (
+            event.exception &&
+            Array.isArray(event.exception.values) &&
+            event.exception.values[0].value &&
+            event.exception.values[0].value.startsWith("Non-Error")
+          ) {
+            const serializedData: any = event.extra?.__serialized__;
+            if (!serializedData) return null; // if no data is attached, ignore error
+            const actualErrorMessage = serializedData.error
+              ? serializedData.error.message
+              : serializedData.message;
+            if (!actualErrorMessage) return null; // If no message is attached, ignore error
+            // Now modify the original error
+            event.exception.values[0].value = actualErrorMessage;
+            event.message = actualErrorMessage;
+          }
           return event;
         },
         beforeBreadcrumb(breadcrumb) {
