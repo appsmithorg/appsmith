@@ -113,7 +113,8 @@ jobs:
         run: |
           run_result_env=$(cat ~/run_result)
           echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
-          if [[ '$run_result_env' == 'failedtest' ]]; then
+          echo "RUN RESULT ------> $run_result_env"
+          if [[ "$run_result_env" == "failedtest" ]]; then
             echo "rerun=true" >> $GITHUB_OUTPUT
           else
             echo "rerun=false" >> $GITHUB_OUTPUT
@@ -439,7 +440,6 @@ jobs:
       - name: Set fail if there are test failures
         if: failure()
         run: |
-          echo "::set-output name=run_result::failedtest"
           echo "failedtest" > ~/run_result
 
       # Force store previous run result to cache
