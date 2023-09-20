@@ -16,6 +16,7 @@ import moment from "moment";
 import LogHelper from "./components/LogHelper";
 import { toggleExpandErrorLogItem } from "actions/debuggerActions";
 import { Button, Icon } from "design-system";
+import { isString } from "lodash";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -203,10 +204,12 @@ const ErrorLogItem = (props: LogItemProps) => {
     }
   };
 
-  // Needs serialization here because message can be a object.
+  // Needs serialization here because message can be a object when geolocation API throws an error.
   const errorDescription =
     props.pluginErrorDetails?.title ??
-    JSON.stringify(props.messages?.[0].message.message || "");
+    isString(props.messages?.[0].message.message)
+      ? props.messages?.[0].message.message
+      : JSON.stringify(props.messages?.[0].message.message);
 
   const { collapsable } = props;
 
