@@ -173,7 +173,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
   }, [onHoverZIndex]);
 
   return (
-    <Flex {...flexProps} className={className} style={styleProps}>
+    <Flex {...flexProps} className={className} ref={ref} style={styleProps}>
       {props.children}
     </Flex>
   );
