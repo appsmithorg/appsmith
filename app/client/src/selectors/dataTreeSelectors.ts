@@ -9,7 +9,6 @@ import {
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
-  getIsMobileBreakPoint,
   getMetaWidgets,
   getWidgetsForEval,
   getWidgetsMeta,
@@ -24,9 +23,26 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
+
+/**
+ * This selector is created to combine a couple of data points required by getUnevaluatedDataTree selector.
+ * Current version of reselect package only allows upto 12 arguments. Hence, this workaround.
+ * TODO: Figure out a better way to do this in a separate task. Or update the package if possible.
+ */
+const getLayoutSystemPayload = (state: AppState) => ({
+  // appPositioning?.type instead of appPositioning.type is for legacy applications that may not have the appPositioning object.
+  // All new applications will have appPositioning.type
+  appPositioningType:
+    AppPositioningTypes[
+      state.ui.applications.currentApplication?.applicationDetail
+        ?.appPositioning?.type || AppPositioningTypes.FIXED
+    ],
+  isMobile: state.ui.mainCanvas.isMobile,
+});
 
 export const getUnevaluatedDataTree = createSelector(
   getCurrentActions,
@@ -39,7 +55,7 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
   getMetaWidgets,
-  getIsMobileBreakPoint,
+  getLayoutSystemPayload,
   getLoadingEntities,
   (
     actions,
@@ -52,7 +68,7 @@ export const getUnevaluatedDataTree = createSelector(
     pluginDependencyConfig,
     selectedAppThemeProperty,
     metaWidgets,
-    isMobile,
+    layoutSystemPayload,
     loadingEntities,
   ) => {
     const pageList = pageListPayload || [];
@@ -67,8 +83,8 @@ export const getUnevaluatedDataTree = createSelector(
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
       metaWidgets,
-      isMobile,
       loadingEntities,
+      ...layoutSystemPayload,
     });
   },
 );
