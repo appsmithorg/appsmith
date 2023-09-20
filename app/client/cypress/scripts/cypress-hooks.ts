@@ -47,8 +47,8 @@ export async function cypressHooks(
     try {
       if (!specData.name.includes("no_spec.ts")) {
         const specResponse = await client.query(
-          `SELECT id FROM public."specs" WHERE "name" = $1 AND "matrixId" = $2`,
-          [specData.name, matrix.id],
+          `UPDATE public."specs" SET "status" = $1 WHERE "name" = $2 AND "matrixId" = $3 RETURNING id`,
+          ["in-progress", specData.name, matrix.id],
         );
         specData.specId = specResponse.rows[0].id;
       }

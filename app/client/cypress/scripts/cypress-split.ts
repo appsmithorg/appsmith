@@ -193,7 +193,7 @@ export class cypressSplit {
        WHERE "attemptId" = (
          SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
        )
-      ) AND status = 'fail'`,
+      ) AND status IN ('fail', 'queued', 'in-progress')`,
         [workflowId, attempt_number],
       );
       const specs: string[] =
@@ -211,8 +211,8 @@ export class cypressSplit {
     try {
       for (const spec of specs) {
         const res = await client.query(
-          `INSERT INTO public."specs" ("name", "matrixId") VALUES ($1, $2) RETURNING id`,
-          [spec, matrixId],
+          `INSERT INTO public."specs" ("name", "matrixId", "status") VALUES ($1, $2) RETURNING id`,
+          [spec, matrixId, "queued"],
         );
       }
     } catch (err) {
