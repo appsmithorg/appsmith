@@ -55,7 +55,7 @@ export function* handleStoreOperations(triggers: StoreOperation[]) {
     logs.map((text) => ({
       text,
       severity: Severity.INFO,
-      category: LOG_CATEGORY.USER_GENERATED,
+      category: LOG_CATEGORY.PLATFORM_GENERATED,
       timestamp: moment().format("HH:mm:ss"),
       isExpanded: false,
     })),

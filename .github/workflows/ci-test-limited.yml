@@ -366,7 +366,7 @@ jobs:
           elif [[ ${{ inputs.pr }} -ne 0 && ${{github.event_name}} == 'workflow_dispatch' ]]; then
             echo "COMMIT_INFO_MESSAGE=Workflow run on PR# ${{ inputs.pr }}" >> $GITHUB_ENV
           else
-            if [[ '${{env.EVENT_COMMITS}}' == 'null' ]]; then 
+            if [[ '${{env.EVENT_COMMITS}}' == 'null' ]]; then
               echo "COMMIT_INFO_MESSAGE=${{ github.event_name }} by ${{ env.COMMIT_INFO_AUTHOR }}" >> $GITHUB_ENV
             else
               echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
@@ -507,7 +507,6 @@ jobs:
           COMMITTER: ${{ env.COMMIT_INFO_AUTHOR }}
           TAG: ${{ github.event_name }}
           BRANCH: ${{ env.COMMIT_INFO_BRANCH }}
-          TOTAL_RUNNERS: ${{ strategy.job-total }}
           THIS_RUNNER: ${{ strategy.job-index }}
           CYPRESS_SPECS: ${{ env.failed_spec_env }}
           CYPRESS_DB_USER: ${{ secrets.CYPRESS_DB_USER }}
@@ -599,15 +598,15 @@ jobs:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
 
-      - name: get cypress url dashboard url
-        id: dashboard_url
-        if: always()
-        run: |
-          if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-            echo "" >> ~/cypress_url
-          elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-            echo "" >> ~/cypress_url
-          fi
+      # - name: get cypress url dashboard url
+      #   id: dashboard_url
+      #   if: always()
+      #   run: |
+      #     if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
+      #       echo "" >> ~/cypress_url
+      #     elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
+      #       echo "" >> ~/cypress_url
+      #     fi
 
       # Force store previous run result to cache
       - name: Store the previous run result

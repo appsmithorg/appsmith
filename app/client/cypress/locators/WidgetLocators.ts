@@ -102,6 +102,11 @@ export const WIDGETSKIT = {
     "//*[contains(@class, 'bp3-icon-chevron-up')]//parent::button",
   inputWidgetStepDown:
     "//*[contains(@class, 'bp3-icon-chevron-down')]//parent::button",
+  radioWidgetContainer: "[data-testid='radiogroup-container']",
+  radioBtn: ".bp3-radio",
+  radioWidgetLabel: ".radiogroup-label",
+  radioWidgetLabelContainer:
+    "[data-testid='radiogroup-container'] .label-container",
 };
 type ValueOf<T> = T[keyof T];
 

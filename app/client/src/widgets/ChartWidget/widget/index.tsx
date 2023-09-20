@@ -56,12 +56,9 @@ export const emptyChartData = (props: ChartWidgetProps) => {
   } else if (props.chartType == "CUSTOM_ECHART") {
     return Object.keys(props.customEChartConfig).length == 0;
   } else {
-    const seriesData = EChartsDatasetBuilder.chartData(
-      props.chartType,
-      props.chartData,
-    );
+    const builder = new EChartsDatasetBuilder(props.chartType, props.chartData);
 
-    for (const seriesID in seriesData) {
+    for (const seriesID in builder.filteredChartData) {
       if (Object.keys(props.chartData[seriesID].data).length > 0) {
         return false;
       }
