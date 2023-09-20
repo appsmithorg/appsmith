@@ -3,6 +3,7 @@ import type { DataItem } from "./util";
 import util from "./util";
 import globby from "globby";
 import minimatch from "minimatch";
+import cypress from "cypress";
 
 export class cypressSplit {
   util = new util();
@@ -211,7 +212,7 @@ export class cypressSplit {
     try {
       for (const spec of specs) {
         const res = await client.query(
-          `INSERT INTO public."specs" ("name", "matrixId", "status") VALUES ($1, $2) RETURNING id`,
+          `INSERT INTO public."specs" ("name", "matrixId", "status") VALUES ($1, $2, $3) RETURNING id`,
           [spec, matrixId, "queued"],
         );
       }
