@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe.skip("JS Editor Save and Auto-indent: Visual tests", () => {
+describe("JS Editor Save and Auto-indent: Visual tests", () => {
   it("1. Auto indents and saves the code when Ctrl/Cmd+s is pressed", () => {
     _.jsEditor.CreateJSObject(
       `export default {
