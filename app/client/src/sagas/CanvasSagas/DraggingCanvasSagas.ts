@@ -6,7 +6,7 @@ import {
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import { calculateDropTargetRows } from "layoutSystems/common/dropTargetWrapper/DropTargetUtils";
+import { calculateDropTargetRows } from "layoutSystems/common/dropTarget/DropTargetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {

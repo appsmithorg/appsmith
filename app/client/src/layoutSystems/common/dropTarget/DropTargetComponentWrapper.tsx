@@ -1,5 +1,5 @@
-import DropTargetComponent from "layoutSystems/common/dropTargetWrapper/DropTargetComponent";
-import type { DropTargetComponentProps } from "layoutSystems/common/dropTargetWrapper/DropTargetComponent";
+import DropTargetComponent from "layoutSystems/common/dropTarget/DropTargetComponent";
+import type { DropTargetComponentProps } from "layoutSystems/common/dropTarget/DropTargetComponent";
 import type { ReactNode } from "react";
 import React from "react";
 

@@ -1,6 +1,6 @@
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { RenderModes } from "constants/WidgetConstants";
-import { DropTargetComponentWrapper } from "layoutSystems/common/dropTargetWrapper/DropTargetComponentWrapper";
+import { DropTargetComponentWrapper } from "layoutSystems/common/dropTarget/DropTargetComponentWrapper";
 import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
 import React, { useMemo } from "react";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
