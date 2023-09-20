@@ -1,14 +1,27 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.*;
-import com.appsmith.server.dtos.*;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ExportFileDTO;
+import com.appsmith.server.dtos.PartialImportExportDTO;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CustomJSLibService;
-import com.appsmith.server.solutions.*;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +54,10 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
     private final DatasourcePermission datasourcePermission;
+    private final ActionCollectionService actionCollectionService;
+    private final NewActionService newActionService;
 
-    private Mono<List<CustomJSLib>> exportFilteredCustomJSLib(String applicationId, Set<String> customJSLibSet) {
+    private Mono<List<CustomJSLib>> exportFilteredCustomJSLibs(String applicationId, Set<String> customJSLibSet) {
         return customJSLibService
                 .getAllJSLibsInApplicationForExport(applicationId, null, false)
                 .flatMap(customJSLibs -> {
@@ -51,6 +66,47 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
                             .toList();
                     return Mono.just(updatedCustomJSLibList);
                 });
+    }
+
+    private Mono<List<NewAction>> exportFilteredActions(
+            String applicationId, Set<String> actionSet, AclPermission aclPermission) {
+        return newActionService
+                .findAllByApplicationIdAndViewMode(applicationId, false, aclPermission, null)
+                .filter(newAction -> {
+                    if (newAction.getUnpublishedAction() != null) {
+                        return actionSet.contains(
+                                newAction.getUnpublishedAction().getName());
+                    }
+                    return false;
+                })
+                .map(actionCollection -> {
+                    actionCollection.sanitiseToExportDBObject();
+                    return actionCollection;
+                })
+                .collectList();
+    }
+
+    private Mono<List<ActionCollection>> exportFilteredActionCollections(
+            String applicationId, Set<String> actionCollectionSet, AclPermission aclPermission) {
+        return actionCollectionService
+                .findAllByApplicationIdAndViewMode(applicationId, false, aclPermission, null)
+                .filter(actionCollection -> {
+                    if (actionCollection.getUnpublishedCollection() != null) {
+                        return actionCollectionSet.contains(
+                                actionCollection.getUnpublishedCollection().getName());
+                    }
+
+                    if (actionCollection.getPublishedCollection() != null) {
+                        return actionCollectionSet.contains(
+                                actionCollection.getPublishedCollection().getName());
+                    }
+                    return false;
+                })
+                .map(actionCollection -> {
+                    actionCollection.sanitiseToExportDBObject();
+                    return actionCollection;
+                })
+                .collectList();
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, PartialImportExportDTO entities) {
@@ -63,6 +119,8 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
         appJson.setDatasourceList(new ArrayList<>());
         Application tempApp = new Application();
         Set<String> customJSLibSet = new HashSet<>(entities.getCustomJSLibList());
+        Set<String> actionCollectionSet = new HashSet<>(entities.getActionCollectionList());
+        Set<String> actionSet = new HashSet<>(entities.getActionList());
         AclPermission aclPermission = applicationPermission.getExportPermission();
         return applicationService
                 .findById(applicationId, aclPermission)
@@ -71,10 +129,21 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
                     appJson.setExportedApplication(tempApp);
                     return Mono.empty();
                 })
-                .then(exportFilteredCustomJSLib(applicationId, customJSLibSet).flatMap(customJSLibs -> {
+                .then(exportFilteredCustomJSLibs(applicationId, customJSLibSet).flatMap(customJSLibs -> {
                     appJson.setCustomJSLibList(customJSLibs);
                     return Mono.just(appJson);
-                }));
+                }))
+                .then(exportFilteredActionCollections(
+                                applicationId, actionCollectionSet, actionPermission.getEditPermission())
+                        .flatMap(actionCollections -> {
+                            appJson.setActionCollectionList(actionCollections);
+                            return Mono.just(appJson);
+                        }))
+                .then(exportFilteredActions(applicationId, actionSet, actionPermission.getEditPermission())
+                        .flatMap(newActions -> {
+                            appJson.setActionList(newActions);
+                            return Mono.just(appJson);
+                        }));
     }
 
     // TODO: As of now, this function is almost the same as the one in ImportExportServiceCEImpl.

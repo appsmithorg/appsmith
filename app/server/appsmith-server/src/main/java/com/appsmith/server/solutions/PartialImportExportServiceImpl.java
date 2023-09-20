@@ -1,6 +1,8 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.solutions.ce.PartialImportExportServiceCEImpl;
@@ -25,7 +27,9 @@ public class PartialImportExportServiceImpl extends PartialImportExportServiceCE
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
-            DatasourcePermission datasourcePermission) {
+            DatasourcePermission datasourcePermission,
+            ActionCollectionService actionCollectionService,
+            ActionCollectionRepository actionCollectionRepository) {
         super(
                 importExportApplicationService,
                 gson,
@@ -36,6 +40,8 @@ public class PartialImportExportServiceImpl extends PartialImportExportServiceCE
                 applicationPermission,
                 pagePermission,
                 actionPermission,
-                datasourcePermission);
+                datasourcePermission,
+                actionCollectionService,
+                actionCollectionRepository);
     }
 }
