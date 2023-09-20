@@ -14,7 +14,6 @@ import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ApplicationPermissionImpl;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.google.gson.Gson;
 import net.minidev.json.JSONObject;
@@ -54,7 +53,8 @@ public class ApplicationSnapshotServiceUnitTest {
     @Autowired
     ApplicationSnapshotService applicationSnapshotService;
 
-    ApplicationPermission applicationPermission = new ApplicationPermissionImpl();
+    @Autowired
+    ApplicationPermission applicationPermission;
 
     @Autowired
     Gson gson;
