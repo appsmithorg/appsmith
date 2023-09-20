@@ -19,7 +19,7 @@ describe("Navigate To feature", () => {
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    cy.url().should("include", "google.com");
+    cy.url().should("include", "google.com   ");
     // go back to appsmith
     //cy.go(-1);
   });
