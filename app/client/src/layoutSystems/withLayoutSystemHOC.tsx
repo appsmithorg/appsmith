@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { RenderModes } from "constants/WidgetConstants";
 import React from "react";
 import { useSelector } from "react-redux";

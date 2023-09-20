@@ -2,7 +2,7 @@ import type {
   AlignmentChildren,
   AlignmentInfo,
   Row,
-} from "../../anvil/utils/autoLayoutTypes";
+} from "../../autolayout/utils/types";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -17,7 +17,7 @@ import {
   Positioning,
   ResponsiveBehavior,
   ROW_GAP,
-} from "layoutSystems/anvil/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import {
   getWidgetHeight,
   getWidgetMinMaxDimensionsInPixel,

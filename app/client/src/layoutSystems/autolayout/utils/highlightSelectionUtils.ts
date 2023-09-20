@@ -1,4 +1,4 @@
-import type { HighlightInfo } from "../../anvil/utils/autoLayoutTypes";
+import type { HighlightInfo } from "../../common/utils/types";
 
 export interface Point {
   x: number;

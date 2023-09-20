@@ -16,7 +16,7 @@ import type {
   Alignment,
   Positioning,
   Spacing,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/common/utils/constants";
 
 const Content = styled.div<{ $scroll: boolean }>`
   overflow-x: hidden;

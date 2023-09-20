@@ -7,7 +7,7 @@ import {
   LayoutDirection,
   MOBILE_ROW_GAP,
   ROW_GAP,
-} from "layoutSystems/anvil/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
@@ -16,7 +16,7 @@ import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import type {
   AlignmentColumnInfo,
   FlexBoxAlignmentColumnInfo,
-} from "layoutSystems/anvil/utils/autoLayoutTypes";
+} from "layoutSystems/autolayout/utils/types";
 import { getColumnsForAllLayers } from "selectors/autoLayoutSelectors";
 import { WidgetNameComponentHeight } from "layoutSystems/common/widgetName";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";

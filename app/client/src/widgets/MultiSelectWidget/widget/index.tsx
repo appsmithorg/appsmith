@@ -20,7 +20,7 @@ import {
   isCompactMode,
 } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "layoutSystems/anvil/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { layoutConfigurations } from "constants/WidgetConstants";

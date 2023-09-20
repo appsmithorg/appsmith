@@ -36,7 +36,7 @@ import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
 import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { Positioning } from "layoutSystems/anvil/utils/constants";
+import { Positioning } from "layoutSystems/common/utils/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";

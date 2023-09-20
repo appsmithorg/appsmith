@@ -2,7 +2,7 @@ import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 import FlexComponent from "../common/FlexComponent";
-import { FlexVerticalAlignment } from "layoutSystems/anvil/utils/constants";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 /**
  * AutoLayoutViewerWidgetOnion

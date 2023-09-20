@@ -4,7 +4,7 @@ import type {
   FlexLayerAlignment,
   FlexVerticalAlignment,
   ResponsiveBehavior,
-} from "layoutSystems/anvil/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import type { ReactNode } from "react";
 
 export type AutoLayoutProps = {
