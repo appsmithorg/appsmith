@@ -476,6 +476,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       builderURL({
         pageId: props.application.defaultPageId,
         appId: props.application.id,
+        suffix: "/ui",
         params,
       }),
     );

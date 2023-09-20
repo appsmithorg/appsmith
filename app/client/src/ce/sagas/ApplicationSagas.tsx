@@ -57,8 +57,8 @@ import {
   updateApplicationNavigationLogoSuccessAction,
   updateApplicationNavigationSettingAction,
   updateCurrentApplicationEmbedSetting,
-  updateCurrentApplicationIcon,
   updateCurrentApplicationForkingEnabled,
+  updateCurrentApplicationIcon,
 } from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -116,6 +116,7 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
+import type { IconNames } from "design-system";
 import { toast } from "design-system";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
@@ -123,7 +124,6 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import type { IconNames } from "design-system";
 import {
   defaultNavigationSetting,
   keysOfNavigationSetting,
@@ -134,6 +134,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { generateReactKey } from "utils/generators";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import type { DeletingMultipleApps } from "@appsmith/reducers/uiReducers/applicationsReducer";
+import { IDEAppState } from "../../pages/IDE/ideReducer";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -641,6 +642,8 @@ export function* createApplicationSaga(
         history.push(
           builderURL({
             pageId: application.defaultPageId as string,
+            ideState: IDEAppState.Page,
+            suffix: "/ui",
           }),
         );
 
