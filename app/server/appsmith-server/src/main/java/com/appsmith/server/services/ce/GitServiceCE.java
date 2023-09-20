@@ -17,7 +17,6 @@ import com.appsmith.server.dtos.GitPullDTO;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import reactor.core.publisher.Mono;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -56,8 +55,6 @@ public interface GitServiceCE {
     Mono<List<GitBranchDTO>> listBranchForApplication(
             String defaultApplicationId, Boolean pruneBranches, String currentBranch);
 
-    Mono<String> syncDefaultBranchNameFromRemote(Path repoPath, Application rootApp);
-
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
 
     Mono<GitStatusDTO> getStatus(String defaultApplicationId, boolean compareRemote, String branchName);
@@ -83,6 +80,4 @@ public interface GitServiceCE {
     Mono<BranchTrackingStatus> fetchRemoteChanges(String defaultApplicationId, String branchName, boolean isFileLock);
 
     Mono<String> autoCommitDSLMigration(String defaultApplicationId, String branchName);
-
-    Mono<Boolean> isProtectedBranch(String branchName, GitApplicationMetadata gitApplicationMetadata);
 }

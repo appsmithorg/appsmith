@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import styled from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
@@ -68,6 +68,13 @@ import {
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
 import BusinessTag from "components/BusinessTag";
+import { getDomainFromEmail } from "utils/helpers";
+import { getCurrentUser } from "selectors/usersSelectors";
+import PartnerProgramCallout from "./PartnerProgramCallout";
+import {
+  getPartnerProgramCalloutShown,
+  setPartnerProgramCalloutShown,
+} from "utils/storage";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -351,6 +358,7 @@ function WorkspaceInviteUsersForm(props: any) {
   const userRef = React.createRef<HTMLDivElement>();
   // const history = useHistory();
   const selectedId = props?.selected?.id;
+  const currentUser = useSelector(getCurrentUser);
 
   const showRampSelector = showProductRamps(RAMP_NAME.CUSTOM_ROLES);
   const canShowRamp = useSelector(showRampSelector);
@@ -395,6 +403,11 @@ function WorkspaceInviteUsersForm(props: any) {
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
 
+  const invitedEmails = useRef<undefined | string[]>();
+  const emailOutsideCurrentDomain = useRef<undefined | string>();
+  const [showPartnerProgramCallout, setShowPartnerProgramCallout] =
+    useState(false);
+
   const userWorkspacePermissions = currentWorkspace?.userPermissions ?? [];
   const canManage = isPermitted(
     userWorkspacePermissions,
@@ -428,6 +441,8 @@ function WorkspaceInviteUsersForm(props: any) {
           : createMessage(INVITE_USER_SUBMIT_SUCCESS),
         { kind: "success" },
       );
+
+      checkIfInvitedUsersFromDifferentDomain();
     }
   }, [submitSucceeded]);
 
@@ -479,6 +494,25 @@ function WorkspaceInviteUsersForm(props: any) {
     }
   };
 
+  const checkIfInvitedUsersFromDifferentDomain = async () => {
+    if (!currentUser?.email) return true;
+
+    const currentUserEmail = currentUser?.email;
+    const partnerProgramCalloutShown = await getPartnerProgramCalloutShown();
+    const currentUserDomain = getDomainFromEmail(currentUserEmail);
+
+    if (invitedEmails.current && !partnerProgramCalloutShown) {
+      const _emailOutsideCurrentDomain = invitedEmails.current.find(
+        (email) => getDomainFromEmail(email) !== currentUserDomain,
+      );
+      if (_emailOutsideCurrentDomain) {
+        emailOutsideCurrentDomain.current = _emailOutsideCurrentDomain;
+        invitedEmails.current = undefined;
+        setShowPartnerProgramCallout(true);
+      }
+    }
+  };
+
   return (
     <WorkspaceInviteWrapper>
       <StyledForm
@@ -490,9 +524,12 @@ function WorkspaceInviteUsersForm(props: any) {
           const usersAsStringsArray = values.users.split(",");
           // update state to show success message correctly
           updateNumberOfUsersInvited(usersAsStringsArray.length);
-          const users = usersAsStringsArray
-            .filter((user: any) => isEmail(user))
-            .join(",");
+          const validEmails = usersAsStringsArray.filter((user: any) =>
+            isEmail(user),
+          );
+          const validEmailsString = validEmails.join(",");
+          invitedEmails.current = validEmails;
+
           AnalyticsUtil.logEvent("INVITE_USER", {
             ...(cloudHosting ? { users: usersAsStringsArray } : {}),
             role: roles,
@@ -502,7 +539,7 @@ function WorkspaceInviteUsersForm(props: any) {
           return inviteUsersToWorkspace(
             {
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
-              users,
+              users: validEmailsString,
               permissionGroupId: roles,
             },
             dispatch,
@@ -595,6 +632,20 @@ function WorkspaceInviteUsersForm(props: any) {
             <InviteUserText isApplicationInvite={isApplicationInvite} />
           </WorkspaceText>
         </div>
+        {!cloudHosting &&
+          showPartnerProgramCallout &&
+          emailOutsideCurrentDomain.current && (
+            <div className="mt-2">
+              <PartnerProgramCallout
+                email={emailOutsideCurrentDomain.current}
+                onClose={() => {
+                  setShowPartnerProgramCallout(false);
+                  setPartnerProgramCalloutShown();
+                  emailOutsideCurrentDomain.current = undefined;
+                }}
+              />
+            </div>
+          )}
         {isLoading ? (
           <div className="pt-4 overflow-hidden">
             <Spinner size="lg" />

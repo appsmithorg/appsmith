@@ -1,4 +1,3 @@
-import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   assertHelper,
@@ -10,6 +9,7 @@ import {
   table,
   dataManager,
   locators,
+  deployMode,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
 import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
@@ -276,11 +276,109 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     });
   });
 
+  it("5. Add new Page and generate CRUD template using created datasource", () => {
+    entityExplorer.AddNewPage();
+    entityExplorer.AddNewPage("Generate page with data");
+    agHelper.GetNClick(dataSources._selectDatasourceDropdown);
+    agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
+
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
+    agHelper.GetNClickByContains(
+      dataSources._dropdownOption,
+      "dbo.amazon_sales",
+    );
+
+    GenerateCRUDNValidateDeployPage(
+      "348f344247b0c1a935b1223072ef9d8a",
+      "CLASSIC TOY TRAIN SET TRACK CARRIAGES LIGHT" +
+        " ENGINE BOXED BOYS KIDS BATTERY",
+      "ccf",
+      "uniq_id",
+    );
+
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
+    //Delete the test data
+    entityExplorer.ExpandCollapseEntity("Pages");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Page2",
+      action: "Delete",
+      entityType: entityItems.Page,
+    });
+
+    //Should not be able to delete ds until app is published again
+    //coz if app is published & shared then deleting ds may cause issue, So!
+    dataSources.DeleteDatasouceFromActiveTab(dsName, 409);
+    agHelper.WaitUntilAllToastsDisappear();
+    deployMode.DeployApp(locators._emptyPageTxt);
+    agHelper.Sleep(3000);
+    deployMode.NavigateBacktoEditor();
+  });
+
+  it("6. Generate CRUD page from datasource present in ACTIVE section", function () {
+    dataSources.NavigateFromActiveDS(dsName, false);
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
+    agHelper.GetNClickByContains(
+      dataSources._dropdownOption,
+      "dbo.amazon_sales",
+    );
+
+    GenerateCRUDNValidateDeployPage(
+      "348f344247b0c1a935b1223072ef9d8a",
+      "CLASSIC TOY TRAIN SET TRACK CARRIAGES LIGHT" +
+        " ENGINE BOXED BOYS KIDS BATTERY",
+      "ccf",
+      "uniq_id",
+    );
+
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
+  });
+
   after("Verify Deletion of the datasource", () => {
     cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource"); //Since intercept from before is not working
-    dataSources.DeleteDatasouceFromWinthinDS(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //since CRUD pages are still active
     //dataSources.StopNDeleteContainer(containerName); //commenting to check if MsSQL specific container deletion is causing issues
   });
+
+  function GenerateCRUDNValidateDeployPage(
+    col1Text: string,
+    col2Text: string,
+    col3Text: string,
+    jsonFromHeader: string,
+  ) {
+    agHelper.GetNClick(dataSources._generatePageBtn);
+    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    agHelper.AssertContains("Successfully generated a page");
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.ClickButton("Got it");
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
+    deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+    table.WaitUntilTableLoad();
+
+    //Validating loaded table
+    agHelper.AssertElementExist(dataSources._selectedRow);
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+      expect($cellData).to.eq(col1Text);
+    });
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+      expect($cellData).to.eq(col2Text);
+    });
+    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+      expect($cellData).to.eq(col3Text);
+    });
+
+    // Validating loaded JSON form
+    cy.xpath(locators._buttonByText("Update")).then((selector) => {
+      cy.wrap(selector)
+        .invoke("attr", "class")
+        .then((classes) => {
+          expect(classes).not.contain("bp3-disabled");
+        });
+    });
+    dataSources.AssertJSONFormHeader(0, 0, jsonFromHeader);
+  }
 
   function runQueryNValidate(query: string, columnHeaders: string[]) {
     dataSources.EnterQuery(query);
