@@ -37,14 +37,14 @@ describe("JSObjects OnLoad Actions tests", function () {
         "Quotes",
         30000,
       );
-      apiPage.ToggleConfirmBeforeRunningApi(true);
+      apiPage.ToggleConfirmBeforeRunning(true);
 
       apiPage.CreateAndFillApi(
         datasourceFormData["randomTrumpApi"],
         "WhatTrumpThinks",
         30000,
       );
-      apiPage.ToggleConfirmBeforeRunningApi(true);
+      apiPage.ToggleConfirmBeforeRunning(true);
     });
     jsEditor.CreateJSObject(
       `export default {
@@ -198,7 +198,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       apiPage.CreateAndFillApi(datasourceFormData.randomCatfactUrl, "CatFacts");
     });
     apiPage.ToggleOnPageLoadRun(true);
-    apiPage.ToggleConfirmBeforeRunningApi(true);
+    apiPage.ToggleConfirmBeforeRunning(true);
 
     entityExplorer.SelectEntityByName("Image1", "Widgets");
     propPane.EnterJSContext(
@@ -241,7 +241,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       30000,
     );
     //apiPage.OnPageLoadRun(true); //OnPageLoad made true after mapping to JSONForm
-    apiPage.ToggleConfirmBeforeRunningApi(true);
+    apiPage.ToggleConfirmBeforeRunning(true);
 
     dataSources.CreateQueryFromOverlay(
       dsName,

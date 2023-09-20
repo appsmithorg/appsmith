@@ -1,5 +1,11 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  propPane,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 
 /*
 Selected row stays selected after data updation
@@ -7,14 +13,20 @@ if the primary column value isn't updated.
 */
 describe("Table Widget row multi select validation", function () {
   before(() => {
-    _.agHelper.AddDsl("multiSelectedRowUpdationDsl");
+    agHelper.AddDsl("multiSelectedRowUpdationDsl");
   });
 
-  it("Test multi select column shows when enableMultirowselection is true", function () {
-    cy.get(widgetsPage.buttonWidget).first().click();
-    cy.wait(1000);
-    cy.get(".t--table-multiselect").first().click();
+  it("Test multi select column shows when enableMultirowselection is true and not when enableMultirowselection is off", function () {
+    agHelper.GetNClick(widgetsPage.buttonWidget);
     cy.get(widgetsPage.buttonWidget).last().click();
-    cy.get(".tbody .tr").first().should("have.class", "selected-row");
+    deployMode.DeployApp();
+    agHelper.GetNClick(table._multirowselect, 1);
+    agHelper.GetNClick(table._multirowselect, 2);
+    agHelper.AssertElementLength(table._selectedrow, 2);
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("Table1");
+    propPane.TogglePropertyState("Enable multi row selection", "Off");
+    deployMode.DeployApp();
+    agHelper.AssertElementAbsence(table._multirowselect);
   });
 });

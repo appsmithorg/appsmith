@@ -22,7 +22,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     }>,
   ) => {
     const { updates } = action.payload;
-    if (updates.length === 0) {
+    if (!updates || updates.length === 0) {
       return state;
     }
     for (const update of updates) {

@@ -20,6 +20,7 @@ describe("Modal Widget background color spec", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 300, 100);
     propPane.EnterJSContext("sourcedata", JSON.stringify(schema), true, false);
     propPane.ChangeJsonFormFieldType("Employee Id", "Currency Input");
+    propPane.NavigateBackToPropertyPane();
   });
 
   it("1. should check that value entered in currency field appears in the actual field", () => {
@@ -27,9 +28,21 @@ describe("Modal Widget background color spec", () => {
      * This case is for checking the following bug: https://github.com/appsmithorg/appsmith/issues/23671
      * This issue introduced a behaviour by which for currency field type in JSON form, users where not able to enter/type any value into it.
      **/
-    agHelper
-      .GetElement(locators._jsonFormInputField("employee_id"))
-      .type("123");
+
+    propPane.SelectPlatformFunction("onSubmit", "Show alert");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
+      "{{JSONForm1.formData.employee_id.toString()}}",
+    );
+    deployMode.DeployApp();
+
+    agHelper.TypeText(
+      locators._jsonFormInputField("employee_id"),
+      "123 konnichiwa",
+    );
+    agHelper.Sleep(500);
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage("1001123");
     agHelper
       .GetText(locators._jsonFormInputField("employee_id"), "val")
       .should("be.equal", "1001123");

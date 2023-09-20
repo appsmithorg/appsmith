@@ -1,12 +1,12 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { Icon } from "@design-system/headless";
+import type { ComponentProps } from "react";
 import { render, screen } from "@testing-library/react";
 
 import { Button } from "../";
 
 // Adapted from remixicon-react/EmotionHappyLineIcon (https://github.com/Remix-Design/RemixIcon/blob/f88a51b6402562c6c2465f61a3e845115992e4c6/icons/User%20%26%20Faces/emotion-happy-line.svg)
-const EmotionHappyLineIcon = ({ ...props }: Record<string, string>) => {
+const EmotionHappyLineIcon = ({ ...props }: ComponentProps<"svg">) => {
   return (
     <svg
       fill="currentColor"
@@ -54,15 +54,7 @@ describe("@design-system/widgets/Button", () => {
   });
 
   it("renders icon when passed", () => {
-    const { container } = render(
-      <Button
-        icon={
-          <Icon>
-            <EmotionHappyLineIcon />
-          </Icon>
-        }
-      />,
-    );
+    const { container } = render(<Button icon={EmotionHappyLineIcon} />);
 
     const icon = container.querySelector("button [data-icon]") as HTMLElement;
     expect(icon).toBeInTheDocument();

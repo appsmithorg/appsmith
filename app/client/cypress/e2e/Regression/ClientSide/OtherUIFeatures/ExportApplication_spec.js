@@ -39,7 +39,8 @@ describe("Export application as a JSON file", function () {
 
   it("2. User with admin access,should be able to export the app", function () {
     if (CURRENT_REPO === REPO.CE) {
-      cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      homePage.Signout(false);
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       homePage.NavigateToHome();
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {

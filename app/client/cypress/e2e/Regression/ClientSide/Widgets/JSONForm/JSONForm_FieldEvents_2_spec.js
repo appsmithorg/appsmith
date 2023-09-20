@@ -3,104 +3,96 @@
  */
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const widgetLocators = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("Radio Group Field", () => {
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
-  it("1. Checkbox Field - pre condition", () => {
+  it("1. Shows updated formData values in onChange binding", () => {
     const schema = {
       agree: true,
     };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
-    cy.openPropertyPane("jsonformwidget");
+    agHelper.AddDsl("jsonFormDslWithoutSchema");
+    entityExplorer.SelectEntityByName("JSONForm1");
     cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+
     cy.openFieldConfiguration("agree");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Checkbox/);
-    cy.closePropertyPane();
+
+    propPane.EnterJSContext(
+      "onCheckChange",
+      "{{showAlert(formData.agree.toString())}}",
+    );
+    deployMode.DeployApp();
+    // Click on select field
+    cy.get(`${fieldPrefix}-agree input`).click({ force: true });
+
+    // Check for alert
+    cy.get(commonlocators.toastmsg).contains("false");
+
+    deployMode.NavigateBacktoEditor();
   });
 
   it("2. Shows updated formData values in onChange binding", () => {
-    cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("agree");
-
-    // Enable JS mode for onCheckChange
-    cy.get(toggleJSButton("oncheckchange")).click({ force: true });
-
-    // Add onCheckChange action
-    cy.testJsontext(
-      "oncheckchange",
-      "{{showAlert(formData.agree.toString())}}",
-    );
-
-    // Click on select field
-    cy.get(`${fieldPrefix}-agree input`).click({ force: true });
-
-    // Check for alert
-    cy.get(commonlocators.toastmsg).contains("false");
-  });
-
-  it("3. Switch Field - pre condition", () => {
     const schema = {
       agree: true,
     };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-    cy.openPropertyPane("jsonformwidget");
+    agHelper.AddDsl("jsonFormDslWithoutSchema");
+    entityExplorer.SelectEntityByName("JSONForm1");
     cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
-    cy.closePropertyPane();
-  });
+    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
 
-  it("4. Shows updated formData values in onChange binding", () => {
-    cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("agree");
 
-    // Enable JS mode for onChange
-    cy.get(toggleJSButton("onchange")).click({ force: true });
+    propPane.EnterJSContext(
+      "onChange",
+      "{{showAlert(formData.agree.toString())}}",
+    );
 
-    // Add onChange action
-    cy.testJsontext("onchange", "{{showAlert(formData.agree.toString())}}");
-
+    deployMode.DeployApp();
     // Click on select field
     cy.get(`${fieldPrefix}-agree input`).click({ force: true });
 
     // Check for alert
     cy.get(commonlocators.toastmsg).contains("false");
+
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("5. Date Field - pre condition", () => {
+  it("3. shows updated formData values in onDateSelected binding", () => {
     const schema = {
       dob: "20/12/1992",
     };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+    agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-    cy.openPropertyPane("jsonformwidget");
+    entityExplorer.SelectEntityByName("JSONForm1");
     cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
-    cy.closePropertyPane();
-  });
 
-  it("6. shows updated formData values in onDateSelected binding", () => {
-    cy.openPropertyPane("jsonformwidget");
+    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+
     cy.openFieldConfiguration("dob");
 
     // Enable JS mode for onDateSelected
     cy.get(toggleJSButton("ondateselected")).click({ force: true });
 
-    // Add onDateSelected action
-    cy.testJsontext("ondateselected", "{{showAlert(formData.dob)}}");
+    propPane.EnterJSContext("onDateSelected", "{{showAlert(formData.dob)}}");
+    deployMode.DeployApp();
 
     // Click on select field
     cy.get(`${fieldPrefix}-dob .bp3-input`).click();

@@ -1,6 +1,11 @@
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 const fieldPrefix = ".t--jsonformfield";
+import {
+  entityExplorer,
+  deployMode,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
 let locators = ObjectsRegistry.CommonLocators;
@@ -33,10 +38,14 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
       ],
     };
 
-    cy.openPropertyPane("jsonformwidget");
+    entityExplorer.SelectEntityByName("JSONForm1");
     cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
-    cy.closePropertyPane();
+    propPane.UpdatePropertyFieldValue(
+      "Source data",
+      JSON.stringify(sourceData),
+    );
+    deployMode.DeployApp();
+    // cy.closePropertyPane();
 
     cy.get(`${fieldPrefix}-name label`).contains("Name");
     cy.get(`${fieldPrefix}-name input`).then((input) => {
@@ -92,6 +101,8 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
     cy.get(
       `${fieldPrefix}-education .t--jsonformfield-array-add-btn .t--text`,
     ).should("have.text", "Add New");
+
+    deployMode.NavigateBacktoEditor();
   });
 
   it("modifies field when source data changes", () => {
@@ -120,8 +131,13 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
     cy.get(locators._jsToggle("sourcedata")).click({
       force: true,
     });
-    cy.testJsontext("sourcedata", JSON.stringify(modifiedSourceData));
-    cy.closePropertyPane();
+    propPane.UpdatePropertyFieldValue(
+      "Source data",
+      JSON.stringify(modifiedSourceData),
+    );
+
+    deployMode.DeployApp();
+    // cy.closePropertyPane();
 
     cy.get(`${fieldPrefix}-name label`).contains("Name");
     cy.get(`${fieldPrefix}-name input`).should("have.value", "John");

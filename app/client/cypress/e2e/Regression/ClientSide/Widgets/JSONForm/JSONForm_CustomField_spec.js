@@ -2,6 +2,12 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const locators = ObjectsRegistry.CommonLocators;
+const {
+  deployMode,
+  entityExplorer,
+  propPane,
+} = require("../../../../../support/Objects/ObjectsCore");
+
 const fieldPrefix = ".t--jsonformfield";
 
 describe("JSON Form Widget Custom Field", () => {
@@ -46,10 +52,14 @@ describe("JSON Form Widget Custom Field", () => {
       ],
     };
 
-    cy.openPropertyPane("jsonformwidget");
-    cy.backFromPropertyPanel();
+    entityExplorer.SelectEntityByName("JSONForm1");
+    propPane.NavigateBackToPropertyPane();
     cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
+    propPane.UpdatePropertyFieldValue(
+      "Source data",
+      JSON.stringify(sourceData),
+    );
+    deployMode.DeployApp();
 
     cy.wait(500);
 
