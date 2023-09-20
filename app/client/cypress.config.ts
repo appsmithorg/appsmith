@@ -27,8 +27,8 @@ export default defineConfig({
   e2e: {
     baseUrl: "https://dev.appsmith.com/",
     env: {
-      USERNAME: "XXXX",
-      PASSWORD: "XXX",
+      USERNAME: "xxxx",
+      PASSWORD: "xxx",
     },
     setupNodeEvents(on, config) {
       return require("./cypress/plugins/index.js")(on, config);
