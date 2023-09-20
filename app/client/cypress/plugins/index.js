@@ -63,6 +63,14 @@ module.exports = async (on, config) => {
         "Videos",
         "webCamVideo.y4m",
       );
+      if (browser.isHeadless) {
+        launchOptions.args = launchOptions.args.map((arg) => {
+          if (arg === "--headless=new") {
+            return "--headless";
+          }
+          return arg;
+        });
+      }
       launchOptions.args.push("--disable-dev-shm-usage");
       launchOptions.args.push("--window-size=1400,1100");
       launchOptions.args.push("--use-fake-ui-for-media-stream");
@@ -76,9 +84,9 @@ module.exports = async (on, config) => {
       // && browser.isHeadless) {
       launchOptions.preferences.fullscreen = true;
       launchOptions.preferences.darkTheme = true;
-      launchOptions["width"] = 1400;
-      launchOptions["height"] = 1100;
-      launchOptions["resizable"] = false;
+      launchOptions.preferences.width = 1400;
+      launchOptions.preferences.height = 1100;
+      launchOptions.preferences.resizable = false;
       return launchOptions;
     }
   });

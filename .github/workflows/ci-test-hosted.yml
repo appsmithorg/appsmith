@@ -223,11 +223,6 @@ jobs:
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
           echo "${{env.BROWSER_PATH}}"
 
-      # Start tmate session for tunnelling
-      - name: Setup tmate session
-        if: steps.run_result.outputs.run_result != 'success'
-        uses: mxschmitt/action-tmate@v3
-
       # - name: Set Pull Request Title
       #   env:
       #     EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
@@ -335,7 +330,6 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
-          browser: ${{ env.BROWSER_PATH }}
           install: false
           config-file: cypress_ci_hosted.config.ts
           working-directory: app/client
@@ -406,7 +400,6 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
-          browser: ${{ env.BROWSER_PATH }}
           install: false
           config-file: cypress_ci_hosted.config.ts
           working-directory: app/client
@@ -488,20 +481,20 @@ jobs:
             echo "slack_icon=:eight_spoked_asterisk:" >> $GITHUB_OUTPUT
           fi
 
-      # - name: Slack Notification
-      #   continue-on-error: true
-      #   if: always()
-      #   uses: rtCamp/action-slack-notify@v2
-      #   env:
-      #     SLACK_CHANNEL: cypresspushworkflow
-      #     SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
-      #     SLACK_ICON_EMOJI: ${{steps.slack_notification.outputs.slack_icon}}
-      #     SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
-      #     SLACK_TITLE: "Result:"
-      #     SLACK_USERNAME: Cloud Hosted Run
-      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
-      #     MSG_MINIMAL: Ref,Event,Commit
-      #     SLACK_FOOTER: "Hosted run"
+      - name: Slack Notification
+        continue-on-error: true
+        if: always()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: cypresspushworkflow
+          SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
+          SLACK_ICON_EMOJI: ${{steps.slack_notification.outputs.slack_icon}}
+          SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
+          SLACK_TITLE: "Result:"
+          SLACK_USERNAME: Cloud Hosted Run
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
+          MSG_MINIMAL: Ref,Event,Commit
+          SLACK_FOOTER: "Hosted run"
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure

@@ -8,7 +8,7 @@ export default defineConfig({
   pageLoadTimeout: 60000,
   videoCompression: false,
   videoUploadOnPasses: false,
-  numTestsKeptInMemory: 1,
+  numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
   reporter: "cypress-mochawesome-reporter",
   reporterOptions: {
@@ -49,12 +49,13 @@ export default defineConfig({
       );
       return require("./cypress/plugins/index.js")(on, config);
     },
-    specPattern: ["cypress/e2e/GSheet/**/**/*"],
-    testIsolation: false,
-    excludeSpecPattern: [
-      "cypress/e2e/**/spec_utility.ts",
+    specPattern: [
+      "cypress/e2e/GSheet/**/**/*",
       "cypress/e2e/Regression/ServerSide/Datasources/Oracle_Spec.ts",
       "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
+      "cypress/e2e/Regression/ServerSide/Datasources/ElasticSearch_Basic_Spec.ts",
     ],
+    testIsolation: false,
+    excludeSpecPattern: ["cypress/e2e/**/spec_utility.ts"],
   },
 });
