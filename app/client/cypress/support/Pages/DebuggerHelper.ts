@@ -46,6 +46,9 @@ export class DebuggerHelper {
     _intercomOption: "#intercom-trigger",
     _intercomConsentText: "[data-testid='t--intercom-consent-text']",
     _logsTab: "[data-testid='t--tab-LOGS_TAB']",
+    _logsGroup: "[data-testid='t--log-filter']",
+    _logGroupOption: (option: string) =>
+      `[data-testid='t--log-filter-${option}']`,
   };
 
   ClickDebuggerIcon(
@@ -154,6 +157,11 @@ export class DebuggerHelper {
 
   AssertErrorCount(count: number) {
     this.agHelper.GetNAssertContains(this.locators._errorCount, count);
+  }
+
+  changeLogsGroup(option: string) {
+    this.agHelper.GetNClick(this.locators._logsGroup);
+    this.agHelper.GetNClick(this.locators._logGroupOption(option));
   }
 
   ClearLogs() {
