@@ -763,10 +763,7 @@ export const migrateInitialValues = (currentDSL: DSLWidget) => {
   return currentDSL;
 };
 
-// A rudimentary transform function which updates the DSL based on its version.
-// A more modular approach needs to be designed.
-// This needs the widget config to be already built to migrate correctly
-export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
+export const buildInitialDSL = (currentDSL: DSLWidget) => {
   if (currentDSL.version === undefined) {
     // Since this top level widget is a CANVAS_WIDGET,
     // DropTargetComponent needs to know the minimum height the canvas can take
@@ -792,7 +789,13 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
     // Update version to make sure this doesn't run every time.
     currentDSL.version = 1;
   }
+  return currentDSL;
+};
 
+// A rudimentary transform function which updates the DSL based on its version.
+// A more modular approach needs to be designed.
+// This needs the widget config to be already built to migrate correctly
+export const migrateDSL = (currentDSL: DSLWidget, newPage = false) => {
   if (currentDSL.version === 1) {
     if (currentDSL.children && currentDSL.children.length > 0)
       currentDSL.children = currentDSL.children.map(updateContainers);
@@ -1231,6 +1234,15 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   }
 
   return currentDSL;
+};
+
+export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
+  if (currentDSL.version === undefined) {
+    const initialDSL = buildInitialDSL(currentDSL);
+    return migrateDSL(initialDSL, newPage);
+  } else {
+    return migrateDSL(currentDSL, newPage);
+  }
 };
 
 export const migrateButtonVariant = (currentDSL: DSLWidget) => {
