@@ -338,7 +338,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
 
   after("Verify Deletion of the datasource", () => {
     cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource"); //Since intercept from before is not working
-    dataSources.DeleteDatasourceFromWithinDS(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //since CRUD pages are still active
     //dataSources.StopNDeleteContainer(containerName); //commenting to check if MsSQL specific container deletion is causing issues
   });
 
