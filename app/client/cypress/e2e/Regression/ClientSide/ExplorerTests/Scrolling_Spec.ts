@@ -21,7 +21,6 @@ describe("Entity explorer context menu should hide on scrolling", function () {
         mockDBNameUsers = $createdMockUsers;
         dataSources.CreateQueryAfterDSSaved();
         dataSources.AssertTableInVirtuosoList(mockDBNameUsers, "public.users");
-        entityExplorer.ExpandCollapseEntity("public.users");
 
         dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
           cy.log("Movies DB created is " + $createdMockMovies);
@@ -29,7 +28,6 @@ describe("Entity explorer context menu should hide on scrolling", function () {
           dataSources.CreateQueryAfterDSSaved();
 
           dataSources.AssertTableInVirtuosoList(mockDBNameMovies, "movies");
-          entityExplorer.ExpandCollapseEntity("movies");
 
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
@@ -54,7 +52,6 @@ describe("Entity explorer context menu should hide on scrolling", function () {
         dataSources.CreateQueryAfterDSSaved();
 
         dataSources.AssertTableInVirtuosoList(mockDBNameUsers, "public.users");
-        entityExplorer.ExpandCollapseEntity("public.users");
 
         dataSources.CreateDataSource("Mongo");
         cy.get("@dsName").then(($createdMockMovies: any) => {
@@ -65,7 +62,6 @@ describe("Entity explorer context menu should hide on scrolling", function () {
             mockDBNameMovies,
             "listingAndReviews",
           );
-          entityExplorer.ExpandCollapseEntity("listingAndReviews");
 
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
