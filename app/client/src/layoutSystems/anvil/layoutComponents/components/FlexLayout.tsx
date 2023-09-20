@@ -1,38 +1,37 @@
 import { Flex } from "@design-system/widgets";
-import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
 import type {
-  AlignSelfValues,
-  FlexDirectionValues,
-  FlexWrapValues,
-  JustifyContentValues,
+  AlignSelf,
+  FlexDirection,
+  FlexProps,
+  FlexWrap,
+  JustifyContent,
+} from "@design-system/widgets";
+import { MOBILE_BREAKPOINT } from "layoutSystems/anvil/utils/constants";
+import type {
   OverflowValues,
   PositionValues,
-} from "layoutSystems/anvil/utils/autoLayoutTypes";
-import {
-  MOBILE_BREAKPOINT,
-  MOBILE_ROW_GAP,
-  ROW_GAP,
-} from "layoutSystems/anvil/utils/constants";
+} from "layoutSystems/anvil/utils/types";
 import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
+import { MOBILE_ROW_GAP, ROW_GAP } from "layoutSystems/common/utils/constants";
 import React, { useMemo } from "react";
 import type { ReactNode } from "react";
 
-interface FlexLayoutProps {
+interface FlexLayoutProps
+  extends AlignSelf,
+    FlexDirection,
+    FlexWrap,
+    JustifyContent {
   canvasId: string;
   children: ReactNode;
   isDropTarget?: boolean;
   layoutId: string;
 
-  alignSelf?: AlignSelfValues;
   border?: string;
   columnGap?: string;
   flexBasis?: string;
-  flexDirection: FlexDirectionValues;
   flexGrow?: number;
   flexShrink?: number;
-  flexWrap?: FlexWrapValues;
   height?: string;
-  justifyContent?: JustifyContentValues;
   maxHeight?: string;
   maxWidth?: string;
   minWidth?: string;
@@ -50,11 +49,11 @@ export const FlexLayout = (props: FlexLayoutProps) => {
     return {
       alignSelf: props.alignSelf || "flex-start",
       columnGap: props.columnGap || "0px",
-      flexDirection: props.flexDirection || "column",
+      flexDirection: props.direction || "column",
       flexGrow: props.flexGrow || 0,
       flexShrink: props.flexShrink || 0,
       flexBasis: props.flexBasis || "auto",
-      flexWrap: props.flexWrap || "nowrap",
+      flexWrap: props.wrap || "nowrap",
       justifyContent: props.justifyContent || "start",
       overflowX: props.overflowX || "hidden",
       overflowY: props.overflow || "hidden",

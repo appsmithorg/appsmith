@@ -23,3 +23,7 @@ export const getResponsiveMinWidth = (
     [`${MOBILE_BREAKPOINT}px`]: config[`${MOBILE_BREAKPOINT}px`] || minWidth,
   };
 };
+
+export const validateResponsiveProp = (
+  data: Record<string, string | number> | undefined,
+) => data && Object.keys(data)?.length;

@@ -1,6 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import type { MouseEvent } from "react";
-import styled from "styled-components";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import type { CSSProperties, MouseEvent } from "react";
 import { Flex } from "@design-system/widgets";
 import { useSelector } from "react-redux";
 
@@ -21,27 +26,13 @@ import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/t
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { AnvilFlexComponentProps } from "../utils/types";
-import { getResponsiveMinWidth } from "../utils/widgetUtils";
+import {
+  getResponsiveMinWidth,
+  validateResponsiveProp,
+} from "../utils/widgetUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
-
-// Using a button to wrap the widget to ensure that accessibility features are included by default.
-const FlexComponentWrapper = styled.button<{ onHoverZIndex: number }>`
-  padding: 0;
-  border: none;
-  outline: none;
-  font: inherit;
-  color: inherit;
-  background: none;
-  height: 100%;
-  width: 100%;
-  position: relative;
-
-  &:hover {
-    z-index: ${({ onHoverZIndex }) => onHoverZIndex};
-  }
-`;
 
 /**
  * Adds following functionalities to the widget:
@@ -57,6 +48,7 @@ const FlexComponentWrapper = styled.button<{ onHoverZIndex: number }>`
  */
 
 export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
+  const ref: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
   const isResizing = useSelector(getIsResizing);
@@ -67,6 +59,18 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
   const [isFillWidget, setIsFillWidget] = useState<boolean>(false);
   const [verticalAlignment, setVerticalAlignment] =
     useState<FlexVerticalAlignment>(FlexVerticalAlignment.Top);
+
+  const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
+  const onClickFn = useCallback(
+    (e) => {
+      clickToSelectWidget(e);
+    },
+    [props.widgetId, clickToSelectWidget],
+  );
+
+  const stopEventPropagation = (e: MouseEvent<HTMLElement>) => {
+    !isSnipingMode && e.stopPropagation();
+  };
 
   useEffect(() => {
     const widgetConfig:
@@ -81,13 +85,26 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     );
   }, [props.widgetType]);
 
-  const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
-  const onClickFn = useCallback(
-    (e) => {
-      clickToSelectWidget(e);
-    },
-    [props.widgetId, clickToSelectWidget],
-  );
+  useEffect(() => {
+    if (ref?.current) {
+      // Stop click event propagation
+      ref?.current.addEventListener("click", (e: any) =>
+        stopEventPropagation(e),
+      );
+      // Use click capture to select the widget before the click event is triggered on inner layers and component.
+      ref?.current.addEventListener("click", onClickFn, { capture: true });
+    }
+    return () => {
+      if (ref?.current) {
+        ref?.current.removeEventListener("click", (e: any) =>
+          stopEventPropagation(e),
+        );
+        ref?.current.removeEventListener("click", onClickFn, {
+          capture: true,
+        });
+      }
+    };
+  }, [ref]);
 
   const { onHoverZIndex } = usePositionedContainerZIndex(
     isDropTarget,
@@ -95,10 +112,6 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     isFocused,
     isSelected,
   );
-
-  const stopEventPropagation = (e: MouseEvent<HTMLElement>) => {
-    !isSnipingMode && e.stopPropagation();
-  };
 
   const className = useMemo(
     () =>
@@ -122,21 +135,15 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
         props.hasAutoHeight || isCurrentWidgetResizing
           ? "auto"
           : `${props.componentHeight}px`,
-      maxHeight:
-        props.widgetSize?.maxHeight &&
-        Object.keys(props.widgetSize?.maxHeight).length
-          ? props.widgetSize?.maxHeight
-          : undefined,
-      maxWidth:
-        props.widgetSize?.maxWidth &&
-        Object.keys(props.widgetSize?.maxWidth).length
-          ? props.widgetSize?.maxWidth
-          : undefined,
-      minHeight:
-        props.widgetSize?.minHeight &&
-        Object.keys(props.widgetSize?.minHeight).length
-          ? props.widgetSize?.minHeight
-          : undefined,
+      maxHeight: validateResponsiveProp(props.widgetSize?.maxHeight)
+        ? props.widgetSize?.maxHeight
+        : undefined,
+      maxWidth: validateResponsiveProp(props.widgetSize?.maxWidth)
+        ? props.widgetSize?.maxWidth
+        : undefined,
+      minHeight: validateResponsiveProp(props.widgetSize?.minHeight)
+        ? props.widgetSize?.minHeight
+        : undefined,
       // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
       minWidth: getResponsiveMinWidth(props.widgetSize?.minWidth, isFillWidget),
       padding: WIDGET_PADDING + "px",
@@ -156,16 +163,18 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     verticalAlignment,
   ]);
 
+  const styleProps: CSSProperties = useMemo(() => {
+    return {
+      position: "relative",
+      "&:hover": {
+        zIndex: onHoverZIndex,
+      },
+    };
+  }, [onHoverZIndex]);
+
   return (
-    <Flex {...flexProps}>
-      <FlexComponentWrapper
-        className={className}
-        onClick={stopEventPropagation}
-        onClickCapture={onClickFn}
-        onHoverZIndex={onHoverZIndex}
-      >
-        {props.children}
-      </FlexComponentWrapper>
+    <Flex {...flexProps} className={className} style={styleProps}>
+      {props.children}
     </Flex>
   );
 };
