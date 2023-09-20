@@ -180,8 +180,7 @@ const actionsReducer = createImmerReducer(initialState, {
     });
     if (foundAction) {
       foundAction.isLoading = false;
-      if (foundAction.data) _.assign(foundAction.data, action.payload.response);
-      else foundAction.data = action.payload.response;
+      foundAction.data = action.payload.response;
     } else {
       const partialAction: PartialActionData = {
         isLoading: false,
