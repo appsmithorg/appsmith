@@ -98,7 +98,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: failed_spec_ci
-          path: ~/failed_spec_ci
+          path: ~/failed_specs
 
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
@@ -122,7 +122,7 @@ jobs:
                     fi
                 done
               fi
-          done < ~/failed_spec_ci/failed_spec_ci
+          done < ~/failed_specs/failed_spec_ci
           failed_spec_env=${failed_spec_env#,}
           echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV
 
@@ -455,16 +455,6 @@ jobs:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}
-
-      # - name: get cypress url dashboard url
-      #   id: dashboard_url
-      #   if: always()
-      #   run: |
-      #     if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-      #       echo "" >> $GITHUB_OUTPUT
-      #     elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-      #       echo "" >> $GITHUB_OUTPUT
-      #     fi
 
       - name: Generate slack message
         continue-on-error: true
