@@ -9,19 +9,16 @@ import type {
   SizingDimension,
   SpacingDimension,
 } from "@design-system/widgets";
-import type {
-  OverflowValues,
-  PositionValues,
-} from "layoutSystems/anvil/utils/autoLayoutTypes";
-import {
-  MOBILE_BREAKPOINT,
-  MOBILE_ROW_GAP,
-  ROW_GAP,
-} from "layoutSystems/anvil/utils/constants";
+import { MOBILE_ROW_GAP, ROW_GAP } from "layoutSystems/common/utils/constants";
 import { getLayoutClassName } from "layoutSystems/anvil/utils/layoutUtils";
 import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import React, { useMemo } from "react";
 import type { CSSProperties, ReactNode } from "react";
+import { MOBILE_BREAKPOINT } from "layoutSystems/anvil/utils/constants";
+import type {
+  OverflowValues,
+  PositionValues,
+} from "layoutSystems/anvil/utils/types";
 
 interface FlexLayoutProps
   extends AlignSelf,

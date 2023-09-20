@@ -16,3 +16,12 @@ export interface AnvilFlexComponentProps {
   widgetSize?: { [key: string]: Record<string, string | number> };
   widgetType: WidgetType;
 }
+
+export type PositionValues =
+  | "absolute"
+  | "relative"
+  | "fixed"
+  | "sticky"
+  | "static";
+
+export type OverflowValues = "hidden" | "scroll" | "visible" | "auto";
