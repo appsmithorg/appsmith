@@ -311,11 +311,7 @@ configure_supervisord() {
       # Update hosts lookup to resolve to embedded postgres
       echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
     fi
-
   fi
-
-  # Configure Suprvisor Dashboard Authentication Credentials
-  bash /opt/appsmith/templates/supervisord.conf.sh "${APPSMITH_SUPERVISOR_USER-}" "${APPSMITH_SUPERVISOR_PASSWORD-}" > /etc/supervisor/supervisord.conf
 
 }
 
