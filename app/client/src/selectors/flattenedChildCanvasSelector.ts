@@ -1,6 +1,6 @@
 import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { GridDefaults, type RenderModes } from "constants/WidgetConstants";
-import { getLayoutSystem } from "layoutSystems/withLayoutSystemHOC";
+import { getLayoutSystem } from "layoutSystems/withLayoutSystemWidgetHOC";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,

@@ -57,6 +57,17 @@ const getAutoLayoutSystemWidgetPropsEnhancer = (props: BaseWidgetProps) => {
   };
 };
 
+const defaultAutoLayoutCanvasProps: Partial<CanvasProps> = {
+  parentRowSpace: 1,
+  parentColumnSpace: 1,
+  topRow: 0,
+  leftColumn: 0,
+  containerStyle: "none",
+  detachFromLayout: true,
+  minHeight: CANVAS_DEFAULT_MIN_HEIGHT_PX,
+  shouldScrollContents: false,
+};
+
 /**
  * getAutoLayoutSystemCanvasPropsEnhancer
  *
@@ -70,22 +81,15 @@ const getAutoLayoutSystemWidgetPropsEnhancer = (props: BaseWidgetProps) => {
  */
 
 const getAutoLayoutSystemCanvasPropsEnhancer = (props: BaseWidgetProps) => {
-  const canvasProps: CanvasProps = {
+  const enhancedProps = {
+    ...defaultAutoLayoutCanvasProps,
     ...props,
-    parentRowSpace: 1,
-    parentColumnSpace: 1,
-    topRow: 0,
-    leftColumn: 0,
-    containerStyle: "none",
-    detachFromLayout: true,
-    minHeight: props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
-    shouldScrollContents: false,
   };
-  const autoDimensionConfig = getAutoLayoutDimensionsConfig(canvasProps);
+  const autoDimensionConfig = getAutoLayoutDimensionsConfig(enhancedProps);
   const { componentHeight, componentWidth } =
-    getAutoLayoutComponentDimensions(canvasProps);
+    getAutoLayoutComponentDimensions(enhancedProps);
   return {
-    ...canvasProps,
+    ...enhancedProps,
     autoDimensionConfig,
     componentHeight,
     componentWidth,

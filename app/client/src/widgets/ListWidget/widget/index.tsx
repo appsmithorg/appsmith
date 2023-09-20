@@ -866,9 +866,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.props.positioning || childWidgetData.positioning;
     childWidgetData.positioning = positioning;
     childWidgetData.useAutoLayout = positioning === Positioning.Vertical;
-    return (
-      <LayoutSystemBasedCanvas canvasProps={childWidgetData as WidgetProps} />
-    );
+    return <LayoutSystemBasedCanvas {...(childWidgetData as WidgetProps)} />;
   };
 
   getGridGap = () =>

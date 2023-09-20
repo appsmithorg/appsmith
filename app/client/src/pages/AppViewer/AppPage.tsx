@@ -15,6 +15,7 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { APP_MODE } from "entities/App";
 import { useLocation } from "react-router";
 import { LayoutSystemBasedCanvas } from "layoutSystems/LayoutSystemBasedCanvas";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 type AppPageProps = {
   appName?: string;
@@ -63,7 +64,7 @@ export function AppPage(props: AppPageProps) {
       <PageView className="t--app-viewer-page" width={props.canvasWidth}>
         {props.widgetsStructure.widgetId && (
           <LayoutSystemBasedCanvas
-            canvasProps={props.widgetsStructure as any}
+            {...(props.widgetsStructure as WidgetProps)}
           />
         )}
       </PageView>

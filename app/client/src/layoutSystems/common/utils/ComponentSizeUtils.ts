@@ -81,7 +81,7 @@ export const getComponentDimensions = memo(
   (
     props: BaseWidgetProps,
     appPositioningType: AppPositioningTypes,
-    isMobile: boolean,
+    isMobile = false,
   ): {
     componentHeight: number;
     componentWidth: number;

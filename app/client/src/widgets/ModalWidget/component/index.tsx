@@ -113,7 +113,7 @@ export default function ModalComponent(props: ModalComponentProps) {
     childData.positioning = props.positioning;
     childData.alignment = props.alignment;
     childData.spacing = props.spacing;
-    return <LayoutSystemBasedCanvas canvasProps={childData as WidgetProps} />;
+    return <LayoutSystemBasedCanvas {...(childData as WidgetProps)} />;
   };
   const getChildren = (): ReactNode => {
     if (

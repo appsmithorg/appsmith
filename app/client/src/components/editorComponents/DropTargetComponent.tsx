@@ -40,7 +40,7 @@ import {
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
-type DropTargetComponentProps = PropsWithChildren<{
+export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
   widgetId: string;
   parentId?: string;

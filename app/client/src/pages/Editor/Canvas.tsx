@@ -90,7 +90,7 @@ const Canvas = (props: CanvasProps) => {
         >
           {props.widgetsStructure.widgetId && (
             <LayoutSystemBasedCanvas
-              canvasProps={props.widgetsStructure as WidgetProps}
+              {...(props.widgetsStructure as WidgetProps)}
             />
           )}
         </Wrapper>

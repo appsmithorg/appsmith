@@ -310,7 +310,12 @@ export class ContainerWidget extends BaseWidget<
     childWidget.useAutoLayout = this.props.positioning
       ? this.props.positioning === Positioning.Vertical
       : false;
-    return <LayoutSystemBasedCanvas canvasProps={childWidget as WidgetProps} />;
+    return (
+      <LayoutSystemBasedCanvas
+        key={childWidget.widgetId}
+        {...(childWidget as WidgetProps)}
+      />
+    );
   }
 
   renderChildren = () => {

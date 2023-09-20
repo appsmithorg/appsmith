@@ -1,9 +1,8 @@
-import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { RenderModes } from "constants/WidgetConstants";
-import type { CanvasProps } from "layoutSystems/fixedlayout/canvas/FixedLayoutEditorCanvas";
+import { DropTargetComponentWrapper } from "layoutSystems/fixedlayout/common/dropTargetWrapper/DropTargetComponentWrapper";
 import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
-import React from "react";
+import React, { useMemo } from "react";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
@@ -13,17 +12,6 @@ import { AutoLayoutCanvasView } from "./AutoLayoutCanvasView";
 import { getDirection } from "./utils";
 
 export const AutoLayoutEditorCanvas = (props: BaseWidgetProps) => {
-  const canvasProps: CanvasProps = {
-    ...props,
-    parentRowSpace: 1,
-    parentColumnSpace: 1,
-    topRow: 0,
-    leftColumn: 0,
-    containerStyle: "none",
-    detachFromLayout: true,
-    minHeight: props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
-    shouldScrollContents: false,
-  };
   const { snapGrid } = getSnappedGrid(props, props.componentWidth);
   const { snapColumnSpace } = snapGrid;
   const direction = getDirection(props.positioning);
@@ -33,21 +21,39 @@ export const AutoLayoutEditorCanvas = (props: BaseWidgetProps) => {
     props.isMobile,
     true,
   );
-
+  const autoLayoutDropTargetProps = useMemo(
+    () => ({
+      bottomRow: props.bottomRow,
+      isListWidgetCanvas: props.isListWidgetCanvas,
+      isMobile: props.isMobile,
+      minHeight: props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
+      mobileBottomRow: props.mobileBottomRow,
+      noPad: props.noPad,
+      parentId: props.parentId,
+      snapColumnSpace: snapColumnSpace,
+      useAutoLayout: props.useAutoLayout,
+      widgetId: props.widgetId,
+    }),
+    [
+      props.bottomRow,
+      props.isListWidgetCanvas,
+      props.isMobile,
+      props.minHeight,
+      props.mobileBottomRow,
+      props.noPad,
+      props.parentId,
+      snapColumnSpace,
+      props.useAutoLayout,
+      props.widgetId,
+    ],
+  );
   return (
-    <DropTargetComponent
-      bottomRow={props.bottomRow}
-      isListWidgetCanvas={props.isListWidgetCanvas}
-      isMobile={props.isMobile}
-      minHeight={props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
-      mobileBottomRow={props.mobileBottomRow}
-      noPad={props.noPad}
-      parentId={props.parentId}
+    <DropTargetComponentWrapper
+      dropDisabled={props.dropDisabled}
+      dropTargetProps={autoLayoutDropTargetProps}
       snapColumnSpace={snapColumnSpace}
-      useAutoLayout={props.useAutoLayout}
-      widgetId={props.widgetId}
     >
-      <ContainerComponent {...canvasProps}>
+      <ContainerComponent {...props}>
         <AutoCanvasDraggingArena
           {...snapGrid}
           alignItems={props.alignItems}
@@ -71,9 +77,10 @@ export const AutoLayoutEditorCanvas = (props: BaseWidgetProps) => {
         <AutoLayoutCanvasView
           direction={direction}
           renderMode={RenderModes.CANVAS}
+          snapColumnSpace={snapColumnSpace}
           widgetProps={props}
         />
       </ContainerComponent>
-    </DropTargetComponent>
+    </DropTargetComponentWrapper>
   );
 };

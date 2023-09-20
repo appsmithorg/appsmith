@@ -588,9 +588,7 @@ class TabsWidget extends BaseWidget<
         : LayoutDirection.Horizontal;
     childWidgetData.alignment = selectedTabProps?.alignment;
     childWidgetData.spacing = selectedTabProps?.spacing;
-    return (
-      <LayoutSystemBasedCanvas canvasProps={childWidgetData as WidgetProps} />
-    );
+    return <LayoutSystemBasedCanvas {...(childWidgetData as WidgetProps)} />;
   };
 
   private getSelectedTabWidgetId() {

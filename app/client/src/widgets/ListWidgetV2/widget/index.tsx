@@ -1209,8 +1209,8 @@ class ListWidget extends BaseWidget<
           });
           return (
             <LayoutSystemBasedCanvas
-              canvasProps={child as WidgetProps}
               key={child.widgetId}
+              {...(child as WidgetProps)}
             />
           );
         },

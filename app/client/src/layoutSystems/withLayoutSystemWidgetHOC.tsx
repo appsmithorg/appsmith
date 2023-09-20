@@ -11,6 +11,15 @@ import { getAutoLayoutSystem } from "./autolayout";
 import { getFixedLayoutSystem } from "./fixedlayout";
 import type { LayoutSystem } from "./types";
 
+/**
+ *
+ * @param renderMode - render mode specifies whether the application is in edit/deploy mode.
+ * @param appPositioningType - layout system of the application.
+ * @returns
+ *   @property — widgetSystem - widget specific wrappers and enhancers of a layout system
+ *   @property — canvasSystem - canvas specific implementation and enhancers of a layout system
+ */
+
 export const getLayoutSystem = (
   renderMode: RenderModes,
   appPositioningType: AppPositioningTypes,
@@ -44,7 +53,7 @@ const LayoutSystemWrapper = ({
   );
 };
 
-export const withLayoutSystemHOC = (Widget: any) => {
+export const withLayoutSystemWidgetHOC = (Widget: any) => {
   return function LayoutWrappedWidget(props: WidgetProps) {
     return <LayoutSystemWrapper Widget={Widget} widgetProps={props} />;
   };

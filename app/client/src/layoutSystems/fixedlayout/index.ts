@@ -37,6 +37,17 @@ const getFixedLayoutSystemWidgetPropsEnhancer = (props: BaseWidgetProps) => {
   };
 };
 
+const defaultFixedCanvasProps: Partial<CanvasProps> = {
+  parentRowSpace: 1,
+  parentColumnSpace: 1,
+  topRow: 0,
+  leftColumn: 0,
+  containerStyle: "none",
+  detachFromLayout: true,
+  minHeight: CANVAS_DEFAULT_MIN_HEIGHT_PX,
+  shouldScrollContents: false,
+};
+
 /**
  * getFixedLayoutSystemCanvasPropsEnhancer
  *
@@ -49,21 +60,14 @@ const getFixedLayoutSystemWidgetPropsEnhancer = (props: BaseWidgetProps) => {
  */
 
 const getFixedLayoutSystemCanvasPropsEnhancer = (props: BaseWidgetProps) => {
-  const canvasProps: CanvasProps = {
+  const enhancedProps = {
+    ...defaultFixedCanvasProps,
     ...props,
-    parentRowSpace: 1,
-    parentColumnSpace: 1,
-    topRow: 0,
-    leftColumn: 0,
-    containerStyle: "none",
-    detachFromLayout: true,
-    minHeight: props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
-    shouldScrollContents: false,
   };
   const { componentHeight, componentWidth } =
-    getFixedLayoutComponentDimensions(canvasProps);
+    getFixedLayoutComponentDimensions(enhancedProps);
   return {
-    ...canvasProps,
+    ...enhancedProps,
     componentHeight,
     componentWidth,
   };
@@ -110,7 +114,7 @@ export function getFixedLayoutSystem(renderMode: RenderModes): LayoutSystem {
       propertyEnhancer: getFixedLayoutSystemWidgetPropsEnhancer,
     },
     canvasSystem: {
-      Canvas: getFixedLayoutSystemCanvasWrapper(renderMode),
+      Canvas: getFixedLayoutSystemCanvasWrapper(renderMode) as any,
       propertyEnhancer: getFixedLayoutSystemCanvasPropsEnhancer,
     },
   };
