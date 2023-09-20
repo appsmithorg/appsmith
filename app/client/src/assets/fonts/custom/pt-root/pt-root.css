@@ -1,0 +1,6 @@
+@font-face {
+  font-display: swap;
+  font-family: "PTRoot";
+  src: url("./pt-root-ui-regular.woff2") format("woff2");
+  /* Chrome 36+, Opera 23+, Firefox 39+ */
+}
