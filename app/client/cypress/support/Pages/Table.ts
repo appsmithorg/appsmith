@@ -198,6 +198,8 @@ export class Table {
   _paginationItem = (value: number) => `.rc-pagination-item-${value}`;
   _cellWrapOff = "//div[@class='tableWrap virtual']";
   _cellWrapOn = "//div[@class='tableWrap']";
+  _multirowselect = ".t--table-multiselect";
+  _selectedrow = ".selected-row";
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");

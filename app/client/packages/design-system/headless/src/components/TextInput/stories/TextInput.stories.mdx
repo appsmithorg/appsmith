@@ -1,0 +1,26 @@
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
+import { TextInput } from "../";
+
+<Meta
+  title="Design-system/headless/TextInput"
+  component={TextInput}
+  args={{
+    label: "Label",
+    placeholder: "Placeholder",
+  }}
+/>
+
+export const Template = (args) => <TextInput {...args} />;
+
+# TextInput
+
+TextInput component allows users to input text. It is mostly used in forms.
+
+<Canvas>
+  <Story name="TextInput">{Template.bind({})}</Story>
+</Canvas>
+
+# Props
+
+<ArgsTable of={TextInput} />

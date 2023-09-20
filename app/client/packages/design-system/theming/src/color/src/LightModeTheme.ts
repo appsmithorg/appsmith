@@ -79,6 +79,7 @@ export class LightModeTheme implements ColorModeTheme {
       fg: this.fg.to("sRGB").toString(),
       fgAccent: this.fgAccent.to("sRGB").toString(),
       fgNeutral: this.fgNeutral.to("sRGB").toString(),
+      fgNeutralSubtle: this.fgNeutralSubtle.to("sRGB").toString(),
       fgPositive: this.fgPositive.to("sRGB").toString(),
       fgNegative: this.fgNegative.to("sRGB").toString(),
       fgWarning: this.fgWarning.to("sRGB").toString(),
@@ -662,6 +663,14 @@ export class LightModeTheme implements ColorModeTheme {
     if (!this.seedIsCold && !this.seedIsAchromatic) {
       color.oklch.c = 0.015;
     }
+
+    return color;
+  }
+
+  private get fgNeutralSubtle() {
+    const color = this.fgNeutral.clone();
+
+    color.oklch.l += 0.3;
 
     return color;
   }

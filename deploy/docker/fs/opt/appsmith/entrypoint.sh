@@ -68,7 +68,7 @@ init_env_file() {
   TEMPLATES_PATH="/opt/appsmith/templates"
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
-  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\"'\"'/; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
+  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
 
   echo "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
@@ -311,8 +311,8 @@ configure_supervisord() {
       # Update hosts lookup to resolve to embedded postgres
       echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
     fi
-
   fi
+
 }
 
 # This is a workaround to get Redis working on diffent memory pagesize
@@ -434,8 +434,6 @@ check_redis_compatible_page_size
 safe_init_postgres
 
 configure_supervisord
-
-echo "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 "$APPSMITH_SUPERVISOR_PASSWORD")" > "$TMP/nginx-passwords"
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore}
