@@ -97,7 +97,9 @@ helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespa
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
   --set autoupdate.enabled=false --set persistence.efs.enabled=true --set ingress.className="nginx" \
   --set persistence.efs.driver=efs.csi.aws.com --set persistence.storageClass=efs-dp-appsmith \
-  --set persistence.efs.volumeHandle=$DP_EFS_ID:/ee/ee$PULL_REQUEST_NUMBER \
+  --set persistence.efs.volumeHandle=$DP_EFS_ID:/ce/ce$PULL_REQUEST_NUMBER \
+  --set resources.requests.cpu="1m" \
+  --set resources.requests.memory="1Mi" \
   --set applicationConfig.APPSMITH_SENTRY_DSN="https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547" \
   --set applicationConfig.APPSMITH_SENTRY_ENVIRONMENT="$NAMESPACE" \
   --set applicationConfig.APPSMITH_MONGODB_URI="mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" \
