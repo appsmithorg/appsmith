@@ -19,7 +19,6 @@ const oneClickBinding = new OneClickBinding();
 
 describe("Validate MsSQL connection & basic querying with UI flows", () => {
   let dsName: any,
-    dsName1: any,
     query: string,
     containerName = "mssqldb";
 
@@ -277,22 +276,11 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     });
   });
 
-  it("5. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
-    dataSources.CreateDataSource(
-      "MsSql",
-      true,
-      true,
-      dataManager.defaultEnviorment,
-      false,
-      false,
-    );
-    cy.get("@dsName").then(($dsName) => {
-      dsName1 = $dsName;
-      entityExplorer.AddNewPage();
-      entityExplorer.AddNewPage("Generate page with data");
-      agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, dsName1);
-    });
+  it("5. Add new Page and generate CRUD template using created datasource", () => {
+    entityExplorer.AddNewPage();
+    entityExplorer.AddNewPage("Generate page with data");
+    agHelper.GetNClick(dataSources._selectDatasourceDropdown);
+    agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
     assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
@@ -321,39 +309,21 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
 
     //Should not be able to delete ds until app is published again
     //coz if app is published & shared then deleting ds may cause issue, So!
-    cy.get("@dsName").then(($dsName) => {
-      dsName1 = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName1 as string, 409);
-      agHelper.WaitUntilAllToastsDisappear();
-    });
+    dataSources.DeleteDatasouceFromActiveTab(dsName, 409);
+    agHelper.WaitUntilAllToastsDisappear();
     deployMode.DeployApp(locators._emptyPageTxt);
     agHelper.Sleep(3000);
     deployMode.NavigateBacktoEditor();
-    cy.get("@dsName").then(($dsName) => {
-      dsName1 = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName1 as string, 200);
-    });
-    agHelper.WaitUntilAllToastsDisappear();
   });
 
   it("6. Generate CRUD page from datasource present in ACTIVE section", function () {
-    dataSources.CreateDataSource(
-      "MsSql",
-      true,
-      true,
-      dataManager.defaultEnviorment,
-      false,
-      false,
+    dataSources.NavigateFromActiveDS(dsName, false);
+    agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
+    agHelper.GetNClickByContains(
+      dataSources._dropdownOption,
+      "dbo.amazon_sales",
     );
-    cy.get("@dsName").then(($dsName) => {
-      dsName1 = $dsName;
-      dataSources.NavigateFromActiveDS(dsName1, false);
-      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(
-        dataSources._dropdownOption,
-        "dbo.amazon_sales",
-      );
-    });
+
     GenerateCRUDNValidateDeployPage(
       "348f344247b0c1a935b1223072ef9d8a",
       "CLASSIC TOY TRAIN SET TRACK CARRIAGES LIGHT" +
