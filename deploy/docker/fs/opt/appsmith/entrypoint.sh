@@ -451,7 +451,6 @@ configure_supervisord() {
       # Update hosts lookup to resolve to embedded postgres
       echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
     fi
-
   fi
 
   if [[ ${APPSMITH_DISABLE_EMBEDDED_KEYCLOAK-0} != 1 ]]; then
@@ -596,8 +595,6 @@ safe_init_postgres
 configure_supervisord
 
 configure_cron
-
-echo "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 "$APPSMITH_SUPERVISOR_PASSWORD")" > "$TMP/nginx-passwords"
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore,keycloak}
