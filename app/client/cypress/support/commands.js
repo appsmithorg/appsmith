@@ -1199,6 +1199,15 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       });
     },
   ).as("productAlert");
+  cy.intercept(
+    {
+      method: "GET",
+      url: /domain\/docs\.appsmith\.com\/token$/,
+    },
+    {
+      statusCode: 200,
+    },
+  ).as("xhrCall");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {

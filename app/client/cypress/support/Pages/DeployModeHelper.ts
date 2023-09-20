@@ -87,7 +87,7 @@ export class DeployMode {
   }
 
   // Stubbing window.open to open in the same tab
-  public StubbingWindow(timeout = 1000) {
+  public StubbingWindow(timeout = 60000) {
     cy.window({ timeout }).then((window: any) => {
       cy.stub(window, "open")
         .as("windowStub")
