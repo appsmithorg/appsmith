@@ -1,7 +1,7 @@
-import explorer from "../../../../../locators/explorerlocators.json";
-import publish from "../../../../../locators/publishWidgetspage.json";
-import commonlocators from "../../../../../locators/commonlocators.json";
-import widgetsPage from "../../../../../locators/Widgets.json";
+const explorer = require("../../../../../locators/explorerlocators.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "codescannerwidget";
