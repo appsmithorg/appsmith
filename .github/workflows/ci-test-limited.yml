@@ -135,25 +135,25 @@ jobs:
           specs_to_run=${specs_to_run#,}
           echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
 
-      # # In case of run-id provided download the artifact from the previous run
-      # - name: Download Docker image artifact
-      #   if: inputs.previous-workflow-run-id != 0
-      #   uses: dawidd6/action-download-artifact@v2
-      #   with:
-      #     name: cicontainer
-      #     run_id: ${{ inputs.previous-workflow-run-id }}
+      # In case of run-id provided download the artifact from the previous run
+      - name: Download Docker image artifact
+        if: inputs.previous-workflow-run-id != 0
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: cicontainer
+          run_id: ${{ inputs.previous-workflow-run-id }}
 
-      # # In case of run-id is 0 download the artifact from the current run
-      # - name: Download Docker image artifact
-      #   if: inputs.previous-workflow-run-id == 0
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: cicontainer
+      # In case of run-id is 0 download the artifact from the current run
+      - name: Download Docker image artifact
+        if: inputs.previous-workflow-run-id == 0
+        uses: actions/download-artifact@v3
+        with:
+          name: cicontainer
 
-      # - name: Load Docker image from tar file
-      #   run: |
-      #     gunzip cicontainer.tar.gz
-      #     docker load -i cicontainer.tar
+      - name: Load Docker image from tar file
+        run: |
+          gunzip cicontainer.tar.gz
+          docker load -i cicontainer.tar
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
@@ -208,7 +208,7 @@ jobs:
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
-            appsmith/appsmith-ce:release
+            cicontainer
 
       - name: Use Node.js
         uses: actions/setup-node@v3
