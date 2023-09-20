@@ -5,12 +5,24 @@ import type {
 } from "../utils/anvilTypes";
 import LayoutFactory from "./LayoutFactory";
 import { CanvasDraggingArena } from "../editor/CanvasArena/CanvasDraggingArena";
+import { mapValues } from "lodash";
+import WidgetFactory from "WidgetProvider/factory";
+import { RenderModes } from "constants/WidgetConstants";
 
 // TODO: Move this function to utils directory
-export function renderLayouts(layouts: LayoutComponentProps[]) {
+export function renderLayouts(
+  layouts: LayoutComponentProps[],
+  childrenMap: LayoutComponentProps["childrenMap"],
+) {
   return layouts.map((layout) => {
     const LayoutComponent = LayoutFactory.get(layout.layoutType);
-    return <LayoutComponent key={layout.layoutId} {...layout} />;
+    return (
+      <LayoutComponent
+        childrenMap={childrenMap}
+        key={layout.layoutId}
+        {...layout}
+      />
+    );
   });
 }
 
@@ -20,13 +32,15 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
 
     const renderChildren = () => {
       if (rendersWidgets) {
-        // TODO: Create the widget using WidgetFactory and send them to LayoutComponent
-        // const childrenMap = {
-        //   widget1: WidgetFactory.createWidget(widgetProps, RenderModes.CANVAS),
-        // }
-        return Component.renderChildren(props);
+        const widgetsMap = mapValues(props.childrenMap, (widgetProps) =>
+          WidgetFactory.createWidget(widgetProps, RenderModes.CANVAS),
+        );
+        return Component.renderChildren(props, widgetsMap);
       } else {
-        return renderLayouts(props.layout as LayoutComponentProps[]);
+        return renderLayouts(
+          props.layout as LayoutComponentProps[],
+          props.childrenMap,
+        );
       }
     };
 

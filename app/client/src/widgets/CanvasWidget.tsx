@@ -32,6 +32,7 @@ import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
 import { renderLayouts } from "layoutSystems/anvil/layoutComponents/LayoutComponetsHOC";
 import type { LayoutComponentProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { keyBy } from "lodash";
 
 class CanvasWidget extends ContainerWidget {
   static type = "CANVAS_WIDGET";
@@ -85,7 +86,8 @@ class CanvasWidget extends ContainerWidget {
 
   renderAsLayoutComponent() {
     const layout = this.props.layout as LayoutComponentProps[];
-    return <>{renderLayouts(layout)}</>;
+    const childrenMap = keyBy(this.props.children, "widgetId");
+    return <>{renderLayouts(layout, childrenMap)}</>;
   }
 
   renderAsDropTarget() {

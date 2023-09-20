@@ -16,15 +16,20 @@ export interface LayoutComponentProps {
   isDropTarget?: boolean; // Whether the layout component is a drop target. Accordingly, renders
   insertChild?: boolean; // Identifies which of the child layout components in childTemplate to add new widgets to.
   isPermanent?: boolean; // Whether the layout component can exist without any children.
-}
 
-export type LayoutComponentChildrenMap = { [id: string]: WidgetProps };
+  childrenMap?: Record<string, WidgetProps>; // Map of child widget ids to their props.
+}
 
 export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   // add all other static props here
   type: LayoutComponentType;
   getWidth: (arg0: any) => number;
-  renderChildren: (props: LayoutComponentProps) => React.ReactNode;
+  renderChildren: (
+    props: LayoutComponentProps,
+    widgetsMap: Record<string, React.ReactNode>,
+  ) => React.ReactNode;
   deriveHighlights: (canvasId: string) => HighlightInfo[];
-  extactChildWidgetIds: (props: LayoutComponentProps) => string[];
+  extactChildWidgetIds: (
+    props: LayoutComponentProps,
+  ) => LayoutComponentProps["layout"];
 }

@@ -3,7 +3,6 @@
 
 import React from "react";
 import type {
-  // LayoutComponentChildrenMap,
   LayoutComponentProps,
   LayoutComponentType,
 } from "../utils/anvilTypes";
@@ -28,17 +27,10 @@ const Row = (props: LayoutComponentProps) => {
 Row.type = "ROW" as LayoutComponentType;
 
 Row.renderChildren = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   props: LayoutComponentProps,
-  // childrenMap: LayoutComponentChildrenMap,
+  widgetsMap: Record<string, React.ReactNode>,
 ) => {
-  // TODO: Call WidgetFactory.createWidget directly or a utility that abstracts repeated code
-  return (
-    <>
-      <div>one...</div>
-      <div>two...</div>
-    </>
-  );
+  return props.layout.map((widgetId) => widgetsMap[widgetId as string]);
 };
 
 Row.getWidth = () => {
