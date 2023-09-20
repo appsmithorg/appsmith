@@ -41,9 +41,6 @@ map \$http_forwarded \$final_forwarded {
 # redirect log to stdout for supervisor to capture
 access_log /dev/stdout;
 
-server_tokens off;
-more_set_headers 'Server: ';
-
 server {
 
 $(
@@ -71,9 +68,6 @@ fi
 )
 
   client_max_body_size 150m;
-
-  gzip on;
-  gzip_types *;
 
   index index.html;
   error_page 404 /;

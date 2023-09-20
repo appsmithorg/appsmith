@@ -8,13 +8,20 @@ async function applyNginxChanges() {
 
   const modContents = contents
     .replace("pid /run/nginx.pid;", `pid ${TMP}/nginx.pid;`)
+    .replace("# server_tokens off;", "server_tokens off; more_set_headers 'Server: ';")
+    .replace("gzip on;", "gzip on; gzip_types *;")
     .replace("include /etc/nginx/sites-enabled/*;", "")
     .replace("include /etc/nginx/conf.d/*.conf;", [
       `include ${TMP}/nginx-app.conf;`,
       `root ${NGINX_WWW_PATH};`,
     ].join("\n"));
 
-  await fs.writeFile("/etc/nginx/nginx.conf", modContents);
+  await Promise.all([
+    fs.writeFile("/etc/nginx/nginx.conf.original", contents),
+    fs.writeFile("/etc/nginx/nginx.conf", modContents),
+    fs.rm("/etc/nginx/sites-enabled", { recursive: true, force: true }),
+    fs.rm("/etc/nginx/conf.d", { recursive: true, force: true }),
+  ])
 }
 
 await applyNginxChanges();
