@@ -102,6 +102,8 @@ import { CreateNewAppsOption } from "./CreateNewAppsOption";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
+const START_CREATE_NEW_APP_FLOW_URL_KEY = "startCreateNewApp";
+
 export const { cloudHosting } = getAppsmithConfigs();
 
 export const CONTAINER_WRAPPER_PADDING = "var(--ads-v2-spaces-7)";
@@ -829,6 +831,32 @@ const ApplicationContainerWrapper = () => {
       searchApplications("");
     };
   }, []);
+
+  // This function checks whether the Url has {START_CREATE_NEW_APP_FLOW_URL_KEY} in the url to signify that Signup is success and we need to start the new create app flow.
+  const checkAndSetWorkspaceForCreateNewApp = () => {
+    try {
+      const urlObject = new URL(window.location.href);
+      const workspaceId = updatedWorkspaces[0]?.workspace?.id;
+      if (
+        urlObject.searchParams.get(START_CREATE_NEW_APP_FLOW_URL_KEY) ==
+          "true" &&
+        workspaceId
+      ) {
+        setCurrentSelectedWorkspace(workspaceId);
+
+        urlObject.searchParams.delete(START_CREATE_NEW_APP_FLOW_URL_KEY);
+        // Replace the current URL without reloading the page
+        history.replaceState({}, "", urlObject.toString());
+      }
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    // Checks for atleast one workspace and if the New Create App flow is enabled for this user or not
+    if (isEnabledForCreateNew && updatedWorkspaces.length === 1) {
+      checkAndSetWorkspaceForCreateNewApp();
+    }
+  }, [isEnabledForCreateNew, updatedWorkspaces]);
 
   const onClickBack = () => {
     setCurrentSelectedWorkspace("");

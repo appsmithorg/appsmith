@@ -15,6 +15,8 @@ import { Spinner } from "design-system";
 import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
 import { redirectUserAfterSignup } from "@appsmith/utils/signupHelpers";
 import { setUserSignedUpFlag } from "utils/storage";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -25,6 +27,9 @@ export function SignupSuccess() {
   );
   const validLicense = useSelector(isValidLicense);
   const user = useSelector(getCurrentUser);
+  const isEnabledForCreateNew = useFeatureFlag(
+    FEATURE_FLAG.ab_create_new_apps_enabled,
+  );
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
@@ -38,6 +43,7 @@ export function SignupSuccess() {
         shouldEnableFirstTimeUserOnboarding,
         validLicense,
         dispatch,
+        isEnabledForCreateNew,
       ),
     [],
   );

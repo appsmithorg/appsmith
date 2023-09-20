@@ -28,6 +28,6 @@ public enum FeatureFlagEnum {
     APP_NAVIGATION_LOGO_UPLOAD,
     release_embed_hide_share_settings_enabled,
     ab_mock_mongo_schema_enabled,
-
+    ab_create_new_apps_enabled,
     // Add EE flags below this line, to avoid conflicts.
 }

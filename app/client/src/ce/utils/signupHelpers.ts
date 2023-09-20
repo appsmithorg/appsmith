@@ -17,6 +17,7 @@ export const redirectUserAfterSignup = (
   shouldEnableFirstTimeUserOnboarding: string | null,
   _validLicense?: boolean,
   dispatch?: any,
+  isEnabledForCreateNew?: boolean,
 ): any => {
   if (redirectUrl) {
     try {
@@ -46,8 +47,17 @@ export const redirectUserAfterSignup = (
           dispatch(
             firstTimeUserOnboardingInit(applicationId, pageId as string),
           );
+        } else {
+          if (isEnabledForCreateNew) {
+            urlObject?.searchParams.set("startCreateNewApp", "true");
+          }
+          const newRedirectUrl = urlObject?.toString() || "";
+          if (getIsSafeRedirectURL(newRedirectUrl)) {
+            window.location.replace(newRedirectUrl);
+          }
         }
       } else if (getIsSafeRedirectURL(redirectUrl)) {
+        if (isEnabledForCreateNew) redirectUrl = redirectUrl;
         window.location.replace(redirectUrl);
       }
     } catch (e) {

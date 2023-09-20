@@ -10,12 +10,14 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
@@ -66,6 +68,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final RateLimitService rateLimitService;
     private final TenantService tenantService;
     private final UserService userService;
+    private final FeatureFlagService featureFlagService;
 
     private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
         Mono<Boolean> emailVerificationEnabledMono = tenantService
@@ -390,7 +393,18 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     });
         }
 
-        return applicationMono.flatMap(application1 -> applicationPageService.createApplication(application1));
+        Mono<Boolean> flagCreateNewApps = featureFlagService.check(FeatureFlagEnum.ab_create_new_apps_enabled);
+
+        return Mono.zip(Mono.just(applicationMono), flagCreateNewApps).flatMap(tuple -> {
+            Mono<Application> app = tuple.getT1();
+            Boolean isEnabledForCreateNewApps = tuple.getT2();
+
+            if (Boolean.TRUE.equals(isEnabledForCreateNewApps)) {
+                return null;
+            }
+
+            return app.flatMap(application1 -> applicationPageService.createApplication(application1));
+        });
     }
 
     /**

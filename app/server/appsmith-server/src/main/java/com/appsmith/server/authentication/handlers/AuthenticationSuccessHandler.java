@@ -7,6 +7,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
@@ -32,7 +33,8 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
             WorkspacePermission workspacePermission,
             RateLimitService rateLimitService,
             TenantService tenantService,
-            UserService userService) {
+            UserService userService,
+            FeatureFlagService featureFlagService) {
         super(
                 redirectHelper,
                 sessionUserService,
@@ -45,6 +47,7 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                 workspacePermission,
                 rateLimitService,
                 tenantService,
-                userService);
+                userService,
+                featureFlagService);
     }
 }
