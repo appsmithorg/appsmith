@@ -46,6 +46,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
     private static final long FEATURE_FLAG_CACHE_TIME_MIN = 120;
 
+    private CachedFeatures cachedTenantFeatureFlags;
+
     private Mono<Boolean> checkAll(String featureName, User user) {
         Boolean check = check(featureName, user);
 
@@ -66,9 +68,26 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         return checkAll(featureEnum.toString(), user);
     }
 
+    /**
+     * This function checks if the feature is enabled for the current user. In case the user object is not present,
+     * i.e. when the method is getting called internally via cron or other mechanism check for tenant level flag and
+     * provide a fallback as falsy value i.e. not supported
+     *
+     * @param featureEnum   feature flag to be checked
+     * @return              Mono emitting a boolean value if the feature is supported
+     */
     @Override
     public Mono<Boolean> check(FeatureFlagEnum featureEnum) {
-        return sessionUserService.getCurrentUser().flatMap(user -> check(featureEnum, user));
+        // Check if the feature is supported at the tenant level and provide a fallback as falsy value
+        // i.e. not supported
+        Mono<Boolean> isTenantFeatureSupported = this.getTenantFeatures()
+                .flatMap(featureMap -> Mono.justOrEmpty(featureMap.get(featureEnum.name())))
+                .switchIfEmpty(Mono.just(false));
+
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> check(featureEnum, user))
+                .switchIfEmpty(isTenantFeatureSupported);
     }
 
     @Override
@@ -189,7 +208,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         return tenantService
                 .getDefaultTenantId()
                 .flatMap(cacheableFeatureFlagHelper::fetchCachedTenantFeatures)
-                .map(CachedFeatures::getFeatures);
+                .map(cachedFeatures -> {
+                    cachedTenantFeatureFlags = cachedFeatures;
+                    return cachedFeatures.getFeatures();
+                });
     }
 
     /**
@@ -200,5 +222,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     @Override
     public Mono<Tenant> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant) {
         return tenantService.checkAndExecuteMigrationsForTenantFeatureFlags(tenant);
+    }
+
+    @Override
+    public CachedFeatures getCachedTenantFeatureFlags() {
+        return this.cachedTenantFeatureFlags;
     }
 }

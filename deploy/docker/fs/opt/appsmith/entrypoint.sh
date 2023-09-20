@@ -4,7 +4,10 @@ set -e
 
 stacks_path=/appsmith-stacks
 
+export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
+
+mkdir -pv "$SUPERVISORD_CONF_TARGET"
 
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
@@ -65,7 +68,7 @@ init_env_file() {
   TEMPLATES_PATH="/opt/appsmith/templates"
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
-  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\"'\"'/; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
+  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
 
   echo "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
@@ -284,32 +287,32 @@ check_setup_custom_ca_certificates() {
 }
 
 configure_supervisord() {
-  SUPERVISORD_CONF_PATH="/opt/appsmith/templates/supervisord"
-  if [[ -n "$(ls -A /etc/supervisor/conf.d)" ]]; then
-    rm -f "/etc/supervisor/conf.d/"*
+  local supervisord_conf_source="/opt/appsmith/templates/supervisord"
+  if [[ -n "$(ls -A "$SUPERVISORD_CONF_TARGET")" ]]; then
+    rm -f "$SUPERVISORD_CONF_TARGET"/*
   fi
 
-  cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
+  cp -f "$supervisord_conf_source"/application_process/*.conf "$SUPERVISORD_CONF_TARGET"
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
     if [[ $isUriLocal -eq 0 ]]; then
-      cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
+      cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
-      cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
+      cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
     fi
     if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
-      cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
+      cp "$supervisord_conf_source/cron.conf" "$SUPERVISORD_CONF_TARGET"
     fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
-      cp "$SUPERVISORD_CONF_PATH/postgres.conf" /etc/supervisor/conf.d/
+      cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
       # Update hosts lookup to resolve to embedded postgres
       echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
     fi
 
-  fi 
+  fi
 
   # Configure Suprvisor Dashboard Authentication Credentials
   bash /opt/appsmith/templates/supervisord.conf.sh "${APPSMITH_SUPERVISOR_USER-}" "${APPSMITH_SUPERVISOR_PASSWORD-}" > /etc/supervisor/supervisord.conf
@@ -440,7 +443,7 @@ configure_supervisord
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 # Stop nginx gracefully
 nginx -s quit

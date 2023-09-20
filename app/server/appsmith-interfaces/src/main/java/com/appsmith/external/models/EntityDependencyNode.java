@@ -14,7 +14,7 @@ public class EntityDependencyNode {
     String validEntityName;
     String referenceString;
     Boolean isFunctionCall;
-    ActionDTO actionDTO;
+    Executable executable;
 
     public boolean isValidDynamicBinding() {
         boolean result = true;

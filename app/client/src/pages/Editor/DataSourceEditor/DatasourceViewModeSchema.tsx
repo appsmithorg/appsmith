@@ -23,15 +23,18 @@ import {
 import Table from "pages/Editor/QueryEditor/Table";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams } from "react-router";
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import type { ExplorerURLParams } from "ce/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   getCurrentApplicationId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { GENERATE_PAGE_MODE } from "../GeneratePage/components/GeneratePageForm/GeneratePageForm";
 import { useDatasourceQuery } from "./hooks";
-import type { Datasource, DatasourceTable } from "entities/Datasource";
+import type {
+  Datasource,
+  DatasourceTable,
+  QueryTemplate,
+} from "entities/Datasource";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import {
   hasCreateDatasourceActionPermission,
@@ -153,13 +156,24 @@ const DatasourceViewModeSchema = (props: Props) => {
       datasourceStructure &&
       datasourceStructure.tables
     ) {
-      const templates = datasourceStructure.tables.find(
-        (structure: DatasourceTable) => structure.name === tableName,
-      )?.templates;
+      const templates: QueryTemplate[] | undefined =
+        datasourceStructure.tables.find(
+          (structure: DatasourceTable) => structure.name === tableName,
+        )?.templates;
+
       if (templates) {
+        let suggestedTemPlate: QueryTemplate | undefined = templates?.find(
+          (template) => template.suggested,
+        );
+
+        // if no suggested template exists, default to first template.
+        if (!suggestedTemPlate) {
+          suggestedTemPlate = templates[0];
+        }
+
         fetchPreviewData({
           datasourceId: props.datasourceId,
-          template: templates[0],
+          template: suggestedTemPlate,
         });
       }
     }

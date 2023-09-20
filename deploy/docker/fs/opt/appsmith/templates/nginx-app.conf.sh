@@ -104,6 +104,11 @@ fi
     try_files /loading.html \$uri /index.html =404;
   }
 
+  location = /info {
+    add_header Content-Type application/json;
+    alias /opt/appsmith/info.json;
+  }
+
   location ~ ^/static/(js|css|media)\b {
     # Files in these folders are hashed, so we can set a long cache time.
     add_header Cache-Control "max-age=31104000, immutable";  # 360 days
