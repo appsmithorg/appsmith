@@ -11,7 +11,6 @@ import { get } from "lodash";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   APPLICATION_INVITE,
-  APPLICATION_INVITE,
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   SHARE_APP,
