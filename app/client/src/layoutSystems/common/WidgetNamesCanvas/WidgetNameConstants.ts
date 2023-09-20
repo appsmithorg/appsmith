@@ -26,7 +26,7 @@ export const warningSVGPath =
 
 //Indicates the state of widget name
 export enum WidgetNameState {
-  DEFAULT = "DEFAULT",
+  SELECTED = "SELECTED",
   ERROR = "ERROR",
   FOCUSED = "FOCUSED",
 }
@@ -62,7 +62,7 @@ export type CanvasPositions = {
 
 //fill colors of widget name based on state
 export const WIDGET_NAME_FILL_COLORS = {
-  [WidgetNameState.DEFAULT]: Colors.JAFFA_DARK,
+  [WidgetNameState.SELECTED]: Colors.JAFFA_DARK,
   [WidgetNameState.FOCUSED]: Colors.WATUSI,
   [WidgetNameState.ERROR]: Colors.DANGER_SOLID,
 };

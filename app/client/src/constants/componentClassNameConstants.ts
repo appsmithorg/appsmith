@@ -12,7 +12,7 @@ export function getBaseWidgetClassName(id?: string) {
 
 export const CANVAS_VIEWPORT = "canvas-viewport";
 
-export const CANVAS_ART_BOARD = "t--canvas-artboard";
+export const CANVAS_ART_BOARD = "art-board";
 
 export const POSITIONED_WIDGET = "positioned-widget";
 

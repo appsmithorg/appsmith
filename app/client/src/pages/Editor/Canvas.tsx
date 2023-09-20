@@ -82,11 +82,11 @@ const Canvas = (props: CanvasProps) => {
         <Wrapper
           $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
           background={backgroundForCanvas}
-          className={`relative ${CANVAS_ART_BOARD} ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
+          className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
             canvasWidth,
           )}`}
-          data-testid={CANVAS_ART_BOARD}
-          id="art-board"
+          data-testid={"t--canvas-artboard"}
+          id={CANVAS_ART_BOARD}
           ref={focusRef}
           width={canvasWidth}
         >

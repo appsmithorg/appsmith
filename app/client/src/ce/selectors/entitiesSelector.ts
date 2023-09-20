@@ -182,7 +182,9 @@ const getWidgetNameState = (
   positions: WidgetPositions,
   isFocused = false,
 ): WidgetNameData => {
-  let nameState = isFocused ? WidgetNameState.FOCUSED : WidgetNameState.DEFAULT;
+  let nameState = isFocused
+    ? WidgetNameState.FOCUSED
+    : WidgetNameState.SELECTED;
 
   const widgetName = widget.widgetName;
 

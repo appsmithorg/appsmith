@@ -22,6 +22,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { importSvg } from "design-system-old";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const DragHandleIcon = importSvg(
   () => import("assets/icons/ads/app-icons/draghandler.svg"),
@@ -106,7 +107,9 @@ class TableFilterPane extends Component<Props> {
           onPositionChange={this.handlePositionUpdate}
           parentElement={boundaryParent}
           placement="top"
-          portalContainer={document.getElementById("art-board") || undefined}
+          portalContainer={
+            document.getElementById(CANVAS_ART_BOARD) || undefined
+          }
           position={get(this.props, "metaProps.position") as PositionPropsInt}
           renderDragBlock={
             <DragBlock>

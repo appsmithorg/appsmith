@@ -47,6 +47,7 @@ import type { ThemeProp } from "WidgetProvider/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
 import { getVideoConstraints } from "../../utils";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const CameraOfflineIcon = importSvg(
   () => import("assets/icons/widget/camera/camera-offline.svg"),
@@ -806,7 +807,9 @@ function DevicePopover(props: DevicePopoverProps) {
           content={<DeviceMenu items={items} onItemClick={onItemClick} />}
           disabled={disabledMenu}
           minimal
-          portalContainer={document.getElementById("art-board") || undefined}
+          portalContainer={
+            document.getElementById(CANVAS_ART_BOARD) || undefined
+          }
         >
           <Button
             disabled={disabledMenu}

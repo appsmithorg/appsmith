@@ -44,7 +44,7 @@ function* readAndUpdateWidgetPositions(
 
   const widgetDimensions: WidgetPositions = {};
 
-  const mainCanvasElement = document.querySelector(`.${CANVAS_ART_BOARD}`);
+  const mainCanvasElement = document.getElementById(CANVAS_ART_BOARD);
 
   const mainRect = mainCanvasElement?.getBoundingClientRect();
 
