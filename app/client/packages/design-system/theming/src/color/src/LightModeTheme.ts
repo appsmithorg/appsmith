@@ -79,11 +79,13 @@ export class LightModeTheme implements ColorModeTheme {
       fg: this.fg.to("sRGB").toString(),
       fgAccent: this.fgAccent.to("sRGB").toString(),
       fgNeutral: this.fgNeutral.to("sRGB").toString(),
+      fgNeutralSubtle: this.fgNeutralSubtle.to("sRGB").toString(),
       fgPositive: this.fgPositive.to("sRGB").toString(),
       fgNegative: this.fgNegative.to("sRGB").toString(),
       fgWarning: this.fgWarning.to("sRGB").toString(),
 
       fgOnAccent: this.fgOnAccent.to("sRGB").toString(),
+      fgOnAccentSubtle: this.fgOnAccentSubtle.to("sRGB").toString(),
       fgOnAssistive: this.fgOnAssistive.to("sRGB").toString(),
       fgOnNeutral: this.fgOnNeutral.to("sRGB").toString(),
       fgOnPositive: this.fgOnPositive.to("sRGB").toString(),
@@ -665,6 +667,14 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get fgNeutralSubtle() {
+    const color = this.fgNeutral.clone();
+
+    color.oklch.l += 0.3;
+
+    return color;
+  }
+
   private get fgPositive() {
     // Positive foreground is produced from the initially adjusted background color (see above). Additional tweaks are applied to make sure it's distinct from fgAccent when seed is green.
     const color = this.bgPositive.clone();
@@ -738,6 +748,10 @@ export class LightModeTheme implements ColorModeTheme {
     }
 
     return shade;
+  }
+
+  private get fgOnAccentSubtle() {
+    return this.fg.clone();
   }
 
   private get fgOnAssistive() {

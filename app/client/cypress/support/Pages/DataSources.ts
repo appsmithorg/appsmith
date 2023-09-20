@@ -150,7 +150,7 @@ export class DataSources {
     `//div/span[text()='Result:']/span[number(substring-before(normalize-space(text()), ' Record')) >= ${recordCount}]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
-    "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
+    "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox'], input[name='actionConfiguration.formData.preparedStatement.data'][type='checkbox']";
   _queriesOnPageText = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "') .t--queries-for-DB";
   _mockDB = (dbName: string) =>
@@ -1209,17 +1209,13 @@ export class DataSources {
       });
   }
 
-  public ToggleUsePreparedStatement(enable = true || false) {
-    if (enable)
-      cy.get(this._usePreparedStatement).check({
-        force: true,
-      });
-    else
-      cy.get(this._usePreparedStatement).uncheck({
-        force: true,
-      });
-
-    this.agHelper.AssertAutoSave();
+  ToggleUsePreparedStatement(
+    enable = true || false,
+    toNavigateToSettings = false,
+  ) {
+    toNavigateToSettings && this.apiPage.SelectPaneTab("Settings");
+    if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
+    else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
