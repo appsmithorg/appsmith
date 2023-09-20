@@ -206,6 +206,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
                   ? createMessage(SAVE_CHANGES_DISABLED_TOOLTIP_TEXT)
                   : null
               }
+              isDisabled={!isSaveDisabled}
             >
               <span>
                 <Button

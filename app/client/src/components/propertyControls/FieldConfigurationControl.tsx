@@ -140,11 +140,19 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     if (isEmpty(widgetProperties.schema)) {
       const newSchema = {
-        schema: SchemaParser.parse(widgetProperties.widgetName, {}),
+        schema: SchemaParser.parse(widgetProperties.widgetName, {}), // This returns {schema:{},..rest}
       };
-      set(newSchema, path, schemaItem);
 
-      this.updateProperty("schema", newSchema.schema);
+      const { schema: schemaObject } = newSchema; // This is {schema:{},..rest}, the schema will always be empty since the currSourceData is empty
+
+      set(
+        schemaObject,
+        path,
+        schemaItem,
+      ); /* This sets the schemaItem at the path but since the path won't exist it will create the path and set the schemaItem {schema:{schema:{__root_schema__:{}}}}.
+            The __root_schema__ prop is created by lodash set and the added custom filed will be added to the __root_schema__ prop */
+
+      this.updateProperty("schema", schemaObject.schema); // This updates the schema property with the schema property of the newSchema object {schema:{schema:{__root_schema__:{}}}} => {schema:{__root_schema__:{}}}
     } else {
       /**
        * TODO(Ashit): Not suppose to update the whole schema but just

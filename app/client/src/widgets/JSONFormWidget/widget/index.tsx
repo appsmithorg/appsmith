@@ -576,6 +576,24 @@ class JSONFormWidget extends BaseWidget<
           ...payload.modify,
           schema,
         };
+
+        /**
+         * This is an edge case we had to handle as part of one click binding. Previously JSON form widget always had schema because we initialize it with source data and as a result of that
+         * we always had a __root_schema__ field. But now we don't initialize the widget with source data and so the root schema doesn't get generated unless we generate the form.
+         * But there is a case where you can add custom fields before generating the form and in that case we would create the schema with correct custom field path {schema:{__root_schema__:{children:{customField:{}}}}}.
+         * But as you can see it won't have any root schema identifier and properties. Root schema is the base to structure the form and without it the form won't render.
+         * Even now if you just add a custom field the form won't render the field since the root schema is missing. But this fixes an issue where we are not able to render the form on "generate form" when custom fields were added before.
+         * This is because the schema is not updated with the root schema. So this checks whether the root schema is present or not.If not it will update the schema instead of just updating the keys in the source data.
+         */
+      } else if (
+        this.props?.schema &&
+        this.props.schema[ROOT_SCHEMA_KEY] &&
+        this.props.schema[ROOT_SCHEMA_KEY].identifier === undefined
+      ) {
+        payload.modify = {
+          ...payload.modify,
+          schema,
+        };
       } else {
         payload.modify = {
           ...payload.modify,

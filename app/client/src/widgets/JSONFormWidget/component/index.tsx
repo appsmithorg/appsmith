@@ -150,7 +150,7 @@ function JSONFormComponent<TValues>(
 
   const renderRootField = () => {
     const rootSchemaItem = schema[ROOT_SCHEMA_KEY];
-    const RootField = FIELD_MAP[rootSchemaItem.fieldType] || Fragment;
+    const RootField = FIELD_MAP[rootSchemaItem?.fieldType] || Fragment;
     const propertyPath = `schema.${ROOT_SCHEMA_KEY}`;
 
     return (
@@ -175,6 +175,18 @@ function JSONFormComponent<TValues>(
         </InfoMessage>
       );
     }
+
+    if (!isSchemaEmpty && showConnectDataOverlay) {
+      return (
+        <InfoMessage fixHeight={fixMessageHeight}>
+          Source data is empty.&nbsp;
+          {renderMode === RenderModes.PAGE
+            ? "Please contact your developer for more information"
+            : "Source data is required to display custom fields."}
+        </InfoMessage>
+      );
+    }
+
     if (showConnectDataOverlay || isSchemaEmpty) {
       return (
         <div style={{ height: "200px" }}>

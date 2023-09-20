@@ -177,7 +177,6 @@ export const contentConfig = [
           isConnectableToWidget: true, // Whether this widget can be connected to another widget like Table,List etc
           alertMessage: {
             success: {
-              create: createMessage(SUCCESSFULL_BINDING_MESSAGE, "created"),
               update: createMessage(SUCCESSFULL_BINDING_MESSAGE, "updated"),
             }, // Alert message to show when the binding is successful
           },
