@@ -1,14 +1,23 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.*;
-import com.appsmith.server.dtos.*;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ExportFileDTO;
+import com.appsmith.server.dtos.PartialImportExportDTO;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CustomJSLibService;
-import com.appsmith.server.solutions.*;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
@@ -61,29 +70,28 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
         appJson.setActionList(new ArrayList<>());
         appJson.setActionCollectionList(new ArrayList<>());
         appJson.setDatasourceList(new ArrayList<>());
-        Application tempApp = new Application();
+        Application exportedApplication = new Application();
         Set<String> customJSLibSet = new HashSet<>(entities.getCustomJSLibList());
         AclPermission aclPermission = applicationPermission.getExportPermission();
-        return applicationService
-                .findById(applicationId, aclPermission)
-                .flatMap(application -> {
-                    tempApp.setName(application.getName());
-                    appJson.setExportedApplication(tempApp);
-                    return Mono.empty();
-                })
-                .then(exportFilteredCustomJSLib(applicationId, customJSLibSet).flatMap(customJSLibs -> {
-                    appJson.setCustomJSLibList(customJSLibs);
-                    return Mono.just(appJson);
-                }));
+        return applicationService.findById(applicationId, aclPermission).flatMap(application -> {
+            exportedApplication.setName(application.getName());
+            appJson.setExportedApplication(exportedApplication);
+
+            exportFilteredCustomJSLib(applicationId, customJSLibSet).map(customJSLibs -> {
+                appJson.setCustomJSLibList(customJSLibs);
+                return Mono.just(appJson);
+            });
+            return Mono.just(appJson);
+        });
     }
 
     // TODO: As of now, this function is almost the same as the one in ImportExportServiceCEImpl.
     //  Refactor this to avoid duplication
     public Mono<ExportFileDTO> getApplicationFile(String applicationId, PartialImportExportDTO entities) {
         return exportApplicationById(applicationId, entities).map(applicationJson -> {
-            String fileStr = gson.toJson(applicationJson);
+            String stringifiedFile = gson.toJson(applicationJson);
             String applicationName = applicationJson.getExportedApplication().getName();
-            Object jsonObject = gson.fromJson(fileStr, Object.class);
+            Object jsonObject = gson.fromJson(stringifiedFile, Object.class);
             HttpHeaders responseHeaders = new HttpHeaders();
             ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
                     .filename(applicationName + ".json", StandardCharsets.UTF_8)
