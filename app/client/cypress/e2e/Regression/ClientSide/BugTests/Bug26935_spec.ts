@@ -11,7 +11,7 @@ import {
 describe("Bug26935- Widget isLoading property", function () {
   before(() => {
     // Create Api1
-    apiPage.CreateAndFillApi(dataManager.paginationUrl(100, 1));
+    apiPage.CreateAndFillApi(dataManager.paginationUrl(100, 1, 100));
     // Table1
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 100, 100);
 
@@ -40,7 +40,7 @@ describe("Bug26935- Widget isLoading property", function () {
     agHelper.AssertContains("Table1 isLoading: false");
 
     deployMode.DeployApp();
-
+    agHelper.Sleep(2000);
     agHelper.ClickButton("Submit");
     // After triggering API execution, check that isLoading is set to true
     agHelper.AssertContains("Table1 isLoading: true");
