@@ -38,11 +38,19 @@ public class EmailSender {
         REPLY_TO = makeReplyTo();
     }
 
-    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params) {
-        return sendMail(to, subject, text, params, null);
+    public Mono<Boolean> sendMail(
+            String to, String subject, String text, Map<String, ? extends Object> params, String originHeader) {
+        if (originHeader != null && originHeader != this.emailConfig.getBaseURL()) {
+            log.info(
+                    "Origin header {} does not match the configured base URL {}. Not sending email.",
+                    originHeader,
+                    this.emailConfig.getBaseURL());
+            return Mono.just(Boolean.FALSE);
+        }
+        return send(to, subject, text, params, null);
     }
 
-    public Mono<Boolean> sendMail(
+    private Mono<Boolean> send(
             String to, String subject, String text, Map<String, ? extends Object> params, String replyTo) {
 
         /**

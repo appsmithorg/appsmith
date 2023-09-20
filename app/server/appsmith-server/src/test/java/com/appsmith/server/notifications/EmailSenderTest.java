@@ -60,7 +60,8 @@ public class EmailSenderTest {
                                 invalidAddress,
                                 "test-subject",
                                 "email/welcomeUserTemplate.html",
-                                Collections.emptyMap())
+                                Collections.emptyMap(),
+                                "test-cc")
                         .block();
 
                 verifyNoInteractions(javaMailSender);

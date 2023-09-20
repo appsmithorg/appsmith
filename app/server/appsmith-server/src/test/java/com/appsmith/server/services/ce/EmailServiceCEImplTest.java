@@ -88,7 +88,7 @@ class EmailServiceCEImplTest {
                     return Mono.just(true);
                 })
                 .when(mockEmailSender)
-                .sendMail(anyString(), anyString(), anyString(), anyMap());
+                .sendMail(anyString(), anyString(), anyString(), anyMap(), anyString());
 
         emailService.sendForgotPasswordEmail(email, resetUrl, originHeader).block();
     }
@@ -141,7 +141,7 @@ class EmailServiceCEImplTest {
                     return Mono.just(true);
                 })
                 .when(mockEmailSender)
-                .sendMail(anyString(), anyString(), anyString(), anyMap());
+                .sendMail(anyString(), anyString(), anyString(), anyMap(), anyString());
 
         emailService
                 .sendInviteUserToWorkspaceEmail(
@@ -183,7 +183,7 @@ class EmailServiceCEImplTest {
                     return Mono.just(true);
                 })
                 .when(mockEmailSender)
-                .sendMail(anyString(), anyString(), anyString(), anyMap());
+                .sendMail(anyString(), anyString(), anyString(), anyMap(), anyString());
 
         emailService
                 .sendInstanceAdminInviteEmail(invitedUser, invitingUser, originHeader, true)

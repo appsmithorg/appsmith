@@ -408,7 +408,10 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     }
 
                     if (changesCopy.containsKey(APPSMITH_MAIL_FROM.name())) {
+                        final String baseUrl = org.apache.commons.lang3.StringUtils.stripEnd(originHeader, "/");
+
                         emailConfig.setMailFrom(changesCopy.remove(APPSMITH_MAIL_FROM.name()));
+                        emailConfig.setBaseURL(baseUrl);
                     }
 
                     if (changesCopy.containsKey(APPSMITH_REPLY_TO.name())) {

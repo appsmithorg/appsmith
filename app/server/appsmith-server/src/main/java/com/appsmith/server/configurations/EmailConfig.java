@@ -35,6 +35,8 @@ public class EmailConfig {
     @Value("${mail.support}")
     private String supportEmailAddress;
 
+    private String baseURL;
+
     @Autowired
     public void setMailFrom(@Value("${mail.from}") String value) {
         if (!StringUtils.hasText(value)) {

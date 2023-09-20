@@ -36,7 +36,8 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                                 email,
                                 String.format(FORGOT_PASSWORD_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
                                 getForgotPasswordTemplate(),
-                                updatedParams)));
+                                updatedParams,
+                                originHeader)));
     }
 
     @Override
@@ -56,10 +57,14 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         String emailSubject = String.format(WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER, workspaceInvitedTo.getName());
         Map<String, String> params = getInviteToWorkspaceEmailParams(
                 workspaceInvitedTo, invitingUser, inviteUrl, assignedPermissionGroup.getName(), isNewUser);
-        return this.enrichParams(params).flatMap(enrichedParams -> this.enrichWithBrandParams(
-                        enrichedParams, originHeader)
-                .flatMap(updatedParams -> emailSender.sendMail(
-                        invitedUser.getEmail(), emailSubject, getWorkspaceInviteTemplate(isNewUser), updatedParams)));
+        return this.enrichParams(params)
+                .flatMap(enrichedParams -> this.enrichWithBrandParams(enrichedParams, originHeader)
+                        .flatMap(updatedParams -> emailSender.sendMail(
+                                invitedUser.getEmail(),
+                                emailSubject,
+                                getWorkspaceInviteTemplate(isNewUser),
+                                updatedParams,
+                                originHeader)));
     }
 
     @Override
@@ -71,7 +76,8 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                         user.getEmail(),
                         EMAIL_VERIFICATION_EMAIL_SUBJECT,
                         EMAIL_VERIFICATION_EMAIL_TEMPLATE,
-                        updatedParams));
+                        updatedParams,
+                        null));
     }
 
     @Override
@@ -98,7 +104,8 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                         invitedUser.getEmail(),
                         String.format(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT),
                         getAdminInstanceInviteTemplate(),
-                        updatedParams));
+                        updatedParams,
+                        originHeader));
     }
 
     protected Mono<Map<String, String>> enrichParams(Map<String, String> params) {
