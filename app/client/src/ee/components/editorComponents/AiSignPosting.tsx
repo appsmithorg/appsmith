@@ -24,7 +24,7 @@ export function AIPost(props: { title: string }) {
   return (
     <div className="text-sm">
       <Content>
-        Use <span className="font-semibold">/ai</span> command
+        Type in <span className="font-semibold">/ai</span>
       </Content>
       <SubContent className="text-xs mt-2">
         <div className="">{props.title}</div>
