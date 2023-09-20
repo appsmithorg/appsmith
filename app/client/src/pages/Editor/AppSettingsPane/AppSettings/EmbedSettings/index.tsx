@@ -20,8 +20,12 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import MakeApplicationForkable from "./MakeApplicationForkable";
-import EmbedSnippetTab from "@appsmith/pages/Applications/EmbedSnippetTab";
+// eslint-disable-next-line
+import CE_EmbedSnippetTab from "ce/pages/Applications/EmbedSnippetTab";
+import EE_EmbedSnippetTab from "ee/pages/Applications/EmbedSnippetTab";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {
@@ -45,6 +49,9 @@ function EmbedSettings() {
   const isChangingViewAccess = useSelector(getIsChangingViewAccess);
   const isFetchingApplication = useSelector(getIsFetchingApplications);
   const userAppPermissions = application?.userPermissions ?? [];
+  const isPrivateEmbedEnabled = useFeatureFlag(
+    FEATURE_FLAG.license_private_embeds_enabled,
+  );
   const canShareWithPublic = isPermitted(
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
@@ -98,7 +105,11 @@ function EmbedSettings() {
       {canMarkAppForkable && (
         <MakeApplicationForkable application={application} />
       )}
-      <EmbedSnippetTab isAppSettings />
+      {isPrivateEmbedEnabled ? (
+        <EE_EmbedSnippetTab isAppSettings />
+      ) : (
+        <CE_EmbedSnippetTab isAppSettings />
+      )}
     </div>
   );
 }
