@@ -53,7 +53,7 @@ describe("Datasource form related tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.DeleteDatasouceFromWinthinDS(dataSourceName);
+    dataSources.DeleteDatasourceFromWithinDS(dataSourceName);
   });
 
   it(
