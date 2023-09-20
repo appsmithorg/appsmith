@@ -1,9 +1,8 @@
-import type { CSSProperties, DragEventHandler, DragEvent } from "react";
+import type { DragEventHandler, DragEvent } from "react";
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { throttle } from "lodash";
 import { Layer, Stage } from "react-konva";
-import Konva from "konva";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
@@ -15,8 +14,14 @@ import type {
   CanvasPositions,
   WidgetNameData,
   WidgetNamePositionData,
-} from "./WidgetNameTypes";
-import { WidgetNameState } from "./WidgetNameTypes";
+  WIDGET_NAME_TYPE,
+} from "./WidgetNameConstants";
+import {
+  DEFAULT_WIDGET_NAME_CANVAS_HEIGHT,
+  WIDGET_NAME_CANVAS_PADDING,
+  widgetNameWrapperStyle,
+  WIDGET_NAME_CANVAS,
+} from "./WidgetNameConstants";
 import {
   getFocusedWidgetNameData,
   getSelectedWidgetNameData,
@@ -25,29 +30,7 @@ import type { WidgetPosition } from "reducers/entityReducers/widgetPositionsRedu
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
 import type { Stage as CanvasStageType } from "konva/lib/Stage";
 import type { Layer as KonvaLayer } from "konva/lib/Layer";
-import { Colors } from "constants/Colors";
-
-const WIDGET_NAME_CANVAS = "widget-name-canvas";
-const FONT_SIZE = 14;
-const LINE_HEIGHT = Math.floor(FONT_SIZE * 1.2);
-const VERTICAL_PADDING = 4;
-const HORIZONTAL_PADDING = 6;
-const ICON_PADDING = 16;
-
-const HEIGHT = Math.floor(LINE_HEIGHT + VERTICAL_PADDING * 1.5);
-
-const FILL_COLORS = {
-  [WidgetNameState.NORMAL]: Colors.JAFFA_DARK,
-  [WidgetNameState.FOCUSED]: Colors.WATUSI,
-  [WidgetNameState.ERROR]: Colors.DANGER_SOLID,
-};
-const TEXT_COLOR = Colors.WHITE;
-
-type WIDGET_NAME_TYPE = "selected" | "focused";
-
-//Adding this here as Konva accepts this type of path for SVG
-const warningSVGPath =
-  "M 18 9 C 18 13.9706 13.9706 18 9 18 C 4.0294 18 0 13.9706 0 9 C 0 4.0294 4.0294 0 9 0 C 13.9706 0 18 4.0294 18 9 Z M 7.875 3.9375 V 10.125 H 10.125 V 3.9375 H 7.875 Z M 9 14.0625 C 9.6213 14.0625 10.125 13.5588 10.125 12.9375 C 10.125 12.3162 9.6213 11.8125 9 11.8125 C 8.3787 11.8125 7.875 12.3162 7.875 12.9375 C 7.875 13.5588 8.3787 14.0625 9 14.0625 Z";
+import { getWidgetNameComponent } from "./utils";
 
 /**
  * This Component contains logic to draw widget name on canvas
@@ -122,124 +105,13 @@ const OverlayCanvasContainer = (props: {
   }, [wrapperRef?.current, props.canvasWidth]);
 
   /**
-   * Used to calculate the positions of the widget with respect to the HTML Canvas that is rendered by Konva
-   * @param position position of widget with respect to client window in pixels
-   * @returns
-   */
-  const getPositionsForBoundary = (position: WidgetPosition) => {
-    const { left: parentLeft = 0, top: parentTop = 0 } =
-      props.parentRef?.current?.getBoundingClientRect() || {};
-    const { left: canvasLeft = 0, top: canvasTop = 0 } =
-      stageRef?.current?.content?.getBoundingClientRect() || {};
-
-    const leftOffset = parentLeft - canvasLeft;
-    const topOffset = parentTop - canvasTop;
-
-    canvasPositions.current = {
-      ...canvasPositions.current,
-      xDiff: leftOffset,
-      yDiff: topOffset,
-    };
-
-    const left: number = position.left + leftOffset;
-    const top: number = position.top + topOffset - scrollTop.current;
-
-    return { left, top };
-  };
-
-  /**
-   * used to get the Konva Group Element that is a group of all the elements
-   * that are to  be drawn as part of widget name on canvas
-   * @param position Position of widget
-   * @param widgetName widget name
-   * @param widgetNameData widget name data contains more information regarding the widget that helps in determining the state of widget name
-   * @param type if it's either selected or focused widget name
-   */
-  const getWidgetNameComponent = (
-    position: WidgetPosition,
-    widgetName: string,
-    widgetNameData: WidgetNameData,
-    type: WIDGET_NAME_TYPE,
-  ) => {
-    let showIcon = false;
-
-    const { nameState } = widgetNameData;
-
-    if (nameState === WidgetNameState.ERROR) {
-      showIcon = true;
-    }
-
-    //Defining Text Element
-    const textEl = new Konva.Text({
-      fill: TEXT_COLOR,
-      fontFamily: "sans-serif",
-      fontSize: FONT_SIZE,
-      text: widgetName,
-      x: showIcon ? ICON_PADDING + HORIZONTAL_PADDING : HORIZONTAL_PADDING,
-      y: VERTICAL_PADDING,
-    });
-
-    const textWidth: number = textEl.width();
-    const componentWidth: number =
-      textWidth + HORIZONTAL_PADDING * 2 + (showIcon ? ICON_PADDING : 0);
-
-    const { left: widgetLeft, top: widgetTop } =
-      getPositionsForBoundary(position);
-    const left: number = widgetLeft + position.width - componentWidth + 0.5;
-    const top: number = widgetTop - HEIGHT;
-
-    //Store the widget name positions for future use
-    widgetNamePositions.current[type] = {
-      left: left,
-      top: top,
-      width: componentWidth,
-      height: HEIGHT,
-      widgetNameData: widgetNameData,
-    };
-
-    //rectangle encompassing the widget name
-    const rectEl = new Konva.Rect({
-      cornerRadius: [4, 4, 0, 0],
-      fill: FILL_COLORS[nameState],
-      height: HEIGHT,
-      width: componentWidth,
-      x: 0,
-      y: 0,
-    });
-
-    //Icon in widget name componenet in case of error
-    const iconEl = new Konva.Path({
-      x: HORIZONTAL_PADDING,
-      y: VERTICAL_PADDING,
-      data: warningSVGPath,
-      fill: TEXT_COLOR,
-      scaleX: 0.7,
-      scaleY: 0.7,
-    });
-
-    //Group Containing all the elements of that particular widget name
-    const groupEl = new Konva.Group({
-      height: HEIGHT,
-      width: componentWidth,
-      x: left,
-      y: top,
-    });
-
-    groupEl.add(rectEl);
-    groupEl.add(textEl);
-    showIcon && groupEl.add(iconEl);
-
-    return groupEl;
-  };
-
-  /**
    * Method used to add widget name to the Konva canvas' layer
    * @param layer Konva layer onto which the widget name is to be added
    * @param widgetNameData widget name data contains more information regarding the widget that is used in drawing the name
    * @param position position of widget in pixels
    * @param type if it's either selected or focused widget name
    */
-  const addWidgetToCanvas = (
+  const addWidgetNameToCanvas = (
     layer: KonvaLayer,
     widgetNameData: WidgetNameData,
     position: WidgetPosition,
@@ -251,12 +123,27 @@ const OverlayCanvasContainer = (props: {
 
     //Get Widget Name
     if (widgetName) {
-      const widgetNameComponent = getWidgetNameComponent(
+      const {
+        canvasLeftOffset,
+        canvasTopOffset,
+        widgetNameComponent,
+        widgetNamePosition,
+      } = getWidgetNameComponent(
         position,
         widgetName,
         widgetNameData,
-        type,
+        props?.parentRef?.current,
+        stageRef?.current?.content,
+        scrollTop.current,
       );
+
+      widgetNamePositions.current[type] = { ...widgetNamePosition };
+
+      canvasPositions.current = {
+        ...canvasPositions.current,
+        xDiff: canvasLeftOffset,
+        yDiff: canvasTopOffset,
+      };
 
       //Make widget name clickable
       widgetNameComponent.on("click", () => {
@@ -287,14 +174,19 @@ const OverlayCanvasContainer = (props: {
 
       const position = widgetPosition || selectedWidgetPosition;
 
-      addWidgetToCanvas(layer, selectedWidgetNameData, position, "selected");
+      addWidgetNameToCanvas(
+        layer,
+        selectedWidgetNameData,
+        position,
+        "selected",
+      );
     }
 
     //Check and draw focused Widget
     if (focusedWidgetNameData) {
       const { position } = focusedWidgetNameData;
 
-      addWidgetToCanvas(layer, focusedWidgetNameData, position, "focused");
+      addWidgetNameToCanvas(layer, focusedWidgetNameData, position, "focused");
     }
 
     layer.draw();
@@ -445,14 +337,13 @@ const OverlayCanvasContainer = (props: {
   useEffect(() => {
     if (!selectedWidgetNameData && !focusedWidgetNameData) {
       resetCanvas();
-      return;
+    } else {
+      updateSelectedWidgetPositions();
     }
-    updateSelectedWidgetPositions();
   }, [selectedWidgetNameData, focusedWidgetNameData]);
 
   /**
    * Resets canvas when there is nothing to be drawn on canvas
-   * @returns
    */
   const resetCanvas = () => {
     // Resets stored widget position names
@@ -467,31 +358,20 @@ const OverlayCanvasContainer = (props: {
     layer.draw();
   };
 
-  const wrapperStyle: CSSProperties = {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    zIndex: 2,
-    pointerEvents: "none",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    width: "100%",
-    height: "100%",
-  };
-
   return (
     <div
       draggable
       id={WIDGET_NAME_CANVAS}
       onDragStart={handleDragStart}
       ref={wrapperRef}
-      style={wrapperStyle}
+      style={widgetNameWrapperStyle}
     >
       <Stage
-        height={canvasPositions?.current.height || 600}
+        height={
+          canvasPositions?.current.height || DEFAULT_WIDGET_NAME_CANVAS_HEIGHT
+        }
         ref={stageRef}
-        width={props.canvasWidth + 20}
+        width={props.canvasWidth + WIDGET_NAME_CANVAS_PADDING}
       >
         <Layer />
       </Stage>

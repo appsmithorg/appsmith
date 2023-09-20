@@ -1,5 +1,5 @@
-export const AUTO_LAYER = "auto_Layer";
-export const AUTO_WIDGET = "auto_widget";
+export const ANVIL_LAYER = "anvil_layer";
+export const ANVIL_WIDGET = "anvil_widget";
 export const LAYOUT = "layout";
 
 /**
@@ -7,8 +7,8 @@ export const LAYOUT = "layout";
  * @param widgetId
  * @returns
  */
-export const getAutoWidgetId = (widgetId: string) => {
-  return AUTO_WIDGET + "_" + widgetId;
+export const getAnvilWidgetId = (widgetId: string) => {
+  return ANVIL_WIDGET + "_" + widgetId;
 };
 
 /**
@@ -17,8 +17,8 @@ export const getAutoWidgetId = (widgetId: string) => {
  * @param layerIndex
  * @returns
  */
-export const getAutoLayerId = (canvasId: string, layerIndex: number) => {
-  return AUTO_LAYER + "_" + canvasId + "_" + layerIndex;
+export const getAnvilLayerId = (canvasId: string, layerIndex: number) => {
+  return ANVIL_LAYER + "_" + canvasId + "_" + layerIndex;
 };
 
 /**

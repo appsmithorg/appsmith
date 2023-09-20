@@ -4,7 +4,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
 import { all, put, select, takeEvery } from "redux-saga/effects";
 import {
-  getAutoWidgetId,
+  getAnvilWidgetId,
   getLayoutId,
 } from "utils/WidgetPositionsObserver/utils";
 import { getAffectedWidgetsFromLayers } from "./WidgetPositionsUtils";
@@ -52,7 +52,7 @@ function* readAndUpdateWidgetPositions(
 
   //for every affected widget get the bounding client Rect
   for (const widgetId of Object.keys(widgetsToProcess)) {
-    const element = document.getElementById(getAutoWidgetId(widgetId));
+    const element = document.getElementById(getAnvilWidgetId(widgetId));
     if (element) {
       const rect = element.getBoundingClientRect();
       widgetDimensions[widgetId] = {

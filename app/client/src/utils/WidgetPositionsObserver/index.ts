@@ -1,6 +1,6 @@
 import { debounce } from "lodash";
 import type { RefObject } from "react";
-import { AUTO_LAYER, AUTO_WIDGET, LAYOUT } from "./utils";
+import { ANVIL_LAYER, ANVIL_WIDGET, LAYOUT } from "./utils";
 import store from "store";
 import { readWidgetPositions } from "actions/autoLayoutActions";
 
@@ -47,9 +47,9 @@ class WidgetPositionsObserver {
       for (const entry of entries) {
         if (entry?.target?.id) {
           const DOMId = entry?.target?.id;
-          if (DOMId.indexOf(AUTO_WIDGET) > -1) {
+          if (DOMId.indexOf(ANVIL_WIDGET) > -1) {
             this.addWidgetToProcess(DOMId);
-          } else if (DOMId.indexOf(AUTO_LAYER) > -1) {
+          } else if (DOMId.indexOf(ANVIL_LAYER) > -1) {
             this.addLayerToProcess(DOMId);
           } else if (DOMId.indexOf(LAYOUT) > -1) {
             this.addLayoutToProcess(DOMId);

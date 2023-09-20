@@ -46,8 +46,8 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 import { getFocusedWidget, getSelectedWidgets } from "selectors/ui";
 import { getErrorCount } from "layoutSystems/common/widgetName/utils";
-import { WidgetNameState } from "layoutSystems/common/WidgetNamesCanvas/WidgetNameTypes";
-import type { WidgetNameData } from "layoutSystems/common/WidgetNamesCanvas/WidgetNameTypes";
+import { WidgetNameState } from "layoutSystems/common/WidgetNamesCanvas/WidgetNameConstants";
+import type { WidgetNameData } from "layoutSystems/common/WidgetNamesCanvas/WidgetNameConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -182,7 +182,7 @@ const getWidgetNameState = (
   positions: WidgetPositions,
   isFocused = false,
 ): WidgetNameData => {
-  let nameState = isFocused ? WidgetNameState.FOCUSED : WidgetNameState.NORMAL;
+  let nameState = isFocused ? WidgetNameState.FOCUSED : WidgetNameState.DEFAULT;
 
   const widgetName = widget.widgetName;
 
