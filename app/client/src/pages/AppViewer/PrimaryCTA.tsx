@@ -81,10 +81,10 @@ function PrimaryCTA(props: Props) {
     }
   }, []);
 
-  const appendOrDeleteForkParam = (appendOrDelete: "apend" | "delete") => {
+  const appendOrDeleteForkParam = (appendOrDelete: "append" | "delete") => {
     const url = new URL(window.location.href);
 
-    if (appendOrDelete === "apend" && !url.searchParams.has("fork")) {
+    if (appendOrDelete === "append" && !url.searchParams.has("fork")) {
       url.searchParams.append("fork", "true");
       history.push(url.toString().slice(url.origin.length));
     } else if (appendOrDelete === "delete" && url.searchParams.has("fork")) {
@@ -95,7 +95,7 @@ function PrimaryCTA(props: Props) {
 
   const handleForkModalOpen = () => {
     setIsForkModalOpen(true);
-    appendOrDeleteForkParam("apend");
+    appendOrDeleteForkParam("append");
   };
 
   const handleForkModalClose = () => {
