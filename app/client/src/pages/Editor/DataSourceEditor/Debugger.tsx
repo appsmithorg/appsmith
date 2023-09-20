@@ -19,7 +19,7 @@ import Resizable, {
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import Errors from "components/editorComponents/Debugger/Errors";
-import DebbuggerLogs, {
+import DebuggerLogs, {
   LIST_HEADER_HEIGHT,
 } from "components/editorComponents/Debugger/DebuggerLogs";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
@@ -110,7 +110,7 @@ export default function Debugger() {
     {
       key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebbuggerLogs hasShortCut />,
+      panelComponent: <DebuggerLogs hasShortCut />,
     },
     {
       key: DEBUGGER_TAB_KEYS.INSPECT_TAB,

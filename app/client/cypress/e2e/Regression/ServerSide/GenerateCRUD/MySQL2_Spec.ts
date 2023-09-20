@@ -377,7 +377,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     () => {
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );
 

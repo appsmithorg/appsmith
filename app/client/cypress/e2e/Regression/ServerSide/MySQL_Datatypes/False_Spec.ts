@@ -71,7 +71,7 @@ describe("MySQL Datatype tests", function () {
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );
 });

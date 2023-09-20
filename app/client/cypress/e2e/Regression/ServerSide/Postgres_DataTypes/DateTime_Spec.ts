@@ -330,12 +330,12 @@ describe("DateTime Datatype tests", function () {
   });
 
   it("12. Verify Deletion of the datasource after all created queries are deleted", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     entityExplorer.ExpandCollapseEntity("Queries/JS");
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, EmployentityExplorer.s pages are still using this ds
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 200); //ProductLines, EmployentityExplorer.s pages are still using this ds
   });
 });
