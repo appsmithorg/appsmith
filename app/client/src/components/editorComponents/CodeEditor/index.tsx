@@ -144,6 +144,7 @@ import {
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
+import { AskAIButton } from "@appsmith/components/editorComponents/GPT/AskAIButton";
 import classNames from "classnames";
 import {
   APPSMITH_AI,
@@ -1590,6 +1591,16 @@ class CodeEditor extends Component<Props, State> {
           >
             /
           </Button>
+        </div>
+
+        <div className="absolute bottom-[6px] right-[6px] z-4">
+          <AskAIButton
+            entity={entityInformation}
+            mode={this.props.mode}
+            onClick={() => {
+              this.setState({ showAIWindow: true });
+            }}
+          />
         </div>
 
         <EvaluatedValuePopup
