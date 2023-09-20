@@ -1,10 +1,10 @@
-import { getTypographyClassName } from "@design-system/theming";
-import React, { forwardRef } from "react";
-import { StyledText } from "./index.styled";
-import classNames from "classnames";
-
+import clsx from "clsx";
 import type { Ref } from "react";
+import React, { forwardRef } from "react";
+import { getTypographyClassName } from "@design-system/theming";
+
 import type { TextProps } from "./types";
+import { StyledText } from "./index.styled";
 
 const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
   const {
@@ -28,7 +28,7 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
       $lineClamp={lineClamp}
       $textAlign={textAlign}
       $variant={variant}
-      className={classNames(className, getTypographyClassName(variant))}
+      className={clsx(className, getTypographyClassName(variant))}
       color={color}
       ref={ref}
       {...rest}
