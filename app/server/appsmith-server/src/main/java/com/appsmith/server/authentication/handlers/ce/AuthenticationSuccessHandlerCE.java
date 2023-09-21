@@ -400,7 +400,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             Boolean isEnabledForCreateNewApps = tuple.getT2();
 
             if (Boolean.TRUE.equals(isEnabledForCreateNewApps)) {
-                return null;
+                return app;
             }
 
             return app.flatMap(application1 -> applicationPageService.createApplication(application1));
