@@ -98,7 +98,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: failed_spec_ci
-          path: ~/failed_spec_ci
+          path: ~/failed_specs
 
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
@@ -122,7 +122,7 @@ jobs:
                     fi
                 done
               fi
-          done < ~/failed_spec_ci/failed_spec_ci
+          done < ~/failed_specs/failed_spec_ci
           failed_spec_env=${failed_spec_env#,}
           echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV
 
@@ -221,6 +221,7 @@ jobs:
           chrome-version: stable
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+          echo "${{env.BROWSER_PATH}}"
 
       # - name: Set Pull Request Title
       #   env:
@@ -329,7 +330,6 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
-          browser: ${{ env.BROWSER_PATH }}
           install: false
           config-file: cypress_ci_hosted.config.ts
           working-directory: app/client
@@ -400,7 +400,6 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
         with:
-          browser: ${{ env.BROWSER_PATH }}
           install: false
           config-file: cypress_ci_hosted.config.ts
           working-directory: app/client
@@ -456,16 +455,6 @@ jobs:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}
-
-      # - name: get cypress url dashboard url
-      #   id: dashboard_url
-      #   if: always()
-      #   run: |
-      #     if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-      #       echo "" >> $GITHUB_OUTPUT
-      #     elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-      #       echo "" >> $GITHUB_OUTPUT
-      #     fi
 
       - name: Generate slack message
         continue-on-error: true
