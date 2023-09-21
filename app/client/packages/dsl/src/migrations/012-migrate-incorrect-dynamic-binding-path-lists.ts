@@ -6,7 +6,7 @@ import get from "lodash/get";
 import isString from "lodash/isString";
 import memoize from "micro-memoize";
 import { isObject, isUndefined } from "lodash";
-import { generateReactKey } from "./utils";
+import { generateReactKey, isDynamicValue } from "./utils";
 
 export const WidgetHeightLimits = {
   MAX_HEIGHT_IN_ROWS: 9000,
@@ -902,10 +902,6 @@ const getAllPathsFromPropertyConfig = memoize(
   getAllPathsFromPropertyConfigWithoutMemo,
   { maxSize: 1000 },
 );
-
-const DATA_BIND_REGEX = /{{([\s\S]*?)}}/;
-
-const isDynamicValue = (value: string): boolean => DATA_BIND_REGEX.test(value);
 
 export const migrateIncorrectDynamicBindingPathLists = (
   currentDSL: Readonly<DSLWidget>,

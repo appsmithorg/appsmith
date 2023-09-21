@@ -54,7 +54,42 @@ import { migrateCheckboxGroupWidgetInlineProperty } from "./046-migrate-checkbox
 import { migrateRecaptchaType } from "./048-migrate-recaptcha-type";
 import { addPrivateWidgetsToAllListWidgets } from "./049-add-private-widgets-to-all-list-widgets";
 import { migratePhoneInputWidgetAllowFormatting } from "./051-migrate-phone-input-widget-allow-formatting";
+import { migrateModalIconButtonWidget } from "./052-migrate-modal-icon-button-widget";
+import { migrateScrollTruncateProperties } from "./053-migrate-scroll-truncate-property";
+import { migratePhoneInputWidgetDefaultDialCode } from "./054-migrate-phone-input-widget-default-dial-code";
+import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./055-migrate-currency-input-widget-default-currency-code";
+import { migrateRadioGroupAlignmentProperty } from "./056-migrate-radio-group-alignment-property";
+import { migrateStylingPropertiesForTheming } from "./057-migrate-styling-properties-for-theming";
+import { migrateCheckboxSwitchProperty } from "./058-migrate-checkbox-switch-property";
+import { migrateChartWidgetReskinningData } from "./059-migrate-chart-widget-reskinning-data";
+import { migrateTableWidgetV2Validation } from "./060-migrate-table-widget-v2-validation";
+import { MigrateSelectTypeWidgetDefaultValue } from "./062-migrate-select-type-widget-default-value";
+import { migrateMapChartWidgetReskinningData } from "./063-migrate-map-chart-widget-reskinning-data";
+import { migrateRateWidgetDisabledState } from "./064-migrate-rate-widget-disabed-state";
+import { migrateCodeScannerLayout } from "./065-migrate-code-scanner-layout";
+import { migrateTableWidgetV2ValidationBinding } from "./066-migrate-table-widget-v2-validation-binding";
+import { migrateLabelPosition } from "./067-migrate-label-position";
+import { migratePropertiesForDynamicHeight } from "./068-migrate-properties-for-dynamic-height";
+import { migrateMenuButtonDynamicItems } from "./069-migrate-menu-button-dynamic-items";
+import { migrateChildStylesheetFromDynamicBindingPathList } from "./070-migrate-child-stylesheet-from-dynamic-binding-path-list";
+import { migrateTableWidgetV2SelectOption } from "./071-migrate-table-widget-v2-select-option";
+import { migrateListWidgetChildrenForAutoHeight } from "./072-migrate-list-widget-children-for-auto-height";
+import { migrateInputWidgetShowStepArrows } from "./073-mirgate-input-widget-show-step-arrows";
+import { migrateMenuButtonDynamicItemsInsideTableWidget } from "./074-migrate-mwnu-button-dynamic-items-inside-table-widget";
+import { migrateInputWidgetsMultiLineInputType } from "./075-migrate-input-widgets-multiline-input-type";
+import { migrateColumnFreezeAttributes } from "./076-migrate-column-freeze-attributes";
+import { migrateTableSelectOptionAttributesForNewRow } from "./077-migrate-table-select-option-attributes-for-new-row";
+import { migrateBindingPrefixSuffixForInlineEditValidationControl } from "./078-migrate-binding-prefix-suffix-for-inline-edit-validation-control";
+import { migrateTableWidgetTableDataJsMode } from "./079-migrate-table-widget-table-data-js-mode";
+import { migrateSelectWidgetOptionToSourceData } from "./080-migrate-select-widget-option-to-source-data";
+import { migrateSelectWidgetSourceDataBindingPathList } from "./081-migrate-select-widget-source-data-binding-path-list";
+import { migrateChartWidgetLabelOrientationStaggerOption } from "./082-migrate-chart-widget-label-orientation-stagger-option";
+import { migrateAddShowHideDataPointLabels } from "./083-migrate-add-show-hide-data-point-labels";
+import { migrateSelectWidgetAddSourceDataPropertyPathList } from "./084-migrate-select-widget-add-source-data-property-path-list";
+import { migrateDefaultValuesForCustomEChart } from "./085-migrate-default-values-for-custom-echart";
 import type { DSLWidget } from "./types";
+
+export const LATEST_DSL_VERSION = 86;
 
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
@@ -494,7 +529,7 @@ export const migrateDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 85) {
     currentDSL = migrateDefaultValuesForCustomEChart(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = LATEST_DSL_VERSION;
   }
 
   return currentDSL;
