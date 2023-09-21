@@ -9,7 +9,7 @@ import {
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import { get, omit } from "lodash";
-import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import type { XYCord } from "layoutSystems/common/canvasArena/ArenaTypes";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AutoLayoutResizable } from "layoutSystems/autolayout/common/resizer/AutoLayoutResizable";

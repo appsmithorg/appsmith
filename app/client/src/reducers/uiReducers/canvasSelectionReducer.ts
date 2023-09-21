@@ -2,7 +2,7 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import type { XYCord } from "layoutSystems/common/canvasArena/ArenaTypes";
 
 const initialState: CanvasSelectionState = {
   isDraggingForSelection: false,

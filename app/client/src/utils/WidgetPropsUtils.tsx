@@ -24,7 +24,7 @@ import { checkIsDSLAutoLayout } from "../layoutSystems/autolayout/utils/AutoLayo
 import type {
   WidgetDraggingBlock,
   XYCord,
-} from "layoutSystems/common/canvasArenas/ArenaTypes";
+} from "layoutSystems/common/canvasArena/ArenaTypes";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;

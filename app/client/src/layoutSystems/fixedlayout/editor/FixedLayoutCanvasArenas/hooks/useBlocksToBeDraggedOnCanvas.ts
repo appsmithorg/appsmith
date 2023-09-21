@@ -30,7 +30,7 @@ import type {
   WidgetDraggingBlock,
   WidgetDraggingUpdateParams,
   XYCord,
-} from "../../../../common/canvasArenas/ArenaTypes";
+} from "../../../../common/canvasArena/ArenaTypes";
 import {
   getBlocksToDraw,
   getParentDiff,

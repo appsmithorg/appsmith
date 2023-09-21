@@ -22,7 +22,7 @@ import {
   getDropZoneOffsets,
   noCollision,
 } from "utils/WidgetPropsUtils";
-import type { WidgetDraggingBlock, XYCord } from "../canvasArenas/ArenaTypes";
+import type { WidgetDraggingBlock, XYCord } from "../canvasArena/ArenaTypes";
 
 /**
  * Method to get the Direction appropriate to closest edge of the canvas

@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { getZoomLevel } from "selectors/editorSelectors";
 import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import { getAbsolutePixels } from "utils/helpers";
-import type { WidgetDraggingBlock } from "../../../../common/canvasArenas/ArenaTypes";
+import type { WidgetDraggingBlock } from "../../../../common/canvasArena/ArenaTypes";
 import { modifyDrawingRectangles } from "layoutSystems/common/utils/canvasDraggingUtils";
 
 /**
