@@ -117,7 +117,7 @@ describe("Fork application across workspaces", function () {
     });
   });
 
-  it("Mark application as forkable", () => {
+  it("3. Mark application as forkable", () => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.CreateNewApplication();
     appSettings.OpenAppSettings();
