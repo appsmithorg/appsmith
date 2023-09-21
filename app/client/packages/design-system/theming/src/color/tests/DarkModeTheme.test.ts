@@ -580,7 +580,7 @@ describe("fgNeutralSubtle color", () => {
       "oklch(0.45 0.03 60)",
     ).getColors();
 
-    expect(fgNeutralSubtle).toEqual("rgb(42.209% 42.209% 42.209%)");
+    expect(fgNeutralSubtle).toEqual("rgb(59.646% 59.646% 59.646%)");
   });
 });
 
