@@ -66,12 +66,12 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     public Mono<Boolean> sendEmailVerificationEmail(User user, String verificationURL) {
         Map<String, String> params = new HashMap<>();
         params.put(EMAIL_VERIFICATION_URL, verificationURL);
-        return this.enrichParams(params)
+        return this.enrichParams(params).flatMap(enrichedParams -> this.enrichWithBrandParams(enrichedParams, null)
                 .flatMap(updatedParams -> emailSender.sendMail(
                         user.getEmail(),
                         EMAIL_VERIFICATION_EMAIL_SUBJECT,
                         EMAIL_VERIFICATION_EMAIL_TEMPLATE,
-                        updatedParams));
+                        updatedParams)));
     }
 
     @Override
