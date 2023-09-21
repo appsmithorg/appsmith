@@ -52,8 +52,8 @@ export default defineConfig({
     specPattern: [
       "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
       "cypress/e2e/GSheet/**/**/*",
-      "cypress/e2e/Regression/ServerSide/Datasources/Oracle_Spec.ts",
       "cypress/e2e/Regression/ServerSide/Datasources/ElasticSearch_Basic_Spec.ts",
+      "cypress/e2e/Regression/ServerSide/Datasources/Oracle_Spec.ts",
     ],
     testIsolation: false,
     excludeSpecPattern: ["cypress/e2e/**/spec_utility.ts"],
