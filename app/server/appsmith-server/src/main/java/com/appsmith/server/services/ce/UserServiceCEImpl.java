@@ -852,7 +852,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             URLEncoder.encode(emailVerificationToken.getEmail(), StandardCharsets.UTF_8),
                             redirectUrlCopy);
 
-                    return emailService.sendEmailVerificationEmail(user, verificationUrl);
+                    return emailService.sendEmailVerificationEmail(
+                            user, verificationUrl, resendEmailVerificationDTO.getBaseUrl());
                 })
                 .thenReturn(true);
     }
