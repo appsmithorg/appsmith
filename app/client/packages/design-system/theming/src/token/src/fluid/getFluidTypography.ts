@@ -1,7 +1,7 @@
 import type { FluidConfig } from "./types";
 import { calculateScales } from "./calculateScales";
 import type { Typography } from "../../../typography";
-import { TypographyVariant } from "../../../typography";
+import { TYPOGRAPHY_VARIANTS } from "../../../typography";
 import { calculateFluidScales } from "./calculateFluidScales";
 
 export const getFluidTypography = (
@@ -24,7 +24,7 @@ export const getFluidTypography = (
     vw,
   );
 
-  return Object.keys(TypographyVariant).reduce((prev, current, index) => {
+  return Object.keys(TYPOGRAPHY_VARIANTS).reduce((prev, current, index) => {
     return {
       ...prev,
       [current]: {

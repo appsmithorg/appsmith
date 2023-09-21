@@ -960,25 +960,28 @@ public class FileUtilsImpl implements FileInterface {
             // Loop through all the directories and nested directories inside the pages directory to extract
             // pages, actions and actionCollections from the JSON files
             for (File page : Objects.requireNonNull(directory.listFiles())) {
-                pageMap.put(page.getName(), readPageMetadata(page.toPath(), gson));
+                if (page.isDirectory()) {
+                    pageMap.put(page.getName(), readPageMetadata(page.toPath(), gson));
 
-                JSONObject mainContainer = getMainContainer(pageMap.get(page.getName()), gson);
+                    JSONObject mainContainer = getMainContainer(pageMap.get(page.getName()), gson);
 
-                // Read widgets data recursively from the widgets directory
-                Map<String, JSONObject> widgetsData = readWidgetsData(
-                        page.toPath().resolve(CommonConstants.WIDGETS).toString());
-                // Construct the nested DSL from the widgets data
-                Map<String, List<String>> parentDirectories = DSLTransformerHelper.calculateParentDirectories(
-                        widgetsData.keySet().stream().toList());
-                JSONObject nestedDSL = DSLTransformerHelper.getNestedDSL(widgetsData, parentDirectories, mainContainer);
-                pageDsl.put(page.getName(), nestedDSL.toString());
-                actionMap.putAll(
-                        readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
-                actionCollectionMap.putAll(readActionCollection(
-                        page.toPath().resolve(ACTION_COLLECTION_DIRECTORY),
-                        gson,
-                        page.getName(),
-                        actionCollectionBodyMap));
+                    // Read widgets data recursively from the widgets directory
+                    Map<String, JSONObject> widgetsData = readWidgetsData(
+                            page.toPath().resolve(CommonConstants.WIDGETS).toString());
+                    // Construct the nested DSL from the widgets data
+                    Map<String, List<String>> parentDirectories = DSLTransformerHelper.calculateParentDirectories(
+                            widgetsData.keySet().stream().toList());
+                    JSONObject nestedDSL =
+                            DSLTransformerHelper.getNestedDSL(widgetsData, parentDirectories, mainContainer);
+                    pageDsl.put(page.getName(), nestedDSL.toString());
+                    actionMap.putAll(
+                            readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
+                    actionCollectionMap.putAll(readActionCollection(
+                            page.toPath().resolve(ACTION_COLLECTION_DIRECTORY),
+                            gson,
+                            page.getName(),
+                            actionCollectionBodyMap));
+                }
             }
         }
         applicationGitReference.setActions(actionMap);
