@@ -7,6 +7,7 @@ const {
   deployMode,
   entityExplorer,
   locators,
+  propPane,
 } = require("../../../../../support/Objects/ObjectsCore");
 
 describe("JsonForm widget basis c usecases", function () {

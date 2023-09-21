@@ -16,7 +16,7 @@ describe("JSONForm Footer spec", () => {
       name: "John",
     };
     cy.openPropertyPane("jsonformwidget");
-    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+    _.propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
 
     // check if fixed footer enabled
     cy.get(".t--property-control-fixedfooter")

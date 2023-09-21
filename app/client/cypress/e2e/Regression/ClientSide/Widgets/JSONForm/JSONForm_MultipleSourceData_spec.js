@@ -16,7 +16,7 @@ describe("Verify syntax to create Datpicker field type", () => {
     const schema = { Key: "20/03/1992" };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+    _.propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.xpath(jsonform.datepickerContainer).click({
       force: true,
@@ -28,7 +28,7 @@ describe("Verify syntax to create Datpicker field type", () => {
     const schema = { Key: true };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+    _.propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.get(jsonform.switchStatus).should("be.visible");
     cy.get(jsonform.switchStatus).click({ force: true });
@@ -38,7 +38,7 @@ describe("Verify syntax to create Datpicker field type", () => {
     const schema = { Key: "Value@mail.com" };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+    _.propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.xpath(jsonform.emailField).should("be.visible");
     cy.xpath(jsonform.emailField).should("have.value", "Value@mail.com");
@@ -48,7 +48,7 @@ describe("Verify syntax to create Datpicker field type", () => {
     const schema = { Key: "value" };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+    _.propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.get(jsonform.keyInput).should("be.visible");
     cy.get(jsonform.keyInput).should("have.value", "value");
@@ -62,7 +62,7 @@ describe("Verify syntax to create Datpicker field type", () => {
     };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+    _.propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.get(jsonform.settings)
       .first()
