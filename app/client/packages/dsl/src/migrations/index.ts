@@ -1,8 +1,59 @@
+import { flattenDSL } from "../DSL";
 import { updateContainers } from "./001-update-containers";
 import { chartDataMigration } from "./002-chart-data-migration";
 import { mapDataMigration } from "./003-map-data-migration";
 import { singleChartDataMigration } from "./004-single-chart-data-migration";
 import { tabsWidgetTabsPropertyMigration } from "./005-tabs-widget-property-migration";
+import { dynamicPathListMigration } from "./006-dynamic-path-list-migration";
+import { canvasNameConflictMigration } from "./007-canvas-name-conflict-migration";
+import { renamedCanvasNameConflictMigration } from "./008-renamed-canvas-name-conflict-migration";
+import { tableWidgetPropertyPaneMigrations } from "./009-table-widget-property-pane-migration";
+import { addVersionNumberMigration } from "./010-add-version-number-migration";
+import { migrateTablePrimaryColumnsBindings } from "./011-migrate-table-primary-columns-binding";
+import { migrateIncorrectDynamicBindingPathLists } from "./012-migrate-incorrect-dynamic-binding-path-lists";
+import { migrateOldChartData } from "./013-migrate-old-chart-data";
+import { rteDefaultValueMigration } from "./014-rte-default-value-migration";
+import { migrateTextStyleFromTextWidget } from "./015-migrate-text-style-from-text-widget";
+import { migrateChartDataFromArrayToObject } from "./016-migrate-chart-data-from-array-to-object";
+import { migrateTabsData } from "./017-migrate-tabs-data";
+import { migrateInitialValues } from "./018-migrate-initial-values";
+import {
+  getCanvasSnapRows,
+  migrateToNewLayout,
+} from "./019-migrate-to-new-layout";
+import { migrateNewlyAddedTabsWidgetsMissingData } from "./020-migrate-newly-added-tabs-widgets-missing-data";
+import {
+  migrateOverFlowingTabsWidgets,
+  migrateWidgetsWithoutLeftRightColumns,
+} from "./021-migrate-overflowing-tabs-widgets";
+import { migrateTableWidgetParentRowSpaceProperty } from "./022-migrate-table-widget-parent-row-space-property";
+import { addLogBlackListToAllListWidgetChildren } from "./023-add-log-blacklist-to-all-widget-children";
+import { migrateTableWidgetHeaderVisibilityProperties } from "./024-migrate-table-widget-header-visibility-properties";
+import { migrateItemsToListDataInListWidget } from "./025-migrate-items-to-list-data-in-list-widget";
+import { migrateDatePickerMinMaxDate } from "./026-migrate-datepicker-min-max-date";
+import { migrateFilterValueForDropDownWidget } from "./027-migrate-filter-value-for-dropdown-widget";
+import { migrateTablePrimaryColumnsComputedValue } from "./028-migrate-table-primary-columns-computed-value";
+import { migrateToNewMultiSelect } from "./029-migrate-to-new-multiselect";
+import { migrateTableWidgetDelimiterProperties } from "./030-migrate-table-widget-delimiter-properties";
+import { migrateIsDisabledToButtonColumn } from "./031-migrate-is-disabled-to-button-column";
+import { migrateTableDefaultSelectedRow } from "./032-migrate-table-default-selected-row";
+import { migrateMenuButtonWidgetButtonProperties } from "./033-migrate-menu-button-widget-button-properties";
+import { migrateButtonWidgetValidation } from "./034-migrate-button-widget-validation";
+import { migrateInputValidation } from "./035-migrate-input-validation";
+import { revertTableDefaultSelectedRow } from "./036-revert-table-default-selected-row";
+import { migrateTableSanitizeColumnKeys } from "./037-migrate-table-sanitize-column-keys";
+import { migrateResizableModalWidgetProperties } from "./038-migrate-resizable-modal-widget-properties";
+import { migrateTableWidgetSelectedRowBindings } from "./039-migrate-table-widget-selected-row-bindings";
+import { revertButtonStyleToButtonColor } from "./040-revert-button-style-to-button-color";
+import { migrateButtonVariant } from "./041-migrate-button-variant";
+import { migrateMapWidgetIsClickedMarkerCentered } from "./042-migrate-map-widget-is-clicked-marker-centered";
+import { mapAllowHorizontalScrollMigration } from "./043-map-allow-horizontal-scroll-mirgation";
+import { isSortableMigration } from "./044-is-sortable-migration";
+import { migrateTableWidgetIconButtonVariant } from "./045-migrate-table-widget-icon-button-variant";
+import { migrateCheckboxGroupWidgetInlineProperty } from "./046-migrate-checkbox-group-widget-inline-property";
+import { migrateRecaptchaType } from "./048-migrate-recaptcha-type";
+import { addPrivateWidgetsToAllListWidgets } from "./049-add-private-widgets-to-all-list-widgets";
+import { migratePhoneInputWidgetAllowFormatting } from "./051-migrate-phone-input-widget-allow-formatting";
 import type { DSLWidget } from "./types";
 
 // A rudimentary transform function which updates the DSL based on its version.
@@ -96,7 +147,7 @@ export const migrateDSL = (currentDSL: DSLWidget, newPage = false) => {
   }
 
   if (currentDSL.version === 19) {
-    currentDSL.snapColumns = GridDefaults.DEFAULT_GRID_COLUMNS;
+    currentDSL.snapColumns = 64; // GridDefaults.DEFAULT_GRID_COLUMNS;
     currentDSL.snapRows = getCanvasSnapRows(currentDSL.bottomRow);
     if (!newPage) {
       currentDSL = migrateToNewLayout(currentDSL);

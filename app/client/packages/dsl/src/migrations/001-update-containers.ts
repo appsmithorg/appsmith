@@ -1,12 +1,5 @@
-import generate from "nanoid/generate";
 import type { DSLWidget } from "./types";
-
-const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";
-export const generateReactKey = ({
-  prefix = "",
-}: { prefix?: string } = {}): string => {
-  return prefix + generate(ALPHANUMERIC, 10);
-};
+import { generateReactKey } from "./utils";
 
 export const updateContainers = (dsl: DSLWidget) => {
   if (dsl.type === "CONTAINER_WIDGET" || dsl.type === "FORM_WIDGET") {
