@@ -31,8 +31,7 @@ describe("Radio Group Field", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     entityExplorer.SelectEntityByName("JSONForm1");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.openFieldConfiguration("answer");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");
@@ -59,8 +58,7 @@ describe("Radio Group Field", () => {
       colors: ["BLUE"],
     };
     entityExplorer.SelectEntityByName("JSONForm1");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
     // cy.closePropertyPane();
   });
 
@@ -94,8 +92,8 @@ describe("Radio Group Field", () => {
     };
     agHelper.AddDsl("jsonFormDslWithoutSchema");
     entityExplorer.SelectEntityByName("JSONForm1");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
     cy.openFieldConfiguration("color");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select/);
 
@@ -124,9 +122,7 @@ describe("Radio Group Field", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     entityExplorer.SelectEntityByName("JSONForm1");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-
-    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
     cy.openFieldConfiguration("name");
 
     // Add onTextChanged action

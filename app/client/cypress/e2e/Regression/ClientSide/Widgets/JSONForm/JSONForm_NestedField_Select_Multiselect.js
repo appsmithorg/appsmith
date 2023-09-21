@@ -32,8 +32,8 @@ describe("JSONForm select field", () => {
     };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
     cy.openFieldConfiguration("object");
     cy.openFieldConfiguration("select", false);
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
@@ -93,8 +93,8 @@ describe("JSONForm select field", () => {
     };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
     cy.openFieldConfiguration("object");
     cy.openFieldConfiguration("multiselect", false);
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Multiselect$/);

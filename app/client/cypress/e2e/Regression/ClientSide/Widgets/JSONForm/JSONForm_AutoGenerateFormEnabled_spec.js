@@ -39,13 +39,8 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
     };
 
     entityExplorer.SelectEntityByName("JSONForm1");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    propPane.UpdatePropertyFieldValue(
-      "Source data",
-      JSON.stringify(sourceData),
-    );
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
     deployMode.DeployApp();
-    // cy.closePropertyPane();
 
     cy.get(`${fieldPrefix}-name label`).contains("Name");
     cy.get(`${fieldPrefix}-name input`).then((input) => {
@@ -128,16 +123,12 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({
-      force: true,
-    });
-    propPane.UpdatePropertyFieldValue(
+    propPane.EnterJSContext(
       "Source data",
       JSON.stringify(modifiedSourceData),
+      true,
     );
-
     deployMode.DeployApp();
-    // cy.closePropertyPane();
 
     cy.get(`${fieldPrefix}-name label`).contains("Name");
     cy.get(`${fieldPrefix}-name input`).should("have.value", "John");

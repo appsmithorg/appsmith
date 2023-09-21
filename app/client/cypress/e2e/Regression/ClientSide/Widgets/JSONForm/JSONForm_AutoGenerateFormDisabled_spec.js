@@ -44,14 +44,8 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
     };
 
     entityExplorer.SelectEntityByName("JSONForm1");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    propPane.UpdatePropertyFieldValue(
-      "Source data",
-      JSON.stringify(sourceData),
-    );
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
     deployMode.DeployApp();
-
-    // cy.closePropertyPane();
 
     // Fields that should exist
     cy.get(`${fieldPrefix}-name label`).contains("Name");
@@ -146,11 +140,7 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
     };
 
     entityExplorer.SelectEntityByName("JSONForm1");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    propPane.UpdatePropertyFieldValue(
-      "Source data",
-      JSON.stringify(sourceData),
-    );
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
     propPane.TogglePropertyState("Auto generate form", "On");
     deployMode.DeployApp();
 

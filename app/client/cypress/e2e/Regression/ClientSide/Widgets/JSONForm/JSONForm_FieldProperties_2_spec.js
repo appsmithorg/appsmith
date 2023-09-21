@@ -24,8 +24,7 @@ describe("Text Field Property Control", () => {
     };
     agHelper.AddDsl("jsonFormDslWithoutSchema");
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
   });
 
   it("1. Switch Field Property Control - pre condition", () => {
@@ -35,8 +34,7 @@ describe("Text Field Property Control", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
     cy.openFieldConfiguration("switch");
     // assert default property
     cy.get(".t--property-control-defaultselected").contains(
@@ -92,8 +90,8 @@ describe("Text Field Property Control", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
     cy.openFieldConfiguration("state");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select/);
     // assert valid default value
@@ -125,8 +123,7 @@ describe("Text Field Property Control", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
     cy.openFieldConfiguration("hobbies");
     // assert valid default value
     cy.get(".t--property-control-defaultselectedvalues").contains(
@@ -176,8 +173,8 @@ describe("Text Field Property Control", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+
     cy.openFieldConfiguration("radio");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");
     // assert valid default value

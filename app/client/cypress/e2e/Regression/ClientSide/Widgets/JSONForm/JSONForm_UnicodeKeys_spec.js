@@ -32,8 +32,8 @@ describe("JSON Form Widget Unicode keys", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+
     cy.closePropertyPane();
 
     cy.get(`${fieldPrefix}-xn__l2bm1c label`).contains("नाम");
@@ -87,8 +87,12 @@ describe("JSON Form Widget Unicode keys", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(modifiedSourceData));
+    propPane.EnterJSContext(
+      "Source data",
+      JSON.stringify(modifiedSourceData),
+      true,
+    );
+
     cy.closePropertyPane();
 
     cy.get(`${fieldPrefix}-xn____xvdesr5bxbc label`).contains("पहला नाम");
@@ -155,8 +159,8 @@ describe("JSON Form Widget Unicode keys", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+
     cy.closePropertyPane();
 
     const expectedInitialFormData = sourceData;

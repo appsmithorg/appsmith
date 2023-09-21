@@ -42,9 +42,7 @@ describe("JSON Form Widget Array Field", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
-    cy.closePropertyPane();
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
 
     deployMode.DeployApp();
     cy.get(`${education} ${addButton}`).click({ force: true });

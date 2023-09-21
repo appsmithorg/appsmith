@@ -69,8 +69,8 @@ describe("JSONForm RadioGroup Field", () => {
 
     // Apply schema and change the field type to radio group
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
     cy.openFieldConfiguration("binary");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Radio Group$/);
 
@@ -119,8 +119,8 @@ describe("JSONForm RadioGroup Field", () => {
 
     // Apply schema and change the field type to radio group
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
     cy.openFieldConfiguration("accept");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Radio Group$/);
 

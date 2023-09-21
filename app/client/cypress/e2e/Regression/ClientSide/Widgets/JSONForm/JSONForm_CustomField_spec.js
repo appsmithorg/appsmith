@@ -54,11 +54,7 @@ describe("JSON Form Widget Custom Field", () => {
 
     entityExplorer.SelectEntityByName("JSONForm1");
     propPane.NavigateBackToPropertyPane();
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    propPane.UpdatePropertyFieldValue(
-      "Source data",
-      JSON.stringify(sourceData),
-    );
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
     deployMode.DeployApp();
 
     cy.wait(500);

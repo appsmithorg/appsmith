@@ -121,8 +121,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     // make name field required
     cy.openFieldConfiguration("name");
@@ -146,8 +145,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     // make name field required
     cy.openFieldConfiguration("name");
@@ -181,8 +179,7 @@ describe("JSON Form Widget Form Bindings", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.togglebar(`${propertyControlPrefix}-hiddenfieldsindata input`);
 
@@ -208,8 +205,7 @@ describe("JSON Form Widget Form Bindings", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.togglebarDisable(`${propertyControlPrefix}-hiddenfieldsindata input`);
 
