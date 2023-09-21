@@ -109,7 +109,10 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
     function () {
       agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
       entityExplorer.PinUnpinEntityExplorer(true);
-      const menu = Object.keys(ExplorerMenu);
+      // We cannot add libraries on airgap
+      const menu = Object.keys(ExplorerMenu).filter(
+        (menu) => menu !== ExplorerMenu.ADD_LIBRARY,
+      );
 
       Cypress._.times(menu.length - 1, (index) => {
         OpenExplorerMenu(menu[index]);
