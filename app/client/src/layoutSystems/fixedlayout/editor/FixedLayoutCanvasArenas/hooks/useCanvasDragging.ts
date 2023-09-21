@@ -29,10 +29,10 @@ import {
   modifyDrawingRectangles,
   updateRectanglesPostReflow,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
-import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
+import type { WidgetDraggingBlock } from "../../../../common/canvasArenas/ArenaTypes";
 import { useBlocksToBeDraggedOnCanvas } from "./useBlocksToBeDraggedOnCanvas";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
-import { useCanvasDragToScroll } from "layoutSystems/common/CanvasArenas/useCanvasDragToScroll";
+import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
 
 /**
