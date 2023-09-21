@@ -127,8 +127,6 @@ class JSONFormWidget extends BaseWidget<
 
   static type = "JSON_FORM_WIDGET";
 
-  static preloadConfig = true;
-
   static getConfig() {
     return {
       name: "JSON Form",

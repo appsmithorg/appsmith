@@ -863,6 +863,7 @@ const PropertyControl = memo((props: Props) => {
             customJSControl,
             additionAutocomplete,
             hideEvaluatedValue(),
+            props.isSearchResult,
           )}
           <PropertyPaneHelperText helperText={helperText} />
         </ControlWrapper>

@@ -75,12 +75,6 @@ abstract class BaseWidget<
 > extends Component<T, K> {
   static contextType = EditorContext;
 
-  /*
-   * Turning on this flag will preload all the widget configs like
-   * derivedProperties, propertyPaneconfig etc into the widgetFactory.
-   */
-  static preloadConfig = false;
-
   context!: React.ContextType<Context<EditorContextType<TCache>>>;
 
   static type = "BASE_WIDGET";
@@ -115,11 +109,15 @@ abstract class BaseWidget<
     return [];
   }
 
-  static getPropertyPaneContentConfig(): PropertyPaneConfig[] {
+  static getPropertyPaneContentConfig(
+    widget?: WidgetProps,
+  ): PropertyPaneConfig[] {
     return [];
   }
 
-  static getPropertyPaneStyleConfig(): PropertyPaneConfig[] {
+  static getPropertyPaneStyleConfig(
+    widget?: WidgetProps,
+  ): PropertyPaneConfig[] {
     return [];
   }
 

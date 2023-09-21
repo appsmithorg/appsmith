@@ -1,4 +1,7 @@
-import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type {
+  PropertyPaneConfig,
+  PropertyPaneSectionConfig,
+} from "constants/PropertyControlConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { RenderMode } from "constants/WidgetConstants";
 import * as log from "loglevel";
@@ -29,6 +32,7 @@ import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
 // import { WIDGETS_COUNT } from "widgets";
 import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
+import produce from "immer";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -62,23 +66,9 @@ class WidgetFactory {
       WidgetFactory.widgetBuilderMap.set(widget.type, builder);
 
       WidgetFactory.configureWidget(widget);
-
-      WidgetFactory.preloadConfig(widget);
     }
 
     log.debug("Widget registration took: ", performance.now() - start, "ms");
-  }
-
-  private static preloadConfig(widget: typeof BaseWidget) {
-    if (widget.preloadConfig) {
-      // Call functions so we can store the configs in the memo cache
-      WidgetFactory.getWidgetPropertyPaneCombinedConfig(widget.type);
-      WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
-      WidgetFactory.getWidgetPropertyPaneContentConfig(widget.type);
-      WidgetFactory.getWidgetPropertyPaneStyleConfig(widget.type);
-      WidgetFactory.getWidgetPropertyPaneSearchConfig(widget.type);
-      WidgetFactory.getWidgetAutoLayoutConfig(widget.type);
-    }
   }
 
   private static configureWidget(widget: typeof BaseWidget) {
@@ -242,18 +232,19 @@ class WidgetFactory {
   @freeze
   static getWidgetPropertyPaneCombinedConfig(
     type: WidgetType,
+    widgetProperties: WidgetProps,
   ): readonly PropertyPaneConfig[] {
-    const contentConfig =
-      WidgetFactory.getWidgetPropertyPaneContentConfig(type);
+    const contentConfig = WidgetFactory.getWidgetPropertyPaneContentConfig(
+      type,
+      widgetProperties,
+    );
     const styleConfig = WidgetFactory.getWidgetPropertyPaneStyleConfig(type);
     return [...contentConfig, ...styleConfig];
   }
 
   @memoize
   @freeze
-  static getWidgetPropertyPaneConfig(
-    type: WidgetType,
-  ): readonly PropertyPaneConfig[] {
+  private static getWidgetPropertyPaneConfigWithMemo(type: WidgetType) {
     const widget = WidgetFactory.widgetsMap.get(type);
 
     const propertyPaneConfig = widget?.getPropertyPaneConfig();
@@ -265,13 +256,28 @@ class WidgetFactory {
         enhancePropertyPaneConfig,
         convertFunctionsToString,
         addPropertyConfigIds,
-        Object.freeze,
       ]);
       const enhancedPropertyPaneConfig = enhance(propertyPaneConfig, features);
 
       return enhancedPropertyPaneConfig;
+    }
+  }
+
+  @memoize
+  static getWidgetPropertyPaneConfig(
+    type: WidgetType,
+    widgetProperties: WidgetProps,
+  ): readonly PropertyPaneConfig[] {
+    const propertyPaneConfig =
+      WidgetFactory.getWidgetPropertyPaneConfigWithMemo(type);
+
+    if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
+      return propertyPaneConfig;
     } else {
-      const config = WidgetFactory.getWidgetPropertyPaneCombinedConfig(type);
+      const config = WidgetFactory.getWidgetPropertyPaneCombinedConfig(
+        type,
+        widgetProperties,
+      );
 
       if (config === undefined) {
         log.error("Widget property pane config not defined", type);
@@ -283,10 +289,9 @@ class WidgetFactory {
   }
 
   @memoize
-  @freeze
-  static getWidgetPropertyPaneContentConfig(
+  private static getWidgetPropertyPaneContentConfigWithDynamicPropertyGenerator(
     type: WidgetType,
-  ): readonly PropertyPaneConfig[] {
+  ) {
     const widget = WidgetFactory.widgetsMap.get(type);
 
     const propertyPaneContentConfig = widget?.getPropertyPaneContentConfig();
@@ -299,7 +304,6 @@ class WidgetFactory {
         convertFunctionsToString,
         addPropertyConfigIds,
         addSearchConfigToPanelConfig,
-        Object.freeze,
       ]);
 
       const enhancedPropertyPaneContentConfig = enhance(
@@ -313,6 +317,36 @@ class WidgetFactory {
     } else {
       return [];
     }
+  }
+
+  @memoize
+  @freeze
+  static getWidgetPropertyPaneContentConfig(
+    type: WidgetType,
+    widgetProperties: WidgetProps,
+  ): readonly PropertyPaneConfig[] {
+    const propertyPaneContentConfigWithDynamicPropertyGenerator: PropertyPaneSectionConfig[] =
+      WidgetFactory.getWidgetPropertyPaneContentConfigWithDynamicPropertyGenerator(
+        type,
+      );
+
+    return propertyPaneContentConfigWithDynamicPropertyGenerator.map(
+      (section: PropertyPaneSectionConfig) => {
+        if (section.hasDynamicProperties) {
+          const dynamicProperties =
+            section.generateDynamicProperty(widgetProperties);
+
+          if (dynamicProperties.length) {
+            addPropertyConfigIds(dynamicProperties);
+            section = produce(section, (draft) => {
+              draft.children = [...dynamicProperties, ...section.children];
+            });
+          }
+        }
+
+        return section;
+      },
+    );
   }
 
   @memoize
@@ -332,7 +366,6 @@ class WidgetFactory {
         convertFunctionsToString,
         addPropertyConfigIds,
         addSearchConfigToPanelConfig,
-        Object.freeze,
       ]);
 
       const enhancedPropertyPaneConfig = enhance(
@@ -351,9 +384,10 @@ class WidgetFactory {
   @freeze
   static getWidgetPropertyPaneSearchConfig(
     type: WidgetType,
+    widgetProperties: WidgetProps,
   ): readonly PropertyPaneConfig[] {
     const config = generatePropertyPaneSearchConfig(
-      WidgetFactory.getWidgetPropertyPaneContentConfig(type),
+      WidgetFactory.getWidgetPropertyPaneContentConfig(type, widgetProperties),
       WidgetFactory.getWidgetPropertyPaneStyleConfig(type),
     );
 
@@ -497,3 +531,14 @@ export interface WidgetCreationException {
 }
 
 export default WidgetFactory;
+
+const fnString = "";
+
+const safefnString = `
+function safeFunction(){
+  const window = undefined;
+  const document = undefined;
+  const $ = undefined;
+  const oldFn = ${fnString}; return oldFn();
+}
+`;

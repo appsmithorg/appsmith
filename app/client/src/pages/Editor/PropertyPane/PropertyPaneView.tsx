@@ -237,6 +237,7 @@ function PropertyPaneView(
   const isContentConfigAvailable =
     WidgetFactory.getWidgetPropertyPaneContentConfig(
       widgetProperties.type,
+      widgetProperties,
     ).length;
 
   const isStyleConfigAvailable = WidgetFactory.getWidgetPropertyPaneStyleConfig(
@@ -288,6 +289,7 @@ function PropertyPaneView(
               <PropertyControlsGenerator
                 config={WidgetFactory.getWidgetPropertyPaneSearchConfig(
                   widgetProperties.type,
+                  widgetProperties,
                 )}
                 id={widgetProperties.widgetId}
                 panel={panel}
@@ -302,6 +304,7 @@ function PropertyPaneView(
                     <PropertyControlsGenerator
                       config={WidgetFactory.getWidgetPropertyPaneContentConfig(
                         widgetProperties.type,
+                        widgetProperties,
                       )}
                       id={widgetProperties.widgetId}
                       panel={panel}
@@ -330,6 +333,7 @@ function PropertyPaneView(
           <PropertyControlsGenerator
             config={WidgetFactory.getWidgetPropertyPaneConfig(
               widgetProperties.type,
+              widgetProperties,
             )}
             id={widgetProperties.widgetId}
             panel={panel}

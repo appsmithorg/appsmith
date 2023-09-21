@@ -14,6 +14,7 @@ export const migrateIncorrectDynamicBindingPathLists = (
   const dynamicBindingPathList: DynamicPath[] = [];
   const propertyPaneConfig = WidgetFactory.getWidgetPropertyPaneConfig(
     currentDSL.type,
+    currentDSL,
   );
   const { bindingPaths } = getAllPathsFromPropertyConfig(
     currentDSL,

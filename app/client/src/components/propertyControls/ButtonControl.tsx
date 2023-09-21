@@ -3,12 +3,14 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { Button } from "design-system";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export type OnButtonClickProps = {
   props: ControlProps;
   updateProperty: (propertyName: string, propertyValue: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;
   batchUpdateProperties: (updates: Record<string, unknown>) => void;
+  widgetProperties: WidgetProps;
 };
 
 export type ButtonControlProps = ControlProps & {
@@ -36,6 +38,7 @@ class ButtonControl extends BaseControl<
       updateProperty: this.updateProperty,
       deleteProperties: this.deleteProperties,
       batchUpdateProperties: this.batchUpdateProperties,
+      widgetProperties: this.props.widgetProperties,
     });
     this.disableLoading();
   };

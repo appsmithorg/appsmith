@@ -59,6 +59,7 @@ import CodeScannerWidget from "./CodeScannerWidget";
 import ListWidgetV2 from "./ListWidgetV2";
 import { ButtonWidget as ButtonWidgetV2 } from "./ButtonWidgetV2";
 import type BaseWidget from "./BaseWidget";
+import ExternalWidget from "./ExternalWidget";
 
 const Widgets = [
   CanvasWidget,
@@ -111,6 +112,7 @@ const Widgets = [
   CodeScannerWidget,
   ListWidgetV2,
   ButtonWidgetV2,
+  ExternalWidget,
 
   //Deprecated Widgets
   InputWidget,

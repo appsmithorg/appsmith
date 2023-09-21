@@ -182,6 +182,7 @@ const generateDataTreeWidgetWithoutMeta = (
 
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
+    widget,
   );
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
   // Ensure all dynamic bindings are strings as they will be evaluated
