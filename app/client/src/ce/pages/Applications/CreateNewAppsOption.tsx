@@ -27,7 +27,6 @@ import {
 } from "@appsmith/constants/messages";
 import Filters from "pages/Templates/Filters";
 import { isEmpty } from "lodash";
-import { Colors } from "constants/Colors";
 import StartScratch from "assets/images/start-from-scratch.svg";
 import StartTemplate from "assets/images/start-from-template.svg";
 
@@ -47,8 +46,8 @@ const BackWrapper = styled.div`
   ${(props) => `
     top: ${props.theme.homePage.header}px;
     `}
-  background: ${Colors.WHITE};
-  padding: var(--ads-v2-spaces-3) 0;
+  background: var(--ads-color-background);
+  padding: var(--ads-v2-spaces-3);
   z-index: 1;
 `;
 
@@ -56,10 +55,12 @@ const FiltersWrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
   display: flex;
-  padding: 16px 16px 0;
   flex-direction: column;
   border-right: 1px solid var(--ads-v2-color-border);
   flex-shrink: 0;
+  .filter-wrapper {
+    height: 100%;
+  }
 `;
 
 const TemplateWrapper = styled.div`
@@ -91,7 +92,7 @@ const CardContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 48px;
-  border: 1px solid #cdd5df;
+  border: 1px solid var(--ads-v2-color-border);
   width: 324px;
   align-items: center;
   text-align: center;
@@ -119,7 +120,7 @@ const Card = ({ onClick, src, subTitle, title }: CardProps) => {
   );
 };
 
-export const CreateNewAppsOption = ({
+const CreateNewAppsOption = ({
   currentSelectedWorkspace,
   onClickBack,
   startFromScratch,
@@ -212,3 +213,5 @@ export const CreateNewAppsOption = ({
     </SectionWrapper>
   );
 };
+
+export default CreateNewAppsOption;

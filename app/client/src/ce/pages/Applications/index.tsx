@@ -98,7 +98,7 @@ import ApplicationCardList from "@appsmith/pages/Applications/ApplicationCardLis
 import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
-import { CreateNewAppsOption } from "./CreateNewAppsOption";
+import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
