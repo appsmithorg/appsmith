@@ -60,7 +60,7 @@ public class PartialImportExportServiceCEImpl implements PartialImportExportServ
     private Mono<List<CustomJSLib>> exportFilteredCustomJSLibs(String applicationId, Set<String> customJSLibSet) {
         return customJSLibService
                 .getAllJSLibsInApplicationForExport(applicationId, null, false)
-                .flatMap(customJSLibs -> {
+                .map(customJSLibs -> {
                     List<CustomJSLib> updatedCustomJSLibList = customJSLibs.stream()
                             .filter(customJSLib -> customJSLibSet.contains(customJSLib.getName()))
                             .toList();
