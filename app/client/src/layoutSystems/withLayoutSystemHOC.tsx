@@ -3,10 +3,7 @@ import type { RenderModes } from "constants/WidgetConstants";
 import React from "react";
 import { useSelector } from "react-redux";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import {
-  getAppPositioningType,
-  getRenderMode,
-} from "selectors/editorSelectors";
+import { getRenderMode } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAutoLayoutSystem } from "./autolayout";
 import { getFixedLayoutSystem } from "./fixedlayout";
@@ -39,7 +36,9 @@ const LayoutSystemWrapper = ({
   Widget: (props: WidgetProps) => any;
 }) => {
   const renderMode = useSelector(getRenderMode);
-  const appPositioningType = useSelector(getAppPositioningType);
+  // TODO: Remove this hard coding once the feature flag for Avil is ready
+  // const appPositioningType = useSelector(getAppPositioningType);
+  const appPositioningType = AppPositioningTypes.ANVIL;
   // based on appPositioningType and renderMode
   // get the layout system wrapper(adds layout system specific functionality) and
   // properties enhancer(adds/modifies properties of a widget based on layout system)
