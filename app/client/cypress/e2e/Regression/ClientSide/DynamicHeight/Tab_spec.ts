@@ -19,6 +19,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TAB))
       .then((currentHeight: number) => {
         agHelper.GetNClick(propPane._tabId2);
+        agHelper.Sleep(1000);
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TAB))
           .then((updatedHeight: number) => {
@@ -42,6 +43,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TAB))
       .then((currentHeight) => {
         agHelper.GetNClick(propPane._tabId2);
+        agHelper.Sleep(1000);
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TAB))
           .then((updatedHeight: number) => {

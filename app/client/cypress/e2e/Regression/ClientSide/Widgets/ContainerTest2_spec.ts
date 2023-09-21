@@ -33,8 +33,9 @@ describe("Rich Text Editor widget Tests", function () {
 
     // Copy and paste widget using cmd+c and cmd+v
     entityExplorer.SelectEntityByName("NewContainer", "Widgets");
-    agHelper.GetElement("body").type(`{cmd}}{c}`);
-    agHelper.GetElement("body").type(`{cmd}}{v}`);
+    agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{c}`);
+    agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{v}`);
+    agHelper.Sleep(1000);
     entityExplorer.ExpandCollapseEntity("NewContainer");
     entityExplorer.AssertEntityPresenceInExplorer("NewContainerCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewContainerCopy");
@@ -76,8 +77,8 @@ describe("Rich Text Editor widget Tests", function () {
     entityExplorer.SelectEntityByName("Input1", "Widgets", true);
     entityExplorer.SelectEntityByName("Select1", "Widgets", true);
     entityExplorer.SelectEntityByName("Text3", "Widgets", true);
-
-    agHelper.GetElement("body").type("{cmd}{g}");
+    agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{g}`);
+    agHelper.Sleep(1000);
     entityExplorer.AssertEntityPresenceInExplorer("Container3");
     entityExplorer.DeleteWidgetFromEntityExplorer("Container3");
   });
