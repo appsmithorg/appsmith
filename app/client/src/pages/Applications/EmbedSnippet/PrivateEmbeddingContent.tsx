@@ -20,6 +20,7 @@ import {
 } from "@appsmith/selectors/rampSelectors";
 import BusinessTag from "components/BusinessTag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 function PrivateEmbeddingContent(props: {
   userAppPermissions: any[];
@@ -52,10 +53,13 @@ export function PrivateEmbedRampModal() {
     feature: RampFeature.PrivateEmbeds,
   });
   const rampLink = useSelector(rampLinkSelector);
+  const isPrivateEmbedEnabled = useFeatureFlag(
+    FEATURE_FLAG.license_private_embeds_enabled,
+  );
   const showRampSelector = showProductRamps(
     RAMP_NAME.PRIVATE_EMBED,
     false,
-    FEATURE_FLAG.license_private_embeds_enabled,
+    isPrivateEmbedEnabled,
   );
   const canShowRamp = useSelector(showRampSelector);
   if (canShowRamp) {
@@ -97,10 +101,13 @@ export function PrivateEmbedRampSidebar() {
     feature: RampFeature.PrivateEmbeds,
   });
   const rampLink = useSelector(rampLinkSelector);
+  const isPrivateEmbedEnabled = useFeatureFlag(
+    FEATURE_FLAG.license_private_embeds_enabled,
+  );
   const showRampSelector = showProductRamps(
     RAMP_NAME.PRIVATE_EMBED,
     false,
-    FEATURE_FLAG.license_private_embeds_enabled,
+    isPrivateEmbedEnabled,
   );
   const canShowRamp = useSelector(showRampSelector);
   if (canShowRamp) {

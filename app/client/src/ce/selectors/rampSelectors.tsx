@@ -11,7 +11,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 
 const { cloudHosting, pricingUrl } = getAppsmithConfigs();
 
@@ -37,7 +36,7 @@ export const showProductRamps = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isEnterpriseOnlyFeature = false,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  featureFlagName?: FeatureFlag,
+  isFeatureFlagEnabled?: boolean,
 ) =>
   createSelector(uiState, (ui) => {
     function getUserRoleInWorkspace() {
