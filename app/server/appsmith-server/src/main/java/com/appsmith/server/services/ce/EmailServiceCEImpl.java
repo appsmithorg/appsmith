@@ -63,15 +63,16 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     }
 
     @Override
-    public Mono<Boolean> sendEmailVerificationEmail(User user, String verificationURL) {
+    public Mono<Boolean> sendEmailVerificationEmail(User user, String verificationURL, String originHeader) {
         Map<String, String> params = new HashMap<>();
         params.put(EMAIL_VERIFICATION_URL, verificationURL);
         return this.enrichParams(params)
-                .flatMap(updatedParams -> emailSender.sendMail(
-                        user.getEmail(),
-                        EMAIL_VERIFICATION_EMAIL_SUBJECT,
-                        EMAIL_VERIFICATION_EMAIL_TEMPLATE,
-                        updatedParams));
+                .flatMap(enrichedParams -> this.enrichWithBrandParams(enrichedParams, originHeader)
+                        .flatMap(updatedParams -> emailSender.sendMail(
+                                user.getEmail(),
+                                EMAIL_VERIFICATION_EMAIL_SUBJECT,
+                                getEmailVerificationTemplate(),
+                                updatedParams)));
     }
 
     @Override
@@ -121,6 +122,10 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         if (isNewUser) return INVITE_WORKSPACE_TEMPLATE_NEW_USER_CE;
 
         return INVITE_WORKSPACE_TEMPLATE_EXISTING_USER_CE;
+    }
+
+    protected String getEmailVerificationTemplate() {
+        return EMAIL_VERIFICATION_EMAIL_TEMPLATE_CE;
     }
 
     protected String getAdminInstanceInviteTemplate() {
