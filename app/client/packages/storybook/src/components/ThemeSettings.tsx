@@ -2,7 +2,7 @@ import { Form } from "@storybook/components";
 import React, { useCallback } from "react";
 import { Flex, Text } from "@design-system/widgets";
 import { ColorControl, BooleanControl, NumberControl } from "@storybook/blocks";
-import { fontMetrics } from "@design-system/theming";
+import { FONT_METRICS } from "@design-system/theming";
 import styled from "styled-components";
 import { debounce } from "lodash";
 import { AddonPanel } from "@storybook/components";
@@ -109,7 +109,7 @@ export const ThemeSettings = ({
               title="Font Family"
             >
               <option value="">System Default</option>
-              {Object.keys(fontMetrics)
+              {Object.keys(FONT_METRICS)
                 .filter((item) => {
                   return (
                     [
