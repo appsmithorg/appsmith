@@ -119,8 +119,10 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitCloudSer
 app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitDeployKeyGenerator.java @AnaghHegde @nayan-rafiq
 app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitFileUtils.java @AnaghHegde @nayan-rafiq
 app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitUtils.java @AnaghHegde @nayan-rafiq
+app/client/src/pages/Editor/gitSync/* @brayn003
 
-
+# DSL Package
+app/client/packages/dsl/* @brayn003
 
 # Data Platform
 
@@ -210,7 +212,7 @@ app/client/cypress/e2e/Regression/ClientSide/Github/**/* @ankitakinger
 app/client/cypress/e2e/Regression/ClientSide/FormLogin/**/* @ankitakinger
 app/client/cypress/e2e/Regression/ClientSide/Auditlogs/**/* @ankitakinger
 
-#FE pod
+# FE pod
 app/client/src/actions/evaluationActions.ts @ApekshaBhosale
 app/client/src/ce/entities/DataTree/**/* @ApekshaBhosale
 app/client/src/ce/entities/DependencyMap/**/* @ApekshaBhosale
