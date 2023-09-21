@@ -19,6 +19,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -74,6 +75,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
     private final Scheduler scheduler;
+    private final UserUtils userUtils;
 
     // Based on information provided on the Branding page.
     private static final int MAX_LOGO_SIZE_KB = 2048;
@@ -99,7 +101,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             CacheableFeatureFlagHelper cacheableFeatureFlagHelper,
             SessionLimiterService sessionLimiterService,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
-            BrandingService brandingService) {
+            BrandingService brandingService,
+            UserUtils userUtils) {
 
         super(
                 scheduler,
@@ -123,6 +126,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         this.sessionLimiterService = sessionLimiterService;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
         this.scheduler = scheduler;
+        this.userUtils = userUtils;
     }
 
     @Override
@@ -595,9 +599,33 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     @Override
     protected Mono<Tenant> getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
         TenantConfiguration tenantConfiguration = dbTenant.getTenantConfiguration();
-        return brandingService.getTenantConfiguration(tenantConfiguration).flatMap(updatedTenantConfiguration -> {
-            dbTenant.setTenantConfiguration(updatedTenantConfiguration);
-            return super.getClientPertinentTenant(dbTenant, clientTenant);
-        });
+        return brandingService
+                .getTenantConfiguration(tenantConfiguration)
+                .map(updatedTenantConfiguration -> {
+                    dbTenant.setTenantConfiguration(updatedTenantConfiguration);
+                    return dbTenant;
+                })
+                .flatMap(updatedDbTenant -> {
+                    // if user is superuser, then only return subscription details
+                    return sessionUserService
+                            .getCurrentUser()
+                            .flatMap(userUtils::isSuperUser)
+                            .map(isSuperUser -> {
+                                if (!isSuperUser
+                                        && updatedDbTenant.getTenantConfiguration() != null
+                                        && updatedDbTenant
+                                                        .getTenantConfiguration()
+                                                        .getLicense()
+                                                != null) {
+                                    updatedDbTenant
+                                            .getTenantConfiguration()
+                                            .getLicense()
+                                            .setSubscriptionDetails(null);
+                                }
+                                return updatedDbTenant;
+                            })
+                            .switchIfEmpty(Mono.just(updatedDbTenant));
+                })
+                .flatMap(updatedDbTenant -> super.getClientPertinentTenant(updatedDbTenant, clientTenant));
     }
 }

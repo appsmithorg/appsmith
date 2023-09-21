@@ -696,6 +696,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @WithUserDetails("api_user")
     public void emailVerificationTokenGenerate_WhenInstanceEmailVerificationIsNotEnabled_ThrowsException() {
         String testEmail = "test-email-for-verification";
 

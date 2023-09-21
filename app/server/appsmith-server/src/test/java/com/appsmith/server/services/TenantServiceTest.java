@@ -10,6 +10,7 @@ import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.SubscriptionDetails;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
@@ -53,6 +54,7 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -926,5 +928,55 @@ public class TenantServiceTest {
         assertThat(newTenantConfiguration1.getIsActivated()).isFalse();
         assertTenantConfigurations(
                 newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, true, false);
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_updateDefaultTenantConfiguration_subscriptionDetailsInLicense() {
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
+        TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
+        defaultTenantConfiguration.setLicense(new License());
+        SubscriptionDetails subscriptionDetails = new SubscriptionDetails();
+        subscriptionDetails.setSubscriptionStatus("ACTIVE");
+        subscriptionDetails.setUsers(10);
+        subscriptionDetails.setSessions(100);
+        subscriptionDetails.setEndDate(Instant.now().plus(100, ChronoUnit.DAYS));
+        subscriptionDetails.setStartDate(Instant.now());
+        subscriptionDetails.setCurrentCycleStartDate(subscriptionDetails.getStartDate());
+        subscriptionDetails.setCustomerEmail("dev@appsmith.com");
+
+        defaultTenantConfiguration.getLicense().setSubscriptionDetails(subscriptionDetails);
+
+        Tenant defaultTenantPostUpdate1 = tenantService
+                .updateDefaultTenantConfiguration(defaultTenantConfiguration)
+                .block();
+        TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
+
+        // since api_user is not a superuser, subscription details should be null
+        assertNull(newTenantConfiguration1.getLicense().getSubscriptionDetails());
+
+        // now make api_user superuser and subscription details should come
+
+        User api_user = userRepository.findByEmail("api_user").block();
+        userUtils.makeSuperUser(List.of(api_user)).block();
+
+        defaultTenant = tenantService.getDefaultTenant().block();
+        SubscriptionDetails defaultSubscriptionDetails =
+                defaultTenant.getTenantConfiguration().getLicense().getSubscriptionDetails();
+
+        assertEquals(
+                subscriptionDetails.getStartDate().getEpochSecond(),
+                defaultSubscriptionDetails.getStartDate().getEpochSecond());
+        assertEquals(
+                subscriptionDetails.getEndDate().getEpochSecond(),
+                defaultSubscriptionDetails.getEndDate().getEpochSecond());
+        assertEquals(
+                subscriptionDetails.getCurrentCycleStartDate().getEpochSecond(),
+                defaultSubscriptionDetails.getCurrentCycleStartDate().getEpochSecond());
+        assertEquals(subscriptionDetails.getCustomerEmail(), defaultSubscriptionDetails.getCustomerEmail());
+        assertEquals(subscriptionDetails.getUsers(), defaultSubscriptionDetails.getUsers());
+        assertEquals(subscriptionDetails.getSessions(), defaultSubscriptionDetails.getSessions());
+        // remove api_user superuser permissions
+        userUtils.removeSuperUser(List.of(api_user)).block();
     }
 }
