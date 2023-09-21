@@ -2,14 +2,14 @@ import { StyleSheet } from "@emotion/sheet";
 import kebabCase from "lodash/kebabCase";
 import { createTypographyStringMap } from "../../typography";
 import { cssRule } from "../../utils/cssRule";
-import { SheetTypes } from "./types";
+import { SHEET_TYPES } from "./types";
 
 import type { RootUnit, ThemeToken } from "../../token";
 import type { FontFamily, Typography } from "../../typography";
 
 /**
  * This class is used to create style sheets(insert style tag to the document.head).
- * Class creates separate sheet for each token(see SheetTypes), so we can update each set of tokens separately.
+ * Class creates separate sheet for each token(see SHEET_TYPES), so we can update each set of tokens separately.
  * Class uses @emotion/sheet to create sheet under the hood, read more https://github.com/emotion-js/emotion/tree/main/packages/sheet.
  */
 export class ProviderStyleSheet {
@@ -19,7 +19,7 @@ export class ProviderStyleSheet {
    * Creates all the necessary lists for each individual token.
    */
   create = (key: string) => {
-    Object.values(SheetTypes).map((type) => {
+    Object.values(SHEET_TYPES).map((type) => {
       const sheetKey = `${key}-${type}`;
       this.sheets.set(sheetKey, this.createSheet(sheetKey));
     });
@@ -40,7 +40,7 @@ export class ProviderStyleSheet {
    * Removes style sheet.
    */
   flush = (key: string) => {
-    Object.values(SheetTypes).map((type) => {
+    Object.values(SHEET_TYPES).map((type) => {
       this.sheets.get(`${key}-${type}`)?.flush();
     });
   };
