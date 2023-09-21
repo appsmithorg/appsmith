@@ -1,16 +1,19 @@
 import clsx from "clsx";
+import {
+  getTypographyClassName,
+  type TYPOGRAPHY_FONT_WEIGHTS,
+} from "@design-system/theming";
 import type { Ref } from "react";
 import React, { forwardRef } from "react";
-import { getTypographyClassName } from "@design-system/theming";
 
 import type { TextProps } from "./types";
-import { StyledText } from "./index.styled";
+import styles from "./styles.module.css";
 
 const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
   const {
     children,
     className,
-    color = "default",
+    color,
     fontWeight,
     isBold = false,
     isItalic = false,
@@ -20,21 +23,34 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
     ...rest
   } = props;
 
+  const getFontWeight = (
+    fontWeight?: keyof typeof TYPOGRAPHY_FONT_WEIGHTS,
+    isBold?: boolean,
+  ) => {
+    if (fontWeight) return fontWeight;
+
+    return isBold ? "bold" : "inherit";
+  };
+
   return (
-    <StyledText
-      $fontWeight={fontWeight}
-      $isBold={isBold}
-      $isItalic={isItalic}
-      $lineClamp={lineClamp}
-      $textAlign={textAlign}
-      $variant={variant}
-      className={clsx(className, getTypographyClassName(variant))}
-      color={color}
+    <div
+      className={clsx(className, styles.text, getTypographyClassName(variant))}
+      data-color={color ? color : undefined}
       ref={ref}
+      style={{
+        fontWeight: getFontWeight(fontWeight, isBold),
+        fontStyle: isItalic ? "italic" : "normal",
+        textAlign,
+      }}
       {...rest}
     >
-      <span>{children}</span>
-    </StyledText>
+      <span
+        className={styles.clampedText}
+        style={{ WebkitLineClamp: lineClamp }}
+      >
+        {children}
+      </span>
+    </div>
   );
 };
 

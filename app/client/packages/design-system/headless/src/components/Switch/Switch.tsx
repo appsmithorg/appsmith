@@ -29,6 +29,7 @@ const _Switch = (props: SwitchProps, ref: SwitchRef) => {
     children,
     className,
     isDisabled: isDisabledProp = false,
+    labelPosition = "right",
     validationState,
   } = props;
   const state = useToggleState(props);
@@ -75,6 +76,7 @@ const _Switch = (props: SwitchProps, ref: SwitchRef) => {
       data-hovered={isHovered ? "" : undefined}
       data-invalid={validationState === "invalid" ? "" : undefined}
       data-label=""
+      data-label-position={labelPosition}
       data-state={dataState}
       ref={domRef}
     >

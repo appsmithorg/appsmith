@@ -118,6 +118,12 @@
             <groupId>io.mongock</groupId>
             <artifactId>mongock-springboot-v3</artifactId>
         </dependency>
+        <dependency>
+            <!-- remove after mongock-springboot-v3 brings v32.0.1-jre at least -->
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>32.0.1-jre</version>
+        </dependency>
 
         <dependency>
             <groupId>io.mongock</groupId>
