@@ -26,8 +26,7 @@ export type UseThemeProps = {
   rootUnitRatio?: number;
 };
 
-// We use these types to make a style sheet map
-export const SheetTypes = {
+export const SHEET_TYPES = {
   fontFace: "fontFace",
   borderRadius: "borderRadius",
   borderWidth: "borderWidth",
