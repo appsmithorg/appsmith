@@ -70,7 +70,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                 .flatMap(updatedParams -> emailSender.sendMail(
                         user.getEmail(),
                         EMAIL_VERIFICATION_EMAIL_SUBJECT,
-                        EMAIL_VERIFICATION_EMAIL_TEMPLATE,
+                        getEmailVerificationTemplate(),
                         updatedParams)));
     }
 
@@ -121,6 +121,10 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         if (isNewUser) return INVITE_WORKSPACE_TEMPLATE_NEW_USER_CE;
 
         return INVITE_WORKSPACE_TEMPLATE_EXISTING_USER_CE;
+    }
+
+    protected String getEmailVerificationTemplate() {
+        return EMAIL_VERIFICATION_EMAIL_TEMPLATE_CE;
     }
 
     protected String getAdminInstanceInviteTemplate() {
