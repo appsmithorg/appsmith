@@ -578,31 +578,25 @@ export function getSafeToRenderDataTree(
 
 export const addErrorToEntityProperty = ({
   configTree,
-  dataTree,
   errors,
   evalProps,
   fullPropertyPath,
 }: {
   errors: EvaluationError[];
-  dataTree: DataTree;
   fullPropertyPath: string;
   evalProps: EvalProps;
   configTree: ConfigTree;
 }) => {
   const { entityName, propertyPath } =
     getEntityNameAndPropertyPath(fullPropertyPath);
-  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(
-    dataTree,
-    configTree,
-  )[entityName];
+  const isPrivateEntityPath =
+    getAllPrivateWidgetsInDataTree(configTree)[entityName];
   const logBlackList = get(configTree, `${entityName}.logBlackList`, {});
   if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
     const existingErrors = get(evalProps, errorPath, []) as EvaluationError[];
     set(evalProps, errorPath, existingErrors.concat(errors));
   }
-
-  return dataTree;
 };
 
 export const resetValidationErrorsForEntityProperty = ({
@@ -711,15 +705,13 @@ export const isPrivateEntityPath = (
 };
 
 export const getAllPrivateWidgetsInDataTree = (
-  dataTree: DataTree,
   configTree: ConfigTree,
 ): PrivateWidgets => {
   let privateWidgets: PrivateWidgets = {};
 
-  Object.keys(dataTree).forEach((entityName) => {
-    const entity = dataTree[entityName];
+  Object.keys(configTree).forEach((entityName) => {
     const entityConfig = configTree[entityName] as WidgetEntityConfig;
-    if (isWidget(entity) && !_.isEmpty(entityConfig.privateWidgets)) {
+    if (isWidget(entityConfig) && !_.isEmpty(entityConfig.privateWidgets)) {
       privateWidgets = { ...privateWidgets, ...entityConfig.privateWidgets };
     }
   });
@@ -731,7 +723,7 @@ export const getDataTreeWithoutPrivateWidgets = (
   dataTree: DataTree,
   configTree: ConfigTree,
 ): DataTree => {
-  const privateWidgets = getAllPrivateWidgetsInDataTree(dataTree, configTree);
+  const privateWidgets = getAllPrivateWidgetsInDataTree(configTree);
   const privateWidgetNames = Object.keys(privateWidgets);
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;

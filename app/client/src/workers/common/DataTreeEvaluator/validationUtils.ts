@@ -2,7 +2,6 @@ import type { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import type {
   ConfigTree,
-  DataTree,
   WidgetEntity,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
@@ -52,7 +51,6 @@ export function setToEvalPathsIdenticalToState({
 }
 export function validateAndParseWidgetProperty({
   configTree,
-  currentTree,
   evalPathsIdenticalToState,
   evalPropertyValue,
   evalProps,
@@ -62,7 +60,6 @@ export function validateAndParseWidgetProperty({
 }: {
   fullPropertyPath: string;
   widget: WidgetEntity;
-  currentTree: DataTree;
   configTree: ConfigTree;
   evalPropertyValue: unknown;
   unEvalPropertyValue: string;
@@ -111,7 +108,6 @@ export function validateAndParseWidgetProperty({
       errors: evalErrors,
       evalProps,
       fullPropertyPath,
-      dataTree: currentTree,
       configTree,
     });
   }
