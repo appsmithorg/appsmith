@@ -79,6 +79,7 @@ export const textInputStyles = css<HeadlessTextInputProps>`
 */
   & [data-field-input] :is(input, textarea)::placeholder {
     color: var(--color-fg-neutral-subtle);
+    opacity: 1;
   }
 
   & [data-field-input] :is(input, textarea):placeholder-shown {
