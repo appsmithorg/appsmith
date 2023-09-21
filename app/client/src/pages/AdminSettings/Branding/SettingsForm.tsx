@@ -155,7 +155,7 @@ function SettingsForm(props: SettingsFormProps) {
             <ColorInput
               className="t--settings-brand-color-input"
               defaultValue={defaultValues.brandColors}
-              filter={(key) => !["disabled", "hover"].includes(key)}
+              filter={(key) => !["disabled", "hover", "active"].includes(key)}
               logEvent={(property: string) => {
                 AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
                   propertyName: property,

@@ -642,7 +642,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get fgNeutralSubtle() {
     const color = this.fgNeutral.clone();
 
-    color.oklch.l -= 0.3;
+    color.oklch.l -= 0.15;
 
     return color;
   }
