@@ -12,7 +12,7 @@ import nunitoSans from "@capsizecss/metrics/nunitoSans12pt";
 import appleSystem from "@capsizecss/metrics/appleSystem";
 import BlinkMacSystemFont from "@capsizecss/metrics/blinkMacSystemFont";
 
-export const fontMetrics = {
+export const FONT_METRICS = {
   Poppins: poppins,
   Inter: inter,
   Roboto: roboto,
@@ -29,7 +29,7 @@ export const fontMetrics = {
 } as const;
 
 // we use "as const" here because we need to iterate by variants
-export const TypographyVariant = {
+export const TYPOGRAPHY_VARIANTS = {
   footnote: "footnote",
   body: "body",
   caption: "caption",
@@ -38,17 +38,7 @@ export const TypographyVariant = {
   heading: "heading",
 } as const;
 
-// we use "as const" here because we need to iterate by colors
-export const TypographyColor = {
-  default: "default",
-  neutral: "neutral",
-  positive: "positive",
-  negative: "negative",
-  warning: "warning",
-} as const;
-
-// we use "as const" here because we need to iterate by font weights
-export const TypographyFontWeight = {
+export const TYPOGRAPHY_FONT_WEIGHTS = {
   100: 100,
   200: 200,
   300: 300,
@@ -60,7 +50,7 @@ export const TypographyFontWeight = {
   900: 900,
 } as const;
 
-export type FontFamily = keyof typeof fontMetrics | "System Default";
+export type FontFamily = keyof typeof FONT_METRICS | "System Default";
 
 export type TypographyVariantMetric = {
   capHeight: number;
@@ -69,5 +59,5 @@ export type TypographyVariantMetric = {
 };
 
 export type Typography = {
-  [key in keyof typeof TypographyVariant]: TypographyVariantMetric;
+  [key in keyof typeof TYPOGRAPHY_VARIANTS]: TypographyVariantMetric;
 };
