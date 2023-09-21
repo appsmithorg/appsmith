@@ -102,7 +102,7 @@ import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
 // eslint-disable-next-line
 import CE_EmbedSnippetForm from "ce/pages/Applications/EmbedSnippetTab";
-import EE_EmbedSnippetForm from "ee/pages/Applications/EmbedSnippetTab";
+import EE_EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";

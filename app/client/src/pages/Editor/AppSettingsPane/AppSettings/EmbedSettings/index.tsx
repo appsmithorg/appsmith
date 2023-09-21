@@ -22,7 +22,7 @@ import {
 import MakeApplicationForkable from "./MakeApplicationForkable";
 // eslint-disable-next-line
 import CE_EmbedSnippetTab from "ce/pages/Applications/EmbedSnippetTab";
-import EE_EmbedSnippetTab from "ee/pages/Applications/EmbedSnippetTab";
+import EE_EmbedSnippetTab from "@appsmith/pages/Applications/EmbedSnippetTab";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
