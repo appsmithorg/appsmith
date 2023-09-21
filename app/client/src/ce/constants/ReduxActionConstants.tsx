@@ -15,7 +15,7 @@ import type {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type {
   AppLayoutConfig,
-  AppPositioningTypeConfig,
+  LayoutSystemTypeConfig,
 } from "reducers/entityReducers/pageListReducer";
 import type { DSLWidget } from "WidgetProvider/constants";
 
@@ -858,6 +858,7 @@ const ActionTypes = {
   DELETE_MULTIPLE_APPS_TOGGLE: "DELETE_MULTIPLE_APPS_TOGGLE",
   DELETE_MULTIPLE_APPLICATION_SUCCESS: "DELETE_MULTIPLE_APPLICATION_SUCCESS",
   DELETE_MULTIPLE_APPLICATION_CANCEL: "DELETE_MULTIPLE_APPLICATION_CANCEL",
+  TRIGGER_EVAL: "TRIGGER_EVAL",
 };
 
 export const ReduxActionTypes = {
@@ -1182,7 +1183,7 @@ export interface ApplicationPayload {
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
-    appPositioning?: AppPositioningTypeConfig;
+    layoutSystem?: LayoutSystemTypeConfig;
     navigationSetting?: NavigationSetting;
   };
   collapseInvisibleWidgets?: boolean;

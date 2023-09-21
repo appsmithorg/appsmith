@@ -475,7 +475,7 @@ function ApiResponseView(props: Props) {
                 </ResponseTabErrorDefaultMessage>
                 {response.pluginErrorDetails && (
                   <>
-                    <div>
+                    <div className="t--debugger-log-downstream-message">
                       {response.pluginErrorDetails.downstreamErrorMessage}
                     </div>
                     {response.pluginErrorDetails.downstreamErrorCode && (

@@ -44,7 +44,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
@@ -55,7 +55,7 @@ const getCurrentItemsViewBindingTemplate = () => ({
   suffix: "]}}",
 });
 
-export const DEFAULT_TEMPLATE_BOTTOM_ROW = 10;
+export const DEFAULT_TEMPLATE_HEIGHT = 100;
 
 export enum DynamicPathType {
   CURRENT_ITEM = "currentItem",
@@ -512,7 +512,7 @@ class ListWidget extends BaseWidget<
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
       primaryKeys: this.primaryKeys,
       scrollElement: this.componentRef.current,
-      templateBottomRow: this.getTemplateBottomRow(),
+      templateHeight: this.getTemplateHeight(),
       widgetName: this.props.widgetName,
       pageNo,
       pageSize,
@@ -674,24 +674,15 @@ class ListWidget extends BaseWidget<
     return flattenedChildCanvasWidgets?.[mainContainerId];
   };
 
-  getTemplateBottomRow = () => {
-    if (
-      this.props.appPositioningType === AppPositioningTypes.AUTO &&
-      this.props.isMobile
-    ) {
-      return (
-        this.getMainContainer()?.mobileBottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW
-      );
-    }
-    return this.getMainContainer()?.bottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW;
+  getTemplateHeight = () => {
+    return this.getMainContainer()?.componentHeight || DEFAULT_TEMPLATE_HEIGHT;
   };
 
   getContainerRowHeight = () => {
-    const { itemSpacing = 0, listData, parentRowSpace } = this.props;
-    const templateBottomRow = this.getTemplateBottomRow();
+    const { itemSpacing = 0, listData } = this.props;
     const containerVerticalPadding = WIDGET_PADDING * 2;
     const itemsCount = (listData || []).length;
-    const templateHeight = templateBottomRow * parentRowSpace;
+    const templateHeight = this.getTemplateHeight();
 
     const averageItemSpacing = itemsCount
       ? (itemSpacing - containerVerticalPadding) *
@@ -1186,7 +1177,7 @@ class ListWidget extends BaseWidget<
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.positioning = this.props.positioning;
-          if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+          if (this.props.layoutSystemType === LayoutSystemTypes.AUTO) {
             child.isListWidgetCanvas = true;
           }
           child.children = child.children?.map((container, viewIndex) => {
@@ -1195,7 +1186,7 @@ class ListWidget extends BaseWidget<
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
             if (
-              this.props.appPositioningType === AppPositioningTypes.AUTO &&
+              this.props.layoutSystemType === LayoutSystemTypes.AUTO &&
               container.children?.[0]
             ) {
               container.children[0].isListWidgetCanvas = true;
@@ -1353,15 +1344,10 @@ class ListWidget extends BaseWidget<
 
   getWidgetView() {
     const { componentHeight, componentWidth } = this.props;
-    const {
-      infiniteScroll,
-      isLoading,
-      parentColumnSpace,
-      parentRowSpace,
-      selectedItemKey,
-    } = this.props;
+    const { infiniteScroll, isLoading, parentColumnSpace, selectedItemKey } =
+      this.props;
     const startIndex = this.metaWidgetGenerator.getStartIndex();
-    const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
+    const templateHeight = this.getTemplateHeight();
 
     if (isLoading) {
       return (

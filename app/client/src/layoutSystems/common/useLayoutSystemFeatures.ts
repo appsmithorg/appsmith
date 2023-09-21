@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { getCurrentAppPositioningType } from "selectors/editorSelectors";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
+import { getCurrentLayoutSystemType } from "selectors/editorSelectors";
 
 export enum LayoutSystemFeatures {
   ENABLE_MAIN_CONTAINER_RESIZER = "ENABLE_MAIN_CONTAINER_RESIZER", //enable main canvas resizer
@@ -26,15 +26,15 @@ const AUTO_LAYOUT_FEATURES = {
  * The boolean will indicate if the feature is enabled for the current layout
  */
 export const useLayoutSystemFeatures = () => {
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const layoutSystemType = useSelector(getCurrentLayoutSystemType);
 
   let currentFeatureSet = {} as Record<LayoutSystemFeatures, boolean>;
 
-  switch (appPositioningType) {
-    case AppPositioningTypes.FIXED:
+  switch (layoutSystemType) {
+    case LayoutSystemTypes.FIXED:
       currentFeatureSet = FIXED_LAYOUT_FEATURES;
       break;
-    case AppPositioningTypes.AUTO:
+    case LayoutSystemTypes.AUTO:
       currentFeatureSet = AUTO_LAYOUT_FEATURES;
       break;
   }

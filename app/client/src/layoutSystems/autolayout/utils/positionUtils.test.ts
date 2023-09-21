@@ -16,7 +16,7 @@ import {
   placeWrappedWidgets,
   updateWidgetPositions,
 } from "./positionUtils";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import { LabelPosition } from "components/constants";
 import * as utils from "./flexWidgetUtils";
 
@@ -1316,7 +1316,7 @@ describe("test PositionUtils methods", () => {
           responsiveBehavior: ResponsiveBehavior.Fill,
           parentId: "",
           positioning: Positioning.Vertical,
-          appPositioningType: AppPositioningTypes.AUTO,
+          layoutSystemType: LayoutSystemTypes.AUTO,
           useAutoLayout: true,
           flexLayers: [
             { children: [{ id: "3", align: FlexLayerAlignment.Start }] },

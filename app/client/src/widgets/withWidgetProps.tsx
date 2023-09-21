@@ -19,12 +19,11 @@ import {
 import {
   computeMainContainerWidget,
   getChildWidgets,
-  getCurrentAppPositioningType,
+  getCurrentLayoutSystemType,
   getMainCanvasProps,
   getRenderMode,
   getMetaWidgetChildrenStructure,
   getMetaWidget,
-  getFlattenedChildCanvasWidgets,
   previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
@@ -36,7 +35,7 @@ import {
 import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
 import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import {
   defaultAutoLayoutWidgets,
   Positioning,
@@ -47,6 +46,7 @@ import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -93,8 +93,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       equal,
     );
     const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
-    const appPositioningType = useSelector(getCurrentAppPositioningType);
-    const isAutoLayout = appPositioningType === AppPositioningTypes.AUTO;
+    const layoutSystemType = useSelector(getCurrentLayoutSystemType);
+    const isAutoLayout = layoutSystemType === LayoutSystemTypes.AUTO;
 
     const configTree = ConfigTreeActions.getConfigTree();
     const evaluatedWidgetConfig = configTree[
@@ -166,7 +166,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps = { ...canvasWidgetProps };
 
       widgetProps.isMobile = !!isMobile;
-      widgetProps.appPositioningType = appPositioningType;
+      widgetProps.layoutSystemType = layoutSystemType;
       widgetProps.selectedWidgetAncestry = selectedWidgetAncestry || [];
 
       /**

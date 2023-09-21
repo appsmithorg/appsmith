@@ -75,7 +75,6 @@ export const StyledContainer = styled.div<ButtonGroupProps>`
   * Filled variant
   *-----------------------------------------------------------------------------
   */
-
   & [data-variant="filled"] {
     border-width: 0;
   }

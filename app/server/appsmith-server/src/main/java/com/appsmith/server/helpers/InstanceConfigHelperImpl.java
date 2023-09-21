@@ -4,6 +4,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.ce.InstanceConfigHelperCEImpl;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.FeatureFlagService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,14 @@ public class InstanceConfigHelperImpl extends InstanceConfigHelperCEImpl impleme
             CloudServicesConfig cloudServicesConfig,
             CommonConfig commonConfig,
             ApplicationContext applicationContext,
-            ReactiveMongoTemplate reactiveMongoTemplate) {
-        super(configService, cloudServicesConfig, commonConfig, applicationContext, reactiveMongoTemplate);
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            FeatureFlagService featureFlagService) {
+        super(
+                configService,
+                cloudServicesConfig,
+                commonConfig,
+                applicationContext,
+                reactiveMongoTemplate,
+                featureFlagService);
     }
 }

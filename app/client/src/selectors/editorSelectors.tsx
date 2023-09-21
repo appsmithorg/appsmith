@@ -31,7 +31,7 @@ import type {
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { find, sortBy } from "lodash";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getDataTree,
   getLoadingEntities,
@@ -47,7 +47,6 @@ import {
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import {
   buildChildWidgetTree,
-  buildFlattenedChildCanvasWidgets,
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
@@ -258,36 +257,36 @@ const defaultLayout: AppLayoutConfig = {
 const getAppLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
 
-export const getAppPositioningType = (state: AppState) => {
+export const getLayoutSystemType = (state: AppState) => {
   if (
-    state.ui.applications?.currentApplication?.applicationDetail?.appPositioning
+    state.ui.applications?.currentApplication?.applicationDetail?.layoutSystem
       ?.type
   ) {
-    return AppPositioningTypes[
-      state.ui.applications.currentApplication?.applicationDetail
-        ?.appPositioning?.type
+    return LayoutSystemTypes[
+      state.ui.applications.currentApplication?.applicationDetail?.layoutSystem
+        ?.type
     ];
   }
-  return AppPositioningTypes.FIXED;
+  return LayoutSystemTypes.FIXED;
 };
 
-export const getCurrentAppPositioningType = createSelector(
-  getAppPositioningType,
-  (appPositionType: AppPositioningTypes): AppPositioningTypes => {
-    return appPositionType || AppPositioningTypes.FIXED;
+export const getCurrentLayoutSystemType = createSelector(
+  getLayoutSystemType,
+  (layoutSystemType: LayoutSystemTypes): LayoutSystemTypes => {
+    return layoutSystemType || LayoutSystemTypes.FIXED;
   },
 );
 
 export const getIsAutoLayout = createSelector(
-  getCurrentAppPositioningType,
-  (positioningType) => positioningType === AppPositioningTypes.AUTO,
+  getCurrentLayoutSystemType,
+  (positioningType) => positioningType === LayoutSystemTypes.AUTO,
 );
 
 export const getCurrentApplicationLayout = createSelector(
   getAppLayout,
-  getCurrentAppPositioningType,
-  (appLayout: AppLayoutConfig, appPositionType) => {
-    return appPositionType === AppPositioningTypes.FIXED
+  getCurrentLayoutSystemType,
+  (appLayout: AppLayoutConfig, layoutSystemType) => {
+    return layoutSystemType === LayoutSystemTypes.FIXED
       ? appLayout
       : defaultLayout;
   },
@@ -553,14 +552,6 @@ export const getChildWidgets = createSelector(
     (_state: AppState, widgetId: string) => widgetId,
   ],
   buildChildWidgetTree,
-);
-
-export const getFlattenedChildCanvasWidgets = createSelector(
-  [
-    getCanvasWidgets,
-    (_state: AppState, parentWidgetId: string) => parentWidgetId,
-  ],
-  buildFlattenedChildCanvasWidgets,
 );
 
 const getOccupiedSpacesForContainer = (

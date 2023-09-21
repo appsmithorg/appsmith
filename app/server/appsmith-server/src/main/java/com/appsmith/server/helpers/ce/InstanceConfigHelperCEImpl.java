@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.util.WebClientUtils;
 import joptsimple.internal.Strings;
 import lombok.RequiredArgsConstructor;
@@ -39,9 +40,11 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
     private final ApplicationContext applicationContext;
 
-    private boolean isRtsAccessible = false;
-
     private final ReactiveMongoTemplate reactiveMongoTemplate;
+
+    private final FeatureFlagService featureFlagService;
+
+    private boolean isRtsAccessible = false;
 
     @Override
     public Mono<? extends Config> registerInstance() {
@@ -193,5 +196,10 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                             error);
                     return Mono.just(Strings.EMPTY);
                 });
+    }
+
+    @Override
+    public Mono<Void> updateCacheForTenantFeatureFlags() {
+        return featureFlagService.getTenantFeatures().then();
     }
 }

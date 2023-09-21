@@ -1,5 +1,10 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
+const {
+  deployMode,
+  entityExplorer,
+  propPane,
+} = require("../../../../../support/Objects/ObjectsCore");
 
 const fieldPrefix = ".t--jsonformfield";
 
@@ -45,11 +50,13 @@ describe("JSON Form Widget Custom Field", () => {
       ],
     };
 
-    cy.openPropertyPane("jsonformwidget");
-    cy.backFromPropertyPanel();
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
-
-    cy.wait(500);
+    entityExplorer.SelectEntityByName("JSONForm1");
+    propPane.NavigateBackToPropertyPane();
+    propPane.UpdatePropertyFieldValue(
+      "Source data",
+      JSON.stringify(sourceData),
+    );
+    deployMode.DeployApp();
 
     cy.get(`${fieldPrefix}-name label`).contains("Name");
     cy.get(`${fieldPrefix}-name input`).should("have.value", "John");
