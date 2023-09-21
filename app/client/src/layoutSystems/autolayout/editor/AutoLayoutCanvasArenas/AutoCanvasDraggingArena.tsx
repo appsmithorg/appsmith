@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
 import type { LayoutDirection } from "layoutSystems/autolayout/utils/constants";
-import { StickyCanvasArena } from "layoutSystems/common/canvasArena/StickyCanvasArena";
+import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
 
 export interface AutoCanvasDraggingArenaProps {
   alignItems?: string;

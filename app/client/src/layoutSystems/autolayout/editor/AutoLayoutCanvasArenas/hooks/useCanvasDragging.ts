@@ -7,12 +7,12 @@ import { getTotalTopOffset } from "selectors/autoLayoutSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useAutoLayoutHighlights } from "./useAutoLayoutHighlights";
-import type { WidgetDraggingBlock } from "../../../../common/canvasArena/ArenaTypes";
+import type { WidgetDraggingBlock } from "../../../../common/canvasArenas/ArenaTypes";
 import { useBlocksToBeDraggedOnCanvas } from "./useBlocksToBeDraggedOnCanvas";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
 import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
-import { useCanvasDragToScroll } from "layoutSystems/common/canvasArena/useCanvasDragToScroll";
+import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { modifyBlockDimension } from "layoutSystems/common/utils/canvasDraggingUtils";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 

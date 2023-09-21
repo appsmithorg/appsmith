@@ -41,7 +41,7 @@ import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { toast } from "design-system";
-import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArena/ArenaTypes";
+import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 
 export type WidgetMoveParams = {
   widgetId: string;

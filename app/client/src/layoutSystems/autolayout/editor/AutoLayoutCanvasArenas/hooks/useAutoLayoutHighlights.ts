@@ -5,7 +5,7 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import { useRef } from "react";
 import { getIsAutoLayoutMobileBreakPoint } from "selectors/editorSelectors";
-import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArena/ArenaTypes";
+import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { deriveHighlightsFromLayers } from "layoutSystems/autolayout/utils/highlightUtils";
 import type { Point } from "layoutSystems/autolayout/utils/highlightSelectionUtils";
 import { getHighlightPayload } from "layoutSystems/autolayout/utils/highlightSelectionUtils";

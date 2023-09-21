@@ -18,7 +18,7 @@ import {
   getDraggingSpacesFromBlocks,
   getMousePositionsOnCanvas,
 } from "./WidgetPropsUtils";
-import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArena/ArenaTypes";
+import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 describe("WidgetProps tests", () => {

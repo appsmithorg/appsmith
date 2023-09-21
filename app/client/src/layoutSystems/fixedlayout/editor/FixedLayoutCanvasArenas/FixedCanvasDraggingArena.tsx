@@ -1,7 +1,7 @@
 import type { AppState } from "@appsmith/reducers";
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { StickyCanvasArena } from "layoutSystems/common/canvasArena/StickyCanvasArena";
+import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getNearestParentCanvas } from "utils/generators";
