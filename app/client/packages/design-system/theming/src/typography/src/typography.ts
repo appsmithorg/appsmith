@@ -1,5 +1,5 @@
 import { createFontStack, createStyleString } from "@capsizecss/core";
-import { fontMetrics, TypographyVariant } from "./types";
+import { FONT_METRICS, TYPOGRAPHY_VARIANTS } from "./types";
 import roboto from "@capsizecss/metrics/roboto";
 import ubuntu from "@capsizecss/metrics/ubuntu";
 import segoeUI from "@capsizecss/metrics/segoeUI";
@@ -8,8 +8,10 @@ import BlinkMacSystemFont from "@capsizecss/metrics/blinkMacSystemFont";
 
 import type { FontFamily, Typography } from "./types";
 
-export const getTypographyClassName = (key: keyof typeof TypographyVariant) => {
-  return `wds-${TypographyVariant[key]}-text`;
+export const getTypographyClassName = (
+  key: keyof typeof TYPOGRAPHY_VARIANTS,
+) => {
+  return `wds-${TYPOGRAPHY_VARIANTS[key]}-text`;
 };
 
 export const createTypographyStringMap = (
@@ -24,7 +26,7 @@ export const createTypographyStringMap = (
       `${createTypographyString(
         capHeight,
         lineGap,
-        current as keyof typeof TypographyVariant,
+        current as keyof typeof TYPOGRAPHY_VARIANTS,
         containerCLassName,
         fontFamily,
       )}`
@@ -35,7 +37,7 @@ export const createTypographyStringMap = (
 export const createTypographyString = (
   capHeight: number,
   lineGap: number,
-  typographyVariant: keyof typeof TypographyVariant,
+  typographyVariant: keyof typeof TYPOGRAPHY_VARIANTS,
   containerCLassName: string,
   fontFamily?: FontFamily,
 ) => {
@@ -56,7 +58,7 @@ export const createTypographyString = (
     {
       capHeight,
       lineGap,
-      fontMetrics: fontMetrics[fontFamily],
+      fontMetrics: FONT_METRICS[fontFamily],
     },
   );
 };

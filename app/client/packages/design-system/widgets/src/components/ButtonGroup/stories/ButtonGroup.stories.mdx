@@ -1,4 +1,4 @@
-import { Flex, Button, ButtonGroup } from "@design-system/widgets";
+import { Flex, Button, ButtonGroup, COLORS } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
 
 <Meta title="Design-system/Widgets/Button Group" />
@@ -27,7 +27,7 @@ A button group is a group of buttons that are visually connected together.
 
 <Story name="Filled variant">
   <Flex direction="column" gap="spacing-4">
-    {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
+    {Object.values(COLORS).map((color) => (
       <ButtonGroup>
         <Button variant="filled" color={color} children={`filled-${color}`} />
         <Button variant="filled" color={color} children={`filled-${color}`} />
@@ -41,7 +41,7 @@ A button group is a group of buttons that are visually connected together.
 
 <Story name="Outlined variant">
   <Flex direction="column" gap="spacing-4">
-    {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
+    {Object.values(COLORS).map((color) => (
       <ButtonGroup>
         <Button variant="outlined" color={color} children={`filled-${color}`} />
         <Button variant="outlined" color={color} children={`filled-${color}`} />
@@ -55,7 +55,7 @@ A button group is a group of buttons that are visually connected together.
 
 <Story name="Ghost variant">
   <Flex direction="column" gap="spacing-4">
-    {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
+    {Object.values(COLORS).map((color) => (
       <ButtonGroup>
         <Button variant="ghost" color={color} children={`filled-${color}`} />
         <Button variant="ghost" color={color} children={`filled-${color}`} />

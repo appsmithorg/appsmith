@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.beans.Introspector;
 import java.lang.reflect.Method;
 
 @RequiredArgsConstructor
@@ -88,10 +89,10 @@ public class FeatureFlaggedMethodInvokerAspect {
     }
 
     /**
-     * Method to get default bean name from java classes as per <a href="https://docs.spring.io/spring-framework/docs/3.0.0.M4/reference/html/ch03s03.html#beans-beanname">Spring naming convention</a>
+     * Method to get default bean name from java classes as per <a href="https://docs.spring.io/spring-framework/docs/5.2.3.RELEASE/spring-framework-reference/core.html#beans-beanname">Spring naming convention</a>
      */
     private String getSpringDefaultBeanName(String beanClassName) {
-        return Character.toLowerCase(beanClassName.charAt(0)) + beanClassName.substring(1);
+        return Introspector.decapitalize(beanClassName);
     }
 
     AppsmithException getInvalidAnnotationUsageException(Method method, String error) {
