@@ -391,6 +391,25 @@ public class Application extends BaseDomain {
     }
 
     /**
+     * AppPositioning captures widget positioning Mode of the application
+     */
+    @Data
+    @NoArgsConstructor
+    public static class AppPositioning {
+        @JsonView(Views.Public.class)
+        Type type;
+
+        public AppPositioning(Type type) {
+            this.type = type;
+        }
+
+        public enum Type {
+            FIXED,
+            AUTO
+        }
+    }
+
+    /**
      * LayoutSystem captures widget positioning Mode of the application
      */
     @Data

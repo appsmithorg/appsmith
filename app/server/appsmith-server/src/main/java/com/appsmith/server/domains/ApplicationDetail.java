@@ -10,6 +10,11 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class ApplicationDetail {
+
+    // appPositing field is renamed to layoutSystem
+    @Deprecated
+    Application.AppPositioning appPositioning;
+
     Application.LayoutSystem layoutSystem;
     Application.NavigationSetting navigationSetting;
 
