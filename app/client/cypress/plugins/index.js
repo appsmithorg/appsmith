@@ -63,14 +63,6 @@ module.exports = async (on, config) => {
         "Videos",
         "webCamVideo.y4m",
       );
-      if (browser.isHeadless) {
-        launchOptions.args = launchOptions.args.map((arg) => {
-          if (arg === "--headless=new") {
-            return "--headless";
-          }
-          return arg;
-        });
-      }
       launchOptions.args.push("--disable-dev-shm-usage");
       launchOptions.args.push("--window-size=1400,1100");
       launchOptions.args.push("--use-fake-ui-for-media-stream");

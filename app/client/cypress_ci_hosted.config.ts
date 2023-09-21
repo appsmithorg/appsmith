@@ -50,9 +50,9 @@ export default defineConfig({
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: [
+      "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
       "cypress/e2e/GSheet/**/**/*",
       "cypress/e2e/Regression/ServerSide/Datasources/Oracle_Spec.ts",
-      "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
       "cypress/e2e/Regression/ServerSide/Datasources/ElasticSearch_Basic_Spec.ts",
     ],
     testIsolation: false,
