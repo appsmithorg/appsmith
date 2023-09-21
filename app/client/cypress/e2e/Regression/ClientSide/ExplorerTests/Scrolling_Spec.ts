@@ -1,6 +1,7 @@
 import {
   agHelper,
   dataSources,
+  draggableWidgets,
   entityExplorer,
   entityItems,
   locators,
@@ -12,6 +13,16 @@ describe("Entity explorer context menu should hide on scrolling", function () {
     "excludeForAirgap",
     "1. Bug #15474 - Entity explorer menu must close on scroll",
     function () {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      entityExplorer.NavigateToSwitcher("Explorer");
+      entityExplorer.ExpandCollapseEntity("Modal1");
+      entityExplorer.ExpandCollapseEntity("Modal2");
+      entityExplorer.ExpandCollapseEntity("Modal3");
+
       // Setup to make the explorer scrollable
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.ExpandCollapseEntity("Datasources");
@@ -42,6 +53,16 @@ describe("Entity explorer context menu should hide on scrolling", function () {
     "airgap",
     "1. Bug #15474 - Entity explorer menu must close on scroll - airgap",
     function () {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      entityExplorer.NavigateToSwitcher("Explorer");
+      entityExplorer.ExpandCollapseEntity("Modal1");
+      entityExplorer.ExpandCollapseEntity("Modal2");
+      entityExplorer.ExpandCollapseEntity("Modal3");
+
       // Setup to make the explorer scrollable
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.ExpandCollapseEntity("Datasources");
