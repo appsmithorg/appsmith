@@ -131,7 +131,7 @@ export class Onboarding {
           // is awaited until it resolves
           return localForage.setItem("ENABLE_START_SIGNPOSTING", false);
         });
-        cy.reload();
+        this._aggregateHelper.RefreshPage();
       }
     });
   }

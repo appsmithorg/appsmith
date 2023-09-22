@@ -3,7 +3,9 @@ package com.appsmith.server.aspect;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.services.FeatureFlagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.beans.Introspector;
 import java.lang.reflect.Method;
 
 @RequiredArgsConstructor
@@ -61,12 +64,9 @@ public class FeatureFlaggedMethodInvokerAspect {
         } else if (Flux.class.isAssignableFrom(returnType)) {
             return featureFlagMono.flatMapMany(isSupported -> (Flux<?>) invokeMethod(isSupported, joinPoint, method));
         }
-        // For non-reactive methods with feature flagging annotation we will have to convert featureFlagMono to
-        // synchronous call using .block()
-        String errorMessage = "Only reactive objects Mono and Flux are supported";
-        AppsmithException exception = getInvalidAnnotationUsageException(method, errorMessage);
-        log.error(exception.getMessage());
-        throw exception;
+        // For non-reactive methods with feature flagging annotation we will be using the in memory feature flag cache
+        // which is getting updated whenever the tenant feature flags are updated.
+        return invokeMethod(isFeatureFlagEnabled(flagName), joinPoint, method);
     }
 
     private Object invokeMethod(Boolean isFeatureSupported, ProceedingJoinPoint joinPoint, Method method) {
@@ -89,10 +89,10 @@ public class FeatureFlaggedMethodInvokerAspect {
     }
 
     /**
-     * Method to get default bean name from java classes as per <a href="https://docs.spring.io/spring-framework/docs/3.0.0.M4/reference/html/ch03s03.html#beans-beanname">Spring naming convention</a>
+     * Method to get default bean name from java classes as per <a href="https://docs.spring.io/spring-framework/docs/5.2.3.RELEASE/spring-framework-reference/core.html#beans-beanname">Spring naming convention</a>
      */
     private String getSpringDefaultBeanName(String beanClassName) {
-        return Character.toLowerCase(beanClassName.charAt(0)) + beanClassName.substring(1);
+        return Introspector.decapitalize(beanClassName);
     }
 
     AppsmithException getInvalidAnnotationUsageException(Method method, String error) {
@@ -102,5 +102,12 @@ public class FeatureFlaggedMethodInvokerAspect {
                 method.getDeclaringClass().getSimpleName(),
                 method.getName(),
                 error);
+    }
+
+    boolean isFeatureFlagEnabled(FeatureFlagEnum flagName) {
+        CachedFeatures cachedFeatures = featureFlagService.getCachedTenantFeatureFlags();
+        return cachedFeatures != null
+                && !CollectionUtils.isNullOrEmpty(cachedFeatures.getFeatures())
+                && Boolean.TRUE.equals(cachedFeatures.getFeatures().get(flagName.name()));
     }
 }
