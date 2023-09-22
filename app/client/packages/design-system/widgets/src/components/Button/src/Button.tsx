@@ -1,16 +1,16 @@
-import classNames from "classnames";
-import React, { forwardRef } from "react";
+import clsx from "clsx";
 import {
   Button as HeadlessButton,
   Icon as HeadlessIcon,
 } from "@design-system/headless";
+import React, { forwardRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
+import { getTypographyClassName } from "@design-system/theming";
+import type { ButtonRef as HeadlessButtonRef } from "@design-system/headless";
+
 import { Text } from "../../Text";
 import { Spinner } from "../../Spinner";
 import styles from "./styles.module.css";
-import { getTypographyClassName } from "@design-system/theming";
-
-import type { ButtonRef as HeadlessButtonRef } from "@design-system/headless";
 import type { ButtonProps } from "./types";
 
 const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
@@ -60,7 +60,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       aria-disabled={
         visuallyDisabled || isLoading || props.isDisabled ? true : undefined
       }
-      className={classNames(styles.button, getTypographyClassName("body"))}
+      className={clsx(styles.button, getTypographyClassName("body"))}
       data-button=""
       data-color={color}
       data-icon-position={iconPosition === "start" ? "start" : "end"}

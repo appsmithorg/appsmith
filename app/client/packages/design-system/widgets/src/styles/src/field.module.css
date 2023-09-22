@@ -1,27 +1,9 @@
-import { css } from "styled-components";
-import type { LabelProps as HeadlessLabelProps } from "@design-system/headless";
-
-type FieldStylesProps = Pick<HeadlessLabelProps, "isEmphasized" | "labelWidth">;
-
-// NOTE: these field styles are used in every input component that has a label
-// for e.g input, select, checkbox group, toggle group, radio group, etc
-export const fieldStyles = css<FieldStylesProps>`
-  &[data-field] {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-
-    &[data-position="side"] {
-      flex-direction: row;
-    }
-
-    // when the label is on the side, we need to make sure the label
-    // is centered aligned in case it is a field. For field group,
-    // align-items will be  of default value, that is flex-start
-    &[data-field-type="field"][data-position="side"] {
-      align-items: center;
-    }
-  }
+/* NOTE: these field styles are used in every input component that has a label
+ for e.g input, select, checkbox group, toggle group, radio group, etc */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
 
   /**
   * ----------------------------------------------------------------------------
@@ -41,12 +23,6 @@ export const fieldStyles = css<FieldStylesProps>`
     gap: var(--spacing-1);
     height: fit-content;
     color: var(--color-fg);
-    font-weight: ${({ isEmphasized }) => (isEmphasized ? "bold" : "normal")};
-
-    //  when the label is on the side, we need to make sure the label is aligned
-    &[data-position="side"] {
-      width: ${({ labelWidth }) => labelWidth};
-    }
   }
 
   /**
@@ -74,21 +50,22 @@ export const fieldStyles = css<FieldStylesProps>`
   /**
   * ----------------------------------------------------------------------------
   * FIELD GROUP
+  * fields group refers group components like checkbox group, radio group, etc
   *-----------------------------------------------------------------------------
   */
   & [data-field-group] {
     gap: var(--spacing-2);
     display: flex;
     flex-direction: column;
+  }
 
-    &[data-orientation="horizontal"] {
-      gap: var(--spacing-4);
-      flex-direction: row;
-    }
+  &[data-disabled] [data-field-group] [data-label] {
+    cursor: default;
+  }
 
-    &[data-disabled] [data-label] {
-      cursor: default;
-    }
+  & [data-field-group][data-orientation="horizontal"] {
+    gap: var(--spacing-4);
+    flex-direction: row;
   }
 
   /**
@@ -111,4 +88,4 @@ export const fieldStyles = css<FieldStylesProps>`
     opacity: var(--opacity-disabled);
     cursor: default;
   }
-`;
+}

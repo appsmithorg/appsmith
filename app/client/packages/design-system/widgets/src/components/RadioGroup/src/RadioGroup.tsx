@@ -4,9 +4,10 @@ import type {
   RadioGroupRef as HeadlessRadioGroupRef,
   RadioGroupProps as HeadlessRadioGroupProps,
 } from "@design-system/headless";
+import { RadioGroup as HeadlessRadioGroup } from "@design-system/headless";
 
 import { Text } from "../../Text";
-import { StyledRadioGroup } from "./index.styled";
+import { fieldStyles } from "../../../styles";
 
 export interface RadioGroupProps extends HeadlessRadioGroupProps {
   className?: string;
@@ -18,7 +19,8 @@ const _RadioGroup = (props: RadioGroupProps, ref: HeadlessRadioGroupRef) => {
   const wrappedLabel = label && <Text>{label}</Text>;
 
   return (
-    <StyledRadioGroup
+    <HeadlessRadioGroup
+      className={fieldStyles.field}
       errorMessage={wrappedErrorMessage}
       label={wrappedLabel}
       ref={ref}
