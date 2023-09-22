@@ -30,6 +30,7 @@ import { isEmpty } from "lodash";
 import { Colors } from "constants/Colors";
 import StartScratch from "assets/images/start-from-scratch.svg";
 import StartTemplate from "assets/images/start-from-template.svg";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -137,6 +138,8 @@ export const CreateNewAppsOption = ({
   const isImportingTemplate = useSelector(isImportingTemplateSelector);
   const dispatch = useDispatch();
   const onClickStartFromTemplate = () => {
+    AnalyticsUtil.logEvent("CREATE_APP_FROM_TEMPLATE");
+
     if (isEmpty(filters.functions)) {
       dispatch(getTemplateFilters());
     }
@@ -152,10 +155,13 @@ export const CreateNewAppsOption = ({
   };
 
   const onTemplateClick = (id: string) => {
+    AnalyticsUtil.logEvent("CLICK_ON_TEMPLATE_CARD_WHEN_ONBOARDING", { id });
     if (!isImportingTemplate) onForkTemplateClick({ id } as Template);
   };
 
   const onForkTemplateClick = (template: Template) => {
+    const id = template.id;
+    AnalyticsUtil.logEvent("FORK_TEMPLATE_WHEN_ONBOARDING", { id });
     if (!isImportingTemplate)
       dispatch(
         importTemplateToWorkspace(template.id, currentSelectedWorkspace),
