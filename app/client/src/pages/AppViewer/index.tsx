@@ -52,6 +52,8 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
+import { KBViewerFloatingButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
+import classNames from "classnames";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -223,18 +225,24 @@ function AppViewer(props: Props) {
               {isInitialized && <AppViewerPageContainer />}
             </AppViewerBody>
             {showBottomBar && <BottomBar viewMode />}
-            {!hideWatermark && (
-              <a
-                className={`fixed hidden right-8 ${
-                  showBottomBar ? "bottom-12" : "bottom-4"
-                } z-3 hover:no-underline md:flex`}
-                href="https://appsmith.com"
-                rel="noreferrer"
-                target="_blank"
-              >
-                <BrandingBadge />
-              </a>
-            )}
+            <div
+              className={classNames("fixed right-8 z-3 flex", {
+                "bottom-12": showBottomBar,
+                "bottom-4": !showBottomBar,
+              })}
+            >
+              {!hideWatermark && (
+                <a
+                  className={`hover:no-underline md:flex`}
+                  href="https://appsmith.com"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <BrandingBadge />
+                </a>
+              )}
+              <KBViewerFloatingButton />
+            </div>
           </AppViewerBodyContainer>
         </EditorContextProvider>
       </ThemeProvider>

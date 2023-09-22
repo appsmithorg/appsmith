@@ -11,6 +11,7 @@ import {
   CURRENT_DEPLOY_PREVIEW_OPTION,
 } from "@appsmith/constants/messages";
 import { Button } from "design-system";
+import { KBEditorMenuItem } from "@appsmith/pages/Editor/KnowledgeBase/KBEditorMenuItem";
 
 type Props = {
   trigger: ReactNode;
@@ -65,6 +66,7 @@ export const DeployLinkButton = (props: Props) => {
         >
           {CURRENT_DEPLOY_PREVIEW_OPTION()}
         </MenuItem>
+        <KBEditorMenuItem />
       </MenuContent>
     </Menu>
   );

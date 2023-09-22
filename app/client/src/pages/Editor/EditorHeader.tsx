@@ -114,7 +114,6 @@ import WalkthroughContext from "components/featureWalkthrough/walkthroughContext
 import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
-import { KBEditorNavButton } from "@appsmith/pages/Editor/KnowledgeBase/KBEditorNavButton";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -581,7 +580,6 @@ export function EditorHeader() {
                 </ModalBody>
               </ModalContent>
             </Modal>
-            <KBEditorNavButton />
             <div className="flex items-center">
               <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
