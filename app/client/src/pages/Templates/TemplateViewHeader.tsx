@@ -28,11 +28,17 @@ const Title = styled(Text)`
 `;
 
 type Props = {
+  onClickUseTemplate?: (id: string) => void;
+  showBack: boolean;
   templateId: string;
 };
 const SHOW_FORK_MODAL_PARAM = "showForkTemplateModal";
 
-function TemplateViewHeader({ templateId }: Props) {
+function TemplateViewHeader({
+  onClickUseTemplate,
+  showBack,
+  templateId,
+}: Props) {
   const currentTemplate = useSelector(getActiveTemplateSelector);
   const query = useQuery();
   const workspaceList = useSelector(getForkableWorkspaces);
@@ -43,19 +49,25 @@ function TemplateViewHeader({ templateId }: Props) {
     history.replace(`${templateIdUrl({ id: templateId })}`);
   };
   const onForkButtonTrigger = () => {
-    history.replace(
-      `${templateIdUrl({ id: templateId })}?${SHOW_FORK_MODAL_PARAM}=true`,
-    );
+    if (onClickUseTemplate) {
+      onClickUseTemplate(templateId);
+    } else {
+      history.replace(
+        `${templateIdUrl({ id: templateId })}?${SHOW_FORK_MODAL_PARAM}=true`,
+      );
+    }
   };
   return (
     <HeaderWrapper>
-      <Link
-        data-testid="t--template-view-goback"
-        onClick={goBack}
-        startIcon="arrow-left-line"
-      >
-        {createMessage(GO_BACK)}
-      </Link>
+      {showBack && (
+        <Link
+          data-testid="t--template-view-goback"
+          onClick={goBack}
+          startIcon="arrow-left-line"
+        >
+          {createMessage(GO_BACK)}
+        </Link>
+      )}
       <Title kind="heading-l" renderAs="h1">
         {currentTemplate?.title}
       </Title>

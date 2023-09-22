@@ -122,6 +122,9 @@ export class HomePage {
   private _applicationEditedText = (applicationName: string) =>
     this._appCard(applicationName) +
     "//div[contains(@class, 't--application-edited-text')]";
+  _createNewAppFlowGoBack = "[data-testid='t--create-new-app-option-goback']";
+  _createNewAppFlowStartScratch = "[data-testid='t--start-from-scratch']";
+  _createNewAppFlowStartTemplate = "[data-testid='t--start-from-template']";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);

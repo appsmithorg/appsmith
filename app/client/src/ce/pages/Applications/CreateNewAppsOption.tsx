@@ -27,10 +27,10 @@ import {
 } from "@appsmith/constants/messages";
 import Filters from "pages/Templates/Filters";
 import { isEmpty } from "lodash";
-import { Colors } from "constants/Colors";
 import StartScratch from "assets/images/start-from-scratch.svg";
 import StartTemplate from "assets/images/start-from-template.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { TemplateView } from "pages/Templates/TemplateView";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -48,8 +48,8 @@ const BackWrapper = styled.div`
   ${(props) => `
     top: ${props.theme.homePage.header}px;
     `}
-  background: ${Colors.WHITE};
-  padding: var(--ads-v2-spaces-3) 0;
+  background: var(--ads-v2-color-bg);
+  padding: var(--ads-v2-spaces-3);
   z-index: 1;
 `;
 
@@ -57,10 +57,12 @@ const FiltersWrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
   display: flex;
-  padding: 16px 16px 0;
   flex-direction: column;
   border-right: 1px solid var(--ads-v2-color-border);
   flex-shrink: 0;
+  .filter-wrapper {
+    height: 100%;
+  }
 `;
 
 const TemplateWrapper = styled.div`
@@ -92,7 +94,7 @@ const CardContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 48px;
-  border: 1px solid #cdd5df;
+  border: 1px solid var(--ads-v2-color-border);
   width: 324px;
   align-items: center;
   text-align: center;
@@ -104,15 +106,16 @@ const CardContainer = styled.div`
 `;
 
 type CardProps = {
+  onClick?: () => void;
   src: string;
   subTitle: string;
+  testid: string;
   title: string;
-  onClick?: () => void;
 };
 
-const Card = ({ onClick, src, subTitle, title }: CardProps) => {
+const Card = ({ onClick, src, subTitle, testid, title }: CardProps) => {
   return (
-    <CardContainer onClick={onClick}>
+    <CardContainer data-testid={testid} onClick={onClick}>
       <img alt={title} src={src} />
       <Text kind="heading-s">{title}</Text>
       <Text>{subTitle}</Text>
@@ -120,7 +123,7 @@ const Card = ({ onClick, src, subTitle, title }: CardProps) => {
   );
 };
 
-export const CreateNewAppsOption = ({
+const CreateNewAppsOption = ({
   currentSelectedWorkspace,
   onClickBack,
   startFromScratch,
@@ -130,6 +133,7 @@ export const CreateNewAppsOption = ({
   startFromScratch: () => void;
 }) => {
   const [useTemplate, setUseTemplate] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const templatesCount = useSelector(
     (state: AppState) => state.ui.templates.templates.length,
   );
@@ -156,16 +160,42 @@ export const CreateNewAppsOption = ({
 
   const onTemplateClick = (id: string) => {
     AnalyticsUtil.logEvent("CLICK_ON_TEMPLATE_CARD_WHEN_ONBOARDING", { id });
-    if (!isImportingTemplate) onForkTemplateClick({ id } as Template);
+    // When template is clicked to view the template details
+    if (!isImportingTemplate) setSelectedTemplate(id);
+  };
+
+  const onClickUseTemplate = (id: string) => {
+    AnalyticsUtil.logEvent("USE_TEMPLATE_FROM_DETAILS_PAGE_WHEN_ONBOARDING", {
+      id,
+    });
+    // When Use template is clicked on template view detail screen
+    if (!isImportingTemplate)
+      dispatch(importTemplateToWorkspace(id, currentSelectedWorkspace));
   };
 
   const onForkTemplateClick = (template: Template) => {
     const id = template.id;
     AnalyticsUtil.logEvent("FORK_TEMPLATE_WHEN_ONBOARDING", { id });
+    // When fork template is clicked to add a new app using the template
     if (!isImportingTemplate)
       dispatch(
         importTemplateToWorkspace(template.id, currentSelectedWorkspace),
       );
+  };
+
+  const onClickBackButton = () => {
+    if (useTemplate) {
+      if (selectedTemplate) {
+        // Going back from template details view screen
+        setSelectedTemplate("");
+      } else {
+        // Going back from start from template screen
+        goBackFromTemplate();
+      }
+    } else {
+      // Going back from create new app flow
+      onClickBack();
+    }
   };
 
   return (
@@ -174,25 +204,34 @@ export const CreateNewAppsOption = ({
         <Link
           className="t--create-new-app-option-goback"
           data-testid="t--create-new-app-option-goback"
-          onClick={useTemplate ? goBackFromTemplate : onClickBack}
+          onClick={onClickBackButton}
           startIcon="arrow-left-line"
         >
           {createMessage(GO_BACK)}
         </Link>
       </BackWrapper>
       {useTemplate ? (
-        <TemplateWrapper>
-          <FiltersWrapper>
-            <Filters />
-          </FiltersWrapper>
-          <TemplateContentWrapper>
-            <TemplatesContent
-              isForkingEnabled={!!workspaceList.length}
-              onForkTemplateClick={onForkTemplateClick}
-              onTemplateClick={onTemplateClick}
-            />
-          </TemplateContentWrapper>
-        </TemplateWrapper>
+        selectedTemplate ? (
+          <TemplateView
+            onClickUseTemplate={onClickUseTemplate}
+            showBack={false}
+            showSimilarTemplate={false}
+            templateId={selectedTemplate}
+          />
+        ) : (
+          <TemplateWrapper>
+            <FiltersWrapper>
+              <Filters />
+            </FiltersWrapper>
+            <TemplateContentWrapper>
+              <TemplatesContent
+                isForkingEnabled={!!workspaceList.length}
+                onForkTemplateClick={onForkTemplateClick}
+                onTemplateClick={onTemplateClick}
+              />
+            </TemplateContentWrapper>
+          </TemplateWrapper>
+        )
       ) : (
         <OptionWrapper>
           <Text kind="heading-xl">
@@ -204,12 +243,14 @@ export const CreateNewAppsOption = ({
               onClick={onClickStartFromTemplate}
               src={StartTemplate}
               subTitle={createMessage(START_FROM_TEMPLATE_TITLE)}
+              testid="t--start-from-template"
               title={createMessage(START_FROM_TEMPLATE_SUBTITLE)}
             />
             <Card
               onClick={startFromScratch}
               src={StartScratch}
               subTitle={createMessage(START_FROM_SCRATCH_SUBTITLE)}
+              testid="t--start-from-scratch"
               title={createMessage(START_FROM_SCRATCH_TITLE)}
             />
           </CardsWrapper>
@@ -218,3 +259,5 @@ export const CreateNewAppsOption = ({
     </SectionWrapper>
   );
 };
+
+export default CreateNewAppsOption;
