@@ -1,9 +1,6 @@
-import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import type { BaseInputWidgetProps } from "./types";
-import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 
 export const propertyPaneContentConfig = [
   {
@@ -18,63 +15,6 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        helpText: "Sets the label position of the widget",
-        propertyName: "labelPosition",
-        label: "Position",
-        controlType: "ICON_TABS",
-        fullWidth: true,
-        hidden: isAutoLayout,
-        options: [
-          { label: "Auto", value: LabelPosition.Auto },
-          { label: "Left", value: LabelPosition.Left },
-          { label: "Top", value: LabelPosition.Top },
-        ],
-        defaultValue: LabelPosition.Top,
-        isBindProperty: false,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        helpText: "Sets the label alignment of the widget",
-        propertyName: "labelAlignment",
-        label: "Alignment",
-        controlType: "LABEL_ALIGNMENT_OPTIONS",
-        fullWidth: false,
-        options: [
-          {
-            startIcon: "align-left",
-            value: Alignment.LEFT,
-          },
-          {
-            startIcon: "align-right",
-            value: Alignment.RIGHT,
-          },
-        ],
-        isBindProperty: false,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-        hidden: (props: BaseInputWidgetProps) => props.labelPosition !== "side",
-        dependencies: ["labelPosition"],
-      },
-      {
-        helpText: "Sets the label width of the widget as the number of columns",
-        propertyName: "labelWidth",
-        label: "Width (in columns)",
-        controlType: "NUMERIC_INPUT",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        min: 0,
-        validation: {
-          type: ValidationTypes.NUMBER,
-          params: {
-            natural: true,
-          },
-        },
-        hidden: (props: BaseInputWidgetProps) => props.labelPosition !== "side",
-        dependencies: ["labelPosition"],
       },
     ],
   },
