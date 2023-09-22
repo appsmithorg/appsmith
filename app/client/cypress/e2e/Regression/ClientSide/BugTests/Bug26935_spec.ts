@@ -20,6 +20,19 @@ describe("Bug26935- Widget isLoading property", function () {
 
     // Text1
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 200, 600);
+    cy.intercept(
+      {
+        method: "POST",
+        pathname: "/v1/actions/execute",
+      },
+      (req) => {
+        // Wait for 3 seconds, so we can capture the isLoading state of widgets
+        req.continue((res) => {
+          res.delay = 3000;
+          res.send();
+        });
+      },
+    );
   });
   it("1. Updates isLoading property of widgets when API/Query is executing", () => {
     entityExplorer.SelectEntityByName("Button1", "Widgets");
@@ -36,7 +49,7 @@ describe("Bug26935- Widget isLoading property", function () {
     agHelper.ClickButton("Submit");
     // After triggering API execution, check that isLoading is set to true
     agHelper.AssertContains("Table1 isLoading: true");
-    agHelper.Sleep(2000);
+    agHelper.Sleep(3000);
     agHelper.AssertContains("Table1 isLoading: false");
 
     deployMode.DeployApp();
@@ -44,7 +57,7 @@ describe("Bug26935- Widget isLoading property", function () {
     agHelper.ClickButton("Submit");
     // After triggering API execution, check that isLoading is set to true
     agHelper.AssertContains("Table1 isLoading: true");
-    agHelper.Sleep(2000);
+    agHelper.Sleep(3000);
     agHelper.AssertContains("Table1 isLoading: false");
   });
 });
