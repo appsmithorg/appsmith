@@ -12,7 +12,7 @@ import {
   getActions,
   getDatasources,
 } from "@appsmith/selectors/entitiesSelector";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { matchPath, useLocation } from "react-router";
 import {
   API_EDITOR_ID_PATH,

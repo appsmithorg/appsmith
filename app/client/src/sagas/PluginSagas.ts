@@ -38,7 +38,7 @@ import type {
   FormDependencyConfigs,
   FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 function* fetchPluginsSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,

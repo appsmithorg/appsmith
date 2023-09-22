@@ -12,7 +12,7 @@ import {
   getProvidersTemplatesLoadingState,
 } from "@appsmith/selectors/applicationSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { ProviderTemplateArray } from "constants/providerConstants";
 import { DEFAULT_TEMPLATE_TYPE } from "constants/providerConstants";
 import type { AddApiToPageRequest } from "api/ProvidersApi";

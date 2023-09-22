@@ -20,7 +20,7 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import {

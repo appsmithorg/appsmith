@@ -1,6 +1,6 @@
 import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   getBindingAndReactivePathsOfAction,
   getDataTreeActionConfigPath,

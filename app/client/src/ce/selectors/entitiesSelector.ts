@@ -2,7 +2,7 @@ import type { AppState } from "@appsmith/reducers";
 import type {
   ActionData,
   ActionDataState,
-} from "reducers/entityReducers/actionsReducer";
+} from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
 import type {

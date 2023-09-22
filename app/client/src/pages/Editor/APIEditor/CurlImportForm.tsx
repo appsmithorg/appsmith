@@ -6,7 +6,7 @@ import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import type { BuilderRouteParams } from "constants/routes";
 import type { curlImportFormValues } from "./helpers";

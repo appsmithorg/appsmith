@@ -1,4 +1,4 @@
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";

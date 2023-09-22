@@ -44,7 +44,7 @@ import {
   SIGNPOSTING_TOOLTIP,
 } from "@appsmith/constants/messages";
 import type { Datasource } from "entities/Datasource";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SIGNPOSTING_STEP, SignpostingWalkthroughConfig } from "./Utils";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
