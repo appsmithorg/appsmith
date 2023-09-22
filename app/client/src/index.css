@@ -19,7 +19,7 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #fff !important;
+  background-color: #fcfcfc !important;
   color: var(--ads-v2-color-fg);
 }
 

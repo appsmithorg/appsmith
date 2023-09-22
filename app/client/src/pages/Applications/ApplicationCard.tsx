@@ -82,8 +82,8 @@ type ApplicationCardProps = {
 const IconScrollWrapper = styled.div`
   position: relative;
   .t--icon-selected {
-    background-color: var(--ads-v2-color-bg-muted);
-    border: var(--ads-v2-border-color);
+    background-color: #fff;
+    border: #000;
     svg {
       path {
         fill: var(--ads-v2-color-fg);
@@ -497,7 +497,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   return (
     <Card
-      backgroundColor={selectedColor}
+      backgroundColor="red"
       contextMenu={contextMenu}
       editedByText={editedByText}
       hasReadPermission={hasReadPermission}
