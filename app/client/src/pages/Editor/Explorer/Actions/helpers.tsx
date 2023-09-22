@@ -13,7 +13,7 @@ import type { Plugin } from "api/PluginApi";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { groupBy } from "lodash";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   apiEditorIdURL,
