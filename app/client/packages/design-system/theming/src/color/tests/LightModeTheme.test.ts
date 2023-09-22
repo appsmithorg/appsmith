@@ -604,6 +604,16 @@ describe("fgNeutral color", () => {
   });
 });
 
+describe("fgNeutralSubtle color", () => {
+  it("should return correct color", () => {
+    const { fgNeutralSubtle } = new LightModeTheme(
+      "oklch(0.45 0.03 60)",
+    ).getColors();
+
+    expect(fgNeutralSubtle).toEqual("rgb(44.47% 44.47% 44.47%)");
+  });
+});
+
 describe("fgPositive color", () => {
   it("should return correct color when chroma < 0.04", () => {
     const { fgPositive } = new LightModeTheme(
