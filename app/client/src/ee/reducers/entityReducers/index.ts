@@ -1,7 +1,7 @@
 export * from "ce/reducers/entityReducers";
-import { default as CE_entityReducer } from "ce/reducers/entityReducers";
+import { entityReducerObject as CE_entityReducerObject } from "ce/reducers/entityReducers";
 import { combineReducers } from "redux";
 
-const entityReducer = combineReducers({ ...CE_entityReducer });
+const entityReducer = combineReducers({ ...CE_entityReducerObject });
 
 export default entityReducer;
