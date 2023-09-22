@@ -105,15 +105,16 @@ const CardContainer = styled.div`
 `;
 
 type CardProps = {
+  onClick?: () => void;
   src: string;
   subTitle: string;
+  testid: string;
   title: string;
-  onClick?: () => void;
 };
 
-const Card = ({ onClick, src, subTitle, title }: CardProps) => {
+const Card = ({ onClick, src, subTitle, testid, title }: CardProps) => {
   return (
-    <CardContainer onClick={onClick}>
+    <CardContainer data-testid={testid} onClick={onClick}>
       <img alt={title} src={src} />
       <Text kind="heading-s">{title}</Text>
       <Text>{subTitle}</Text>
@@ -233,12 +234,14 @@ const CreateNewAppsOption = ({
               onClick={onClickStartFromTemplate}
               src={StartTemplate}
               subTitle={createMessage(START_FROM_TEMPLATE_TITLE)}
+              testid="t--start-from-template"
               title={createMessage(START_FROM_TEMPLATE_SUBTITLE)}
             />
             <Card
               onClick={startFromScratch}
               src={StartScratch}
               subTitle={createMessage(START_FROM_SCRATCH_SUBTITLE)}
+              testid="t--start-from-scratch"
               title={createMessage(START_FROM_SCRATCH_TITLE)}
             />
           </CardsWrapper>
