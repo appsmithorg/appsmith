@@ -29,6 +29,7 @@ import Filters from "pages/Templates/Filters";
 import { isEmpty } from "lodash";
 import StartScratch from "assets/images/start-from-scratch.svg";
 import StartTemplate from "assets/images/start-from-template.svg";
+import { TemplateView } from "pages/Templates/TemplateView";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -46,7 +47,7 @@ const BackWrapper = styled.div`
   ${(props) => `
     top: ${props.theme.homePage.header}px;
     `}
-  background: var(--ads-v2-color-background);
+  background: var(--ads-v2-color-bg);
   padding: var(--ads-v2-spaces-3);
   z-index: 1;
 `;
@@ -130,6 +131,7 @@ const CreateNewAppsOption = ({
   startFromScratch: () => void;
 }) => {
   const [useTemplate, setUseTemplate] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const templatesCount = useSelector(
     (state: AppState) => state.ui.templates.templates.length,
   );
@@ -153,14 +155,37 @@ const CreateNewAppsOption = ({
   };
 
   const onTemplateClick = (id: string) => {
-    if (!isImportingTemplate) onForkTemplateClick({ id } as Template);
+    // When template is clicked to view the template details
+    if (!isImportingTemplate) setSelectedTemplate(id);
+  };
+
+  const onClickUseTemplate = (id: string) => {
+    // When Use template is clicked on template view detail screen
+    if (!isImportingTemplate)
+      dispatch(importTemplateToWorkspace(id, currentSelectedWorkspace));
   };
 
   const onForkTemplateClick = (template: Template) => {
+    // When fork template is clicked to add a new app using the template
     if (!isImportingTemplate)
       dispatch(
         importTemplateToWorkspace(template.id, currentSelectedWorkspace),
       );
+  };
+
+  const onClickBackButton = () => {
+    if (useTemplate) {
+      if (selectedTemplate) {
+        // Going back from template details view screen
+        setSelectedTemplate("");
+      } else {
+        // Going back from start from template screen
+        goBackFromTemplate();
+      }
+    } else {
+      // Going back from create new app flow
+      onClickBack();
+    }
   };
 
   return (
@@ -169,25 +194,34 @@ const CreateNewAppsOption = ({
         <Link
           className="t--create-new-app-option-goback"
           data-testid="t--create-new-app-option-goback"
-          onClick={useTemplate ? goBackFromTemplate : onClickBack}
+          onClick={onClickBackButton}
           startIcon="arrow-left-line"
         >
           {createMessage(GO_BACK)}
         </Link>
       </BackWrapper>
       {useTemplate ? (
-        <TemplateWrapper>
-          <FiltersWrapper>
-            <Filters />
-          </FiltersWrapper>
-          <TemplateContentWrapper>
-            <TemplatesContent
-              isForkingEnabled={!!workspaceList.length}
-              onForkTemplateClick={onForkTemplateClick}
-              onTemplateClick={onTemplateClick}
-            />
-          </TemplateContentWrapper>
-        </TemplateWrapper>
+        selectedTemplate ? (
+          <TemplateView
+            onClickUseTemplate={onClickUseTemplate}
+            showBack={false}
+            showSimilarTemplate={false}
+            templateId={selectedTemplate}
+          />
+        ) : (
+          <TemplateWrapper>
+            <FiltersWrapper>
+              <Filters />
+            </FiltersWrapper>
+            <TemplateContentWrapper>
+              <TemplatesContent
+                isForkingEnabled={!!workspaceList.length}
+                onForkTemplateClick={onForkTemplateClick}
+                onTemplateClick={onTemplateClick}
+              />
+            </TemplateContentWrapper>
+          </TemplateWrapper>
+        )
       ) : (
         <OptionWrapper>
           <Text kind="heading-xl">
