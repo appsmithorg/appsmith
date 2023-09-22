@@ -13,7 +13,7 @@ export type RadioGroupRef = DOMRef<HTMLDivElement>;
 export interface RadioGroupProps
   extends Omit<
     SpectrumRadioGroupProps,
-    keyof StyleProps | "includeNecessityIndicatorInAccessibilityName"
+    keyof StyleProps | "labelPosition" | "labelAlign"
   > {
   className?: string;
 }

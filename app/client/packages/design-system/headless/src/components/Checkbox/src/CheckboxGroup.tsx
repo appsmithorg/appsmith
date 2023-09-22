@@ -13,7 +13,7 @@ export type CheckboxGroupRef = DOMRef<HTMLDivElement>;
 export interface CheckboxGroupProps
   extends Omit<
     SpectrumCheckboxGroupProps,
-    keyof StyleProps | "includeNecessityIndicatorInAccessibilityName"
+    keyof StyleProps | "labelPosition" | "labelAlign"
   > {
   className?: string;
 }
