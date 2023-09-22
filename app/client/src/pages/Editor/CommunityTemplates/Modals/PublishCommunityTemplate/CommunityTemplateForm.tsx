@@ -94,7 +94,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
         shouldUpdateName: !currentUser?.name,
         branchName:
           currentApplication?.gitApplicationMetadata?.branchName || "",
-        appUrl: `https://app.appsmith.com${viewerURL({
+        appUrl: `${window.location.origin}${viewerURL({
           pageId: currentPageId,
         })}`,
       }),
