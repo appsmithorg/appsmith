@@ -11,7 +11,7 @@ async function applyNginxChanges() {
     .replace("# server_tokens off;", "server_tokens off; more_set_headers 'Server: ';")
     .replace("gzip on;", "gzip on; gzip_types *;")
     .replace("include /etc/nginx/conf.d/*.conf;", [
-      "include /etc/nginx/conf.d/*.conf;"
+      "include /etc/nginx/conf.d/*.conf;",
       `include ${TMP}/nginx-app.conf;`,
       `root ${NGINX_WWW_PATH};`,
     ].join("\n"));
