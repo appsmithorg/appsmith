@@ -246,7 +246,7 @@ export class CommonLocators {
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
   _fixedLayout = "#t--layout-conversion-cta:contains('fixed')";
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
-  _popoverToolTip = ".bp3-popover-content";
+  _popoverToolTip = ".bp3-popover-content, .bp3-popover2-content";
   _selectedWidget = "div[data-testid='t--selected']";
   _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
@@ -302,5 +302,4 @@ export class CommonLocators {
   _callbackAddBtn = ".action-callback-add .ads-v2-button";
   _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
   _listText = "//span[text()='Blue']/../..";
-  _popover2ToolTip = ".bp3-popover2-content";
 }

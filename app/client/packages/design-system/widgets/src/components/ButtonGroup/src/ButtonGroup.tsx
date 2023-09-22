@@ -1,29 +1,17 @@
 import React, { forwardRef } from "react";
-
 import { StyledContainer } from "./index.styled";
+import { ORIENTATION } from "./types";
 
-// types
-export const ORIENTATION = {
-  VERTICAL: "vertical",
-  HORIZONTAL: "horizontal",
-} as const;
+import type { ButtonGroupProps } from "./types";
 
-type Orientation = (typeof ORIENTATION)[keyof typeof ORIENTATION];
-export interface ButtonGroupProps
-  extends React.ComponentPropsWithoutRef<"div"> {
-  children?: React.ReactNode;
-  orientation?: Orientation;
-}
-
-// component
 export const ButtonGroup = forwardRef<HTMLDivElement, ButtonGroupProps>(
   (props, ref) => {
-    const { orientation = ORIENTATION.HORIZONTAL, ...others } = props;
+    const { orientation = ORIENTATION.horizontal, ...others } = props;
 
     return (
       <StyledContainer
         data-orientation={
-          orientation === ORIENTATION.VERTICAL ? "vertical" : undefined
+          orientation === ORIENTATION.vertical ? "vertical" : undefined
         }
         ref={ref}
         {...others}

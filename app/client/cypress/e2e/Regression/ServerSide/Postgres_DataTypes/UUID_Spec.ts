@@ -390,7 +390,7 @@ describe("UUID Datatype tests", function () {
   });
 
   it("15. Verify Deletion of all created queries", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
   });
@@ -399,6 +399,6 @@ describe("UUID Datatype tests", function () {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     entityExplorer.ExpandCollapseEntity("Queries/JS");
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   });
 });

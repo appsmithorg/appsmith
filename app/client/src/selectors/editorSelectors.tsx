@@ -47,7 +47,6 @@ import {
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import {
   buildChildWidgetTree,
-  buildFlattenedChildCanvasWidgets,
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
@@ -553,14 +552,6 @@ export const getChildWidgets = createSelector(
     (_state: AppState, widgetId: string) => widgetId,
   ],
   buildChildWidgetTree,
-);
-
-export const getFlattenedChildCanvasWidgets = createSelector(
-  [
-    getCanvasWidgets,
-    (_state: AppState, parentWidgetId: string) => parentWidgetId,
-  ],
-  buildFlattenedChildCanvasWidgets,
 );
 
 const getOccupiedSpacesForContainer = (

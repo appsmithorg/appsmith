@@ -123,14 +123,6 @@ describe("Nested List widget V2 ", () => {
   });
 
   it("5. Verify Theme change", () => {
-    [0, 1, 2].forEach((index) => {
-      agHelper.AssertAttribute(
-        locators._listText,
-        "font-family",
-        "Nunito Sans",
-        index,
-      );
-    });
     agHelper.PressEscape();
     appSettings.OpenPaneAndChangeTheme("Pacific");
     [0, 1, 2].forEach((index) => {

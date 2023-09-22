@@ -649,7 +649,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   it("18. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   });
 
   function generateCallsignInfo(rowIndex: number) {

@@ -227,6 +227,8 @@ describe("generateDataTreeWidget", () => {
       widgetId: "123",
       widgetName: "Input1",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      componentWidth: 0,
+      componentHeight: 0,
       defaultText: "",
       type: "INPUT_WIDGET_V2",
       deepObj: {

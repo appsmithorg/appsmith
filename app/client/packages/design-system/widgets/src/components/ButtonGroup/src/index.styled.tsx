@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import type { ButtonGroupProps } from "./ButtonGroup";
+import type { ButtonGroupProps } from "./types";
 
 export const StyledContainer = styled.div<ButtonGroupProps>`
   display: flex;
@@ -75,7 +75,6 @@ export const StyledContainer = styled.div<ButtonGroupProps>`
   * Filled variant
   *-----------------------------------------------------------------------------
   */
-
   & [data-variant="filled"] {
     border-width: 0;
   }

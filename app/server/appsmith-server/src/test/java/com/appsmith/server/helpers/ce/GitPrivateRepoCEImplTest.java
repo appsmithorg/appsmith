@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers.ce;
 
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.services.ApplicationService;
@@ -16,6 +17,8 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -86,6 +89,31 @@ public class GitPrivateRepoCEImplTest {
 
         StepVerifier.create(gitPrivateRepoHelper.isRepoLimitReached("workspaceId", false))
                 .assertNext(aBoolean -> assertEquals(true, aBoolean))
+                .verifyComplete();
+    }
+
+    // The branch can be configured in free trial but when the user downgrades the plan,
+    // behaviour will be not same as the paid version.
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void isProtectedBranch_branchNotConfiguredInPaidVersion_notProtected() {
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        List<String> protectedBranches = List.of("master", "feature");
+        gitApplicationMetadata.setBranchProtectionRules(protectedBranches);
+        StepVerifier.create(gitPrivateRepoHelper.isProtectedBranch("feature", gitApplicationMetadata))
+                .assertNext(aBoolean -> assertEquals(false, aBoolean))
+                .verifyComplete();
+    }
+
+    // Branch not configured is empty and user is in free version
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void isProtectedBranch_branchNotConfiguredInFreeVersion_notProtected() {
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        List<String> protectedBranches = List.of();
+        gitApplicationMetadata.setBranchProtectionRules(protectedBranches);
+        StepVerifier.create(gitPrivateRepoHelper.isProtectedBranch("feature", gitApplicationMetadata))
+                .assertNext(aBoolean -> assertEquals(false, aBoolean))
                 .verifyComplete();
     }
 }

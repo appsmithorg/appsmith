@@ -81,7 +81,6 @@ import {
   DEPLOY_MENU_OPTION,
   EDITOR_HEADER,
   INVITE_TAB,
-  INVITE_USERS_PLACEHOLDER,
   IN_APP_EMBED_SETTING,
   LOCK_ENTITY_EXPLORER_MESSAGE,
   LOGO_TOOLTIP,
@@ -580,10 +579,6 @@ export function EditorHeader() {
                     <TabPanel value="invite">
                       <AppInviteUsersForm
                         applicationId={applicationId}
-                        placeholder={createMessage(
-                          INVITE_USERS_PLACEHOLDER,
-                          cloudHosting,
-                        )}
                         workspaceId={workspaceId}
                       />
                     </TabPanel>
