@@ -68,6 +68,10 @@ export function* fetchCurrentTenantConfigSaga(): any {
           tenantConfiguration: {
             ...CE_defaultBrandingConfig,
             ...data.tenantConfiguration,
+            brandColors: {
+              ...CE_defaultBrandingConfig.brandColors,
+              ...data.tenantConfiguration.brandColors,
+            },
           },
         },
       });
