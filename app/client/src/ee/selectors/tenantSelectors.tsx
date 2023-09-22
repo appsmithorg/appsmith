@@ -1,6 +1,10 @@
 export * from "ce/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { LICENSE_ORIGIN, LICENSE_TYPE } from "@appsmith/pages/Billing/types";
+import {
+  LICENSE_ORIGIN,
+  LICENSE_PLANS,
+  LICENSE_TYPE,
+} from "@appsmith/pages/Billing/types";
 import type { AppState } from "@appsmith/reducers";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getRemainingDaysFromTimestamp } from "@appsmith/utils/billingUtils";
@@ -109,3 +113,6 @@ export const getBrandColors = (state: AppState) => {
 
   return {};
 };
+
+export const isFreePlan = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.plan === LICENSE_PLANS.FREE;
