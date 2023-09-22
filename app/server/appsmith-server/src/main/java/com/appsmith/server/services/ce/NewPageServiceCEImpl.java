@@ -23,7 +23,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
-import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -696,7 +696,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
+    public Mono<UpdateResult> publishPages(Collection<String> pageIds, AclPermission permission) {
         return repository.publishPages(pageIds, permission);
     }
 }
