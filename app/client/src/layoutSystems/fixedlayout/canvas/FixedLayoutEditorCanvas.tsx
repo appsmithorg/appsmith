@@ -12,6 +12,7 @@ import ContainerComponent from "widgets/ContainerWidget/component";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { DropTargetComponentWrapper } from "../../common/dropTarget/DropTargetComponentWrapper";
 import { FixedCanvasDraggingArena } from "../editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
+import { compact, sortBy } from "lodash";
 
 export type CanvasProps = ContainerWidgetProps<WidgetProps>;
 
@@ -42,7 +43,7 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
   const canvasChildren = useMemo(
     () =>
       renderChildren(
-        props.children,
+        sortBy(compact(props.children), (child: WidgetProps) => child.topRow),
         props.widgetId,
         RenderModes.CANVAS,
         {
