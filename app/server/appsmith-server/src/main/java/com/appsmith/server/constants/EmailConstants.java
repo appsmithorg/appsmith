@@ -25,6 +25,7 @@ public class EmailConstants extends EmailConstantsCE {
     public static final String INVITE_TO_WORKSPACE_NEW_USER_TEMPLATE_EE =
             "email/ee/inviteWorkspaceNewUserTemplate.html";
     public static final String INVITE_APP_TEMPLATE = "email/ee/inviteAppTemplate.html";
+    public static final String EMAIL_VERIFICATION_EMAIL_TEMPLATE_EE = "email/ee/emailVerificationTemplate.html";
     public static final String LOGO_URL = "logoUrl";
     public static final String BRAND_PRIMARY_COLOR = "brandPrimaryColor";
     public static final String BRAND_BACKGROUND_COLOR = "brandBackgroundColor";

@@ -148,6 +148,11 @@ public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService
     }
 
     @Override
+    protected String getEmailVerificationTemplate() {
+        return EMAIL_VERIFICATION_EMAIL_TEMPLATE_EE;
+    }
+
+    @Override
     protected String getAdminInstanceInviteTemplate() {
         return INVITE_TO_INSTANCE_ADMIN_EMAIL_TEMPLATE;
     }
