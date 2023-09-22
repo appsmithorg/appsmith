@@ -93,7 +93,7 @@ jobs:
                 cd app/client
                 yarn install
                 git add yarn.lock
-                git commit -m 'Merge CE, conflict in yarn.lock'
+                git commit -m 'Merge CE, conflict in yarn.lock' --no-verify
               else
                 return 1
               fi
