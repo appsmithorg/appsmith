@@ -26,8 +26,10 @@ export type PropertyPaneSectionConfig = {
   propertySectionPath?: string;
   tag?: string; // Used to show a tag right after the section name (only in the search results)
 
-  hasDynamicProperties: boolean;
-  generateDynamicProperty: (widget: WidgetProps) => PropertyPaneControlConfig[];
+  hasDynamicProperties?: boolean;
+  generateDynamicProperty?: (
+    widget: WidgetProps,
+  ) => PropertyPaneControlConfig[];
 };
 
 export type PanelConfig = {

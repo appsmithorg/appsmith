@@ -6,7 +6,6 @@ import type {
 import { ValidationTypes } from "constants/WidgetValidation";
 import { memoize } from "lodash";
 import log from "loglevel";
-import { generateReactKey } from "../../utils/generators";
 import type { WidgetType } from ".";
 import WidgetFactory from ".";
 import type {
@@ -114,7 +113,8 @@ export function generatePropertyPaneSearchConfig(
 */
 export const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
   return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
-    sectionOrControlConfig.id = generateReactKey();
+    sectionOrControlConfig.id =
+      sectionOrControlConfig.sectionName || sectionOrControlConfig.propertyName;
     if (sectionOrControlConfig.children) {
       sectionOrControlConfig.children = addPropertyConfigIds(
         sectionOrControlConfig.children,

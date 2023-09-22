@@ -63,7 +63,7 @@ import type { OneClickBindingControlProps } from "./OneClickBindingControl";
 import OneClickBindingControl from "./OneClickBindingControl";
 import type { WrappedCodeEditorControlProps } from "./WrappedCodeEditorControl";
 import WrappedCodeEditorControl from "./WrappedCodeEditorControl";
-import DynamicPropertiesControl from "./DynamicProperties";
+import DynamicPropertiesControl from "./HTMLDocumentBuilderControl";
 
 export const PropertyControls = {
   InputTextControl,
