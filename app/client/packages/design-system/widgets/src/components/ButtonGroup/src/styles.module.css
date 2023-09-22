@@ -8,7 +8,7 @@
   }
 
   /* increasing z index to make sure the focused button is on top of the others */
-  & [data-button]:not([data-disabled]):focus {
+  & [data-button]:not([data-disabled]):focus-visible {
     z-index: 1;
   }
 
@@ -75,24 +75,10 @@
     border-width: 0;
   }
 
-  & [data-variant="filled"][data-color="accent"] {
-    border-color: var(--color-bd-on-accent);
-  }
-
-  & [data-variant="filled"][data-color="neutral"] {
-    border-color: var(--color-bd-on-neutral);
-  }
-
-  & [data-variant="filled"][data-color="positive"] {
-    border-color: var(--color-bd-on-positive);
-  }
-
-  & [data-variant="filled"][data-color="negative"] {
-    border-color: var(--color-bd-on-negative);
-  }
-
-  & [data-variant="filled"][data-color="warning"] {
-    border-color: var(--color-bd-on-warning);
+  @each $color in colors {
+    & [data-variant="filled"][data-color="$(color)"] {
+      border-color: var(--color-bd-on-$(color));
+    }
   }
 
   /**
@@ -101,23 +87,9 @@
   *-----------------------------------------------------------------------------
   */
 
-  & [data-variant="outlined"][data-color="accent"] {
-    border-color: var(--color-bd-accent);
-  }
-
-  & [data-variant="outlined"][data-color="neutral"] {
-    border-color: var(--color-bd-neutral);
-  }
-
-  & [data-variant="outlined"][data-color="positive"] {
-    border-color: var(--color-bd-positive);
-  }
-
-  & [data-variant="outlined"][data-color="negative"] {
-    border-color: var(--color-bd-negative);
-  }
-
-  & [data-variant="outlined"][data-color="warning"] {
-    border-color: var(--color-bd-warning);
+  @each $color in colors {
+    & [data-variant="outlined"][data-color="$(color)"] {
+      border-color: var(--color-bd-$(color));
+    }
   }
 }
