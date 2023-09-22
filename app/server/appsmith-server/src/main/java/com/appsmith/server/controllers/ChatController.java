@@ -6,8 +6,9 @@ import com.appsmith.server.dtos.ChatGenerationDTO;
 import com.appsmith.server.dtos.ChatGenerationResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.enums.ChatGenerationType;
-import com.appsmith.server.services.ChatService;
+import com.appsmith.server.services.ChatServiceManager;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,20 +19,16 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(Url.CHAT_URL)
+@RequiredArgsConstructor
 public class ChatController {
-
-    private final ChatService chatService;
-
-    public ChatController(ChatService chatService) {
-        this.chatService = chatService;
-    }
+    private final ChatServiceManager chatServiceManager;
 
     @JsonView(Views.Public.class)
     @PostMapping("/chat-generation")
     public Mono<ResponseDTO<ChatGenerationResponseDTO>> generateCode(
             @RequestParam ChatGenerationType type, @RequestBody ChatGenerationDTO chatGenerationDTO) {
-        return chatService
-                .generateCode(chatGenerationDTO, type)
+        return chatServiceManager
+                .generateResponse(chatGenerationDTO, type)
                 .map(generated -> new ResponseDTO<>(HttpStatus.OK.value(), generated, null));
     }
 }

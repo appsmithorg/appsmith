@@ -1130,7 +1130,14 @@ public enum AppsmithError {
             "Knowledge base error",
             ErrorType.INTERNAL_ERROR,
             null),
-    ;
+    NO_IMPLEMENTATION_ERROR(
+            400,
+            AppsmithErrorCode.NO_IMPLEMENTATION_EXCEPTION.getCode(),
+            "{0}",
+            AppsmithErrorAction.DEFAULT,
+            "No implementation error",
+            ErrorType.INTERNAL_ERROR,
+            null);
 
     private final Integer httpErrorCode;
     private final String appErrorCode;

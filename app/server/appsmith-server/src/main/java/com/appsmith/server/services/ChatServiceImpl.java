@@ -12,7 +12,6 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.enums.ChatGenerationType;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.server.solutions.LicenseAPIManager;
 import com.appsmith.util.WebClientUtils;
@@ -29,8 +28,6 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
-
-    private final FeatureFlagService featureFlagService;
     private final CloudServicesConfig cloudServicesConfig;
     private final TenantService tenantService;
     private final ConfigService configService;
@@ -42,25 +39,15 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Mono<ChatGenerationResponseDTO> generateCode(ChatGenerationDTO chatGenerationDTO, ChatGenerationType type) {
-        FeatureFlagEnum featureFlagEnum = this.getFeatureFlagByType(type);
-        Mono<Boolean> featureFlagMono = this.featureFlagService
-                .check(featureFlagEnum)
-                .filter(isAllowed -> isAllowed)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
-
         Mono<LicenseValidationRequestDTO> requestDTOMono =
                 tenantService.getDefaultTenant().flatMap(licenseAPIManager::populateLicenseValidationRequest);
 
         // TODO: Change this to get current tenant when multitenancy is introduced
-        return Mono.zip(
-                        featureFlagMono,
-                        configService.getInstanceId(),
-                        sessionUserService.getCurrentUser(),
-                        requestDTOMono)
+        return Mono.zip(configService.getInstanceId(), sessionUserService.getCurrentUser(), requestDTOMono)
                 .flatMap(tuple -> {
-                    String instanceId = tuple.getT2();
-                    String userId = tuple.getT3().getId();
-                    LicenseValidationRequestDTO licenseValidationRequestDTO = tuple.getT4();
+                    String instanceId = tuple.getT1();
+                    String userId = tuple.getT2().getId();
+                    LicenseValidationRequestDTO licenseValidationRequestDTO = tuple.getT3();
                     ChatGenerationRequestDTO chatGenerationRequestDTO = new ChatGenerationRequestDTO(
                             chatGenerationDTO, userId, instanceId, licenseValidationRequestDTO);
                     return populateRequestMeta(chatGenerationDTO, type).flatMap(ignored -> WebClientUtils.create(
@@ -85,6 +72,10 @@ public class ChatServiceImpl implements ChatService {
                                 } catch (DecodingException | IllegalStateException e2) {
                                     return e;
                                 }
+                                log.debug(
+                                        "Error reported while generating code for request {}, {}",
+                                        chatGenerationRequestDTO.getRequest(),
+                                        responseDTO.getResponseMeta().getError().getMessage());
                                 if (responseDTO != null
                                         && responseDTO.getResponseMeta() != null
                                         && responseDTO.getResponseMeta().getError() != null) {
@@ -133,15 +124,5 @@ public class ChatServiceImpl implements ChatService {
             }
         }
         return Mono.just(chatGenerationDTO);
-    }
-
-    private FeatureFlagEnum getFeatureFlagByType(ChatGenerationType type) {
-        FeatureFlagEnum featureFlagEnum = FeatureFlagEnum.ask_ai;
-        if (type == ChatGenerationType.SQL) {
-            featureFlagEnum = FeatureFlagEnum.ask_ai_sql;
-        } else if (type == ChatGenerationType.JS_EXPR) {
-            featureFlagEnum = FeatureFlagEnum.ask_ai_js;
-        }
-        return featureFlagEnum;
     }
 }
