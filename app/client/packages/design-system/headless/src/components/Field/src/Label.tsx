@@ -4,18 +4,15 @@ import { filterDOMProps } from "@react-aria/utils";
 import type { DOMRef, StyleProps } from "@react-types/shared";
 import type { SpectrumLabelProps } from "@react-types/label";
 
-export interface LabelProps
-  extends Omit<
-    SpectrumLabelProps,
-    | "necessityIndicator"
-    | "includeNecessityIndicatorInAccessibilityName"
-    | "isRequired"
-    | keyof StyleProps
-    | "labelPosition"
-    | "labelAlign"
-  > {
-  isEmphasized?: boolean;
-}
+export type LabelProps = Omit<
+  SpectrumLabelProps,
+  | "necessityIndicator"
+  | "includeNecessityIndicatorInAccessibilityName"
+  | "isRequired"
+  | keyof StyleProps
+  | "labelPosition"
+  | "labelAlign"
+>;
 
 const _Label = (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
   const {

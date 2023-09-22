@@ -14,7 +14,7 @@ export type CheckboxGroupRef = DOMRef<HTMLDivElement>;
 export interface CheckboxGroupProps
   extends Omit<
     SpectrumCheckboxGroupProps,
-    keyof StyleProps | "labelPosition" | "labelAlign"
+    keyof StyleProps | "labelPosition" | "labelAlign" | "isEmphasized"
   > {
   className?: string;
 }

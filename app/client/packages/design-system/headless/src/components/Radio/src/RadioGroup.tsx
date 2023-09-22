@@ -13,7 +13,7 @@ export type RadioGroupRef = DOMRef<HTMLDivElement>;
 export interface RadioGroupProps
   extends Omit<
     SpectrumRadioGroupProps,
-    keyof StyleProps | "labelPosition" | "labelAlign"
+    keyof StyleProps | "labelPosition" | "labelAlign" | "isEmphasized"
   > {
   className?: string;
 }
