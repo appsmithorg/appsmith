@@ -1,5 +1,4 @@
-import { Button } from "@design-system/widgets";
-import { Icon } from "@design-system/headless";
+import { Button, BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
 import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
 
@@ -62,8 +61,8 @@ There are 3 variants of the button component.
 
 <Story name="Semantic">
   <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-    {["filled", "outlined", "ghost"].map((variant) =>
-      ["accent", "neutral", "positive", "negative", "warning"].map((color) => (
+    {Object.values(BUTTON_VARIANTS).map((variant) =>
+      Object.values(COLORS).map((color) => (
         <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
           <Button variant={variant} color={color} children={color} />
         </div>
@@ -72,7 +71,7 @@ There are 3 variants of the button component.
   </div>
 </Story>
 
-## States
+## Disabled
 
 <Story
   name="Disabled State"
@@ -83,6 +82,8 @@ There are 3 variants of the button component.
 >
   {Template.bind({})}
 </Story>
+
+## Loading
 
 <Story
   name="Loading State"
@@ -101,11 +102,7 @@ There are 3 variants of the button component.
   name="With Icon"
   args={{
     children: "With Icon",
-    icon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
+    icon: EmotionHappyLineIcon,
   }}
 >
   {Template.bind({})}
@@ -117,11 +114,7 @@ There are 3 variants of the button component.
   name="Icon Position - Start"
   args={{
     children: "Icon Start",
-    icon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
+    icon: EmotionHappyLineIcon,
   }}
 >
   {Template.bind({})}
@@ -131,11 +124,7 @@ There are 3 variants of the button component.
   name="Icon Position - End"
   args={{
     children: "Icon End",
-    icon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
+    icon: EmotionHappyLineIcon,
     iconPosition: "end",
   }}
 >

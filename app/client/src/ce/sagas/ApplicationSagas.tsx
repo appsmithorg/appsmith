@@ -129,9 +129,6 @@ import {
   keysOfNavigationSetting,
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { generateReactKey } from "utils/generators";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import type { DeletingMultipleApps } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import { IDEAppState } from "../../pages/IDE/ideReducer";
@@ -652,28 +649,6 @@ export function* createApplicationSaga(
         // ensures user receives the updates in the app just created
         yield put(reconnectAppLevelWebsocket());
         yield put(reconnectPageLevelWebsocket());
-
-        const tableWidgetExperimentEnabled: boolean = yield select(
-          selectFeatureFlagCheck,
-          FEATURE_FLAG.ab_table_widget_activation_enabled,
-        );
-        if (tableWidgetExperimentEnabled) {
-          yield take(ReduxActionTypes.FETCH_WORKSPACE_SUCCESS);
-          yield put({
-            type: ReduxActionTypes.WIDGET_ADD_CHILD,
-            payload: {
-              widgetId: "0",
-              type: "TABLE_WIDGET_V2",
-              leftColumn: 15,
-              topRow: 6,
-              columns: 34,
-              rows: 28,
-              parentRowSpace: 10,
-              parentColumnSpace: 13.390625,
-              newWidgetId: generateReactKey(),
-            },
-          });
-        }
       }
     }
   } catch (error) {

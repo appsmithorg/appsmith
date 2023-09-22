@@ -12,4 +12,6 @@ public interface TestComponentCE {
     Mono<String> ceEeDiffMethod();
 
     Flux<String> ceEeDiffMethodReturnsFlux();
+
+    String ceEeSyncMethod(String arg);
 }
