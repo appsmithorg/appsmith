@@ -109,5 +109,6 @@ public class TenantConfiguration extends TenantConfigurationCE {
         private String font;
         private String disabled;
         private String hover;
+        private String active;
     }
 }

@@ -504,17 +504,19 @@ public class TenantServiceTest {
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         String primary1 = "#df8d67";
+        String active1 = "#df8d67";
         String background1 = "#fdf9f7";
         String font1 = "#000";
         String disabled1 = "#f8e6dd";
         String hover1 = "#d66d3e";
         String primary2 = "#df8d68";
+        String active2 = "#df8d68";
         String background2 = "#fdf9f8";
         String font2 = "#001";
         String disabled2 = "#f8e6de";
-        Mono<String> update1_brandColors = Mono.just(
-                "{\"brandColors\": {\"primary\":\"" + primary1 + "\",\"background\":\"" + background1 + "\",\"font\":\""
-                        + font1 + "\",\"disabled\":\"" + disabled1 + "\",\"hover\":\"" + hover1 + "\"}}");
+        Mono<String> update1_brandColors = Mono.just("{\"brandColors\": {\"primary\":\"" + primary1
+                + "\",\"background\":\"" + background1 + "\",\"font\":\"" + font1 + "\",\"disabled\":\"" + disabled1
+                + "\",\"active\":\"" + active1 + "\", \"hover\":\"" + hover1 + "\"}}");
 
         Tenant defaultTenantPostUpdate1 = tenantService
                 .updateDefaultTenantConfiguration(update1_brandColors, Mono.empty(), Mono.empty())
@@ -523,6 +525,7 @@ public class TenantServiceTest {
         assertThat(newTenantConfiguration1.getBrandColors()).isNotNull();
         TenantConfiguration.BrandColors newBrandColors1 = newTenantConfiguration1.getBrandColors();
         assertThat(newBrandColors1.getPrimary()).isEqualTo(primary1);
+        assertThat(newBrandColors1.getActive()).isEqualTo(active1);
         assertThat(newBrandColors1.getBackground()).isEqualTo(background1);
         assertThat(newBrandColors1.getFont()).isEqualTo(font1);
         assertThat(newBrandColors1.getDisabled()).isEqualTo(disabled1);
@@ -530,9 +533,9 @@ public class TenantServiceTest {
         assertTenantConfigurations(
                 newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, false, true);
 
-        Mono<String> update2_brandColors =
-                Mono.just("{\"brandColors\": {\"primary\":\"" + primary2 + "\",\"background\":\"" + background2
-                        + "\",\"font\":\"" + font2 + "\",\"disabled\":\"" + disabled2 + "\"}}");
+        Mono<String> update2_brandColors = Mono.just(
+                "{\"brandColors\": {\"primary\":\"" + primary2 + "\",\"background\":\"" + background2 + "\",\"font\":\""
+                        + font2 + "\",\"active\":\"" + active2 + "\",\"disabled\":\"" + disabled2 + "\"}}");
 
         Tenant defaultTenantPostUpdate2 = tenantService
                 .updateDefaultTenantConfiguration(update2_brandColors, Mono.empty(), Mono.empty())
@@ -541,6 +544,7 @@ public class TenantServiceTest {
         assertThat(newTenantConfiguration2.getBrandColors()).isNotNull();
         TenantConfiguration.BrandColors newBrandColors2 = newTenantConfiguration2.getBrandColors();
         assertThat(newBrandColors2.getPrimary()).isEqualTo(primary2);
+        assertThat(newBrandColors2.getActive()).isEqualTo(active2);
         assertThat(newBrandColors2.getBackground()).isEqualTo(background2);
         assertThat(newBrandColors2.getFont()).isEqualTo(font2);
         assertThat(newBrandColors2.getDisabled()).isEqualTo(disabled2);
@@ -820,6 +824,7 @@ public class TenantServiceTest {
                 assertThat(actualBrandColors.getFont()).isEqualTo(expectedBrandColors.getFont());
                 assertThat(actualBrandColors.getDisabled()).isEqualTo(expectedBrandColors.getDisabled());
                 assertThat(actualBrandColors.getHover()).isEqualTo(expectedBrandColors.getHover());
+                assertThat(actualBrandColors.getActive()).isEqualTo(expectedBrandColors.getActive());
             }
         }
         if (assertFirstTimeInteraction) {
