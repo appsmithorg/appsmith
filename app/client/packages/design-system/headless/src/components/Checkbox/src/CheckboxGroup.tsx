@@ -10,6 +10,7 @@ import { Field } from "@design-system/headless";
 import { CheckboxGroupContext } from "./context";
 
 export type CheckboxGroupRef = DOMRef<HTMLDivElement>;
+
 export interface CheckboxGroupProps
   extends Omit<
     SpectrumCheckboxGroupProps,
