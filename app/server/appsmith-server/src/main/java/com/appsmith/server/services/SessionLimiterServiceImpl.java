@@ -33,6 +33,12 @@ public class SessionLimiterServiceImpl extends SessionLimiterServiceCECompatible
         return logoutUserFromExistingSessionsBasedOnTenantConfig(authentication, exchange, tenant);
     }
 
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_session_limit_enabled)
+    @Override
+    public Mono<TenantConfiguration> getTenantConfiguration(TenantConfiguration tenantConfiguration) {
+        return Mono.just(tenantConfiguration);
+    }
+
     private Mono<User> logoutUserFromExistingSessionsBasedOnTenantConfig(
             Authentication authentication, WebFilterExchange exchange, Tenant tenant) {
         User currentUser = (User) authentication.getPrincipal();

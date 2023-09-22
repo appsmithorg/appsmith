@@ -138,6 +138,7 @@ public class TenantServiceTest {
         when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled)).thenReturn(Mono.just(true));
         when(featureFlagService.check(FeatureFlagEnum.license_session_limit_enabled))
                 .thenReturn(Mono.just(true));
+        when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled)).thenReturn(Mono.just(true));
     }
 
     @Test
@@ -441,6 +442,61 @@ public class TenantServiceTest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            test_setShowRolesAndGroupInTenant_checkRolesAndGroupsDoesNotExistInUserProfile_whenFeatureFlagDisabled() {
+        String testName =
+                "test_setShowRolesAndGroupInTenant_checkRolesAndGroupsDoesNotExistInUserProfile_whenFeatureFlagDisabled";
+        User apiUser = userRepository.findByEmail("api_user").block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        userGroup.setUsers(Set.of(apiUser.getId()));
+        UserGroupDTO createdUserGroupDTO =
+                userGroupService.createGroup(userGroup).block();
+
+        List<String> assignedToRoles = permissionGroupRepository
+                .findByAssignedToUserIdsIn(apiUser.getId())
+                .filter(role -> !PermissionGroupUtils.isUserManagementRole(role))
+                .map(PermissionGroup::getName)
+                .collectList()
+                .block();
+
+        List<String> memberOfGroups = userGroupRepository
+                .findAllByUsersIn(Set.of(apiUser.getId()))
+                .map(UserGroup::getName)
+                .collectList()
+                .block();
+
+        // Set the showRolesAndGroups property in tenant configuration to True.
+        TenantConfiguration tenantConfiguration_showRolesAndGroupsTrue = new TenantConfiguration();
+        tenantConfiguration_showRolesAndGroupsTrue.setShowRolesAndGroups(true);
+        Tenant updatedTenant_showRolesAndGroupsTrue = tenantService
+                .updateDefaultTenantConfiguration(tenantConfiguration_showRolesAndGroupsTrue)
+                .block();
+
+        Assertions.assertThat(updatedTenant_showRolesAndGroupsTrue.getTenantConfiguration())
+                .isNotNull();
+        Assertions.assertThat(updatedTenant_showRolesAndGroupsTrue
+                        .getTenantConfiguration()
+                        .getShowRolesAndGroups())
+                .isTrue();
+
+        // Disable the showRolesAndGroups feature flag
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled))
+                .thenReturn(Mono.just(false));
+
+        // Roles and Groups information should not be present in the User Profile.
+        UserProfileDTO userProfileDTO_noRolesAndGroupInfo = sessionUserService
+                .getCurrentUser()
+                .flatMap(userService::buildUserProfileDTO)
+                .block();
+
+        Assertions.assertThat(userProfileDTO_noRolesAndGroupInfo.getRoles()).isNullOrEmpty();
+        Assertions.assertThat(userProfileDTO_noRolesAndGroupInfo.getGroups()).isNullOrEmpty();
+    }
+
+    @Test
     @WithUserDetails("api_user")
     public void updateTenantLicenseKey_invalidLicenseSignature_throwException() {
 
@@ -557,6 +613,7 @@ public class TenantServiceTest {
     @WithUserDetails("api_user")
     public void test_defaultBranding_whenFeatureFlagDisabled() {
         when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled)).thenReturn(Mono.just(false));
+        when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled)).thenReturn(Mono.just(true));
         Mono<Tenant> tenantMono = tenantService.getTenantConfiguration();
         StepVerifier.create(tenantMono)
                 .assertNext(tenant -> {
@@ -569,6 +626,66 @@ public class TenantServiceTest {
                     assertEquals(TenantConfiguration.DEFAULT_BACKGROUND_COLOR, brandColors.getBackground());
                     assertEquals(TenantConfiguration.DEFAULT_PRIMARY_COLOR, brandColors.getPrimary());
                     assertEquals(TenantConfiguration.DEFAULT_FONT_COLOR, brandColors.getFont());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_tenantConfiguration_whenPACFeatureFlagEnabled() {
+        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        tenantConfiguration.setShowRolesAndGroups(true);
+
+        Mono<Tenant> tenantMono = tenantService.updateDefaultTenantConfiguration(tenantConfiguration);
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant1 -> {
+                    TenantConfiguration tenantConfiguration1 = tenant1.getTenantConfiguration();
+                    assertTrue(tenantConfiguration1.getShowRolesAndGroups());
+                })
+                .verifyComplete();
+
+        tenantMono = tenantService.getTenantConfiguration();
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant1 -> {
+                    TenantConfiguration tenantConfiguration1 = tenant1.getTenantConfiguration();
+                    assertTrue(tenantConfiguration1.getShowRolesAndGroups());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_tenantConfiguration_whenPACFeatureFlagDisabled() {
+        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        tenantConfiguration.setShowRolesAndGroups(false);
+
+        Mono<Tenant> tenantMono = tenantService.updateDefaultTenantConfiguration(tenantConfiguration);
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant1 -> {
+                    TenantConfiguration tenantConfiguration1 = tenant1.getTenantConfiguration();
+                    assertFalse(tenantConfiguration1.getShowRolesAndGroups());
+                })
+                .verifyComplete();
+
+        // disable PAC, now updates won't be taking in-effect and default tenant configuration will be returned
+        when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled)).thenReturn(Mono.just(false));
+
+        tenantConfiguration.setShowRolesAndGroups(true);
+        tenantMono = tenantService.updateDefaultTenantConfiguration(tenantConfiguration);
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant1 -> {
+                    TenantConfiguration tenantConfiguration1 = tenant1.getTenantConfiguration();
+                    assertFalse(tenantConfiguration1.getShowRolesAndGroups());
+                })
+                .verifyComplete();
+
+        tenantMono = tenantService.getTenantConfiguration();
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant1 -> {
+                    TenantConfiguration tenantConfiguration1 = tenant1.getTenantConfiguration();
+                    assertFalse(tenantConfiguration1.getShowRolesAndGroups());
                 })
                 .verifyComplete();
     }
@@ -597,6 +714,7 @@ public class TenantServiceTest {
 
         // updating it from default value but since feature flag is disabled, update shouldn't happen
         when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled)).thenReturn(Mono.just(false));
+        when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled)).thenReturn(Mono.just(true));
         Mono<Tenant> tenantMono = tenantService.updateDefaultTenantConfiguration(Mono.empty(), icon, favicon);
         StepVerifier.create(tenantMono)
                 .assertNext(tenant -> {

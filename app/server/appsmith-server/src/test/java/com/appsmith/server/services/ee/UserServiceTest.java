@@ -104,6 +104,7 @@ public class UserServiceTest {
     public void setup() {
         mockFeatureFlag(FeatureFlagEnum.license_audit_logs_enabled, false);
         mockFeatureFlag(FeatureFlagEnum.license_branding_enabled, true);
+        mockFeatureFlag(FeatureFlagEnum.license_pac_enabled, true);
 
         api_user = userRepository.findByEmail("api_user").block();
 

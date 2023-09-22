@@ -132,6 +132,8 @@ public class UserServiceTest {
         userMono = userService.findByEmail("usertest@usertest.com");
         Mockito.when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled))
                 .thenReturn(Mono.just(true));
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled))
+                .thenReturn(Mono.just(true));
         Mockito.when(featureFlagService.check(FeatureFlagEnum.license_audit_logs_enabled))
                 .thenReturn(Mono.just(true));
     }

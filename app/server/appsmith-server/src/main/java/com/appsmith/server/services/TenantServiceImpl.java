@@ -71,6 +71,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     private final ObjectMapper objectMapper;
     private final BrandingService brandingService;
     private final SessionLimiterService sessionLimiterService;
+    private final PACConfigurationService pacConfigurationService;
 
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
@@ -102,7 +103,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             SessionLimiterService sessionLimiterService,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
             BrandingService brandingService,
-            UserUtils userUtils) {
+            UserUtils userUtils,
+            PACConfigurationService pacConfigurationService) {
 
         super(
                 scheduler,
@@ -126,6 +128,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         this.sessionLimiterService = sessionLimiterService;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
         this.scheduler = scheduler;
+        this.pacConfigurationService = pacConfigurationService;
         this.userUtils = userUtils;
     }
 
@@ -516,6 +519,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
         return brandingService
                 .updateTenantConfiguration(tenantConfiguration)
+                .flatMap(pacConfigurationService::updateTenantConfiguration)
                 .flatMap(sessionLimiterService::updateTenantConfiguration)
                 .flatMap(updatedTenantConfiguration ->
                         super.updateTenantConfiguration(tenantId, updatedTenantConfiguration));
@@ -601,6 +605,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         TenantConfiguration tenantConfiguration = dbTenant.getTenantConfiguration();
         return brandingService
                 .getTenantConfiguration(tenantConfiguration)
+                .flatMap(pacConfigurationService::getTenantConfiguration)
+                .flatMap(sessionLimiterService::getTenantConfiguration)
                 .map(updatedTenantConfiguration -> {
                     dbTenant.setTenantConfiguration(updatedTenantConfiguration);
                     return dbTenant;

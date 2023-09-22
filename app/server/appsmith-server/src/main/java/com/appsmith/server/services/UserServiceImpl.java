@@ -226,6 +226,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 .flatMap(pair -> {
                     UserProfileDTO userProfileDTO = pair.getT1();
                     Tenant defaultTenantWithConfiguration = pair.getT2();
+                    // if programmatic access control is not enabled, don't return roles and groups for user
                     if (Boolean.TRUE.equals(defaultTenantWithConfiguration
                             .getTenantConfiguration()
                             .getShowRolesAndGroups())) {

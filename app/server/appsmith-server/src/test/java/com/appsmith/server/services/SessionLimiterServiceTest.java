@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +42,8 @@ public class SessionLimiterServiceTest {
 
     @BeforeEach
     public void setup() {
-        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(true));
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_session_limit_enabled))
+                .thenReturn(Mono.just(true));
     }
 
     @Test
@@ -50,6 +52,22 @@ public class SessionLimiterServiceTest {
         tenantConfiguration.setSingleSessionPerUserEnabled(true);
         Mono<TenantConfiguration> tenantConfigurationMono =
                 sessionLimiterService.updateTenantConfiguration(tenantConfiguration);
+        StepVerifier.create(tenantConfigurationMono)
+                .assertNext(tenantConfiguration1 -> {
+                    Assertions.assertEquals(tenantConfiguration, tenantConfiguration1);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetTenantConfigurations_singleSessionPerUser() {
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        tenantConfiguration.setSingleSessionPerUserEnabled(true);
+
+        sessionLimiterService.updateTenantConfiguration(tenantConfiguration).block();
+
+        Mono<TenantConfiguration> tenantConfigurationMono =
+                sessionLimiterService.getTenantConfiguration(tenantConfiguration);
         StepVerifier.create(tenantConfigurationMono)
                 .assertNext(tenantConfiguration1 -> {
                     Assertions.assertEquals(tenantConfiguration, tenantConfiguration1);
