@@ -663,7 +663,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<NewAction> findAllById(Iterable<String> id) {
-        return repository.findAllByIdIn(id).flatMap(this::sanitizeAction);
+        return repository.findAllById(id).flatMap(this::sanitizeAction);
     }
 
     @Override
@@ -1907,7 +1907,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
 
         return repository
-                .findAllByIdIn(actionIds)
+                .findAllById(actionIds)
                 .map(newAction -> {
                     // Update collectionId and defaultCollectionIds in actionDTOs
                     ActionDTO unpublishedAction = newAction.getUnpublishedAction();
