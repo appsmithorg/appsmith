@@ -26,21 +26,8 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 
-function resetWidgetFnDescriptor(widgetName: string, resetChildren: boolean) {
-  return {
-    type: "RESET_WIDGET_META_RECURSIVE_BY_NAME" as const,
-    payload: { widgetName, resetChildren },
-  };
-}
-
-export type TResetWidgetArgs = Parameters<typeof resetWidgetFnDescriptor>;
-export type TResetWidgetDescription = ReturnType<
-  typeof resetWidgetFnDescriptor
->;
-export type TResetWidgetActionType = TResetWidgetDescription["type"];
-
 async function resetWidget(
-  ...args: Parameters<typeof resetWidgetFnDescriptor>
+  ...args: [widgetName: string, resetChildren: boolean]
 ) {
   const widgetName = args[0];
   const resetChildren = args[1] || true;
@@ -55,8 +42,6 @@ async function resetWidget(
   );
 
   evalTreeWithChanges(updatedProperties, metaUpdates);
-
-  // return promisify(resetWidgetFnDescriptor)(...args);
 }
 
 async function resetWidgetMetaProperty(
@@ -262,7 +247,7 @@ export function getWidgetDescendantToReset(
   return descendantList;
 }
 
-function resetChildrenMetaProperty(
+async function resetChildrenMetaProperty(
   parentWidgetId: string,
   evaluatedDataTree: DataTree,
   evalMetaUpdates: EvalMetaUpdates,
@@ -280,9 +265,9 @@ function resetChildrenMetaProperty(
 
     if (!childWidget) continue;
 
-    resetWidgetMetaProperty(
+    await resetWidgetMetaProperty(
       childWidget?.widgetName,
-      true,
+      false,
       evalMetaUpdates,
       updatedProperties,
     );

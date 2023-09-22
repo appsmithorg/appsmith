@@ -16,7 +16,6 @@ import {
 import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
 import downloadSaga from "sagas/ActionExecution/DownloadActionSaga";
 import copySaga from "sagas/ActionExecution/CopyActionSaga";
-import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
 import showAlertSaga from "sagas/ActionExecution/ShowAlertActionSaga";
 import executePluginActionTriggerSaga from "sagas/ActionExecution/PluginActionSaga";
 import { clearActionResponse } from "actions/pluginActionActions";
@@ -76,9 +75,6 @@ export function* executeActionTriggers(
       break;
     case "COPY_TO_CLIPBOARD":
       yield call(copySaga, trigger);
-      break;
-    case "RESET_WIDGET_META_RECURSIVE_BY_NAME":
-      yield call(resetWidgetActionSaga, trigger);
       break;
     case "GET_CURRENT_LOCATION":
       response = yield call(getCurrentLocationSaga, trigger);

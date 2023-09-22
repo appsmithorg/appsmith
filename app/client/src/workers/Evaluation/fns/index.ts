@@ -24,10 +24,6 @@ import type {
   TCopyToClipboardDescription,
 } from "./copyToClipboard";
 import copyToClipboard from "./copyToClipboard";
-import type {
-  TResetWidgetActionType,
-  TResetWidgetDescription,
-} from "./resetWidget";
 import resetWidget from "./resetWidget";
 import type {
   TClearStoreDescription,
@@ -180,7 +176,6 @@ export type ActionTriggerKeys =
   | TShowAlertActionType
   | TDownloadActionType
   | TNavigateToActionType
-  | TResetWidgetActionType
   | TCopyToClipboardActionType
   | TPostWindowMessageActionType
   | TGetGeoLocationActionType
@@ -231,7 +226,6 @@ export type ActionDescription =
   | TPostWindowMessageDescription
   | TNavigateToDescription
   | TShowAlertDescription
-  | TResetWidgetDescription
   | TCopyToClipboardDescription
   | TGetGeoLocationDescription
   | TWatchGeoLocationDescription
