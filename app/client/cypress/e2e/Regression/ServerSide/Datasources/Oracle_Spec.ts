@@ -427,6 +427,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
       subAction: "Page2",
       toastToValidate: "moved to page",
     });
+    agHelper.WaitUntilAllToastsDisappear();
     agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
     dataSources.RunQueryNVerifyResponseViews(2);
     agHelper.ActionContextMenuWithInPane({
