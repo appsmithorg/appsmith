@@ -108,6 +108,8 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS,
   // Buffer
   ReduxActionTypes.BUFFERED_ACTION,
+  // Generic
+  ReduxActionTypes.TRIGGER_EVAL,
 ];
 // Topics used for datasource and query form evaluations
 export const FORM_EVALUATION_REDUX_ACTIONS = [
