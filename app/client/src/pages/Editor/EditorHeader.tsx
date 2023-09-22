@@ -68,6 +68,7 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import {
   adaptiveSignpostingEnabled,
   datasourceEnvEnabled,
+  selectFeatureFlags,
 } from "@appsmith/selectors/featureFlagsSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
@@ -251,6 +252,7 @@ export function EditorHeader() {
   const pageId = useSelector(getCurrentPageId) as string;
   const sharedUserList = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
+  const featureFlags = useSelector(selectFeatureFlags);
 
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -568,11 +570,12 @@ export function EditorHeader() {
                       <Tab data-testid="t--tab-EMBED" value="embed">
                         {createMessage(IN_APP_EMBED_SETTING.embed)}
                       </Tab>
-                      {cloudHosting && (
-                        <Tab data-testid="t--tab-PUBLISH" value="publish">
-                          {createMessage(COMMUNITY_TEMPLATES.publish)}
-                        </Tab>
-                      )}
+                      {featureFlags.release_show_publish_app_to_community_enabled &&
+                        cloudHosting && (
+                          <Tab data-testid="t--tab-PUBLISH" value="publish">
+                            {createMessage(COMMUNITY_TEMPLATES.publish)}
+                          </Tab>
+                        )}
                     </TabsList>
                     <TabPanel value="invite">
                       <AppInviteUsersForm
