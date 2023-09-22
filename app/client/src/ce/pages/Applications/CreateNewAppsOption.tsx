@@ -43,7 +43,6 @@ const SectionWrapper = styled.div`
 
 const BackWrapper = styled.div`
   position: sticky;
-  background: ;
   ${(props) => `
     top: ${props.theme.homePage.header}px;
     `}
