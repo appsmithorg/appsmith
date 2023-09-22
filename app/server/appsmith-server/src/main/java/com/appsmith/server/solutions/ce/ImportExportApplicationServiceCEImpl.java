@@ -305,10 +305,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     Instant applicationLastCommittedAt =
                             gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
-                    boolean isClientSchemaMigrated =
-                            !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
-                    boolean isServerSchemaMigrated =
-                            !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
+
                     application.makePristine();
                     application.sanitiseToExportDBObject();
                     applicationJson.setExportedApplication(application);
@@ -362,8 +359,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                     // Including updated pages list for git file storage
                                     Instant newPageUpdatedAt = newPage.getUpdatedAt();
-                                    boolean isNewPageUpdated = isClientSchemaMigrated
-                                            || isServerSchemaMigrated
+                                    boolean isNewPageUpdated = ImportExportUtils.isSchemaMigrated(application)
                                             || applicationLastCommittedAt == null
                                             || newPageUpdatedAt == null
                                             || applicationLastCommittedAt.isBefore(newPageUpdatedAt);
@@ -477,14 +473,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     ActionCollectionDTO actionCollectionDTO = unpublishedActionCollectionDTO != null
                                             ? unpublishedActionCollectionDTO
                                             : publishedActionCollectionDTO;
+
+                                    // TODO: check whether resource updated after last commit - move to a function
+                                    // we've replaced page id with page name in previous step
+                                    String pageName = actionCollectionDTO.getPageId();
+                                    boolean isPageUpdated =
+                                            ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName);
                                     String actionCollectionName = actionCollectionDTO != null
                                             ? actionCollectionDTO.getName()
                                                     + NAME_SEPARATOR
                                                     + actionCollectionDTO.getPageId()
                                             : null;
                                     Instant actionCollectionUpdatedAt = actionCollection.getUpdatedAt();
-                                    boolean isActionCollectionUpdated = isClientSchemaMigrated
-                                            || isServerSchemaMigrated
+                                    boolean isActionCollectionUpdated = ImportExportUtils.isSchemaMigrated(application)
+                                            || isPageUpdated
                                             || applicationLastCommittedAt == null
                                             || actionCollectionUpdatedAt == null
                                             || applicationLastCommittedAt.isBefore(actionCollectionUpdatedAt);
@@ -569,10 +571,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     String newActionName = actionDTO != null
                                             ? actionDTO.getValidName() + NAME_SEPARATOR + actionDTO.getPageId()
                                             : null;
+                                    // TODO: check whether resource updated after last commit - move to a function
+                                    String pageName = actionDTO.getPageId();
+                                    boolean isPageUpdated =
+                                            ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName);
                                     Instant newActionUpdatedAt = newAction.getUpdatedAt();
-                                    boolean isNewActionUpdated = isClientSchemaMigrated
-                                            || isServerSchemaMigrated
+                                    boolean isNewActionUpdated = ImportExportUtils.isSchemaMigrated(application)
                                             || applicationLastCommittedAt == null
+                                            || isPageUpdated
                                             || newActionUpdatedAt == null
                                             || applicationLastCommittedAt.isBefore(newActionUpdatedAt);
                                     if (isNewActionUpdated && newActionName != null) {
