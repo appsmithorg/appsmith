@@ -45,8 +45,6 @@ class Setters {
     const entityConfig = configTree[entityName];
 
     const updatedProperties: string[][] = [];
-    const overriddenProperties: string[] = [];
-    const evalMetaUpdates: EvalMetaUpdates = [];
 
     let parsedValue = value;
 
@@ -87,28 +85,6 @@ class Setters {
       }
     }
 
-    if (isWidget(entity)) {
-      overrideWidgetProperties({
-        entity,
-        propertyPath,
-        value: parsedValue,
-        currentTree: evalTree,
-        configTree,
-        evalMetaUpdates,
-        fullPropertyPath: path,
-        isNewWidget: false,
-        shouldUpdateGlobalContext: true,
-        overriddenProperties,
-      });
-
-      overriddenProperties.forEach((propPath) => {
-        updatedProperties.push([entityName, propPath]);
-      });
-    }
-
-    set(evalTree, path, parsedValue);
-    set(self, path, parsedValue);
-
     /**
      * Making the update to dataTree async as there could be queue microtask updates that need to execute before this update.
      * Issue:- https://github.com/appsmithorg/appsmith/issues/25364
@@ -116,6 +92,27 @@ class Setters {
     return new Promise((resolve) => {
       resolve(parsedValue);
     }).then((res) => {
+      const overriddenProperties: string[] = [];
+      const evalMetaUpdates: EvalMetaUpdates = [];
+
+      if (isWidget(entity)) {
+        overrideWidgetProperties({
+          entity,
+          propertyPath,
+          value: parsedValue,
+          currentTree: evalTree,
+          configTree,
+          evalMetaUpdates,
+          fullPropertyPath: path,
+          isNewWidget: false,
+          shouldUpdateGlobalContext: true,
+          overriddenProperties,
+        });
+
+        overriddenProperties.forEach((propPath) => {
+          updatedProperties.push([entityName, propPath]);
+        });
+      }
       updatedProperties.push([entityName, propertyPath]);
       evalTreeWithChanges(updatedProperties, evalMetaUpdates);
       return res;

@@ -24,10 +24,13 @@ import { setEvalContext } from "../evaluate";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 import { errorModifier } from "../errorModifier";
 import { generateOptimisedUpdatesAndSetPrevState } from "../helpers";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
+export let canvasWidgets: CanvasWidgetsReduxState;
+export let canvasWidgetsMeta: Record<string, any>;
 
 export default function (request: EvalWorkerSyncRequest) {
   const { data } = request;
@@ -56,11 +59,14 @@ export default function (request: EvalWorkerSyncRequest) {
     theme,
     unevalTree: __unevalTree__,
     widgets,
+    widgetsMeta,
     widgetTypeConfigMap,
   } = data as EvalTreeRequestData;
 
   const unevalTree = __unevalTree__.unEvalTree;
   configTree = __unevalTree__.configTree as ConfigTree;
+  canvasWidgets = widgets;
+  canvasWidgetsMeta = widgetsMeta;
 
   try {
     if (!dataTreeEvaluator) {

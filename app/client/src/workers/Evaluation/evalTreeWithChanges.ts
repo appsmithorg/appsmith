@@ -16,6 +16,7 @@ import type { JSUpdate } from "utils/JSPaneUtils";
 import { setEvalContext } from "./evaluate";
 import { generateOptimisedUpdatesAndSetPrevState } from "./helpers";
 
+/** Sends updates to dataTree and metaValues  */
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
   metaUpdates: EvalMetaUpdates = [],
