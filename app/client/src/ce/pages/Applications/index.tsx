@@ -98,7 +98,7 @@ import ApplicationCardList from "./ApplicationCardList";
 import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
-import ResourceListLoader from "./ResourceListLoader";
+import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
