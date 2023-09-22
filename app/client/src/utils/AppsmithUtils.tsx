@@ -21,28 +21,15 @@ export const initializeAnalyticsAndTrackers = () => {
       Sentry.init({
         ...appsmithConfigs.sentry,
         beforeSend(event) {
-          if (
-            event.exception &&
-            Array.isArray(event.exception.values) &&
-            event.exception.values[0].value &&
-            event.exception.values[0].type === "ChunkLoadError"
-          ) {
+          const exception = extractSentryException(event);
+          if (exception?.type === "ChunkLoadError") {
             // Only log ChunkLoadErrors after the 2 retires
-            if (
-              !event.exception.values[0].value.includes(
-                "failed after 2 retries",
-              )
-            ) {
+            if (!exception.value?.includes("failed after 2 retries")) {
               return null;
             }
           }
           // Handle Non-Error rejections
-          if (
-            event.exception &&
-            Array.isArray(event.exception.values) &&
-            event.exception.values[0].value &&
-            event.exception.values[0].value.startsWith("Non-Error")
-          ) {
+          if (exception?.value?.startsWith("Non-Error")) {
             const serializedData: any = event.extra?.__serialized__;
             if (!serializedData) return null; // if no data is attached, ignore error
             const actualErrorMessage = serializedData.error
@@ -50,7 +37,7 @@ export const initializeAnalyticsAndTrackers = () => {
               : serializedData.message;
             if (!actualErrorMessage) return null; // If no message is attached, ignore error
             // Now modify the original error
-            event.exception.values[0].value = actualErrorMessage;
+            exception.value = actualErrorMessage;
             event.message = actualErrorMessage;
           }
           return event;
@@ -501,4 +488,10 @@ export function getDatatype(value: unknown) {
   } else if (value === undefined) {
     return DataType.UNDEFINED;
   }
+}
+
+function extractSentryException(event: Sentry.Event) {
+  if (!event.exception) return null;
+  const value = event.exception.values ? event.exception.values[0] : null;
+  return value;
 }
