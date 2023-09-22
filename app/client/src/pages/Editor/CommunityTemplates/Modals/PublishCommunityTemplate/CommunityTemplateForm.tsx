@@ -20,6 +20,8 @@ import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import PublishedInfo from "./components/PublishedInfo";
 import TemplateCardPreview from "./components/TemplateCardPreview";
 import TemplateInfoForm from "./components/TemplateInfoForm";
+import { viewerURL } from "RouteBuilder";
+import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 
 type Props = {
   onPublishSuccess: () => void;
@@ -42,6 +44,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
   const [isForkableSetting, setIsForkableSetting] = useState(true);
 
   const [tnCCheck, setTnCCheck] = useState(false);
+  const currentPageId: string = useSelector(getCurrentPageId);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_INTENTION", {
@@ -91,6 +94,9 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
         shouldUpdateName: !currentUser?.name,
         branchName:
           currentApplication?.gitApplicationMetadata?.branchName || "",
+        appUrl: `https://app.appsmith.com${viewerURL({
+          pageId: currentPageId,
+        })}`,
       }),
     );
   };

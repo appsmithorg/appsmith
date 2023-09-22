@@ -10,6 +10,7 @@ export type PublishCommunityTemplatePayload = {
   shouldUpdateEmail: boolean;
   shouldUpdateName: boolean;
   branchName: string;
+  appUrl: string;
 };
 export const publishCommunityTemplate = (
   payload: PublishCommunityTemplatePayload,
