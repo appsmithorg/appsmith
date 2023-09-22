@@ -3,13 +3,8 @@ import { Button } from "design-system";
 import { importSvg } from "design-system-old";
 import { useSelector } from "react-redux";
 
-import {
-  CardListContainer,
-  CardListWrapper,
-  PaddingWrapper,
-  ResourceHeading,
-  Space,
-} from "pages/Applications/CommonElements";
+import CardList from "pages/Applications/CardList";
+import { PaddingWrapper } from "pages/Applications/CommonElements";
 import {
   getIsCreatingApplicationByWorkspaceId,
   getIsFetchingApplications,
@@ -55,51 +50,51 @@ function ApplicationCardList({
   const isFetchingApplications = useSelector(getIsFetchingApplications);
 
   return (
-    <CardListContainer isMobile={isMobile}>
-      <ResourceHeading isLoading={isFetchingApplications}>Apps</ResourceHeading>
-      <Space />
-      <CardListWrapper isMobile={isMobile} key={workspaceId}>
-        {applications.map((application: any) => {
-          return (
-            <PaddingWrapper isMobile={isMobile} key={application.id}>
-              <ApplicationCard
-                application={application}
-                delete={deleteApplication}
-                enableImportExport={enableImportExport}
-                isFetchingApplications={isFetchingApplications}
-                isMobile={isMobile}
-                key={application.id}
-                permissions={{
-                  hasCreateNewApplicationPermission,
-                  hasManageWorkspacePermissions,
-                  canInviteToWorkspace,
-                }}
-                update={updateApplicationDispatch}
-                workspaceId={workspaceId}
-              />
-            </PaddingWrapper>
-          );
-        })}
-        {applications.length === 0 && (
-          <NoAppsFound>
-            <NoAppsFoundIcon />
-            <span>There’s nothing inside this workspace</span>
-            {/* below component is duplicate. This is because of cypress test were failing */}
-            {hasCreateNewApplicationPermission && (
-              <Button
-                className="t--new-button createnew"
-                isLoading={isCreatingApplication}
-                onClick={() => onClickAddNewButton(workspaceId)}
-                size="md"
-                startIcon={"plus"}
-              >
-                New
-              </Button>
-            )}
-          </NoAppsFound>
-        )}
-      </CardListWrapper>
-    </CardListContainer>
+    <CardList
+      isLoading={isFetchingApplications}
+      isMobile={isMobile}
+      title="Apps"
+    >
+      {applications.map((application: any) => {
+        return (
+          <PaddingWrapper isMobile={isMobile} key={application.id}>
+            <ApplicationCard
+              application={application}
+              delete={deleteApplication}
+              enableImportExport={enableImportExport}
+              isFetchingApplications={isFetchingApplications}
+              isMobile={isMobile}
+              key={application.id}
+              permissions={{
+                hasCreateNewApplicationPermission,
+                hasManageWorkspacePermissions,
+                canInviteToWorkspace,
+              }}
+              update={updateApplicationDispatch}
+              workspaceId={workspaceId}
+            />
+          </PaddingWrapper>
+        );
+      })}
+      {applications.length === 0 && (
+        <NoAppsFound>
+          <NoAppsFoundIcon />
+          <span>There’s nothing inside this workspace</span>
+          {/* below component is duplicate. This is because of cypress test were failing */}
+          {hasCreateNewApplicationPermission && (
+            <Button
+              className="t--new-button createnew"
+              isLoading={isCreatingApplication}
+              onClick={() => onClickAddNewButton(workspaceId)}
+              size="md"
+              startIcon={"plus"}
+            >
+              New
+            </Button>
+          )}
+        </NoAppsFound>
+      )}
+    </CardList>
   );
 }
 

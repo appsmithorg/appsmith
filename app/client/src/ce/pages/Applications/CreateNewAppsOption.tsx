@@ -46,7 +46,7 @@ const BackWrapper = styled.div`
   ${(props) => `
     top: ${props.theme.homePage.header}px;
     `}
-  background: var(--ads-color-background);
+  background: var(--ads-v2-color-background);
   padding: var(--ads-v2-spaces-3);
   z-index: 1;
 `;

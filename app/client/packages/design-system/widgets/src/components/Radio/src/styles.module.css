@@ -1,17 +1,9 @@
-import styled from "styled-components";
-import { Radio as HeadlessRadio } from "@design-system/headless";
-
-import type { RadioProps } from ".";
-import { inlineLabelStyles } from "../../../styles";
-
-export const StyledRadio = styled(HeadlessRadio)<RadioProps>`
-  ${inlineLabelStyles}
-
+.radio {
   [data-icon] {
     --radio-border-width: var(--border-width-2);
     --radio-border-color: var(--color-bd-neutral);
-    // Note: we are using box-shadow as the border to avoid the border from
-    // changing the size of the radio and icon
+    /* Note: we are using box-shadow as the border to avoid the border from
+    changing the size of the radio and icon */
     --radio-box-shadow: 0px 0px 0px var(--radio-border-width)
       var(--radio-border-color) inset;
 
@@ -72,4 +64,4 @@ export const StyledRadio = styled(HeadlessRadio)<RadioProps>`
   &[data-hovered][data-invalid] [data-icon] {
     --radio-border-color: var(--color-bd-negative-hover);
   }
-`;
+}
