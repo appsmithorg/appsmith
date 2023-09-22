@@ -112,7 +112,7 @@ export function generatePropertyPaneSearchConfig(
    of the current browser session. See WidgetFactory
 */
 export const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
-  return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
+  return config.map((sectionOrControlConfig: any) => {
     sectionOrControlConfig.id =
       sectionOrControlConfig.sectionName || sectionOrControlConfig.propertyName;
     if (sectionOrControlConfig.children) {

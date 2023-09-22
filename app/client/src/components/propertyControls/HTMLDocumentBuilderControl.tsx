@@ -160,10 +160,10 @@ class HTMLDocumentBuidlerControl extends BaseControl<
           <ModalHeader>{this.props.propertyName}</ModalHeader>
           <StyledModalBody>
             <div
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
               style={{
                 display: "flex",
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 "justify-content": "center",
                 "margin-bottom": "30px",
               }}

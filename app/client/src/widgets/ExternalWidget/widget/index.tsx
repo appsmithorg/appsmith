@@ -181,7 +181,7 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
         execute={(eventName: string) => this.execute(eventName)}
         model={this.props.model}
         srcDoc={this.props.srcDoc}
-        update={(data) => this.update(data)}
+        update={(data: any) => this.update(data)}
       />
     );
   }

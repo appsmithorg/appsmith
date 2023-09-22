@@ -334,9 +334,9 @@ class WidgetFactory {
       (section: PropertyPaneSectionConfig) => {
         if (section.hasDynamicProperties) {
           const dynamicProperties =
-            section.generateDynamicProperty(widgetProperties);
+            section.generateDynamicProperty?.(widgetProperties);
 
-          if (dynamicProperties.length) {
+          if (dynamicProperties && dynamicProperties.length) {
             addPropertyConfigIds(dynamicProperties);
             section = produce(section, (draft) => {
               draft.children = [...dynamicProperties, ...section.children];
@@ -531,14 +531,3 @@ export interface WidgetCreationException {
 }
 
 export default WidgetFactory;
-
-const fnString = "";
-
-const safefnString = `
-function safeFunction(){
-  const window = undefined;
-  const document = undefined;
-  const $ = undefined;
-  const oldFn = ${fnString}; return oldFn();
-}
-`;
