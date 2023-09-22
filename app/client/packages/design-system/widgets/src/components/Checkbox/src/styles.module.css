@@ -1,17 +1,9 @@
-import styled from "styled-components";
-import { Checkbox as HeadlessCheckbox } from "@design-system/headless";
-
-import type { CheckboxProps } from ".";
-import { inlineLabelStyles } from "../../../styles";
-
-export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
-  ${inlineLabelStyles}
-
+.checkbox {
   [data-icon] {
     --checkbox-border-width: var(--border-width-2);
     --checkbox-border-color: var(--color-bd-neutral);
-    // Note: we are using box-shadow as the border to avoid the border from
-    // changing the size of the checkbox and icon
+    /* Note: we are using box-shadow as the border to avoid the border from
+    changing the size of the checkbox and icon */
     --checkbox-box-shadow: 0px 0px 0px var(--checkbox-border-width)
       var(--checkbox-border-color) inset;
 
@@ -74,4 +66,4 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
   &[data-hovered][data-invalid] [data-icon] {
     --checkbox-border-color: var(--color-bd-negative-hover);
   }
-`;
+}
