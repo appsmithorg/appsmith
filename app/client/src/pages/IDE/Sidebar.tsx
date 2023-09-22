@@ -105,15 +105,18 @@ const Sidebar = () => {
   const selectedState = params.ideState;
   const currentPageId = useSelector(getCurrentPageId);
   const pages = useSelector(getPageList);
-  const setAppState = useCallback((state: IDEAppState) => {
-    history.push(
-      builderURL({
-        ideState: state,
-        appId: params.appId,
-        pageId: currentPageId || pages[0].pageId,
-      }),
-    );
-  }, []);
+  const setAppState = useCallback(
+    (state: IDEAppState) => {
+      history.push(
+        builderURL({
+          ideState: state,
+          appId: params.appId,
+          pageId: currentPageId || pages[0].pageId,
+        }),
+      );
+    },
+    [currentPageId, pages],
+  );
   return (
     <SideBarContainer>
       <TopButtons>
