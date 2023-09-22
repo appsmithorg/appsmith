@@ -18,6 +18,7 @@ export const textInputStyles = css<HeadlessTextInputProps>`
     background-color: transparent;
     font-family: inherit;
     flex-grow: 1;
+    color: var(--color-fg);
 
     &:autofill,
     &:autofill:hover,
