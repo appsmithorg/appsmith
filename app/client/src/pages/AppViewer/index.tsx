@@ -226,14 +226,14 @@ function AppViewer(props: Props) {
             </AppViewerBody>
             {showBottomBar && <BottomBar viewMode />}
             <div
-              className={classNames("fixed right-8 z-3 flex", {
+              className={classNames("fixed hidden right-8 z-3 md:flex", {
                 "bottom-12": showBottomBar,
                 "bottom-4": !showBottomBar,
               })}
             >
               {!hideWatermark && (
                 <a
-                  className={`hover:no-underline md:flex`}
+                  className="hover:no-underline"
                   href="https://appsmith.com"
                   rel="noreferrer"
                   target="_blank"
