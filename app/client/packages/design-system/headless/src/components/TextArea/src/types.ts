@@ -3,7 +3,7 @@ import type { OmitedSpectrumTextFieldProps } from "../../TextInput";
 
 export interface TextAreaProps
   extends OmitedSpectrumTextFieldProps,
-    Pick<TextInputBaseProps, "inputClassName" | "labelPosition"> {
+    Pick<TextInputBaseProps, "inputClassName"> {
   spellCheck?: boolean;
   height?: number | string;
 }
