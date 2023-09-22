@@ -21,6 +21,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #fff !important;
   color: var(--ads-v2-color-fg);
+  font-size: 12px !important;
 }
 
 body.dragging * {
