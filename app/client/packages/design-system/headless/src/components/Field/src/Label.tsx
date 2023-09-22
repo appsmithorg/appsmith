@@ -11,19 +11,18 @@ export interface LabelProps
     | "includeNecessityIndicatorInAccessibilityName"
     | "isRequired"
     | keyof StyleProps
+    | "labelPosition"
+    | "labelAlign"
   > {
   isEmphasized?: boolean;
-  labelWidth?: string;
 }
 
 const _Label = (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
   const {
     children,
-    labelPosition = "top",
-    labelAlign = labelPosition === "side" ? "start" : null,
-    htmlFor,
-    for: labelFor,
     elementType: ElementType = "label",
+    for: labelFor,
+    htmlFor,
     onClick,
     ...otherProps
   } = props;
@@ -32,9 +31,7 @@ const _Label = (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
 
   return (
     <ElementType
-      data-align={labelAlign}
       data-field-label=""
-      data-position={labelPosition}
       {...filterDOMProps(otherProps)}
       htmlFor={ElementType === "label" ? labelFor || htmlFor : undefined}
       onClick={onClick}
