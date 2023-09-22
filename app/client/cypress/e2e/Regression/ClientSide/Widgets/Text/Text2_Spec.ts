@@ -115,7 +115,10 @@ describe("Text widget tests", function () {
   it("5. Verify text widget styles", function () {
     propPane.MoveToTab("Style");
     //General
-    propPane.AssertPropertiesDropDownCurrentValue("Font family", "Nunito Sans");
+    propPane.AssertPropertiesDropDownCurrentValue(
+      "Font family",
+      "System Default",
+    );
     propPane.SelectPropertiesDropDown("Font family", "Poppins");
     propPane.AssertPropertiesDropDownCurrentValue("Font size", "M");
     propPane.SelectPropertiesDropDown("Font size", "S");
