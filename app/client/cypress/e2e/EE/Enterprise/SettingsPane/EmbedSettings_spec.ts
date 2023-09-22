@@ -14,7 +14,7 @@ describe("In-app embed settings", () => {
     showNavBar: boolean,
     isInviteModal?: boolean,
   ) {
-    const restMethods = ["oidc", "saml", "google"].filter(
+    const restMethods = ["oidc", "saml"].filter(
       (method) => method !== selectedMethod,
     );
     cy.get(locator).should("contain", `ssoTrigger=${selectedMethod}`);
@@ -51,9 +51,6 @@ describe("In-app embed settings", () => {
     _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputSAML);
     ValidateSnippetUrl(_.embedSettings.locators._snippet, "saml", true, true);
 
-    _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputGoogle);
-    ValidateSnippetUrl(_.embedSettings.locators._snippet, "google", true, true);
-
     _.inviteModal.CloseModal();
   });
 
@@ -67,14 +64,6 @@ describe("In-app embed settings", () => {
 
     _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputSAML);
     ValidateSnippetUrl(_.embedSettings.locators._snippet, "saml", false, true);
-
-    _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputGoogle);
-    ValidateSnippetUrl(
-      _.embedSettings.locators._snippet,
-      "google",
-      false,
-      true,
-    );
 
     _.inviteModal.CloseModal();
   });
@@ -95,9 +84,6 @@ describe("In-app embed settings", () => {
     _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputSAML);
     ValidateSnippetUrl(_.embedSettings.locators._snippet, "saml", true);
 
-    _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputGoogle);
-    ValidateSnippetUrl(_.embedSettings.locators._snippet, "google", true);
-
     _.appSettings.ClosePane();
   });
 
@@ -110,9 +96,6 @@ describe("In-app embed settings", () => {
 
     _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputSAML);
     ValidateSnippetUrl(_.embedSettings.locators._snippet, "saml", false);
-
-    _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputGoogle);
-    ValidateSnippetUrl(_.embedSettings.locators._snippet, "google", false);
 
     _.appSettings.ClosePane();
   });
