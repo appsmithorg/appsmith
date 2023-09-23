@@ -46,7 +46,7 @@ export type EditorContextState = {
   propertyPanelState: PropertyPanelState;
 };
 
-const initialState: EditorContextState = {
+export const initialState: EditorContextState = {
   codeEditorHistory: {},
   propertySectionState: {},
   selectedPropertyTabIndex: 0,
@@ -56,7 +56,7 @@ const initialState: EditorContextState = {
   explorerSwitchIndex: 0,
 };
 
-const entitySections = {
+export const entitySections = {
   Pages: "Pages",
   Widgets: "Widgets",
   ["Queries/JS"]: "Queries/JS",
@@ -68,10 +68,7 @@ export const isSubEntities = (name: string): boolean => {
   return !(name in entitySections);
 };
 
-/**
- * Context Reducer to store states of different components of editor
- */
-export const editorContextReducer = createImmerReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.SET_FOCUSABLE_INPUT_FIELD]: (
     state: EditorContextState,
     action: {
@@ -214,4 +211,9 @@ export const editorContextReducer = createImmerReducer(initialState, {
   ) => {
     state.explorerSwitchIndex = action.payload ? 1 : 0;
   },
-});
+};
+
+/**
+ * Context Reducer to store states of different components of editor
+ */
+export const editorContextReducer = createImmerReducer(initialState, handlers);
