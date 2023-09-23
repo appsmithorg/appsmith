@@ -82,6 +82,13 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_CLICK", {
       id: currentApplication?.id,
     });
+    let pageId = currentPageId;
+    if (currentApplication?.pages) {
+      const defaultPageInfo = currentApplication.pages.filter(
+        (page) => page.isDefault,
+      );
+      pageId = defaultPageInfo[0]?.id;
+    }
     dispatch(
       publishCommunityTemplate({
         title: templateName,
@@ -95,7 +102,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
         branchName:
           currentApplication?.gitApplicationMetadata?.branchName || "",
         appUrl: `${window.location.origin}${viewerURL({
-          pageId: currentPageId,
+          pageId,
         })}?embed=true`,
       }),
     );
