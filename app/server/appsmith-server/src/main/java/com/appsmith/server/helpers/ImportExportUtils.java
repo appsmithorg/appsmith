@@ -5,7 +5,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.migrations.JsonSchemaVersions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mongodb.MongoTransactionException;
@@ -130,12 +129,6 @@ public class ImportExportUtils {
         if (CollectionUtils.isEmpty(updatedPageNames)) {
             return false;
         }
-        return updatedPageNames.contains(pageName);
-    }
-
-    public static boolean isSchemaMigrated(Application application) {
-        boolean isClientSchemaMigrated = !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
-        boolean isServerSchemaMigrated = !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
-        return isClientSchemaMigrated || isServerSchemaMigrated;
+        return pageName != null && updatedPageNames.contains(pageName);
     }
 }

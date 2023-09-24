@@ -305,7 +305,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     Instant applicationLastCommittedAt =
                             gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
-
+                    boolean isClientSchemaMigrated =
+                            !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
+                    boolean isServerSchemaMigrated =
+                            !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
                     application.makePristine();
                     application.sanitiseToExportDBObject();
                     applicationJson.setExportedApplication(application);
@@ -359,7 +362,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                     // Including updated pages list for git file storage
                                     Instant newPageUpdatedAt = newPage.getUpdatedAt();
-                                    boolean isNewPageUpdated = ImportExportUtils.isSchemaMigrated(application)
+                                    boolean isNewPageUpdated = isClientSchemaMigrated
+                                            || isServerSchemaMigrated
                                             || applicationLastCommittedAt == null
                                             || newPageUpdatedAt == null
                                             || applicationLastCommittedAt.isBefore(newPageUpdatedAt);
@@ -485,7 +489,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                     + actionCollectionDTO.getPageId()
                                             : null;
                                     Instant actionCollectionUpdatedAt = actionCollection.getUpdatedAt();
-                                    boolean isActionCollectionUpdated = ImportExportUtils.isSchemaMigrated(application)
+                                    boolean isActionCollectionUpdated = isClientSchemaMigrated
+                                            || isServerSchemaMigrated
                                             || isPageUpdated
                                             || applicationLastCommittedAt == null
                                             || actionCollectionUpdatedAt == null
@@ -576,7 +581,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     boolean isPageUpdated =
                                             ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName);
                                     Instant newActionUpdatedAt = newAction.getUpdatedAt();
-                                    boolean isNewActionUpdated = ImportExportUtils.isSchemaMigrated(application)
+                                    boolean isNewActionUpdated = isClientSchemaMigrated
+                                            || isServerSchemaMigrated
                                             || applicationLastCommittedAt == null
                                             || isPageUpdated
                                             || newActionUpdatedAt == null
