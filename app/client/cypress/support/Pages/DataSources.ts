@@ -680,7 +680,9 @@ export class DataSources {
     //   );
     this.agHelper.UpdateFieldInput(
       this.locator._inputFieldByName("Service account credentials"),
-      JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
+      JSON.stringify(
+        this.dataManager.dsValues[environment].firestore_serviceaccountkey,
+      ),
     );
     //});
   }
