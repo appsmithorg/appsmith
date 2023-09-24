@@ -1,0 +1,42 @@
+<head>
+    <script defer>
+        console.log("document is ", document)
+        
+        window.onload = () => {
+            console.log("window finished loading")
+            sendMessage()
+            // window.postMessage("Hello Iframe here", "*")
+        }
+
+        window.onmessage = (event) => {
+            console.log("main window has received message ", event)
+        }
+        
+        
+        function sendMessage() {
+            console.log("calling send message")
+            const iFrameWindow =  document.getElementById("rajatiframe").contentWindow
+            iFrameWindow.postMessage({ rajat: "agrawal", fnKey: () => {}     }, "*")
+            // top.postMessage("Hello Iframe here", "*")
+        }
+    </script>
+</head>
+<body>
+    <div>
+        This is body
+        <button onclick="sendMessage()">Send Message</button>
+        <div>
+            <iframe id="rajatiframe" height="100%" width="100%" sandbox="allow-scripts"
+                srcdoc="<script>
+                    window.onmessage = (event) => {
+                        console.log('event received in iframe is ', event)
+                    }
+                    console.log('this is iframe')
+                    top.postMessage('this is hello from iframe', '*')
+                    console.log('parent document is ', top.document)
+                    </script>
+                    <div></div>"></iframe>
+        </div>
+        
+    </div>
+</body>
