@@ -95,6 +95,7 @@ function IframeComponent(props: IframeComponentProps) {
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
+      console.log("listeningmessages", "got event 6 ", event)
       const iframeWindow =
         frameRef.current?.contentWindow ||
         frameRef.current?.contentDocument?.defaultView;

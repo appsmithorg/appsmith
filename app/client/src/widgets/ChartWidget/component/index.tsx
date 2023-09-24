@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
+import ReactDOMServer from "react-dom/server"
 import styled from "styled-components";
 import * as echarts from "echarts";
-import "echarts-gl";
 import { invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type {
@@ -29,6 +29,7 @@ import {
   isCustomEChart,
   isCustomFusionChart,
 } from "./helpers";
+import PropertySection from "pages/Editor/PropertyPane/PropertySection";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -91,12 +92,13 @@ export interface ChartComponentProps extends WidgetPositionProps {
     componentWidth: number;
     componentHeight: number;
   };
+  customEChartsAdvanceConfigurations?: Record<string, unknown>[]
 }
 
 const ChartsContainer = styled.div`
   position: relative;
-  height: 100%;
-  width: 100%;
+  height: 10%;
+  width: 10%;
 `;
 
 const CanvasContainer = styled.div<
@@ -111,8 +113,44 @@ const CanvasContainer = styled.div<
   overflow: hidden;
   position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
-  padding: 10px 0 0 0;
 }`;
+
+const EChartsIframe = (props : any) => {
+  // let eChartsHTMLContainer : any
+
+  // useEffect(() => {
+  //   eChartsHTMLContainer = document.getElementById(
+  //     "mainrajat",
+  //   );
+  //   if (!eChartsHTMLContainer) {
+  //     return;
+  //   }
+  //   const echartsInstance = echarts.init(eChartsHTMLContainer)
+  //   echar
+  // }, [])
+
+  // const options = () => {
+    
+
+  //   return {
+  //     name: props.name
+  //   }
+  // }
+
+  // const jsString = () => {
+
+  // }
+
+  return (
+    <div>
+      <div>This is the content rendered inside iframe</div>
+      <div id="mainrajat">
+        
+      </div>
+      <script src="echartoptions.js"></script>
+    </div>
+  )
+}
 
 class ChartComponent extends React.Component<
   ChartComponentProps,
@@ -172,20 +210,7 @@ class ChartComponent extends React.Component<
     this.props.onDataPointClick(dataPointClickParams);
   };
 
-  initializeEchartsInstance = () => {
-    this.eChartsHTMLContainer = document.getElementById(
-      this.eChartsContainerId,
-    );
-    if (!this.eChartsHTMLContainer) {
-      return;
-    }
-
-    // console.log("***", "prev props is ", this.prevProps.chartType)
-    // console.log("***", "current props is ", this.props.chartType)
-
-    this.is3DChart = is3DChart(this.props.customEChartConfig);
-    // console.log("***", "is 3d chart ", this.is3DChart)
-
+  disposeEChartsIfNeeded() {
     let shouldDisposeEcharts = true;
     if (Object.keys(this.prevProps).length == 0) {
       shouldDisposeEcharts = true;
@@ -205,10 +230,126 @@ class ChartComponent extends React.Component<
     if (shouldDisposeEcharts) {
       this.echartsInstance?.dispose();
     }
+  }
+
+  // <script src="/libraries/echarts.min.js"></script>
+  jsString = `
+    <head>
+      <style type="text/css">
+        body {
+            margin:0 0 0 0px;
+        }
+      </style>
+      
+      <script src="/libraries/echarts.min.js"></script>
+      <script src="
+https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js
+"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+    </head>
+    <body>
+    <div id="mainrajat" style="height: 100%; width: 100%;"></div>
+
+    <script>
+      console.log("chartwidget", "window is ", window.document);
+      console.log("*********", "document is ", document);
+      let options = "rajat"
+      const echartsElement = document.getElementById("mainrajat")
+      // console.log("chartwidget", "IFrame document height is ", document.window.height, " width is ", document.window.width)
+      const echartsInstance = echarts.init(echartsElement, undefined, { width: document.width, height: document.height})
+
+      window.onload = () => {
+        console.log("chartwidget", "iframe has finished loading")
+        top.postMessage("loadcomplete", "*")
+      }
+      window.onmessage = function(e) {
+        console.log("chartwidget", "e.data is ", e.data)
+        
+        try {
+          console.log("*********", "this.options before is ", options, "e.data is ", e.data)
+          config = e.data
+          options = config.options
+          console.log("*********", "this.options after is ", options, " config is ", config)
+
+          const parsedOptions = JSON.parse(options)
+          const newOptions = parseFunctions(parsedOptions)
+          console.log("chartwidget", "setting options to echarts ", newOptions)
+          echartsInstance.setOption(newOptions)
+          echartsInstance.resize({ width: config.width, height: config.height })
+        } catch(error) {
+          console.log("chartwidget", "error in catch ", error)
+        }
+        
+          // if (e.data == 'hello') {
+          //     alert('It works!');
+          // }
+          // top.postMessage("this is message from iframe", "*")
+      };
+      function parseFunctions(configuration) {
+        const newConfiguration = JSON.parse(JSON.stringify(configuration))
+        let fnKeys = configuration['__fn_keys__'] ?? []
+        // fnKeys = ['series.symbolSize']
+        
+        console.log("*********", "configuration is ",configuration, " fn keys is ", fnKeys)
+    
+        for (const fnKey of fnKeys) {
+          const fnString = _.get(configuration, fnKey)
+          console.log("*********", "fn string is ", fnString, " configuration is ", configuration)
+          const fn = (new Function("return " + fnString))()
+          console.log("*********", "fn is ", fn)
+    
+          
+          _.set(newConfiguration, fnKey, fn)
+        }
+        console.log("*********", "CONFIGURATION AFTER OVERRIDE IS  ", newConfiguration)
+        return newConfiguration
+      }
+
+      // try {
+      //   console.log("*********", "coming in try")
+        
+      // const newOptions = parseFunctions(options)
+      // console.log("*********", "options string is ", options, " new options is ", newOptions)
+      // console.log("*********", "echarts element is ", echartsElement, options)
+      
+      // // const fnObj = (new Function("return " + "() => {}"))()
+      // // console.log("*********", "fn obj is ", fnObj, typeof(fnObj))
+      // console.log("*********", "setting options is ", newOptions)
+      // echartsInstance.setOption(newOptions)
+      // } catch(error) {
+      //   console.log("*********", "coming in catch ", error)
+      // }
+
+      
+    </script>
+    </body>
+    
+    `
+  //   return result
+  // }
+
+  initializeEchartsInstance = async () => {
+    this.eChartsHTMLContainer = document.getElementById(
+      this.eChartsContainerId,
+    );
+    if (!this.eChartsHTMLContainer) {
+      return;
+    }
+
+    // console.log("***", "prev props is ", this.prevProps.chartType)
+    // console.log("***", "current props is ", this.props.chartType)
+
+    this.disposeEChartsIfNeeded()
+
+    this.is3DChart = is3DChart(this.props.customEChartConfig);
+    // console.log("***", "is 3d chart ", this.is3DChart)
+
+    if (this.is3DChart) {
+      // await import("echarts-gl")
+    }
 
     if (!this.echartsInstance || this.echartsInstance.isDisposed()) {
       // console.log("***", "rendering new chart instance")
-      this.echartsInstance?.dispose();
       this.echartsInstance = echarts.init(
         this.eChartsHTMLContainer,
         undefined,
@@ -229,31 +370,70 @@ class ChartComponent extends React.Component<
     );
   };
 
-  getCustomEChartOptions = () => {
-    return this.props.customEChartConfig;
-  };
+  findObjectWithID = (obj : any, id : any) : any => {    
+    if (typeof(obj) !== "object") {
+        return null;
+    }
 
-  shouldSetOptions(eChartOptions: any) {
-    if (equal(this.echartConfiguration, eChartOptions)) {
-      if (this.is3DChart) {
-        return (
-          this.state.eChartsError == undefined ||
-          this.state.eChartsError == null
-        );
-      } else {
-        return false;
-      }
+    if (obj.id == id) {
+        return obj
     } else {
-      return true;
+        const keys = Object.keys(obj)
+        for (const key of keys) {
+            const result = this.findObjectWithID(obj[key], id)
+            if (result) {
+                return result
+            }
+        }
+        return null
     }
   }
 
-  renderECharts = () => {
-    this.initializeEchartsInstance();
+  getCustomEChartOptions = () => {
+    const options = this.props.customEChartConfig
 
-    if (!this.echartsInstance) {
-      return;
-    }
+    // const configs = this.props.customEChartsAdvanceConfigurations ?? []
+    // for (const c of configs) {
+    //   const key : string = c.key as string
+    //   const id = c.id
+    //   const fn = c.fn
+
+    //   // const config = this.findObjectWithID(options, id)
+    //   // if(config) {
+    //     if (fn) {
+    //       console.log("proppane", "going to create a function")
+          // debugger;
+          // const assignFunc = (new Function("return " + fn))()
+          // config[key] = assignFunc
+        // }
+      // }
+    // }
+    console.log("widgetlog", "going to assign options", options)
+    return options;
+  };
+
+  shouldSetOptions(eChartOptions: any) {
+    console.log("*********", "should set options called")
+    // if (equal(this.echartConfiguration, eChartOptions)) {
+    //   if (this.is3DChart) {
+    //     return (
+    //       this.state.eChartsError == undefined ||
+    //       this.state.eChartsError == null
+    //     );
+    //   } else {
+    //     return false;
+    //   }
+    // } else {
+      return true;
+    // }
+  }
+
+  renderECharts = async () => {
+    // await this.initializeEchartsInstance();
+
+    // if (!this.echartsInstance) {
+    //   return;
+    // }
 
     let eChartOptions: Record<string, unknown> = {};
     if (isCustomEChart(this.state.chartType)) {
@@ -263,26 +443,35 @@ class ChartComponent extends React.Component<
       // console.log("***", "rendering basic chart")
       eChartOptions = this.getBasicEChartOptions();
     }
+    
 
     try {
-      if (this.shouldSetOptions(eChartOptions)) {
+      // if (this.shouldSetOptions(eChartOptions)) {
         this.echartConfiguration = eChartOptions;
-        this.echartsInstance.setOption(this.echartConfiguration, true);
+        console.log("chartwidget", "render echarts function, config is ", this.echartConfiguration, " echart options is ", eChartOptions)
+        const iFrameWindow =  (document?.getElementById("chartiframe") as any).contentWindow
+        console.log("chartwidget", "going to send message to iframe with window ", iFrameWindow)
+        iFrameWindow.postMessage({options: JSON.stringify(this.echartConfiguration), width: this.props.dimensions.componentWidth, height: this.props.dimensions.componentHeight }, "*")
+        // this.echartsInstance.setOption(this.echartConfiguration, true);
+        // const stringifiedOptions = this.jsString(this.echartConfiguration)
+        // console.log("*********", "stringified options are ", this.echartConfiguration)
 
         if (this.state.eChartsError) {
           this.setState({ eChartsError: undefined });
         }
-      }
+      // } else {
+      //   console.log("*********", "should not set options")
+      // }
 
-      if (this.shouldResizeECharts()) {
-        this.echartsInstance.resize({
-          width: this.props.dimensions.componentWidth,
-          height: this.props.dimensions.componentHeight,
-        });
-      }
+      // if (this.shouldResizeECharts()) {
+      //   this.echartsInstance.resize({
+      //     width: this.props.dimensions.componentWidth,
+      //     height: this.props.dimensions.componentHeight,
+      //   });
+      // }
 
-      this.echartsInstance.off("click");
-      this.echartsInstance.on("click", this.dataClickCallback);
+      // this.echartsInstance.off("click");
+      // this.echartsInstance.on("click", this.dataClickCallback);
     } catch (error) {
       this.disposeECharts();
       this.setState({ eChartsError: error as Error });
@@ -295,8 +484,16 @@ class ChartComponent extends React.Component<
     }
   };
 
-  componentDidMount() {
-    this.renderChartingLibrary();
+  async componentDidMount() {
+    console.log("chartwidget", "component did mount")
+    window.onmessage = (event : Event) => {
+      console.log("********", "chart component received message ", event)
+
+      const iFrameWindow =  (document?.getElementById("chartiframe") as any).contentWindow
+      console.log("chartwidget", "IN COMPONENT DID MOUNT : going to send message to iframe with window ", iFrameWindow)
+      iFrameWindow.postMessage({options: JSON.stringify(this.echartConfiguration), width: this.props.dimensions.componentWidth-10, height: this.props.dimensions.componentHeight-10 }, "*")    
+    }
+    await this.renderChartingLibrary();
   }
 
   componentWillUnmount() {
@@ -304,18 +501,19 @@ class ChartComponent extends React.Component<
     this.disposeFusionCharts();
   }
 
-  renderChartingLibrary() {
+  async renderChartingLibrary() {
     if (this.state.chartType === "CUSTOM_FUSION_CHART") {
       this.disposeECharts();
       this.renderFusionCharts();
     } else {
       this.disposeFusionCharts();
-      this.renderECharts();
+      console.log("*********", "going to render echarts")
+      await this.renderECharts();
     }
   }
 
-  componentDidUpdate() {
-    // console.log("***", "component did update called prev ", prevProps.chartType, " current chart type ", this.props.chartType)
+  async componentDidUpdate() {
+    console.log("chartwidget", "component did update called")
 
     if (
       isCustomFusionChart(this.props.chartType) &&
@@ -343,7 +541,7 @@ class ChartComponent extends React.Component<
       });
     } else {
       // console.log("***", "render charting library")
-      this.renderChartingLibrary();
+      await this.renderChartingLibrary();
     }
   }
 
@@ -414,9 +612,19 @@ class ChartComponent extends React.Component<
     return config || {};
   };
 
+  // divString() {
+  //   return `<div id=${this.eChartsContainerId}><div><script></script>>`
+  // }
+
   render() {
+    console.log("chartwidget",  "render function called")
     //eslint-disable-next-line  @typescript-eslint/no-unused-vars
     const { hasOnDataPointClick, onDataPointClick, ...rest } = this.props;
+    // const stringRender = ReactDOMServer.renderToString(<EChartsIframe></EChartsIframe>)
+    // console.log("*********", "string render is ", stringRender)
+    console.log("chartwidget", "echarts configuration for in render method is ", this.echartConfiguration)
+    const optionsString = JSON.stringify(this.echartConfiguration)
+    // console.log("*********", "options string is ", optionsString)
 
     // Avoid propagating the click events to upwards
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -424,15 +632,18 @@ class ChartComponent extends React.Component<
       ? (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => e.stopPropagation()
       : undefined;
 
+      // <iframe id="chartiframe" style={{height: "100%", width: "100%"}} srcDoc={this.jsString(optionsString)}></iframe>  
     return (
       <CanvasContainer
         className={this.props.isLoading ? "bp3-skeleton" : ""}
         onClick={onClick}
         {...rest}
       >
-        {this.state.chartType !== "CUSTOM_FUSION_CHART" && (
-          <ChartsContainer id={this.eChartsContainerId} />
+        {this.state.chartType !== "CUSTOM_FUSION_CHART" && (  
+          <iframe id="chartiframe" style={{height: "100%", width: "100%", overflow: "hidden"}} sandbox="allow-scripts" srcDoc={this.jsString}></iframe>  
+          // <ChartsContainer id={this.eChartsContainerId} />
         )}
+        
 
         {this.state.chartType === "CUSTOM_FUSION_CHART" && (
           <ChartsContainer id={this.customFusionChartContainerId} />
@@ -441,6 +652,8 @@ class ChartComponent extends React.Component<
         {this.state.eChartsError && (
           <ChartErrorComponent error={this.state.eChartsError} />
         )}
+
+        
       </CanvasContainer>
     );
   }

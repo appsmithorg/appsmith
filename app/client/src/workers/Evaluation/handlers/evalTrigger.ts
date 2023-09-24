@@ -24,6 +24,7 @@ export default async function (request: EvalWorkerASyncRequest) {
       unEvalTree.configTree,
     );
 
+  console.log("***", "3")
   dataTreeEvaluator.evalAndValidateSubTree(
     evalOrder,
     nonDynamicFieldValidationOrder,

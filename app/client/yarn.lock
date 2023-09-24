@@ -9496,6 +9496,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"acorn-globals@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "acorn-globals@npm:7.0.1"
+  dependencies:
+    acorn: ^8.1.0
+    acorn-walk: ^8.0.2
+  checksum: 2a2998a547af6d0db5f0cdb90acaa7c3cbca6709010e02121fb8b8617c0fbd8bab0b869579903fde358ac78454356a14fadcc1a672ecb97b04b1c2ccba955ce8
+  languageName: node
+  linkType: hard
+
 "acorn-import-assertions@npm:^1.7.6":
   version: 1.8.0
   resolution: "acorn-import-assertions@npm:1.8.0"
@@ -9532,7 +9542,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn-walk@npm:^8.1.1, acorn-walk@npm:^8.2.0":
+"acorn-walk@npm:^8.0.2, acorn-walk@npm:^8.1.1, acorn-walk@npm:^8.2.0":
   version: 8.2.0
   resolution: "acorn-walk@npm:8.2.0"
   checksum: 1715e76c01dd7b2d4ca472f9c58968516a4899378a63ad5b6c2d668bba8da21a71976c14ec5f5b75f887b6317c4ae0b897ab141c831d741dc76024d8745f1ad1
@@ -9557,7 +9567,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:^8.2.4, acorn@npm:^8.4.1, acorn@npm:^8.7.1, acorn@npm:^8.8.0, acorn@npm:^8.8.2, acorn@npm:^8.9.0":
+"acorn@npm:^8.1.0, acorn@npm:^8.2.4, acorn@npm:^8.4.1, acorn@npm:^8.7.1, acorn@npm:^8.8.0, acorn@npm:^8.8.2, acorn@npm:^8.9.0":
   version: 8.10.0
   resolution: "acorn@npm:8.10.0"
   bin:
@@ -9983,6 +9993,7 @@ __metadata:
     "@uppy/url": ^1.5.16
     "@uppy/webcam": ^1.8.4
     "@welldone-software/why-did-you-render": ^4.2.5
+    acorn-globals: ^7.0.1
     algoliasearch: ^4.2.0
     assert-never: ^1.2.1
     astring: ^1.7.5
@@ -14574,12 +14585,12 @@ __metadata:
   linkType: hard
 
 "echarts@npm:^5.4.2":
-  version: 5.4.2
-  resolution: "echarts@npm:5.4.2"
+  version: 5.4.3
+  resolution: "echarts@npm:5.4.3"
   dependencies:
     tslib: 2.3.0
-    zrender: 5.4.3
-  checksum: 933c28dada362314f7c7a5fd4243b44b24f75adb233f7c87541ac9a81734cb380a9683c3f56c8e559dacfddd363879e95a96f0047e33820123cd8f5b95b60f8f
+    zrender: 5.4.4
+  checksum: f4f69becf1cf8f546f9488ffa3bffaa971dcfbd49f5d635f288cbc8c5177839154bd6c325d6ed72c2b822c89c9bba4947ac73400614fd23c6f2f7ace3c939132
   languageName: node
   linkType: hard
 
@@ -31709,16 +31720,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zrender@npm:5.4.3":
-  version: 5.4.3
-  resolution: "zrender@npm:5.4.3"
-  dependencies:
-    tslib: 2.3.0
-  checksum: ae89584fbe4256217e500a74183fd5870a2bed7e7b3234cd78fcbc0a1a82da8449596b2019105927069531b567ecf94425fb171abd6cedcbf517e52fdf438722
-  languageName: node
-  linkType: hard
-
-"zrender@npm:^5.1.1":
+"zrender@npm:5.4.4, zrender@npm:^5.1.1":
   version: 5.4.4
   resolution: "zrender@npm:5.4.4"
   dependencies:

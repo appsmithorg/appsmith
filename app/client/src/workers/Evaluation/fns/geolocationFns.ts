@@ -95,6 +95,7 @@ export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
     ...metaData,
   });
   const messageHandler = (event: MessageEvent<TDefaultMessage<any>>) => {
+    console.log("listeningmessages", "got event 2 ", event)
     const message = event.data;
     if (message.messageId !== listenerId) return;
     ExecutionMetaData.setExecutionMetaData(metaData);

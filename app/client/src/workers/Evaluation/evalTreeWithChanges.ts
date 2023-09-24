@@ -46,6 +46,7 @@ export function evalTreeWithChanges(
 
     nonDynamicFieldValidationOrder =
       setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
+    console.log("***", "1")
     const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder,

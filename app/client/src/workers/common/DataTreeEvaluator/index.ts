@@ -978,6 +978,7 @@ export default class DataTreeEvaluator {
             set(this.evalProps, getEvalErrorPath(fullPropertyPath), []);
           }
 
+          // console.log("***", "requires eval is ", requiresEval, " uneval property is ", unEvalPropertyValue, " entity type is ", entity.ENTITY_TYPE, " entity is ", entity)
           if (requiresEval) {
             const evaluationSubstitutionType =
               entityConfig.reactivePaths[propertyPath] ||
@@ -1029,10 +1030,13 @@ export default class DataTreeEvaluator {
 
           switch (entityType) {
             case ENTITY_TYPE.WIDGET: {
+              console.log("***", "is a trigger path ", isATriggerPath, " current tree is ", currentTree)
               if (isATriggerPath) return currentTree;
 
               const isNewWidget =
                 isFirstTree || isNewEntity(unevalUpdates, entityName);
+
+              console.log("***", "is a new widget ", isNewWidget)
 
               const widgetEntity = entity as WidgetEntity;
 
@@ -1177,6 +1181,9 @@ export default class DataTreeEvaluator {
         staleMetaIds: staleMetaIds,
       };
     } catch (error) {
+      console.log("***", "caught error ")
+      console.log("***", (error as Error).message)
+
       this.errors.push({
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,

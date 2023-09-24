@@ -36,7 +36,7 @@ describe("Chart Widget", () => {
     },
     chartName: "chart name",
     chartType: "AREA_CHART",
-    customEChartConfig: DefaultEChartConfig,
+    customEChartConfig: {},// DefaultEChartConfig,
     customFusionChartConfig: DefaultFusionChartConfig,
     hasOnDataPointClick: true,
     isVisible: true,

@@ -1621,7 +1621,7 @@ export const ADD_QUERY_JS_BUTTON = () => "Add query/JS";
 export const EMPTY_WIDGET_MAIN_TEXT = () => "No widget to display";
 export const EMPTY_WIDGET_BUTTON_TEXT = () => "New widget";
 export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
-export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "New query/JS";
+export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "New query/JS 123";
 export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
 export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "New datasource";
 

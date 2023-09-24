@@ -44,7 +44,7 @@ const labelOptions = (
     },
   ];
 
-  if (customEChartsEnabled) {
+  if (true) {
     options.splice(options.length - 1, 0, {
       label: "Custom EChart",
       value: "CUSTOM_ECHART",
@@ -88,6 +88,56 @@ export const contentConfig = (
             },
           },
         },
+        // {
+        //   helpText: "Add advanced EChart customizations",
+        //   placeholderText: `Custom ECharts Advanced Functions`,
+        //   propertyName: "customEChartsAdvanceConfigurations",
+        //   label: "Custom ECharts Callback function",
+        //   controlType: "INPUT_TEXT",
+        //   isBindProperty: true,
+        //   isTriggerProperty: false,
+        //   validation: {
+        //     type: ValidationTypes.ARRAY,
+        //     params: {
+        //       default: [],
+        //       children: {
+        //         type: ValidationTypes.OBJECT,
+        //         params: {
+        //           // required: true,
+        //           allowedKeys: [
+        //             // {
+        //             //   name: "id",
+        //             //   type: ValidationTypes.TEXT,
+        //             //   params: {
+        //             //     required: false,
+        //             //     default: "",
+        //             //   },
+        //             // },
+        //             // {
+        //             //   name: "key",
+        //             //   type: ValidationTypes.TEXT,
+        //             //   params: {
+        //             //     required: false,
+        //             //     default: 10,
+        //             //   },
+        //             // },
+        //             {
+        //               name: "fn",
+        //               type: ValidationTypes.PROPERTY_PANE_FUNCTION,
+        //               params: {
+        //                 required: false,
+        //                 default: "rajatdefaultvalue",
+        //               },
+        //             },
+        //           ],
+        //         },
+        //       },
+        //     },
+        //   },
+        //   hidden: (props: ChartWidgetProps) =>
+        //     props.chartType !== "CUSTOM_ECHART",
+        //   dependencies: ["chartType"],
+        // },
         {
           helpText: "Configure a custom ECHART see docs.appsmith.com",
           placeholderText: `Custom ECharts Configuration`,
@@ -97,9 +147,9 @@ export const contentConfig = (
           isBindProperty: true,
           isTriggerProperty: false,
           validation: {
-            type: ValidationTypes.OBJECT,
+            type: ValidationTypes.PROPERTY_PANE_FUNCTION,
             params: {
-              default: [],
+              default: { "rajat" : "default value" },
             },
           },
           hidden: (props: ChartWidgetProps) =>

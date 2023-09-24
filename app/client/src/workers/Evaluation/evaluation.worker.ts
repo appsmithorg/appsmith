@@ -10,6 +10,7 @@ import { WorkerMessenger } from "./fns/utils/Messenger";
 function syncRequestMessageListener(
   e: MessageEvent<TMessage<EvalWorkerSyncRequest>>,
 ) {
+  console.log("listeningmessages", "got event 4 ", e)
   const { messageType } = e.data;
   if (messageType !== MessageType.REQUEST) return;
   const startTime = performance.now();
@@ -27,6 +28,7 @@ function syncRequestMessageListener(
 async function asyncRequestMessageListener(
   e: MessageEvent<TMessage<EvalWorkerASyncRequest>>,
 ) {
+  console.log("listeningmessages", "got event 3 ", e)
   const { messageType } = e.data;
   if (messageType !== MessageType.REQUEST) return;
   const start = performance.now();

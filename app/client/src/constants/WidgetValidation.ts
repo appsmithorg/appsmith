@@ -17,6 +17,7 @@ export enum ValidationTypes {
   SAFE_URL = "SAFE_URL",
   ARRAY_OF_TYPE_OR_TYPE = "ARRAY_OF_TYPE_OR_TYPE",
   UNION = "UNION",
+  PROPERTY_PANE_FUNCTION = "PROPERTY_PANE_FUNCTION"
 }
 
 export type ValidationResponse = {

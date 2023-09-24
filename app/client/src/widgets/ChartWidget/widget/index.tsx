@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from "react";
-
+import { get, set } from "lodash"
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
@@ -11,6 +11,7 @@ import {
   DefaultEChartConfig,
   DefaultEChartsBasicChartsData,
   DefaultFusionChartConfig,
+  DefaultEChartAdvancedConfig,
   FUSION_CHART_DEPRECATION_FLAG,
   messages,
 } from "../constants";
@@ -33,6 +34,7 @@ import { LabelOrientation } from "../constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
+import { isFunctionPresent } from "@shared/ast";
 
 const ChartComponent = lazy(() =>
   retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
@@ -81,11 +83,18 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       showDataPointLabel: false,
-      customEChartConfig: `{{\n${JSON.stringify(
-        DefaultEChartConfig,
-        null,
-        2,
-      )}\n}}`,
+      customEChartsAdvanceConfigurations : DefaultEChartAdvancedConfig,
+      // customEChartsAdvanceConfigurations: `{{\n${JSON.stringify(
+      //   DefaultEChartAdvancedConfig,
+      //   null,
+      //   2,
+      // )}\n}}`,
+      customEChartConfig: DefaultEChartConfig,
+      //  `{{\n${JSON.stringify(
+      //   DefaultEChartConfig,
+      //   null,
+      //   2,
+      // )}\n}}`,
       chartData: {
         [generateReactKey()]: DefaultEChartsBasicChartsData,
       },
@@ -202,13 +211,97 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     );
   };
 
+  customFn(str : string) {
+    var x = new Function("a", "b", "")
+    try {
+      const fn = new Function("return " + str)
+    const result = fn()
+    const type = typeof(result)
+    console.log("***", "type of variable is ", type)
+    return typeof(result) == "function"
+    } catch(error) {
+      console.log("***", "error in catch is ", error)
+    }
+     
+  }
+
+  functionPlayground() {
+    // const result = isFunctionPresent("", 2)
+    const fnString = JSON.stringify(DefaultEChartConfig)
+    console.log("***", "is function present ", isFunctionPresent(fnString, 2), fnString, this.customFn(fnString))
+  }
+
+  parseFunctions(configuration: Record<string, unknown>) {
+    const newConfiguration = JSON.parse(JSON.stringify(configuration))
+    let fnKeys = configuration['__fn_keys__'] as string[] ?? []
+    // fnKeys = ['series.symbolSize']
+    
+    console.log("***", "configuration is ",configuration, " fn keys is ", fnKeys)
+
+    for (const fnKey of fnKeys) {
+      const fnString = get(configuration, fnKey)
+      console.log("widgetlog", "fn string is ", fnString, " configuration is ", configuration)
+      const fn = (new Function("return " + fnString))()
+      console.log("widgetlog", "fn is ", fn)
+
+      
+      set(newConfiguration, fnKey, fn)
+    }
+    console.log("***", "CONFIGURATION AFTER OVERRIDE IS  ", newConfiguration)
+    return newConfiguration
+  }
+
   getWidgetView() {
+    // const myconfig = {}
+    //   const key = "rajat.agrawal.agrawal"
+    //   const val = () => {}
+      
+    //   set(myconfig, key, val)
+    //   console.log("widgetlog", "MYCONFIG IS ", myconfig)
+    // console.log("proppane", "props in get page view are ", this.props.customEChartsAdvanceConfigurations)
+    // const result = checkObjectHasValidFunctions({
+    //   "rajat" : "agrawal",
+    //   "agrawal": () => {
+    //     console.log("Hey!!")
+    //   },
+    //   "testvalue" : {
+    //     "rajat" : ( ) => {
+          
+    //     }
+    //   }
+    // })
+    // console.log("proppane", "result from validating function is ", result)
+    // const start = performance.now()
+    // this.functionPlayground()
+    // const end = performance.now()
+
+    // const jsonStart = performance.now()
+    // JSON.stringify(DefaultEChartConfig)
+    // const jsonEnd = performance.now()
+
+    // console.log("***", "ast start is ", start, " end is ", end, end - start)
+    // console.log("***", "JSON parse performance is ", jsonStart, " end is ", jsonEnd, jsonEnd - jsonStart)
+
+    // const a : string = "[0].rajat"
+    // const b = [{'rajat' : "agrawal" }]
+    // const result = get(b, a)
+    // console.log("proppane", "result of get is ", result)
+
+
     const errors = syntaxErrorsFromProps(this.props);
+    
+    
 
     if (errors.length == 0) {
       if (emptyChartData(this.props)) {
         return <EmptyChartData />;
       } else {
+        console.log("proppane", "value received in chart widget index is ", this.props.customEChartConfig)
+        
+        console.log("******", "configuration BEFORE parsing is ", this.props.customEChartConfig)
+        const newConfig = this.parseFunctions(this.props.customEChartConfig)
+        console.log("******", "new config is ", newConfig)
+
         return (
           <Suspense fallback={<Skeleton />}>
             <ChartComponent
@@ -229,6 +322,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
               labelOrientation={this.props.labelOrientation}
               onDataPointClick={this.onDataPointClick}
               primaryColor={this.props.accentColor ?? Colors.ROYAL_BLUE_2}
+              rightColumn={this.props.rightColumn}
+              customEChartsAdvanceConfigurations={this.props.customEChartsAdvanceConfigurations}
               setAdaptiveYMin={this.props.setAdaptiveYMin}
               showDataPointLabel={this.props.showDataPointLabel}
               widgetId={this.props.widgetId}

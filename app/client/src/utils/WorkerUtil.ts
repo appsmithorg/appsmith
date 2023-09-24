@@ -203,6 +203,7 @@ export class GracefulWorkerService {
   }
 
   private _broker(event: MessageEvent<TMessage<any>>) {
+    console.log("listeningmessages", "got event 5 ", event)
     if (!event || !event.data) return;
     const { body, messageType } = event.data;
     if (messageType === MessageType.RESPONSE) {
