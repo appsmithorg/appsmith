@@ -283,6 +283,8 @@ export class DataSources {
   _stagingTab = "[data-testid='t--ds-data-filter-Staging']";
   _graphQlDsFromRightPane = (dsName: string) =>
     "//div/span[text() ='" + dsName + "']";
+  _imgFireStoreLogo =
+    "img[src='https://assets.appsmith.com/logo/firestore.svg']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
