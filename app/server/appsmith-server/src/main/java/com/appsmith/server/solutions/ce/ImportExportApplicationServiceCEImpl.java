@@ -942,7 +942,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private String validateApplicationJson(ApplicationJson importedDoc) {
         String errorField = "";
         if (CollectionUtils.isEmpty(importedDoc.getPageList())) {
-            errorField = FieldName.PAGES;
+            errorField = FieldName.PAGE_LIST;
         } else if (importedDoc.getExportedApplication() == null) {
             errorField = FieldName.APPLICATION;
         } else if (importedDoc.getActionList() == null) {
@@ -1823,7 +1823,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         String errorField = validateApplicationJson(importedDoc);
         if (!errorField.isEmpty()) {
             log.error("Error in importing application. Field {} is missing", errorField);
-            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
+            return Mono.error(new AppsmithException(
+                    AppsmithError.VALIDATION_FAILURE, "Field '" + errorField + "' is missing in the JSON."));
         }
 
         Application importedApplication = importedDoc.getExportedApplication();
