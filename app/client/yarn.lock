@@ -10184,7 +10184,7 @@ __metadata:
     fuse.js: ^3.4.5
     fusioncharts: ^3.18.0
     fusionmaps: ^3.18.0
-    graphql: ^16.3.0
+    graphql: ^16.8.1
     history: ^4.10.1
     http-proxy: ^1.18.1
     husky: ^8.0.0
@@ -17336,10 +17336,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:^16.3.0":
-  version: 16.5.0
-  resolution: "graphql@npm:16.5.0"
-  checksum: a82a926d085818934d04fdf303a269af170e79de943678bd2726370a96194f9454ade9d6d76c2de69afbd7b9f0b4f8061619baecbbddbe82125860e675ac219e
+"graphql@npm:^16.8.1":
+  version: 16.8.1
+  resolution: "graphql@npm:16.8.1"
+  checksum: 8d304b7b6f708c8c5cc164b06e92467dfe36aff6d4f2cf31dd19c4c2905a0e7b89edac4b7e225871131fd24e21460836b369de0c06532644d15b461d55b1ccc0
   languageName: node
   linkType: hard
 
