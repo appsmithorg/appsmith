@@ -44,7 +44,6 @@ const defaultFixedCanvasProps: Partial<CanvasProps> = {
   leftColumn: 0,
   containerStyle: "none",
   detachFromLayout: true,
-  minHeight: CANVAS_DEFAULT_MIN_HEIGHT_PX,
   shouldScrollContents: false,
 };
 
@@ -61,8 +60,9 @@ const defaultFixedCanvasProps: Partial<CanvasProps> = {
 
 const getFixedLayoutSystemCanvasPropsEnhancer = (props: BaseWidgetProps) => {
   const enhancedProps = {
-    ...defaultFixedCanvasProps,
+    minHeight: CANVAS_DEFAULT_MIN_HEIGHT_PX,
     ...props,
+    ...defaultFixedCanvasProps,
   };
   const { componentHeight, componentWidth } =
     getFixedLayoutComponentDimensions(enhancedProps);

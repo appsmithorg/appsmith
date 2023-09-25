@@ -64,7 +64,6 @@ const defaultAutoLayoutCanvasProps: Partial<CanvasProps> = {
   leftColumn: 0,
   containerStyle: "none",
   detachFromLayout: true,
-  minHeight: CANVAS_DEFAULT_MIN_HEIGHT_PX,
   shouldScrollContents: false,
 };
 
@@ -82,8 +81,9 @@ const defaultAutoLayoutCanvasProps: Partial<CanvasProps> = {
 
 const getAutoLayoutSystemCanvasPropsEnhancer = (props: BaseWidgetProps) => {
   const enhancedProps = {
-    ...defaultAutoLayoutCanvasProps,
+    minHeight: CANVAS_DEFAULT_MIN_HEIGHT_PX,
     ...props,
+    ...defaultAutoLayoutCanvasProps,
   };
   const autoDimensionConfig = getAutoLayoutDimensionsConfig(enhancedProps);
   const { componentHeight, componentWidth } =
