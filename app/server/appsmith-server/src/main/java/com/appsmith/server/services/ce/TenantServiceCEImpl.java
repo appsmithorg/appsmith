@@ -203,8 +203,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
      */
     @Override
     public Mono<Tenant> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant) {
-        if (tenant.getTenantConfiguration() == null
-                || CollectionUtils.isNullOrEmpty(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())) {
+        if (!isMigrationRequired(tenant)) {
             return Mono.just(tenant);
         }
         Map<FeatureFlagEnum, FeatureMigrationType> featureMigrationTypeMap =
@@ -222,10 +221,25 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                         } else {
                             tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.IN_PROGRESS);
                         }
-                        return this.save(tenant).flatMap(this::checkAndExecuteMigrationsForTenantFeatureFlags);
+                        return this.save(tenant)
+                                // Fetch the tenant again from DB to make sure the downstream chain is consuming the
+                                // latest
+                                // DB object and not the modified one because of the client pertinent changes
+                                .then(repository.retrieveById(tenant.getId()))
+                                .flatMap(this::checkAndExecuteMigrationsForTenantFeatureFlags);
                     }
                     return Mono.error(
                             new AppsmithException(AppsmithError.FeatureFlagMigrationFailure, featureFlagEnum, ""));
                 });
+    }
+
+    private boolean isMigrationRequired(Tenant tenant) {
+        return tenant.getTenantConfiguration() != null
+                && (!CollectionUtils.isNullOrEmpty(
+                                tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
+                        || (CollectionUtils.isNullOrEmpty(
+                                        tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
+                                && !MigrationStatus.COMPLETED.equals(
+                                        tenant.getTenantConfiguration().getMigrationStatus())));
     }
 }

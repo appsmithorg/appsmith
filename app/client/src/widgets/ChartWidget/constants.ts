@@ -13,8 +13,13 @@ export type ChartType =
 
 export const XAxisCategory = "Category";
 export interface ChartDataPoint {
-  x: any;
-  y: any;
+  x: number | string;
+  y: number | string;
+}
+
+export interface LongestLabelParams {
+  x: string;
+  y: string;
 }
 
 export interface ChartData {
@@ -43,7 +48,7 @@ export const messages = {
   ErrorTitle: "Error in Chart Data/Configuration",
   MoreDetails: "More Details",
   EmptyData: "No chart data to display",
-  Undefined: "Undefined",
+  Undefined: "Series",
   customFusionChartDeprecationMessage:
     "Custom Fusion Charts will stop being supported on March 1st 2024. Change the chart type to E-charts Custom to switch.",
   customFusionChartOptionLabel: (showDeprecationMessage: boolean) => {

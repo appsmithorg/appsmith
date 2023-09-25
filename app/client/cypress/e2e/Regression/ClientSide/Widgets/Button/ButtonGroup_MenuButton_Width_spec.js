@@ -8,8 +8,6 @@ describe("In a button group widget, menu button width", function () {
 
   it("1. If target width is smaller than min-width, The menu button popover width should be set to minimum width", () => {
     cy.get(commonlocators.layoutControls).eq(3).click();
-
-    const minWidth = 12 * 12.3125;
     const widgetId = "yxjq5sck7d";
     // Get the default menu button
     cy.get(`.appsmith_widget_${widgetId} div.t--buttongroup-widget`)
@@ -18,16 +16,21 @@ describe("In a button group widget, menu button width", function () {
       .as("target");
     // Open popover
     cy.get("@target").click();
-    // Get the target width
-    agHelper.GetWidth("@target");
-    cy.get("@eleWidth").then((targetWidth) => {
-      expect(targetWidth).to.be.lessThan(minWidth);
-      // Check if popover width is set to its target width
-      cy.get(`.bp3-popover2.button-group-${widgetId}`).should(
-        "have.css",
-        "width",
-        `${minWidth}px`,
-      );
+
+    agHelper.GetWidth(commonlocators.canvas);
+    cy.get("@eleWidth").then((mainCanvasWidth) => {
+      const minWidth = (12 / 64) * mainCanvasWidth;
+      // Get the target width
+      agHelper.GetWidth("@target");
+      cy.get("@eleWidth").then((targetWidth) => {
+        expect(targetWidth).to.be.lessThan(minWidth);
+        // Check if popover width is set to its target width
+        cy.get(`.bp3-popover2.button-group-${widgetId}`).should(
+          "have.css",
+          "width",
+          `${minWidth}px`,
+        );
+      });
     });
   });
 

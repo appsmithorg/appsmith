@@ -474,7 +474,7 @@ function ReconnectDatasourceModal() {
   }, [importedApplication, queryIsImport]);
 
   useEffect(() => {
-    if (pageId && appId && datasources.length) {
+    if (pageId) {
       // TODO: Update route params here
       setAppURL(
         builderURL({
@@ -482,7 +482,7 @@ function ReconnectDatasourceModal() {
         }),
       );
     }
-  }, [pageId, appId, datasources]);
+  }, [pageId]);
 
   // checking of full configured
   useEffect(() => {
@@ -516,7 +516,10 @@ function ReconnectDatasourceModal() {
             JSON.stringify(appInfo),
           );
         }
-      } else if (appURL) {
+      }
+      // When datasources are present and pending datasources are 0,
+      // then only we want to update status as success
+      else if (appURL && pending.length === 0 && datasources.length > 0) {
         // open application import successfule
         localStorage.setItem("importApplicationSuccess", "true");
         localStorage.setItem("importedAppPendingInfo", "null");

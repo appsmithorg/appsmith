@@ -54,7 +54,8 @@ export class DataSources {
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
-  public _host = "input[name$='.datasourceConfiguration.endpoints[0].host']";
+  public _host = (index = "0") =>
+    "input[name$='.datasourceConfiguration.endpoints[" + index + "].host']";
   public _port = "input[name$='.datasourceConfiguration.endpoints[0].port']";
   public _databaseName =
     "input[name$='.datasourceConfiguration.authentication.databaseName']";
@@ -149,7 +150,7 @@ export class DataSources {
     `//div/span[text()='Result:']/span[number(substring-before(normalize-space(text()), ' Record')) >= ${recordCount}]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
-    "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
+    "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox'], input[name='actionConfiguration.formData.preparedStatement.data'][type='checkbox']";
   _queriesOnPageText = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "') .t--queries-for-DB";
   _mockDB = (dbName: string) =>
@@ -188,6 +189,8 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
+  _mandatoryMark = "//span[text()='*']";
+  _deleteDSHostPort = ".t--delete-field";
 
   private _suggestedWidget = (widgetType: string, parentClass: string) =>
     "//div[contains(@class, '" +
@@ -463,7 +466,7 @@ export class DataSources {
       this._port,
       this.dataManager.dsValues[environment].postgres_port.toString(),
     );
-    this.agHelper.UpdateInputValue(this._host, hostAddress);
+    this.agHelper.UpdateInputValue(this._host(), hostAddress);
     this.agHelper.ClearNType(this._databaseName, databaseName);
     cy.get(this._username).type(
       username == ""
@@ -502,14 +505,14 @@ export class DataSources {
       ? this.dataManager.dsValues[environment].oracle_host + "  "
       : this.dataManager.dsValues[environment].oracle_host;
     const databaseName = shouldAddTrailingSpaces
-      ? this.dataManager.dsValues[environment].oracle_name + "  "
-      : this.dataManager.dsValues[environment].oracle_name;
-    this.agHelper.UpdateInputValue(this._host, hostAddress);
+      ? this.dataManager.dsValues[environment].oracle_service + "  "
+      : this.dataManager.dsValues[environment].oracle_service;
+    this.agHelper.UpdateInputValue(this._host(), hostAddress);
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].oracle_port.toString(),
     );
-    cy.get(this._databaseName).clear().type(databaseName);
+    cy.get(this._databaseName).type(databaseName);
     cy.get(this._username).type(
       username == ""
         ? this.dataManager.dsValues[environment].oracle_username
@@ -529,7 +532,7 @@ export class DataSources {
     const hostAddress = shouldAddTrailingSpaces
       ? this.dataManager.dsValues[environment].mongo_host + "  "
       : this.dataManager.dsValues[environment].mongo_host;
-    this.agHelper.UpdateInputValue(this._host, hostAddress);
+    this.agHelper.UpdateInputValue(this._host(), hostAddress);
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].mongo_port.toString(),
@@ -552,7 +555,7 @@ export class DataSources {
       ? this.dataManager.dsValues[environment].mysql_databaseName + "  "
       : this.dataManager.dsValues[environment].mysql_databaseName;
 
-    this.agHelper.UpdateInputValue(this._host, hostAddress);
+    this.agHelper.UpdateInputValue(this._host(), hostAddress);
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].mysql_port.toString(),
@@ -567,16 +570,26 @@ export class DataSources {
     );
   }
 
-  public FillMsSqlDSForm(environment = this.dataManager.defaultEnviorment) {
+  public FillMsSqlDSForm(
+    environment = this.dataManager.defaultEnviorment,
+    leaveDBNameEmpty = true,
+  ) {
     this.agHelper.UpdateInputValue(
-      this._host,
+      this._host(),
       this.dataManager.dsValues[environment].mssql_host,
     );
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].mssql_port.toString(),
     );
-    this.agHelper.ClearTextField(this._databaseName);
+
+    if (leaveDBNameEmpty) {
+      this.agHelper.ClearTextField(this._databaseName);
+    } else {
+      const databaseName =
+        this.dataManager.dsValues[environment].mssql_databaseName;
+      this.agHelper.ClearNType(this._databaseName, databaseName);
+    }
     // this.agHelper.UpdateInputValue(
     //   this._databaseName,
     //   datasourceFormData["mssql-databaseName"],
@@ -608,7 +621,7 @@ export class DataSources {
 
   public FillArangoDSForm(environment = this.dataManager.defaultEnviorment) {
     this.agHelper.UpdateInputValue(
-      this._host,
+      this._host(),
       this.dataManager.dsValues[environment].arango_host,
     );
     this.agHelper.UpdateInputValue(
@@ -676,7 +689,7 @@ export class DataSources {
     environment = this.dataManager.defaultEnviorment,
   ) {
     this.agHelper.UpdateInputValue(
-      this._host,
+      this._host(),
       this.dataManager.dsValues[environment].elastic_host,
     );
     this.agHelper.UpdateInputValue(
@@ -743,7 +756,7 @@ export class DataSources {
 
   public FillRedisDSForm(environment = this.dataManager.defaultEnviorment) {
     this.agHelper.UpdateInputValue(
-      this._host,
+      this._host(),
       this.dataManager.dsValues[environment].redis_host,
     );
     this.agHelper.UpdateInputValue(
@@ -853,7 +866,7 @@ export class DataSources {
     this.ValidateDSDeletion(expectedRes);
   }
 
-  public DeleteDatasouceFromWinthinDS(
+  public DeleteDatasourceFromWithinDS(
     datasourceName: string,
     expectedRes: number | number[] = 200 || 409 || [200 | 409],
   ) {
@@ -1204,17 +1217,13 @@ export class DataSources {
     });
   }
 
-  public ToggleUsePreparedStatement(enable = true || false) {
-    if (enable)
-      cy.get(this._usePreparedStatement).check({
-        force: true,
-      });
-    else
-      cy.get(this._usePreparedStatement).uncheck({
-        force: true,
-      });
-
-    this.agHelper.AssertAutoSave();
+  ToggleUsePreparedStatement(
+    enable = true || false,
+    toNavigateToSettings = false,
+  ) {
+    toNavigateToSettings && this.apiPage.SelectPaneTab("Settings");
+    if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
+    else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {

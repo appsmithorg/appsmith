@@ -175,8 +175,8 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
-      dataSources.DeleteDatasouceFromWinthinDS(dsName_1, 200);
-      dataSources.DeleteDatasouceFromWinthinDS(dsName_2, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName_1, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName_2, 200);
     },
   );
 });

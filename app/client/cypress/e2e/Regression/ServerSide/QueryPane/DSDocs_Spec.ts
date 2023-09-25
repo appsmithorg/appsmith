@@ -4,6 +4,7 @@ import {
   dataSources,
   entityItems,
   deployMode,
+  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 import { DataSourceKVP } from "../../../../support/Pages/DataSources";
 
@@ -88,7 +89,7 @@ describe("Check datasource doc links", function () {
     });
   });
 
-  it("7. Verify Airtable documentation opens", function () {
+  it("excludeForAirgap", "7. Verify Airtable documentation opens", function () {
     CreateDummyDSNSave(DataSourceKVP["Airtable"]);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -96,6 +97,24 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "airtable#create-queries",
+        "getWorkspace",
+      );
+    });
+  });
+
+  it("8. Verify Oracle documentation opens", function () {
+    dataSources.CreateDataSource(
+      "Oracle",
+      true,
+      false,
+      dataManager.environments[1],
+    ); //using mock dataset for oracle
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+      dataSources.CreateQueryAfterDSSaved();
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-oracle#create-queries",
         "getWorkspace",
       );
     });

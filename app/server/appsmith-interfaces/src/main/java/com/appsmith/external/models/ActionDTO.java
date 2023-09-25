@@ -1,5 +1,7 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
+import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.Views;
@@ -21,7 +23,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @ToString
-public class ActionDTO implements Identifiable {
+public class ActionDTO implements Identifiable, Executable {
 
     @Transient
     @JsonView(Views.Public.class)
@@ -181,6 +183,7 @@ public class ActionDTO implements Identifiable {
         return datasource;
     }
 
+    @Override
     @JsonView(Views.Public.class)
     public String getValidName() {
         if (this.fullyQualifiedName == null) {
@@ -188,6 +191,14 @@ public class ActionDTO implements Identifiable {
         } else {
             return this.fullyQualifiedName;
         }
+    }
+
+    @Override
+    public EntityReferenceType getEntityReferenceType() {
+        if (this.getPluginType() == null) {
+            return null;
+        }
+        return this.getPluginType().equals(PluginType.JS) ? EntityReferenceType.JSACTION : EntityReferenceType.ACTION;
     }
 
     public void sanitiseToExportDBObject() {
@@ -204,5 +215,65 @@ public class ActionDTO implements Identifiable {
         if (this.getPolicies() != null) {
             this.getPolicies().clear();
         }
+    }
+
+    @Override
+    public Set<String> getSelfReferencingDataPaths() {
+        if (this.getActionConfiguration() == null) {
+            return new HashSet<>();
+        }
+        return this.getActionConfiguration().getSelfReferencingDataPaths();
+    }
+
+    @Override
+    public ActionConfiguration getExecutableConfiguration() {
+        return this.getActionConfiguration();
+    }
+
+    @Override
+    public String getConfigurationPath() {
+        return this.getValidName() + ".actionConfiguration";
+    }
+
+    @Override
+    public String getCompleteDynamicBindingPath(String fieldPath) {
+        return this.getConfigurationPath() + "." + fieldPath;
+    }
+
+    @Override
+    public boolean hasExtractableBinding() {
+        return PluginType.JS.equals(this.getPluginType());
+    }
+
+    @Override
+    public DslExecutableDTO getDslExecutable() {
+        DslExecutableDTO dslExecutableDTO = new DslExecutableDTO();
+
+        dslExecutableDTO.setId(this.getId());
+        dslExecutableDTO.setPluginType(this.getPluginType());
+        dslExecutableDTO.setJsonPathKeys(this.getJsonPathKeys());
+        dslExecutableDTO.setName(this.getValidName());
+        dslExecutableDTO.setCollectionId(this.getCollectionId());
+        dslExecutableDTO.setClientSideExecution(this.getClientSideExecution());
+        dslExecutableDTO.setConfirmBeforeExecute(this.getConfirmBeforeExecute());
+        if (this.getDefaultResources() != null) {
+            dslExecutableDTO.setDefaultActionId(this.getDefaultResources().getActionId());
+            dslExecutableDTO.setDefaultCollectionId(this.getDefaultResources().getCollectionId());
+        }
+
+        if (this.getExecutableConfiguration() != null) {
+            dslExecutableDTO.setTimeoutInMillisecond(
+                    this.getExecutableConfiguration().getTimeoutInMillisecond());
+        }
+
+        return dslExecutableDTO;
+    }
+
+    @Override
+    public LayoutExecutableUpdateDTO createLayoutExecutableUpdateDTO() {
+        LayoutExecutableUpdateDTO layoutExecutableUpdateDTO = Executable.super.createLayoutExecutableUpdateDTO();
+        layoutExecutableUpdateDTO.setCollectionId(this.getCollectionId());
+
+        return layoutExecutableUpdateDTO;
     }
 }

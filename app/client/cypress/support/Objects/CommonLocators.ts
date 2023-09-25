@@ -246,7 +246,7 @@ export class CommonLocators {
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
   _fixedLayout = "#t--layout-conversion-cta:contains('fixed')";
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
-  _popoverToolTip = ".bp3-popover-content";
+  _popoverToolTip = ".bp3-popover-content, .bp3-popover2-content";
   _selectedWidget = "div[data-testid='t--selected']";
   _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
@@ -293,10 +293,13 @@ export class CommonLocators {
   _alignment = (value: string) => `//*[@data-value='${value}']`;
   _borderRadius = (value: string) => `//*[@data-value='${value}']`;
   _textInside = ".bp3-ui-text span";
+  _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
+  _hintsList = "ul.CodeMirror-hints";
   _buttonInDeployedMode = ".bp3-button";
   _treeSelectPlaceholder = ".rc-tree-select-selection-placeholder";
   _treeSelectTitle = ".rc-tree-select-tree-title";
   _newDataSourceBtn = ".datasources .t--entity-add-btn";
   _callbackAddBtn = ".action-callback-add .ads-v2-button";
   _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
+  _listText = "//span[text()='Blue']/../..";
 }

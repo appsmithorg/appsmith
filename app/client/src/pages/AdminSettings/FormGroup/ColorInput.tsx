@@ -6,6 +6,7 @@ import tinycolor from "tinycolor2";
 import styled from "styled-components";
 import { Icon, Text, Tooltip } from "design-system";
 import { InputGroup, Classes } from "@blueprintjs/core";
+import Color from "colorjs.io";
 
 import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
@@ -116,10 +117,16 @@ export const ColorInput = (props: ColorInputProps) => {
       shades[selectedIndex] = e.target.value;
 
       logEvent && logEvent(selectedIndex);
-
+      let color = undefined;
+      try {
+        color = Color.parse(e.target.value);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      }
       // if user is touching the primary color
       // then we need to update the shades
-      if (selectedIndex === "primary") {
+      if (selectedIndex === "primary" && color) {
         shades = createBrandColorsFromPrimaryColor(e.target.value);
       }
 

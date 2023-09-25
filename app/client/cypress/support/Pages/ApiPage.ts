@@ -64,7 +64,7 @@ export class ApiPage {
   _imageSrc = "//img/parent::div";
   private _trashDelete = "[data-testid=t--trash-icon]";
   private _onPageLoad = "input[name='executeOnLoad'][type='checkbox']";
-  private _confirmBeforeRunningAPI =
+  private _confirmBeforeRunning =
     "input[name='confirmBeforeExecute'][type='checkbox']";
   private _paginationTypeLabels = ".t--apiFormPaginationType label";
   _saveAsDS = ".t--store-as-datasource";
@@ -244,10 +244,10 @@ export class ApiPage {
     else this.agHelper.CheckUncheck(this._onPageLoad, false);
   }
 
-  ToggleConfirmBeforeRunningApi(enable = true || false) {
+  ToggleConfirmBeforeRunning(enable = true || false) {
     this.SelectPaneTab("Settings");
-    if (enable) this.agHelper.CheckUncheck(this._confirmBeforeRunningAPI, true);
-    else this.agHelper.CheckUncheck(this._confirmBeforeRunningAPI, false);
+    if (enable) this.agHelper.CheckUncheck(this._confirmBeforeRunning, true);
+    else this.agHelper.CheckUncheck(this._confirmBeforeRunning, false);
   }
 
   SelectPaneTab(

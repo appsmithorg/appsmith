@@ -521,17 +521,16 @@ class TabsWidget extends BaseWidget<
   }
 
   getWidgetView() {
-    const { leftColumn, parentColumnSpace, rightColumn } = this.props;
-
+    const { componentWidth } = this.props;
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
-      width:
-        (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
+      width: componentWidth - WIDGET_PADDING * 2,
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
       !isAutoHeightEnabledForWidgetWithLimits(this.props);
+
     return (
       <TabsComponent
         {...tabsComponentProps}

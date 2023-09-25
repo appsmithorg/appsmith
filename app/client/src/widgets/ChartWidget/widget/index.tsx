@@ -56,12 +56,9 @@ export const emptyChartData = (props: ChartWidgetProps) => {
   } else if (props.chartType == "CUSTOM_ECHART") {
     return Object.keys(props.customEChartConfig).length == 0;
   } else {
-    const seriesData = EChartsDatasetBuilder.chartData(
-      props.chartType,
-      props.chartData,
-    );
+    const builder = new EChartsDatasetBuilder(props.chartType, props.chartData);
 
-    for (const seriesID in seriesData) {
+    for (const seriesID in builder.filteredChartData) {
       if (Object.keys(props.chartData[seriesID].data).length > 0) {
         return false;
       }
@@ -229,7 +226,6 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             <ChartComponent
               allowScroll={this.props.allowScroll}
               borderRadius={this.props.borderRadius}
-              bottomRow={this.props.bottomRow}
               boxShadow={this.props.boxShadow}
               chartData={this.props.chartData}
               chartName={this.props.chartName}
@@ -243,13 +239,10 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
               isVisible={this.props.isVisible}
               key={this.props.widgetId}
               labelOrientation={this.props.labelOrientation}
-              leftColumn={this.props.leftColumn}
               onDataPointClick={this.onDataPointClick}
               primaryColor={this.props.accentColor ?? Colors.ROYAL_BLUE_2}
-              rightColumn={this.props.rightColumn}
               setAdaptiveYMin={this.props.setAdaptiveYMin}
               showDataPointLabel={this.props.showDataPointLabel}
-              topRow={this.props.topRow}
               widgetId={this.props.widgetId}
               xAxisName={this.props.xAxisName}
               yAxisName={this.props.yAxisName}

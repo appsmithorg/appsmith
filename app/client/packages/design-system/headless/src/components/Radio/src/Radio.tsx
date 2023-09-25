@@ -26,6 +26,7 @@ const _Radio = (props: RadioProps, ref: RadioRef) => {
     children,
     className,
     isDisabled: isDisabledProp = false,
+    labelPosition = "right",
   } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const domRef = useFocusableRef(ref, inputRef);
@@ -54,6 +55,7 @@ const _Radio = (props: RadioProps, ref: RadioRef) => {
       data-hovered={isHovered ? "" : undefined}
       data-invalid={validationState === "invalid" ? "" : undefined}
       data-label=""
+      data-label-position={labelPosition}
       data-state={state.selectedValue === props.value ? "selected" : undefined}
       ref={domRef}
     >

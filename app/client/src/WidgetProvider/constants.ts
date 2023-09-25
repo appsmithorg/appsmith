@@ -132,6 +132,8 @@ export type GetCanvasHeightOffset = (widgetProps: WidgetProps) => number;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 
+export const COMPACT_MODE_MIN_ROWS = 4;
+
 export enum BlueprintOperationTypes {
   MODIFY_PROPS = "MODIFY_PROPS",
   ADD_ACTION = "ADD_ACTION",
@@ -198,8 +200,8 @@ export enum AlignWidgetTypes {
   RIGHT = "RIGHT",
 }
 
-// Minimum Rows for Widget Popups
-export const MinimumPopupRows = 12;
+// Minimum width for Widget Popups
+export const MinimumPopupWidthInPercentage = 18.75;
 
 // Default boxShadowColor used in theming migration
 export const rgbaMigrationConstantV56 = "rgba(0, 0, 0, 0.25)";

@@ -19,6 +19,8 @@ import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.services.GitService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -303,5 +305,12 @@ public class GitControllerCE {
     @GetMapping("/doc-urls")
     public Mono<ResponseDTO<List<GitDocsDTO>>> getGitDocs() {
         return service.getGitDocUrls().map(gitDocDTO -> new ResponseDTO<>(HttpStatus.OK.value(), gitDocDTO, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/auto-commit/app/{defaultApplicationId}")
+    public Mono<ResponseDTO<String>> autoCommitDSLMigration(
+            @PathVariable String defaultApplicationId, @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

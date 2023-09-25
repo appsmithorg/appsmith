@@ -18,6 +18,7 @@ export default {
   adminEmails: ".t--admin-settings-APPSMITH_ADMIN_EMAILS input",
   fromAddress: ".t--admin-settings-APPSMITH_MAIL_FROM input",
   restartNotice: ".t--admin-settings-restart-notice",
+  appsmithStarting: "p:contains('Appsmith is starting')",
   appsmithLogo: ".t--appsmith-logo",
   appsmithHeader: "[data-testid='t--appsmith-page-header']",
   loginWithGoogle: "[data-testid='login-with-Google']",

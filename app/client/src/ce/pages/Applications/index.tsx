@@ -93,11 +93,12 @@ import {
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import WorkspaceMenu from "./WorkspaceMenu";
-import ApplicationCardList from "./ApplicationCardList";
+import WorkspaceMenu from "@appsmith/pages/Applications/WorkspaceMenu";
+import ApplicationCardList from "@appsmith/pages/Applications/ApplicationCardList";
 import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
+import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -112,8 +113,6 @@ export const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   ${({ isMobile }) =>
     isMobile &&
     `
-    position: sticky;
-    top: 0;
     background-color: #fff;
     z-index: ${Indices.Layer8};
   `}
@@ -712,20 +711,28 @@ export function ApplicationsSection(props: any) {
                   </WorkspaceShareUsers>
                 )}
               </WorkspaceDropDown>
-              <ApplicationCardList
-                applications={applications}
-                canInviteToWorkspace={canInviteToWorkspace}
-                deleteApplication={deleteApplication}
-                enableImportExport={enableImportExport}
-                hasCreateNewApplicationPermission={
-                  hasCreateNewApplicationPermission
-                }
-                hasManageWorkspacePermissions={hasManageWorkspacePermissions}
-                isMobile={isMobile}
-                onClickAddNewButton={onClickAddNewAppButton}
-                updateApplicationDispatch={updateApplicationDispatch}
-                workspaceId={workspace.id}
-              />
+              {isLoadingResources && (
+                <ResourceListLoader
+                  isMobile={isMobile}
+                  resources={applications}
+                />
+              )}
+              {!isLoadingResources && (
+                <ApplicationCardList
+                  applications={applications}
+                  canInviteToWorkspace={canInviteToWorkspace}
+                  deleteApplication={deleteApplication}
+                  enableImportExport={enableImportExport}
+                  hasCreateNewApplicationPermission={
+                    hasCreateNewApplicationPermission
+                  }
+                  hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+                  isMobile={isMobile}
+                  onClickAddNewButton={onClickAddNewAppButton}
+                  updateApplicationDispatch={updateApplicationDispatch}
+                  workspaceId={workspace.id}
+                />
+              )}
               {!isLoadingResources && (
                 <PackageCardList
                   isMobile={isMobile}
