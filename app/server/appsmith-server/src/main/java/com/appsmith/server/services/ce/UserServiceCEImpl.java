@@ -88,7 +88,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.constants.ce.AccessControlConstantsCE.WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED;
+import static com.appsmith.server.constants.ce.AccessControlConstantsCE.UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC;
 import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -762,8 +762,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     protected void setRolesAndGroups(UserProfileDTO profile) {
-        profile.setRoles(List.of(WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED));
-        profile.setGroups(List.of(WARNING_MESSAGE_FOR_PROGRAMMATIC_ACCESS_CONTROL_DISABLED));
+        profile.setRoles(
+                List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
+        profile.setGroups(
+                List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {
