@@ -15,7 +15,7 @@ import {
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
-import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
 
 export default class JSObjectsPaneNavigation extends PaneNavigation {
   jsCollection!: JSCollection;

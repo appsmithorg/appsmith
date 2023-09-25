@@ -22,9 +22,6 @@ export interface BaseInputComponentProps extends ComponentProps {
 
   // label props
   label: string;
-  labelWidth?: number;
-  labelAlign?: TextInputProps["labelAlign"];
-  labelPosition?: TextInputProps["labelPosition"];
 
   // validation props
   validationStatus?: TextInputProps["validationState"];

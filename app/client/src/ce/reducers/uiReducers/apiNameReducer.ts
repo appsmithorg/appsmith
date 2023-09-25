@@ -5,12 +5,12 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 
-const initialState: ApiNameReduxState = {
+export const initialState: ApiNameReduxState = {
   isSaving: {},
   errors: {},
 };
 
-const apiNameReducer = createReducer(initialState, {
+export const handlers = {
   [ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR]: (
     state: ApiNameReduxState,
     action: ReduxAction<{ actionId: string }>,
@@ -60,7 +60,9 @@ const apiNameReducer = createReducer(initialState, {
       },
     };
   },
-});
+};
+
+const apiNameReducer = createReducer(initialState, handlers);
 
 export interface ApiNameReduxState {
   isSaving: Record<string, boolean>;
