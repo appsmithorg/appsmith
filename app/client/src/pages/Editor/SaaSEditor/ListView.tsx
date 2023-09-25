@@ -13,7 +13,7 @@ import type { SaaSAction } from "entities/Action";
 import { createActionRequest } from "actions/pluginActionActions";
 import type { Datasource } from "entities/Datasource";
 import { createNewApiName } from "utils/AppsmithUtils";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 // Design
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
