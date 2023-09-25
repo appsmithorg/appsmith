@@ -14,6 +14,7 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
+import com.appsmith.server.domains.LayoutSystem;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
@@ -364,7 +365,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             presetApplicationDetail.setNavigationSetting(requestNavSetting);
                         }
 
-                        Application.LayoutSystem requestLayoutSystem =
+                        LayoutSystem requestLayoutSystem =
                                 application.getUnpublishedApplicationDetail().getLayoutSystem();
                         if (requestLayoutSystem != null) {
                             presetApplicationDetail.setLayoutSystem(requestLayoutSystem);

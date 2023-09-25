@@ -408,24 +408,4 @@ public class Application extends BaseDomain {
             AUTO
         }
     }
-
-    /**
-     * LayoutSystem captures widget positioning Mode of the application
-     */
-    @Data
-    @NoArgsConstructor
-    public static class LayoutSystem {
-        @JsonView(Views.Public.class)
-        Type type;
-
-        public LayoutSystem(Type type) {
-            this.type = type;
-        }
-
-        public enum Type {
-            FIXED,
-            AUTO,
-            ANVIL
-        }
-    }
 }

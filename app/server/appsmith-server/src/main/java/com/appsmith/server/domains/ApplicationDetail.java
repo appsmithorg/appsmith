@@ -15,7 +15,7 @@ public class ApplicationDetail {
     @Deprecated
     Application.AppPositioning appPositioning;
 
-    Application.LayoutSystem layoutSystem;
+    LayoutSystem layoutSystem;
     Application.NavigationSetting navigationSetting;
 
     public ApplicationDetail() {
