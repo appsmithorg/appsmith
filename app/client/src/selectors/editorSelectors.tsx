@@ -279,7 +279,7 @@ export const getCurrentLayoutSystemType = createSelector(
 
 export const getIsAutoLayout = createSelector(
   getCurrentLayoutSystemType,
-  (positioningType) => positioningType === LayoutSystemTypes.AUTO,
+  (layoutSystemType) => layoutSystemType === LayoutSystemTypes.AUTO,
 );
 
 export const getCurrentApplicationLayout = createSelector(

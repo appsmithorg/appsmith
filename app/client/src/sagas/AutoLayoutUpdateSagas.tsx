@@ -145,21 +145,21 @@ export function* updateLayoutForMobileCheckpoint(
  * @param actionPayload
  * @returns
  */
-export function* updateLayoutPositioningSaga(
+export function* updateLayoutSystemTypeSaga(
   actionPayload: ReduxAction<LayoutSystemTypes>,
 ) {
   try {
-    const currPositioningType: LayoutSystemTypes = yield select(
+    const currLayoutSystemType: LayoutSystemTypes = yield select(
       getCurrentLayoutSystemType,
     );
-    const payloadPositioningType = actionPayload.payload;
+    const payloadLayoutSystemType = actionPayload.payload;
 
-    if (currPositioningType === payloadPositioningType) return;
+    if (currLayoutSystemType === payloadLayoutSystemType) return;
 
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
     //Convert fixed layout to auto-layout
-    if (payloadPositioningType === LayoutSystemTypes.AUTO) {
+    if (payloadLayoutSystemType === LayoutSystemTypes.AUTO) {
       const nestedDSL = nestDSL(allWidgets);
 
       const autoDSL = convertDSLtoAuto(nestedDSL);
@@ -177,7 +177,7 @@ export function* updateLayoutPositioningSaga(
       );
     }
 
-    yield call(updateApplicationLayoutType, payloadPositioningType);
+    yield call(updateApplicationLayoutType, payloadLayoutSystemType);
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -425,14 +425,14 @@ function* processAutoLayoutDimensionUpdatesSaga() {
 }
 
 export function* updateApplicationLayoutType(
-  positioningType: LayoutSystemTypes,
+  layoutSystemType: LayoutSystemTypes,
 ) {
   const applicationId: string = yield select(getCurrentApplicationId);
   yield put(
     updateApplication(applicationId || "", {
       applicationDetail: {
         layoutSystem: {
-          type: positioningType,
+          type: layoutSystemType,
         },
       },
     }),
@@ -499,8 +499,8 @@ export default function* layoutUpdateSagas() {
       updateLayoutForMobileCheckpoint,
     ),
     takeLatest(
-      ReduxActionTypes.UPDATE_LAYOUT_POSITIONING,
-      updateLayoutPositioningSaga,
+      ReduxActionTypes.UPDATE_LAYOUT_SYSTEM_TYPE,
+      updateLayoutSystemTypeSaga,
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_WIDGET_DIMENSIONS,

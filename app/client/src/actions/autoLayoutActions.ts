@@ -28,10 +28,10 @@ export const updateLayoutForMobileBreakpointAction = (
   };
 };
 
-export const updateLayoutPositioning = (positioningType: LayoutSystemTypes) => {
+export const updateLayoutSystemType = (layoutSystemType: LayoutSystemTypes) => {
   return {
-    type: ReduxActionTypes.UPDATE_LAYOUT_POSITIONING,
-    payload: positioningType,
+    type: ReduxActionTypes.UPDATE_LAYOUT_SYSTEM_TYPE,
+    payload: layoutSystemType,
   };
 };
 
