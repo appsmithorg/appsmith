@@ -83,7 +83,7 @@ export default {
     },
   },
   itemSpacing: 8,
-  templateBottomRow: 16,
+  templateHeight: 160,
   listData: DEFAULT_LIST_DATA,
   pageSize: DEFAULT_LIST_DATA.length,
   widgetName: "List",

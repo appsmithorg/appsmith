@@ -45,7 +45,7 @@ import {
 import type {
   ActionData,
   ActionDataState,
-} from "reducers/entityReducers/actionsReducer";
+} from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   createActionRequest,
   setActionProperty,

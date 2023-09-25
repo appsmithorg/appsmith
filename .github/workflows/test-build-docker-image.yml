@@ -116,7 +116,11 @@ jobs:
         continue-on-error: true
         if: always()
         id: slack_notification
+        env:
+          EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
         run: |
+          eventCommit=$(echo ${{env.EVENT_COMMITS}} | sed "s/'//g")
+          echo "slack_username=$(echo "$eventCommit" | awk -F '\\\\n' '{print $1}' | sed 's/^"//;s/"$//')" >> $GITHUB_OUTPUT
           if [[ ${{ needs.ci-test.result }} == 'failure' ]]; then
             echo "slack_message=There are test failures in the run. Cypress Dashboard: <https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
@@ -141,7 +145,7 @@ jobs:
           SLACK_ICON_EMOJI: ${{steps.slack_notification.outputs.slack_icon}}
           SLACK_ICON: https://app.slack.com/services/B05D17E4QVB
           SLACK_TITLE: "Result:"
-          SLACK_USERNAME: Push Workflow
+          SLACK_USERNAME: ${{steps.slack_notification.outputs.slack_username}}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
           MSG_MINIMAL: Ref,Event,Commit
           SLACK_FOOTER: "Push Workflow"

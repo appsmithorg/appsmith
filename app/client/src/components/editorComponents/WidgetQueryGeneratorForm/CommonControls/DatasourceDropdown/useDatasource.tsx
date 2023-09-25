@@ -40,7 +40,7 @@ import {
   getEnvironmentConfiguration,
   isEnvironmentValid,
 } from "@appsmith/utils/Environments";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { getDatatype } from "utils/AppsmithUtils";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
