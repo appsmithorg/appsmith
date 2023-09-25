@@ -148,7 +148,7 @@ jobs:
         id: combine_ci
         if: needs.ci-test.result != 'success'
         run: |
-          failed_specs=$(echo ${{steps.test.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
+          failed_specs=$(echo ${{steps.failed_specs.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
           while read -r line; do
             echo "$line" >> ~/combined_failed_spec_ci
           done <<< "$failed_specs"
@@ -195,7 +195,7 @@ jobs:
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
             To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
 
-      - name: Add a comment on the PR when ci-test is success
+      - name: Add a comment on the PR when ci-test is failed but no specs found
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '0'
         uses: peter-evans/create-or-update-comment@v1
         with:
