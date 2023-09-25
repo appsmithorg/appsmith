@@ -42,7 +42,7 @@ const initialState: ExplorerReduxState = {
   },
 };
 
-const setEntityInfo = (
+export const setEntityInfo = (
   state: ExplorerReduxState,
   action: ReduxAction<{ entityId: string; entityType: ENTITY_TYPE }>,
 ) => ({
@@ -52,7 +52,7 @@ const setEntityInfo = (
   },
 });
 
-const setUpdatingEntity = (
+export const setUpdatingEntity = (
   state: ExplorerReduxState,
   action: ReduxAction<{ id: string }>,
 ) => {
@@ -62,7 +62,7 @@ const setUpdatingEntity = (
   };
 };
 
-const setEntityUpdateError = (state: ExplorerReduxState) => {
+export const setEntityUpdateError = (state: ExplorerReduxState) => {
   return {
     ...state,
     entity: {
@@ -72,11 +72,11 @@ const setEntityUpdateError = (state: ExplorerReduxState) => {
   };
 };
 
-const setEntityUpdateSuccess = (state: ExplorerReduxState) => {
+export const setEntityUpdateSuccess = (state: ExplorerReduxState) => {
   return { ...state, entity: {} };
 };
 
-const setUpdatingDatasourceEntity = (
+export const setUpdatingDatasourceEntity = (
   state: ExplorerReduxState,
   action: ReduxAction<{ id: string }>,
 ) => {
@@ -96,7 +96,7 @@ const setUpdatingDatasourceEntity = (
   return state;
 };
 
-const explorerReducer = createReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.FETCH_PAGE_INIT]: setUpdatingEntity,
   [ReduxActionErrorTypes.FETCH_PAGE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.FETCH_PAGE_SUCCESS]: setEntityUpdateSuccess,
@@ -219,6 +219,8 @@ const explorerReducer = createReducer(initialState, {
           : state.pinnedState,
     };
   },
-});
+};
+
+const explorerReducer = createReducer(initialState, handlers);
 
 export default explorerReducer;

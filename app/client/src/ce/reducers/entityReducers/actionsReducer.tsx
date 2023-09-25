@@ -33,7 +33,7 @@ export interface PartialActionData {
 
 const initialState: ActionDataState = [];
 
-const actionsReducer = createImmerReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.FETCH_ACTIONS_SUCCESS]: (
     draftMetaState: ActionDataState,
     action: ReduxAction<Action[]>,
@@ -384,6 +384,8 @@ const actionsReducer = createImmerReducer(initialState, {
       a.data = undefined;
     });
   },
-});
+};
+
+const actionsReducer = createImmerReducer(initialState, handlers);
 
 export default actionsReducer;
