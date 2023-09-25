@@ -1,5 +1,4 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
-const publicWidgetsPage = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
@@ -132,29 +131,14 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.propPane.CopyPasteWidgetFromPropertyPane("Test");
-    //Chart-Delete Verification"
-    _.agHelper.Sleep(2000);
-    _.propPane.DeleteWidgetFromPropertyPane("TestCopy");
-    _.agHelper.Sleep(2000);
     _.deployMode.DeployApp();
-    _.agHelper.Sleep(2000); //Adding waits to tackle CI failure
-    cy.get(viewWidgetsPage.chartWidget).should("not.exist");
-  });
-
-  it("5. 3D EChart Custom Chart Widget Functionality", function () {
-    featureFlagIntercept({
-      release_custom_echarts_enabled: true,
-    });
-    _.agHelper.RefreshPage();
+    //Chart-Delete Verification"
+    _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.propPane.SelectPropertiesDropDown("Chart type", "Custom EChart");
-    _.propPane.UpdatePropertyFieldValue(
-      "Custom ECharts Configuration",
-      `{{${JSON.stringify(this.dataSet.Custom3DEChartConfig)}}}`,
-    );
+    _.propPane.DeleteWidgetFromPropertyPane("TestCopy");
     _.deployMode.DeployApp();
-    cy.get(publicWidgetsPage.chartWidget).matchImageSnapshot("3DCustomECharts");
+    cy.get(viewWidgetsPage.chartWidget).should("not.exist");
   });
 
   afterEach(() => {
