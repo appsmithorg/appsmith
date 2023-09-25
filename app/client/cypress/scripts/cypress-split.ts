@@ -273,8 +273,10 @@ export class cypressSplit {
   ) {
     const client = await this.dbClient.connect();
     try {
-      const matrixRes = await this.createMatrix(attemptId);
-      await this.addSpecsToMatrix(matrixRes, specs);
+      if (specs.length > 0) {
+        const matrixRes = await this.createMatrix(attemptId);
+        await this.addSpecsToMatrix(matrixRes, specs);
+      }
       await client.query(
         `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
         [attemptId],
@@ -315,10 +317,10 @@ export class cypressSplit {
       console.log("SPECS TO RUN ON THIS RUNNER ====> ", specs);
       if (specs.length > 0 && !specs.includes(defaultSpec)) {
         config.specPattern = specs.length == 1 ? specs[0] : specs;
-        await this.updateTheSpecsAndReleaseLock(attempt, specs);
       } else {
         config.specPattern = defaultSpec;
       }
+      await this.updateTheSpecsAndReleaseLock(attempt, specs);
 
       return config;
     } catch (err) {
