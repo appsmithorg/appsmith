@@ -748,6 +748,67 @@ export const handlers = {
       isDeletingNavigationLogo: false,
     };
   },
+  [ReduxActionTypes.CURRENT_APPLICATION_COMMUNITY_TEMPLATE_STATUS_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{
+      isCommunityTemplate: boolean;
+      forkingEnabled: boolean;
+      isPublic: boolean;
+    }>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      isCommunityTemplate: action.payload.isCommunityTemplate,
+      isPublic: action.payload.isPublic,
+      forkingEnabled: action.payload.forkingEnabled,
+    },
+  }),
+  [ReduxActionTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_INIT]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublishingAppToCommunityTemplate: true,
+      },
+    };
+  },
+  [ReduxActionTypes.SET_PUBLISHED_APP_TO_COMMUNITY_PORTAL]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        publishedAppToCommunityTemplate: false,
+      },
+    };
+  },
+  [ReduxActionTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublishingAppToCommunityTemplate: false,
+        publishedAppToCommunityTemplate: true,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublishingAppToCommunityTemplate: false,
+      },
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
