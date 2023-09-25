@@ -129,6 +129,7 @@ export type EvalProps = {
   [entityName: string]: DataTreeEvaluationProps;
 };
 
+export type EvalPathsIdenticalToState = Record<string, string>;
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = new DependencyMap();
   sortedDependencies: SortedDependencies = [];
@@ -166,7 +167,7 @@ export default class DataTreeEvaluator {
   evalProps: EvalProps = {};
   //when attaching values to __evaluations__ segment of the state there are cases where this value is identical to the widget property
   //in those cases do not it to the dataTree and update this map. The main thread can decompress these updates and we can minimise the data transfer
-  evalPathsIdenticalToState: any = {};
+  evalPathsIdenticalToState: EvalPathsIdenticalToState = {};
   undefinedEvalValuesMap: Record<string, boolean> = {};
 
   prevState = {};
@@ -187,7 +188,7 @@ export default class DataTreeEvaluator {
     this.widgetConfigMap = widgetConfigMap;
   }
 
-  getEvalPathsIdenticalToState(): Record<string, string> {
+  getEvalPathsIdenticalToState(): EvalPathsIdenticalToState {
     return this.evalPathsIdenticalToState || {};
   }
   getEvalTree() {
@@ -354,6 +355,7 @@ export default class DataTreeEvaluator {
       {
         evalProps: this.evalProps,
         evalPathsIdenticalToState: this.evalPathsIdenticalToState,
+        pathsValidated: evaluationOrder,
       },
       this.oldConfigTree,
     );
@@ -1102,7 +1104,7 @@ export default class DataTreeEvaluator {
                 evalPathsIdenticalToState: this.evalPathsIdenticalToState,
                 evalProps: this.evalProps,
                 isParsedValueTheSame: true,
-                statePath: fullPropertyPath,
+                fullPropertyPath,
                 value: evalPropertyValue,
               });
 
@@ -1147,7 +1149,7 @@ export default class DataTreeEvaluator {
                   evalPathsIdenticalToState: this.evalPathsIdenticalToState,
                   evalProps: this.evalProps,
                   isParsedValueTheSame: true,
-                  statePath: fullPropertyPath,
+                  fullPropertyPath,
                   value: evalValue,
                 });
 
