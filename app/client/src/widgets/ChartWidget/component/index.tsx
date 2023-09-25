@@ -175,19 +175,14 @@ class ChartComponent extends React.Component<
     let shouldDisposeEcharts = true;
     if (Object.keys(this.prevProps).length == 0) {
       shouldDisposeEcharts = true;
-      // console.log("***", "should dispose echarts because prev props is not present", shouldDisposeEcharts)
     } else {
       const config = generateEChartInstanceDisposalParams(
         this.prevProps,
         this.props,
       );
-      // console.log("***", "params is ", config)
       shouldDisposeEcharts = shouldDisposeEChartsInstance(config);
     }
-
     this.prevProps = this.props;
-    // console.log("***", "should dispose echarts", shouldDisposeEcharts)
-
     if (shouldDisposeEcharts) {
       this.echartsInstance?.dispose();
     }
@@ -201,20 +196,14 @@ class ChartComponent extends React.Component<
       return;
     }
 
-    // console.log("***", "prev props is ", this.prevProps.chartType)
-    // console.log("***", "current props is ", this.props.chartType)
-
     this.disposeEChartsIfNeeded();
-
     this.is3DChart = is3DChart(this.props.customEChartConfig);
-    // console.log("***", "is 3d chart ", this.is3DChart)
 
     if (this.is3DChart) {
       await import("echarts-gl");
     }
 
     if (!this.echartsInstance || this.echartsInstance.isDisposed()) {
-      // console.log("***", "rendering new chart instance")
       this.echartsInstance = echarts.init(
         this.eChartsHTMLContainer,
         undefined,
@@ -263,10 +252,8 @@ class ChartComponent extends React.Component<
 
     let eChartOptions: Record<string, unknown> = {};
     if (isCustomEChart(this.state.chartType)) {
-      // console.log("***", "rendering custom e chart")
       eChartOptions = this.getCustomEChartOptions();
     } else if (isBasicEChart(this.state.chartType)) {
-      // console.log("***", "rendering basic chart")
       eChartOptions = this.getBasicEChartOptions();
     }
 
@@ -321,8 +308,6 @@ class ChartComponent extends React.Component<
   }
 
   async componentDidUpdate() {
-    // console.log("***", "component did update called prev ", prevProps.chartType, " current chart type ", this.props.chartType)
-
     if (
       isCustomFusionChart(this.props.chartType) &&
       !isCustomFusionChart(this.state.chartType)
@@ -348,7 +333,6 @@ class ChartComponent extends React.Component<
         chartType: this.props.chartType,
       });
     } else {
-      // console.log("***", "render charting library")
       await this.renderChartingLibrary();
     }
   }
