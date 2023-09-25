@@ -14,6 +14,5 @@ export const isSAMLEnabled = (featureFlags: FeatureFlags) => {
 };
 
 export const isGACEnabled = (featureFlags: FeatureFlags) => {
-  return false;
   return featureFlags?.license_gac_enabled;
 };
