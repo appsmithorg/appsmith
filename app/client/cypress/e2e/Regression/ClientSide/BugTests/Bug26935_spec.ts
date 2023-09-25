@@ -6,6 +6,7 @@ import {
   dataManager,
   draggableWidgets,
   deployMode,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Bug26935- Widget isLoading property", function () {
@@ -53,6 +54,7 @@ describe("Bug26935- Widget isLoading property", function () {
     agHelper.AssertContains("Table1 isLoading: false");
 
     deployMode.DeployApp();
+    table.WaitUntilTableLoad(0, 0, "v2");
     agHelper.Sleep(2000);
     agHelper.ClickButton("Submit");
     // After triggering API execution, check that isLoading is set to true
