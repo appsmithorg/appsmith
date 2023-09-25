@@ -230,8 +230,6 @@ jobs:
           fi
 
       - name: Run the cypress test
-        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
-        id: cypress_test
         uses: cypress-io/github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -301,13 +299,13 @@ jobs:
           env: "NODE_ENV=development"
 
       - name: Rename reports
-        if: failure() && env.failed_spec_env != ''
+        if: failure()
         run: |
           mkdir -p ~/results
           mv ${{ github.workspace }}/app/client/results ~/results/${{ matrix.job }}
 
       - name: Upload cypress report
-        if: failure() && env.failed_spec_env != ''
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: results-${{github.run_attempt}}
