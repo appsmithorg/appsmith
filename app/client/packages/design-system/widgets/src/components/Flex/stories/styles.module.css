@@ -1,0 +1,32 @@
+.demo-block {
+  min-width: var(--sizing-12);
+  min-height: var(--sizing-12);
+  flex: 1;
+
+  &[data-variant="accent"] {
+    background: var(--color-bg-accent);
+  }
+
+  &[data-variant="negative"] {
+    background: var(--color-bg-negative);
+  }
+
+  &[data-variant="positive"] {
+    background: var(--color-bg-positive);
+  }
+
+  &[data-variant="warning"] {
+    background: var(--color-bg-warning);
+  }
+
+  &[data-variant="neutral"] {
+    background: var(--color-bg-neutral);
+  }
+}
+
+.responsive-block {
+  background: var(--color-bg-positive);
+  aspect-ratio: 1/1;
+  width: 100%;
+  height: 100%;
+}
