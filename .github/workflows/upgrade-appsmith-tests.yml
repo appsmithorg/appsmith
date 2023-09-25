@@ -72,8 +72,8 @@ jobs:
         id: combine_ci
         if: needs.ci-test.result != 'success'
         run: |
-          echo "failedspecs ------------> ${{steps.test.outputs.result}}"
-          failed_specs=$(echo ${{steps.test.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
+          echo "failedspecs ------------> ${{steps.failed_specs.outputs.result}}"
+          failed_specs=$(echo ${{steps.failed_specs.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
           while read -r line; do
             echo "$line" >> ~/combined_failed_spec_ci
           done <<< "$failed_specs"
