@@ -1,7 +1,6 @@
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { CanvasViewerWrapper } from "layoutSystems/common/canvasViewer/CanvasViewerWrapper";
 import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
-import { compact, sortBy } from "lodash";
 import React, { useMemo } from "react";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
@@ -18,7 +17,7 @@ export const FixedLayoutViewerCanvas = (props: BaseWidgetProps) => {
   const canvasChildren = useMemo(
     () =>
       renderChildren(
-        sortBy(compact(props.children), (child: WidgetProps) => child.topRow),
+        props.children,
         props.widgetId,
         RenderModes.PAGE,
         {
