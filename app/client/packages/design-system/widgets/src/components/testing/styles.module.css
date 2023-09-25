@@ -1,7 +1,5 @@
-import styled from "styled-components";
-
-//Most of the styles are copied from the button for testing purposes
-export const StyledColorGridButton = styled.button`
+/* Most of the styles are copied from the button for testing purposes */
+.color-grid {
   font-size: 12px;
   min-height: var(--sizing-10);
   min-width: var(--sizing-27);
@@ -68,4 +66,4 @@ export const StyledColorGridButton = styled.button`
     pointer-events: none;
     opacity: var(--opacity-disabled);
   }
-`;
+}
