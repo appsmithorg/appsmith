@@ -769,10 +769,7 @@ function WorkspaceInviteUsersForm(props: any) {
         </ErrorBox>
         {canManage && !disableManageUsers && (
           <ManageUsersContainer>
-            <ManageUsers
-              isApplicationInvite={isApplicationInvite}
-              workspaceId={props.workspaceId}
-            />
+            <ManageUsers workspaceId={props.workspaceId} />
           </ManageUsersContainer>
         )}
       </StyledForm>
