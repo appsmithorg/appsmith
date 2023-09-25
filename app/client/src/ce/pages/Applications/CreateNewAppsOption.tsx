@@ -51,6 +51,7 @@ const BackWrapper = styled.div`
   background: var(--ads-v2-color-bg);
   padding: var(--ads-v2-spaces-3);
   z-index: 1;
+  margin-left: -4px;
 `;
 
 const FiltersWrapper = styled.div`

@@ -825,11 +825,7 @@ const ApplicationContainerWrapper = () => {
   };
 
   const onClickAddNewAppButton = (workspaceId: string) => {
-    if (isEnabledForCreateNew) {
-      setCurrentSelectedWorkspace(workspaceId);
-    } else {
-      addNewAppInit(workspaceId);
-    }
+    addNewAppInit(workspaceId);
   };
 
   const startFromScratch = () => {

@@ -2,6 +2,7 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
+import com.appsmith.server.constants.ApiConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.constants.Security;
@@ -107,8 +108,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                             user.setEmailVerificationRequired(FALSE);
                             return userRepository.save(user).then(Mono.just(FALSE));
                         } else {
-                            // scenario when at the time of signup, the email verification was disabled at the tenant
-                            // but later on turned on, now when this user logs in, it will not be prompted to verify
+                            // scenario when at the time of signup, the email verification was disabled at
+                            // the tenant
+                            // but later on turned on, now when this user logs in, it will not be prompted
+                            // to verify
                             // as the configuration at time of signup is considered for any user.
                             // for old users, the login works as expected, without the need to verify
                             if (!TRUE.equals(user.getEmailVerificationRequired())) {
@@ -126,12 +129,16 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     }
 
     /**
-     * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
-     * The client browser will follow this redirect and fetch the user's profile JSON from the server.
-     * In the process, the client browser will also set the session ID in the cookie against the server's API domain.
+     * On authentication success, we send a redirect to the endpoint that serve's
+     * the user's profile.
+     * The client browser will follow this redirect and fetch the user's profile
+     * JSON from the server.
+     * In the process, the client browser will also set the session ID in the cookie
+     * against the server's API domain.
      *
      * @param webFilterExchange WebFilterExchange instance for the current request.
-     * @param authentication    Authentication object, needs to have a non-null principal object.
+     * @param authentication    Authentication object, needs to have a non-null
+     *                          principal object.
      * @return Publishes empty, that completes after handler tasks are finished.
      */
     @Override
@@ -147,7 +154,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         resendEmailVerificationDTO.setEmail(user.getEmail());
         resendEmailVerificationDTO.setBaseUrl(baseUrl);
         // This is the case post signup when the url is /signup-success?redirectUrl=<>
-        // After verification we redirect the user to /signup-success always and use the redirect url
+        // After verification we redirect the user to /signup-success always and use the
+        // redirect url
         // to navigate to next page after signup-success
         try {
             redirectUrl = redirectUrl.split("redirectUrl=")[1];
@@ -185,8 +193,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
     /**
      * This function handles the redirection in case of form type signup/login.
-     * It constructs the redirect uri based on user's request, and if email verification is required
-     * then redirects the user to /verificationPending and sends the magic link with the user's redirectUrl
+     * It constructs the redirect uri based on user's request, and if email
+     * verification is required
+     * then redirects the user to /verificationPending and sends the magic link with
+     * the user's redirectUrl
      * in the email.
      *
      * @param webFilterExchange
@@ -207,17 +217,23 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         User user = (User) authentication.getPrincipal();
         Mono<Boolean> isVerificationRequiredMono = Mono.just(FALSE);
 
+        boolean skipFlagCheckHeader = Boolean.parseBoolean(webFilterExchange
+                .getExchange()
+                .getRequest()
+                .getHeaders()
+                .getFirst(ApiConstants.SKIP_FLAG_CHECK_HEADER));
+
         if (isFromSignup) {
             isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "signup");
             if (createDefaultApplication) {
                 Mono<Boolean> finalIsVerificationRequiredMono = isVerificationRequiredMono;
                 redirectionMono = finalIsVerificationRequiredMono.flatMap(isVerificationRequired -> {
                     if (TRUE.equals(isVerificationRequired)) {
-                        return createDefaultApplication(defaultWorkspaceId, authentication)
+                        return createDefaultApplication(defaultWorkspaceId, authentication, skipFlagCheckHeader)
                                 .flatMap(defaultApplication -> postVerificationRequiredHandler(
                                         webFilterExchange, user, defaultApplication, TRUE));
                     } else {
-                        return createDefaultApplication(defaultWorkspaceId, authentication)
+                        return createDefaultApplication(defaultWorkspaceId, authentication, skipFlagCheckHeader)
                                 .flatMap(application ->
                                         redirectHelper.handleRedirect(webFilterExchange, application, true));
                     }
@@ -259,19 +275,31 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         String originHeader =
                 webFilterExchange.getExchange().getRequest().getHeaders().getOrigin();
 
+        boolean skipFlagCheckHeader = Boolean.parseBoolean(webFilterExchange
+                .getExchange()
+                .getRequest()
+                .getHeaders()
+                .getFirst(ApiConstants.SKIP_FLAG_CHECK_HEADER));
+
         if (authentication instanceof OAuth2AuthenticationToken) {
             // for oauth type signups, we don't need to verify email
             user.setEmailVerificationRequired(FALSE);
 
-            // In case of OAuth2 based authentication, there is no way to identify if this was a user signup (new user
-            // creation) or if this was a login (existing user). What we do here to identify this, is an approximation.
-            // If and when we find a better way to do identify this, let's please move away from this approximation.
-            // If the user object was created within the last 5 seconds, we treat it as a new user.
+            // In case of OAuth2 based authentication, there is no way to identify if this
+            // was a user signup (new user
+            // creation) or if this was a login (existing user). What we do here to identify
+            // this, is an approximation.
+            // If and when we find a better way to do identify this, let's please move away
+            // from this approximation.
+            // If the user object was created within the last 5 seconds, we treat it as a
+            // new user.
             isFromSignup = user.getCreatedAt().isAfter(Instant.now().minusSeconds(5));
 
-            // Check the existing login source with the authentication source and then update the login source,
+            // Check the existing login source with the authentication source and then
+            // update the login source,
             // if they are not the same.
-            // Also, since this is OAuth2 authentication, we remove the password from user resource object, in order to
+            // Also, since this is OAuth2 authentication, we remove the password from user
+            // resource object, in order to
             // invalidate any password which may have been set during a form login.
             LoginSource authenticationLoginSource = LoginSource.fromString(
                     ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId());
@@ -290,7 +318,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         .isCreateWorkspaceAllowed(TRUE)
                         .flatMap(isCreateWorkspaceAllowed -> {
                             if (isCreateWorkspaceAllowed.equals(Boolean.TRUE)) {
-                                return createDefaultApplication(defaultWorkspaceId, authentication)
+                                return createDefaultApplication(defaultWorkspaceId, authentication, skipFlagCheckHeader)
                                         .flatMap(application -> handleOAuth2Redirect(
                                                 webFilterExchange, application, finalIsFromSignup));
                             }
@@ -358,7 +386,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 .then(finalRedirectionMono);
     }
 
-    protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {
+    protected Mono<Application> createDefaultApplication(
+            String defaultWorkspaceId, Authentication authentication, boolean skipFlagCheckHeader) {
 
         // need to create default application
         Application application = new Application();
@@ -372,8 +401,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     .take(1, true)
                     .collectList()
                     .flatMap(workspaces -> {
-                        // Since this is the first application creation, the first workspace would be the only
-                        // workspace user has access to, and would be user's default workspace. Hence, we use this
+                        // Since this is the first application creation, the first workspace would be
+                        // the only
+                        // workspace user has access to, and would be user's default workspace. Hence,
+                        // we use this
                         // workspace to create the application.
                         if (workspaces.size() == 1) {
                             application.setWorkspaceId(workspaces.get(0).getId());
@@ -399,7 +430,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             Mono<Application> app = tuple.getT1();
             Boolean isEnabledForCreateNewApps = tuple.getT2();
 
-            if (Boolean.TRUE.equals(isEnabledForCreateNewApps)) {
+            if (Boolean.TRUE.equals(isEnabledForCreateNewApps) && !skipFlagCheckHeader) {
                 return app;
             }
 
@@ -408,18 +439,24 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     }
 
     /**
-     * This function redirects the back to the client's page after a successful sign in/sign up attempt by the user
-     * This is to transfer control back to the client because the OAuth2 dance would have been performed by the server.
+     * This function redirects the back to the client's page after a successful sign
+     * in/sign up attempt by the user
+     * This is to transfer control back to the client because the OAuth2 dance would
+     * have been performed by the server.
      * <p>
-     * We extract the redirect url from the `state` key present in the request exchange object. This is state variable
+     * We extract the redirect url from the `state` key present in the request
+     * exchange object. This is state variable
      * contains a random generated key along with the referer header set in the
-     * {@link CustomServerOAuth2AuthorizationRequestResolver#generateKey(ServerHttpRequest)} function.
+     * {@link CustomServerOAuth2AuthorizationRequestResolver#generateKey(ServerHttpRequest)}
+     * function.
      *
      * @param webFilterExchange WebFilterExchange instance for the current request.
-     * @return Publishes empty after redirection has been applied to the current exchange.
+     * @return Publishes empty after redirection has been applied to the current
+     *         exchange.
      */
     @SuppressWarnings(
-            // Disabling this because although the reference in the Javadoc is to a private method, it is still useful.
+            // Disabling this because although the reference in the Javadoc is to a private
+            // method, it is still useful.
             "JavadocReference")
     private Mono<Void> handleOAuth2Redirect(
             WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
