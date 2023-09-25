@@ -273,6 +273,7 @@ describe("shouldDisposeEChartsInstance", () => {
 
       describe("when current chart type is 3D", () => {
         beforeAll(() => {
+          currentChartConfig.isBasicChart = false;
           currentChartConfig.isCustom3DChart = true;
         });
 

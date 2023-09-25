@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import * as echarts from "echarts";
+import "echarts-gl";
 import { invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type {
@@ -172,6 +173,10 @@ class ChartComponent extends React.Component<
   };
 
   disposeEChartsIfNeeded() {
+    if (this.echartsInstance?.isDisposed()) {
+      return;
+    }
+
     let shouldDisposeEcharts = true;
     if (Object.keys(this.prevProps).length == 0) {
       shouldDisposeEcharts = true;
@@ -188,7 +193,7 @@ class ChartComponent extends React.Component<
     }
   }
 
-  initializeEchartsInstance = async () => {
+  initializeEchartsInstance = () => {
     this.eChartsHTMLContainer = document.getElementById(
       this.eChartsContainerId,
     );
@@ -198,10 +203,6 @@ class ChartComponent extends React.Component<
 
     this.disposeEChartsIfNeeded();
     this.is3DChart = is3DChart(this.props.customEChartConfig);
-
-    if (this.is3DChart) {
-      await import("echarts-gl");
-    }
 
     if (!this.echartsInstance || this.echartsInstance.isDisposed()) {
       this.echartsInstance = echarts.init(
@@ -243,8 +244,8 @@ class ChartComponent extends React.Component<
     }
   }
 
-  renderECharts = async () => {
-    await this.initializeEchartsInstance();
+  renderECharts = () => {
+    this.initializeEchartsInstance();
 
     if (!this.echartsInstance) {
       return;
@@ -288,8 +289,8 @@ class ChartComponent extends React.Component<
     }
   };
 
-  async componentDidMount() {
-    await this.renderChartingLibrary();
+  componentDidMount() {
+    this.renderChartingLibrary();
   }
 
   componentWillUnmount() {
@@ -297,17 +298,17 @@ class ChartComponent extends React.Component<
     this.disposeFusionCharts();
   }
 
-  async renderChartingLibrary() {
+  renderChartingLibrary() {
     if (this.state.chartType === "CUSTOM_FUSION_CHART") {
       this.disposeECharts();
       this.renderFusionCharts();
     } else {
       this.disposeFusionCharts();
-      await this.renderECharts();
+      this.renderECharts();
     }
   }
 
-  async componentDidUpdate() {
+  componentDidUpdate() {
     if (
       isCustomFusionChart(this.props.chartType) &&
       !isCustomFusionChart(this.state.chartType)
@@ -333,7 +334,7 @@ class ChartComponent extends React.Component<
         chartType: this.props.chartType,
       });
     } else {
-      await this.renderChartingLibrary();
+      this.renderChartingLibrary();
     }
   }
 
