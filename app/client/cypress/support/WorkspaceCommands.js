@@ -215,6 +215,7 @@ Cypress.Commands.add("launchApp", () => {
 });
 
 Cypress.Commands.add("AppSetupForRename", () => {
+  cy.wait(2000); //wait a bit for app to load
   cy.get(homePage.applicationName).then(($appName) => {
     if (!$appName.hasClass(homePage.editingAppName)) {
       cy.get(homePage.applicationName).click({ force: true });
