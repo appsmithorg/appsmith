@@ -14,7 +14,7 @@ import type {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { UpdatePageResponse } from "api/PageApi";
 
-const initialState: EditorReduxState = {
+export const initialState: EditorReduxState = {
   widgetConfigBuilt: false,
   initialized: false,
   loadingStates: {
@@ -40,7 +40,7 @@ const initialState: EditorReduxState = {
   zoomLevel: 1,
 };
 
-const editorReducer = createReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.RESET_EDITOR_SUCCESS]: (state: EditorReduxState) => {
     return { ...state, initialized: false };
   },
@@ -226,7 +226,9 @@ const editorReducer = createReducer(initialState, {
     ...state,
     widgetConfigBuilt: true,
   }),
-});
+};
+
+const editorReducer = createReducer(initialState, handlers);
 
 export interface EditorReduxState {
   widgetConfigBuilt: boolean;

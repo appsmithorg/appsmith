@@ -108,6 +108,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
@@ -4737,5 +4738,128 @@ public class ImportExportApplicationServiceTests {
         StepVerifier.create(applicationImportDTOMono)
                 .expectError(AppsmithException.class)
                 .verify();
+    }
+
+    private Mono<ActionDTO> createActionToPage(String actionName, String pageId) {
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasourceMap.get("DS1"));
+        action.setName(actionName);
+        action.setPageId(pageId);
+        return layoutActionService.createAction(action);
+    }
+
+    private Mono<ActionCollectionDTO> createActionCollectionToPage(Application application, int pageIndex) {
+        ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
+        actionCollectionDTO1.setName("TestJsObject");
+        actionCollectionDTO1.setPageId(application.getPages().get(pageIndex).getId());
+        actionCollectionDTO1.setApplicationId(application.getId());
+        actionCollectionDTO1.setWorkspaceId(application.getWorkspaceId());
+        actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testMethod");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO1.setActions(List.of(action1));
+        actionCollectionDTO1.setPluginType(PluginType.JS);
+        return layoutCollectionService.createCollection(actionCollectionDTO1);
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void exportApplicationByWhen_WhenGitConnectedAndPageRenamed_QueriesAreInUpdatedResources() {
+        String renamedPageName = "Renamed Page";
+        // create an application
+        Application testApplication = new Application();
+        final String appName = UUID.randomUUID().toString();
+        testApplication.setName(appName);
+        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        testApplication.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+        testApplication.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+
+        Mono<ApplicationJson> applicationJsonMono = applicationPageService
+                .createApplication(testApplication, workspaceId)
+                .flatMap(application -> {
+                    // add another page to the application
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("second_page");
+                    pageDTO.setApplicationId(application.getId());
+                    return applicationPageService
+                            .createPage(pageDTO) // get the updated application
+                            .then(applicationService.findById(application.getId()));
+                })
+                .flatMap(application -> {
+                    assert application.getPages().size() == 2;
+                    // add one action to each of the pages
+                    return createActionToPage(
+                                    "first_page_action",
+                                    application.getPages().get(0).getId())
+                            .then(createActionToPage(
+                                    "second_page_action",
+                                    application.getPages().get(1).getId()))
+                            .thenReturn(application);
+                })
+                .flatMap(application -> {
+                    // add one action collection to each of the pages
+                    return createActionCollectionToPage(application, 0)
+                            .then(createActionCollectionToPage(application, 1))
+                            .thenReturn(application);
+                })
+                .flatMap(application -> {
+                    // set git meta data for the application and set a last commit date
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
+                    gitApplicationMetadata.setLastCommittedAt(Instant.now());
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationRepository.save(application);
+                })
+                .delayElement(Duration.ofMillis(
+                        100)) // to make sure the last commit date is definitely after the last updated date
+                .flatMap(application -> {
+                    // rename the page
+                    ApplicationPage applicationPage = application.getPages().get(0);
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName(renamedPageName);
+                    return newPageService
+                            .updatePage(applicationPage.getId(), pageDTO)
+                            // export the application
+                            .then(importExportApplicationService.exportApplicationById(
+                                    application.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+                });
+
+        // verify that the exported json has the updated page name, and the queries are in the updated resources
+        StepVerifier.create(applicationJsonMono)
+                .assertNext(applicationJson -> {
+                    Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
+                    assertThat(updatedResources).isNotNull();
+                    Set<String> updatedPageNames = updatedResources.get(FieldName.PAGE_LIST);
+                    Set<String> updatedActionNames = updatedResources.get(FieldName.ACTION_LIST);
+                    Set<String> updatedActionCollectionNames = updatedResources.get(FieldName.ACTION_COLLECTION_LIST);
+
+                    assertThat(updatedPageNames).isNotNull();
+                    assertThat(updatedActionNames).isNotNull();
+                    assertThat(updatedActionCollectionNames).isNotNull();
+
+                    // only the first page should be present in the updated resources
+                    assertThat(updatedPageNames.size()).isEqualTo(1);
+                    assertThat(updatedPageNames).contains(renamedPageName);
+
+                    // only actions from first page should be present in the updated resources
+                    // 1 query + 1 method from action collection
+                    assertThat(updatedActionNames.size()).isEqualTo(2);
+                    assertThat(updatedActionNames).contains("first_page_action" + NAME_SEPARATOR + renamedPageName);
+                    assertThat(updatedActionNames)
+                            .contains("TestJsObject.testMethod" + NAME_SEPARATOR + renamedPageName);
+
+                    // only action collections from first page should be present in the updated resources
+                    assertThat(updatedActionCollectionNames.size()).isEqualTo(1);
+                    assertThat(updatedActionCollectionNames)
+                            .contains("TestJsObject" + NAME_SEPARATOR + renamedPageName);
+                })
+                .verifyComplete();
     }
 }
