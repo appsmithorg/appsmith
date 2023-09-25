@@ -120,6 +120,24 @@ describe("Check datasource doc links", function () {
     });
   });
 
+  it("9. Verify Firestore documentation opens", function () {
+    dataSources.CreateDataSource(
+      "Firestore",
+      true,
+      false,
+      dataManager.environments[1],
+    ); //using mock dataset for oracle
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+      dataSources.CreateQueryAfterDSSaved();
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-firestore#understanding-commands",
+        "getWorkspace",
+      );
+    });
+  });
+
   afterEach(() => {
     agHelper.PressEscape();
     agHelper.ActionContextMenuWithInPane({
