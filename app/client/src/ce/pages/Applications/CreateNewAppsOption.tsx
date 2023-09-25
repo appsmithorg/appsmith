@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   allTemplatesFiltersSelector,
   getForkableWorkspaces,
+  getTemplatesSelector,
   isImportingTemplateSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
@@ -29,6 +30,7 @@ import Filters from "pages/Templates/Filters";
 import { isEmpty } from "lodash";
 import StartScratch from "assets/images/start-from-scratch.svg";
 import StartTemplate from "assets/images/start-from-template.svg";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { TemplateView } from "pages/Templates/TemplateView";
 
 const SectionWrapper = styled.div`
@@ -138,8 +140,11 @@ const CreateNewAppsOption = ({
   const filters = useSelector(allTemplatesFiltersSelector);
   const workspaceList = useSelector(getForkableWorkspaces);
   const isImportingTemplate = useSelector(isImportingTemplateSelector);
+  const allTemplates = useSelector(getTemplatesSelector);
   const dispatch = useDispatch();
   const onClickStartFromTemplate = () => {
+    AnalyticsUtil.logEvent("CREATE_APP_FROM_TEMPLATE");
+
     if (isEmpty(filters.functions)) {
       dispatch(getTemplateFilters());
     }
@@ -155,17 +160,28 @@ const CreateNewAppsOption = ({
   };
 
   const onTemplateClick = (id: string) => {
+    const title = getTemplateTitleById(id);
+    AnalyticsUtil.logEvent("CLICK_ON_TEMPLATE_CARD_WHEN_ONBOARDING", {
+      id,
+      title,
+    });
     // When template is clicked to view the template details
     if (!isImportingTemplate) setSelectedTemplate(id);
   };
 
   const onClickUseTemplate = (id: string) => {
+    const title = getTemplateTitleById(id);
+    AnalyticsUtil.logEvent("USE_TEMPLATE_FROM_DETAILS_PAGE_WHEN_ONBOARDING", {
+      title,
+    });
     // When Use template is clicked on template view detail screen
     if (!isImportingTemplate)
       dispatch(importTemplateToWorkspace(id, currentSelectedWorkspace));
   };
 
   const onForkTemplateClick = (template: Template) => {
+    const title = template.title;
+    AnalyticsUtil.logEvent("FORK_TEMPLATE_WHEN_ONBOARDING", { title });
     // When fork template is clicked to add a new app using the template
     if (!isImportingTemplate)
       dispatch(
@@ -173,17 +189,33 @@ const CreateNewAppsOption = ({
       );
   };
 
+  const getTemplateTitleById = (id: string) => {
+    const template = allTemplates.find((template) => template.id === id);
+    return template?.title;
+  };
+
   const onClickBackButton = () => {
     if (useTemplate) {
       if (selectedTemplate) {
         // Going back from template details view screen
+        const title = getTemplateTitleById(selectedTemplate);
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_BACK_BUTTON_TEMPLATE_DETAILS_PAGE",
+          { title },
+        );
         setSelectedTemplate("");
       } else {
         // Going back from start from template screen
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_BACK_BUTTON_START_FROM_TEMPLATE_PAGE",
+        );
         goBackFromTemplate();
       }
     } else {
       // Going back from create new app flow
+      AnalyticsUtil.logEvent(
+        "ONBOARDING_FLOW_CLICK_BACK_BUTTON_CREATE_NEW_APP_PAGE",
+      );
       onClickBack();
     }
   };

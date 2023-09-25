@@ -101,6 +101,7 @@ import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
 
 const START_CREATE_NEW_APP_FLOW_URL_KEY = "startCreateNewApp";
@@ -832,6 +833,7 @@ const ApplicationContainerWrapper = () => {
   };
 
   const startFromScratch = () => {
+    AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
     addNewAppInit(currentSelectedWorkspace);
   };
 
