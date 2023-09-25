@@ -1,11 +1,11 @@
-import entityReducer from "reducers/entityReducers";
+import entityReducer from "@appsmith/reducers/entityReducers";
 import uiReducer from "reducers/uiReducers";
 import evaluationsReducer from "reducers/evaluationReducers";
 import { reducer as formReducer } from "redux-form";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { EditorReduxState } from "reducers/uiReducers/editorReducer";
 import type { ErrorReduxState } from "reducers/uiReducers/errorReducer";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import type { TemplatesReduxState } from "reducers/uiReducers/templateReducer";
 import type { DatasourceDataState } from "reducers/entityReducers/datasourceReducer";

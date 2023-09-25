@@ -1,6 +1,7 @@
 package com.appsmith.server.aspect;
 
 import com.appsmith.server.aspect.component.TestComponent;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.FeatureFlagService;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest
@@ -89,5 +93,20 @@ class FeatureFlaggedMethodInvokerAspectTest {
     void ceEeDiffMethodReturnsFlux_ceImplTest() {
         Flux<String> resultFlux = testComponent.ceEeDiffMethodReturnsFlux();
         StepVerifier.create(resultFlux).expectNext("ce", "impl", "method").verifyComplete();
+    }
+
+    @Test
+    void ceEeSyncMethod_eeImplTest() {
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE.name(), Boolean.TRUE));
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+        String result = testComponent.ceEeSyncMethod("arg_");
+        assertEquals("arg_ee_impl_method", result);
+    }
+
+    @Test
+    void ceEeSyncMethod_ceImplTest() {
+        String result = testComponent.ceEeSyncMethod("arg_");
+        assertEquals("arg_ce_impl_method", result);
     }
 }
