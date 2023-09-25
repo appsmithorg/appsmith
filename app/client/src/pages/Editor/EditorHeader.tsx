@@ -118,6 +118,8 @@ import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
 import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
 import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
 import { KBEditorNavButton } from "@appsmith/pages/Editor/KnowledgeBase/KBEditorNavButton";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -394,6 +396,8 @@ export function EditorHeader() {
       pushFeature(SignpostingWalkthroughConfig.DEPLOY_APP, true);
   };
 
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper
@@ -427,7 +431,7 @@ export function EditorHeader() {
                 size="md"
               >
                 <div
-                  className="t--pin-entity-explorer group relative"
+                  className="relative t--pin-entity-explorer group"
                   onMouseEnter={onMenuHover}
                 >
                   <Icon
@@ -554,7 +558,7 @@ export function EditorHeader() {
                   {createMessage(
                     APPLICATION_INVITE,
                     currentWorkspace.name,
-                    cloudHosting,
+                    !isGACEnabled,
                   )}
                 </ModalHeader>
                 <ModalBody>

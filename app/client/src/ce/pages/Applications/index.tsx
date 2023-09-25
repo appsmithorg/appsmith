@@ -99,6 +99,8 @@ import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
 import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -468,6 +470,7 @@ export function ApplicationsSection(props: any) {
     dispatch(updateApplication(id, data));
   };
   const isLoadingResources = isFetchingApplications || isFetchingPackages;
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   useEffect(() => {
     // Clears URL params cache
@@ -662,7 +665,7 @@ export function ApplicationsSection(props: any) {
                         Form={WorkspaceInviteUsersForm}
                         placeholder={createMessage(
                           INVITE_USERS_PLACEHOLDER,
-                          cloudHosting,
+                          !isGACEnabled,
                         )}
                         workspace={workspace}
                       />
