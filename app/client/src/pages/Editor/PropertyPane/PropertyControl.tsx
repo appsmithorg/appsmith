@@ -785,7 +785,7 @@ const PropertyControl = memo((props: Props) => {
           }
           ref={controlRef}
         >
-          <div className="gap-1 flex items-center">
+          <div className="flex items-center gap-1">
             <PropertyHelpLabel
               label={label}
               theme={props.theme}

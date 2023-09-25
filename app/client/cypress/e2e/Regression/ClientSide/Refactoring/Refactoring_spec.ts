@@ -183,6 +183,6 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
       action: "Delete",
       entityType: entityItems.Api,
     });
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   });
 });

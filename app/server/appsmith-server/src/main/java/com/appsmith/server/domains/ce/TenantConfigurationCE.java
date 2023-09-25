@@ -67,6 +67,9 @@ public class TenantConfigurationCE {
         instanceName = ObjectUtils.defaultIfNull(tenantConfiguration.getInstanceName(), instanceName);
         emailVerificationEnabled =
                 ObjectUtils.defaultIfNull(tenantConfiguration.getEmailVerificationEnabled(), emailVerificationEnabled);
+
+        featuresWithPendingMigration = tenantConfiguration.getFeaturesWithPendingMigration();
+        migrationStatus = tenantConfiguration.getMigrationStatus();
     }
 
     public Boolean getEmailVerificationEnabled() {

@@ -683,7 +683,11 @@ export class AggregateHelper extends ReusableHelper {
     metaKey = false,
   ) {
     return this.ScrollIntoView(selector, index)
-      .click({ force: force, ctrlKey: ctrlKey, metaKey })
+      .click({
+        force: force,
+        ctrlKey: ctrlKey,
+        metaKey,
+      })
       .wait(waitTimeInterval);
   }
 
