@@ -252,6 +252,7 @@ export class cypressSplit {
             ignorePattern,
             attemptId,
           );
+          console.log("SPECS ===>", specs);
           return specs;
         } else {
           await this.sleep(5000);
@@ -305,9 +306,11 @@ export class cypressSplit {
       }
 
       const attempt = await this.createAttempt();
+      console.log("ATTEMPT ====> ", attempt);
       const specs =
         (await this.addLockGetTheSpecs(attempt, specPattern, ignorePattern)) ??
         [];
+      console.log("SPECS TO RUN ON THIS RUNNER ====> ", specs);
       if (specs.length > 0 && !specs.includes(defaultSpec)) {
         config.specPattern = specs.length == 1 ? specs[0] : specs;
         await this.updateTheSpecsAndReleaseLock(attempt, specs);
