@@ -283,6 +283,8 @@ export class DataSources {
   _stagingTab = "[data-testid='t--ds-data-filter-Staging']";
   _graphQlDsFromRightPane = (dsName: string) =>
     "//div/span[text() ='" + dsName + "']";
+  _imgFireStoreLogo =
+    "img[src='https://assets.appsmith.com/logo/firestore.svg']";
   private _dsVirtuosoElement = (dsName: string) =>
     `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`;
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
@@ -685,7 +687,9 @@ export class DataSources {
     //   );
     this.agHelper.UpdateFieldInput(
       this.locator._inputFieldByName("Service account credentials"),
-      JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
+      JSON.stringify(
+        this.dataManager.dsValues[environment].firestore_serviceaccountkey,
+      ),
     );
     //});
   }
