@@ -5,6 +5,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 
 function renderChildWidget({
   childWidgetData,
+  defaultWidgetProps,
   layoutSystemProps,
   noPad,
   renderMode,
@@ -13,10 +14,15 @@ function renderChildWidget({
   childWidgetData: WidgetProps;
   widgetId: string;
   renderMode: RenderModes;
-  layoutSystemProps?: any;
+  layoutSystemProps: Record<string, any>;
+  defaultWidgetProps: Record<string, any>;
   noPad: boolean;
 }): React.ReactNode {
-  const childWidget = { ...childWidgetData, ...layoutSystemProps };
+  const childWidget = {
+    ...defaultWidgetProps,
+    ...childWidgetData,
+    ...layoutSystemProps,
+  };
   if (!childWidgetData) return null;
   if (noPad) childWidget.noContainerOffset = true;
   childWidget.parentId = widgetId;
@@ -27,6 +33,7 @@ export const renderChildren = (
   children: any,
   widgetId: string,
   renderMode: RenderModes,
+  defaultWidgetProps = {},
   layoutSystemProps = {},
   noPad = false,
 ): React.ReactNode[] => {
@@ -34,6 +41,7 @@ export const renderChildren = (
     renderChildWidget({
       childWidgetData,
       layoutSystemProps,
+      defaultWidgetProps,
       noPad,
       renderMode,
       widgetId,

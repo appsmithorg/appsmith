@@ -14,16 +14,21 @@ export type CanvasProps = ContainerWidgetProps<WidgetProps>;
 export const FixedLayoutViewerCanvas = (props: BaseWidgetProps) => {
   const { snapGrid } = getSnappedGrid(props, props.componentWidth);
   const { snapColumnSpace } = snapGrid;
+  const layoutSystemProps = {
+    parentColumnSpace: snapColumnSpace,
+    parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  };
+  const defaultWidgetProps = {
+    positioning: props.positioning,
+  };
   const canvasChildren = useMemo(
     () =>
       renderChildren(
         props.children,
         props.widgetId,
         RenderModes.PAGE,
-        {
-          parentColumnSpace: snapColumnSpace,
-          parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        },
+        defaultWidgetProps,
+        layoutSystemProps,
         !!props.noPad,
       ),
     [

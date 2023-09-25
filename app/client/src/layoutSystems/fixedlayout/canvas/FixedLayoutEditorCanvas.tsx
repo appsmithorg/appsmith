@@ -39,16 +39,21 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
       props.widgetId,
     ],
   );
+  const layoutSystemProps = {
+    parentColumnSpace: snapColumnSpace,
+    parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  };
+  const defaultWidgetProps = {
+    positioning: props.positioning,
+  };
   const canvasChildren = useMemo(
     () =>
       renderChildren(
         props.children,
         props.widgetId,
         RenderModes.CANVAS,
-        {
-          parentColumnSpace: snapColumnSpace,
-          parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        },
+        defaultWidgetProps,
+        layoutSystemProps,
         !!props.noPad,
       ),
     [
