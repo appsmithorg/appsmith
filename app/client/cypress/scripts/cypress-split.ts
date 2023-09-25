@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
+import type { DataItem } from "./util";
 import util from "./util";
 import globby from "globby";
 import minimatch from "minimatch";
+import cypress from "cypress";
 
 export class cypressSplit {
   util = new util();
@@ -229,14 +231,12 @@ export class cypressSplit {
     const client = await this.dbClient.connect();
     let specs: string[] = [];
     let locked = false;
-    let counter = 1;
     try {
-      while (counter <= 120 && !locked) {
+      while (!locked) {
         const result = await client.query(
           `UPDATE public."attempt" SET is_locked = true WHERE id = $1 AND is_locked = false RETURNING id`,
           [attemptId],
         );
-        console.log("RESULT FOR LOCK ===>", result.rows);
         if (result.rows.length === 1) {
           locked = true;
           let runningSpecs: string[] =
@@ -255,7 +255,6 @@ export class cypressSplit {
           return specs;
         } else {
           await this.sleep(5000);
-          counter++;
         }
       }
     } catch (err) {
@@ -271,10 +270,8 @@ export class cypressSplit {
   ) {
     const client = await this.dbClient.connect();
     try {
-      if (specs.length > 0) {
-        const matrixRes = await this.createMatrix(attemptId);
-        await this.addSpecsToMatrix(matrixRes, specs);
-      }
+      const matrixRes = await this.createMatrix(attemptId);
+      await this.addSpecsToMatrix(matrixRes, specs);
       await client.query(
         `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
         [attemptId],
@@ -313,10 +310,10 @@ export class cypressSplit {
         [];
       if (specs.length > 0 && !specs.includes(defaultSpec)) {
         config.specPattern = specs.length == 1 ? specs[0] : specs;
+        await this.updateTheSpecsAndReleaseLock(attempt, specs);
       } else {
         config.specPattern = defaultSpec;
       }
-      await this.updateTheSpecsAndReleaseLock(attempt, specs);
 
       return config;
     } catch (err) {
