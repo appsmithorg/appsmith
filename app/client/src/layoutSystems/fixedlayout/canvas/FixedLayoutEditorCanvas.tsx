@@ -12,6 +12,7 @@ import ContainerComponent from "widgets/ContainerWidget/component";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { DropTargetComponentWrapper } from "../../common/dropTarget/DropTargetComponentWrapper";
 import { FixedCanvasDraggingArena } from "../editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
+import { compact, sortBy } from "lodash";
 
 export type CanvasProps = ContainerWidgetProps<WidgetProps>;
 
@@ -46,10 +47,12 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
   const defaultWidgetProps = {
     positioning: props.positioning,
   };
+  // ToDO: Remove sorting of children on the view, ideally the model should be sorted, coz they are less frequently happening
+  // operations. leaving it as is for now, coz it multiple cypress tests are dependent on this.
   const canvasChildren = useMemo(
     () =>
       renderChildren(
-        props.children,
+        sortBy(compact(props.children), (child: WidgetProps) => child.topRow),
         props.widgetId,
         RenderModes.CANVAS,
         defaultWidgetProps,

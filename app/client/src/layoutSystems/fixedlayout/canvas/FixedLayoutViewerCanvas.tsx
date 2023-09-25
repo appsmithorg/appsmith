@@ -1,6 +1,7 @@
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { CanvasViewerWrapper } from "layoutSystems/common/canvasViewer/CanvasViewerWrapper";
 import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
+import { compact, sortBy } from "lodash";
 import React, { useMemo } from "react";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
@@ -21,10 +22,13 @@ export const FixedLayoutViewerCanvas = (props: BaseWidgetProps) => {
   const defaultWidgetProps = {
     positioning: props.positioning,
   };
+
+  // ToDO: Remove sorting of children on the view, ideally the model should be sorted, coz they are less frequently happening
+  // operations. leaving it as is for now, coz it multiple cypress tests are dependent on this.
   const canvasChildren = useMemo(
     () =>
       renderChildren(
-        props.children,
+        sortBy(compact(props.children), (child: WidgetProps) => child.topRow),
         props.widgetId,
         RenderModes.PAGE,
         defaultWidgetProps,
