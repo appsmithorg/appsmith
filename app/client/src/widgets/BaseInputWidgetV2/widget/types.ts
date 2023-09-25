@@ -1,7 +1,5 @@
 import type { WidgetProps } from "widgets/BaseWidget";
 
-import type { BaseInputComponentProps } from "../component/types";
-
 export interface BaseInputWidgetProps extends WidgetProps {
   text: string;
   isDisabled?: boolean;
@@ -19,9 +17,6 @@ export interface BaseInputWidgetProps extends WidgetProps {
 
   // label Props
   label: string;
-  labelPosition?: BaseInputComponentProps["labelPosition"];
-  labelAlignment?: BaseInputComponentProps["labelAlign"];
-  labelWidth?: BaseInputComponentProps["labelWidth"];
 
   // misc
   tooltip?: string;
