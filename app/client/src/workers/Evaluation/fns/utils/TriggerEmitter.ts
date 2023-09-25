@@ -5,7 +5,10 @@ import type {
   Patch,
   UpdatedPathsMap,
 } from "workers/Evaluation/JSObject/JSVariableUpdates";
-import { applyJSVariableUpdatesToEvalTree } from "workers/Evaluation/JSObject/JSVariableUpdates";
+import {
+  PatchType,
+  applyJSVariableUpdatesToEvalTree,
+} from "workers/Evaluation/JSObject/JSVariableUpdates";
 import ExecutionMetaData from "./ExecutionMetaData";
 import { get } from "lodash";
 import { getType } from "utils/TypeHelpers";
@@ -163,6 +166,12 @@ const jsVariableUpdatesHandler = priorityBatchedActionHandler<Patch>(
   (batchedData) => {
     const updatesMap: UpdatedPathsMap = {};
     for (const patch of batchedData) {
+      const oldPatch = updatesMap[patch.path];
+
+      if (oldPatch && oldPatch.method === PatchType.SET) {
+        continue;
+      }
+
       updatesMap[patch.path] = patch;
     }
 
