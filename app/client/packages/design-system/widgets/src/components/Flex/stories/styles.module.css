@@ -1,26 +1,14 @@
+@import "../../../shared/colors/colors.module.css";
+
 .demo-block {
   min-width: var(--sizing-12);
   min-height: var(--sizing-12);
   flex: 1;
 
-  &[data-variant="accent"] {
-    background: var(--color-bg-accent);
-  }
-
-  &[data-variant="negative"] {
-    background: var(--color-bg-negative);
-  }
-
-  &[data-variant="positive"] {
-    background: var(--color-bg-positive);
-  }
-
-  &[data-variant="warning"] {
-    background: var(--color-bg-warning);
-  }
-
-  &[data-variant="neutral"] {
-    background: var(--color-bg-neutral);
+  @each $color in colors {
+    &[data-color="$(color)"] {
+      background: var(--color-bg-$(color));
+    }
   }
 }
 

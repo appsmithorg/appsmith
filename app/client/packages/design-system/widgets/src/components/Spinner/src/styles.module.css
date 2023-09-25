@@ -2,10 +2,6 @@
   animation: spin 1s linear infinite;
   height: 1.5em;
   width: 1.5em;
-
-  & path {
-    fill: currentColor;
-  }
 }
 
 @keyframes spin {
