@@ -237,6 +237,7 @@ export class cypressSplit {
           `UPDATE public."attempt" SET is_locked = true WHERE id = $1 AND is_locked = false RETURNING id`,
           [attemptId],
         );
+        console.log("RESULT FOR LOCK ===>", result.rows);
         if (result.rows.length === 1) {
           locked = true;
           let runningSpecs: string[] =
@@ -255,6 +256,7 @@ export class cypressSplit {
           console.log("SPECS ===>", specs);
           return specs;
         } else {
+          console.log("WAITING FOR LOCK ......");
           await this.sleep(5000);
         }
       }
