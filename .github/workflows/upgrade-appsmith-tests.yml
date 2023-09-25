@@ -63,6 +63,8 @@ jobs:
               [RUN_ID, ATTEMPT_NUMBER],
             );
             client.release();
+            console.log(result.rows);
+            console.log(result.rows.map((spec) => spec.name));
             return result.rows.map((spec) => spec.name);
 
       # In case for any ci job failure, create combined failed spec
