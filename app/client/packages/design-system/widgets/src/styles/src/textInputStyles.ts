@@ -18,6 +18,7 @@ export const textInputStyles = css<HeadlessTextInputProps>`
     background-color: transparent;
     font-family: inherit;
     flex-grow: 1;
+    color: var(--color-fg);
 
     &:autofill,
     &:autofill:hover,
@@ -78,6 +79,7 @@ export const textInputStyles = css<HeadlessTextInputProps>`
 */
   & [data-field-input] :is(input, textarea)::placeholder {
     color: var(--color-fg-neutral-subtle);
+    opacity: 1;
   }
 
   & [data-field-input] :is(input, textarea):placeholder-shown {

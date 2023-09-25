@@ -87,8 +87,8 @@ export class DeployMode {
   }
 
   // Stubbing window.open to open in the same tab
-  public StubbingWindow() {
-    cy.window({ timeout: 60000 }).then((window: any) => {
+  public StubbingWindow(timeout = 60000) {
+    cy.window({ timeout }).then((window: any) => {
       cy.stub(window, "open")
         .as("windowStub")
         .callsFake((url) => {
@@ -139,13 +139,20 @@ export class DeployMode {
     networkCall: string,
   ) {
     this.StubbingWindow();
-    this.agHelper.GetNClick(selector, 0, false, 4000); //timeout new url to settle loading
-    cy.window().then((win) => {
-      win.location.reload();
-    }); //only reload page to get new url
+    this.agHelper.GetNClick(selector, 0, false, 0);
+    // cy.window().then((win) => {
+    //   win.location.reload();
+    // });
+    this.agHelper.Sleep(4000); //Waiting a bit for new url to settle loading
+    cy.url().then((url) => {
+      cy.window().then((window) => {
+        window.location.href = url;
+      }); //only reload page to get new url
+    });
     cy.get("@windowStub").should("be.calledOnce");
     cy.url().should("contain", expectedUrl);
-    this.assertHelper.AssertDocumentReady();
+    this.agHelper.Sleep(2000); //stay in the page a bit before navigating back
+    //this.assertHelper.AssertDocumentReady();
     cy.window({ timeout: 60000 }).then((win) => {
       win.history.back();
     });

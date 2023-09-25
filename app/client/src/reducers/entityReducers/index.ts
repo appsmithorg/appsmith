@@ -1,5 +1,4 @@
 import { combineReducers } from "redux";
-import actionsReducer from "./actionsReducer";
 import appReducer from "./appReducer";
 import canvasWidgetsReducer from "./canvasWidgetsReducer";
 import canvasWidgetsStructureReducer from "./canvasWidgetsStructureReducer";
@@ -13,6 +12,7 @@ import pluginsReducer from "reducers/entityReducers/pluginsReducer";
 import autoHeightLayoutTreeReducer from "./autoHeightReducers/autoHeightLayoutTreeReducer";
 import canvasLevelsReducer from "./autoHeightReducers/canvasLevelsReducer";
 import widgetPositionsReducer from "./widgetPositionsReducer";
+import actionsReducer from "@appsmith/reducers/entityReducers/actionsReducer";
 
 const entityReducer = combineReducers({
   canvasWidgets: canvasWidgetsReducer,
