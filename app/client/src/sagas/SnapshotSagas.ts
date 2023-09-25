@@ -110,7 +110,7 @@ function* restoreApplicationFromSnapshotSaga() {
       });
     }
 
-    //update layout positioning type from
+    //update layout system type from
     yield call(
       updateApplicationLayoutType,
       currentLayoutSystemType === LayoutSystemTypes.FIXED
