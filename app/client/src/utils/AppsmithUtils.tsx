@@ -8,7 +8,7 @@ import { AppIconCollection } from "design-system-old";
 import _, { isPlainObject } from "lodash";
 import * as log from "loglevel";
 import { osName } from "react-device-detect";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "./AnalyticsUtil";
 

@@ -148,7 +148,7 @@ import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { getCurrentActions } from "@appsmith/selectors/entitiesSelector";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPage } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";

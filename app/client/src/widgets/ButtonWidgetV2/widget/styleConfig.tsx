@@ -1,5 +1,5 @@
 import { capitalize } from "lodash";
-import { BUTTON_COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
+import { COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -24,7 +24,7 @@ export const propertyPaneStyleConfig = [
           type: ValidationTypes.TEXT,
           params: {
             allowedValues: Object.values(BUTTON_VARIANTS),
-            default: BUTTON_VARIANTS.FILLED,
+            default: BUTTON_VARIANTS.filled,
           },
         },
       },
@@ -34,7 +34,7 @@ export const propertyPaneStyleConfig = [
         controlType: "DROP_DOWN",
         fullWidth: true,
         helpText: "Sets the semantic color of the button",
-        options: Object.values(BUTTON_COLORS).map((semantic) => ({
+        options: Object.values(COLORS).map((semantic) => ({
           label: capitalize(semantic),
           value: semantic,
         })),
@@ -44,8 +44,8 @@ export const propertyPaneStyleConfig = [
         validation: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: Object.values(BUTTON_COLORS),
-            default: BUTTON_COLORS.ACCENT,
+            allowedValues: Object.values(COLORS),
+            default: COLORS.accent,
           },
         },
       },
