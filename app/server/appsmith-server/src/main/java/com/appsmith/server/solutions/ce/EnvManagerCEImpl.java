@@ -267,6 +267,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return valueBuilder.toString();
     }
 
+    // Expect user object to be null when this method is getting called to run the tenant specific migrations without
+    // user context
     private Mono<Void> validateChanges(User user, Map<String, String> changes) {
         if (changes.containsKey(APPSMITH_ADMIN_EMAILS.name())) {
             String emailCsv = StringUtils.trimAllWhitespace(changes.get(APPSMITH_ADMIN_EMAILS.name()));
@@ -276,7 +278,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Admin Emails"));
             } else { // make sure user is not removing own email
                 Set<String> adminEmails = TextUtils.csvToSet(emailCsv);
-                if (!adminEmails.contains(user.getEmail())) { // user can not remove own email address
+                if (user != null && !adminEmails.contains(user.getEmail())) { // user can not remove own email address
                     return Mono.error(new AppsmithException(
                             AppsmithError.GENERIC_BAD_REQUEST, "Removing own email from Admin Email is not allowed"));
                 }
@@ -346,32 +348,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return verifyCurrentUserIsSuper()
                 .flatMap(user -> validateChanges(user, changes).thenReturn(user))
                 .flatMap(user -> {
-                    // Write the changes to the env file.
-                    final String originalContent;
-                    final Path envFilePath = Path.of(commonConfig.getEnvFilePath());
-
+                    Map<String, String> originalVariables = new HashMap<>();
                     try {
-                        originalContent = Files.readString(envFilePath);
+                        originalVariables = applyChangesToEnvFileWithoutUserContext(changes);
                     } catch (IOException e) {
-                        log.error("Unable to read env file " + envFilePath, e);
-                        return Mono.error(e);
-                    }
-                    Map<String, String> originalVariables = parseToMap(originalContent);
-
-                    final Map<String, String> envFileChanges = new HashMap<>(changes);
-                    final Set<String> tenantConfigurationKeys = allowedTenantConfiguration();
-                    for (final String key : changes.keySet()) {
-                        if (tenantConfigurationKeys.contains(key)) {
-                            envFileChanges.remove(key);
-                        }
-                    }
-                    final List<String> changedContent = transformEnvContent(originalContent, envFileChanges);
-
-                    try {
-                        Files.write(envFilePath, changedContent);
-                    } catch (IOException e) {
-                        log.error("Unable to write to env file " + envFilePath, e);
-                        return Mono.error(e);
+                        throw new RuntimeException(e);
                     }
 
                     // For configuration variables, save the variables to the config collection instead of .env file
@@ -451,6 +432,42 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     return dependentTasks.then();
                 });
+    }
+
+    /**
+     * This method applies the changes to the env file without any user context, and will be used for applying the changes while running the tenant specific migrations. Please refer {@link com.appsmith.server.helpers.FeatureFlagMigrationHelper}
+     * @param changes       Map of changes to be applied to the env file
+     * @return              Map of original variables before the changes were applied
+     * @throws IOException  If there is an error while reading or writing to the env file
+     */
+    @Override
+    public Map<String, String> applyChangesToEnvFileWithoutUserContext(Map<String, String> changes) throws IOException {
+        final Path envFilePath = Path.of(commonConfig.getEnvFilePath());
+        String originalContent;
+        try {
+            originalContent = Files.readString(envFilePath);
+        } catch (IOException e) {
+            log.error("Unable to read env file " + envFilePath, e);
+            throw e;
+        }
+        Map<String, String> originalVariables = parseToMap(originalContent);
+
+        final Map<String, String> envFileChanges = new HashMap<>(changes);
+        final Set<String> tenantConfigurationKeys = allowedTenantConfiguration();
+        for (final String key : changes.keySet()) {
+            if (tenantConfigurationKeys.contains(key)) {
+                envFileChanges.remove(key);
+            }
+        }
+        final List<String> changedContent = transformEnvContent(originalContent, envFileChanges);
+
+        try {
+            Files.write(envFilePath, changedContent);
+        } catch (IOException e) {
+            log.error("Unable to write to env file " + envFilePath, e);
+            throw e;
+        }
+        return originalVariables;
     }
 
     @Override
@@ -652,22 +669,35 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     @Override
     public Mono<Map<String, String>> getAll() {
-        return verifyCurrentUserIsSuper().flatMap(user -> {
-            final String originalContent;
+        return verifyCurrentUserIsSuper().map(user -> {
             try {
-                originalContent = Files.readString(Path.of(commonConfig.getEnvFilePath()));
-            } catch (NoSuchFileException e) {
-                return Mono.error(new AppsmithException(AppsmithError.ENV_FILE_NOT_FOUND));
+                return getAll(false);
             } catch (IOException e) {
-                log.error("Unable to read env file " + commonConfig.getEnvFilePath(), e);
-                return Mono.error(e);
+                throw new RuntimeException(e);
             }
-
-            // set the default values to response
-            Map<String, String> envKeyValueMap = parseToMap(originalContent);
-
-            return Mono.justOrEmpty(envKeyValueMap);
         });
+    }
+
+    /**
+     * This function is used to get all the env variables from the env file.
+     * @param isInternalCall    This is used to check if the method is getting called internally within server
+     * @return                  Returns a map of all the env variables
+     * @throws IOException      Throws an exception if the env file is unable to read
+     */
+    @Override
+    public Map<String, String> getAll(boolean isInternalCall) throws IOException {
+        final String originalContent;
+        try {
+            originalContent = Files.readString(Path.of(commonConfig.getEnvFilePath()));
+        } catch (NoSuchFileException e) {
+            throw new AppsmithException(AppsmithError.ENV_FILE_NOT_FOUND);
+        } catch (IOException e) {
+            log.error("Unable to read env file " + commonConfig.getEnvFilePath(), e);
+            throw e;
+        }
+
+        // set the default values to response
+        return parseToMap(originalContent);
     }
 
     /**

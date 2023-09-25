@@ -7,6 +7,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,8 @@ public interface EnvManagerCE {
 
     Mono<Void> applyChanges(Map<String, String> changes, String originHeader);
 
+    Map<String, String> applyChangesToEnvFileWithoutUserContext(Map<String, String> changes) throws IOException;
+
     Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader);
 
     void setAnalyticsEventAction(
@@ -24,6 +27,8 @@ public interface EnvManagerCE {
     Mono<Map.Entry<String, String>> handleFileUpload(String key, List<Part> parts);
 
     Map<String, String> parseToMap(String content);
+
+    Map<String, String> getAll(boolean isInternalCall) throws IOException;
 
     Mono<Map<String, String>> getAll();
 
