@@ -1,9 +1,7 @@
 /* eslint-disable no-console */
-import type { DataItem } from "./util";
 import util from "./util";
 import globby from "globby";
 import minimatch from "minimatch";
-import cypress from "cypress";
 
 export class cypressSplit {
   util = new util();
@@ -231,8 +229,9 @@ export class cypressSplit {
     const client = await this.dbClient.connect();
     let specs: string[] = [];
     let locked = false;
+    let counter = 1;
     try {
-      while (!locked) {
+      while (counter <= 120 && !locked) {
         const result = await client.query(
           `UPDATE public."attempt" SET is_locked = true WHERE id = $1 AND is_locked = false RETURNING id`,
           [attemptId],
@@ -253,11 +252,10 @@ export class cypressSplit {
             ignorePattern,
             attemptId,
           );
-          console.log("SPECS ===>", specs);
           return specs;
         } else {
-          console.log("WAITING FOR LOCK ......");
           await this.sleep(5000);
+          counter++;
         }
       }
     } catch (err) {
@@ -310,11 +308,9 @@ export class cypressSplit {
       }
 
       const attempt = await this.createAttempt();
-      console.log("ATTEMPT ====> ", attempt);
       const specs =
         (await this.addLockGetTheSpecs(attempt, specPattern, ignorePattern)) ??
         [];
-      console.log("SPECS TO RUN ON THIS RUNNER ====> ", specs);
       if (specs.length > 0 && !specs.includes(defaultSpec)) {
         config.specPattern = specs.length == 1 ? specs[0] : specs;
       } else {
