@@ -161,8 +161,7 @@ const CreateNewAppsOption = ({
   };
 
   const onTemplateClick = (id: string) => {
-    const template = allTemplates.find((template) => template.id === id);
-    const title = template?.title;
+    const title = getTemplateTitleById(id);
     AnalyticsUtil.logEvent("CLICK_ON_TEMPLATE_CARD_WHEN_ONBOARDING", {
       id,
       title,
@@ -172,8 +171,7 @@ const CreateNewAppsOption = ({
   };
 
   const onClickUseTemplate = (id: string) => {
-    const template = allTemplates.find((template) => template.id === id);
-    const title = template?.title;
+    const title = getTemplateTitleById(id);
     AnalyticsUtil.logEvent("USE_TEMPLATE_FROM_DETAILS_PAGE_WHEN_ONBOARDING", {
       title,
     });
@@ -192,14 +190,16 @@ const CreateNewAppsOption = ({
       );
   };
 
+  const getTemplateTitleById = (id: string) => {
+    const template = allTemplates.find((template) => template.id === id);
+    return template?.title;
+  };
+
   const onClickBackButton = () => {
     if (useTemplate) {
       if (selectedTemplate) {
         // Going back from template details view screen
-        const template = allTemplates.find(
-          (template) => template.id === selectedTemplate,
-        );
-        const title = template?.title;
+        const title = getTemplateTitleById(selectedTemplate);
         AnalyticsUtil.logEvent(
           "ONBOARDING_FLOW_CLICK_BACK_BUTTON_TEMPLATE_DETAILS_PAGE",
           { title },
