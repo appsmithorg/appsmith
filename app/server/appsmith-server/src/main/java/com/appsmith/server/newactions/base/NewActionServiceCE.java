@@ -141,4 +141,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<UpdateResult> publishActions(String applicationId, AclPermission permission);
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
+
+    void setGitSyncIdInNewAction(NewAction newAction);
+
+    Mono<ActionDTO> validateCreatorId(ActionDTO action);
 }
