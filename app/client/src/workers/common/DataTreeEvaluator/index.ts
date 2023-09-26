@@ -344,7 +344,7 @@ export default class DataTreeEvaluator {
     const evaluationStartTime = performance.now();
 
     const evaluationOrder = this.sortedDependencies;
-    updateTreeWithData(this.oldUnEvalTree, DataStore.getDataStore());
+
     // Evaluate
     const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
       this.oldUnEvalTree,
@@ -779,7 +779,7 @@ export default class DataTreeEvaluator {
     reValidatedPaths: string[];
   } {
     const evaluationStartTime = performance.now();
-    updateTreeWithData(this.evalTree, DataStore.getDataStore());
+
     const {
       evalMetaUpdates,
       evaluatedTree: newEvalTree,
@@ -944,6 +944,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const tree = klona(oldUnevalTree);
+    updateTreeWithData(tree, DataStore.getDataStore());
 
     errorModifier.updateAsyncFunctions(
       tree,
