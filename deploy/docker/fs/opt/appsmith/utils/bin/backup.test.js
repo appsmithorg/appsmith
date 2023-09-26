@@ -221,3 +221,31 @@ test('Test backup encryption function', async () => {
 
 });
 
+test('Get DB name from Mongo URI 1', async () => {
+  var mongodb_uri = "mongodb+srv://admin:password@test.cluster.mongodb.net/my_db_name?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin"
+  var expectedDBName = 'my_db_name'
+  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri)
+  expect(dbName).toEqual(expectedDBName)
+})
+
+test('Get DB name from Mongo URI 2', async () => {
+  var mongodb_uri = "mongodb+srv://admin:password@test.cluster.mongodb.net/test123?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin"
+  var expectedDBName = 'test123'
+  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri)
+  expect(dbName).toEqual(expectedDBName)
+})
+
+test('Get DB name from Mongo URI 3', async () => {
+  var mongodb_uri = "mongodb+srv://admin:password@test.cluster.mongodb.net/test123"
+  var expectedDBName = 'test123'
+  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri)
+  expect(dbName).toEqual(expectedDBName)
+})
+
+test('Get DB name from Mongo URI 4', async () => {
+  var mongodb_uri = "mongodb://appsmith:pAssW0rd!@localhost:27017/appsmith"
+  var expectedDBName = 'appsmith'
+  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri)
+  expect(dbName).toEqual(expectedDBName)
+})
+
