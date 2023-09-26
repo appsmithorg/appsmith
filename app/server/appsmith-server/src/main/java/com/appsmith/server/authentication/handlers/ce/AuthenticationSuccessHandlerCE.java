@@ -27,6 +27,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
@@ -217,11 +218,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         User user = (User) authentication.getPrincipal();
         Mono<Boolean> isVerificationRequiredMono = Mono.just(FALSE);
 
-        boolean skipFlagCheckHeader = Boolean.parseBoolean(webFilterExchange
-                .getExchange()
-                .getRequest()
-                .getHeaders()
-                .getFirst(ApiConstants.SKIP_FLAG_CHECK_HEADER));
+        HttpCookie SkipFlagCookie =
+                webFilterExchange.getExchange().getRequest().getCookies().getFirst(ApiConstants.SKIP_FLAG_CHECK_COOKIE);
+        boolean skipFlagCheckHeader = SkipFlagCookie != null && Boolean.parseBoolean(SkipFlagCookie.getValue());
 
         if (isFromSignup) {
             isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "signup");
@@ -275,11 +274,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         String originHeader =
                 webFilterExchange.getExchange().getRequest().getHeaders().getOrigin();
 
-        boolean skipFlagCheckHeader = Boolean.parseBoolean(webFilterExchange
-                .getExchange()
-                .getRequest()
-                .getHeaders()
-                .getFirst(ApiConstants.SKIP_FLAG_CHECK_HEADER));
+        HttpCookie SkipFlagCookie =
+                webFilterExchange.getExchange().getRequest().getCookies().getFirst(ApiConstants.SKIP_FLAG_CHECK_COOKIE);
+        boolean skipFlagCheckHeader = SkipFlagCookie != null && Boolean.parseBoolean(SkipFlagCookie.getValue());
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             // for oauth type signups, we don't need to verify email

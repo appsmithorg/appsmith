@@ -119,3 +119,4 @@ export const TABLE_DATA_STATIC = `
 
 export const WALKTHROUGH_TEST_PAGE = "WALKTHROUGH_TEST_PAGE";
 export const DEFAULT_COLUMN_NAME = "Table Column";
+export const SKIP_FLAG_CHECK_COOKIE = "Skip-Server-Side-Flag-Check";

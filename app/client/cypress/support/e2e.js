@@ -35,7 +35,7 @@ import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
 import "cypress-plugin-tab";
-import { WALKTHROUGH_TEST_PAGE } from "./Constants.js";
+import { SKIP_FLAG_CHECK_COOKIE, WALKTHROUGH_TEST_PAGE } from "./Constants.js";
 /// <reference types="cypress-xpath" />
 
 Cypress.on("uncaught:exception", () => {
@@ -50,6 +50,19 @@ Cypress.on("fail", (error) => {
 
 Cypress.env("MESSAGES", MESSAGES);
 let dataSet; // Declare a variable to hold the test data
+
+before(function () {
+  /* 
+    Disabling flag check value for create new app flow.
+    This flag check can be used on server to disable flag check for a particular feature.
+    Search for SKIP_FLAG_CHECK_COOKIE in the server codebase for its implementation.
+    ----------
+    Use `import { SKIP_FLAG_CHECK_COOKIE } from "path/to/Constants.js";`
+    Use `before` function to override the header in your specific test case. Copy the below code to test your server side skipped flag checks.
+    `cy.setCookie(SKIP_FLAG_CHECK_COOKIE, 'false');`
+  */
+  cy.setCookie(SKIP_FLAG_CHECK_COOKIE, "true");
+});
 
 before(function () {
   if (RapidMode.config.enabled) {
@@ -187,4 +200,5 @@ after(function () {
   // const tedUrl = "http://localhost:5001/v1/parent/cmd";
   // cy.log("Start the appsmith container");
   // cy.StartContainer(tedUrl, "appsmith"); // start the old container
+  cy.clearCookie(SKIP_FLAG_CHECK_COOKIE);
 });

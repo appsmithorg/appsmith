@@ -990,18 +990,6 @@ Cypress.Commands.add("startRoutesForDatasource", () => {
 });
 
 Cypress.Commands.add("startServerAndRoutes", () => {
-  /* 
-    Disabling flag check value for create new app flow.
-    This flag check can be used on server to disable flag check for a particular feature.
-    Search for SKIP_FLAG_CHECK_HEADER in the server codebase for its implementation.
-    Use `before` function to override the header in your specific test case. Copy the below code to test your server side skipped flag checks.
-    cy.intercept("/api/v1/*", (req) => {
-      req.headers['Skip-Server-Side-Flag-Check'] = 'false';
-    });
-  */
-  cy.intercept("/api/v1/*", (req) => {
-    req.headers["Skip-Server-Side-Flag-Check"] = "true";
-  });
   //To update route with intercept after working on alias wrt wait and alias
   //cy.server();
   cy.intercept("PUT", "/api/v1/themes/applications/*").as("updateTheme");
