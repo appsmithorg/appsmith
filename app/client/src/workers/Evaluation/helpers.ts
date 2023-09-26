@@ -3,8 +3,7 @@ import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal";
-import produce from "immer";
-import { get, isNumber, isObject, set } from "lodash";
+import { get, isNumber, isObject } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
 export interface DiffReferenceState {
@@ -257,16 +256,39 @@ export const generateOptimisedUpdates = (
   return updates;
 };
 
-export const decompressIdenticalEvalPaths = (
-  dataTree: any,
-  identicalEvalPathsPatches: Record<string, string>,
-) =>
-  produce(dataTree, (draft: any) =>
-    Object.entries(identicalEvalPathsPatches || {}).forEach(([key, value]) => {
-      const referencePathValue = get(dataTree, value);
-      set(draft, key, referencePathValue);
-    }),
+export const generateSerialisedUpdates = (
+  prevState: any,
+  currentState: any,
+  identicalEvalPathsPatches: any,
+): {
+  serialisedUpdates: string;
+  error?: { type: string; message: string };
+} => {
+  const updates = generateOptimisedUpdates(
+    prevState,
+    currentState,
+    identicalEvalPathsPatches,
   );
+
+  //remove lhs from diff to reduce the size of diff upload,
+  //it is not necessary to send lhs and we can make the payload to transfer to the main thread smaller for quicker transfer
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const removedLhs = updates.map(({ lhs, ...rest }: any) => rest);
+
+  try {
+    // serialise bigInt values and convert the updates to a string over here to minismise the cost of transfer
+    // to the main thread. In the main thread parse this object there.
+    return { serialisedUpdates: serialiseToBigInt(removedLhs) };
+  } catch (error) {
+    return {
+      serialisedUpdates: "[]",
+      error: {
+        type: EvalErrorTypes.SERIALIZATION_ERROR,
+        message: (error as Error).message,
+      },
+    };
+  }
+};
 
 export const generateOptimisedUpdatesAndSetPrevState = (
   dataTree: any,
@@ -275,28 +297,14 @@ export const generateOptimisedUpdatesAndSetPrevState = (
   const identicalEvalPathsPatches =
     dataTreeEvaluator?.getEvalPathsIdenticalToState();
 
-  const updates = generateOptimisedUpdates(
-    dataTreeEvaluator?.getPrevState(),
+  const { error, serialisedUpdates } = generateSerialisedUpdates(
+    dataTreeEvaluator?.prevState(),
     dataTree,
     identicalEvalPathsPatches,
   );
-
-  //remove lhs from diff to reduce the size of diff upload, it is not necessary
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const removedLhs = updates.map(({ lhs, ...rest }: any) => rest);
-
-  let serialisedUpdates = "[]";
-  try {
-    // serialise bigInt values and convert the updates to a string over here to minismise the cost of transfer
-    // to the main thread. In the main thread parse this object there.
-    serialisedUpdates = serialiseToBigInt(removedLhs);
-  } catch (error) {
-    dataTreeEvaluator.errors.push({
-      type: EvalErrorTypes.SERIALIZATION_ERROR,
-      message: (error as Error).message,
-    });
+  if (error) {
+    dataTreeEvaluator.errors.push(error);
   }
-
   dataTreeEvaluator?.setPrevState(dataTree);
   return serialisedUpdates;
 };
