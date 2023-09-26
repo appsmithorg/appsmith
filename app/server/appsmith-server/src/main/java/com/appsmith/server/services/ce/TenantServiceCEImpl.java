@@ -18,6 +18,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.solutions.EnvManager;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -30,6 +31,7 @@ import java.util.Map;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, String> implements TenantServiceCE {
 
     private String tenantId = null;
@@ -253,6 +255,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         Mono<Tenant> defaultTenantMono = this.getDefaultTenantId().flatMap(this::retrieveById);
         return defaultTenantMono.flatMap(updatedTenant -> {
             if (TRUE.equals(updatedTenant.getTenantConfiguration().getIsRestartRequired())) {
+                log.debug("Triggering tenant restart after the feature flag migrations are executed");
                 TenantConfiguration tenantConfiguration = updatedTenant.getTenantConfiguration();
                 tenantConfiguration.setIsRestartRequired(false);
                 return this.update(updatedTenant.getId(), updatedTenant).then(envManager.restartWithoutAclCheck());
