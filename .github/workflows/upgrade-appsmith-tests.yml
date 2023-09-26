@@ -112,9 +112,10 @@ jobs:
             <ol>${{ steps.check_files.outputs.non_ts_files }}</ol>
       - if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
         run: exit 1
-           
+      
+      - run : echo "base ref branch=====> ${{github.pull_request.base.ref}}"
       - name: Get all the added or changed files in client/src folder
-        if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        if: inputs.ads-compliant-check == 'true' && inputs.pr != 0
         id: client_files
         uses: umani/changed-files@v4.0.0
         with:
@@ -124,7 +125,7 @@ jobs:
 
       # Check all the newly added files are in ts  
       - name: Check the newly added files are written in ts
-        if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        if: inputs.ads-compliant-check == 'true' && inputs.pr != 0
         id: ads_check
         run: |
           comment_files=""
@@ -143,14 +144,14 @@ jobs:
 
       # Comment in PR if test files are not written in ts and fail the workflow    
       - name: Comment in PR if test files are not written in ts
-        if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ inputs.pr }}
           body: |
             <b> 🔴 Below files are not compliant with ADS. Please fix and re-trigger ok-to-test </b>
             ${{steps.ads_check.outputs.ads_non_compliant_files}}
-      - if: steps.ads_check.outputs.non_ts_files_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+      - if: steps.ads_check.outputs.non_ts_files_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0
         run: exit 1
 
       # Create a run record exactly at the time of merge to release to
