@@ -19,6 +19,7 @@ import {
   CONFIRM_CONTEXT_DELETE,
   createMessage,
   CONTEXT_SETTINGS,
+  CONTEXT_PARTIAL_EXPORT,
 } from "@appsmith/constants/messages";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
@@ -32,6 +33,7 @@ import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors"
 import type { AppState } from "@appsmith/reducers";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
+import PartiaExportModel from "components/editorComponents/PartialImportExport/PartialExportModal";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -48,6 +50,7 @@ export function PageContextMenu(props: {
   isHidden: boolean;
 }) {
   const dispatch = useDispatch();
+  const [showPartialExportModal, setShowPartialExportModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   /**
@@ -116,6 +119,8 @@ export function PageContextMenu(props: {
       }),
     );
 
+  const openPartialExportModal = () => setShowPartialExportModal(true);
+
   const pagePermissions =
     useSelector(getPageById(props.pageId))?.userPermissions || [];
 
@@ -166,6 +171,11 @@ export function PageContextMenu(props: {
         label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
       },
     {
+      value: "partial-export",
+      onSelect: openPartialExportModal,
+      label: createMessage(CONTEXT_PARTIAL_EXPORT),
+    },
+    {
       value: "settings",
       onSelect: openAppSettingsPane,
       label: createMessage(CONTEXT_SETTINGS),
@@ -186,11 +196,19 @@ export function PageContextMenu(props: {
   ].filter(Boolean);
 
   return optionsTree?.length > 0 ? (
-    <ContextMenu
-      className={props.className}
-      optionTree={optionsTree as TreeDropdownOption[]}
-      setConfirmDelete={setConfirmDelete}
-    />
+    <>
+      <ContextMenu
+        className={props.className}
+        optionTree={optionsTree as TreeDropdownOption[]}
+        setConfirmDelete={setConfirmDelete}
+      />
+      {showPartialExportModal && (
+        <PartiaExportModel
+          handleModalClose={() => setShowPartialExportModal(false)}
+          isModalOpen={showPartialExportModal}
+        />
+      )}
+    </>
   ) : null;
 }
 

@@ -30,7 +30,6 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import PartiaExportModel from "./PartialImportExport/PartialExportModal";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getEditingEntityName } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
@@ -80,7 +79,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   );
   const [tooltipIsOpen, setTooltipIsOpen] = useState(false);
   const isEditingEntityName = useSelector(getEditingEntityName);
-  const [showPartialExportModal, setShowPartialExportModal] = useState(false);
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
   useEffect(() => {
     PerformanceTracker.stopTracking();
@@ -238,9 +236,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         <Button kind="tertiary" onClick={onImportClick}>
           Import
         </Button>
-        <Button kind="tertiary" onClick={() => setShowPartialExportModal(true)}>
-          Export
-        </Button>
         {/* Popover that contains the bindings info */}
         <EntityProperties />
         {/* Contains entity explorer & widgets library along with a switcher*/}
@@ -276,12 +271,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           </Tooltip>
         </div>
       </StyledResizer>
-      {showPartialExportModal && (
-        <PartiaExportModel
-          handleModalClose={() => setShowPartialExportModal(false)}
-          isModalOpen={showPartialExportModal}
-        />
-      )}
     </div>
   );
 });
