@@ -38,5 +38,11 @@ jobs:
         if: inputs.pr != 0
         id: check_files
         run: |
+          comment_files=""
           files=(${{steps.files.outputs.files_created}}${{steps.files.outputs.files_updated}})
-          echo "$files"
+          for file in $files; do
+              if grep -q -E '\b(color|Color)\s*#.*|border="|color/Color\s*="|border\s*#' "$file"; then
+                  comment_files="$comment_files,$file"
+              fi
+          done
+          echo "${comment_files#,}"
