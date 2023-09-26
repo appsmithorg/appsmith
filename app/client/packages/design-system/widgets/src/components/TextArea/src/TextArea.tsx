@@ -1,12 +1,15 @@
+import clsx from "clsx";
 import React, { forwardRef } from "react";
 import type {
   TextAreaRef as HeadlessTextAreaRef,
   TextAreaProps as HeadlessTextAreaProps,
 } from "@design-system/headless";
+import { TextArea as HeadlessTextArea } from "@design-system/headless";
 
 import { Text } from "../../Text";
 import { Label } from "../../TextInput";
-import { StyledTextArea } from "./index.styled";
+import textAreaStyles from "./styles.module.css";
+import { textInputStyles, fieldStyles } from "../../../styles";
 
 export interface TextAreaProps extends HeadlessTextAreaProps {
   /** loading state for the input */
@@ -50,7 +53,12 @@ const _TextArea = (props: TextAreaProps, ref: HeadlessTextAreaRef) => {
   );
 
   return (
-    <StyledTextArea
+    <HeadlessTextArea
+      className={clsx(
+        textInputStyles["text-input"],
+        fieldStyles.field,
+        textAreaStyles["textarea"],
+      )}
       description={wrappedDescription}
       errorMessage={wrappedErrorMessage}
       inputClassName="wds-body-text"
