@@ -1,6 +1,5 @@
 import type CodeMirror from "codemirror";
 import type { DataTree, ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import type { ExpectedValueExample } from "utils/validation/common";
@@ -67,8 +66,7 @@ export type FieldEntityInformation = {
 
 export type HintHelper = (
   editor: CodeMirror.Editor,
-  data: DataTree,
-  customDataTree?: AdditionalDynamicDataTree,
+  entitiesForNavigation: EntityNavigationData,
 ) => Hinter;
 export type Hinter = {
   showHint: (
@@ -94,16 +92,16 @@ export enum CodeEditorBorder {
 }
 
 export enum AUTOCOMPLETE_CLOSE_KEY {
-  Enter,
-  Escape,
-  Comma,
-  Semicolon,
-  Space,
-  Delete,
-  "Ctrl+Backspace",
-  OSLeft,
-  "(",
-  ")",
+  Enter = "Enter",
+  Escape = "Escape",
+  Comma = "Comma",
+  Semicolon = "Semicolon",
+  Space = "Space",
+  Delete = "Delete",
+  "Ctrl+Backspace" = "Ctrl+Backspace",
+  OSLeft = "OSLeft",
+  "(" = "(",
+  ")" = ")",
 }
 
 export const isCloseKey = (key: any): key is AUTOCOMPLETE_CLOSE_KEY => {
@@ -111,10 +109,10 @@ export const isCloseKey = (key: any): key is AUTOCOMPLETE_CLOSE_KEY => {
 };
 
 export enum MODIFIER {
-  Control,
-  Meta,
-  Alt,
-  Shift,
+  Control = "Ctrl",
+  Meta = "Meta",
+  Alt = "Alt",
+  Shift = "Shift",
 }
 
 export const isModifierKey = (key: any): key is MODIFIER => {

@@ -2,49 +2,40 @@ import { RenderModes } from "constants/WidgetConstants";
 import { FixedLayoutEditorWrapper } from "./editor/FixedLayoutEditorWrapper";
 import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import { getFixedLayoutComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
 
 /**
- * getFixedLayoutComponentDimensions
- *
- * utiltiy function to compute a widgets dimensions in Fixed layout system
+ * getLabelWidth
+ * utiltiy function to compute a widgets label width in Fixed layout system
  *
  */
-
-const getFixedLayoutComponentDimensions = ({
-  bottomRow,
-  leftColumn,
-  parentColumnSpace,
-  parentRowSpace,
-  rightColumn,
-  topRow,
-}: BaseWidgetProps) => {
-  return {
-    componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
-    componentHeight: (bottomRow - topRow) * parentRowSpace,
-  };
+const getLabelWidth = (props: BaseWidgetProps) => {
+  return (Number(props.labelWidth) || 0) * props.parentColumnSpace;
 };
 
 /**
  * getFixedLayoutSystemPropsEnhancer
  *
- * utiltiy function to enhance BaseWidgetProps with Fixed Layout system specific props
+ * utility function to enhance BaseWidgetProps with Fixed Layout system specific props
  *
  */
-
 const getFixedLayoutSystemPropsEnhancer = (props: BaseWidgetProps) => {
   const { componentHeight, componentWidth } =
     getFixedLayoutComponentDimensions(props);
+  const labelComponentWidth = getLabelWidth(props);
+
   return {
     ...props,
     componentHeight,
     componentWidth,
+    labelComponentWidth,
   };
 };
 
 /**
  * getFixedLayoutSystemWrapper
  *
- * utiltiy function to return the fixed layout system wrapper based on render mode.
+ * utility function to return the fixed layout system wrapper based on render mode.
  * wrapper is the component that wraps around a widget to provide layouting ability and enable editing experience.
  *
  */
@@ -59,8 +50,8 @@ const getFixedLayoutSystemWrapper = (renderMode: RenderModes) => {
 /**
  * getFixedLayoutSystem
  *
- * utiltiy function to return the fixed layout system config for
- * wrapper based on render mode and property enhancer funciton
+ * utility function to return the fixed layout system config for
+ * wrapper based on render mode and property enhancer function
  *
  */
 export function getFixedLayoutSystem(renderMode: RenderModes) {

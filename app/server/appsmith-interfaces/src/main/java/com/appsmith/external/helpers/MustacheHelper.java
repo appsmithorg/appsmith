@@ -68,7 +68,7 @@ public class MustacheHelper {
 
     // Possible types of entity references that we want to be filtering
     // from the global identifiers found in a dynamic binding
-    public static final int ACTION_ENTITY_REFERENCES = 0b01;
+    public static final int EXECUTABLE_ENTITY_REFERENCES = 0b01;
     public static final int WIDGET_ENTITY_REFERENCES = 0b10;
 
     /**
@@ -372,7 +372,7 @@ public class MustacheHelper {
             String bindingValue = tuple.getT1();
             HashSet<EntityDependencyNode> totalParents = new HashSet<>();
             tuple.getT2().forEach(reference -> {
-                if ((types & ACTION_ENTITY_REFERENCES) == ACTION_ENTITY_REFERENCES) {
+                if ((types & EXECUTABLE_ENTITY_REFERENCES) == EXECUTABLE_ENTITY_REFERENCES) {
                     totalParents.addAll(MustacheHelper.getPossibleActions(reference));
                 }
                 if ((types & WIDGET_ENTITY_REFERENCES) == WIDGET_ENTITY_REFERENCES) {

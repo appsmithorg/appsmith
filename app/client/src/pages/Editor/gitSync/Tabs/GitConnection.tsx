@@ -373,15 +373,13 @@ function GitConnection({ isImport }: Props) {
                     <Link
                       className="t--learn-more-ssh-url learn-more-link"
                       kind="primary"
-                      onClick={(e: React.MouseEvent) => {
-                        e.preventDefault();
+                      onClick={() => {
                         AnalyticsUtil.logEvent(
                           "GS_GIT_DOCUMENTATION_LINK_CLICK",
                           {
                             source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
                           },
                         );
-                        window.open(RepoUrlDocumentUrl, "_blank");
                       }}
                       target={"_blank"}
                       to={RepoUrlDocumentUrl}

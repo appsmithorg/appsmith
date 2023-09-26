@@ -13,13 +13,11 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  GRID_DENSITY_MIGRATION_V1,
-  MinimumPopupRows,
-} from "WidgetProvider/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import MultiSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
@@ -45,7 +43,7 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -781,24 +779,21 @@ class MultiSelectWidget extends BaseWidget<
 
   getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
-    const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.props;
+    const minDropDownWidth =
+      (MinimumPopupWidthInPercentage / 100) *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
+    const { componentHeight, componentWidth } = this.props;
     const values = this.mergeLabelAndValue();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+
     return (
       <MultiSelectComponent
         accentColor={this.props.accentColor}
         allowSelectAll={this.props.allowSelectAll}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         disabled={this.props.isDisabled ?? false}
         dropDownWidth={minDropDownWidth}
         dropdownStyle={{
@@ -815,7 +810,7 @@ class MultiSelectWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
         onDropdownClose={this.onDropdownClose}
@@ -930,6 +925,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   labelAlignment?: Alignment;
   labelWidth?: number;
   isDirty?: boolean;
+  labelComponentWidth?: number;
 }
 
 export default MultiSelectWidget;

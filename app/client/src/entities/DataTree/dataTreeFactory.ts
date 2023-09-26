@@ -6,9 +6,6 @@ import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "@appsmith/entities/DataTree/types";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { Positioning } from "layoutSystems/autolayout/utils/constants";
 import { generateDataTreeModuleInputs } from "@appsmith/entities/DataTree/utils";
 import type {
   DataTreeSeed,
@@ -21,9 +18,11 @@ export class DataTreeFactory {
   static create({
     actions,
     appData,
+    appPositioningType,
     editorConfigs,
     isMobile,
     jsActions,
+    loadingEntities,
     metaWidgets,
     moduleInputs,
     pageList,
@@ -67,16 +66,13 @@ export class DataTreeFactory {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
+        loadingEntities,
+        appPositioningType,
+        isMobile,
       );
 
       dataTree[widget.widgetName] = unEvalEntity;
-      if (
-        widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Vertical
-      ) {
-        dataTree[widget.widgetName].appPositioningType =
-          AppPositioningTypes.AUTO;
-      }
-      dataTree[widget.widgetName].isMobile = isMobile;
+
       configTree[widget.widgetName] = configEntity;
     });
 
@@ -99,6 +95,7 @@ export class DataTreeFactory {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
+        loadingEntities,
       );
       dataTree[widget.widgetName] = unEvalEntity;
       configTree[widget.widgetName] = configEntity;

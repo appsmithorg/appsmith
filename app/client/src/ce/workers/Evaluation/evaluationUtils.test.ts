@@ -621,6 +621,7 @@ describe("5. overrideWidgetProperties", () => {
           topRow: 0,
         },
         {},
+        new Set(),
       );
       currentTree["Input1"] = inputWidgetDataTree.unEvalEntity;
       configTree["Input1"] = inputWidgetDataTree.configEntity;
@@ -707,6 +708,7 @@ describe("5. overrideWidgetProperties", () => {
           topRow: 0,
         },
         {},
+        new Set(),
       );
       currentTree["Table1"] = tableWidgetDataTree.unEvalEntity;
       configTree["Table1"] = tableWidgetDataTree.configEntity;

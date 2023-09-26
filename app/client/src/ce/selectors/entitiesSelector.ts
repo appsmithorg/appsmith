@@ -2,7 +2,7 @@ import type { AppState } from "@appsmith/reducers";
 import type {
   ActionData,
   ActionDataState,
-} from "reducers/entityReducers/actionsReducer";
+} from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
 import type {
@@ -1142,6 +1142,7 @@ export const getAllDatasourceTableKeys = createSelector(
         tables[table.name] = "table";
         table.columns.forEach((column) => {
           tables[`${table.name}.${column.name}`] = column.type;
+          tables[`${column.name}`] = column.type;
         });
       }
     });

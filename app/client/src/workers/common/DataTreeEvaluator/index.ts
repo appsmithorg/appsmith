@@ -938,6 +938,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const tree = klona(oldUnevalTree);
+
     errorModifier.updateAsyncFunctions(
       tree,
       this.getConfigTree(),
@@ -1369,10 +1370,16 @@ export default class DataTreeEvaluator {
     callbackData: Array<unknown>,
     context?: EvaluateContext,
   ) {
+    const isDynamic = isDynamicValue(userScript);
     const { jsSnippets } = getDynamicBindings(userScript);
 
     return evaluateAsync(
-      jsSnippets[0] || userScript,
+      /**
+       * jsSnippets[0] will be "" when a JS Object's function is run manually or when an empty action for a trigger field is configured.
+       * Eg. Button1.onClick = "{{}}"
+       * isDynamic will be false for JSObject's function run but will be true for action bindings.
+       */
+      isDynamic ? jsSnippets[0] : userScript,
       dataTree,
       configTree,
       context,

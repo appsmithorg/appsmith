@@ -18,6 +18,9 @@ import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
 import { setOverridingProperty } from "@appsmith/entities/DataTree/utils";
 import { error } from "loglevel";
 import WidgetFactory from "WidgetProvider/factory";
+import { getComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 
 /**
  *
@@ -346,6 +349,9 @@ const generateDataTreeWidgetWithoutMetaMemoized = memoize(
 export const generateDataTreeWidget = (
   widget: FlattenedWidgetProps,
   widgetMetaProps: Record<string, unknown> = {},
+  loadingEntities: LoadingEntitiesState,
+  appPositioningType: AppPositioningTypes = AppPositioningTypes.FIXED,
+  isMobile = false,
 ) => {
   const {
     dataTreeWidgetWithoutMetaProps: dataTreeWidget,
@@ -379,9 +385,21 @@ export const generateDataTreeWidget = (
   });
 
   dataTreeWidget["meta"] = meta;
+  dataTreeWidget["isLoading"] = loadingEntities.has(widget.widgetName);
+
+  const { componentHeight, componentWidth } = getComponentDimensions(
+    dataTreeWidget,
+    appPositioningType,
+    isMobile,
+  );
 
   return {
-    unEvalEntity: { ...dataTreeWidget, type: widget.type },
+    unEvalEntity: {
+      ...dataTreeWidget,
+      componentHeight,
+      componentWidth,
+      type: widget.type,
+    },
     configEntity: { ...entityConfig, widgetId: dataTreeWidget.widgetId },
   };
 };

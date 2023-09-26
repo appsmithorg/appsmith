@@ -8,12 +8,11 @@ import {
 describe("Bug 25894 - Moustache brackets should be highlighted", () => {
   it("1. should show {{ }} in bold", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
-
     entityExplorer.SelectEntityByName("Button1", "Widgets");
 
     propPane.EnterJSContext(
       "onClick",
-      `{{Api1.run({
+      `{{ Api1.run({
       "key": Button1.text
     }).then(() => {
       storeValue('my-secret-key', Button3.text);
@@ -21,10 +20,19 @@ describe("Bug 25894 - Moustache brackets should be highlighted", () => {
     }).catch(() => {});const a = { a: "key"} }}`,
     );
     agHelper
-      .GetNAssertContains("span", "{{")
+      .GetElement("span")
+      .filter((index, element) => {
+        const text = Cypress.$(element).text();
+        return text.includes("{{") || text.includes("{");
+      })
       .should("have.class", "cm-binding-brackets");
+
     agHelper
-      .GetNAssertContains("span", "}}")
-      .should("have.class", "cm-binding-brackets");
+      .GetElement("span")
+      .filter((index, element) => {
+        const text = Cypress.$(element).text();
+        return text.includes("}}") || text.includes("}");
+      })
+      .should("have.class", "cm-binding-brackets"); // Check the class of filtered elements
   });
 });

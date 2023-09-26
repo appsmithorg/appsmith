@@ -81,10 +81,6 @@ export interface RateComponentProps extends ComponentProps {
   inactiveColor?: string;
   isAllowHalf?: boolean;
   readonly?: boolean;
-  leftColumn?: number;
-  rightColumn?: number;
-  topRow?: number;
-  bottomRow?: number;
   minHeight?: number;
 }
 

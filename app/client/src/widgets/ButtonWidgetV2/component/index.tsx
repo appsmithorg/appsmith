@@ -5,8 +5,8 @@ import type { IconName } from "@blueprintjs/icons";
 import { Container } from "./Container";
 import { useRecaptcha } from "./useRecaptcha";
 import type { UseRecaptchaProps } from "./useRecaptcha";
+import { Button, Tooltip } from "@design-system/widgets";
 import type { ButtonProps } from "@design-system/widgets";
-import { Button, Icon, Tooltip } from "@design-system/widgets";
 
 export type ButtonComponentProps = {
   text?: string;
@@ -30,11 +30,11 @@ function ButtonComponent(props: ButtonComponentProps & UseRecaptchaProps) {
     props;
   const containerProps = { maxWidth, minHeight, minWidth };
 
-  const icon = iconName && (
-    <Icon>
-      <BIcon icon={iconName} />
-    </Icon>
-  );
+  const icon =
+    iconName &&
+    (() => {
+      return <BIcon icon={iconName} />;
+    });
 
   const { onClick, recpatcha } = useRecaptcha(props);
 

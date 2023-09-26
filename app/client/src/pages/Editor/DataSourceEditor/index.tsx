@@ -960,6 +960,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                     isSaving={isSaving}
                     isTesting={isTesting}
                     onCancel={() => this.onCancel()}
+                    pageId={pageId}
                     pluginName={pluginName}
                     pluginPackageName={pluginPackageName}
                     pluginType={pluginType as PluginType}

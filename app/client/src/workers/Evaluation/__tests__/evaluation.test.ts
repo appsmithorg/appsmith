@@ -360,6 +360,7 @@ describe("DataTreeEvaluator", () => {
       },
     },
     {},
+    new Set(),
   );
   const input1unEvalEntity = unEvalEntity;
   const input1ConfigEntity = configEntity;
@@ -375,6 +376,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Text2: generateDataTreeWidget(
       {
@@ -386,6 +388,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Text3: generateDataTreeWidget(
       {
@@ -397,6 +400,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Dropdown1: generateDataTreeWidget(
       {
@@ -416,6 +420,7 @@ describe("DataTreeEvaluator", () => {
         type: "SELECT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Table1: generateDataTreeWidget(
       {
@@ -431,6 +436,7 @@ describe("DataTreeEvaluator", () => {
         selectedRowIndices: undefined,
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Text4: generateDataTreeWidget(
       {
@@ -448,6 +454,7 @@ describe("DataTreeEvaluator", () => {
         },
       },
       {},
+      new Set(),
     ).unEvalEntity,
   };
 
@@ -461,6 +468,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Text2: generateDataTreeWidget(
       {
@@ -472,6 +480,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Text3: generateDataTreeWidget(
       {
@@ -483,6 +492,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Dropdown1: generateDataTreeWidget(
       {
@@ -502,6 +512,7 @@ describe("DataTreeEvaluator", () => {
         type: "SELECT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Table1: generateDataTreeWidget(
       {
@@ -514,6 +525,7 @@ describe("DataTreeEvaluator", () => {
         type: "TABLE_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Text4: generateDataTreeWidget(
       {
@@ -532,6 +544,7 @@ describe("DataTreeEvaluator", () => {
         dynamicTriggerPathList: [],
       },
       {},
+      new Set(),
     ).configEntity,
   };
 

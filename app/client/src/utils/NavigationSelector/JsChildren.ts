@@ -27,6 +27,7 @@ export const getJsChildrenNavData = (
         id: `${jsAction.config.name}.${jsChild.name}`,
         name: `${jsAction.config.name}.${jsChild.name}`,
         type: ENTITY_TYPE.JSACTION,
+        isfunction: true, // use this to identify function
         url: jsCollectionIdURL({
           pageId,
           collectionId: jsAction.config.id,
@@ -43,6 +44,7 @@ export const getJsChildrenNavData = (
           id: `${jsAction.config.name}.${jsChild.name}`,
           name: `${jsAction.config.name}.${jsChild.name}`,
           type: ENTITY_TYPE.JSACTION,
+          isfunction: false,
           url: jsCollectionIdURL({
             pageId,
             collectionId: jsAction.config.id,

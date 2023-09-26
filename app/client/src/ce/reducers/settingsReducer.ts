@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
-import type { TenantReduxState } from "./tenantReducer";
+import type { TenantReduxState } from "@appsmith/reducers/tenantReducer";
 import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
 
 export const initialState: SettingsReduxState = {

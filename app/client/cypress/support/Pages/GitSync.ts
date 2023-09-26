@@ -44,6 +44,8 @@ export class GitSync {
   public _discardCallout = "[data-testid='t--discard-callout']";
   public _gitStatusChanges = "[data-testid='t--git-change-statuses']";
   private _gitSyncBranches = ".t--sync-branches";
+  learnMoreSshUrl = ".t--learn-more-ssh-url";
+  repoLimitExceededErrorModal = ".t--git-repo-limited-modal";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);

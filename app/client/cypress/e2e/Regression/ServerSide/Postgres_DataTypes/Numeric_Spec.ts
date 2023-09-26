@@ -29,15 +29,7 @@ describe("Numeric Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.numerictypes"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes");
   });
 
   it("2. Creating SELECT query - numerictypes + Bug 14493", () => {
@@ -303,26 +295,18 @@ describe("Numeric Datatype tests", function () {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.numerictypes"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes", false);
     entityExplorer.ExpandCollapseEntity(dsName, false);
     entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("15. Verify Deletion of the datasource after all created queries are deleted", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     entityExplorer.ExpandCollapseEntity("Queries/JS");
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
   });
 });

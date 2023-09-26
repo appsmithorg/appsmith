@@ -43,7 +43,7 @@ export const SimilarTemplatesTitleWrapper = styled.div`
 
 type SimilarTemplatesProp = {
   similarTemplates: TemplateInterface[];
-  onBackPress: () => void;
+  onBackPress: (e: React.MouseEvent) => void;
   breakpointCols: MasonryProps["breakpointCols"];
   onClick: (template: TemplateInterface) => void;
   onFork?: (template: TemplateInterface) => void;
