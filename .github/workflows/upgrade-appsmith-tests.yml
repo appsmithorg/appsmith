@@ -48,11 +48,13 @@ jobs:
         run: |
           comment_files=""
           files=(${{steps.files.outputs.files_created}}${{steps.files.outputs.files_updated}})
-          for file in $files; do
+          for file in "${files[@]}"; do
               while IFS= read -r line; do
                 if echo "$line" | grep -q -E '(color|Color).*#|border.*#|(color|Color).*"'; then
-                  comment_files="$comment_files,$file"
+                  comment_files+=("$file")
+                  break
                 fi
               done < "$file"
           done
-          echo "${comment_files#,}"
+          unique_comment_files=$(printf "%s\n" "${comment_files[@]}" | sort -u | tr '\n' ',')
+          echo "${unique_comment_files%,}"
