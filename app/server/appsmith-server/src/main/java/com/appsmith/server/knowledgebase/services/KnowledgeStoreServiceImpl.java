@@ -1,5 +1,6 @@
 package com.appsmith.server.knowledgebase.services;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
@@ -15,6 +16,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.KnowledgeStoreRepository;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.TenantService;
@@ -52,6 +54,7 @@ public class KnowledgeStoreServiceImpl extends KnowledgeStoreServiceCECompatible
     private final ApplicationPermission applicationPermission;
     private final ImportExportApplicationService importExportApplicationService;
     private final Gson gson;
+    private final AnalyticsService analyticsService;
 
     public KnowledgeStoreServiceImpl(
             ConfigService configService,
@@ -62,7 +65,8 @@ public class KnowledgeStoreServiceImpl extends KnowledgeStoreServiceCECompatible
             ApplicationService applicationService,
             ApplicationPermission applicationPermission,
             ImportExportApplicationService importExportApplicationService,
-            Gson gson) {
+            Gson gson,
+            AnalyticsService analyticsService) {
 
         super();
         this.repository = repository;
@@ -74,6 +78,7 @@ public class KnowledgeStoreServiceImpl extends KnowledgeStoreServiceCECompatible
         this.applicationPermission = applicationPermission;
         this.importExportApplicationService = importExportApplicationService;
         this.gson = gson;
+        this.analyticsService = analyticsService;
     }
 
     @Override
@@ -190,11 +195,13 @@ public class KnowledgeStoreServiceImpl extends KnowledgeStoreServiceCECompatible
                             publishedKnowledgeStoreDTO.setKbGenRequestId(null);
                             publishedKnowledgeStoreDTO.setProcessingStatus(IDLE);
 
-                            return this.save(mergedKnowledgeStore).flatMap(dbKnowledgeStore -> Mono.zip(
-                                            this.sendPurgeRequestToCloudServer(knowledgeStoreDTO)
-                                                    .subscribeOn(Schedulers.boundedElastic()),
-                                            Mono.just(dbKnowledgeStore))
-                                    .map(Tuple2::getT2));
+                            return this.save(mergedKnowledgeStore)
+                                    .flatMap(dbKnowledgeStore -> Mono.zip(
+                                                    this.sendPurgeRequestToCloudServer(knowledgeStoreDTO)
+                                                            .subscribeOn(Schedulers.boundedElastic()),
+                                                    Mono.just(dbKnowledgeStore))
+                                            .map(Tuple2::getT2))
+                                    .flatMap(this::sendSuccessEvent);
                         }
                         return this.save(mergedKnowledgeStore);
                     });
@@ -217,14 +224,16 @@ public class KnowledgeStoreServiceImpl extends KnowledgeStoreServiceCECompatible
     public Mono<KnowledgeStoreDownstreamDTO> getKBGenerationStatusFromCloudServer(
             KnowledgeStoreDownstreamDTO knowledgeStoreDTO) {
         String fetchUri = "/api/v1/kb/fetch";
-        return sendRequestToCloudServer(fetchUri, knowledgeStoreDTO);
+        return sendRequestToCloudServer(fetchUri, knowledgeStoreDTO)
+                .onErrorResume(error -> sendFailureEvent(knowledgeStoreDTO).then(Mono.error(error)));
     }
 
     @Override
     public Mono<KnowledgeStoreDownstreamDTO> sendKBGenerationRequestToCloudServer(
             KnowledgeStoreDownstreamDTO knowledgeStoreDTO) {
         String generateUri = "api/v1/kb/generate";
-        return sendRequestToCloudServer(generateUri, knowledgeStoreDTO);
+        return sendRequestToCloudServer(generateUri, knowledgeStoreDTO)
+                .onErrorResume(error -> sendFailureEvent(knowledgeStoreDTO).then(Mono.error(error)));
     }
 
     private Mono<KnowledgeStoreDownstreamDTO> sendRequestToCloudServer(
@@ -340,5 +349,26 @@ public class KnowledgeStoreServiceImpl extends KnowledgeStoreServiceCECompatible
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_knowledge_base_enabled)
     public Mono<KnowledgeStoreUpstreamDTO> getKnowledgeStore(String applicationId, Boolean isPublished) {
         return this.getKnowledgeStore(applicationId).map(KnowledgeStoreUpstreamDTO::createKnowledgeStoreUpstreamDTO);
+    }
+
+    @Override
+    public Mono<KnowledgeStore> sendSuccessEvent(KnowledgeStore knowledgeStore) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put(
+                "app_page_count",
+                knowledgeStore.getPublishedAppKnowledgeStoreDTO().getDraftKB().size());
+        analyticsProperties.put(
+                "kb_page_count",
+                knowledgeStore.getPublishedAppKnowledgeStoreDTO().getDraftKB().size());
+        return analyticsService.sendObjectEvent(
+                AnalyticsEvents.AI_KB_GENERATE_SUCCESS, knowledgeStore, analyticsProperties);
+    }
+
+    @Override
+    public Mono<KnowledgeStoreDownstreamDTO> sendFailureEvent(KnowledgeStoreDownstreamDTO knowledgeStoreDTO) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put("app_page_count", knowledgeStoreDTO.getDraftKB().size());
+        return analyticsService.sendObjectEvent(
+                AnalyticsEvents.AI_KB_GENERATE_FAILURE, knowledgeStoreDTO, analyticsProperties);
     }
 }

@@ -87,7 +87,11 @@ public enum AnalyticsEvents {
 
     GIT_STALE_FILE_LOCK_DELETED,
     SCIM_DISABLED("scim_disabled"),
-    SCIM_LINKED("scim_linked");
+    SCIM_LINKED("scim_linked"),
+
+    AI_KB_GENERATE_SUCCESS,
+    AI_KB_GENERATE_FAILURE,
+    ;
 
     private final String eventName;
 
