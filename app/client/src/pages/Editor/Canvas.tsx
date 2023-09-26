@@ -89,9 +89,7 @@ const Canvas = (props: CanvasProps) => {
           width={canvasWidth}
         >
           {props.widgetsStructure.widgetId &&
-            renderAppsmithCanvas({
-              ...(props.widgetsStructure as WidgetProps),
-            })}
+            renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
         </Wrapper>
       </WDSThemeProvider>
     );

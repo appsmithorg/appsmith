@@ -1207,10 +1207,7 @@ class ListWidget extends BaseWidget<
               },
             };
           });
-          return renderAppsmithCanvas({
-            ...(child as WidgetProps),
-            key: child.widgetId,
-          });
+          return renderAppsmithCanvas(child as WidgetProps);
         },
       );
 

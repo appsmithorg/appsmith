@@ -113,7 +113,7 @@ export default function ModalComponent(props: ModalComponentProps) {
     childData.positioning = props.positioning;
     childData.alignment = props.alignment;
     childData.spacing = props.spacing;
-    return renderAppsmithCanvas({ ...(childData as WidgetProps) });
+    return renderAppsmithCanvas(childData as WidgetProps);
   };
   const getChildren = (): ReactNode => {
     if (

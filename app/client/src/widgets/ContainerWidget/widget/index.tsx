@@ -310,10 +310,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.useAutoLayout = this.props.positioning
       ? this.props.positioning === Positioning.Vertical
       : false;
-    return renderAppsmithCanvas({
-      ...(childWidget as WidgetProps),
-      key: childWidget.widgetId,
-    });
+    return renderAppsmithCanvas(childWidget as WidgetProps);
   }
 
   renderChildren = () => {

@@ -588,7 +588,7 @@ class TabsWidget extends BaseWidget<
         : LayoutDirection.Horizontal;
     childWidgetData.alignment = selectedTabProps?.alignment;
     childWidgetData.spacing = selectedTabProps?.spacing;
-    return renderAppsmithCanvas({ ...(childWidgetData as WidgetProps) });
+    return renderAppsmithCanvas(childWidgetData as WidgetProps);
   };
 
   private getSelectedTabWidgetId() {
