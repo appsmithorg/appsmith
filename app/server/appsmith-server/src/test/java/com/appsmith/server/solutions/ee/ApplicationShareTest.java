@@ -1,4 +1,4 @@
-package com.appsmith.server.solutions;
+package com.appsmith.server.solutions.ee;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -51,6 +51,9 @@ import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.EnvironmentPermission;
+import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
