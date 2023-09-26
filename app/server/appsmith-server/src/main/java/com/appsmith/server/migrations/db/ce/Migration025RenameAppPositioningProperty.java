@@ -2,6 +2,7 @@ package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QApplicationDetail;
 import com.appsmith.server.migrations.utils.CompatibilityUtils;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -26,18 +27,22 @@ public class Migration025RenameAppPositioningProperty {
 
     @Execution
     public void executeMigration() {
-        buildQueryAndExecute("unpublishedApplicationDetail", Boolean.FALSE);
-        buildQueryAndExecute("publishedApplicationDetail", Boolean.TRUE);
+        buildQueryAndExecute(QApplication.application.unpublishedApplicationDetail, Boolean.FALSE);
+        buildQueryAndExecute(QApplication.application.publishedApplicationDetail, Boolean.TRUE);
     }
 
-    private void buildQueryAndExecute(String baseLocation, Boolean published) {
-        Criteria nonDeletedAppCriteria = where("deletedAt").is(null);
-        Criteria appPositioningCriteria =
-                where(baseLocation + "." + "appPositioning").exists(true);
+    private void buildQueryAndExecute(QApplicationDetail baseLocation, Boolean published) {
+        Criteria nonDeletedAppCriteria =
+                where(fieldName(QApplication.application.deletedAt)).isNull();
+        Criteria appPositioningCriteria = where(fieldName(baseLocation) + "." + fieldName(baseLocation.appPositioning))
+                .exists(true);
 
         final Query applicationDetailQuery =
                 query((new Criteria()).andOperator(nonDeletedAppCriteria, appPositioningCriteria));
-        applicationDetailQuery.fields().include("application.id").include(baseLocation + "." + "appPositioning");
+        applicationDetailQuery
+                .fields()
+                .include("application.id")
+                .include(fieldName(baseLocation) + "." + fieldName(baseLocation.appPositioning));
 
         Query applicationDetailQueryOptimised = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
                 mongoTemplate, applicationDetailQuery, Application.class);
@@ -52,8 +57,8 @@ public class Migration025RenameAppPositioningProperty {
             }
 
             if (appPositioning != null) {
-                update.set(baseLocation + "." + "layoutSystem", appPositioning);
-                update.unset(baseLocation + "." + "appPositioning");
+                update.set(fieldName(baseLocation) + "." + fieldName(baseLocation.layoutSystem), appPositioning);
+                update.unset(fieldName(baseLocation) + "." + fieldName(baseLocation.appPositioning));
             }
 
             mongoTemplate.updateFirst(
