@@ -249,7 +249,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     // Api error
     // Display on the UI
 
-    const errorResponse = response || error?.response.data;
+    const errorResponse = response || error?.response?.data;
 
     if (errorResponse && !errorResponse?.responseMeta?.success) {
       yield put({
