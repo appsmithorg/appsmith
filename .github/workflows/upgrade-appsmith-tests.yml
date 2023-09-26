@@ -57,4 +57,4 @@ jobs:
               done < "$file"
           done
           unique_comment_files=$(printf "%s\n" "${comment_files[@]}" | sort -u | tr '\n' ',')
-          echo "${unique_comment_files%,}"
+          echo "${unique_comment_files#,}"
