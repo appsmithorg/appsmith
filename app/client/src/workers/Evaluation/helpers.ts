@@ -298,10 +298,11 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     dataTreeEvaluator?.getEvalPathsIdenticalToState();
 
   const { error, serialisedUpdates } = generateSerialisedUpdates(
-    dataTreeEvaluator?.prevState(),
+    dataTreeEvaluator.getPrevState(),
     dataTree,
     identicalEvalPathsPatches,
   );
+
   if (error) {
     dataTreeEvaluator.errors.push(error);
   }
