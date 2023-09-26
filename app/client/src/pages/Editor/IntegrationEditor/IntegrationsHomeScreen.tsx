@@ -37,6 +37,7 @@ import Debugger, {
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const HeaderFlex = styled.div`
   font-size: 20px;
@@ -219,6 +220,7 @@ function CreateNewSaasIntegration({
 }: any) {
   const newSaasAPIRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
+  const isAirgappedInstance = isAirgapped();
 
   useEffect(() => {
     if (active && newSaasAPIRef.current) {
@@ -233,7 +235,7 @@ function CreateNewSaasIntegration({
       isMounted.current = true;
     }
   }, [active]);
-  return (
+  return !isAirgappedInstance ? (
     <div id="new-saas-api" ref={newSaasAPIRef}>
       <Text type={TextType.H2}>Saas Integrations</Text>
       <NewApiScreen
@@ -245,7 +247,7 @@ function CreateNewSaasIntegration({
         showUnsupportedPluginDialog={showUnsupportedPluginDialog}
       />
     </div>
-  );
+  ) : null;
 }
 
 function CreateNewDatasource({

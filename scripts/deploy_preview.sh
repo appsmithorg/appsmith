@@ -81,6 +81,8 @@ kubectl create secret docker-registry $SECRET \
 echo "Add appsmith-ee to helm repo"
 AWS_REGION=us-east-2 helm repo add appsmith-ee $HELMCHART_URL;
 helm repo update;
+helm plugin install https://github.com/helm/helm-mapkubeapis -n $NAMESPACE
+helm plugin ls
 helm mapkubeapis $CHARTNAME -n $NAMESPACE
 
 echo "Deploy appsmith helm chart"
@@ -94,6 +96,8 @@ helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespa
   --set autoupdate.enabled=false --set persistence.efs.enabled=true --set ingress.className="nginx" \
   --set persistence.efs.driver=efs.csi.aws.com --set persistence.storageClass=efs-dp-appsmith \
   --set persistence.efs.volumeHandle=$DP_EFS_ID:/ce/ce$PULL_REQUEST_NUMBER \
+  --set resources.requests.cpu="1m" \
+  --set resources.requests.memory="1Mi" \
   --set applicationConfig.APPSMITH_SENTRY_DSN="https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547" \
   --set applicationConfig.APPSMITH_SENTRY_ENVIRONMENT="$NAMESPACE" \
   --set applicationConfig.APPSMITH_MONGODB_URI="mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" \

@@ -84,7 +84,7 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
   });
 
   after("Verify Deletion of the datasource", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
     agHelper.ValidateToastMessage(
       "Cannot delete datasource since it has 1 action(s) using it.",
     ); //table is 1 action

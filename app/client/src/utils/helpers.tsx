@@ -1189,3 +1189,11 @@ export const capitalizeFirstLetter = (str: string) => {
     str.slice(firstLetterIndex + 1).toLocaleLowerCase()
   );
 };
+
+export function getDomainFromEmail(email: string) {
+  const email_string_array = email.split("@");
+  const domain_string_location = email_string_array.length - 1;
+  const final_domain = email_string_array[domain_string_location];
+
+  return final_domain;
+}

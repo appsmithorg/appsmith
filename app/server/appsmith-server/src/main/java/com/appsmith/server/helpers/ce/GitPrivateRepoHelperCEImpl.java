@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers.ce;
 
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.services.ApplicationService;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +40,10 @@ public class GitPrivateRepoHelperCEImpl implements GitPrivateRepoHelperCE {
                                 return Boolean.TRUE;
                             });
                 });
+    }
+
+    @Override
+    public Mono<Boolean> isProtectedBranch(String branchName, GitApplicationMetadata gitApplicationMetadata) {
+        return Mono.just(Boolean.FALSE);
     }
 }
