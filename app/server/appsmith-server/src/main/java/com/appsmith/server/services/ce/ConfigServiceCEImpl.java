@@ -24,12 +24,10 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 @Slf4j
 public class ConfigServiceCEImpl implements ConfigServiceCE {
-
     private static final String TEMPLATE_WORKSPACE_CONFIG_NAME = "template-workspace";
-
+    private final ConfigRepository repository;
     private final ApplicationRepository applicationRepository;
     private final DatasourceRepository datasourceRepository;
-    private final ConfigRepository repository;
 
     // This is permanently cached through the life of the JVM process as this is not intended to change at runtime ever.
     private String instanceId = null;

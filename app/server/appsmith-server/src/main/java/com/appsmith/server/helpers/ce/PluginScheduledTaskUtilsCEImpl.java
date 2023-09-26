@@ -37,8 +37,10 @@ public class PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtilsC
             return Mono.empty();
         }
 
+        String lastUpdatedAtParam = lastUpdatedAt != null ? "&lastUpdatedAt=" + lastUpdatedAt : "";
+
         return configService.getInstanceId().flatMap(instanceId -> WebClientUtils.create(
-                        baseUrl + "/api/v1/plugins?instanceId=" + instanceId + "&lastUpdatedAt=" + lastUpdatedAt)
+                        baseUrl + "/api/v1/plugins?instanceId=" + instanceId + lastUpdatedAtParam)
                 .get()
                 .exchangeToMono(clientResponse ->
                         clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<List<Plugin>>>() {}))
