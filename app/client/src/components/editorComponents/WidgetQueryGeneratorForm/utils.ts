@@ -18,5 +18,5 @@ export const getDatasourceConnectionMode = (
 ) => {
   const queryGenerator = WidgetQueryGeneratorRegistry.get(pluginPackageName);
 
-  return queryGenerator.getConnectionMode(datasourceConfiguration);
+  return queryGenerator?.getConnectionMode(datasourceConfiguration);
 };
