@@ -8,7 +8,9 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ConfigRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Flux;
@@ -22,12 +24,21 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 @Slf4j
 public class ConfigServiceCEImpl implements ConfigServiceCE {
+    private static final String TEMPLATE_WORKSPACE_CONFIG_NAME = "template-workspace";
     private final ConfigRepository repository;
+    private final ApplicationRepository applicationRepository;
+    private final DatasourceRepository datasourceRepository;
 
     // This is permanently cached through the life of the JVM process as this is not intended to change at runtime ever.
     private String instanceId = null;
 
-    public ConfigServiceCEImpl(ConfigRepository repository) {
+    public ConfigServiceCEImpl(
+            ConfigRepository repository,
+            ApplicationRepository applicationRepository,
+            DatasourceRepository datasourceRepository) {
+
+        this.applicationRepository = applicationRepository;
+        this.datasourceRepository = datasourceRepository;
         this.repository = repository;
     }
 
