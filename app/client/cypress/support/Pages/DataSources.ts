@@ -283,6 +283,13 @@ export class DataSources {
   _stagingTab = "[data-testid='t--ds-data-filter-Staging']";
   _graphQlDsFromRightPane = (dsName: string) =>
     "//div/span[text() ='" + dsName + "']";
+  _imgFireStoreLogo =
+    "img[src='https://assets.appsmith.com/logo/firestore.svg']";
+  private _dsVirtuosoElement = (dsName: string) =>
+    `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`;
+  private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
+  private _dsVirtuosoElementTable = (targetTableName: string) =>
+    `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`;
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -680,7 +687,9 @@ export class DataSources {
     //   );
     this.agHelper.UpdateFieldInput(
       this.locator._inputFieldByName("Service account credentials"),
-      JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
+      JSON.stringify(
+        this.dataManager.dsValues[environment].firestore_serviceaccountkey,
+      ),
     );
     //});
   }
@@ -1905,5 +1914,71 @@ export class DataSources {
         this.locator._visibleTextDiv($infs),
       );
     });
+  }
+
+  public AssertTableInVirtuosoList(
+    dsName: string,
+    targetTableName: string,
+    presence = true,
+  ) {
+    const ds_entity_name = dsName.replace(/\s/g, "_");
+    this.entityExplorer.ExpandCollapseEntity("Datasources");
+    this.entityExplorer.ExpandCollapseEntity(dsName);
+    cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+      `getDatasourceStructureUpdated_${ds_entity_name}`,
+    );
+    this.entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+
+    this.assertHelper
+      .WaitForNetworkCall(`@getDatasourceStructureUpdated_${ds_entity_name}`)
+      .then(async (interception) => {
+        const tables: any[] = interception?.response?.body.data?.tables || [];
+        const indexOfTable = tables.findIndex(
+          (table) => table.name === targetTableName,
+        );
+        if (presence) {
+          this.agHelper.Sleep();
+          this.agHelper
+            .GetNClick(this._dsVirtuosoElement(dsName))
+            .then((parentElement) => {
+              const heightOfParentElement = parentElement.outerHeight() || 0;
+
+              // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element accordion is collapsed by default.
+              const containerElement = parentElement.find(this._dsVirtuosoList);
+              const elementHeight = parseInt(
+                containerElement.children().first().attr("data-known-size") ||
+                  "",
+                10,
+              );
+              // Total height of the parent container holding the tables in the dom normally without virtualization rendering
+              const totalScroll = tables.length * elementHeight;
+              cy.log(JSON.stringify({ heightOfParentElement, totalScroll }));
+              if (heightOfParentElement < totalScroll) {
+                // Index of the table present in the array of tables which will determine the presence of element inside the parent container
+                let offset = indexOfTable * elementHeight;
+                const scrollPercent = Math.max(
+                  (offset / (totalScroll || 1)) * 100,
+                  0,
+                );
+                if (scrollPercent > 0) {
+                  this.agHelper.ScrollToXY(
+                    this._dsVirtuosoElement(dsName),
+                    0,
+                    `${scrollPercent}%`,
+                  );
+                }
+              }
+
+              this.agHelper.AssertElementVisibility(
+                this._dsVirtuosoElementTable(targetTableName),
+              );
+            });
+        } else {
+          expect(indexOfTable).to.equal(-1);
+        }
+      });
   }
 }

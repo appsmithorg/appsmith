@@ -51,6 +51,7 @@ import widgetOperationSagas from "sagas/WidgetOperationSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
 import entityNavigationSaga from "sagas/NavigationSagas";
 import WidgetPositionSaga from "sagas/WidgetPositionsSaga";
+import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
 
 export const sagas = [
   initSagas,
@@ -106,4 +107,5 @@ export const sagas = [
   oneClickBindingSaga,
   entityNavigationSaga,
   WidgetPositionSaga,
+  communityTemplateSagas,
 ];
