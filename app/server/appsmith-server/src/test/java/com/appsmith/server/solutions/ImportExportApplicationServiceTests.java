@@ -841,7 +841,8 @@ public class ImportExportApplicationServiceTests {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable
                                 .getMessage()
-                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, INVALID_JSON_FILE)))
+                                .equals(AppsmithError.VALIDATION_FAILURE.getMessage(
+                                        "Field '" + FieldName.PAGE_LIST + "' is missing in the JSON.")))
                 .verify();
     }
 
@@ -857,8 +858,8 @@ public class ImportExportApplicationServiceTests {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable
                                 .getMessage()
-                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                        FieldName.APPLICATION, INVALID_JSON_FILE)))
+                                .equals(AppsmithError.VALIDATION_FAILURE.getMessage(
+                                        "Field '" + FieldName.APPLICATION + "' is missing in the JSON.")))
                 .verify();
     }
 
@@ -4197,7 +4198,8 @@ public class ImportExportApplicationServiceTests {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable
                                 .getMessage()
-                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, INVALID_JSON_FILE)))
+                                .equals(AppsmithError.VALIDATION_FAILURE.getMessage(
+                                        "Field '" + FieldName.PAGE_LIST + "' is missing in the JSON.")))
                 .verify();
 
         // Verify that the app card is not created
