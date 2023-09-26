@@ -193,27 +193,29 @@ public class MigrationHelperMethods {
      * @param applicationJson
      */
     public static void updateAppPositioningToLayoutSystem(ApplicationJson applicationJson) {
-        ApplicationDetail unpublishedApplicationDetail =
-                applicationJson.getExportedApplication().getUnpublishedApplicationDetail();
-        if (unpublishedApplicationDetail != null) {
-            LayoutSystem unPublishedLayoutSystem = new LayoutSystem();
-            Application.AppPositioning unPublishedAppPositioning = unpublishedApplicationDetail.getAppPositioning();
-            if (unPublishedAppPositioning != null) {
-                unPublishedLayoutSystem.setType(unPublishedAppPositioning.getType());
-                unpublishedApplicationDetail.setLayoutSystem(unPublishedLayoutSystem);
-                unpublishedApplicationDetail.setAppPositioning(null);
+        if (applicationJson.getExportedApplication() != null) {
+            ApplicationDetail unpublishedApplicationDetail =
+                    applicationJson.getExportedApplication().getUnpublishedApplicationDetail();
+            if (unpublishedApplicationDetail != null) {
+                LayoutSystem unPublishedLayoutSystem = new LayoutSystem();
+                Application.AppPositioning unPublishedAppPositioning = unpublishedApplicationDetail.getAppPositioning();
+                if (unPublishedAppPositioning != null) {
+                    unPublishedLayoutSystem.setType(unPublishedAppPositioning.getType());
+                    unpublishedApplicationDetail.setLayoutSystem(unPublishedLayoutSystem);
+                    unpublishedApplicationDetail.setAppPositioning(null);
+                }
             }
-        }
 
-        ApplicationDetail publishedApplicationDetail =
-                applicationJson.getExportedApplication().getPublishedApplicationDetail();
-        if (publishedApplicationDetail != null) {
-            LayoutSystem publishedLayoutSystem = new LayoutSystem();
-            Application.AppPositioning publishedAppPositioning = publishedApplicationDetail.getAppPositioning();
-            if (publishedAppPositioning != null) {
-                publishedLayoutSystem.setType(publishedAppPositioning.getType());
-                publishedApplicationDetail.setLayoutSystem(publishedLayoutSystem);
-                publishedApplicationDetail.setAppPositioning(null);
+            ApplicationDetail publishedApplicationDetail =
+                    applicationJson.getExportedApplication().getPublishedApplicationDetail();
+            if (publishedApplicationDetail != null) {
+                LayoutSystem publishedLayoutSystem = new LayoutSystem();
+                Application.AppPositioning publishedAppPositioning = publishedApplicationDetail.getAppPositioning();
+                if (publishedAppPositioning != null) {
+                    publishedLayoutSystem.setType(publishedAppPositioning.getType());
+                    publishedApplicationDetail.setLayoutSystem(publishedLayoutSystem);
+                    publishedApplicationDetail.setAppPositioning(null);
+                }
             }
         }
     }
