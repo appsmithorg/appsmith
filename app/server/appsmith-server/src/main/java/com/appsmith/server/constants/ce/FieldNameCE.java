@@ -187,4 +187,6 @@ public class FieldNameCE {
     public static final String IS_MERGEABLE = "isMergeable";
 
     public static final String FILE_LOCK_DURATION = "fileLockDuration";
+
+    public static final String REMOTE_PLUGINS = "remotePlugins";
 }
