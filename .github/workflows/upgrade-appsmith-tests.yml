@@ -56,5 +56,5 @@ jobs:
                 fi
               done < "$file"
           done
-          unique_comment_files=$(printf "%s\n" "${comment_files[@]}" | sort -u | tr '\n' ',')
-          echo "${unique_comment_files#,}"
+          unique_comment_files="<ol>$(printf "%s\n" "${comment_files[@]}" | sort -u | sed -e 's/^/<li>/;s/$/<\/li>/')</ol>"
+          echo "${unique_comment_files}"
