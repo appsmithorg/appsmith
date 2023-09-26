@@ -7,7 +7,7 @@ import {
 import type { Action } from "entities/Action";
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 
-const initialState: ApiPaneReduxState = {
+export const initialState: ApiPaneReduxState = {
   isCreating: false,
   isFetching: false,
   isRunning: {},
@@ -34,7 +34,7 @@ export interface ApiPaneReduxState {
   selectedRightPaneTab?: string;
 }
 
-const apiPaneReducer = createReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.FETCH_ACTIONS_INIT]: (state: ApiPaneReduxState) => ({
     ...state,
     isFetching: true,
@@ -233,6 +233,8 @@ const apiPaneReducer = createReducer(initialState, {
       selectedRightPaneTab: selectedTab,
     };
   },
-});
+};
+
+const apiPaneReducer = createReducer(initialState, handlers);
 
 export default apiPaneReducer;

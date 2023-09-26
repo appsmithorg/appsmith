@@ -427,6 +427,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
       subAction: "Page2",
       toastToValidate: "moved to page",
     });
+    agHelper.WaitUntilAllToastsDisappear();
     agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
     dataSources.RunQueryNVerifyResponseViews(2);
     agHelper.ActionContextMenuWithInPane({
@@ -459,13 +460,13 @@ WHERE aircraft_type = 'Passenger Plane'`;
   after(
     "Verify Deletion of the Oracle datasource after all created queries are deleted",
     () => {
-      dataSources.DeleteDatasouceFromWinthinDS(dataSourceName, 409); //Since all queries exists
+      dataSources.DeleteDatasourceFromWithinDS(dataSourceName, 409); //Since all queries exists
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dataSourceName);
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
-      dataSources.DeleteDatasouceFromWinthinDS(dataSourceName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dataSourceName, 200);
     },
   );
 });
