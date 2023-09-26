@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
   getAppPositioningType,
@@ -15,7 +15,8 @@ import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
  * Canvas also provides editing layout system specific editing experiences like Drag and Drop, Drag to Select, Widget Grouping, etc.
  * This Component Hydrates canvas with enhanced properties from withWidgetProps and picks the layout system specific Canvas Implementation.
  */
-const LayoutSystemBasedCanvas = withWidgetProps(((props: WidgetProps) => {
+
+const LayoutSystemBasedCanvas = memo((props: WidgetProps) => {
   const renderMode = useSelector(getRenderMode);
   const appPositioningType = useSelector(getAppPositioningType);
   const { canvasSystem } = useMemo(
@@ -29,8 +30,12 @@ const LayoutSystemBasedCanvas = withWidgetProps(((props: WidgetProps) => {
   );
   const { Canvas, propertyEnhancer } = canvasSystem;
   return <Canvas {...propertyEnhancer(props)} />;
-}) as any);
+});
+
+const HydratedLayoutSystemBasedCanvas = withWidgetProps(
+  LayoutSystemBasedCanvas as any,
+);
 
 export const renderAppsmithCanvas = (props: WidgetProps) => {
-  return <LayoutSystemBasedCanvas {...props} />;
+  return <HydratedLayoutSystemBasedCanvas {...props} />;
 };
