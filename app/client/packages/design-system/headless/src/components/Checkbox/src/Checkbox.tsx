@@ -37,6 +37,7 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
     isDisabled: isDisabledProp = false,
     isIndeterminate = false,
     validationState,
+    labelPosition = "right",
   } = props;
   const state = useToggleState(props);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -86,6 +87,7 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
       data-hovered={isHovered ? "" : undefined}
       data-invalid={validationState === "invalid" ? "" : undefined}
       data-label=""
+      data-label-position={labelPosition}
       data-state={dataState}
       ref={domRef}
     >

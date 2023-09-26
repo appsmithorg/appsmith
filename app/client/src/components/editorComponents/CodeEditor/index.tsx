@@ -130,7 +130,7 @@ import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
-import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
 import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
 import {
   PeekOverlayPopUp,

@@ -22,7 +22,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
-import org.springframework.data.mongodb.repository.Meta;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
@@ -167,7 +166,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
             return mongoOperations
                     .query(this.genericDomain)
-                    .matching(query.cursorBatchSize(10000))
+                    .matching(query)
                     .one()
                     .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
         });
@@ -332,7 +331,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         });
     }
 
-    @Meta(cursorBatchSize = 10000)
     protected Mono<T> queryOne(
             List<Criteria> criterias, List<String> projectionFieldNames, Optional<AclPermission> permission) {
         Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
@@ -541,7 +539,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         sortOptional.ifPresent(sort -> query.with(sort));
         return mongoOperations
                 .query(this.genericDomain)
-                .matching(query.cursorBatchSize(10000))
+                .matching(query)
                 .all()
                 .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
     }

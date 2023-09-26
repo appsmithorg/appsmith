@@ -25,6 +25,8 @@ export const FEATURE_FLAG = {
     "deprecate_custom_fusioncharts_enabled",
   ab_mock_mongo_schema_enabled: "ab_mock_mongo_schema_enabled",
   license_private_embeds_enabled: "license_private_embeds_enabled",
+  release_show_publish_app_to_community_enabled:
+    "release_show_publish_app_to_community_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -52,6 +54,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   deprecate_custom_fusioncharts_enabled: false,
   ab_mock_mongo_schema_enabled: false,
   license_private_embeds_enabled: false,
+  release_show_publish_app_to_community_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
