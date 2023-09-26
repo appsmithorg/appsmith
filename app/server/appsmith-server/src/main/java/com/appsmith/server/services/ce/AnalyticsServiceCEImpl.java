@@ -189,8 +189,11 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         final String emailDomainHash = getEmailDomainHash(immutableUserId);
 
         // Hash usernames at all places for self-hosted instance
+        // In case of anonymous users and self hosted instance, we do not need to hash userId
+        // If we hash userId in such case, mixpanel will club all of such events as one unique instance
         if (userId != null
                 && hashUserId
+                && !userId.equals(FieldName.ANONYMOUS_USER)
                 && !commonConfig.isCloudHosting()
                 // But send the email intact for the subscribe event, which is sent only if the user has explicitly
                 // agreed to it.
