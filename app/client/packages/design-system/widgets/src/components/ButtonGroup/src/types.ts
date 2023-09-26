@@ -1,9 +1,10 @@
 import type React from "react";
-
-type Orientation = "vertical" | "horizontal";
+import type { ButtonProps } from "../../Button";
 
 export interface ButtonGroupProps
-  extends React.ComponentPropsWithoutRef<"div"> {
+  extends Pick<ButtonProps, "variant" | "color"> {
   children?: React.ReactNode;
-  orientation?: Orientation;
+  orientation?: "vertical" | "horizontal";
 }
+
+export type ButtonGroupItemProps = Omit<ButtonProps, "variant" | "color">;
