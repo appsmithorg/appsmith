@@ -2,13 +2,17 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.dtos.ApplicationJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.transaction.TransactionException;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
@@ -114,5 +118,17 @@ public class ImportExportUtils {
     public static void setPublishedApplicationProperties(Application importedApplication) {
         importedApplication.setPublishedApplicationDetail(importedApplication.getUnpublishedApplicationDetail());
         importedApplication.setPublishedAppLayout(importedApplication.getUnpublishedAppLayout());
+    }
+
+    public static boolean isPageNameInUpdatedList(ApplicationJson applicationJson, String pageName) {
+        Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
+        if (updatedResources == null) {
+            return false;
+        }
+        Set<String> updatedPageNames = updatedResources.get(FieldName.PAGE_LIST);
+        if (CollectionUtils.isEmpty(updatedPageNames)) {
+            return false;
+        }
+        return pageName != null && updatedPageNames.contains(pageName);
     }
 }

@@ -513,7 +513,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("7. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromWinthinDS(datasourceName, 409);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Assets-test.appsmith.com",
       action: "Delete",

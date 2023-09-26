@@ -176,9 +176,11 @@ export function EditorAppName(props: EditorAppNameProps) {
       </Menu>
       <ForkApplicationModal
         applicationId={props.applicationId || ""}
+        handleClose={() => {
+          setForkApplicationModalOpen(false);
+        }}
         isInEditMode
         isModalOpen={isForkApplicationModalopen}
-        setModalClose={setForkApplicationModalOpen}
       />
     </>
   ) : null;
