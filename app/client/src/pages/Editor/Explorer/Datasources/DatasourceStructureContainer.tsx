@@ -4,14 +4,13 @@ import {
   SCHEMA_NOT_AVAILABLE,
   TABLE_OR_COLUMN_NOT_FOUND,
 } from "@appsmith/constants/messages";
-import type {
-  DatasourceStructure as DatasourceStructureType,
-  DatasourceTable,
-} from "entities/Datasource";
+import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
 import type { ReactElement } from "react";
 import React, { memo, useEffect, useState, useContext, useMemo } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
-import DatasourceStructure from "./DatasourceStructure";
+import DatasourceStructure, {
+  DatasourceStructureContext,
+} from "./DatasourceStructure";
 import { SearchInput, Text } from "design-system";
 import styled from "styled-components";
 import { getIsFetchingDatasourceStructure } from "@appsmith/selectors/entitiesSelector";
@@ -37,14 +36,6 @@ type Props = {
   tableName?: string;
   customEditDatasourceFn?: () => void;
 };
-
-export enum DatasourceStructureContext {
-  EXPLORER = "entity-explorer",
-  QUERY_EDITOR = "query-editor",
-  DATASOURCE_VIEW_MODE = "datasource-view-mode",
-  // this does not exist yet, but in case it does in the future.
-  API_EDITOR = "api-editor",
-}
 
 // leaving out DynamoDB and Firestore because they have a schema but not templates
 export const SCHEMALESS_PLUGINS: Array<string> = [
@@ -181,22 +172,16 @@ const Container = (props: Props) => {
               />
             </DatasourceStructureSearchContainer>
           )}
-          {!!datasourceStructure?.tables?.length &&
-            datasourceStructure.tables.map((structure: DatasourceTable) => {
-              return (
-                <DatasourceStructure
-                  context={props.context}
-                  currentActionId={props.currentActionId || ""}
-                  datasourceId={props.datasourceId}
-                  dbStructure={structure}
-                  forceExpand={hasSearchedOccured}
-                  key={`${props.datasourceId}${structure.name}-${props.context}`}
-                  onEntityTableClick={props.onEntityTableClick}
-                  step={props.step + 1}
-                  tableName={props?.tableName}
-                />
-              );
-            })}
+          {!!datasourceStructure?.tables?.length && (
+            <DatasourceStructure
+              context={props.context}
+              currentActionId={props.currentActionId || ""}
+              datasourceId={props.datasourceId}
+              forceExpand={hasSearchedOccured}
+              step={props.step + 1}
+              tables={datasourceStructure.tables}
+            />
+          )}
 
           {!datasourceStructure?.tables?.length && (
             <Text kind="body-s" renderAs="p">

@@ -6,6 +6,7 @@ import {
   offset,
   useRole,
   useHover,
+  useClick,
   useFocus,
   autoUpdate,
   useDismiss,
@@ -28,6 +29,7 @@ export interface TooltipOptions {
   offset?: number;
   shift?: number;
   padding?: number;
+  interaction?: "hover" | "click";
 }
 
 export function useTooltip({
@@ -37,6 +39,7 @@ export function useTooltip({
   open: controlledOpen,
   openDelay = 0,
   placement = "top",
+  interaction = "hover",
   offset: offsetProp = DEFAULT_TOOLTIP_OFFSET,
   shift: shiftProp = DEFAULT_TOOLTIP_SHIFT,
   padding: paddingProp = DEFAULT_TOOLTIP_PADDING,
@@ -68,13 +71,16 @@ export function useTooltip({
 
   const context = data.context;
 
+  const click = useClick(context, {
+    enabled: controlledOpen == null && interaction === "click",
+  });
   const hover = useHover(context, {
     move: false,
     delay: {
       open: openDelay,
       close: closeDelay,
     },
-    enabled: controlledOpen == null,
+    enabled: controlledOpen == null && interaction === "hover",
   });
   const focus = useFocus(context, {
     enabled: controlledOpen == null,
@@ -82,7 +88,7 @@ export function useTooltip({
   const dismiss = useDismiss(context);
   const role = useRole(context, { role: "tooltip" });
 
-  const interactions = useInteractions([hover, focus, dismiss, role]);
+  const interactions = useInteractions([click, hover, focus, dismiss, role]);
 
   return React.useMemo(
     () => ({

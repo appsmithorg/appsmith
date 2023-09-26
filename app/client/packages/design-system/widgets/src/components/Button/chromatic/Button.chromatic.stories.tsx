@@ -1,18 +1,13 @@
 import React from "react";
-import {
-  Button,
-  BUTTON_VARIANTS,
-  BUTTON_COLORS,
-  Icon,
-} from "@design-system/widgets";
 import { importRemixIcon } from "design-system-old";
 import type { Meta, StoryObj } from "@storybook/react";
 import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
+import { Button, BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
 
-const StarIcon = importRemixIcon(() => import("remixicon-react/StarFillIcon"));
+const icon = importRemixIcon(() => import("remixicon-react/StarFillIcon"));
 
 const variants = Object.values(BUTTON_VARIANTS);
-const colors = Object.values(BUTTON_COLORS);
+const colors = Object.values(COLORS);
 
 const meta: Meta<typeof Button> = {
   component: Button,
@@ -31,12 +26,6 @@ const states = [
   "aria-disabled",
 ];
 
-const ICON = (
-  <Icon>
-    <StarIcon />
-  </Icon>
-);
-
 export const LightMode: Story = {
   render: () => (
     <StoryGrid>
@@ -52,8 +41,8 @@ export const LightMode: Story = {
           )),
         ),
       )}
-      <Button icon={ICON}>Button with Start Icon</Button>
-      <Button icon={ICON} iconPosition="end">
+      <Button icon={icon}>Button with Start Icon</Button>
+      <Button icon={icon} iconPosition="end">
         Button with End Icon
       </Button>
       <Button isLoading>Loading...</Button>

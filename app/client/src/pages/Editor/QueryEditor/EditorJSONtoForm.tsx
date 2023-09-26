@@ -134,7 +134,7 @@ import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs
 import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
 import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
-import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const QueryFormContainer = styled.form`
@@ -401,6 +401,7 @@ export function EditorJSONtoForm(props: Props) {
     uiComponent,
     updateActionResponseDisplayFormat,
   } = props;
+
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
