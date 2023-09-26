@@ -123,9 +123,10 @@ public class SSHUtils {
         return toIntExact(defaultIfNull(datasourceConfiguration.getSshProxy().getPort(), DEFAULT_SSH_PORT));
     }
 
-    public static int getDBPortFromConfigOrDefault(DatasourceConfiguration datasourceConfiguration,
-                                                   Long defaultDBPort) {
-        return toIntExact(defaultIfNull(datasourceConfiguration.getEndpoints().get(0).getPort(), defaultDBPort));
+    public static int getDBPortFromConfigOrDefault(
+            DatasourceConfiguration datasourceConfiguration, Long defaultDBPort) {
+        return toIntExact(
+                defaultIfNull(datasourceConfiguration.getEndpoints().get(0).getPort(), defaultDBPort));
     }
 
     /**
@@ -147,7 +148,7 @@ public class SSHUtils {
 
         if (datasourceConfiguration.getEndpoints().get(0).getPort() == null && defaultDBPort == null) {
             throw new AppsmithPluginException(
-                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, DS_MISSING_PORT_ERROR_MSG);
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, DS_MISSING_PORT_ERROR_MSG);
         }
 
         String sshHost = datasourceConfiguration.getSshProxy().getHost();
