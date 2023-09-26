@@ -183,6 +183,7 @@ export class DeployMode {
       }); // //only reloading edit page to load elements
     });
     this.assertHelper.AssertDocumentReady();
+    this.agHelper.Sleep(2000); //wait for getWorkspace to go thru!
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
     this.agHelper.AssertElementVisibility(this.locator._editPage); //Assert if canvas is visible after Navigating back!
   }
