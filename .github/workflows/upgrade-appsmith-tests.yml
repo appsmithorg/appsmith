@@ -138,10 +138,8 @@ jobs:
                 fi
               done < ${file#app/client/}
           done
-          unique_files=$(echo "${comment_files[@]}" | sort -u | sed '/^[[:space:]]*$/d' | tr '\n' '<li>')
-          echo "All the unique files ===> $unique_files"
-          echo "ads_non_compliant_files=${unique_files[@]}" >> $GITHUB_OUTPUT
-          echo "All the unique files count===> ${#unique_files[@]}"
+          unique_files=$(echo "%s\n" "${comment_files[@]}" | sort -u | sed '/^[[:space:]]*$/d' | sed -e 's/^/<li>/')
+          echo "ads_non_compliant_files=$unique_files" >> $GITHUB_OUTPUT
           echo "ads_non_compliant_count=${#unique_files[@]}" >> $GITHUB_OUTPUT
 
       # Comment in PR if test files are not written in ts and fail the workflow    
@@ -153,7 +151,7 @@ jobs:
           body: |
             <b> 🔴 Below files are not compliant with ADS. Please fix and re-trigger ok-to-test </b>
             <ol>${{steps.ads_check.outputs.ads_non_compliant_files}}</ol>
-      - if: steps.ads_check.outputs.non_ts_files_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0
+      - if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0
         run: exit 1
 
       # Create a run record exactly at the time of merge to release to
