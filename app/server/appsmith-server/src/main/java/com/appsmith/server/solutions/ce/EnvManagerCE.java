@@ -17,7 +17,7 @@ public interface EnvManagerCE {
 
     Mono<Void> applyChanges(Map<String, String> changes, String originHeader);
 
-    Map<String, String> applyChangesToEnvFileWithoutUserContext(Map<String, String> changes) throws IOException;
+    Mono<Map<String, String>> applyChangesToEnvFileWithoutAclCheck(Map<String, String> changes) throws IOException;
 
     Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader);
 
@@ -28,7 +28,7 @@ public interface EnvManagerCE {
 
     Map<String, String> parseToMap(String content);
 
-    Map<String, String> getAll(boolean isInternalCall) throws IOException;
+    Mono<Map<String, String>> getAllWithoutAclCheck();
 
     Mono<Map<String, String>> getAll();
 
@@ -37,6 +37,8 @@ public interface EnvManagerCE {
     Mono<User> verifyCurrentUserIsSuper();
 
     Mono<Void> restart();
+
+    Mono<Void> restartWithoutAclCheck();
 
     Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO);
 
