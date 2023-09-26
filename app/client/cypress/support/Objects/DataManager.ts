@@ -196,6 +196,7 @@ export class DataManager {
   };
 
   paginationUrl = (records = 20, page = 4, size = 3) => {
+    //default values are based on most used values for pagination
     return `http://host.docker.internal:5001/v1/mock-api?records=${records}&page=${page}&size=${size}`;
   };
 

@@ -7,6 +7,7 @@ import {
   draggableWidgets,
   deployMode,
   table,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Bug26935- Widget isLoading property", function () {
@@ -14,7 +15,7 @@ describe("Bug26935- Widget isLoading property", function () {
     // Create Api1
     apiPage.CreateAndFillApi(dataManager.paginationUrl(100, 1, 100));
     // Table1
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 100, 100);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
 
     // Button1
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 500);
@@ -53,7 +54,7 @@ describe("Bug26935- Widget isLoading property", function () {
     agHelper.Sleep(3000);
     agHelper.AssertContains("Table1 isLoading: false");
 
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     table.WaitUntilTableLoad(0, 0, "v2");
     agHelper.Sleep(2000);
     agHelper.ClickButton("Submit");
