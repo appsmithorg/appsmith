@@ -2396,6 +2396,7 @@ __metadata:
     clsx: ^2.0.0
     colorjs.io: ^0.4.3
     eslint-plugin-storybook: ^0.6.10
+    lodash: "*"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
