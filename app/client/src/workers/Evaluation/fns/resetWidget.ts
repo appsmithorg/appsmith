@@ -133,12 +133,20 @@ async function resetWidgetMetaProperty(
           });
         }
 
-        const metaValues = Object.keys(evaluatedEntity.meta);
+        const metaKeysInOverride = propertyOverrideDependencyEntries.map(
+          (path) => path[0],
+        );
 
-        for (let i = 0; i < metaValues.length; i++) {
+        const metaPaths = Object.keys(evaluatedEntity.meta);
+
+        for (let i = 0; i < metaPaths.length; i++) {
+          if (metaKeysInOverride.includes(metaPaths[i])) {
+            continue;
+          }
+
           evalMetaUpdates.push({
             widgetId: evaluatedEntity.widgetId,
-            metaPropertyPath: metaValues[i].split("."),
+            metaPropertyPath: metaPaths[i].split("."),
             value: undefined,
           });
         }
