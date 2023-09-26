@@ -7,7 +7,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +16,7 @@ public interface EnvManagerCE {
 
     Mono<Void> applyChanges(Map<String, String> changes, String originHeader);
 
-    Mono<Map<String, String>> applyChangesToEnvFileWithoutAclCheck(Map<String, String> changes) throws IOException;
+    Mono<Map<String, String>> applyChangesToEnvFileWithoutAclCheck(Map<String, String> changes);
 
     Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader);
 
