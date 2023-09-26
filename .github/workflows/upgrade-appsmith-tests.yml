@@ -50,7 +50,7 @@ jobs:
           files=(${{steps.files.outputs.files_created}}${{steps.files.outputs.files_updated}})
           for file in $files; do
               while IFS= read -r line; do
-                if echo "$line" | grep -q 'color/Color.*#'; then
+                if echo "$line" | grep -q -E '(color|Color)#'; then
                   comment_files="$comment_files,$file"
                 fi
               done < "$file"
