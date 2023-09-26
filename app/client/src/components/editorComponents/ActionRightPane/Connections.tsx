@@ -97,7 +97,7 @@ function Connections(props: ConnectionsProps) {
   return (
     <Collapsible label="Relationships">
       <ConnectionType className="icon-text">
-        <Icon name="arrow-right-line" size="md" />
+        <Icon name="down-arrow-2" size="lg" />
         <span className="connection-type">
           {createMessage(INCOMING_ENTITIES)}
         </span>
@@ -116,7 +116,7 @@ function Connections(props: ConnectionsProps) {
         <span className="connection-type">
           {createMessage(OUTGOING_ENTITIES)}
         </span>
-        <Icon name="arrow-right-line" size="md" />
+        <Icon name="down-arrow-2" size="lg" />
       </ConnectionType>
       {/* Inverse dependencies */}
       <Dependencies
