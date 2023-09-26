@@ -12,7 +12,9 @@ export type OmitedSpectrumTextFieldProps = Omit<
   | "labelPosition"
   | "labelAlign"
 > &
-  PressEvents;
+  PressEvents & {
+    className?: string;
+  };
 
 export interface TextInputProps
   extends OmitedSpectrumTextFieldProps,

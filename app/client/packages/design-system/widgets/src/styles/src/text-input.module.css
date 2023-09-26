@@ -1,8 +1,5 @@
-import { css } from "styled-components";
-import type { TextInputProps as HeadlessTextInputProps } from "@design-system/headless";
-
-// NOTE: these input styles are used in text area and text input
-export const textInputStyles = css<HeadlessTextInputProps>`
+/* NOTE: these input styles are used in text area and text input */
+.text-input {
   & [data-field-input] {
     display: flex;
     align-items: center;
@@ -94,4 +91,4 @@ export const textInputStyles = css<HeadlessTextInputProps>`
   & [data-field-input] [data-icon-button] {
     block-size: calc(100% - var(--spacing-1));
   }
-`;
+}

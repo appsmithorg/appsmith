@@ -404,7 +404,7 @@ describe("Binary Datatype tests", function () {
   //     entityExplorer.ExpandCollapseEntity("Datasources", false);
 
   //     //Delete all queries
-  //     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+  //     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
   //     entityExplorer.ExpandCollapseEntity("Queries/JS");
   //      entityExplorer.DeleteAllQueriesForDB(dsName);
 
@@ -412,7 +412,7 @@ describe("Binary Datatype tests", function () {
   //     deployMode.DeployApp();
   //     deployMode.NavigateBacktoEditor();
   //     entityExplorer.ExpandCollapseEntity("Queries/JS");
-  //     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+  //     dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   //   },
   // );
 });
