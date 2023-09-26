@@ -8,7 +8,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import withWidgetProps from "widgets/withWidgetProps";
 import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
 
-// ToDo: destructure withWidgetProps to withCanvasProps by picking only necessary props of a canvas.
+// ToDo(#27615): destructure withWidgetProps to withCanvasProps by picking only necessary props of a canvas.
 
 /**
  * Canvas of a Layout System is the module that provides necessary utilities to position and order widgets.
