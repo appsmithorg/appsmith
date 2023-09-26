@@ -11,6 +11,7 @@ import { getWidgetMetaProps } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import { error } from "loglevel";
 import WidgetFactory from "WidgetProvider/factory";
+import type BaseWidget from "./BaseWidget";
 export type pushAction = (
   propertyName: string | batchUpdateWidgetMetaPropertyType,
   propertyValue?: unknown,
@@ -42,7 +43,7 @@ export interface WithMeta {
 type WidgetMetaProps = { metaState: Record<string, unknown> };
 type metaHOCProps = WidgetProps & WidgetMetaProps;
 
-function withMeta(WrappedWidget: any) {
+function withMeta(WrappedWidget: typeof BaseWidget) {
   class MetaHOC extends React.PureComponent<metaHOCProps> {
     static contextType = EditorContext;
     context!: React.ContextType<typeof EditorContext>;
