@@ -6,8 +6,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
@@ -24,7 +24,10 @@ public class SeedMongoData {
 
     @Bean
     ApplicationRunner init(
-            UserRepository userRepository, UserService userService, UserUtils userUtils, PluginService pluginService) {
+            UserRepository userRepository,
+            UserService userService,
+            UserUtils userUtils,
+            PluginRepository pluginRepository) {
 
         log.info("Seeding the data");
         final String API_USER_EMAIL = "api_user";
@@ -54,17 +57,16 @@ public class SeedMongoData {
             {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
         };
 
-        Mono<List<Plugin>> pluginListMono = Flux.just(pluginData)
-                .map(array -> {
+        Mono<List<Plugin>> pluginListMono = Flux.fromArray(pluginData)
+                .flatMap(array -> {
                     log.debug("Creating the plugins");
                     Plugin plugin = new Plugin();
                     plugin.setName((String) array[0]);
                     plugin.setType((PluginType) array[1]);
                     plugin.setPackageName((String) array[2]);
                     log.debug("Create plugin: {}", plugin);
-                    return plugin;
+                    return pluginRepository.save(plugin);
                 })
-                .flatMap(pluginService::create)
                 .collectList();
 
         Mono<List<UserSignupDTO>> userSignupDTOListMono = Flux.fromArray(userData)
@@ -77,9 +79,6 @@ public class SeedMongoData {
                     user.setState((UserState) userDataArray[2]);
                     return userService.createUser(user);
                 })
-                .map(user -> {
-                    return user;
-                })
                 .collectList();
 
         Mono<Boolean> makeApiUserSuperUserMono = userRepository
@@ -88,8 +87,9 @@ public class SeedMongoData {
 
         return args -> {
             userSignupDTOListMono
-                    .then(pluginListMono)
-                    .then(makeApiUserSuperUserMono)
+                    .flatMap(userSignupDTOS -> pluginListMono)
+                    .flatMap(pluginList -> makeApiUserSuperUserMono)
+                    .map(superSuperMade -> superSuperMade)
                     .block();
         };
     }
