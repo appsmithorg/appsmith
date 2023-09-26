@@ -6,7 +6,6 @@ import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
-import com.appsmith.server.services.TenantService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,9 +39,6 @@ class FeatureFlagMigrationHelperTest {
 
     @Autowired
     FeatureFlagMigrationHelper featureFlagMigrationHelper;
-
-    @Autowired
-    TenantService tenantService;
 
     @BeforeEach
     void setUp() {}
