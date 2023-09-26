@@ -35,7 +35,6 @@ import type {
   TableWidgetProps,
   TransientDataPayload,
 } from "../constants";
-import { ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING } from "../constants";
 import {
   ActionColumnTypes,
   ColumnTypes,
@@ -204,11 +203,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       delimiter: ",",
       version: 2,
       inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
-      enableServerSideFiltering: TableWidgetV2.getFeatureFlag(
-        ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-      )
-        ? false
-        : undefined,
+      enableServerSideFiltering: false,
     };
   }
 
@@ -430,11 +425,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         isAddRowInProgress: "bool",
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
+        filters: generateTypeDef(widget.filters),
       };
-
-      if (this.getFeatureFlag(ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING)) {
-        config["filters"] = generateTypeDef(widget.filters);
-      }
 
       return config;
     };
