@@ -6,14 +6,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AnalyticsServiceCEImplTest {
     @Test
-    void shouldHashUserId_anonymousUserId_shouldReturnFalse() {
-        Boolean shouldHash = AnalyticsServiceCEImpl.shouldHashUserId("execute_ACTION_TRIGGERED", "anonymouseUser");
+    void shouldHashUserId_anonymousUserIdCE_shouldReturnFalse() {
+        Boolean shouldHash =
+                AnalyticsServiceCEImpl.shouldHashUserId("execute_ACTION_TRIGGERED", "anonymousUser", true, false);
         assertEquals(false, shouldHash);
     }
 
     @Test
-    void shouldHashUserId_nonAnonymousUserId_shouldReturnTrue() {
-        Boolean shouldHash = AnalyticsServiceCEImpl.shouldHashUserId("execute_ACTION_TRIGGERED", "test_id");
+    void shouldHashUserId_nonAnonymousUserIdCE_shouldReturnTrue() {
+        Boolean shouldHash =
+                AnalyticsServiceCEImpl.shouldHashUserId("execute_ACTION_TRIGGERED", "test_id", true, false);
         assertEquals(true, shouldHash);
+    }
+
+    @Test
+    void shouldHashUserId_anonymousUserIdCloud_shouldReturnFalse() {
+        Boolean shouldHash =
+                AnalyticsServiceCEImpl.shouldHashUserId("execute_ACTION_TRIGGERED", "anonymousUser", true, true);
+        assertEquals(false, shouldHash);
     }
 }
