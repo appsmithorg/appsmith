@@ -2096,3 +2096,8 @@ export const COMMUNITY_TEMPLATES = {
     },
   },
 };
+
+export const PARTIAL_EXPORT = {
+  modalHeading: () => "Partial export",
+  modalSubHeading: () => "Select entities below to export from the Page",
+};
