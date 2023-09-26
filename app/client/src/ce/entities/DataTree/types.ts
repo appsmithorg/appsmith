@@ -8,13 +8,15 @@ import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { AppDataState } from "reducers/entityReducers/appReducer";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import type { AppTheme } from "entities/AppTheming";
+import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
@@ -178,6 +180,7 @@ export interface AppsmithEntity extends Omit<AppDataState, "store"> {
   store: Record<string, unknown>;
   theme: AppTheme["properties"];
 }
+
 export type DataTreeSeed = {
   actions: ActionDataState;
   editorConfigs: Record<string, any[]>;
@@ -191,6 +194,8 @@ export type DataTreeSeed = {
   metaWidgets: MetaWidgetsReduxState;
   isMobile: boolean;
   moduleInputs: Record<string, ModuleInput>;
+  appPositioningType: AppPositioningTypes;
+  loadingEntities: LoadingEntitiesState;
 };
 
 export type ModuleInput = {
