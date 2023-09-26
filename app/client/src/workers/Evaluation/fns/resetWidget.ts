@@ -122,7 +122,6 @@ async function resetWidgetMetaProperty(
           overriddenProperties.forEach((propPath) => {
             updatedProperties.push([widgetName, propPath]);
           });
-
           updatedProperties.push(
             [widgetName, propertyPath],
             [widgetName, defaultPropertyPath],
@@ -131,6 +130,16 @@ async function resetWidgetMetaProperty(
             widgetId: evaluatedEntity.widgetId,
             metaPropertyPath: propertyPath.split("."),
             value: finalValue,
+          });
+        }
+
+        const metaValues = Object.keys(evaluatedEntity.meta);
+
+        for (let i = 0; i < metaValues.length; i++) {
+          evalMetaUpdates.push({
+            widgetId: evaluatedEntity.widgetId,
+            metaPropertyPath: metaValues[i].split("."),
+            value: undefined,
           });
         }
       }
