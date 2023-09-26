@@ -6,6 +6,10 @@ import type { WidgetDefaultProps } from "../WidgetProvider/constants";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
 
+/**
+ * Please refer to renderAppsmithCanvas in CanvasFactory to see current version of How CanvasWidget is rendered.
+ */
+
 class CanvasWidget extends ContainerWidget {
   static type = "CANVAS_WIDGET";
 
