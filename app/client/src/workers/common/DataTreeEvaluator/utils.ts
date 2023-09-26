@@ -13,8 +13,9 @@ import type {
   DataTree,
   DataTreeEntity,
   WidgetEntity,
-} from "entities/DataTree/dataTreeFactory";
-import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
+  ActionEntity,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import type DependencyMap from "entities/DependencyMap";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 

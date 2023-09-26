@@ -13,7 +13,7 @@ import {
 import type {
   DataTreeEntity,
   DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 

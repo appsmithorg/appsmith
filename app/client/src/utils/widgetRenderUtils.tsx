@@ -7,7 +7,7 @@ import type {
   DataTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { pick } from "lodash";
 import {

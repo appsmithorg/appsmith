@@ -8,12 +8,15 @@ import type {
   DataTreeEntity,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import type { PrivateWidgets, JSActionEntity } from "entities/DataTree/types";
+import type {
+  PrivateWidgets,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   addErrorToEntityProperty,
@@ -33,7 +36,7 @@ import {
   overrideWidgetProperties,
   findDatatype,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import TableWidget from "widgets/TableWidget";

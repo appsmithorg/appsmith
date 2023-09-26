@@ -3,7 +3,7 @@ import {
   convertPathToString,
   getEntityNameAndPropertyPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { ENTITY_TYPE } from "entities/DataTree/types";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DependencyMap as TDependencyMap } from "utils/DynamicBindingUtils";
 import { getPropertyPath } from "utils/DynamicBindingUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
@@ -18,7 +18,7 @@ import type {
   JSEntity,
   WidgetEntity,
 } from "../lib/entity";
-import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntity } from "@appsmith/entities/DataTree/types";
 
 export function getEntityDependencies(
   entity: IEntity,

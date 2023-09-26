@@ -3,7 +3,8 @@ import type {
   DataTree,
   DataTreeEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+  JSActionEntityConfig,
+} from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { uniqueId, isFunction, isObject } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
@@ -20,7 +21,6 @@ import type { DataTreeDefEntityInformation } from "utils/autocomplete/Codemirror
 
 export type ExtraDef = Record<string, Def | string>;
 
-import type { JSActionEntityConfig } from "entities/DataTree/types";
 import type { Variable } from "entities/JSCollection";
 import WidgetFactory from "WidgetProvider/factory";
 import { shouldAddSetter } from "workers/Evaluation/evaluate";

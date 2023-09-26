@@ -15,8 +15,8 @@ import type {
   DataTreeEntityConfig,
   ConfigTree,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import _, { difference, find, get, has, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { PluginType } from "entities/Action";
@@ -24,13 +24,13 @@ import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
-import type { DataTreeEntityObject } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntityObject } from "@appsmith/entities/DataTree/types";
 import type {
   JSActionEntityConfig,
   PrivateWidgets,
   JSActionEntity,
   ActionEntity,
-} from "entities/DataTree/types";
+} from "@appsmith/entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 

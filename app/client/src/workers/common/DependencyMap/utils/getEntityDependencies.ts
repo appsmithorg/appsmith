@@ -3,21 +3,17 @@ import {
   getEntityNameAndPropertyPath,
   isATriggerPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type {
-  DataTreeEntityConfig,
-  WidgetEntity,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import {
-  ENTITY_TYPE,
-  type DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type {
   ActionEntity,
   ActionEntityConfig,
   JSActionEntity,
   JSActionEntityConfig,
-} from "entities/DataTree/types";
+  DataTreeEntity,
+  DataTreeEntityConfig,
+  WidgetEntity,
+  WidgetEntityConfig,
+} from "@appsmith/entities/DataTree/types";
 import { find, get, union } from "lodash";
 import {
   getDynamicBindings,

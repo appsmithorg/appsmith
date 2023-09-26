@@ -1,4 +1,4 @@
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "@appsmith/entities/DataTree/types";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns";
 

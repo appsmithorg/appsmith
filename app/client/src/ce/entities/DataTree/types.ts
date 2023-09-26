@@ -6,6 +6,15 @@ import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import type { Variable } from "entities/JSCollection";
 import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { WidgetConfigProps } from "WidgetProvider/constants";
+import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { MetaState } from "reducers/entityReducers/metaReducer";
+import type { AppDataState } from "reducers/entityReducers/appReducer";
+import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import type { AppTheme } from "entities/AppTheming";
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
@@ -127,3 +136,78 @@ export interface EntityConfig {
   validationPaths?: Record<string, ValidationConfig>;
   dynamicBindingPathList?: DynamicPath[];
 }
+
+//data factory types
+export type UnEvalTreeEntityObject =
+  | ActionEntity
+  | JSActionEntity
+  | WidgetEntity;
+
+export type UnEvalTreeEntity = UnEvalTreeEntityObject | AppsmithEntity | Page[];
+
+export type UnEvalTree = {
+  [entityName: string]: UnEvalTreeEntity;
+};
+export interface WidgetEntity extends WidgetProps {
+  meta: Record<string, unknown>;
+  ENTITY_TYPE: ENTITY_TYPE.WIDGET;
+}
+export type DataTreeEntityObject =
+  | ActionEntity
+  | JSActionEntity
+  | WidgetEntity
+  | AppsmithEntity;
+
+export type DataTreeEntity = DataTreeEntityObject | Page[] | ActionDispatcher;
+
+export type DataTree = {
+  [entityName: string]: DataTreeEntity;
+};
+
+export interface WidgetEntityConfig
+  extends Partial<WidgetProps>,
+    Omit<WidgetConfigProps, "widgetName" | "rows" | "columns">,
+    WidgetConfig {
+  defaultMetaProps: Array<string>;
+  type: string;
+  __setters?: Record<string, any>;
+}
+
+export interface AppsmithEntity extends Omit<AppDataState, "store"> {
+  ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
+  store: Record<string, unknown>;
+  theme: AppTheme["properties"];
+}
+export type DataTreeSeed = {
+  actions: ActionDataState;
+  editorConfigs: Record<string, any[]>;
+  pluginDependencyConfig: Record<string, DependencyMap>;
+  widgets: CanvasWidgetsReduxState;
+  widgetsMeta: MetaState;
+  pageList: Page[];
+  appData: AppDataState;
+  jsActions: JSCollectionDataState;
+  theme: AppTheme["properties"];
+  metaWidgets: MetaWidgetsReduxState;
+  isMobile: boolean;
+  moduleInputs: Record<string, ModuleInput>;
+};
+
+export type ModuleInput = {
+  name: string;
+  defaultValue: any;
+};
+
+export type DataTreeEntityConfig =
+  | WidgetEntityConfig
+  | ActionEntityConfig
+  | JSActionEntityConfig;
+
+export type ConfigTree = {
+  [entityName: string]: DataTreeEntityConfig;
+};
+
+export type unEvalAndConfigTree = {
+  unEvalTree: UnEvalTree;
+  configTree: ConfigTree;
+};

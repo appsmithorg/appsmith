@@ -12,8 +12,9 @@ import type {
   WidgetEntity,
   ConfigTree,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
+  ActionEntity,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { convertArrayToObject, extractInfoFromBindings } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";

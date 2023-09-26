@@ -1,108 +1,21 @@
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { MetaState } from "reducers/entityReducers/metaReducer";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import type { AppDataState } from "reducers/entityReducers/appReducer";
-import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
-import type { AppTheme } from "entities/AppTheming";
 import log from "loglevel";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import type { WidgetConfigProps } from "WidgetProvider/constants";
-import type {
-  ActionDispatcher,
-  ActionEntityConfig,
-  ActionEntity,
-  JSActionEntityConfig,
-  JSActionEntity,
-  WidgetConfig,
-} from "./types";
-import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
+import {
+  ENTITY_TYPE,
+  EvaluationSubstitutionType,
+} from "@appsmith/entities/DataTree/types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { Positioning } from "layoutSystems/autolayout/utils/constants";
-import { isEmpty } from "lodash";
-
-export type UnEvalTreeEntityObject =
-  | ActionEntity
-  | JSActionEntity
-  | WidgetEntity;
-
-export type UnEvalTreeEntity = UnEvalTreeEntityObject | AppsmithEntity | Page[];
-
-export type UnEvalTree = {
-  [entityName: string]: UnEvalTreeEntity;
-};
-
-export interface WidgetEntity extends WidgetProps {
-  meta: Record<string, unknown>;
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET;
-}
-
-export type DataTreeEntityObject =
-  | ActionEntity
-  | JSActionEntity
-  | WidgetEntity
-  | AppsmithEntity;
-
-export type DataTreeEntity = DataTreeEntityObject | Page[] | ActionDispatcher;
-
-export type DataTree = {
-  [entityName: string]: DataTreeEntity;
-};
-
-export interface WidgetEntityConfig
-  extends Partial<WidgetProps>,
-    Omit<WidgetConfigProps, "widgetName" | "rows" | "columns">,
-    WidgetConfig {
-  defaultMetaProps: Array<string>;
-  type: string;
-  __setters?: Record<string, any>;
-}
-
-export interface AppsmithEntity extends Omit<AppDataState, "store"> {
-  ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
-  store: Record<string, unknown>;
-  theme: AppTheme["properties"];
-}
-
-type DataTreeSeed = {
-  actions: ActionDataState;
-  editorConfigs: Record<string, any[]>;
-  pluginDependencyConfig: Record<string, DependencyMap>;
-  widgets: CanvasWidgetsReduxState;
-  widgetsMeta: MetaState;
-  pageList: Page[];
-  appData: AppDataState;
-  jsActions: JSCollectionDataState;
-  theme: AppTheme["properties"];
-  metaWidgets: MetaWidgetsReduxState;
-  isMobile: boolean;
-  moduleInputs: Record<string, ModuleInput>;
-};
-
-export type ModuleInput = {
-  name: string;
-  defaultValue: any;
-};
-
-export type DataTreeEntityConfig =
-  | WidgetEntityConfig
-  | ActionEntityConfig
-  | JSActionEntityConfig;
-
-export type ConfigTree = {
-  [entityName: string]: DataTreeEntityConfig;
-};
-
-export type unEvalAndConfigTree = {
-  unEvalTree: UnEvalTree;
-  configTree: ConfigTree;
-};
+import { generateDataTreeModuleInputs } from "@appsmith/entities/DataTree/utils";
+import type {
+  DataTreeSeed,
+  unEvalAndConfigTree,
+  ConfigTree,
+  AppsmithEntity,
+} from "@appsmith/entities/DataTree/types";
 
 export class DataTreeFactory {
   static create({
@@ -148,11 +61,7 @@ export class DataTreeFactory {
 
     const startWidgets = performance.now();
 
-    if (!isEmpty(moduleInputs)) {
-      for (const [key, value] of Object.entries(moduleInputs)) {
-        dataTree[key] = value.defaultValue;
-      }
-    }
+    generateDataTreeModuleInputs(moduleInputs);
 
     Object.values(widgets).forEach((widget) => {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(

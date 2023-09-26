@@ -1,8 +1,10 @@
 import type {
   PropertyOverrideDependency,
   OverridingPropertyPaths,
-} from "./types";
-import { OverridingPropertyType } from "./types";
+  ModuleInput,
+} from "@appsmith/entities/DataTree/types";
+import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
+import { isEmpty } from "lodash";
 
 type SetOverridingPropertyParams = {
   key: string;
@@ -53,5 +55,13 @@ export const setOverridingProperty = ({
   const defaultPropertyName = propertyOverrideDependency[propertyName].DEFAULT;
   if (type === OverridingPropertyType.META && defaultPropertyName) {
     overridingPropertyPaths[defaultPropertyName].push(overridingPropertyKey);
+  }
+};
+
+export const generateDataTreeModuleInputs = (
+  moduleInputs: Record<string, ModuleInput>,
+) => {
+  if (isEmpty(moduleInputs)) {
+    return {};
   }
 };

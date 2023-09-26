@@ -2,7 +2,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import type { MetaArgs } from "./types";
+import type { MetaArgs } from "@appsmith/entities/DataTree/types";
 
 const reg = /this\./g;
 

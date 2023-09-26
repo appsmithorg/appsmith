@@ -2,7 +2,7 @@ import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import setters from "../setters";
 import TableWidget from "widgets/TableWidgetV2/widget";
 import { RenderModes } from "constants/WidgetConstants";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "@appsmith/entities/DataTree/types";
 import { createEvaluationContext } from "../evaluate";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 

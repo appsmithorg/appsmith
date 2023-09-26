@@ -5,7 +5,10 @@ import {
   getBindingAndReactivePathsOfAction,
   getDataTreeActionConfigPath,
 } from "entities/Action/actionProperties";
-import type { ActionEntity, ActionEntityConfig } from "./types";
+import type {
+  ActionEntity,
+  ActionEntityConfig,
+} from "@appsmith/entities/DataTree/types";
 
 export const generateDataTreeAction = (
   action: ActionData,

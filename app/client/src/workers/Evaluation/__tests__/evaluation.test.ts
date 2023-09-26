@@ -3,7 +3,9 @@ import type {
   WidgetEntity,
   UnEvalTree,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+  ActionEntityConfig,
+  ActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
@@ -16,7 +18,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "WidgetProvider/factory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
-import type { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {

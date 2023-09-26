@@ -30,11 +30,11 @@ import type { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type {
   DataTree,
   EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/sql/customMimes";

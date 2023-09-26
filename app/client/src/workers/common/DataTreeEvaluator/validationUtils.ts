@@ -5,7 +5,7 @@ import type {
   DataTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { get, isObject, isUndefined, set } from "lodash";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {

@@ -2,11 +2,10 @@ jest.useFakeTimers();
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, ActionEntity } from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { overrideWebAPIs } from "../overrides";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
-import type { ActionEntity } from "entities/DataTree/types";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 

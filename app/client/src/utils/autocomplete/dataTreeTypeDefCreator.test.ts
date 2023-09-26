@@ -7,7 +7,7 @@ import {
 import type {
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,

@@ -3,12 +3,13 @@ import type {
   DataTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+  ActionEntityConfig,
+  ActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import {
   EvaluationSubstitutionType,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
-import type { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";
 
 export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
   initUnEvalTree: {

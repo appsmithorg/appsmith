@@ -7,7 +7,7 @@ import {
   getCurrentJSCollections,
   getInputsForModule,
 } from "@appsmith/selectors/entitiesSelector";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, WidgetEntity } from "@appsmith/entities/DataTree/types";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
   getIsMobileBreakPoint,

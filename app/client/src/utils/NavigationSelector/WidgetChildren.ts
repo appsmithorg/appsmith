@@ -1,4 +1,4 @@
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, WidgetEntity } from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { builderURL } from "RouteBuilder";
 import type { EntityNavigationData } from "selectors/navigationSelectors";

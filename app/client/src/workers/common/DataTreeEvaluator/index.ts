@@ -27,15 +27,13 @@ import type {
   WidgetEntityConfig,
   DataTreeEntityConfig,
   UnEvalTree,
-} from "entities/DataTree/dataTreeFactory";
-import type {
   ActionEntity,
   JSActionEntity,
   JSActionEntityConfig,
-} from "entities/DataTree/types";
+  PrivateWidgets,
+} from "@appsmith/entities/DataTree/types";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import type { PrivateWidgets } from "entities/DataTree/types";
-import { ENTITY_TYPE } from "entities/DataTree/types";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 import {

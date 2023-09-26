@@ -1,9 +1,11 @@
-import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type {
+  DataTreeEntity,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import JSObjectCollection from "./JSObject/Collection";
 import JSFactory from "./JSObject/JSVariableFactory";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
-import type { JSActionEntity } from "entities/DataTree/types";
 import { isObject } from "lodash";
 
 function getJSFunctionsForEntity({

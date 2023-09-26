@@ -2,7 +2,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Diff } from "deep-diff";
 import { applyChange } from "deep-diff";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import { createImmerReducer } from "utils/ReducerUtils";
 import * as Sentry from "@sentry/react";
 import { get } from "lodash";
