@@ -136,7 +136,7 @@ jobs:
                   comment_files+=("$file")
                   break
                 fi
-              done < "$file"
+              done < $(echo "$file" | awk -F'/' '{print $(NF-1)"/"$NF}')
           done
           unique_comment_files="<ol>$(printf "%s\n" "${comment_files[@]}" | sort -u | sed '/^[[:space:]]*$/d' | sed -e 's/^/<li>/;s/$/<\/li>/')</ol>"
           echo "ads_non_compliant_files=${unique_comment_files}" >> $GITHUB_OUTPUT
