@@ -111,7 +111,7 @@ public class SSHUtilsTest {
     }
 
     @Test
-    public void testDefaultBPPortValue() {
+    public void testDefaultDBPortValue() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setEndpoints(List.of(new Endpoint()));
 
