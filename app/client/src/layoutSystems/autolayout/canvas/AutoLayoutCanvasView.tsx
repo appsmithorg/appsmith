@@ -6,6 +6,12 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import FlexBoxComponent from "../common/flexCanvas/FlexBoxComponent";
 import type { LayoutDirection } from "../utils/constants";
 
+/**
+ * This is the view component used by Canvas of Auto Layout both in Edit/View mode.
+ * This component is responsible for rendering the children of a canvas.
+ * It also adds additional layout specific properties to the children like parentColumnSpace, parentRowSpace, isFlexChild, etc.
+ */
+
 export const AutoLayoutCanvasView = ({
   direction,
   renderMode,

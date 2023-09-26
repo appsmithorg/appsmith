@@ -9,6 +9,12 @@ type DropTargetComponentWrapperProps = {
   children: ReactNode;
   snapColumnSpace: number;
 };
+
+/**
+ * This component is a wrapper for the DropTargetComponent.
+ * It decides whether to render the DropTargetComponent or not based on the dropDisabled prop.
+ */
+
 export const DropTargetComponentWrapper = ({
   children,
   dropDisabled,

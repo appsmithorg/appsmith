@@ -9,6 +9,10 @@ type CanvasViewerWrapperProps = {
   children: ReactNode;
 };
 
+/**
+ * This component is a wrapper for the canvas in the viewer.
+ * It is responsible for setting the height of the canvas in view mode.
+ */
 export const CanvasViewerWrapper = ({
   children,
   isListWidgetCanvas,

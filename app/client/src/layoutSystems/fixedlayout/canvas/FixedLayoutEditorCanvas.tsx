@@ -17,6 +17,14 @@ import { Positioning } from "layoutSystems/autolayout/utils/constants";
 
 export type CanvasProps = ContainerWidgetProps<WidgetProps>;
 
+/**
+ * This component implements the Canvas for Fixed Layout System in Edit mode.
+ * This component adds layers like CanvasDraggingArena, CanvasSelectionArena, etc which are responsible for
+ * drag and drop, selection, etc.
+ * This component also renders the children of the canvas with additional layout specific properties like
+ * parentColumnSpace, parentRowSpace, etc.
+ */
+
 export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
   const { snapGrid } = getSnappedGrid(props, props.componentWidth);
   const { snapColumnSpace } = snapGrid;
@@ -48,7 +56,7 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
   const defaultWidgetProps = {
     positioning: props.positioning,
   };
-  // ToDO: Remove sorting of children on the view, ideally the model should be sorted, coz they are less frequently happening
+  // ToDO(#27617): Remove sorting of children on the view, ideally the model should be sorted, coz they are less frequently happening
   // operations. leaving it as is for now, coz it multiple cypress tests are dependent on this.
   const canvasChildren = useMemo(
     () =>

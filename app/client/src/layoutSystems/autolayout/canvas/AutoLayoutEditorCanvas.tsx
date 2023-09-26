@@ -11,6 +11,12 @@ import { AutoCanvasDraggingArena } from "../editor/AutoLayoutCanvasArenas/AutoCa
 import { AutoLayoutCanvasView } from "./AutoLayoutCanvasView";
 import { getDirection } from "./utils";
 
+/**
+ * This component implements the Canvas for Auto Layout System in Edit mode.
+ * It renders layers like CanvasDraggingArena, CanvasSelectionArena, etc which are responsible for
+ * drag and drop, scrolling, etc.
+ */
+
 export const AutoLayoutEditorCanvas = (props: BaseWidgetProps) => {
   const { snapGrid } = getSnappedGrid(props, props.componentWidth);
   const { snapColumnSpace } = snapGrid;

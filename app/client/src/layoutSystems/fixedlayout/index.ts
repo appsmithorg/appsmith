@@ -88,6 +88,13 @@ const getFixedLayoutSystemWrapper = (renderMode: RenderModes) => {
   }
 };
 
+/**
+ *
+ * utility function to return the fixed layout system canvas implementation based on render mode.
+ *
+ * @returns current render mode specific canvas component.
+ */
+
 function getFixedLayoutSystemCanvasWrapper(renderMode: RenderModes) {
   if (renderMode === RenderModes.CANVAS) {
     return FixedLayoutEditorCanvas;

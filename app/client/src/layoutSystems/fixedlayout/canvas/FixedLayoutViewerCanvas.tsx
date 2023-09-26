@@ -13,6 +13,12 @@ import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 
 export type CanvasProps = ContainerWidgetProps<WidgetProps>;
 
+/**
+ * This component implements the Canvas for Fixed Layout System in View mode.
+ * This component also renders the children of the canvas with additional layout specific properties like
+ * parentColumnSpace, parentRowSpace, etc.
+ */
+
 export const FixedLayoutViewerCanvas = (props: BaseWidgetProps) => {
   const { snapGrid } = getSnappedGrid(props, props.componentWidth);
   const { snapColumnSpace } = snapGrid;
@@ -24,7 +30,7 @@ export const FixedLayoutViewerCanvas = (props: BaseWidgetProps) => {
     positioning: props.positioning,
   };
 
-  // ToDO: Remove sorting of children on the view, ideally the model should be sorted, coz they are less frequently happening
+  // ToDO(#27617): Remove sorting of children on the view, ideally the model should be sorted, coz they are less frequently happening
   // operations. leaving it as is for now, coz it multiple cypress tests are dependent on this.
   const canvasChildren = useMemo(
     () =>
