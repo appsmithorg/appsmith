@@ -121,7 +121,7 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     DatasourcePermission datasourcePermission;
 
-    @MockBean
+    @SpyBean
     AnalyticsService analyticsService;
 
     @MockBean

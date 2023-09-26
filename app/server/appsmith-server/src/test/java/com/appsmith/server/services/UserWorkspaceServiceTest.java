@@ -378,9 +378,6 @@ public class UserWorkspaceServiceTest {
 
     @AfterEach
     public void clear() {
-        User currentUser = userRepository.findByEmail("api_user").block();
-        currentUser.getWorkspaceIds().remove(workspace.getId());
-        userRepository.save(currentUser);
         workspaceRepository.deleteById(workspace.getId()).block();
     }
 }
