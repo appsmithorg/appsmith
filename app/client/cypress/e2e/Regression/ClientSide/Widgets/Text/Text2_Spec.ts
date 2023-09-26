@@ -137,19 +137,19 @@ describe("Text widget tests", function () {
         widgetLocators.textWidgetContainer + " > div > div",
         "color",
       )
-      .then((textColor) => {
+      .then((textColor: any) => {
         agHelper
           .GetWidgetCSSFrAttribute(
             widgetLocators.textWidgetContainer + " > div > div",
             "background",
           )
-          .then((backgroundColor) => {
+          .then((backgroundColor: any) => {
             agHelper
               .GetWidgetCSSFrAttribute(
                 widgetLocators.textWidgetContainer,
                 "border-color",
               )
-              .then((borderColor) => {
+              .then((borderColor: any) => {
                 deployMode.DeployApp(
                   locators._widgetInDeployed(draggableWidgets.TEXT),
                 );
@@ -214,13 +214,13 @@ describe("Text widget tests", function () {
         widgetLocators.textWidgetContainer + " > div > div",
         "color",
       )
-      .then((textColor) => {
+      .then((textColor: any) => {
         agHelper
           .GetWidgetCSSFrAttribute(
             widgetLocators.textWidgetContainer + " > div > div",
             "background",
           )
-          .then((backgroundColor) => {
+          .then((backgroundColor: any) => {
             deployMode.DeployApp(
               locators._widgetInDeployed(draggableWidgets.TEXT),
             );
@@ -273,19 +273,19 @@ describe("Text widget tests", function () {
         widgetLocators.textWidgetContainer + " > div > div",
         "color",
       )
-      .then((textColor) => {
+      .then((textColor: any) => {
         agHelper
           .GetWidgetCSSFrAttribute(
             widgetLocators.textWidgetContainer + " > div > div",
             "background",
           )
-          .then((backgroundColor) => {
+          .then((backgroundColor: any) => {
             agHelper
               .GetWidgetCSSFrAttribute(
                 widgetLocators.textWidgetContainer,
                 "border-color",
               )
-              .then((borderColor) => {
+              .then((borderColor: any) => {
                 deployMode.DeployApp(
                   locators._widgetInDeployed(draggableWidgets.TEXT),
                 );
