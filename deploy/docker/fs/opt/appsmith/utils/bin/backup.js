@@ -64,7 +64,7 @@ async function run() {
       console.log('*** These values are not included in the backup export.                                                                           **');
       console.log('************************************************************************************************************************************');
     }
-    
+
   } catch (err) {
     errorCode = 1;
     await logger.backup_error(err.stack);
@@ -92,9 +92,9 @@ async function encryptBackupArchive(archivePath, encryptionPassword){
   return encryptedArchivePath;
 }
 
-function getEncryptionPasswordFromUser(){ 
-  for (const _ of [1, 2, 3]) 
-  { 
+function getEncryptionPasswordFromUser(){
+  for (const _ of [1, 2, 3])
+  {
     const encryptionPwd1 = readlineSync.question('Enter a password to encrypt the backup archive: ', { hideEchoBack: true });
     const encryptionPwd2 = readlineSync.question('Enter the above password again: ', { hideEchoBack: true });
     if (encryptionPwd1 === encryptionPwd2){
@@ -106,9 +106,9 @@ function getEncryptionPasswordFromUser(){
     else {
       console.error("The passwords do not match, please try again.");
     }
-  } 
+  }
   console.error("Aborting backup process, failed to obtain valid encryption password.");
-  return -1 
+  return -1
 }
 
 async function exportDatabase(destFolder) {
@@ -129,7 +129,7 @@ async function createGitStorageArchive(destFolder) {
 
 async function createManifestFile(path) {
   const version = await utils.getCurrentAppsmithVersion()
-  const manifest_data = { "appsmithVersion": version }
+  const manifest_data = { "appsmithVersion": version, "dbName": utils.getDatabaseNameFromMongoURI(process.env.APPSMITH_MONGODB_URI) }
   await fsPromises.writeFile(path + '/manifest.json', JSON.stringify(manifest_data));
 }
 
@@ -137,11 +137,11 @@ async function exportDockerEnvFile(destFolder, encryptArchive) {
   console.log('Exporting docker environment file');
   const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', { encoding: 'utf8' });
   let cleaned_content = removeSensitiveEnvData(content);
-  if (encryptArchive){ 
+  if (encryptArchive){
     cleaned_content += '\nAPPSMITH_ENCRYPTION_SALT=' + process.env.APPSMITH_ENCRYPTION_SALT +
     '\nAPPSMITH_ENCRYPTION_PASSWORD=' + process.env.APPSMITH_ENCRYPTION_PASSWORD
   }
- 
+
   await fsPromises.writeFile(destFolder + '/docker.env', cleaned_content);
   console.log('Exporting docker environment file done.');
 }
@@ -230,8 +230,6 @@ function checkAvailableBackupSpace(availSpaceInBytes) {
     throw new Error('Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 2GB to backup successfully.');
   }
 }
-
-
 
 module.exports = {
   run,
