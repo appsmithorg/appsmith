@@ -158,6 +158,12 @@ function execCommandSilent(cmd, options) {
     });
   });
 }
+
+function getDatabaseNameFromMongoURI(uri) {
+  const uriParts = uri.split("/");
+  return uriParts[uriParts.length - 1].split("?")[0];
+}
+
 module.exports = {
   showHelp,
   start,
@@ -169,4 +175,5 @@ module.exports = {
   getCurrentAppsmithVersion,
   preprocessMongoDBURI,
   execCommandSilent,
+  getDatabaseNameFromMongoURI,
 };
