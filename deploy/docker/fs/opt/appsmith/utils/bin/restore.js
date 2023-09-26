@@ -7,6 +7,7 @@ const shell = require('shelljs');
 
 const utils = require('./utils');
 const Constants = require('./constants');
+const command_args = process.argv.slice(3);
 
 async function getBackupFileName() {
 
@@ -57,7 +58,10 @@ async function extractArchive(backupFilePath, restoreRootPath) {
 
 async function restoreDatabase(restoreContentsPath) {
   console.log('Restoring database  ....');
-  await utils.execCommand(['mongorestore', `--uri=${process.env.APPSMITH_MONGODB_URI}`, '--drop', `--archive=${restoreContentsPath}/mongodb-data.gz`, '--gzip']);
+  backup_db_name = await getBackupDatabaseName(restoreContentsPath);
+  new_db_name = utils.getDatabaseNameFromMongoURI(process.env.APPSMITH_MONGODB_URI);
+  console.log('Backup DB: ' + backup_db_name);
+  await utils.execCommand(['mongorestore', `--uri=${process.env.APPSMITH_MONGODB_URI}`, '--drop', `--archive=${restoreContentsPath}/mongodb-data.gz`, '--nsInclude="*"',  `--nsFrom="${backup_db_name}.*"`,  `--nsTo="${new_db_name}.*"`,'--gzip']);
   console.log('Restoring database completed');
 }
 
@@ -141,6 +145,27 @@ async function checkRestoreVersionCompatability(restoreContentsPath) {
     }
   }
 }
+async function getBackupDatabaseName(restoreContentsPath) {
+  let db_name = "appsmith"
+  if (command_args.includes('--backup-db-name')) {
+    for (let i = 0; i < command_args.length; i++) {
+      if (command_args[i].startsWith('--backup-db-name')) {
+        db_name = command_args[i].split("=")[1];
+      }
+    }
+  }
+  else {
+    const manifest_data = await fsPromises.readFile(restoreContentsPath + '/manifest.json', { encoding: 'utf8' });
+    const manifest_json = JSON.parse(manifest_data);
+    if ("dbName" in manifest_json){
+      db_name = manifest_json["dbName"];
+    }
+  }
+
+  console.log('Backup Database Name: ' + db_name);
+  return db_name
+}
+
 
 async function run() {
   let errorCode = 0;
