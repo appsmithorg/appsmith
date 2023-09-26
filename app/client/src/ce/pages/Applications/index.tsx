@@ -98,6 +98,7 @@ import ApplicationCardList from "@appsmith/pages/Applications/ApplicationCardLis
 import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
+import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -710,20 +711,28 @@ export function ApplicationsSection(props: any) {
                   </WorkspaceShareUsers>
                 )}
               </WorkspaceDropDown>
-              <ApplicationCardList
-                applications={applications}
-                canInviteToWorkspace={canInviteToWorkspace}
-                deleteApplication={deleteApplication}
-                enableImportExport={enableImportExport}
-                hasCreateNewApplicationPermission={
-                  hasCreateNewApplicationPermission
-                }
-                hasManageWorkspacePermissions={hasManageWorkspacePermissions}
-                isMobile={isMobile}
-                onClickAddNewButton={onClickAddNewAppButton}
-                updateApplicationDispatch={updateApplicationDispatch}
-                workspaceId={workspace.id}
-              />
+              {isLoadingResources && (
+                <ResourceListLoader
+                  isMobile={isMobile}
+                  resources={applications}
+                />
+              )}
+              {!isLoadingResources && (
+                <ApplicationCardList
+                  applications={applications}
+                  canInviteToWorkspace={canInviteToWorkspace}
+                  deleteApplication={deleteApplication}
+                  enableImportExport={enableImportExport}
+                  hasCreateNewApplicationPermission={
+                    hasCreateNewApplicationPermission
+                  }
+                  hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+                  isMobile={isMobile}
+                  onClickAddNewButton={onClickAddNewAppButton}
+                  updateApplicationDispatch={updateApplicationDispatch}
+                  workspaceId={workspace.id}
+                />
+              )}
               {!isLoadingResources && (
                 <PackageCardList
                   isMobile={isMobile}

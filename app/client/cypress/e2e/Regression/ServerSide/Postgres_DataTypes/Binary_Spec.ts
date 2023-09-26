@@ -27,14 +27,7 @@ describe("Binary Datatype tests", function () {
     dataSources.CreateQueryAfterDSSaved(query, "createTable");
     dataSources.RunQuery();
 
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.binarytype"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.binarytype");
 
     //Creating SELECT query - binarytype + Bug 14493
     query = `SELECT binarytype.serialid, binarytype.imagename, encode(binarytype.existingimage, 'escape') as "OldImage", encode(binarytype.newimage, 'escape') as "NewImage" from public."binarytype";`;
@@ -404,7 +397,7 @@ describe("Binary Datatype tests", function () {
   //     entityExplorer.ExpandCollapseEntity("Datasources", false);
 
   //     //Delete all queries
-  //     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+  //     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
   //     entityExplorer.ExpandCollapseEntity("Queries/JS");
   //      entityExplorer.DeleteAllQueriesForDB(dsName);
 
@@ -412,7 +405,7 @@ describe("Binary Datatype tests", function () {
   //     deployMode.DeployApp();
   //     deployMode.NavigateBacktoEditor();
   //     entityExplorer.ExpandCollapseEntity("Queries/JS");
-  //     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+  //     dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   //   },
   // );
 });

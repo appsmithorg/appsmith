@@ -1,9 +1,8 @@
 import {
-  TypographyVariant,
-  TypographyColor,
-  TypographyFontWeight,
+  TYPOGRAPHY_VARIANTS,
+  TYPOGRAPHY_FONT_WEIGHTS,
 } from "@design-system/theming";
-import { Text, Flex } from "@design-system/widgets";
+import { Text, Flex, COLORS } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
 
 <Meta
@@ -51,7 +50,7 @@ Text is a component that renders a capsized text.
     justifyContent="start"
     direction="row-reverse"
   >
-    {Object.keys(TypographyVariant).map((variant) => (
+    {Object.values(TYPOGRAPHY_VARIANTS).map((variant) => (
       <Text variant={variant}>aA</Text>
     ))}
   </Flex>
@@ -67,7 +66,7 @@ Text is a component that renders a capsized text.
     justifyContent="start"
     direction="row-reverse"
   >
-    {Object.keys(TypographyColor).map((color) => (
+    {Object.values(COLORS).map((color) => (
       <Text variant="heading" color={color}>
         aA
       </Text>
@@ -85,7 +84,7 @@ Text is a component that renders a capsized text.
     justifyContent="start"
     direction="row-reverse"
   >
-    {Object.keys(TypographyFontWeight).map((fontWeight) => (
+    {Object.values(TYPOGRAPHY_FONT_WEIGHTS).map((fontWeight) => (
       <Text variant="heading" fontWeight={fontWeight}>
         aA
       </Text>
