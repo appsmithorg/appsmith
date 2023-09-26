@@ -1,9 +1,9 @@
-import { LabelPosition } from "components/constants";
+import type { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React from "react";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { AlignWidgetTypes } from "WidgetProvider/constants";
+import type { AlignWidgetTypes } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -12,8 +12,6 @@ import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import CheckboxComponent from "../component";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
@@ -21,46 +19,26 @@ import type {
 
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { propertyPaneContentConfig } from "./propertyPaneConfig";
+import {
+  autoLayoutConfig,
+  defaultsConfig,
+  propertyPaneContentConfig,
+  featuresConfig,
+} from "./../config";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static type = "CHECKBOX_WIDGET";
 
   static getConfig() {
-    return {
-      name: "Checkbox",
-      iconSVG: IconSVG,
-      tags: [WIDGET_TAGS.TOGGLES],
-      needsMeta: true,
-      searchTags: ["boolean"],
-    };
+    return defaultsConfig;
   }
 
   static getFeatures() {
-    return {
-      dynamicHeight: {
-        sectionIndex: 2,
-        active: true,
-      },
-    };
+    return featuresConfig;
   }
 
   static getDefaults() {
-    return {
-      rows: 4,
-      columns: 12,
-      label: "Label",
-      defaultCheckedState: true,
-      widgetName: "Checkbox",
-      version: 1,
-      alignWidget: AlignWidgetTypes.LEFT,
-      labelPosition: LabelPosition.Left,
-      isDisabled: false,
-      isRequired: false,
-      animateLoading: true,
-      responsiveBehavior: ResponsiveBehavior.Fill,
-      minWidth: FILL_WIDGET_MIN_WIDTH,
-    };
+    return defaultsConfig;
   }
 
   static getMethods() {
@@ -80,25 +58,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 
   static getAutoLayoutConfig() {
-    return {
-      disabledPropsDefaults: {
-        labelTextSize: "0.875rem",
-      },
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "120px",
-              minHeight: "40px",
-            };
-          },
-        },
-      ],
-      disableResizeHandles: {
-        vertical: true,
-      },
-    };
+    return autoLayoutConfig;
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
