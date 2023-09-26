@@ -18,15 +18,9 @@ import lombok.Setter;
 @EqualsAndHashCode
 public class LayoutSystem {
     @JsonView(Views.Public.class)
-    LayoutSystem.Type type;
+    LayoutType type;
 
-    public LayoutSystem(LayoutSystem.Type type) {
+    public LayoutSystem(LayoutType type) {
         this.type = type;
-    }
-
-    public enum Type {
-        FIXED,
-        AUTO,
-        ANVIL
     }
 }

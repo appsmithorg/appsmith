@@ -397,15 +397,10 @@ public class Application extends BaseDomain {
     @NoArgsConstructor
     public static class AppPositioning {
         @JsonView(Views.Public.class)
-        Type type;
+        LayoutType type;
 
-        public AppPositioning(Type type) {
+        public AppPositioning(LayoutType type) {
             this.type = type;
-        }
-
-        public enum Type {
-            FIXED,
-            AUTO
         }
     }
 }

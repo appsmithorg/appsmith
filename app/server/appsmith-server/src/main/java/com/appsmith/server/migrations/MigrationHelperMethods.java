@@ -4,7 +4,10 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.LayoutSystem;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QUser;
@@ -182,6 +185,36 @@ public class MigrationHelperMethods {
                     DatabaseChangelog2.migrateGoogleSheetsToUqi(newAction);
                 }
             });
+        }
+    }
+
+    /**
+     * This method copies the appPositioning object to layoutSystem object from the exported json if present
+     * @param applicationJson
+     */
+    public static void updateAppPositioningToLayoutSystem(ApplicationJson applicationJson) {
+        ApplicationDetail unpublishedApplicationDetail =
+                applicationJson.getExportedApplication().getUnpublishedApplicationDetail();
+        if (unpublishedApplicationDetail != null) {
+            LayoutSystem unPublishedLayoutSystem = new LayoutSystem();
+            Application.AppPositioning unPublishedAppPositioning = unpublishedApplicationDetail.getAppPositioning();
+            if (unPublishedAppPositioning != null) {
+                unPublishedLayoutSystem.setType(unPublishedAppPositioning.getType());
+                unpublishedApplicationDetail.setLayoutSystem(unPublishedLayoutSystem);
+                unpublishedApplicationDetail.setAppPositioning(null);
+            }
+        }
+
+        ApplicationDetail publishedApplicationDetail =
+                applicationJson.getExportedApplication().getPublishedApplicationDetail();
+        if (publishedApplicationDetail != null) {
+            LayoutSystem publishedLayoutSystem = new LayoutSystem();
+            Application.AppPositioning publishedAppPositioning = publishedApplicationDetail.getAppPositioning();
+            if (publishedAppPositioning != null) {
+                publishedLayoutSystem.setType(publishedAppPositioning.getType());
+                publishedApplicationDetail.setLayoutSystem(publishedLayoutSystem);
+                publishedApplicationDetail.setAppPositioning(null);
+            }
         }
     }
 

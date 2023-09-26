@@ -24,6 +24,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.LayoutSystem;
+import com.appsmith.server.domains.LayoutType;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
@@ -2669,7 +2670,7 @@ public class ApplicationServiceCETest {
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
-        testApplication.getUnpublishedApplicationDetail().setLayoutSystem(new LayoutSystem(LayoutSystem.Type.FIXED));
+        testApplication.getUnpublishedApplicationDetail().setLayoutSystem(new LayoutSystem(LayoutType.FIXED));
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
@@ -2745,7 +2746,7 @@ public class ApplicationServiceCETest {
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
-        testApplication.getUnpublishedApplicationDetail().setLayoutSystem(new LayoutSystem(LayoutSystem.Type.FIXED));
+        testApplication.getUnpublishedApplicationDetail().setLayoutSystem(new LayoutSystem(LayoutType.FIXED));
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
@@ -2851,7 +2852,7 @@ public class ApplicationServiceCETest {
         GitApplicationMetadata gitData = gitConnectedApp.getGitApplicationMetadata();
         gitConnectedApp.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         gitConnectedApp.setUnpublishedApplicationDetail(new ApplicationDetail());
-        gitConnectedApp.getUnpublishedApplicationDetail().setLayoutSystem(new LayoutSystem(LayoutSystem.Type.FIXED));
+        gitConnectedApp.getUnpublishedApplicationDetail().setLayoutSystem(new LayoutSystem(LayoutType.FIXED));
 
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
