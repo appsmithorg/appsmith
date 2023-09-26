@@ -7,6 +7,7 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+        default: 27568
       skip-tests:
         description: "This is a boolean value in case the workflow is being called in build deploy-preview"
         required: false
@@ -25,7 +26,7 @@ on:
         description: "This is a boolean value in case the workflow is being called in build deploy-preview"
         required: false
         type: string
-        default: "false"
+        default: "true"
 
 
 # Change the working directory for all the jobs in this workflow
