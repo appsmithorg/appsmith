@@ -23,6 +23,14 @@ jobs:
           PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
         run: echo "$PAYLOAD_CONTEXT"
 
+      # Check out merge commit with the base branch in case this workflow is invoked via pull request
+      - name: Checkout the merged commit from PR and base branch
+        if: inputs.pr != 0
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ inputs.pr }}/merge
+
       # get all the files changes in the cypress/e2e folder    
       - name: Get all the added or changed files in client/src folder
         if: inputs.pr != 0
