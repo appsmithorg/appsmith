@@ -139,7 +139,7 @@ jobs:
               done < ${file#app/client/}
           done
           unique_comment_files="<ol>$(printf "%s\n" "${comment_files[@]}" | sort -u | sed '/^[[:space:]]*$/d' | sed -e 's/^/<li>/;s/$/<\/li>/')</ol>"
-          echo "ads_non_compliant_files=${unique_comment_files}" >> $GITHUB_OUTPUT
+          echo "ads_non_compliant_files=${unique_comment_files[@]}" >> $GITHUB_OUTPUT
           echo "ads_non_compliant_count=${#unique_comment_files[@]}" >> $GITHUB_OUTPUT
 
       # Comment in PR if test files are not written in ts and fail the workflow    
