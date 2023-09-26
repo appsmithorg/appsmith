@@ -170,12 +170,13 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
                   isDefaultProfile: true,
                 },
                 {
-                  onErrorCallback: (err: Error, response?: any) => {
+                  onErrorCallback: (error: any, response?: any) => {
                     // AE-GIT-4033 is repo not empty error
                     if (response?.responseMeta?.error?.code === "AE-GIT-4033") {
                       setActiveStep(GIT_CONNECT_STEPS.GENERATE_SSH_KEY);
                     }
-                    setErrorData(response);
+                    const errorResponse = response || error?.response?.data;
+                    setErrorData(errorResponse);
                   },
                 },
               );
@@ -192,7 +193,8 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
                     isDefaultProfile: true,
                   },
                   onErrorCallback(error, response) {
-                    setErrorData(response);
+                    const errorResponse = response || error?.response?.data;
+                    setErrorData(errorResponse);
                   },
                 }),
               );
