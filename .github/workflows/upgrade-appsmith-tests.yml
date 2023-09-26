@@ -49,8 +49,10 @@ jobs:
           comment_files=""
           files=(${{steps.files.outputs.files_created}}${{steps.files.outputs.files_updated}})
           for file in $files; do
-              if grep -q -E '\b(color|Color)\s*#.*|border="|color/Color\s*="|border\s*#' "$file"; then
+              while IFS= read -r line; do
+                if echo "$line" | grep -q 'color/Color.*#'; then
                   comment_files="$comment_files,$file"
-              fi
+                fi
+              done < "$file"
           done
           echo "${comment_files#,}"
