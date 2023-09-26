@@ -15,9 +15,7 @@ import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
  * Canvas also provides editing layout system specific editing experiences like Drag and Drop, Drag to Select, Widget Grouping, etc.
  * This Component Hydrates canvas with enhanced properties from withWidgetProps and picks the layout system specific Canvas Implementation.
  */
-export const LayoutSystemBasedCanvas = withWidgetProps(((
-  props: WidgetProps,
-) => {
+export const renderAppsmithCanvas = withWidgetProps(((props: WidgetProps) => {
   const renderMode = useSelector(getRenderMode);
   const appPositioningType = useSelector(getAppPositioningType);
   const { canvasSystem } = useMemo(

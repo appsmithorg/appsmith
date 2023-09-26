@@ -48,7 +48,7 @@ import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { LayoutSystemBasedCanvas } from "layoutSystems/LayoutSystemBasedCanvas";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -1207,12 +1207,10 @@ class ListWidget extends BaseWidget<
               },
             };
           });
-          return (
-            <LayoutSystemBasedCanvas
-              key={child.widgetId}
-              {...(child as WidgetProps)}
-            />
-          );
+          return renderAppsmithCanvas({
+            ...(child as WidgetProps),
+            key: child.widgetId,
+          });
         },
       );
 

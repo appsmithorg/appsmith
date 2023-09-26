@@ -14,7 +14,7 @@ import { PageView, PageViewWrapper } from "./AppPage.styled";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { APP_MODE } from "entities/App";
 import { useLocation } from "react-router";
-import { LayoutSystemBasedCanvas } from "layoutSystems/LayoutSystemBasedCanvas";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 type AppPageProps = {
@@ -62,11 +62,8 @@ export function AppPage(props: AppPageProps) {
       }
     >
       <PageView className="t--app-viewer-page" width={props.canvasWidth}>
-        {props.widgetsStructure.widgetId && (
-          <LayoutSystemBasedCanvas
-            {...(props.widgetsStructure as WidgetProps)}
-          />
-        )}
+        {props.widgetsStructure.widgetId &&
+          renderAppsmithCanvas({ ...(props.widgetsStructure as WidgetProps) })}
       </PageView>
     </PageViewWrapper>
   );

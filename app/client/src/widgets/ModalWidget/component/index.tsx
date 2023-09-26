@@ -16,7 +16,7 @@ import type {
   Positioning,
   Spacing,
 } from "layoutSystems/autolayout/utils/constants";
-import { LayoutSystemBasedCanvas } from "layoutSystems/LayoutSystemBasedCanvas";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 const Content = styled.div<{ $scroll: boolean }>`
   overflow-x: hidden;
@@ -113,7 +113,7 @@ export default function ModalComponent(props: ModalComponentProps) {
     childData.positioning = props.positioning;
     childData.alignment = props.alignment;
     childData.spacing = props.spacing;
-    return <LayoutSystemBasedCanvas {...(childData as WidgetProps)} />;
+    return renderAppsmithCanvas({ ...(childData as WidgetProps) });
   };
   const getChildren = (): ReactNode => {
     if (

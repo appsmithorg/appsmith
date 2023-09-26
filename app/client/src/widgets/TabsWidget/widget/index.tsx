@@ -35,7 +35,7 @@ import {
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
-import { LayoutSystemBasedCanvas } from "layoutSystems/LayoutSystemBasedCanvas";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 export function selectedTabValidation(
   value: unknown,
@@ -588,7 +588,7 @@ class TabsWidget extends BaseWidget<
         : LayoutDirection.Horizontal;
     childWidgetData.alignment = selectedTabProps?.alignment;
     childWidgetData.spacing = selectedTabProps?.spacing;
-    return <LayoutSystemBasedCanvas {...(childWidgetData as WidgetProps)} />;
+    return renderAppsmithCanvas({ ...(childWidgetData as WidgetProps) });
   };
 
   private getSelectedTabWidgetId() {

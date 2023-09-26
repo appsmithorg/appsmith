@@ -33,7 +33,7 @@ import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/autolayout/utils/constants";
-import { LayoutSystemBasedCanvas } from "layoutSystems/LayoutSystemBasedCanvas";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -310,12 +310,10 @@ export class ContainerWidget extends BaseWidget<
     childWidget.useAutoLayout = this.props.positioning
       ? this.props.positioning === Positioning.Vertical
       : false;
-    return (
-      <LayoutSystemBasedCanvas
-        key={childWidget.widgetId}
-        {...(childWidget as WidgetProps)}
-      />
-    );
+    return renderAppsmithCanvas({
+      ...(childWidget as WidgetProps),
+      key: childWidget.widgetId,
+    });
   }
 
   renderChildren = () => {

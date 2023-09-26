@@ -15,7 +15,7 @@ import {
   useTheme,
 } from "@design-system/theming";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { LayoutSystemBasedCanvas } from "layoutSystems/LayoutSystemBasedCanvas";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 interface CanvasProps {
@@ -88,11 +88,10 @@ const Canvas = (props: CanvasProps) => {
           ref={focusRef}
           width={canvasWidth}
         >
-          {props.widgetsStructure.widgetId && (
-            <LayoutSystemBasedCanvas
-              {...(props.widgetsStructure as WidgetProps)}
-            />
-          )}
+          {props.widgetsStructure.widgetId &&
+            renderAppsmithCanvas({
+              ...(props.widgetsStructure as WidgetProps),
+            })}
         </Wrapper>
       </WDSThemeProvider>
     );
