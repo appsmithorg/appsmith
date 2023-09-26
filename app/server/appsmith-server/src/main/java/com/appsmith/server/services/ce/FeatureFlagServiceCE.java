@@ -49,5 +49,5 @@ public interface FeatureFlagServiceCE {
      */
     Mono<Map<String, Boolean>> getTenantFeatures();
 
-    Mono<Tenant> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant);
+    Mono<Void> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant);
 }

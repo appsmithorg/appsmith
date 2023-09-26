@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.UserUtils;
@@ -429,7 +430,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     /**
      * This method applies the changes to the env file and should be called internally within the server as the ACL
      * checks are skipped. For client side calls please use {@link EnvManagerCEImpl#applyChanges(Map, String)}.
-     * Please refer {@link com.appsmith.server.helpers.FeatureFlagMigrationHelper} for the use case where ACL checks
+     * Please refer {@link FeatureFlagMigrationHelper} for the use case where ACL checks
      * should be skipped.
      *
      * @param changes       Map of changes to be applied to the env file

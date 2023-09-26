@@ -215,7 +215,9 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      * @return          tenant with migrations executed
      */
     @Override
-    public Mono<Tenant> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant) {
-        return tenantService.checkAndExecuteMigrationsForTenantFeatureFlags(tenant);
+    public Mono<Void> checkAndExecuteMigrationsForTenantFeatureFlags(Tenant tenant) {
+        return tenantService
+                .checkAndExecuteMigrationsForTenantFeatureFlags(tenant)
+                .then();
     }
 }

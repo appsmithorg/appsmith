@@ -47,6 +47,10 @@ public class TenantConfigurationCE {
     // 2. Because of grandfathering via cron where tenant level feature flags are fetched
     Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration;
 
+    // This variable is used to indicate if the server needs to be restarted after the migration based on feature flags
+    // is complete.
+    Boolean isRestartRequired;
+
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();
