@@ -21,14 +21,16 @@ import {
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { ShowUpgradeMenuItem } from "@appsmith/utils/licenseHelpers";
 import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
+import {
+  getAdminSettingsPath,
+  getShowAdminSettings,
+} from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 
 export const Wrapper = styled.div`
   background-color: var(--ads-v2-color-bg);
@@ -97,10 +99,11 @@ function LeftPaneBottomSection() {
               icon="setting"
               onSelect={() => {
                 getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                  path: getDefaultAdminSettingsPath({
-                    isSuperUser: user?.isSuperUser,
+                  path: getAdminSettingsPath(
+                    isFeatureEnabled,
+                    user?.isSuperUser,
                     tenantPermissions,
-                  }),
+                  ),
                 });
               }}
               text={createMessage(ADMIN_SETTINGS)}
