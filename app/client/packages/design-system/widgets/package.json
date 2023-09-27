@@ -17,7 +17,7 @@
     "@react-aria/visually-hidden": "^3.8.0",
     "clsx": "^2.0.0",
     "colorjs.io": "^0.4.3",
-    "styled-components": "6.0.2"
+    "lodash": "*"
   },
   "devDependencies": {
     "eslint-plugin-storybook": "^0.6.10"

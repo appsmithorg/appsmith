@@ -9,7 +9,7 @@ import type { Action } from "entities/Action";
 import type { ActionResponse } from "api/ActionAPI";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
-const initialState: QueryPaneReduxState = {
+export const initialState: QueryPaneReduxState = {
   isFetching: false,
   isCreating: false,
   isRunning: {},
@@ -33,7 +33,7 @@ export interface QueryPaneReduxState {
   responseTabHeight: number;
 }
 
-const queryPaneReducer = createReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.CREATE_ACTION_INIT]: (state: QueryPaneReduxState) => {
     return {
       ...state,
@@ -187,6 +187,8 @@ const queryPaneReducer = createReducer(initialState, {
       selectedConfigTabIndex: selectedTabIndex,
     };
   },
-});
+};
+
+const queryPaneReducer = createReducer(initialState, handlers);
 
 export default queryPaneReducer;
