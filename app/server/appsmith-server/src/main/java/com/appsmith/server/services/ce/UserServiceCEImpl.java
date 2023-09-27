@@ -732,7 +732,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         userFromDbMono,
                         userDataService.getForCurrentUser().defaultIfEmpty(new UserData()),
                         isSuperUserMono)
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     final boolean isUsersEmpty = Boolean.TRUE.equals(tuple.getT1());
                     final User userFromDb = tuple.getT2();
                     final UserData userData = tuple.getT3();
@@ -756,16 +756,20 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
                     profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
-                    setRolesAndGroups(profile);
-                    return profile;
+                    return setRolesAndGroups(profile, userFromDb, true, commonConfig.isCloudHosting());
                 });
     }
 
-    protected void setRolesAndGroups(UserProfileDTO profile) {
-        profile.setRoles(
-                List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
-        profile.setGroups(
-                List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
+    protected Mono<UserProfileDTO> setRolesAndGroups(
+            UserProfileDTO profile, User user, boolean showRolesAndGroups, boolean isCloudHosting) {
+        if (showRolesAndGroups) {
+            profile.setRoles(
+                    List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
+            profile.setGroups(
+                    List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
+        }
+
+        return Mono.just(profile);
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {
