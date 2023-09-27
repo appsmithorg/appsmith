@@ -59,10 +59,7 @@ import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
-import {
-  hasCreateDatasourceActionPermission,
-  hasDeleteDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 
 import { toast, Callout } from "design-system";
 import styled from "styled-components";
@@ -104,7 +101,10 @@ import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConst
 import { setCurrentEditingEnvironmentID } from "@appsmith/actions/environmentAction";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
-import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import {
+  getHasDeleteDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -1047,7 +1047,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     datasourcePermissions,
   );
 
-  const canDeleteDatasource = hasDeleteDatasourcePermission(
+  const canDeleteDatasource = getHasDeleteDatasourcePermission(
+    isGACFeatureEnabled,
     datasourcePermissions,
   );
 

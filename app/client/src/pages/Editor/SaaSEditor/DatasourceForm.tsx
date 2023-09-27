@@ -45,10 +45,7 @@ import {
 import type { PluginType } from "entities/Action";
 import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
 import { isDatasourceInViewMode } from "selectors/ui";
-import {
-  hasCreateDatasourceActionPermission,
-  hasDeleteDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
   createTempDatasourceFromForm,
@@ -88,7 +85,10 @@ import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelector
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
-import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import {
+  getHasDeleteDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -727,7 +727,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     datasourcePermissions,
   );
 
-  const canDeleteDatasource = hasDeleteDatasourcePermission(
+  const canDeleteDatasource = getHasDeleteDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
