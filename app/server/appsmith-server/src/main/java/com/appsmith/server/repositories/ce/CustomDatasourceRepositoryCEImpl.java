@@ -67,4 +67,15 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         Criteria idcriteria = where(fieldName(QDatasource.datasource.id)).in(ids);
         return queryAll(List.of(idcriteria), permission);
     }
+
+    @Override
+    public Flux<Datasource> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
+        Criteria idCriteria = where(fieldName(QDatasource.datasource.id)).in(ids);
+        return queryAll(
+                List.of(idCriteria),
+                Optional.ofNullable(includeFields),
+                Optional.empty(),
+                Optional.empty(),
+                NO_RECORD_LIMIT);
+    }
 }

@@ -65,6 +65,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -232,6 +233,9 @@ public class ApplicationServiceCETest {
 
     @Autowired
     EnvironmentPermission environmentPermission;
+
+    @Autowired
+    PagePermission pagePermission;
 
     String workspaceId;
     String defaultEnvironmentId;
@@ -4187,5 +4191,75 @@ public class ApplicationServiceCETest {
                     assertThat(clonedApplication.getForkingEnabled()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void publishApplication_noPageEditPermissions() {
+        String gitAppPageId = gitConnectedApp.getPages().get(1).getId();
+        NewPage gitAppPage = newPageRepository.findById(gitAppPageId).block();
+        Set<Policy> existingPolicies = gitAppPage.getPolicies();
+        /*
+         * Git connected application has 2 pages.
+         * We take away all Manage Page permissions for 2nd page.
+         * Now since, no one has the permissions to Edit the 2nd page, teh application deployment will fail.
+         */
+        Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission()
+                        .equals(pagePermission.getEditPermission().getValue()))
+                .collect(Collectors.toSet());
+        gitAppPage.setPolicies(newPoliciesWithoutEdit);
+        NewPage updatedGitAppPage = newPageRepository.save(gitAppPage).block();
+        StepVerifier.create(applicationPageService.publish(gitConnectedApp.getId(), null, true))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.UNABLE_TO_DEPLOY_MISSING_PERMISSION.getMessage(
+                                        "page", gitAppPageId)))
+                .verify();
+        updatedGitAppPage.setPolicies(existingPolicies);
+        NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplication_noPageEditPermissions() {
+        int existingApplicationCount = applicationService
+                .findAllApplicationsByWorkspaceId(workspaceId)
+                .collectList()
+                .block()
+                .size();
+        String gitAppPageId = gitConnectedApp.getPages().get(1).getId();
+        NewPage gitAppPage = newPageRepository.findById(gitAppPageId).block();
+        Set<Policy> existingPolicies = gitAppPage.getPolicies();
+        /*
+         * Git connected application has 2 pages.
+         * We take away all Manage Page permissions for 2nd page.
+         * Now since, no one has the permissions to Edit the 2nd page, the application cloning will fail.
+         */
+        Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission()
+                        .equals(pagePermission.getEditPermission().getValue()))
+                .collect(Collectors.toSet());
+        gitAppPage.setPolicies(newPoliciesWithoutEdit);
+        NewPage updatedGitAppPage = newPageRepository.save(gitAppPage).block();
+        StepVerifier.create(applicationPageService.cloneApplication(gitConnectedApp.getId(), null))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS.getMessage(
+                                        "page", gitAppPageId)))
+                .verify();
+        updatedGitAppPage.setPolicies(existingPolicies);
+        NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();
+
+        Mono<List<Application>> applicationsInWorkspace =
+                applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList();
+        /*
+         * Check that no applications have been created in the Target Workspace
+         * This can be checked by comparing it with the existing count of applications in the Workspace.
+         */
+        StepVerifier.create(applicationsInWorkspace)
+                .assertNext(applications -> assertThat(applications).hasSize(existingApplicationCount));
     }
 }
