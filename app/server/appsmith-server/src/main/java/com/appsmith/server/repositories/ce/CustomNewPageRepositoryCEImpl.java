@@ -9,20 +9,32 @@ import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.client.result.UpdateResult;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.WriteModel;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -30,11 +42,15 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewPage>
         implements CustomNewPageRepositoryCE {
 
+    private final MongoTemplate mongoTemplate;
+
     public CustomNewPageRepositoryCEImpl(
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            MongoTemplate mongoTemplate) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
@@ -251,14 +267,55 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<UpdateResult> publishPages(Collection<String> pageIds, AclPermission permission) {
+    public Mono<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
         Criteria applicationIdCriteria = where(fieldName(QNewPage.newPage.id)).in(pageIds);
-        // using aggregation update instead of regular update here
-        // it's required to set a field to a value of another field from the same domain
-        AggregationUpdate aggregationUpdate = AggregationUpdate.update()
-                .set(fieldName(QNewPage.newPage.publishedPage))
-                .toValue("$" + fieldName(QNewPage.newPage.unpublishedPage));
 
-        return updateByCriteria(List.of(applicationIdCriteria), aggregationUpdate, permission);
+        Mono<Set<String>> permissionGroupsMono =
+                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
+
+        return permissionGroupsMono.flatMap(permissionGroups -> {
+            AggregationOperation matchAggregationWithPermission = null;
+            if (permission == null) {
+                matchAggregationWithPermission = Aggregation.match(new Criteria().andOperator(notDeleted()));
+            } else {
+                matchAggregationWithPermission = Aggregation.match(
+                        new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
+            }
+            AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
+            AggregationOperation wholeProjection = Aggregation.project(NewPage.class);
+            AggregationOperation addFieldsOperation = Aggregation.addFields()
+                    .addField(fieldName(QNewPage.newPage.publishedPage))
+                    .withValueOf(Fields.field(fieldName(QNewPage.newPage.unpublishedPage)))
+                    .build();
+            Aggregation combinedAggregation = Aggregation.newAggregation(
+                    matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
+            AggregationResults<NewPage> updatedResults =
+                    mongoTemplate.aggregate(combinedAggregation, NewPage.class, NewPage.class);
+            return bulkUpdate(updatedResults.getMappedResults());
+        });
+    }
+
+    @Override
+    public Mono<List<BulkWriteResult>> bulkUpdate(List<NewPage> newPages) {
+        if (CollectionUtils.isEmpty(newPages)) {
+            return Mono.just(Collections.emptyList());
+        }
+
+        // convert the list of new pages to a list of DBObjects
+        List<WriteModel<Document>> dbObjects = newPages.stream()
+                .map(newPage -> {
+                    assert newPage.getId() != null;
+                    Document document = new Document();
+                    mongoOperations.getConverter().write(newPage, document);
+                    document.remove("_id");
+                    return (WriteModel<Document>) new UpdateOneModel<Document>(
+                            new Document("_id", new ObjectId(newPage.getId())), new Document("$set", document));
+                })
+                .collect(Collectors.toList());
+
+        return mongoOperations
+                .getCollection(mongoOperations.getCollectionName(NewPage.class))
+                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
+                .collectList();
     }
 }
