@@ -6,8 +6,8 @@ import styled from "styled-components";
 import script from "!!raw-loader!./script.js";
 
 const StyledIframe = styled.iframe`
-  width: 100%;
-  height: 100%;
+  width: ${(props) => props.width}px;
+  height: ${(props) => props.height}px;
 `;
 
 function ExternalComponent(props: any) {
@@ -41,6 +41,10 @@ function ExternalComponent(props: any) {
         {
           type: "READY",
           model: props.model,
+          dimensions: {
+            width: props.width,
+            height: props.height,
+          },
         },
         "*",
       );
@@ -59,12 +63,28 @@ function ExternalComponent(props: any) {
     if (iframe.current && iframe.current.contentWindow) {
       iframe.current.contentWindow.postMessage(
         {
+          type: "MODEL_UPDATE",
           model: props.model,
         },
         "*",
       );
     }
   }, [props.model]);
+
+  useEffect(() => {
+    if (iframe.current && iframe.current.contentWindow) {
+      iframe.current.contentWindow.postMessage(
+        {
+          type: "UI_UPDATE",
+          dimensions: {
+            width: props.width,
+            height: props.height,
+          },
+        },
+        "*",
+      );
+    }
+  }, [props.width, props.height]);
 
   const srcDoc = `
     <html>
@@ -79,7 +99,14 @@ function ExternalComponent(props: any) {
 
   return (
     <div>
-      <StyledIframe ref={iframe} sandbox="allow-scripts" srcDoc={srcDoc} />;
+      <StyledIframe
+        height={props.height}
+        ref={iframe}
+        sandbox="allow-scripts"
+        srcDoc={srcDoc}
+        width={props.width}
+      />
+      ;
     </div>
   );
 }

@@ -109,15 +109,11 @@ abstract class BaseWidget<
     return [];
   }
 
-  static getPropertyPaneContentConfig(
-    widget?: WidgetProps,
-  ): PropertyPaneConfig[] {
+  static getPropertyPaneContentConfig(): PropertyPaneConfig[] {
     return [];
   }
 
-  static getPropertyPaneStyleConfig(
-    widget?: WidgetProps,
-  ): PropertyPaneConfig[] {
+  static getPropertyPaneStyleConfig(): PropertyPaneConfig[] {
     return [];
   }
 

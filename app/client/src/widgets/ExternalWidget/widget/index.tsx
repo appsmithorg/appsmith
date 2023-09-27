@@ -179,9 +179,11 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
     return (
       <ExternalComponent
         execute={(eventName: string) => this.execute(eventName)}
+        height={this.props.componentHeight}
         model={this.props.model}
         srcDoc={this.props.srcDoc}
         update={(data: any) => this.update(data)}
+        width={this.props.componentWidth}
       />
     );
   }
