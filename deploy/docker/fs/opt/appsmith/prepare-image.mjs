@@ -19,8 +19,8 @@ async function applyNginxChanges() {
   await Promise.all([
     fs.writeFile("/etc/nginx/nginx.conf.original", contents),
     fs.writeFile("/etc/nginx/nginx.conf", modContents),
-    fs.rm("/etc/nginx/sites-enabled", { recursive: true, force: true }),
-    fs.rm("/etc/nginx/conf.d", { recursive: true, force: true }),
+    fs.rm("/etc/nginx/sites-enabled", { recursive: true }),
+    fs.rm("/etc/nginx/conf.d", { recursive: true }),
   ])
 }
 
