@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   getAllUsers,
   getCurrentAppWorkspace,
@@ -12,7 +12,7 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { Avatar, Spinner, Text, Tooltip } from "design-system";
+import { Avatar, Icon, Spinner, Text, Tooltip } from "design-system";
 import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
@@ -26,7 +26,11 @@ import {
   setPartnerProgramCalloutShown,
 } from "utils/storage";
 import InviteUsersForm from "@appsmith/pages/workspace/InviteUsersForm";
-import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
+import { ENTITY_TYPE } from "@appsmith/constants/workspaceConstants";
+import {
+  getAllAppUsers,
+  getApplicationLoadingStates,
+} from "@appsmith/selectors/applicationSelectors";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -42,6 +46,11 @@ export const UserList = styled.div`
   overflow-y: auto;
   justify-content: space-between;
   margin-left: 0.1rem;
+
+  .user-icons {
+    width: 32px;
+    justify-content: center;
+  }
 `;
 
 export const User = styled.div`
@@ -96,11 +105,20 @@ export const ManageUsersContainer = styled.div`
 `;
 
 function WorkspaceInviteUsers(props: any) {
+  const showAppLevelInviteModal =
+    (!cloudHosting && props.isApplicationPage) || false;
   const userRef = React.createRef<HTMLDivElement>();
   const currentUser = useSelector(getCurrentUser);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
-  const allUsers = useSelector(getAllUsers);
-  const isLoading = useSelector(getWorkspaceLoadingStates).isFetchingAllUsers;
+  const allUsers = useSelector(
+    showAppLevelInviteModal ? getAllAppUsers : getAllUsers,
+  );
+  const isLoading: boolean =
+    useSelector(
+      showAppLevelInviteModal
+        ? getApplicationLoadingStates
+        : getWorkspaceLoadingStates,
+    )?.isFetchingAllUsers || false;
 
   const emailOutsideCurrentDomain = useRef<undefined | string>();
   const [showPartnerProgramCallout, setShowPartnerProgramCallout] =
@@ -112,12 +130,6 @@ function WorkspaceInviteUsers(props: any) {
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
 
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchUsersForWorkspace(props.workspaceId));
-  }, [props.workspaceId]);
-
   const allUsersProfiles = React.useMemo(
     () =>
       allUsers.map(
@@ -128,6 +140,7 @@ function WorkspaceInviteUsers(props: any) {
           permissionGroupName: string;
           name: string;
           roles: WorkspaceUserRoles[];
+          userGroupId?: string;
         }) => ({
           ...user,
           initials: getInitialsFromName(user.name || user.username),
@@ -199,30 +212,59 @@ function WorkspaceInviteUsers(props: any) {
                 roles: WorkspaceUserRoles[];
                 initials: string;
                 photoId?: string;
+                userId: string;
+                userGroupId?: string;
               }) => {
-                return (
-                  <User key={user.username}>
+                const showUser =
+                  (showAppLevelInviteModal
+                    ? user.roles?.[0]?.entityType === ENTITY_TYPE.APPLICATION
+                    : user.roles?.[0]?.entityType === ENTITY_TYPE.WORKSPACE) &&
+                  user.roles?.[0]?.id;
+                return showUser ? (
+                  <User
+                    key={user?.userGroupId ? user.userGroupId : user.username}
+                  >
                     <UserInfo>
-                      <Avatar
-                        firstLetter={user.initials}
-                        image={
-                          user.photoId
-                            ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
-                            : undefined
-                        }
-                        isTooltipEnabled={false}
-                        label={user.name || user.username}
-                      />
-                      <UserName>
-                        <Tooltip content={user.username} placement="top">
-                          <Text
-                            color="var(--ads-v2-color-fg)"
-                            kind="heading-xs"
-                          >
-                            {user.name}
-                          </Text>
-                        </Tooltip>
-                      </UserName>
+                      {user?.userGroupId ? (
+                        <>
+                          <Icon
+                            className="user-icons"
+                            name="group-line"
+                            size="lg"
+                          />
+                          <UserName>
+                            <Text
+                              color="var(--ads-v2-color-fg)"
+                              kind="heading-xs"
+                            >
+                              {user.name}
+                            </Text>
+                          </UserName>
+                        </>
+                      ) : (
+                        <>
+                          <Avatar
+                            firstLetter={user.initials}
+                            image={
+                              user.photoId
+                                ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
+                                : undefined
+                            }
+                            isTooltipEnabled={false}
+                            label={user.name || user.username}
+                          />
+                          <UserName>
+                            <Tooltip content={user.username} placement="top">
+                              <Text
+                                color="var(--ads-v2-color-fg)"
+                                kind="heading-xs"
+                              >
+                                {user.name}
+                              </Text>
+                            </Tooltip>
+                          </UserName>
+                        </>
+                      )}
                     </UserInfo>
                     <UserRole>
                       <Text kind="action-m">
@@ -230,7 +272,7 @@ function WorkspaceInviteUsers(props: any) {
                       </Text>
                     </UserRole>
                   </User>
-                );
+                ) : null;
               },
             )}
           </UserList>

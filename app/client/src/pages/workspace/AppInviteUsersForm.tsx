@@ -110,7 +110,7 @@ function AppInviteUsersForm(props: any) {
       {canInviteToApplication && (
         <WorkspaceInviteUsersForm
           applicationId={applicationId}
-          isApplicationInvite
+          isApplicationPage
           placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
           workspaceId={props.workspaceId}
         />

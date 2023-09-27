@@ -39,6 +39,7 @@ import {
 } from "design-system";
 import {
   fetchRolesForWorkspace,
+  fetchUsersForWorkspace,
   fetchWorkspace,
 } from "@appsmith/actions/workspaceActions";
 import {
@@ -181,9 +182,9 @@ const validate = (values: any) => {
 };
 
 export function InviteUserText({
-  isApplicationInvite,
+  isApplicationPage,
 }: {
-  isApplicationInvite: boolean;
+  isApplicationPage: boolean;
 }) {
   const rampLinkSelector = getRampLink({
     section: RampSection.AppShare,
@@ -198,7 +199,7 @@ export function InviteUserText({
       data-testid="helper-message"
       kind="action-m"
     >
-      {canShowRamp && isApplicationInvite ? (
+      {canShowRamp && isApplicationPage ? (
         <>
           {createMessage(INVITE_USER_RAMP_TEXT)}
           <Link kind="primary" target="_blank" to={rampLink}>
@@ -283,9 +284,10 @@ function InviteUsersForm(props: any) {
     error,
     fetchAllRoles,
     fetchCurrentWorkspace,
+    fetchUsers,
     handleSubmit,
     isAclFlow = false,
-    isApplicationInvite = false,
+    isApplicationPage = false,
     isMultiSelectDropdown = false,
     placeholder = "",
     submitFailed,
@@ -308,7 +310,8 @@ function InviteUsersForm(props: any) {
   useEffect(() => {
     fetchCurrentWorkspace(props.workspaceId);
     fetchAllRoles(props.workspaceId);
-  }, [props.workspaceId, fetchAllRoles]);
+    fetchUsers(props.workspaceId);
+  }, [props.workspaceId, fetchAllRoles, fetchCurrentWorkspace, fetchUsers]);
 
   useEffect(() => {
     if (selected) {
@@ -477,7 +480,7 @@ function InviteUsersForm(props: any) {
         <div className="flex gap-2 mt-2 items-start">
           <Icon className="mt-1" name="user-3-line" size="md" />
           <WorkspaceText>
-            <InviteUserText isApplicationInvite={isApplicationInvite} />
+            <InviteUserText isApplicationPage={isApplicationPage} />
           </WorkspaceText>
         </div>
       )}
@@ -500,6 +503,8 @@ export default connect(
       dispatch(fetchRolesForWorkspace(workspaceId)),
     fetchCurrentWorkspace: (workspaceId: string) =>
       dispatch(fetchWorkspace(workspaceId)),
+    fetchUsers: (workspaceId: string) =>
+      dispatch(fetchUsersForWorkspace(workspaceId)),
   }),
 )(
   reduxForm<
@@ -508,7 +513,7 @@ export default connect(
       roles?: any;
       applicationId?: string;
       workspaceId?: string;
-      isApplicationInvite?: boolean;
+      isApplicationPage?: boolean;
       placeholder?: string;
       customProps?: any;
       selected?: any;
