@@ -22,6 +22,7 @@ export cluster_name=uat-cluster
 echo "Region: $region"
 echo "Cluster name: $cluster_name"
 echo "Sub Domain Name: $SUB_DOMAIN_NAME"
+echo "DP_EFS_ID: $DP_EFS_ID"
 
 sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name ekscisession)
 export AWS_ACCESS_KEY_ID=$(echo $sts_output | jq -r '.Credentials''.AccessKeyId');\
@@ -34,8 +35,8 @@ export SECRET="$SUB_DOMAIN_NAME"
 export DBNAME="$SUB_DOMAIN_NAME"
 export DOMAINNAME="$SUB_DOMAIN_NAME".dp.appsmith.com
 export HELMCHART="appsmith"
-export HELMCHART_URL="http://helm.appsmith.com"
-export HELMCHART_VERSION="2.0.2"
+export HELMCHART_URL="http://helm-ee.appsmith.com"
+export HELMCHART_VERSION="3.0.7"
 
 aws eks update-kubeconfig --region $region --name $cluster_name --profile eksci
 
@@ -47,9 +48,32 @@ kubectl get pods
 
 if [[ -n "${RECREATE-}" ]]
 then
-  kubectl delete ns $NAMESPACE || true
   mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
+  pod_name=$(kubectl get pods -n $NAMESPACE -o json | jq '.items[0].metadata.name' | tr -d '"')
+  kubectl exec $pod_name -n $NAMESPACE -- bash -c "rm -rf /appsmith-stacks/*"
+  kubectl delete ns $NAMESPACE || true
+#  Placeholder to use access points more effectively
+  kubectl patch pv $NAMESPACE-appsmith -p '{"metadata":{"finalizers":null}}' || true
+  kubectl delete pv $NAMESPACE-appsmith --grace-period=0 --force || true
 fi
+
+# Create the sub directory for the EFS mount point
+# Note: the full path will be efs-mount:/dp/${NAMESPACE}
+echo "Attempting to create the sub-directory /dp/${NAMESPACE} in the EFS volume"
+url="https://ops.appsmith.com/aws_efs_dp/create/${NAMESPACE}"
+max_attempts=3
+for ((attempt = 1; attempt <= $max_attempts; attempt++)); do
+     response=$(curl --request GET "${url}" --oauth2-bearer '${{secrets.INTERNAL_OPS_API_TOKEN}}' -s -o /dev/null -w "%{http_code}")
+    if [ "${response}" -eq 200 ]; then
+        echo "API request successful (HTTP Status: ${response})"
+        exit 0
+    else
+        echo "Attempt $attempt: API request failed (HTTP Status: ${response})"
+        if [ "${attempt}" -lt "${max_attempts}" ]; then
+            sleep 1
+        fi
+    fi
+done
 
 echo "Use kubernetes secret to Pull Image"
 kubectl create ns $NAMESPACE || true
@@ -60,17 +84,29 @@ kubectl create secret docker-registry $SECRET \
   --docker-password=$DOCKER_HUB_ACCESS_TOKEN -n $NAMESPACE
 
 echo "Add appsmith-ce to helm repo"
-AWS_REGION=ap-south-1 helm repo add $HELMCHART $HELMCHART_URL
+AWS_REGION=ap-south-1 helm repo add appsmith-ee $HELMCHART_URL;
+helm repo update;
+helm plugin install https://github.com/helm/helm-mapkubeapis -n $NAMESPACE
+helm plugin ls
+helm mapkubeapis $CHARTNAME -n $NAMESPACE
+
+
 
 echo "Deploy appsmith helm chart"
-helm upgrade -i $CHARTNAME appsmith/appsmith -n $NAMESPACE \
-  --create-namespace --recreate-pods --set image.repository=$DOCKER_HUB_ORGANIZATION/appsmith-dp --set image.tag=$IMAGE_HASH \
-  --set image.pullSecrets=$SECRET --set redis.enabled=false --set mongodb.enabled=false --set ingress.enabled=true \
+helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespace --recreate-pods \
+  --set _image.repository=$DOCKER_HUB_ORGANIZATION/appsmith-dp --set _image.tag=$IMAGE_HASH \
+  --set _image.pullPolicy="Always" \
+  --set image.pullSecrets=$SECRET --set autoscaling.enabled=true --set autoscaling.minReplicas=1 \
+  --set autoscaling.maxReplicas=1 --set redis.enabled=false --set postgresql.enabled=false --set mongodb.enabled=false --set ingress.enabled=true \
   --set "ingress.annotations.service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert=$AWS_RELEASE_CERT" \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
-  --set ingress.className="nginx" \
-  --set image.pullPolicy="Always" --set autoupdate.enabled="true" --set persistence.size=2Gi \
+  --set autoupdate.enabled=false --set persistence.efs.enabled=true --set ingress.className="nginx" \
+  --set persistence.efs.driver=efs.csi.aws.com --set persistence.storageClass=efs-dp-appsmith \
+  --set persistence.efs.volumeHandle=$DP_EFS_ID:/dp/$NAMESPACE \
+  --set resources.requests.cpu="1m" \
+  --set resources.requests.memory="1Mi" \
   --set applicationConfig.APPSMITH_SENTRY_DSN="https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547" \
   --set applicationConfig.APPSMITH_SENTRY_ENVIRONMENT="$NAMESPACE" \
   --set applicationConfig.APPSMITH_MONGODB_URI="mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" \
+  --set applicationConfig.APPSMITH_DISABLE_EMBEDDED_KEYCLOAK=\"1\" \
   --version $HELMCHART_VERSION
