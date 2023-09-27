@@ -19,7 +19,7 @@ import {
   getDynamicBindings,
   getEntityDynamicBindingPathList,
 } from "utils/DynamicBindingUtils";
-import { isWidgetActionOrJsObject } from "workers/common/DataTreeEvaluator/utils";
+import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
 
 export function getEntityDependencies(
   entity: DataTreeEntity,

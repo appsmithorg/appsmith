@@ -12,7 +12,9 @@ import type {
   unEvalAndConfigTree,
   ConfigTree,
   AppsmithEntity,
+  UnEvalTree,
 } from "@appsmith/entities/DataTree/types";
+import { isEmpty } from "lodash";
 
 export class DataTreeFactory {
   static create({
@@ -31,8 +33,8 @@ export class DataTreeFactory {
     widgets,
     widgetsMeta,
   }: DataTreeSeed): unEvalAndConfigTree {
-    const dataTree: any = {};
-    const configTree: ConfigTree = {};
+    let dataTree: UnEvalTree = {};
+    let configTree: ConfigTree = {};
     const start = performance.now();
     const startActions = performance.now();
 
@@ -60,7 +62,15 @@ export class DataTreeFactory {
 
     const startWidgets = performance.now();
 
-    generateDataTreeModuleInputs(moduleInputs);
+    if (!isEmpty(moduleInputs)) {
+      const data = generateDataTreeModuleInputs(
+        dataTree,
+        configTree,
+        moduleInputs,
+      );
+      dataTree = data.dataTree;
+      configTree = data.configTree;
+    }
 
     Object.values(widgets).forEach((widget) => {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(

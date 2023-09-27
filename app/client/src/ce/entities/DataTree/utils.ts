@@ -2,9 +2,19 @@ import type {
   PropertyOverrideDependency,
   OverridingPropertyPaths,
   ModuleInput,
+  DataTreeEntity,
+  WidgetEntity,
+  ActionEntity,
+  JSActionEntity,
+  ConfigTree,
+  UnEvalTree,
 } from "@appsmith/entities/DataTree/types";
 import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
-import { isEmpty } from "lodash";
+import {
+  isAction,
+  isJSAction,
+  isWidget,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 
 type SetOverridingPropertyParams = {
   key: string;
@@ -59,9 +69,19 @@ export const setOverridingProperty = ({
 };
 
 export const generateDataTreeModuleInputs = (
+  dataTree: UnEvalTree,
+  configTree: ConfigTree,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   moduleInputs: Record<string, ModuleInput>,
 ) => {
-  if (isEmpty(moduleInputs)) {
-    return {};
-  }
+  return {
+    dataTree,
+    configTree,
+  };
 };
+
+export function isWidgetActionOrJsObject(
+  entity: DataTreeEntity,
+): entity is ActionEntity | WidgetEntity | JSActionEntity {
+  return isWidget(entity) || isAction(entity) || isJSAction(entity);
+}

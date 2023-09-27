@@ -103,11 +103,7 @@ import {
   parseJSActions,
   updateEvalTreeWithJSCollectionState,
 } from "workers/Evaluation/JSObject";
-import {
-  getFixedTimeDifference,
-  isWidgetActionOrJsObject,
-  replaceThisDotParams,
-} from "./utils";
+import { getFixedTimeDifference, replaceThisDotParams } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   getValidatedTree,
@@ -121,6 +117,7 @@ import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import DependencyMap from "entities/DependencyMap";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
+import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -954,9 +951,9 @@ export default class DataTreeEvaluator {
           const { entityName, propertyPath } =
             getEntityNameAndPropertyPath(fullPropertyPath);
           const entity = currentTree[entityName];
+          const entityConfig = oldConfigTree[entityName];
           if (!isWidgetActionOrJsObject(entity)) return currentTree;
           let unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
-          const entityConfig = oldConfigTree[entityName];
 
           const isADynamicBindingPath =
             (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
@@ -1020,7 +1017,7 @@ export default class DataTreeEvaluator {
             fullPropertyPath,
           );
 
-          const entityType = entity.ENTITY_TYPE as ENTITY_TYPE;
+          const entityType = entityConfig.ENTITY_TYPE as ENTITY_TYPE;
 
           if (!propertyPath)
             return set(currentTree, fullPropertyPath, evalPropertyValue);
