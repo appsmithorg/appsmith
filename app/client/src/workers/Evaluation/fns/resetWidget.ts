@@ -68,7 +68,8 @@ async function resetWidgetMetaProperty(
 
     if (isWidget(evaluatedEntity)) {
       if (evaluatedEntity) {
-        const { propertyOverrideDependency } = evaluatedEntityConfig;
+        const { defaultMetaProps, propertyOverrideDependency } =
+          evaluatedEntityConfig;
         // propertyOverrideDependency has defaultProperty name for each meta property of widget
         const propertyOverrideDependencyEntries = Object.entries(
           propertyOverrideDependency as PropertyOverrideDependency,
@@ -137,16 +138,33 @@ async function resetWidgetMetaProperty(
           (path) => path[0],
         );
 
-        const metaPaths = Object.keys(evaluatedEntity.meta);
-
-        for (let i = 0; i < metaPaths.length; i++) {
-          if (metaKeysInOverride.includes(metaPaths[i])) {
+        for (let i = 0; i < defaultMetaProps.length; i++) {
+          if (metaKeysInOverride.includes(defaultMetaProps[i])) {
             continue;
           }
 
+          const overriddenProperties: string[] = [];
+
+          overrideWidgetProperties({
+            entity: evaluatedEntity,
+            propertyPath: `meta.${defaultMetaProps[i]}`,
+            value: undefined,
+            currentTree: evalTree,
+            configTree,
+            evalMetaUpdates,
+            fullPropertyPath: `${widgetName}.meta.${defaultMetaProps[i]}`,
+            isNewWidget: false,
+            shouldUpdateGlobalContext: true,
+            overriddenProperties,
+          });
+
+          overriddenProperties.forEach((propPath) => {
+            updatedProperties.push([widgetName, propPath]);
+          });
+
           evalMetaUpdates.push({
             widgetId: evaluatedEntity.widgetId,
-            metaPropertyPath: metaPaths[i].split("."),
+            metaPropertyPath: defaultMetaProps[i].split("."),
             value: undefined,
           });
         }
