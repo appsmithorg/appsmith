@@ -1,21 +1,37 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, cloneElement } from "react";
 import styles from "./styles.module.css";
+import isArray from "lodash/isArray";
 
+import type { Ref, ReactNode } from "react";
 import type { ButtonGroupProps } from "./types";
 
-export const ButtonGroup = forwardRef<HTMLDivElement, ButtonGroupProps>(
-  (props, ref) => {
-    const { orientation = "horizontal", ...others } = props;
+const _ButtonGroup = (props: ButtonGroupProps, ref: Ref<HTMLDivElement>) => {
+  const {
+    children,
+    color = "accent",
+    orientation = "horizontal",
+    variant = "filled",
+    ...others
+  } = props;
 
-    return (
-      <div
-        className={styles.buttonGroup}
-        data-orientation={orientation}
-        ref={ref}
-        {...others}
-      />
-    );
-  },
-);
+  const cloneChildren = (elements: ReactNode) => {
+    if (isArray(elements)) {
+      return elements.map((element) =>
+        cloneElement(element, { variant, color }),
+      );
+    }
+  };
 
-ButtonGroup.displayName = "ButtonGroup";
+  return (
+    <div
+      className={styles.buttonGroup}
+      data-orientation={orientation}
+      ref={ref}
+      {...others}
+    >
+      {cloneChildren(children)}
+    </div>
+  );
+};
+
+export const ButtonGroup = forwardRef(_ButtonGroup);
