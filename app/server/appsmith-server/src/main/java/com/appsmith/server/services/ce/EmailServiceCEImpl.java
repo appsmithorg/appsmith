@@ -5,9 +5,11 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.helpers.EmailServiceHelper;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.TenantService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.net.URLEncoder;
@@ -17,26 +19,31 @@ import java.util.Map;
 
 import static com.appsmith.server.constants.ce.EmailConstantsCE.*;
 
+@Component
 public class EmailServiceCEImpl implements EmailServiceCE {
     private final EmailSender emailSender;
     private final TenantService tenantService;
 
-    public EmailServiceCEImpl(EmailSender emailSender, TenantService tenantService) {
+    private final EmailServiceHelper emailServiceHelper;
+
+    public EmailServiceCEImpl(
+            EmailSender emailSender, TenantService tenantService, EmailServiceHelper emailServiceHelper) {
         this.emailSender = emailSender;
         this.tenantService = tenantService;
+        this.emailServiceHelper = emailServiceHelper;
     }
 
     @Override
     public Mono<Boolean> sendForgotPasswordEmail(String email, String resetUrl, String originHeader) {
         Map<String, String> params = new HashMap<>();
         params.put(RESET_URL, resetUrl);
-        return this.enrichParams(params)
-                .flatMap(enrichedParams -> this.enrichWithBrandParams(enrichedParams, originHeader)
-                        .flatMap(updatedParams -> emailSender.sendMail(
-                                email,
-                                String.format(FORGOT_PASSWORD_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
-                                getForgotPasswordTemplate(),
-                                updatedParams)));
+        return this.enrichParams(params).flatMap(enrichedParams -> emailServiceHelper
+                .enrichWithBrandParams(enrichedParams, originHeader)
+                .flatMap(updatedParams -> emailSender.sendMail(
+                        email,
+                        String.format(FORGOT_PASSWORD_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
+                        emailServiceHelper.getForgotPasswordTemplate(),
+                        updatedParams)));
     }
 
     @Override
@@ -56,23 +63,26 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         String emailSubject = String.format(WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER, workspaceInvitedTo.getName());
         Map<String, String> params = getInviteToWorkspaceEmailParams(
                 workspaceInvitedTo, invitingUser, inviteUrl, assignedPermissionGroup.getName(), isNewUser);
-        return this.enrichParams(params).flatMap(enrichedParams -> this.enrichWithBrandParams(
-                        enrichedParams, originHeader)
+        return this.enrichParams(params).flatMap(enrichedParams -> emailServiceHelper
+                .enrichWithBrandParams(enrichedParams, originHeader)
                 .flatMap(updatedParams -> emailSender.sendMail(
-                        invitedUser.getEmail(), emailSubject, getWorkspaceInviteTemplate(isNewUser), updatedParams)));
+                        invitedUser.getEmail(),
+                        emailSubject,
+                        emailServiceHelper.getWorkspaceInviteTemplate(isNewUser),
+                        updatedParams)));
     }
 
     @Override
     public Mono<Boolean> sendEmailVerificationEmail(User user, String verificationURL, String originHeader) {
         Map<String, String> params = new HashMap<>();
         params.put(EMAIL_VERIFICATION_URL, verificationURL);
-        return this.enrichParams(params)
-                .flatMap(enrichedParams -> this.enrichWithBrandParams(enrichedParams, originHeader)
-                        .flatMap(updatedParams -> emailSender.sendMail(
-                                user.getEmail(),
-                                EMAIL_VERIFICATION_EMAIL_SUBJECT,
-                                getEmailVerificationTemplate(),
-                                updatedParams)));
+        return this.enrichParams(params).flatMap(enrichedParams -> emailServiceHelper
+                .enrichWithBrandParams(enrichedParams, originHeader)
+                .flatMap(updatedParams -> emailSender.sendMail(
+                        user.getEmail(),
+                        EMAIL_VERIFICATION_EMAIL_SUBJECT,
+                        emailServiceHelper.getEmailVerificationTemplate(),
+                        updatedParams)));
     }
 
     @Override
@@ -94,11 +104,11 @@ public class EmailServiceCEImpl implements EmailServiceCE {
             params.put(INVITER_FIRST_NAME, StringUtils.defaultIfEmpty(invitingUser.getName(), invitingUser.getEmail()));
         }
         return this.enrichParams(params)
-                .flatMap(enrichedParams -> this.enrichWithBrandParams(enrichedParams, originHeader))
+                .flatMap(enrichedParams -> emailServiceHelper.enrichWithBrandParams(enrichedParams, originHeader))
                 .flatMap(updatedParams -> emailSender.sendMail(
                         invitedUser.getEmail(),
                         String.format(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT),
-                        getAdminInstanceInviteTemplate(),
+                        emailServiceHelper.getAdminInstanceInviteTemplate(),
                         updatedParams));
     }
 
@@ -108,28 +118,6 @@ public class EmailServiceCEImpl implements EmailServiceCE {
             params.put(INSTANCE_NAME, StringUtils.defaultIfEmpty(tenantConfiguration.getInstanceName(), "Appsmith"));
             return params;
         });
-    }
-
-    protected Mono<Map<String, String>> enrichWithBrandParams(Map<String, String> params, String origin) {
-        return Mono.just(params);
-    }
-
-    protected String getForgotPasswordTemplate() {
-        return FORGOT_PASSWORD_TEMPLATE_CE;
-    }
-
-    protected String getWorkspaceInviteTemplate(boolean isNewUser) {
-        if (isNewUser) return INVITE_WORKSPACE_TEMPLATE_NEW_USER_CE;
-
-        return INVITE_WORKSPACE_TEMPLATE_EXISTING_USER_CE;
-    }
-
-    protected String getEmailVerificationTemplate() {
-        return EMAIL_VERIFICATION_EMAIL_TEMPLATE_CE;
-    }
-
-    protected String getAdminInstanceInviteTemplate() {
-        return INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE;
     }
 
     private Map<String, String> getInviteToWorkspaceEmailParams(

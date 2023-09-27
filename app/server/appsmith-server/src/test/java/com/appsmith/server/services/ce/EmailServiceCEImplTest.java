@@ -2,18 +2,15 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.TenantService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
@@ -49,19 +46,8 @@ class EmailServiceCEImplTest {
     @Mock
     EmailSender mockEmailSender;
 
-    private EmailServiceCE emailService;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
-        TenantConfiguration tenantConfiguration = new TenantConfiguration();
-
-        Tenant tenant = tenantService.getDefaultTenant().block();
-        assert tenant != null;
-        tenant.setTenantConfiguration(tenantConfiguration);
-
-        this.emailService = new EmailServiceCEImpl(mockEmailSender, tenantService);
-    }
+    @Autowired
+    @Qualifier("emailServiceCEImpl") private EmailServiceCE emailService;
 
     @Test
     void sendForgotPasswordEmail() {
