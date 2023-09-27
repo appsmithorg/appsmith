@@ -1091,12 +1091,16 @@ export class DataSources {
   public ReconnectSingleDSNAssert(
     dbName: string,
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
+    shouldTestDatasource = false,
   ) {
     this.ReconnectModalValidation(dbName, dsName);
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();
+    if (shouldTestDatasource) {
+      this.TestDatasource();
+    }
     this.SaveDatasource(true);
     this.assertHelper.AssertNetworkStatus("@getPage", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
