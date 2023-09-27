@@ -164,7 +164,7 @@ export const updateDependencyMap = ({
             validationDependencyMap.addNodes(allAddedPaths);
           if (didUpdateDep) didUpdateDependencyMap = true;
           if (didUpdateValidationDep) didUpdateValidationDependencyMap = true;
-          if (isWidgetActionOrJsObject(entity)) {
+          if (isWidgetActionOrJsObject(entity, entityConfig)) {
             if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
               const entityDependencyMap = getEntityDependencies(
                 entity,
@@ -259,7 +259,7 @@ export const updateDependencyMap = ({
           if (didUpdateDeps) didUpdateDependencyMap = true;
           if (didUpdateValidationDeps) didUpdateValidationDependencyMap = true;
 
-          if (isWidgetActionOrJsObject(entity)) {
+          if (isWidgetActionOrJsObject(entity, entityConfig)) {
             const entityId = getEntityId(entity);
             for (const deletedPath of Object.keys(allDeletedPaths)) {
               removedPaths.push({
@@ -271,7 +271,10 @@ export const updateDependencyMap = ({
           break;
         }
         case DataTreeDiffEvent.EDIT: {
-          if (isWidgetActionOrJsObject(entity) && typeof value === "string") {
+          if (
+            isWidgetActionOrJsObject(entity, entityConfig) &&
+            typeof value === "string"
+          ) {
             const entity: ActionEntity | WidgetEntity | JSActionEntity =
               unEvalDataTree[entityName] as
                 | ActionEntity

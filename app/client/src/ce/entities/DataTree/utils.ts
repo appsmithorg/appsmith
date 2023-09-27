@@ -8,6 +8,7 @@ import type {
   JSActionEntity,
   ConfigTree,
   UnEvalTree,
+  DataTreeEntityConfig,
 } from "@appsmith/entities/DataTree/types";
 import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
 import {
@@ -82,6 +83,8 @@ export const generateDataTreeModuleInputs = (
 
 export function isWidgetActionOrJsObject(
   entity: DataTreeEntity,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  entityConfig: DataTreeEntityConfig,
 ): entity is ActionEntity | WidgetEntity | JSActionEntity {
   return isWidget(entity) || isAction(entity) || isJSAction(entity);
 }

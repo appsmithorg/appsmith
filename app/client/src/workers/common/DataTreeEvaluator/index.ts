@@ -952,7 +952,8 @@ export default class DataTreeEvaluator {
             getEntityNameAndPropertyPath(fullPropertyPath);
           const entity = currentTree[entityName];
           const entityConfig = oldConfigTree[entityName];
-          if (!isWidgetActionOrJsObject(entity)) return currentTree;
+          if (!isWidgetActionOrJsObject(entity, entityConfig))
+            return currentTree;
           let unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
 
           const isADynamicBindingPath =
