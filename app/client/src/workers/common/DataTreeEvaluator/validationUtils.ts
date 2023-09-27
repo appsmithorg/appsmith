@@ -6,7 +6,7 @@ import type {
   WidgetEntity,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import { get, isObject, isUndefined, set } from "lodash";
+import { isObject, isUndefined, set, get } from "lodash";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
   getEvalValuePath,
@@ -20,7 +20,7 @@ import {
   resetValidationErrorsForEntityProperty,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { validate } from "workers/Evaluation/validations";
-import type { EvalProps } from ".";
+import type { EvalPathsIdenticalToState, EvalProps } from ".";
 import type { ValidationResponse } from "constants/WidgetValidation";
 
 const LARGE_COLLECTION_SIZE = 100;
@@ -37,14 +37,21 @@ export function setToEvalPathsIdenticalToState({
   evalPath,
   evalPathsIdenticalToState,
   evalProps,
+  fullPropertyPath,
   isParsedValueTheSame,
-  statePath,
   value,
-}: any) {
+}: {
+  evalPath: string;
+  evalPathsIdenticalToState: EvalPathsIdenticalToState;
+  evalProps: EvalProps;
+  isParsedValueTheSame: boolean;
+  fullPropertyPath: string;
+  value: unknown;
+}) {
   const isLargeCollection = getIsLargeCollection(value);
 
   if (isParsedValueTheSame && isLargeCollection) {
-    evalPathsIdenticalToState[evalPath] = statePath;
+    evalPathsIdenticalToState[evalPath] = fullPropertyPath;
   } else {
     delete evalPathsIdenticalToState[evalPath];
 
@@ -53,7 +60,6 @@ export function setToEvalPathsIdenticalToState({
 }
 export function validateAndParseWidgetProperty({
   configTree,
-  currentTree,
   evalPathsIdenticalToState,
   evalPropertyValue,
   evalProps,
@@ -63,12 +69,11 @@ export function validateAndParseWidgetProperty({
 }: {
   fullPropertyPath: string;
   widget: WidgetEntity;
-  currentTree: DataTree;
   configTree: ConfigTree;
   evalPropertyValue: unknown;
   unEvalPropertyValue: string;
   evalProps: EvalProps;
-  evalPathsIdenticalToState: any;
+  evalPathsIdenticalToState: EvalPathsIdenticalToState;
 }): unknown {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   if (isPathDynamicTrigger(widget, propertyPath)) {
@@ -112,7 +117,6 @@ export function validateAndParseWidgetProperty({
       errors: evalErrors,
       evalProps,
       fullPropertyPath,
-      dataTree: currentTree,
       configTree,
     });
   }
@@ -128,7 +132,7 @@ export function validateAndParseWidgetProperty({
     evalPathsIdenticalToState,
     evalProps,
     isParsedValueTheSame,
-    statePath: fullPropertyPath,
+    fullPropertyPath,
     value: evaluatedValue,
   });
 
@@ -162,74 +166,93 @@ export function validateActionProperty(
   }
   return validate(config, value, {}, "");
 }
-
+/**
+ * Validates all the nodes of the tree to make sure all the values are as expected according to the validation config
+ *
+ * For example :- If Button.isDisabled is set to false in propertyPane then it would be passed as "false" in unEvalTree and validateTree method makes sure to convert it to boolean.
+ * @param tree
+ * @param option
+ * @param configTree
+ * @returns
+ */
 export function getValidatedTree(
-  tree: DataTree,
-  option: { evalProps: EvalProps; evalPathsIdenticalToState: any },
+  dataTree: DataTree,
+  option: {
+    evalProps: EvalProps;
+    evalPathsIdenticalToState: EvalPathsIdenticalToState;
+    pathsValidated: string[];
+  },
   configTree: ConfigTree,
 ) {
-  const { evalPathsIdenticalToState, evalProps } = option;
-  return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const entity = tree[entityKey];
+  const { evalPathsIdenticalToState, evalProps, pathsValidated } = option;
+  for (const [entityName, entity] of Object.entries(dataTree)) {
     if (!isWidget(entity)) {
-      return tree;
+      continue;
     }
-    const entityConfig = configTree[entityKey] as WidgetEntityConfig;
+    const entityConfig = configTree[entityName] as WidgetEntityConfig;
 
-    Object.entries(entityConfig.validationPaths).forEach(
-      ([property, validation]) => {
-        const value = get(entity, property);
-        // const value = get(parsedEntity, property);
-        // Pass it through parse
-        const { isValid, messages, parsed, transformed } =
-          validateWidgetProperty(validation, value, entity, property);
-        set(entity, property, parsed);
-        const evaluatedValue = isValid
-          ? parsed
-          : isUndefined(transformed)
-          ? value
-          : transformed;
+    const validationPathsMap = Object.entries(entityConfig.validationPaths);
 
-        const isParsedValueTheSame = parsed === evaluatedValue;
-        const fullPropertyPath = `${entityKey}.${property}`;
-        const evalPath = getEvalValuePath(fullPropertyPath, {
-          isPopulated: false,
-          fullPath: true,
-        });
+    for (const [propertyPath, validationConfig] of validationPathsMap) {
+      const fullPropertyPath = `${entityName}.${propertyPath}`;
 
-        setToEvalPathsIdenticalToState({
-          evalPath,
-          evalPathsIdenticalToState,
-          evalProps,
-          isParsedValueTheSame,
-          statePath: fullPropertyPath,
-          value: evaluatedValue,
-        });
+      if (pathsValidated.includes(fullPropertyPath)) continue;
 
-        resetValidationErrorsForEntityProperty({
+      const value = get(entity, propertyPath);
+      // Pass it through parse
+      const { isValid, messages, parsed, transformed } = validateWidgetProperty(
+        validationConfig,
+        value,
+        entity,
+        propertyPath,
+      );
+
+      set(entity, propertyPath, parsed);
+
+      const evaluatedValue = isValid
+        ? parsed
+        : isUndefined(transformed)
+        ? value
+        : transformed;
+
+      const isParsedValueTheSame = parsed === evaluatedValue;
+
+      const evalPath = getEvalValuePath(fullPropertyPath, {
+        isPopulated: false,
+        fullPath: true,
+      });
+
+      setToEvalPathsIdenticalToState({
+        evalPath,
+        evalPathsIdenticalToState,
+        evalProps,
+        isParsedValueTheSame,
+        fullPropertyPath,
+        value: evaluatedValue,
+      });
+
+      resetValidationErrorsForEntityProperty({
+        evalProps,
+        fullPropertyPath,
+      });
+
+      if (!isValid) {
+        const evalErrors: EvaluationError[] =
+          messages?.map((message) => ({
+            errorType: PropertyEvaluationErrorType.VALIDATION,
+            errorMessage: message,
+            severity: Severity.ERROR,
+            raw: value,
+          })) ?? [];
+
+        addErrorToEntityProperty({
+          errors: evalErrors,
           evalProps,
           fullPropertyPath,
+          configTree,
         });
-
-        if (!isValid) {
-          const evalErrors: EvaluationError[] =
-            messages?.map((message) => ({
-              errorType: PropertyEvaluationErrorType.VALIDATION,
-              errorMessage: message,
-              severity: Severity.ERROR,
-              raw: value,
-            })) ?? [];
-
-          addErrorToEntityProperty({
-            errors: evalErrors,
-            evalProps,
-            fullPropertyPath,
-            dataTree: tree,
-            configTree,
-          });
-        }
-      },
-    );
-    return { ...tree, [entityKey]: entity };
-  }, tree);
+      }
+    }
+  }
+  return dataTree;
 }
