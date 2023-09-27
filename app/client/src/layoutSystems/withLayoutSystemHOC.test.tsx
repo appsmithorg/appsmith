@@ -1,6 +1,6 @@
 import { RenderModes } from "constants/WidgetConstants";
 import React from "react";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import * as editorSelectors from "selectors/editorSelectors";
 import { WidgetTypeFactories } from "test/factories/Widgets/WidgetTypeFactories";
 import { render } from "test/testUtils";
@@ -19,8 +19,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.FIXED);
+        .spyOn(editorSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.FIXED);
       const component = render(<HOC {...widgetProps} />);
       const positionedLayer =
         component.container.getElementsByClassName("positioned-widget")[0];
@@ -39,8 +39,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.FIXED);
+        .spyOn(editorSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.FIXED);
       const component = render(<HOC {...widgetProps} />);
       const positionedLayer =
         component.container.getElementsByClassName("positioned-widget")[0];
@@ -60,8 +60,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.FIXED);
+        .spyOn(editorSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.FIXED);
       const component = render(<HOC {...widgetProps} />);
       const positionedLayer =
         component.container.getElementsByClassName("positioned-widget")[0];
@@ -80,8 +80,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.FIXED);
+        .spyOn(editorSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.FIXED);
       const component = render(<HOC {...widgetProps} />);
       const positionedLayer =
         component.container.getElementsByClassName("positioned-widget")[0];
@@ -101,8 +101,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.FIXED);
+        .spyOn(editorSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.FIXED);
       const component = render(<HOC {...widgetProps} />);
       const positionedLayer =
         component.container.getElementsByClassName("positioned-widget")[0];
@@ -120,8 +120,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.FIXED);
+        .spyOn(editorSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.FIXED);
       const component = render(<HOC {...widgetProps} />);
       const positionedLayer =
         component.container.getElementsByClassName("positioned-widget")[0];
@@ -140,8 +140,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.AUTO);
+        .spyOn(editorSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.AUTO);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
         "auto-layout-child-" + widgetProps.widgetId,
@@ -161,8 +161,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.AUTO);
+        .spyOn(editorSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.AUTO);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
         "auto-layout-child-" + widgetProps.widgetId,
@@ -183,8 +183,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.AUTO);
+        .spyOn(editorSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.AUTO);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
         "auto-layout-child-" + widgetProps.widgetId,
@@ -204,8 +204,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.AUTO);
+        .spyOn(editorSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.AUTO);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
         "auto-layout-child-" + widgetProps.widgetId,
@@ -226,8 +226,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.AUTO);
+        .spyOn(editorSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.AUTO);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
         "auto-layout-child-" + widgetProps.widgetId,
@@ -246,8 +246,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.AUTO);
+        .spyOn(editorSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.AUTO);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
         "auto-layout-child-" + widgetProps.widgetId,

@@ -15,7 +15,7 @@ import type {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type {
   AppLayoutConfig,
-  AppPositioningTypeConfig,
+  LayoutSystemTypeConfig,
 } from "reducers/entityReducers/pageListReducer";
 import type { DSLWidget } from "WidgetProvider/constants";
 
@@ -806,7 +806,7 @@ const ActionTypes = {
   AUTOLAYOUT_REORDER_WIDGETS: "AUTOLAYOUT_REORDER_WIDGETS",
   AUTOLAYOUT_ADD_NEW_WIDGETS: "AUTOLAYOUT_ADD_NEW_WIDGETS",
   RECALCULATE_COLUMNS: "RECALCULATE_COLUMNS",
-  UPDATE_LAYOUT_POSITIONING: "UPDATE_LAYOUT_POSITIONING",
+  UPDATE_LAYOUT_SYSTEM_TYPE: "UPDATE_LAYOUT_SYSTEM_TYPE",
   SET_LAYOUT_CONVERSION_STATE: "SET_LAYOUT_CONVERSION_STATE",
   START_CONVERSION_FLOW: "START_CONVERSION_FLOW",
   STOP_CONVERSION_FLOW: "STOP_CONVERSION_FLOW",
@@ -1193,7 +1193,7 @@ export interface ApplicationPayload {
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
-    appPositioning?: AppPositioningTypeConfig;
+    appPositioning?: LayoutSystemTypeConfig;
     navigationSetting?: NavigationSetting;
   };
   collapseInvisibleWidgets?: boolean;

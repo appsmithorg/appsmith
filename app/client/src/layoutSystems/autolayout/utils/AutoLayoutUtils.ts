@@ -17,7 +17,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import {
   defaultAutoLayoutWidgets,
   FlexLayerAlignment,
@@ -69,8 +69,8 @@ export function updateFlexLayersOnDelete(
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   if (
-    widgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
-      AppPositioningTypes.FIXED ||
+    widgets[MAIN_CONTAINER_WIDGET_ID].layoutSystemType ===
+      LayoutSystemTypes.FIXED ||
     widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Fixed
   )
     return widgets;

@@ -47,7 +47,7 @@ import type {
   LayoutDirection,
   ResponsiveBehavior,
 } from "layoutSystems/autolayout/utils/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 import store from "store";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
@@ -324,7 +324,7 @@ abstract class BaseWidget<
   }
 
   get isAutoLayoutMode() {
-    return this.props.appPositioningType === AppPositioningTypes.AUTO;
+    return this.props.layoutSystemType === LayoutSystemTypes.AUTO;
   }
 
   updateOneClickBindingOptionsVisibility(visibility: boolean) {
@@ -452,7 +452,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.
   isMobile?: boolean;
   flexVerticalAlignment?: FlexVerticalAlignment;
-  appPositioningType?: AppPositioningTypes;
+  layoutSystemType?: LayoutSystemTypes;
   widthInPercentage?: number; // Stores the widget's width set by the user
   mobileWidthInPercentage?: number;
 }

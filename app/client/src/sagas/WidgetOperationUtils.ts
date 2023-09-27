@@ -61,7 +61,7 @@ import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { Positioning } from "layoutSystems/autolayout/utils/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -747,7 +747,7 @@ export function getMousePositions(
 export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
   // For all widgets inside a container, we remove both container padding as well as widget padding from component width
   let padding =
-    ((LayoutWidget?.appPositioningType === AppPositioningTypes.AUTO
+    ((LayoutWidget?.layoutSystemType === LayoutSystemTypes.AUTO
       ? AUTO_LAYOUT_CONTAINER_PADDING
       : CONTAINER_GRID_PADDING) +
       WIDGET_PADDING) *
