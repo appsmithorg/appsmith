@@ -22,19 +22,8 @@ describe("Bug26935- Widget isLoading property", function () {
 
     // Text1
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 200, 600);
-    cy.intercept(
-      {
-        method: "POST",
-        pathname: "/v1/actions/execute",
-      },
-      (req) => {
-        // Wait for 3 seconds, so we can capture the isLoading state of widgets
-        req.continue((res) => {
-          res.delay = 3000;
-          res.send();
-        });
-      },
-    );
+
+    cy.intercept("POST", "/api/v1/actions/execute", { delay: 5000 });
   });
   it("1. Updates isLoading property of widgets when API/Query is executing", () => {
     entityExplorer.SelectEntityByName("Button1", "Widgets");
