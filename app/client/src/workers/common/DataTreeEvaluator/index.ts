@@ -1282,7 +1282,12 @@ export default class DataTreeEvaluator {
             ? jsSnippet.replace(/export default/g, "")
             : jsSnippet;
         if (jsSnippet) {
-          if (entity && entityConfig && !propertyPath.includes("body")) {
+          if (
+            entity &&
+            entityConfig &&
+            !!propertyPath &&
+            !propertyPath.includes("body")
+          ) {
             ExecutionMetaData.setExecutionMetaData({
               triggerMeta: {
                 source: {
