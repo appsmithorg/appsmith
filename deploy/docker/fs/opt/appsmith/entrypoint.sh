@@ -10,8 +10,6 @@ stacks_path=/appsmith-stacks
 
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
-export NGINX_CONF_PATH="$TMP/nginx.conf"  # export for use in supervisor process editor.conf
-export NGINX_WWW_PATH="$TMP/www"  # export for use in supervisor process editor.conf and supervisor plugin starting-page-init.py
 
 CERTBOT_CONFIG_DIR="$stacks_path/letsencrypt"
 
@@ -306,8 +304,8 @@ configure_supervisord() {
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
     fi
-
   fi
+
 }
 
 # This is a workaround to get Redis working on diffent memory pagesize
@@ -346,8 +344,12 @@ init_postgres() {
       echo "Found existing Postgres, Skipping initialization"
     else
       echo "Initializing local postgresql database"
+      mkdir -p "$POSTGRES_DB_PATH" "$TMP/postgres-stats"
 
-      # Initialize the postgres db file system and config.
+      # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
+      chown postgres:postgres "$POSTGRES_DB_PATH" "$TMP/postgres-stats"
+
+      # Initialize the postgres db file system
       su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
       echo "unix_socket_directories = '/tmp/appsmith/pg-runtime'" >> "$POSTGRES_DB_PATH/postgresql.conf"
 
@@ -391,27 +393,9 @@ init_loading_pages(){
   local starting_page="/opt/appsmith/templates/appsmith_starting.html"
   local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
   local editor_load_page="$NGINX_WWW_PATH/loading.html"
-  # Update default nginx page for initializing page
   cp "$initializing_page" "$NGINX_WWW_PATH/index.html"
-  cat <<EOF > "$NGINX_CONF_PATH"
-  user www-data;
-  worker_processes auto;
-  pid '$TMP/nginx.pid';
-
-  error_log stderr info;
-
-  events {
-    worker_connections 768;
-  }
-
-  http {
-    sendfile on;
-    tcp_nopush on;
-    tcp_nodelay on;
-    include /etc/nginx/mime.types;
-    default_type application/octet-stream;
-    access_log /dev/stdout;
-
+  # TODO: Also listen on 443, if HTTP certs are available.
+  cat <<EOF > "$TMP/nginx-app.conf"
     client_body_temp_path '$TMP/nginx-client-body-temp';
     proxy_temp_path '$TMP/nginx-proxy-temp';
     fastcgi_temp_path '$TMP/nginx-fastcgi-temp';
@@ -420,16 +404,13 @@ init_loading_pages(){
 
     server {
       listen ${PORT:-80} default_server;
-      server_name _;
-      root "$NGINX_WWW_PATH";
       location / {
         try_files \$uri \$uri/ /index.html =404;
       }
     }
-  }
 EOF
   # Start nginx page to display the Appsmith is Initializing page
-  nginx -c "$NGINX_CONF_PATH"
+  nginx
   # Update editor nginx page for starting page
   cp "$starting_page" "$editor_load_page"
 }
@@ -462,8 +443,6 @@ export "_IS_EMBEDDED_POSTGRES_RUNNING=$runEmbeddedPostgres"
 
 configure_supervisord
 
-echo "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 "$APPSMITH_SUPERVISOR_PASSWORD")" > "$TMP/nginx-passwords"
-
 mkdir -p "$CERTBOT_CONFIG_DIR" /appsmith-stacks/ssl
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
@@ -473,7 +452,7 @@ mkdir -p /appsmith-stacks/data/{backup,restore}
 mkdir -p /appsmith-stacks/logs/{supervisor,backend,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 # Stop nginx gracefully
-nginx -c "$NGINX_CONF_PATH" -s quit
+nginx -s quit
 
 # Handle CMD command
 exec "$@"

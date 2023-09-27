@@ -65,7 +65,7 @@ if [[ -n ${APPSMITH_CUSTOM_DOMAIN-} ]] && [[ -z ${DYNO-} ]]; then
   fi
 fi
 
-bash /opt/appsmith/templates/nginx.conf.sh "$use_https" "${APPSMITH_CUSTOM_DOMAIN-}" > "$NGINX_CONF_PATH"
+/opt/appsmith/templates/nginx-app.conf.sh "$use_https" "${APPSMITH_CUSTOM_DOMAIN-}"
 
 cp -r /opt/appsmith/editor/* "$NGINX_WWW_PATH"
 
@@ -87,4 +87,4 @@ apply-env-vars() {
 
 apply-env-vars /opt/appsmith/editor/index.html "$NGINX_WWW_PATH/index.html"
 
-exec nginx -c "$NGINX_CONF_PATH" -g "daemon off;"
+exec nginx -g "daemon off;error_log stderr info;"

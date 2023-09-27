@@ -150,7 +150,7 @@ export class DataSources {
     `//div/span[text()='Result:']/span[number(substring-before(normalize-space(text()), ' Record')) >= ${recordCount}]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
-    "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
+    "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox'], input[name='actionConfiguration.formData.preparedStatement.data'][type='checkbox']";
   _queriesOnPageText = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "') .t--queries-for-DB";
   _mockDB = (dbName: string) =>
@@ -283,6 +283,13 @@ export class DataSources {
   _stagingTab = "[data-testid='t--ds-data-filter-Staging']";
   _graphQlDsFromRightPane = (dsName: string) =>
     "//div/span[text() ='" + dsName + "']";
+  _imgFireStoreLogo =
+    "img[src='https://assets.appsmith.com/logo/firestore.svg']";
+  private _dsVirtuosoElement = (dsName: string) =>
+    `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`;
+  private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
+  private _dsVirtuosoElementTable = (targetTableName: string) =>
+    `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`;
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -570,7 +577,10 @@ export class DataSources {
     );
   }
 
-  public FillMsSqlDSForm(environment = this.dataManager.defaultEnviorment) {
+  public FillMsSqlDSForm(
+    environment = this.dataManager.defaultEnviorment,
+    leaveDBNameEmpty = true,
+  ) {
     this.agHelper.UpdateInputValue(
       this._host(),
       this.dataManager.dsValues[environment].mssql_host,
@@ -579,7 +589,14 @@ export class DataSources {
       this._port,
       this.dataManager.dsValues[environment].mssql_port.toString(),
     );
-    this.agHelper.ClearTextField(this._databaseName);
+
+    if (leaveDBNameEmpty) {
+      this.agHelper.ClearTextField(this._databaseName);
+    } else {
+      const databaseName =
+        this.dataManager.dsValues[environment].mssql_databaseName;
+      this.agHelper.ClearNType(this._databaseName, databaseName);
+    }
     // this.agHelper.UpdateInputValue(
     //   this._databaseName,
     //   datasourceFormData["mssql-databaseName"],
@@ -670,7 +687,9 @@ export class DataSources {
     //   );
     this.agHelper.UpdateFieldInput(
       this.locator._inputFieldByName("Service account credentials"),
-      JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
+      JSON.stringify(
+        this.dataManager.dsValues[environment].firestore_serviceaccountkey,
+      ),
     );
     //});
   }
@@ -856,7 +875,7 @@ export class DataSources {
     this.ValidateDSDeletion(expectedRes);
   }
 
-  public DeleteDatasouceFromWinthinDS(
+  public DeleteDatasourceFromWithinDS(
     datasourceName: string,
     expectedRes: number | number[] = 200 || 409 || [200 | 409],
   ) {
@@ -1207,17 +1226,13 @@ export class DataSources {
     });
   }
 
-  public ToggleUsePreparedStatement(enable = true || false) {
-    if (enable)
-      cy.get(this._usePreparedStatement).check({
-        force: true,
-      });
-    else
-      cy.get(this._usePreparedStatement).uncheck({
-        force: true,
-      });
-
-    this.agHelper.AssertAutoSave();
+  ToggleUsePreparedStatement(
+    enable = true || false,
+    toNavigateToSettings = false,
+  ) {
+    toNavigateToSettings && this.apiPage.SelectPaneTab("Settings");
+    if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
+    else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
@@ -1899,5 +1914,71 @@ export class DataSources {
         this.locator._visibleTextDiv($infs),
       );
     });
+  }
+
+  public AssertTableInVirtuosoList(
+    dsName: string,
+    targetTableName: string,
+    presence = true,
+  ) {
+    const ds_entity_name = dsName.replace(/\s/g, "_");
+    this.entityExplorer.ExpandCollapseEntity("Datasources");
+    this.entityExplorer.ExpandCollapseEntity(dsName);
+    cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+      `getDatasourceStructureUpdated_${ds_entity_name}`,
+    );
+    this.entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+
+    this.assertHelper
+      .WaitForNetworkCall(`@getDatasourceStructureUpdated_${ds_entity_name}`)
+      .then(async (interception) => {
+        const tables: any[] = interception?.response?.body.data?.tables || [];
+        const indexOfTable = tables.findIndex(
+          (table) => table.name === targetTableName,
+        );
+        if (presence) {
+          this.agHelper.Sleep();
+          this.agHelper
+            .GetNClick(this._dsVirtuosoElement(dsName))
+            .then((parentElement) => {
+              const heightOfParentElement = parentElement.outerHeight() || 0;
+
+              // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element accordion is collapsed by default.
+              const containerElement = parentElement.find(this._dsVirtuosoList);
+              const elementHeight = parseInt(
+                containerElement.children().first().attr("data-known-size") ||
+                  "",
+                10,
+              );
+              // Total height of the parent container holding the tables in the dom normally without virtualization rendering
+              const totalScroll = tables.length * elementHeight;
+              cy.log(JSON.stringify({ heightOfParentElement, totalScroll }));
+              if (heightOfParentElement < totalScroll) {
+                // Index of the table present in the array of tables which will determine the presence of element inside the parent container
+                let offset = indexOfTable * elementHeight;
+                const scrollPercent = Math.max(
+                  (offset / (totalScroll || 1)) * 100,
+                  0,
+                );
+                if (scrollPercent > 0) {
+                  this.agHelper.ScrollToXY(
+                    this._dsVirtuosoElement(dsName),
+                    0,
+                    `${scrollPercent}%`,
+                  );
+                }
+              }
+
+              this.agHelper.AssertElementVisibility(
+                this._dsVirtuosoElementTable(targetTableName),
+              );
+            });
+        } else {
+          expect(indexOfTable).to.equal(-1);
+        }
+      });
   }
 }

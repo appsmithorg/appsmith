@@ -683,7 +683,11 @@ export class AggregateHelper extends ReusableHelper {
     metaKey = false,
   ) {
     return this.ScrollIntoView(selector, index)
-      .click({ force: force, ctrlKey: ctrlKey, metaKey })
+      .click({
+        force: force,
+        ctrlKey: ctrlKey,
+        metaKey,
+      })
       .wait(waitTimeInterval);
   }
 
@@ -1517,6 +1521,14 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(selector).scrollTo(position).wait(2000);
   }
 
+  public ScrollToXY(
+    selector: ElementType,
+    x: number | string,
+    y: number | string,
+  ) {
+    return this.GetElement(selector).scrollTo(x, y).wait(2000);
+  }
+
   public GetWidth(widgetSelector: string) {
     this.GetElement(widgetSelector).then(($element) => {
       cy.wrap(Number($element.width())).as("eleWidth");
@@ -1646,11 +1658,7 @@ export class AggregateHelper extends ReusableHelper {
   public AssertClassExists(selector: string, className: string) {
     this.GetElement(selector).should("have.class", className);
   }
-  public AssertPopover2Tooltip(expectedText: string) {
-    this.GetText(this.locator._popover2ToolTip, "text").then(($tooltiptxt) =>
-      expect($tooltiptxt).to.eq(expectedText),
-    );
-  }
+
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath

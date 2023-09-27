@@ -357,9 +357,6 @@ export class HomePage {
   }
 
   public SignUp(uname: string, pswd: string) {
-    this.agHelper.Sleep(); //waiting for window to load
-    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
-    cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.TypeText(this.signupUsername, uname);

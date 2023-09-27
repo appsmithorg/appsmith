@@ -197,6 +197,12 @@ export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
   "Users will only have access to this application";
 export const NO_USERS_INVITED = () => "You haven't invited any users yet";
 export const BUSINESS_EDITION_TEXT = () => "business edition";
+export const PARTNER_PROGRAM_CALLOUT = (
+  email: string,
+) => `${email} is outside your organisation. If you’re building this app
+for someone else, you should check out our partner program.`;
+export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
+  `Learn about Appsmith Partner Program`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -2010,3 +2016,82 @@ export const BACK_CAMERA_LABEL = () => "Back (Rear)";
 
 // Color picker
 export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";
+
+export const COMMUNITY_TEMPLATES = {
+  publish: () => "Publish",
+  cancel: () => "Cancel",
+  publishSuccessPage: {
+    title: () => "Live on Appsmith community",
+    description: () =>
+      "This application is live on community as a template for users to fork and remix.",
+    viewTemplateButton: () => "View template",
+  },
+  publishFormPage: {
+    title: () => "Publish to community",
+    footer: {
+      publishButton: () => "Publish to community",
+      tnCText: () =>
+        "I understand publishing this app will allow users outside my workspace to fork it to their workspace.",
+    },
+    preview: {
+      thumbnail: () => "Thumbnail will be generated automatically",
+    },
+    templateForm: {
+      titleInputLabel: () => "Title",
+      titleInputPlaceholder: () => "Title of the template",
+      titleRequiredError: () => `Please provide title`,
+
+      excerptInputLabel: () => "Headline",
+      excerptInputPlaceholder: () => "One line excerpt",
+
+      descriptionInputLabel: () => "Description",
+      descriptionInputPlaceholder: () => "Description of the template",
+
+      useCasesInputLabel: () => "Use-cases",
+      useCasesInputPlaceholder: () => "Select use cases",
+    },
+    authorDetails: {
+      title: () => "Author details",
+      displayNameLabel: () => "Display name",
+      displayNamePlaceholder: () => "Display name",
+      nameRequiredError: () => `Please provide name`,
+
+      emailLabel: () => "Email",
+      emailPlaceholder: () => "Email",
+    },
+    applicationSettings: {
+      title: () => "Application settings",
+      publicSetting: () => "Make application public",
+      forkableSetting: () => "Make application forkable",
+    },
+    publishedInfo: {
+      title: () => "What is published?",
+      correct: [
+        () => "Widgets & their properties",
+        () => "Queries & JS Objects",
+        () => "Datasource types",
+      ],
+      incorrect: [
+        () => "Datasource credentials",
+        () => "API authentication details",
+        () => "Environment variables",
+        () => "Git credentials",
+      ],
+    },
+    publishedFailedError: () => "Unable to publish",
+  },
+  modals: {
+    unpublishedInfo: {
+      title: () => "Publish to Appsmith community",
+      description: () =>
+        "Publish this app to Appsmith community for the public to view, fork, and remix.",
+      publishBtn: () => "Start publishing",
+    },
+    publishedInfo: {
+      title: () => "Live on Appsmith community!",
+      description: () =>
+        "This application is live on community as a template for users to fork and remix.",
+      viewTemplate: () => "View template",
+    },
+  },
+};

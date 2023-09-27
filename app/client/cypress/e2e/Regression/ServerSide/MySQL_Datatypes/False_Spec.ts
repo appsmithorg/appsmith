@@ -19,14 +19,7 @@ describe("MySQL Datatype tests", function () {
       dataSources.CreateQueryAfterDSSaved(query, "createTable"); //Creating query from EE overlay
       dataSources.RunQuery();
 
-      entityExplorer.ExpandCollapseEntity("Datasources");
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dsName,
-        action: "Refresh",
-      });
-      agHelper.AssertElementVisibility(
-        entityExplorer._entityNameInExplorer(inputData.tableName),
-      );
+      dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName);
     });
   });
 
@@ -78,7 +71,7 @@ describe("MySQL Datatype tests", function () {
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );
 });

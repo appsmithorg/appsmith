@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 init_ssl_cert() {
   APPSMITH_CUSTOM_DOMAIN="$1"
@@ -9,24 +9,24 @@ init_ssl_cert() {
   mkdir -p "$data_path/www"
 
   echo "Re-generating nginx config template with domain"
-  /opt/appsmith/templates/nginx.conf.sh 0 "$APPSMITH_CUSTOM_DOMAIN" > "$NGINX_CONF_PATH"
+  /opt/appsmith/templates/nginx-app.conf.sh "0" "$APPSMITH_CUSTOM_DOMAIN"
 
   echo "Start Nginx to verify certificate"
-  nginx -c "$NGINX_CONF_PATH"
+  nginx
 
   local live_path="$CERTBOT_CONFIG_DIR/live/$APPSMITH_CUSTOM_DOMAIN"
   local ssl_path="/appsmith-stacks/ssl"
   if [[ -e "$ssl_path/fullchain.pem" ]] && [[ -e "$ssl_path/privkey.pem" ]]; then
     echo "Existing custom certificate"
     echo "Stop Nginx"
-    nginx -c "$NGINX_CONF_PATH" -s stop
+    nginx -s stop
     return
   fi
 
   if [[ -e "$live_path" ]]; then
     echo "Existing certificate for domain $APPSMITH_CUSTOM_DOMAIN"
     echo "Stop Nginx"
-    nginx -c "$NGINX_CONF_PATH" -s stop
+    nginx -s stop
     return
   fi
 
@@ -57,7 +57,7 @@ init_ssl_cert() {
   local status=$?
 
   echo "Stop Nginx"
-  nginx -c "$NGINX_CONF_PATH" -s stop
+  nginx -s stop
 
   if [[ $status != 0 ]]; then
     echo "Provisioning failed"

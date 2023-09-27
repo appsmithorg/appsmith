@@ -53,7 +53,8 @@ RUN rm -rf \
 VOLUME [ "/appsmith-stacks" ]
 
 # ------------------------------------------------------------------------
-ENV TMP /tmp/appsmith
+ENV TMP="/tmp/appsmith"
+ENV NGINX_WWW_PATH="$TMP/www"
 
 # Add backend server - Application Layer
 ARG JAR_FILE=./app/server/dist/server-*.jar
@@ -83,7 +84,8 @@ RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd 
   && chmod 0644 /etc/cron.d/* \
   && find . /watchtower-hooks -type f -name '*.sh' -maxdepth 3 -print -exec chmod +x '{}' + \
   # Disable setuid/setgid bits for the files inside container.
-  && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true
+  && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true \
+  && node prepare-image.mjs
 
 # Update path to load appsmith utils tool as default
 ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH

@@ -1,5 +1,4 @@
 const omnibar = require("../../../../locators/Omnibar.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   agHelper,
   entityExplorer,
@@ -18,6 +17,7 @@ describe("Omnibar functionality test cases", () => {
 
   it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
     cy.dragAndDropToCanvas(draggableWidgets.AUDIO, { x: 300, y: 500 });
+    agHelper.Sleep(2000);
     deployMode.StubWindowNAssert(
       '//span[text()="Learn more"]',
       "connect-datasource",
