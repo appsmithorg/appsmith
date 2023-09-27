@@ -57,7 +57,6 @@ export const redirectUserAfterSignup = (
           }
         }
       } else if (getIsSafeRedirectURL(redirectUrl)) {
-        if (isEnabledForCreateNew) redirectUrl = redirectUrl;
         window.location.replace(redirectUrl);
       }
     } catch (e) {
