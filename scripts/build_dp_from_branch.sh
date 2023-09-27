@@ -57,8 +57,6 @@ then
   kubectl delete pv $NAMESPACE-appsmith --grace-period=0 --force || true
 fi
 
-# Create the sub directory for the EFS mount point
-# Note: the full path will be efs-mount:/dp/${NAMESPACE}
 echo "Attempting to create the sub-directory /dp/${NAMESPACE} in the EFS volume"
 url="https://ops.appsmith.com/aws_efs_dp/create/${NAMESPACE}"
 max_attempts=3
