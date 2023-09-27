@@ -100,7 +100,6 @@ import {
 } from "components/editorComponents/ApiResponseView";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  hasCreateDatasourcePermission,
   hasDeleteActionPermission,
   hasExecuteActionPermission,
   hasManageActionPermission,
@@ -136,6 +135,9 @@ import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/confi
 import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
 import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -434,7 +436,10 @@ export function EditorJSONtoForm(props: Props) {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     userWorkspacePermissions,
   );
 

@@ -45,10 +45,7 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import {
-  hasCreateDatasourcePermission,
-  hasManageDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Text } from "design-system";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
@@ -58,6 +55,9 @@ import { isEnvironmentValid } from "@appsmith/utils/Environments";
 import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { isString } from "lodash";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -508,7 +508,10 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
     const shouldSave = datasource && !("id" in datasource);
 
-    const canCreateDatasource = hasCreateDatasourcePermission(
+    const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+    const canCreateDatasource = getHasCreateDatasourcePermission(
+      isFeatureEnabled,
       userWorkspacePermissions,
     );
 

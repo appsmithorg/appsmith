@@ -29,12 +29,14 @@ import { createNewQueryAction } from "actions/apiPaneActions";
 import {
   hasCreateActionPermission,
   hasCreateDatasourceActionPermission,
-  hasCreateDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { importRemixIcon } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 const AddLineIcon = importRemixIcon(
   () => import("remixicon-react/AddLineIcon"),
 );
@@ -74,7 +76,10 @@ export const useFilteredFileOperations = (query = "") => {
 
   const canCreateActions = hasCreateActionPermission(pagePermissions);
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     userWorkspacePermissions,
   );
 

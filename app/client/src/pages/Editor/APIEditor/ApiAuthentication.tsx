@@ -15,12 +15,12 @@ import {
 } from "@appsmith/constants/messages";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import {
-  hasCreateDatasourcePermission,
-  hasManageDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Icon, Text } from "design-system";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource;
 }
@@ -96,7 +96,10 @@ function ApiAuthentication(props: Props): JSX.Element {
     (state: AppState) => getCurrentAppWorkspace(state)?.userPermissions ?? [],
   );
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     userWorkspacePermissions,
   );
 
