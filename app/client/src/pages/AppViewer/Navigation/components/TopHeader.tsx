@@ -23,7 +23,6 @@ import { HeaderRow, StyledNav } from "./TopHeader.styled";
 import TopInline from "../TopInline";
 import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import BackToAppsButton from "./BackToAppsButton";
-import { KBViewerNavButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerNavButton";
 
 type TopHeaderProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -114,7 +113,6 @@ const TopHeader = (props: TopHeaderProps) => {
           <section className="relative flex items-center space-x-3 z-1 ml-auto py-3">
             {currentApplicationDetails && currentApplicationDetails?.id && (
               <div className="hidden space-x-1 md:flex">
-                <KBViewerNavButton />
                 <ShareButton
                   currentApplicationDetails={currentApplicationDetails}
                   currentWorkspaceId={currentWorkspaceId}
