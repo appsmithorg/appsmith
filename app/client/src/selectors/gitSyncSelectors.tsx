@@ -184,7 +184,7 @@ export const getDisconnectDocUrl = () =>
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/disconnect-the-git-repository";
 
 export const getConnectingErrorDocUrl = (state: AppState) =>
-  state.ui.gitSync.connectError?.error.referenceDoc ||
+  state.ui.gitSync.connectError?.error?.referenceDoc ||
   FALLBACK_GIT_SYNC_DOCS_URL;
 
 export const getUpstreamErrorDocUrl = (state: AppState) =>

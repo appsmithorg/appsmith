@@ -7,7 +7,7 @@ stacks_path=/appsmith-stacks
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
 
-mkdir -pv "$SUPERVISORD_CONF_TARGET"
+mkdir -pv "$SUPERVISORD_CONF_TARGET" "$NGINX_WWW_PATH"
 
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
@@ -347,10 +347,10 @@ init_postgres() {
         chown -R postgres:postgres "$POSTGRES_DB_PATH"
     else
       echo "Initializing local postgresql database"
-      mkdir -p "$POSTGRES_DB_PATH"
+      mkdir -p "$POSTGRES_DB_PATH" "$TMP/postgres-stats"
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-      chown postgres:postgres "$POSTGRES_DB_PATH"
+      chown postgres:postgres "$POSTGRES_DB_PATH" "$TMP/postgres-stats"
 
       # Initialize the postgres db file system
       su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
@@ -392,15 +392,19 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
-  # The default NGINX configuration includes an IPv6 listen directive. But not all
-  # servers support it, and we don't need it. So we remove it here before starting
-  # NGINX.
-  sed -i '/\[::\]:80 default_server;/d' /etc/nginx/sites-available/default
   local starting_page="/opt/appsmith/templates/appsmith_starting.html"
   local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
-  local editor_load_page="/opt/appsmith/editor/loading.html"
-  # Update default nginx page for initializing page
-  cp "$initializing_page" /var/www/html/index.nginx-debian.html
+  local editor_load_page="$NGINX_WWW_PATH/loading.html"
+  cp "$initializing_page" "$NGINX_WWW_PATH/index.html"
+  # TODO: Also listen on 443, if HTTP certs are available.
+  cat <<EOF > "$TMP/nginx-app.conf"
+    server {
+      listen ${PORT:-80} default_server;
+      location / {
+        try_files \$uri \$uri/ /index.html =404;
+      }
+    }
+EOF
   # Start nginx page to display the Appsmith is Initializing page
   nginx
   # Update editor nginx page for starting page
