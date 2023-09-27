@@ -61,9 +61,9 @@ export type KBDrawerBodyProps = {
 export type KBDrawerProps = {
   currentPageSlug?: string;
   onClose: () => void;
-  size: string;
   applicationKB: TApplicationKB | null;
   isUserAppBuilder: boolean;
   onGenerateKB: () => void;
   isLoading: boolean;
+  hasRead: boolean;
 };
