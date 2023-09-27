@@ -171,15 +171,9 @@ describe("Validate Oracle DS", () => {
     agHelper.RenameWithInPane("CreateAircraft");
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dataSourceName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dataSourceName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer(guid.toUpperCase()),
-    );
+
+    dataSources.AssertTableInVirtuosoList(dataSourceName, guid.toUpperCase());
+
     query = `INSERT INTO ${guid} (
     aircraft_id,
     aircraft_type,
