@@ -23,7 +23,7 @@ import type {
   WidgetDefaultProps,
 } from "../WidgetProvider/constants";
 import ContainerComponent from "./ContainerWidget/component";
-import { LayoutSystemTypes } from "layoutSystems";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import FlexBoxComponent from "../layoutSystems/autolayout/common/flexCanvas/FlexBoxComponent";
 import { AutoCanvasDraggingArena } from "layoutSystems/autolayout/editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
 import { FixedCanvasDraggingArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";

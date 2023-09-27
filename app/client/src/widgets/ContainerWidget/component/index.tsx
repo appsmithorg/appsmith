@@ -14,7 +14,7 @@ import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleC
 import { scrollCSS } from "widgets/WidgetUtils";
 import { useSelector } from "react-redux";
 import { getCurrentLayoutSystemType } from "selectors/editorSelectors";
-import { LayoutSystemTypes } from "layoutSystems";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetType } from "WidgetProvider/factory";
 

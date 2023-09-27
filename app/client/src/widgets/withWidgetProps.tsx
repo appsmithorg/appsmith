@@ -46,7 +46,7 @@ import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
-import { LayoutSystemTypes } from "layoutSystems";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];

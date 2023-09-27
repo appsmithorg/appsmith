@@ -4,7 +4,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { get, set } from "lodash";
 import { useSelector } from "react-redux";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { LayoutSystemTypes } from "layoutSystems";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { select } from "redux-saga/effects";
 import WidgetFactory from "WidgetProvider/factory";
 import { getWidgets } from "./selectors";
