@@ -944,7 +944,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const tree = klona(oldUnevalTree);
-    updateTreeWithData(tree, DataStore.getDataStore());
+    updateTreeWithData(tree, klona(DataStore.getDataStore()));
 
     errorModifier.updateAsyncFunctions(
       tree,
