@@ -26,6 +26,18 @@ function ExternalComponent(props: any) {
           props.update(message.data);
         } else if (message.type === "EVENT") {
           props.execute(message.data.eventName, message.data.contextObj);
+        } else if (message.type === "READY") {
+          iframe.current?.contentWindow?.postMessage(
+            {
+              type: "READY_ACK",
+              model: props.model,
+              dimensions: {
+                width: props.width,
+                height: props.height,
+              },
+            },
+            "*",
+          );
         }
       }
     };
@@ -33,30 +45,6 @@ function ExternalComponent(props: any) {
     window.addEventListener("message", handler, false);
 
     return () => window.removeEventListener("message", handler, false);
-  }, []);
-
-  useEffect(() => {
-    const handler = () => {
-      iframe.current?.contentWindow?.postMessage(
-        {
-          type: "READY",
-          model: props.model,
-          dimensions: {
-            width: props.width,
-            height: props.height,
-          },
-        },
-        "*",
-      );
-    };
-
-    if (iframe.current && iframe.current.contentWindow) {
-      iframe.current.addEventListener("load", handler);
-    }
-
-    return () => {
-      iframe.current?.removeEventListener("load", handler);
-    };
   }, []);
 
   useEffect(() => {
@@ -91,7 +79,11 @@ function ExternalComponent(props: any) {
       <body>
         <script type="text/javascript">${script}</script>
         ${props.srcDoc.html}
-        <script type="text/javascript">${props.srcDoc.js}</script>
+        <script type="text/javascript">
+          appsmith.onReady(() => {
+            ${props.srcDoc.js}
+          });
+        </script>
         <style>${props.srcDoc.css}</style>
       </body>
     </html>

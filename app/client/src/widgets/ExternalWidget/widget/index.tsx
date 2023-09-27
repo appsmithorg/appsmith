@@ -34,8 +34,8 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
       version: 1,
       events: [],
       srcDoc: {
-        html: "",
-        js: "",
+        html: "<!-- no need to write html, head, body tags, it is handled by the widget -->",
+        js: "// no need to write window onLoad, it is handled by the widget",
         css: "",
       },
     };
@@ -172,7 +172,10 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
   };
 
   update = (data: Record<string, unknown>) => {
-    this.props.updateWidgetMetaProperty("model", data);
+    this.props.updateWidgetMetaProperty("model", {
+      ...this.props.model,
+      ...data,
+    });
   };
 
   getWidgetView() {

@@ -12,7 +12,7 @@
     }
 
     switch (event.data.type) {
-      case "READY":
+      case "READY_ACK":
         onReady && onReady();
         break;
       case "MODEL_UPDATE":
@@ -90,4 +90,13 @@
       onReady = fn;
     },
   };
+
+  window.addEventListener("load", () => {
+    global.parent.postMessage(
+      {
+        type: "READY",
+      },
+      "*",
+    );
+  });
 })(window);
