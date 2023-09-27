@@ -94,6 +94,7 @@ import type {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
+import { klona as klonaJSON } from "klona/json";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import {
   updateDependencyMap,
@@ -944,7 +945,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const tree = klona(oldUnevalTree);
-    updateTreeWithData(tree, klona(DataStore.getDataStore()));
+    updateTreeWithData(tree, klonaJSON(DataStore.getDataStore()));
 
     errorModifier.updateAsyncFunctions(
       tree,
