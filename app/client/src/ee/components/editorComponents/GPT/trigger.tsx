@@ -1,18 +1,23 @@
 export * from "ce/components/editorComponents/GPT/trigger";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import {
+  isAskAIEnabled,
+  isAskAIJSEnabled,
+  isAskAISQLEnabled,
+} from "@appsmith/utils/planHelpers";
+import {
   EditorModes,
   type TEditorModes,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
 export const APPSMITH_AI = "Appsmith AI";
 
-export function isAIEnabled(ff: FeatureFlags, mode: TEditorModes) {
-  let featureFlagValue = ff.ask_ai;
+export function isAIEnabled(featureFlags: FeatureFlags, mode: TEditorModes) {
+  let featureFlagValue: boolean = isAskAIEnabled(featureFlags);
   if (mode === editorSQLModes.POSTGRESQL_WITH_BINDING) {
-    featureFlagValue = ff.ask_ai_sql;
+    featureFlagValue = isAskAISQLEnabled(featureFlags);
   } else if (mode === EditorModes.JAVASCRIPT) {
-    featureFlagValue = ff.ask_ai_js;
+    featureFlagValue = isAskAIJSEnabled(featureFlags);
   }
   return featureFlagValue;
 }
