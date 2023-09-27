@@ -46,6 +46,7 @@ import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -63,6 +64,7 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
@@ -151,6 +153,8 @@ public class ApplicationServiceCETest {
 
     static Plugin testPlugin = new Plugin();
     static Datasource testDatasource = new Datasource();
+    static Datasource testDatasource1 = new Datasource();
+
     static Application gitConnectedApp = new Application();
 
     @Autowired
@@ -237,6 +241,12 @@ public class ApplicationServiceCETest {
     @Autowired
     PagePermission pagePermission;
 
+    @Autowired
+    DatasourcePermission datasourcePermission;
+
+    @Autowired
+    DatasourceRepository datasourceRepository;
+
     String workspaceId;
     String defaultEnvironmentId;
 
@@ -314,6 +324,23 @@ public class ApplicationServiceCETest {
                     new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
             datasource.setDatasourceStorages(storages);
             testDatasource = datasourceService.create(datasource).block();
+
+            String environmentId = workspaceService
+                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .block();
+
+            Datasource datasource1 = new Datasource();
+            datasource1.setName("Clone App with action Test1");
+            datasource1.setPluginId(testPlugin.getId());
+            DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
+            datasourceConfiguration1.setUrl("http://test.com");
+            datasource1.setWorkspaceId(workspaceId);
+
+            HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+            storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
+            datasource1.setDatasourceStorages(storages1);
+
+            testDatasource1 = datasourceService.create(datasource1).block();
         }
     }
 
@@ -4196,7 +4223,7 @@ public class ApplicationServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void publishApplication_noPageEditPermissions() {
-        String gitAppPageId = gitConnectedApp.getPages().get(1).getId();
+        String gitAppPageId = gitConnectedApp.getPages().get(0).getId();
         NewPage gitAppPage = newPageRepository.findById(gitAppPageId).block();
         Set<Policy> existingPolicies = gitAppPage.getPolicies();
         /*
@@ -4229,7 +4256,7 @@ public class ApplicationServiceCETest {
                 .collectList()
                 .block()
                 .size();
-        String gitAppPageId = gitConnectedApp.getPages().get(1).getId();
+        String gitAppPageId = gitConnectedApp.getPages().get(0).getId();
         NewPage gitAppPage = newPageRepository.findById(gitAppPageId).block();
         Set<Policy> existingPolicies = gitAppPage.getPolicies();
         /*
@@ -4252,6 +4279,63 @@ public class ApplicationServiceCETest {
                 .verify();
         updatedGitAppPage.setPolicies(existingPolicies);
         NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();
+
+        Mono<List<Application>> applicationsInWorkspace =
+                applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList();
+        /*
+         * Check that no applications have been created in the Target Workspace
+         * This can be checked by comparing it with the existing count of applications in the Workspace.
+         */
+        StepVerifier.create(applicationsInWorkspace)
+                .assertNext(applications -> assertThat(applications).hasSize(existingApplicationCount));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplication_noDatasourceCreateActionPermissions() {
+        String gitAppPageId = gitConnectedApp.getPages().get(0).getId();
+        int existingApplicationCount = applicationService
+                .findAllApplicationsByWorkspaceId(workspaceId)
+                .collectList()
+                .block()
+                .size();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction");
+        action.setPageId(gitAppPageId);
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(testDatasource1);
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+
+        Set<Policy> existingPolicies = testDatasource1.getPolicies();
+        /*
+         * The created Workspace has a Datasource. And we will remove the Create Datasource Action permisison.
+         */
+        Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission()
+                        .equals(datasourcePermission.getActionCreatePermission().getValue()))
+                .collect(Collectors.toSet());
+        testDatasource1.setPolicies(newPoliciesWithoutEdit);
+        Datasource updatedTestDatasource =
+                datasourceRepository.save(testDatasource1).block();
+        StepVerifier.create(applicationPageService.cloneApplication(gitConnectedApp.getId(), null))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS.getMessage(
+                                        "datasource", testDatasource1.getId())))
+                .verify();
+        updatedTestDatasource.setPolicies(existingPolicies);
+        Datasource setPoliciesBack =
+                datasourceRepository.save(updatedTestDatasource).block();
+
+        ActionDTO deletedAction = layoutActionService
+                .deleteUnpublishedAction(createdAction.getId())
+                .block();
 
         Mono<List<Application>> applicationsInWorkspace =
                 applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList();
