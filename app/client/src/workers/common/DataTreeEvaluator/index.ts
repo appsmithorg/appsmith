@@ -979,7 +979,9 @@ export default class DataTreeEvaluator {
 
           if (requiresEval) {
             const evaluationSubstitutionType =
-              entityConfig.reactivePaths[propertyPath] ||
+              (!!entityConfig &&
+                entityConfig.hasOwnProperty("reactivePaths") &&
+                entityConfig.reactivePaths[propertyPath]) ||
               EvaluationSubstitutionType.TEMPLATE;
 
             const contextData: EvaluateContext = {};
