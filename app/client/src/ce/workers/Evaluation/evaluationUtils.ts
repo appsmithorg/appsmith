@@ -964,7 +964,7 @@ export function convertJSFunctionsToString(
     for (const funcName in jsFunctions) {
       if (jsCollection[funcName] instanceof String) {
         if (has(jsCollection, [funcName, "data"])) {
-          set(jsCollection, [`${funcName}.data`], jsCollection[funcName].data);
+          set(jsCollection, [`${funcName}.data`], {});
         }
         set(jsCollection, funcName, jsCollection[funcName].toString());
       }
