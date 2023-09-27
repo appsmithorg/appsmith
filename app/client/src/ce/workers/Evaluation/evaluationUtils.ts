@@ -5,6 +5,7 @@ import {
   isDynamicValue,
   PropertyEvaluationErrorType,
   isPathDynamicTrigger,
+  isPathADynamicBinding,
 } from "utils/DynamicBindingUtils";
 import type { Diff } from "deep-diff";
 import type {
@@ -981,3 +982,14 @@ export function convertJSFunctionsToString(
 
   return collections;
 }
+
+export const isAPathDynamicBindingPath = (
+  entity: DataTreeEntity,
+  entityConfig: DataTreeEntityConfig,
+  propertyPath: string,
+) => {
+  return (
+    (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
+    isPathADynamicBinding(entityConfig, propertyPath)
+  );
+};

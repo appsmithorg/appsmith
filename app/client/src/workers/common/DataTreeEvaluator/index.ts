@@ -14,7 +14,6 @@ import {
   getEvalValuePath,
   isChildPropertyPath,
   isDynamicValue,
-  isPathADynamicBinding,
   isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
@@ -57,6 +56,7 @@ import {
   convertJSFunctionsToString,
   DataTreeDiffEvent,
   resetValidationErrorsForEntityProperty,
+  isAPathDynamicBindingPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -956,9 +956,12 @@ export default class DataTreeEvaluator {
             return currentTree;
           let unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
 
-          const isADynamicBindingPath =
-            (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
-            isPathADynamicBinding(entityConfig, propertyPath);
+          const isADynamicBindingPath = isAPathDynamicBindingPath(
+            entity,
+            entityConfig,
+            propertyPath,
+          );
+
           const isATriggerPath =
             isWidget(entity) &&
             isPathDynamicTrigger(
