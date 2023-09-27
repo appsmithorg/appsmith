@@ -15,7 +15,7 @@ import {
 } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
-import { selectFilesForExplorer } from "selectors/entitiesSelector";
+import { selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
 import {
   getExplorerStatus,
   saveExplorerStatus,

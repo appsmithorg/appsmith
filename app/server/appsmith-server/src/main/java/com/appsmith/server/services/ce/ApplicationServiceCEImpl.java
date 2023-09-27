@@ -631,21 +631,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     return application;
                 });
 
-        return configService
-                .getTemplateApplications()
-                .map(application -> application.getId())
-                .defaultIfEmpty("")
-                .collectList()
-                .cache()
-                .repeat()
-                .zipWith(updatedApplicationWithIsPublicFlux)
-                .map(tuple -> {
-                    List<String> templateApplicationIds = tuple.getT1();
-                    Application application = tuple.getT2();
-
-                    application.setAppIsExample(templateApplicationIds.contains(application.getId()));
-                    return application;
-                });
+        return updatedApplicationWithIsPublicFlux;
     }
 
     /**

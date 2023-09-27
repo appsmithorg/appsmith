@@ -1022,6 +1022,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "makePageDefault",
   );
   cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApp");
+  cy.intercept("POST", "/api/v1/applications/delete-apps").as(
+    "deleteMultipleApp",
+  );
   cy.intercept("DELETE", "/api/v1/pages/*").as("deletePage");
   //cy.intercept("POST", "/api/v1/datasources").as("createDatasource");
   cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
@@ -1196,6 +1199,15 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       });
     },
   ).as("productAlert");
+  cy.intercept(
+    {
+      method: "GET",
+      url: /domain\/docs\.appsmith\.com\/token$/,
+    },
+    {
+      statusCode: 200,
+    },
+  ).as("docsCall");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {

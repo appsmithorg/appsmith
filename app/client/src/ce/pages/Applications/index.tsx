@@ -20,6 +20,7 @@ import {
   getApplicationList,
   getApplicationSearchKeyword,
   getCreateApplicationError,
+  getDeletingMultipleApps,
   getIsCreatingApplication,
   getIsDeletingApplication,
   getIsFetchingApplications,
@@ -92,11 +93,12 @@ import {
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import WorkspaceMenu from "./WorkspaceMenu";
-import ApplicationCardList from "./ApplicationCardList";
+import WorkspaceMenu from "@appsmith/pages/Applications/WorkspaceMenu";
+import ApplicationCardList from "@appsmith/pages/Applications/ApplicationCardList";
 import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
+import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -111,8 +113,6 @@ export const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   ${({ isMobile }) =>
     isMobile &&
     `
-    position: sticky;
-    top: 0;
     background-color: #fff;
     z-index: ${Indices.Layer8};
   `}
@@ -158,9 +158,10 @@ export const ItemWrapper = styled.div`
 export const StyledIcon = styled(Icon)`
   margin-right: 11px;
 `;
-export const WorkspaceShareUsers = styled.div`
+export const WorkspaceShareUsers = styled.div<{ isHidden?: boolean }>`
   display: flex;
   align-items: center;
+  ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
 
   & .t--options-icon {
     margin-left: 8px;
@@ -417,7 +418,11 @@ export const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
   margin-left: ${(props) => props.theme.homePage.leftPane.width}px;
   width: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   scroll-behavior: smooth;
-  padding: ${CONTAINER_WRAPPER_PADDING} 0;
+  ${({ isMobile }) =>
+    isMobile
+      ? `padding: ${CONTAINER_WRAPPER_PADDING} 0;`
+      : `padding:  0 0 ${CONTAINER_WRAPPER_PADDING};`}
+
   ${({ isMobile }) =>
     isMobile &&
     `
@@ -438,6 +443,9 @@ export function ApplicationsSection(props: any) {
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
+  const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
+  const isEnabledMultipleSelection =
+    !!deleteMultipleApplicationObject.list?.length;
   const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
@@ -647,7 +655,7 @@ export function ApplicationsSection(props: any) {
                   />
                 )}
                 {!isLoadingResources && (
-                  <WorkspaceShareUsers>
+                  <WorkspaceShareUsers isHidden={isEnabledMultipleSelection}>
                     <SharedUserList workspaceId={workspace.id} />
                     {canInviteToWorkspace && !isMobile && (
                       <FormDialogComponent
@@ -703,20 +711,28 @@ export function ApplicationsSection(props: any) {
                   </WorkspaceShareUsers>
                 )}
               </WorkspaceDropDown>
-              <ApplicationCardList
-                applications={applications}
-                canInviteToWorkspace={canInviteToWorkspace}
-                deleteApplication={deleteApplication}
-                enableImportExport={enableImportExport}
-                hasCreateNewApplicationPermission={
-                  hasCreateNewApplicationPermission
-                }
-                hasManageWorkspacePermissions={hasManageWorkspacePermissions}
-                isMobile={isMobile}
-                onClickAddNewButton={onClickAddNewAppButton}
-                updateApplicationDispatch={updateApplicationDispatch}
-                workspaceId={workspace.id}
-              />
+              {isLoadingResources && (
+                <ResourceListLoader
+                  isMobile={isMobile}
+                  resources={applications}
+                />
+              )}
+              {!isLoadingResources && (
+                <ApplicationCardList
+                  applications={applications}
+                  canInviteToWorkspace={canInviteToWorkspace}
+                  deleteApplication={deleteApplication}
+                  enableImportExport={enableImportExport}
+                  hasCreateNewApplicationPermission={
+                    hasCreateNewApplicationPermission
+                  }
+                  hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+                  isMobile={isMobile}
+                  onClickAddNewButton={onClickAddNewAppButton}
+                  updateApplicationDispatch={updateApplicationDispatch}
+                  workspaceId={workspace.id}
+                />
+              )}
               {!isLoadingResources && (
                 <PackageCardList
                   isMobile={isMobile}

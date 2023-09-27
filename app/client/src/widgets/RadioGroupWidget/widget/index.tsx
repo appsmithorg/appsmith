@@ -10,10 +10,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
@@ -690,7 +690,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   getWidgetView() {
     const {
       alignment,
-      bottomRow,
       isDisabled,
       isInline,
       isLoading,
@@ -702,7 +701,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       labelTextSize,
       options,
       selectedOptionValue,
-      topRow,
       widgetId,
     } = this.props;
 
@@ -712,7 +710,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       <RadioGroupComponent
         accentColor={this.props.accentColor}
         alignment={alignment}
-        compactMode={!((bottomRow - topRow) / GRID_DENSITY_MIGRATION_V1 > 1)}
+        compactMode={isCompactMode(componentHeight)}
         disabled={isDisabled}
         height={componentHeight}
         inline={Boolean(isInline)}
@@ -725,7 +723,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         loading={isLoading}
         onRadioSelectionChange={this.onRadioSelectionChange}
         options={isArray(options) ? compact(options) : []}
@@ -776,6 +774,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   labelStyle?: string;
   isDirty: boolean;
   accentColor: string;
+  labelComponentWidth?: number;
 }
 
 export default RadioGroupWidget;

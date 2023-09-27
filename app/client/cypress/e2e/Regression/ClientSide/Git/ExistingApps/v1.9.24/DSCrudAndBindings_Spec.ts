@@ -235,6 +235,8 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.ClickButton("Confirm");
     agHelper.WaitUntilToastDisappear("Delete customer successful!");
     agHelper.ClickButton("Close");
+    agHelper.AssertElementAbsence(locators._modal);
+    agHelper.Sleep(2000);
   });
 
   it("4. Edit JSObject & Check Updated Data ", () => {

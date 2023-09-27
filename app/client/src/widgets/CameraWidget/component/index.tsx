@@ -96,6 +96,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   justify-content: center;
   overflow: hidden;
   height: 100%;
+  width: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => boxShadow};
   background: ${({ disabled }) => (disabled ? Colors.GREY_3 : Colors.BLACK)};

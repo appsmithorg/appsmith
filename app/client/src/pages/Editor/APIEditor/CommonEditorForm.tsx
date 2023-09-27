@@ -47,7 +47,7 @@ import equal from "fast-deep-equal/es6";
 
 import ApiAuthentication from "./ApiAuthentication";
 import { replayHighlightClass } from "globalStyles/portals";
-import { getPlugin } from "selectors/entitiesSelector";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
 import {
   hasDeleteActionPermission,
   hasExecuteActionPermission,

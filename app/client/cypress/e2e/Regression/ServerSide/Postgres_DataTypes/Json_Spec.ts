@@ -40,14 +40,7 @@ describe("Json & JsonB Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.jsonbooks"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonbooks");
   });
 
   it("2. Creating SELECT query - jsonbooks + Bug 14493", () => {
@@ -319,21 +312,13 @@ describe("Json & JsonB Datatype tests", function () {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.jsonbooks"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonbooks", false);
     entityExplorer.ExpandCollapseEntity(dsName, false);
     entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("13. Verify Deletion of all created queries", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
   });
@@ -362,15 +347,7 @@ describe("Json & JsonB Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
 
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    entityExplorer.ExpandCollapseEntity(dsName);
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.jsonBbooks"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonBbooks");
   });
 
   it("16. Creating SELECT query - jsonBbooks + Bug 14493", () => {
@@ -681,21 +658,13 @@ describe("Json & JsonB Datatype tests", function () {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.jsonBbooks"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonBbooks", false);
     entityExplorer.ExpandCollapseEntity(dsName, false);
     entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("27. Verify Deletion of all created queries", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
   });
@@ -706,6 +675,6 @@ describe("Json & JsonB Datatype tests", function () {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     entityExplorer.ExpandCollapseEntity("Queries/JS");
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   });
 });

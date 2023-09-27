@@ -45,8 +45,8 @@ import {
   shouldLog,
   shouldProcessAction,
   shouldTriggerEvaluation,
-  shouldTriggerLinting,
-} from "actions/evaluationActions";
+  getRequiresLinting,
+} from "@appsmith/actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
   dynamicTriggerErrorHandler,
@@ -81,7 +81,7 @@ import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
 import {
   getAllActionValidationConfig,
   getAllJSActionsData,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type {
   DataTree,
   UnEvalTree,
@@ -100,7 +100,7 @@ import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
-
+import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -159,8 +159,8 @@ export function* updateDataTreeHandler(
   if (!isEmpty(staleMetaIds)) {
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
-
-  yield put(setEvaluatedTree(updates));
+  const parsedUpdates = parseUpdatesAndDeleteUndefinedUpdates(updates);
+  yield put(setEvaluatedTree(parsedUpdates));
 
   ConfigTreeActions.setConfigTree(configTree);
 
@@ -537,10 +537,8 @@ function* evalAndLintingHandler(
   }>,
 ) {
   const { forceEvaluation, requiresLogging, shouldReplay } = options;
-  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
-  const requiresLinting =
-    appMode === APP_MODE.EDIT && shouldTriggerLinting(action);
+  const requiresLinting = getRequiresLinting(action);
 
   const requiresEval = shouldTriggerEvaluation(action);
   log.debug({

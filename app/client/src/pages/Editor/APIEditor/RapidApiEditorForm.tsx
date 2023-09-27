@@ -18,7 +18,7 @@ import type { PaginationType, Action } from "entities/Action";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import { NameWrapper } from "./CommonEditorForm";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
-import { getActionData } from "../../../selectors/entitiesSelector";
+import { getActionData } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import { Icon } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";

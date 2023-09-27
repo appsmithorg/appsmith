@@ -47,9 +47,7 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    /*
-    TODO: remove default values from application.
-     */
+    // TODO: remove default values from application
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Deprecated(forRemoval = true)
     @JsonView(Views.Public.class)
@@ -195,6 +193,10 @@ public class Application extends BaseDomain {
     // forkWithConfiguration represents whether credentials are shared or not while forking an app
     @JsonView(Views.Public.class)
     Boolean forkWithConfiguration;
+
+    // isCommunityTemplate represents whether this application has been published as a community template
+    @JsonView(Views.Public.class)
+    Boolean isCommunityTemplate;
 
     @JsonView(Views.Internal.class)
     @Deprecated

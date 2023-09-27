@@ -38,7 +38,7 @@ import {
   getSettingConfig,
   getPlugins,
   getGenerateCRUDEnabledPluginMap,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
 import { PluginType } from "entities/Action";
 import {
@@ -58,7 +58,7 @@ import get from "lodash/get";
 import {
   initFormEvaluations,
   startFormEvaluations,
-} from "actions/evaluationActions";
+} from "@appsmith/actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";

@@ -10,7 +10,7 @@ import type { RouteComponentProps } from "react-router";
 import type {
   ActionData,
   ActionDataState,
-} from "reducers/entityReducers/actionsReducer";
+} from "@appsmith/reducers/entityReducers/actionsReducer";
 import _ from "lodash";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -39,7 +39,7 @@ import {
   getPageList,
   getPlugins,
   getPluginSettingConfigs,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { saasEditorApiIdURL } from "RouteBuilder";
 import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";

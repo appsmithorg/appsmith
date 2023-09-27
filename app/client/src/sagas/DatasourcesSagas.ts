@@ -45,7 +45,7 @@ import {
   getPluginByPackageName,
   getDatasourcesUsedInApplicationByActions,
   getEntityExplorerDatasources,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import {
   addMockDatasourceToWorkspace,
   setDatasourceViewModeFlag,
@@ -152,13 +152,14 @@ import {
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructure";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 import { klona } from "klona/lite";
 import {
   getCurrentEditingEnvironmentId,
   getCurrentEnvironmentDetails,
 } from "@appsmith/selectors/environmentSelectors";
+import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -646,6 +647,8 @@ function* getOAuthAccessTokenSaga(
     return;
   }
   try {
+    // wait for envs to be fetched
+    yield call(waitForFetchEnvironments);
     // Get access token for datasource
     const response: ApiResponse<TokenResponse> = yield OAuthApi.getAccessToken(
       datasourceId,

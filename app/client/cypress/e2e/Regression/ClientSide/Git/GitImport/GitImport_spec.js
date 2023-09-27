@@ -110,7 +110,7 @@ describe("Git import flow ", function () {
     cy.wait(500);
     cy.ReconnectDatasource("TEDMongo");
     cy.wait(500);
-    cy.fillMongoDatasourceForm();
+    dataSources.FillMongoDSForm();
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.testDatasource(true);
     agHelper.GetNClick(dataSources._saveDs);

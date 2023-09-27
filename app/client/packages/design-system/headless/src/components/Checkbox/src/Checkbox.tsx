@@ -12,6 +12,7 @@ import { useCheckbox, useCheckboxGroupItem } from "@react-aria/checkbox";
 import { CheckIcon } from "./icons/CheckIcon";
 import { CheckboxGroupContext } from "./context";
 import { SubtractIcon } from "./icons/SubtractIcon";
+import { Icon as HeadlessIcon } from "../../Icon";
 import type { CheckboxGroupContextType } from "./context";
 
 export type InlineLabelProps = {
@@ -21,23 +22,22 @@ export type InlineLabelProps = {
 export interface CheckboxProps
   extends Omit<SpectrumCheckboxProps, keyof StyleProps>,
     InlineLabelProps {
-  icon?: React.ReactNode;
+  icon?: React.ComponentType;
   className?: string;
 }
 
 export type CheckboxRef = FocusableRef<HTMLLabelElement>;
-
-const ICON_SIZE = 14;
 
 const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
   const {
     autoFocus,
     children,
     className,
-    icon = <CheckIcon size={ICON_SIZE} />,
+    icon: Icon = CheckIcon,
     isDisabled: isDisabledProp = false,
     isIndeterminate = false,
     validationState,
+    labelPosition = "right",
   } = props;
   const state = useToggleState(props);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -87,6 +87,7 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
       data-hovered={isHovered ? "" : undefined}
       data-invalid={validationState === "invalid" ? "" : undefined}
       data-label=""
+      data-label-position={labelPosition}
       data-state={dataState}
       ref={domRef}
     >
@@ -95,7 +96,9 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
         ref={inputRef}
       />
       <span aria-hidden="true" data-icon="" role="presentation">
-        {isIndeterminate ? <SubtractIcon size={ICON_SIZE} /> : icon}
+        <HeadlessIcon>
+          {isIndeterminate ? <SubtractIcon /> : <Icon />}
+        </HeadlessIcon>
       </span>
       {children}
     </label>

@@ -60,27 +60,32 @@ export class DarkModeTheme implements ColorModeTheme {
       bgPositive: this.bgPositive.to("sRGB").toString(),
       bgPositiveHover: this.bgPositiveHover.to("sRGB").toString(),
       bgPositiveActive: this.bgPositiveActive.to("sRGB").toString(),
+      bgPositiveSubtle: this.bgPositiveSubtle.to("sRGB").toString(),
       bgPositiveSubtleHover: this.bgPositiveSubtleHover.to("sRGB").toString(),
       bgPositiveSubtleActive: this.bgPositiveSubtleActive.to("sRGB").toString(),
       bgNegative: this.bgNegative.to("sRGB").toString(),
       bgNegativeHover: this.bgNegativeHover.to("sRGB").toString(),
       bgNegativeActive: this.bgNegativeActive.to("sRGB").toString(),
+      bgNegativeSubtle: this.bgNegativeActive.to("sRGB").toString(),
       bgNegativeSubtleHover: this.bgNegativeSubtleHover.to("sRGB").toString(),
       bgNegativeSubtleActive: this.bgNegativeSubtleActive.to("sRGB").toString(),
       bgWarning: this.bgWarning.to("sRGB").toString(),
       bgWarningHover: this.bgWarningHover.to("sRGB").toString(),
       bgWarningActive: this.bgWarningActive.to("sRGB").toString(),
+      bgWarningSubtle: this.bgWarningSubtle.to("sRGB").toString(),
       bgWarningSubtleHover: this.bgWarningSubtleHover.to("sRGB").toString(),
       bgWarningSubtleActive: this.bgWarningSubtleActive.to("sRGB").toString(),
 
       fg: this.fg.to("sRGB").toString(),
       fgAccent: this.fgAccent.to("sRGB").toString(),
       fgNeutral: this.fgNeutral.to("sRGB").toString(),
+      fgNeutralSubtle: this.fgNeutralSubtle.to("sRGB").toString(),
       fgPositive: this.fgPositive.to("sRGB").toString(),
       fgNegative: this.fgNegative.to("sRGB").toString(),
       fgWarning: this.fgWarning.to("sRGB").toString(),
 
       fgOnAccent: this.fgOnAccent.to("sRGB").toString(),
+      fgOnAccentSubtle: this.fgOnAccentSubtle.to("sRGB").toString(),
       fgOnAssistive: this.fgOnAssistive.to("sRGB").toString(),
       fgOnNeutral: this.fgOnNeutral.to("sRGB").toString(),
       fgOnPositive: this.fgOnPositive.to("sRGB").toString(),
@@ -634,6 +639,14 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get fgNeutralSubtle() {
+    const color = this.fgNeutral.clone();
+
+    color.oklch.l -= 0.15;
+
+    return color;
+  }
+
   private get fgPositive() {
     // Positive foreground is produced from the initially adjusted background color (see above). Additional tweaks are applied to make sure it's distinct from fgAccent when seed is green.
     const color = this.bgPositive.clone();
@@ -705,6 +718,10 @@ export class DarkModeTheme implements ColorModeTheme {
     }
 
     return tint;
+  }
+
+  private get fgOnAccentSubtle() {
+    return this.fg.clone();
   }
 
   private get fgOnAssistive() {

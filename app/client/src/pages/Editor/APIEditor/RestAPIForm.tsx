@@ -18,7 +18,7 @@ import {
   getAction,
   getActionData,
   getActionResponses,
-} from "../../../selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import type { CommonFormProps } from "./CommonEditorForm";
 import CommonEditorForm from "./CommonEditorForm";

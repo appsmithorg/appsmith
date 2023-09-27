@@ -8,13 +8,14 @@ import type { SpectrumRadioGroupProps } from "@react-types/radio";
 
 import { RadioContext } from "./context";
 import { Field } from "@design-system/headless";
-import type { LabelProps } from "@design-system/headless";
 
 export type RadioGroupRef = DOMRef<HTMLDivElement>;
 export interface RadioGroupProps
-  extends Omit<SpectrumRadioGroupProps, keyof StyleProps> {
+  extends Omit<
+    SpectrumRadioGroupProps,
+    keyof StyleProps | "labelPosition" | "labelAlign" | "isEmphasized"
+  > {
   className?: string;
-  labelWidth?: LabelProps["labelWidth"];
 }
 
 const _RadioGroup = (props: RadioGroupProps, ref: RadioGroupRef) => {
@@ -35,7 +36,7 @@ const _RadioGroup = (props: RadioGroupProps, ref: RadioGroupRef) => {
       {...props}
       descriptionProps={descriptionProps}
       errorMessageProps={errorMessageProps}
-      includeNecessityIndicatorInAccessibilityName
+      fieldType="field-group"
       labelProps={labelProps}
       ref={domRef}
       wrapperClassName={className}

@@ -7,7 +7,7 @@ import { Button } from "design-system";
 import { SignpostingWalkthroughConfig } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import React, { useContext, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { actionsExistInCurrentPage } from "selectors/entitiesSelector";
+import { actionsExistInCurrentPage } from "@appsmith/selectors/entitiesSelector";
 import {
   getIsFirstTimeUserOnboardingEnabled,
   isWidgetActionConnectionPresent,

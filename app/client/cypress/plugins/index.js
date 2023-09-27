@@ -12,7 +12,7 @@ const {
 } = require("cypress-image-snapshot/plugin");
 const { tagify } = require("cypress-tags");
 const { cypressHooks } = require("../scripts/cypress-hooks");
-const { cypressSplit } = require("../cypress-split");
+const { cypressSplit } = require("../scripts/cypress-split");
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -76,9 +76,9 @@ module.exports = async (on, config) => {
       // && browser.isHeadless) {
       launchOptions.preferences.fullscreen = true;
       launchOptions.preferences.darkTheme = true;
-      launchOptions["width"] = 1400;
-      launchOptions["height"] = 1100;
-      launchOptions["resizable"] = false;
+      launchOptions.preferences.width = 1400;
+      launchOptions.preferences.height = 1100;
+      launchOptions.preferences.resizable = false;
       return launchOptions;
     }
   });
@@ -216,7 +216,7 @@ module.exports = async (on, config) => {
   });
 
   if (process.env["RUNID"]) {
-    config = await cypressSplit(on, config);
+    config = await new cypressSplit().splitSpecs(on, config);
     cypressHooks(on, config);
   }
 

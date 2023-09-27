@@ -56,7 +56,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
         <ModalContent style={{ width: "640px" }}>
           <ModalHeader>
             <div className="text-ellipsis overflow-hidden whitespace-nowrap">
-              {props.title || `Invite Users to ${props.workspace.name}`}
+              {props.title || `Invite users to ${props.workspace.name}`}
             </div>
           </ModalHeader>
           <ModalBody>

@@ -13,7 +13,7 @@ import type { SourceEntity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { getActionResponses } from "selectors/entitiesSelector";
+import { getActionResponses } from "@appsmith/selectors/entitiesSelector";
 import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
@@ -475,7 +475,7 @@ function ApiResponseView(props: Props) {
                 </ResponseTabErrorDefaultMessage>
                 {response.pluginErrorDetails && (
                   <>
-                    <div>
+                    <div className="t--debugger-log-downstream-message">
                       {response.pluginErrorDetails.downstreamErrorMessage}
                     </div>
                     {response.pluginErrorDetails.downstreamErrorCode && (
