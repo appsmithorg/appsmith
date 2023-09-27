@@ -1,4 +1,4 @@
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { LayoutSystemTypes } from "layoutSystems";
 import { createSelector } from "reselect";
 import { getCurrentLayoutSystemType } from "./editorSelectors";
 import type { AppState } from "@appsmith/reducers";

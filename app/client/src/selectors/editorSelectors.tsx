@@ -61,7 +61,7 @@ import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { LayoutSystemTypes } from "layoutSystems";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;

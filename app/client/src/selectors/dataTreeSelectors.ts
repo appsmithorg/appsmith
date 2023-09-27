@@ -23,7 +23,7 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { LayoutSystemTypes } from "layoutSystems";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;

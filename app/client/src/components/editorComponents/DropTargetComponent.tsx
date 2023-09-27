@@ -38,7 +38,7 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { LayoutSystemTypes } from "layoutSystems";
 
 type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;

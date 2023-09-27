@@ -172,7 +172,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { toast } from "design-system";
 
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { LayoutSystemTypes } from "layoutSystems";
 import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,

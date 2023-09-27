@@ -5,7 +5,7 @@ import { getLayoutSystemType, getRenderMode } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAutoLayoutSystem } from "./autolayout";
 import { getFixedLayoutSystem } from "./fixedlayout";
-import { LayoutSystemTypes } from "./types";
+import { LayoutSystemTypes } from ".";
 
 export type LayoutSystem = {
   LayoutSystemWrapper: (props: WidgetProps) => any;

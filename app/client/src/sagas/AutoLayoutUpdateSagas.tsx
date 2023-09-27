@@ -27,7 +27,7 @@ import {
   getWidgets,
   getWidgetsMeta,
 } from "./selectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { LayoutSystemTypes } from "layoutSystems";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,

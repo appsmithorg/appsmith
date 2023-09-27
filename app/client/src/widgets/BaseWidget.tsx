@@ -47,7 +47,7 @@ import type {
   LayoutDirection,
   ResponsiveBehavior,
 } from "layoutSystems/autolayout/utils/constants";
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { LayoutSystemTypes } from "layoutSystems";
 import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 import store from "store";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";

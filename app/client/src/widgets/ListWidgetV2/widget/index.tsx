@@ -48,7 +48,7 @@ import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { LayoutSystemTypes } from "layoutSystems";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",

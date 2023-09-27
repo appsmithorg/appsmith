@@ -1,5 +1,5 @@
 import { GridDefaults } from "constants/WidgetConstants";
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { LayoutSystemTypes } from "layoutSystems";
 import memo from "micro-memoize";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 

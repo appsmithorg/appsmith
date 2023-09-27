@@ -17,7 +17,7 @@ import {
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { LayoutSystemTypes } from "layoutSystems";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 //Saga to create application snapshot
