@@ -16,7 +16,7 @@ export const apiRequestConfig = {
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true,
+  // withCredentials: true,
 };
 
 const axiosInstance: AxiosInstance = axios.create();

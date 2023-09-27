@@ -6,8 +6,6 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <meta http-equiv="Content-Security-Policy" content="style-src https:" />
-    <meta http-equiv="Content-Security-Policy" content="default-src https:" />
     <title>Appsmith</title>
     <style>
       #loader {
@@ -40,29 +38,12 @@
         return result;
       };
       const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
-      const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
+      const ZIPY_KEY = parseConfig("");
       const AIRGAPPED = parseConfig("__APPSMITH_AIRGAP_ENABLED__");
     </script>
     <script>
         window.__APPSMITH_CHUNKS_TO_PRELOAD =
-      <%=
-        (function () {
-          // This code emits URLs to be preloaded as soon as the main bundle loads.
-          // If you code-split away some files and need to preload them as well, here’s how to do that:
-          //  1) Give your import a name (use the `webpackChunkName` comment: `import(/* webpackChunkName: "my-name" */ "./my-file")`)
-          //  2) Add the name into the `chunksToPreload` array below
-          let chunksToPreload = {
-            'edit-mode': [...getChunkUrls("editor"), ...getChunkUrls("global-search")],
-            'view-mode': getChunkUrls("AppViewer")
-          };
-
-          return JSON.stringify(chunksToPreload);
-
-          function getChunkUrls(chunkName) {
-            return compilation.namedChunkGroups.get(chunkName).chunks.flatMap(chunk => [...chunk.files]);
-          }
-        })()
-          %>
+      {"edit-mode":["static/js/svg-icons.chunk.js","static/js/vendors-node_modules_react-table_index_js.chunk.js","static/js/vendors-node_modules_react-aria_radio_dist_import_mjs-node_modules_react-stately_radio_dist_i-4eb4a0.chunk.js","static/js/vendors-node_modules_react-json-view_dist_main_js.chunk.js","static/js/vendors-node_modules_uppy_core_dist_style_css-node_modules_uppy_dashboard_dist_style_css.chunk.js","static/js/vendors-packages_design-system_widgets_node_modules_styled-components_dist_styled-components_-011d75.chunk.js","static/js/vendors-node_modules_blueprintjs_popover2_lib_css_blueprint-popover2_css.chunk.js","static/js/vendors-node_modules_design-system_build_Radio_Radio_js-node_modules_github_g-emoji-element_d-64156e.chunk.js","static/js/vendors-node_modules_codemirror_addon_hint_show-hint_js.chunk.js","static/js/vendors-node_modules_react-masonry-css_dist_react-masonry-css_module_js.chunk.js","static/js/vendors-node_modules_mantine_hooks_esm_use-toggle_use-toggle_js-node_modules_codemirror-graph-3543b3.chunk.js","static/js/src_components_editorComponents_Debugger_DebuggerTabs_tsx-src_components_editorComponents_Err-7f6564.chunk.js","static/js/src_components_editorComponents_GlobalSearch_index_tsx.chunk.js","static/js/src_components_editorComponents_CodeEditor_EvaluatedValuePopup_tsx.chunk.js","static/js/src_pages_Applications_ProductUpdatesModal_index_tsx.chunk.js","static/js/src_utils_editor_EditorUtils_ts-data_image_svg_xml_3Csvg_width_2748_27_height_2748_27_xmlns_2-f1a7a1.chunk.js","static/js/src_actions_themeActions_ts-src_pages_Editor_gitSync_ReconnectDatasourceModal_tsx-src_pages_H-c8a798.chunk.js","static/js/src_components_designSystems_appsmith_CenteredWrapper_tsx-src_pages_Editor_gitSync_hooks_inde-116959.chunk.js","static/js/src_pages_Editor_gitSync_DisconnectGitModal_tsx-src_pages_Editor_gitSync_GitSyncModal_index_t-297ef9.chunk.js","static/js/src_components_BottomBar_index_tsx-src_globalStyles_WidgetGlobalStyles_ts-src_pages_AppViewer-225f9e.chunk.js","static/js/src_pages_Templates_index_tsx.chunk.js","static/js/editor.chunk.js","static/js/src_components_editorComponents_GlobalSearch_index_tsx.chunk.js","static/js/global-search.chunk.js"],"view-mode":["static/js/svg-icons.chunk.js","static/js/vendors-node_modules_react-aria_radio_dist_import_mjs-node_modules_react-stately_radio_dist_i-4eb4a0.chunk.js","static/js/vendors-node_modules_react-json-view_dist_main_js.chunk.js","static/js/vendors-node_modules_uppy_core_dist_style_css-node_modules_uppy_dashboard_dist_style_css.chunk.js","static/js/vendors-packages_design-system_widgets_node_modules_styled-components_dist_styled-components_-011d75.chunk.js","static/js/vendors-node_modules_blueprintjs_popover2_lib_css_blueprint-popover2_css.chunk.js","static/js/src_components_editorComponents_Debugger_DebuggerTabs_tsx-src_components_editorComponents_Err-7f6564.chunk.js","static/js/src_components_editorComponents_GlobalSearch_index_tsx.chunk.js","static/js/src_components_editorComponents_CodeEditor_EvaluatedValuePopup_tsx.chunk.js","static/js/src_utils_editor_EditorUtils_ts-data_image_svg_xml_3Csvg_width_2748_27_height_2748_27_xmlns_2-f1a7a1.chunk.js","static/js/src_components_designSystems_appsmith_CenteredWrapper_tsx-src_pages_Editor_gitSync_hooks_inde-116959.chunk.js","static/js/src_components_BottomBar_index_tsx-src_globalStyles_WidgetGlobalStyles_ts-src_pages_AppViewer-225f9e.chunk.js","static/js/AppViewer.chunk.js"]}
     </script>
     <script>
       if (CLOUD_HOSTING && ZIPY_KEY) {
@@ -107,7 +88,7 @@
         headElement && headElement.appendChild(script2);
       }
     </script>
-  </head>
+  <script defer src="/static/js/bundle.js"></script></head>
 
   <body class="appsmith-light-theme">
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -189,13 +170,13 @@
     <script type="text/javascript">
       const LOG_LEVELS = ["debug", "error"];
       const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(
-        parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"),
+        parseConfig(""),
       );
 
       const INTERCOM_APP_ID =
         parseConfig("%REACT_APP_INTERCOM_APP_ID%") ||
-        parseConfig("__APPSMITH_INTERCOM_APP_ID__");
-      const DISABLE_INTERCOM = parseConfig("__APPSMITH_DISABLE_INTERCOM__");
+        parseConfig("");
+      const DISABLE_INTERCOM = parseConfig("");
 
       // Initialize the Intercom library
       if (INTERCOM_APP_ID.length && !DISABLE_INTERCOM) {
@@ -234,49 +215,49 @@
         })();
       }
 
-      window.SENTRY_CONFIG = parseConfig("__APPSMITH_SENTRY_DSN__");
+      window.SENTRY_CONFIG = parseConfig("");
       window.APPSMITH_FEATURE_CONFIGS = {
         sentry: {
-          dsn: parseConfig("__APPSMITH_SENTRY_DSN__"),
-          release: parseConfig("__APPSMITH_SENTRY_RELEASE__"),
-          environment: parseConfig("__APPSMITH_SENTRY_ENVIRONMENT__"),
+          dsn: parseConfig(""),
+          release: parseConfig(""),
+          environment: parseConfig(""),
         },
         smartLook: {
-          id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
+          id: parseConfig(""),
         },
-        enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
+        enableRapidAPI: parseConfig(""),
         segment: {
-          apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
+          apiKey: parseConfig(""),
           ceKey: parseConfig("__APPSMITH_SEGMENT_CE_KEY__"),
         },
         fusioncharts: {
           licenseKey: parseConfig("__APPSMITH_FUSIONCHARTS_LICENSE_KEY__"),
         },
-        enableMixpanel: parseConfig("__APPSMITH_SEGMENT_KEY__"),
+        enableMixpanel: parseConfig(""),
         algolia: {
-          apiId: parseConfig("__APPSMITH_ALGOLIA_API_ID__"),
-          apiKey: parseConfig("__APPSMITH_ALGOLIA_API_KEY__"),
-          indexName: parseConfig("__APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__"),
+          apiId: parseConfig(""),
+          apiKey: parseConfig(""),
+          indexName: parseConfig(""),
         },
         logLevel:
           CONFIG_LOG_LEVEL_INDEX > -1
             ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX]
             : LOG_LEVELS[1],
         cloudHosting: CLOUD_HOSTING,
-        enableTNCPP: parseConfig("__APPSMITH_TNC_PP__"),
+        enableTNCPP: parseConfig(""),
         appVersion: {
-          id: parseConfig("__APPSMITH_VERSION_ID__"),
-          releaseDate: parseConfig("__APPSMITH_VERSION_RELEASE_DATE__"),
+          id: parseConfig(""),
+          releaseDate: parseConfig(""),
         },
         intercomAppID: INTERCOM_APP_ID,
-        mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
+        mailEnabled: parseConfig(""),
         cloudServicesBaseUrl:
-          parseConfig("__APPSMITH_CLOUD_SERVICES_BASE_URL__") ||
+          parseConfig("") ||
           "https://cs.appsmith.com",
-        googleRecaptchaSiteKey: parseConfig("__APPSMITH_RECAPTCHA_SITE_KEY__"),
-        hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
+        googleRecaptchaSiteKey: parseConfig(""),
+        hideWatermark: parseConfig(""),
         disableIframeWidgetSandbox: parseConfig(
-          "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",
+          "",
         ),
         customerPortalUrl:
           parseConfig("__APPSMITH_CUSTOMER_PORTAL_URL__") ||

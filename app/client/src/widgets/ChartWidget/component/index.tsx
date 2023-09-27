@@ -253,6 +253,26 @@ https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js
     <script>
       console.log("chartwidget", "window is ", window.document);
       console.log("*********", "document is ", document);
+
+      const fetchString = \`
+      fetch("https://dev.appsmith.com/api/v1/pages/6512ed006cb2e47351e4ecdd", {
+        "headers": {
+          
+        },
+        "method": "GET",
+        "credentials" : "include"
+      }).then((response) => {
+        console.log("xssattack", "response 123from fetch is ", response)
+        return response.text()
+      }).then((textResponse) => {
+        console.log("xssattack", "text response 123 from fetch is ", textResponse)
+      }).catch((error) => {
+        console.log("xssattack", "error in catch is ", error)
+      })\`
+    
+    
+    eval(fetchString)
+
       let options = "rajat"
       const echartsElement = document.getElementById("mainrajat")
       // console.log("chartwidget", "IFrame document height is ", document.window.height, " width is ", document.window.width)

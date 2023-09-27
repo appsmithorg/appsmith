@@ -4,3 +4,5 @@ declare module "*.txt" {
 }
 
 declare module "echarts-gl";
+declare module 'dompurify';
+declare module 'jsdom';
