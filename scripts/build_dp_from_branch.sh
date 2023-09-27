@@ -64,11 +64,13 @@ for ((attempt = 1; attempt <= $max_attempts; attempt++)); do
      response=$(curl --request GET "${url}" --oauth2-bearer '${{secrets.INTERNAL_OPS_API_TOKEN}}' -s -o /dev/null -w "%{http_code}")
     if [ "${response}" -eq 200 ]; then
         echo "API request successful (HTTP Status: ${response})"
-        exit 0
+        break
     else
         echo "Attempt $attempt: API request failed (HTTP Status: ${response})"
         if [ "${attempt}" -lt "${max_attempts}" ]; then
             sleep 1
+        else
+            exit 1
         fi
     fi
 done
