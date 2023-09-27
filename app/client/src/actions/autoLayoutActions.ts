@@ -1,6 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { LayoutSystemTypes } from "layoutSystems";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import type {
   CONVERSION_STATES,
   SnapShotDetails,
