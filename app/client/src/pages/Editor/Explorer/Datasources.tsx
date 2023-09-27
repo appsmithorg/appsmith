@@ -34,13 +34,15 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import type { AppState } from "@appsmith/reducers";
-import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import {
+  getHasCreateDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const ShowAllButton = styled(Button)`
   margin: 0.25rem 1.5rem;
@@ -103,7 +105,8 @@ const Datasources = React.memo(() => {
       appWideDS.concat(datasourceSuggestions).map((datasource: Datasource) => {
         const datasourcePermissions = datasource.userPermissions || [];
 
-        const canManageDatasource = hasManageDatasourcePermission(
+        const canManageDatasource = getHasManageDatasourcePermission(
+          isFeatureEnabled,
           datasourcePermissions,
         );
         return (

@@ -48,7 +48,6 @@ import { isDatasourceInViewMode } from "selectors/ui";
 import {
   hasCreateDatasourceActionPermission,
   hasDeleteDatasourcePermission,
-  hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
@@ -89,6 +88,7 @@ import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelector
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
+import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -717,7 +717,13 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const datasourcePermissions = datasource?.userPermissions || [];
 
-  const canManageDatasource = hasManageDatasourcePermission(
+  const isFeatureEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.license_gac_enabled,
+  );
+
+  const canManageDatasource = getHasManageDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 

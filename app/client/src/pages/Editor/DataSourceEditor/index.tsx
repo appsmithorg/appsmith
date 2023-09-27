@@ -62,7 +62,6 @@ import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
 import {
   hasCreateDatasourceActionPermission,
   hasDeleteDatasourcePermission,
-  hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 
 import { toast, Callout } from "design-system";
@@ -104,6 +103,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConstants";
 import { setCurrentEditingEnvironmentID } from "@appsmith/actions/environmentAction";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -1038,7 +1039,11 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   const datasourcePermissions = datasource?.userPermissions || [];
 
-  const canManageDatasource = hasManageDatasourcePermission(
+  const featureFlags = selectFeatureFlags(state);
+  const isGACFeatureEnabled = isGACEnabled(featureFlags);
+
+  const canManageDatasource = getHasManageDatasourcePermission(
+    isGACFeatureEnabled,
     datasourcePermissions,
   );
 
@@ -1069,8 +1074,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     state,
     pluginId,
   );
-
-  const featureFlags = selectFeatureFlags(state);
 
   //   A/B feature flag for datasource view mode preview data.
   let isEnabledForDSViewModeSchema = selectFeatureFlagCheck(

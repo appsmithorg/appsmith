@@ -45,7 +45,6 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Text } from "design-system";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
@@ -55,7 +54,10 @@ import { isEnvironmentValid } from "@appsmith/utils/Environments";
 import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { isString } from "lodash";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import {
+  getHasCreateDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
@@ -517,7 +519,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
     const datasourcePermissions = datasourceObject?.userPermissions || [];
 
-    const canManageDatasource = hasManageDatasourcePermission(
+    const canManageDatasource = getHasManageDatasourcePermission(
+      isFeatureEnabled,
       datasourcePermissions,
     );
 
