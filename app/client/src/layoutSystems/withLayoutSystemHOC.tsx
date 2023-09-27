@@ -1,11 +1,11 @@
 import type { RenderModes } from "constants/WidgetConstants";
 import React from "react";
 import { useSelector } from "react-redux";
-import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import { getLayoutSystemType, getRenderMode } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAutoLayoutSystem } from "./autolayout";
 import { getFixedLayoutSystem } from "./fixedlayout";
+import { LayoutSystemTypes } from "./types";
 
 export type LayoutSystem = {
   LayoutSystemWrapper: (props: WidgetProps) => any;

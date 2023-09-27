@@ -27,7 +27,7 @@ import {
   getWidgets,
   getWidgetsMeta,
 } from "./selectors";
-import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,

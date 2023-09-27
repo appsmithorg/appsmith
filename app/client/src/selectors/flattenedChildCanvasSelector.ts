@@ -9,7 +9,7 @@ import { createSelector } from "reselect";
 import { getCurrentLayoutSystemType, getRenderMode } from "./editorSelectors";
 import { getIsMobileBreakPoint } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
-import type { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
+import type { LayoutSystemTypes } from "layoutSystems/types";
 
 function buildFlattenedChildCanvasWidgets(
   canvasWidgets: CanvasWidgetsReduxState,

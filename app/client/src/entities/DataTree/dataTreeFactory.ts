@@ -23,7 +23,7 @@ import type {
 } from "./types";
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
-import type { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
+import type { LayoutSystemTypes } from "layoutSystems/types";
 
 export type UnEvalTreeEntityObject =
   | ActionEntity

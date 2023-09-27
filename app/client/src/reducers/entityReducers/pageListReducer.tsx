@@ -253,14 +253,6 @@ export interface AppLayoutConfig {
   type: SupportedLayouts;
 }
 
-export enum LayoutSystemTypes {
-  FIXED = "FIXED",
-  AUTO = "AUTO",
-}
-export interface LayoutSystemTypeConfig {
-  type: LayoutSystemTypes;
-}
-
 export interface PageListReduxState {
   pages: Page[];
   applicationId: string;

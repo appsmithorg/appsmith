@@ -3,7 +3,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
-import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import type { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";

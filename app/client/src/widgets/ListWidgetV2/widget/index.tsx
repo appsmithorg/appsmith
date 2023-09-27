@@ -44,11 +44,11 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",

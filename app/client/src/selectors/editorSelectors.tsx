@@ -31,7 +31,6 @@ import type {
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { find, sortBy } from "lodash";
-import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getDataTree,
   getLoadingEntities,
@@ -62,6 +61,7 @@ import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -217,7 +217,9 @@ export const selectURLSlugs = createSelector(
   getCurrentPageId,
   (application, pages, pageId) => {
     const applicationSlug = application?.slug || PLACEHOLDER_APP_SLUG;
-    const currentPage = pages.find((page) => page.pageId === pageId);
+    const currentPage: Page | undefined = pages.find(
+      (page) => page.pageId === pageId,
+    );
     const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
     const customSlug = currentPage?.customSlug;
     return { applicationSlug, pageSlug, customSlug };

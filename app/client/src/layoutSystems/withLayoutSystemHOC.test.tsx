@@ -1,6 +1,6 @@
 import { RenderModes } from "constants/WidgetConstants";
 import React from "react";
-import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import * as editorSelectors from "selectors/editorSelectors";
 import { WidgetTypeFactories } from "test/factories/Widgets/WidgetTypeFactories";
 import { render } from "test/testUtils";

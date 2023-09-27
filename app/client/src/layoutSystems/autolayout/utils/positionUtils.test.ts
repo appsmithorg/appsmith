@@ -16,7 +16,7 @@ import {
   placeWrappedWidgets,
   updateWidgetPositions,
 } from "./positionUtils";
-import { LayoutSystemTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { LabelPosition } from "components/constants";
 import * as utils from "./flexWidgetUtils";
 
