@@ -14,7 +14,6 @@ import { APP_MODE } from "entities/App";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   getCurrentApplicationLayout,
-  getCurrentLayoutSystemType,
   getCurrentPageId,
   getMainCanvasProps,
   previewModeSelector,
@@ -42,6 +41,7 @@ import type { AppState } from "@appsmith/reducers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useLocation } from "react-router";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -59,7 +59,7 @@ export const useDynamicAppLayout = () => {
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
-  const layoutSystemType = useSelector(getCurrentLayoutSystemType);
+  const layoutSystemType = useSelector(getLayoutSystemType);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(

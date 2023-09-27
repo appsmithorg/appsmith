@@ -30,7 +30,6 @@ import {
 } from "sagas/WidgetBlueprintSagas";
 import {
   getCanvasWidth,
-  getCurrentLayoutSystemType,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
@@ -42,6 +41,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { toast } from "design-system";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/CanvasArenas/ArenaTypes";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -336,7 +336,7 @@ function* moveWidgetsSaga(
     }
 
     const layoutSystemType: LayoutSystemTypes = yield select(
-      getCurrentLayoutSystemType,
+      getLayoutSystemType,
     );
     let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
     if (layoutSystemType === LayoutSystemTypes.AUTO) {

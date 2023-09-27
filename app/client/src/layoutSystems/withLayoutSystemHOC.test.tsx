@@ -2,6 +2,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import React from "react";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import * as editorSelectors from "selectors/editorSelectors";
+import * as layoutSystemSelectors from "selectors/layoutSystemSelectors";
 import { WidgetTypeFactories } from "test/factories/Widgets/WidgetTypeFactories";
 import { render } from "test/testUtils";
 import CanvasWidget from "widgets/CanvasWidget";
@@ -19,7 +20,7 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getLayoutSystemType")
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.FIXED);
       const component = render(<HOC {...widgetProps} />);
       const positionedLayer =
@@ -39,7 +40,7 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getLayoutSystemType")
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.FIXED);
       const component = render(<HOC {...widgetProps} />);
       const positionedLayer =
@@ -60,7 +61,7 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getLayoutSystemType")
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.FIXED);
       const component = render(<HOC {...widgetProps} />);
       const positionedLayer =
@@ -80,7 +81,7 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getLayoutSystemType")
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.FIXED);
       const component = render(<HOC {...widgetProps} />);
       const positionedLayer =
@@ -101,7 +102,7 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getLayoutSystemType")
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.FIXED);
       const component = render(<HOC {...widgetProps} />);
       const positionedLayer =
@@ -120,7 +121,7 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getLayoutSystemType")
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.FIXED);
       const component = render(<HOC {...widgetProps} />);
       const positionedLayer =
@@ -140,7 +141,7 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getLayoutSystemType")
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.AUTO);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
@@ -161,7 +162,7 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getLayoutSystemType")
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.AUTO);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
@@ -183,7 +184,7 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getLayoutSystemType")
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.AUTO);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
@@ -204,7 +205,7 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getLayoutSystemType")
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.AUTO);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
@@ -226,7 +227,7 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getLayoutSystemType")
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.AUTO);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
@@ -246,7 +247,7 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getLayoutSystemType")
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
         .mockImplementation(() => LayoutSystemTypes.AUTO);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(

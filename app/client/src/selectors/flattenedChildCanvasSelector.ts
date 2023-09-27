@@ -6,10 +6,11 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
-import { getCurrentLayoutSystemType, getRenderMode } from "./editorSelectors";
+import { getRenderMode } from "./editorSelectors";
 import { getIsMobileBreakPoint } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import type { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
 
 function buildFlattenedChildCanvasWidgets(
   canvasWidgets: CanvasWidgetsReduxState,
@@ -51,7 +52,7 @@ export const getFlattenedChildCanvasWidgets = createSelector(
   [
     getCanvasWidgets,
     getRenderMode,
-    getCurrentLayoutSystemType,
+    getLayoutSystemType,
     getIsMobileBreakPoint,
     (_state: AppState, parentWidgetId: string) => parentWidgetId,
   ],

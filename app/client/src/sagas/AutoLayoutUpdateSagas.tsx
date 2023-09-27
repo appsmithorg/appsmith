@@ -34,7 +34,6 @@ import {
 } from "constants/WidgetConstants";
 import {
   getCurrentApplicationId,
-  getCurrentLayoutSystemType,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
@@ -64,6 +63,7 @@ import { getIsResizing } from "selectors/widgetSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { AppState } from "@appsmith/reducers";
 import { nestDSL, flattenDSL } from "@shared/dsl";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
@@ -150,7 +150,7 @@ export function* updateLayoutSystemTypeSaga(
 ) {
   try {
     const currLayoutSystemType: LayoutSystemTypes = yield select(
-      getCurrentLayoutSystemType,
+      getLayoutSystemType,
     );
     const payloadLayoutSystemType = actionPayload.payload;
 
@@ -193,9 +193,7 @@ export function* updateLayoutSystemTypeSaga(
 export function* recalculateAutoLayoutColumnsAndSave(
   widgets?: CanvasWidgetsReduxState,
 ) {
-  const layoutSystemType: LayoutSystemTypes = yield select(
-    getCurrentLayoutSystemType,
-  );
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
   const mainCanvasProps: MainCanvasReduxState = yield select(
     getMainCanvasProps,
   );
@@ -431,7 +429,7 @@ export function* updateApplicationLayoutType(
   yield put(
     updateApplication(applicationId || "", {
       applicationDetail: {
-        layoutSystem: {
+        appPositioning: {
           type: layoutSystemType,
         },
       },

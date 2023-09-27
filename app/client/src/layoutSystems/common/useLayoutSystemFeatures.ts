@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import { getCurrentLayoutSystemType } from "selectors/editorSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export enum LayoutSystemFeatures {
   ENABLE_MAIN_CONTAINER_RESIZER = "ENABLE_MAIN_CONTAINER_RESIZER", //enable main canvas resizer
@@ -26,7 +26,7 @@ const AUTO_LAYOUT_FEATURES = {
  * The boolean will indicate if the feature is enabled for the current layout
  */
 export const useLayoutSystemFeatures = () => {
-  const layoutSystemType = useSelector(getCurrentLayoutSystemType);
+  const layoutSystemType = useSelector(getLayoutSystemType);
 
   let currentFeatureSet = {} as Record<LayoutSystemFeatures, boolean>;
 

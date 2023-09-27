@@ -19,7 +19,6 @@ import {
 import {
   computeMainContainerWidget,
   getChildWidgets,
-  getCurrentLayoutSystemType,
   getMainCanvasProps,
   getRenderMode,
   getMetaWidgetChildrenStructure,
@@ -47,6 +46,7 @@ import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -93,7 +93,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       equal,
     );
     const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
-    const layoutSystemType = useSelector(getCurrentLayoutSystemType);
+    const layoutSystemType = useSelector(getLayoutSystemType);
     const isAutoLayout = layoutSystemType === LayoutSystemTypes.AUTO;
 
     const configTree = ConfigTreeActions.getConfigTree();

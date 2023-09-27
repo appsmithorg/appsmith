@@ -37,7 +37,6 @@ import {
 import {
   getCanvasWidth,
   getContainerWidgetSpacesSelector,
-  getCurrentLayoutSystemType,
   getCurrentPageId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
@@ -184,6 +183,7 @@ import {
 } from "layoutSystems/autolayout/utils/constants";
 import localStorage from "utils/localStorage";
 import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -213,7 +213,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     } = resizeAction.payload;
 
     const layoutSystemType: LayoutSystemTypes = yield select(
-      getCurrentLayoutSystemType,
+      getLayoutSystemType,
     );
     const mainCanvasWidth: number = yield select(getCanvasWidth);
     widget = {

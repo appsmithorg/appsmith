@@ -10,15 +10,13 @@ import log from "loglevel";
 import type { SnapShotDetails } from "reducers/uiReducers/layoutConversionReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import {
-  getLayoutSystemType,
-  getCurrentApplicationId,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 //Saga to create application snapshot
 export function* createSnapshotSaga() {

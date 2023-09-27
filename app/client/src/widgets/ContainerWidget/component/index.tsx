@@ -13,10 +13,10 @@ import type { WidgetStyleContainerProps } from "components/designSystems/appsmit
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { scrollCSS } from "widgets/WidgetUtils";
 import { useSelector } from "react-redux";
-import { getCurrentLayoutSystemType } from "selectors/editorSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetType } from "WidgetProvider/factory";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 const StyledContainerComponent = styled.div<
   Omit<ContainerWrapperProps, "widgetId">
@@ -58,7 +58,7 @@ function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
 ) {
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
-  const layoutSystemType = useSelector(getCurrentLayoutSystemType);
+  const layoutSystemType = useSelector(getLayoutSystemType);
 
   useEffect(() => {
     if (!props.shouldScrollContents) {

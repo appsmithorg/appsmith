@@ -21,7 +21,6 @@ import DragLayerComponent from "./DragLayerComponent";
 import { useDispatch } from "react-redux";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import {
-  getCurrentLayoutSystemType,
   getOccupiedSpacesSelectorForContainer,
   previewModeSelector,
 } from "selectors/editorSelectors";
@@ -39,6 +38,7 @@ import {
 } from "widgets/WidgetUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -200,9 +200,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
-  const layoutSystemType: LayoutSystemTypes = useSelector(
-    getCurrentLayoutSystemType,
-  );
+  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
   const isAutoLayoutActive = layoutSystemType === LayoutSystemTypes.AUTO;
   const { contextValue, dropTargetRef, rowRef } = useUpdateRows(
     props.bottomRow,

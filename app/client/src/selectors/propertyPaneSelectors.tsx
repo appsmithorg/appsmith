@@ -23,7 +23,7 @@ import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
-import { getCurrentLayoutSystemType } from "./editorSelectors";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -71,7 +71,7 @@ const getCurrentWidgetName = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
-  getCurrentLayoutSystemType,
+  getLayoutSystemType,
   (state) => {
     const currentWidget = getCurrentWidgetProperties(state);
     if (!currentWidget) return;

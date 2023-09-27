@@ -1,7 +1,8 @@
 import type { RenderModes } from "constants/WidgetConstants";
 import React from "react";
 import { useSelector } from "react-redux";
-import { getLayoutSystemType, getRenderMode } from "selectors/editorSelectors";
+import { getRenderMode } from "selectors/editorSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAutoLayoutSystem } from "./autolayout";
 import { getFixedLayoutSystem } from "./fixedlayout";
