@@ -1,6 +1,7 @@
 import DropTargetComponent from "layoutSystems/common/dropTarget/DropTargetComponent";
 import type { DropTargetComponentProps } from "layoutSystems/common/dropTarget/DropTargetComponent";
 import type { ReactNode } from "react";
+import { memo } from "react";
 import React from "react";
 
 type DropTargetComponentWrapperProps = {
@@ -15,16 +16,18 @@ type DropTargetComponentWrapperProps = {
  * It decides whether to render the DropTargetComponent or not based on the dropDisabled prop.
  */
 
-export const DropTargetComponentWrapper = ({
-  children,
-  dropDisabled,
-  dropTargetProps,
-}: DropTargetComponentWrapperProps) => {
-  if (dropDisabled) {
-    //eslint-disable-next-line
-    return <>{children}</>;
-  }
-  return (
-    <DropTargetComponent {...dropTargetProps}>{children}</DropTargetComponent>
-  );
-};
+export const DropTargetComponentWrapper = memo(
+  ({
+    children,
+    dropDisabled,
+    dropTargetProps,
+  }: DropTargetComponentWrapperProps) => {
+    if (dropDisabled) {
+      //eslint-disable-next-line
+      return <>{children}</>;
+    }
+    return (
+      <DropTargetComponent {...dropTargetProps}>{children}</DropTargetComponent>
+    );
+  },
+);
