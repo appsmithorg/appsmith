@@ -19,7 +19,7 @@ import {
 import { integrationEditorURL } from "RouteBuilder";
 import { MenuItem } from "design-system";
 import type { Plugin } from "api/PluginApi";
-import { DatasourceStructureContext } from "./DatasourceStructureContainer";
+import { DatasourceStructureContext } from "./DatasourceStructure";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { setFeatureWalkthroughShown } from "utils/storage";
 import styled from "styled-components";

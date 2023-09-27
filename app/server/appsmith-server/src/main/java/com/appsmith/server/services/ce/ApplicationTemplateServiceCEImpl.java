@@ -324,6 +324,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         CommunityTemplateUploadDTO communityTemplate = new CommunityTemplateUploadDTO();
         communityTemplate.setAppJson(appJson);
         communityTemplate.setApplicationTemplate(applicationTemplate);
+        communityTemplate.getApplicationTemplate().setAppUrl(templateDetails.getAppUrl());
         return communityTemplate;
     }
 

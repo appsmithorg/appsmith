@@ -149,6 +149,7 @@ describe("Button widget testcases", () => {
       "{{Input1.text}}",
     );
     deployMode.DeployApp();
+    agHelper.Sleep();
     // set the email
     agHelper.ClickButton("Submit");
     agHelper.WaitUntilEleAppear(locators._toastMsg);

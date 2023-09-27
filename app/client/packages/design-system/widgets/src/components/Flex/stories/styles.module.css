@@ -1,0 +1,20 @@
+@import "../../../shared/colors/colors.module.css";
+
+.demo-block {
+  min-width: var(--sizing-12);
+  min-height: var(--sizing-12);
+  flex: 1;
+
+  @each $color in colors {
+    &[data-color="$(color)"] {
+      background: var(--color-bg-$(color));
+    }
+  }
+}
+
+.responsive-block {
+  background: var(--color-bg-positive);
+  aspect-ratio: 1/1;
+  width: 100%;
+  height: 100%;
+}
