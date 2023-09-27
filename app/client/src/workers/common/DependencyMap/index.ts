@@ -119,7 +119,6 @@ export const updateDependencyMap = ({
   const dependenciesOfRemovedPaths: Array<string> = [];
   const removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let didUpdateDependencyMap = false;
-  let didUpdateValidationDependencyMap = false;
   const {
     allKeys,
     dependencyMap,
@@ -161,10 +160,10 @@ export const updateDependencyMap = ({
           }
 
           const didUpdateDep = dependencyMap.addNodes(allAddedPaths, false);
-          const didUpdateValidationDep =
-            validationDependencyMap.addNodes(allAddedPaths);
+          validationDependencyMap.addNodes(allAddedPaths);
+
           if (didUpdateDep) didUpdateDependencyMap = true;
-          if (didUpdateValidationDep) didUpdateValidationDependencyMap = true;
+
           if (isWidgetActionOrJsObject(entity)) {
             if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
               const entityDependencyMap = getEntityDependencies(
@@ -200,7 +199,6 @@ export const updateDependencyMap = ({
                     path,
                     validationDependencies[path],
                   );
-                  didUpdateValidationDependencyMap = true;
                 }
               }
             } else {
@@ -229,7 +227,6 @@ export const updateDependencyMap = ({
                     path,
                     validationDependencies[path],
                   );
-                  didUpdateValidationDependencyMap = true;
                 }
               }
             }
@@ -255,10 +252,9 @@ export const updateDependencyMap = ({
           }
 
           const didUpdateDeps = dependencyMap.removeNodes(allDeletedPaths);
-          const didUpdateValidationDeps =
-            validationDependencyMap.removeNodes(allDeletedPaths);
+          validationDependencyMap.removeNodes(allDeletedPaths);
+
           if (didUpdateDeps) didUpdateDependencyMap = true;
-          if (didUpdateValidationDeps) didUpdateValidationDependencyMap = true;
 
           if (isWidgetActionOrJsObject(entity)) {
             const entityId = getEntityId(entity);
@@ -313,10 +309,6 @@ export const updateDependencyMap = ({
       dependencyMap,
       translatedDiffs,
     );
-  }
-  if (didUpdateValidationDependencyMap) {
-    dataTreeEvalRef.sortedValidationDependencies =
-      dataTreeEvalRef.sortDependencies(validationDependencyMap);
   }
 
   /** We need this in order clear out the paths that could have errors when a property is deleted */
