@@ -6,6 +6,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.repositories.ce.CustomNewActionRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -24,8 +25,9 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     public CustomNewActionRepositoryImpl(
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            MongoTemplate mongoTemplate) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper, mongoTemplate);
     }
 
     @Override
