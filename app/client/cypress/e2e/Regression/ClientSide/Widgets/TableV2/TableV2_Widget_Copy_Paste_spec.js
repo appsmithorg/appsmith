@@ -1,7 +1,6 @@
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   entityExplorer,
@@ -50,7 +49,6 @@ describe("Test Suite to validate copy/paste table Widget V2", function () {
   });
 
   it("2. Should check that table binding list gets updated when .filters gets added to it", () => {
-    featureFlagIntercept({ release_table_serverside_filtering_enabled: true });
     cy.CheckAndUnfoldWidgets();
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Table1Copy",

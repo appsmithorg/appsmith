@@ -9,7 +9,6 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import { expandLoadMoreOptions } from "../../OneClickBinding/spec_utility";
-import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 const ALERT_SUCCESS_MSG = "Table data filtered";
 
@@ -23,7 +22,6 @@ describe("Table widget v2: test server side filtering", function () {
    * 5. Bind it as a WHERE condition inside an SQL query
    */
   before(() => {
-    featureFlagIntercept({ release_table_serverside_filtering_enabled: true });
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 300);
 
     // Create SQL data-source
@@ -115,7 +113,6 @@ describe("Table widget v2: test server side filtering", function () {
 
 describe("Table v2: Server side filtering hidden behind feature flag", () => {
   before(() => {
-    featureFlagIntercept({ release_table_serverside_filtering_enabled: false });
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 700, 300);
   });
 
