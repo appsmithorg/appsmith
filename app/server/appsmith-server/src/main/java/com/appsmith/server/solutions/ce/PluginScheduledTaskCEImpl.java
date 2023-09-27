@@ -35,7 +35,7 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
         configService
                 .getByName(FieldName.REMOTE_PLUGINS)
                 .onErrorReturn(new Config())
-                .map(config -> {
+                .flatMap(config -> {
                     JSONObject config1 = config.getConfig();
                     Instant lastUpdatedAt = null;
 
