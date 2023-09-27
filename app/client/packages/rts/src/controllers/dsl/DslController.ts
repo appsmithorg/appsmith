@@ -5,7 +5,7 @@ import BaseController from "@controllers/BaseController";
 import DslService from "@services/DslService";
 
 type LatestDslVersion = {
-  versionNumber: string;
+  version: number;
 };
 
 export default class DslController extends BaseController {
@@ -15,8 +15,9 @@ export default class DslController extends BaseController {
 
   async getLatestDslVersion(req: Request, res: Response) {
     try {
-      // TODO: get the latest DSL version from the library
-      const data: LatestDslVersion = { versionNumber: "v4" };
+      const latestVersionNumber: number =
+        await DslService.getLatestDslVersionNumber();
+      const data: LatestDslVersion = { version: latestVersionNumber };
       return super.sendResponse(res, data);
     } catch (err) {
       return super.sendError(
@@ -31,7 +32,8 @@ export default class DslController extends BaseController {
   async migrateDsl(req: Request, res: Response) {
     try {
       // TODO: migrate the actual DSL
-      const data: any = await DslService.migrateDsl(req.body);
+      const inputDsl: any = req.body;
+      const data: any = await DslService.migrateDsl(inputDsl);
 
       return super.sendResponse(res, data);
     } catch (err) {
