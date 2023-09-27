@@ -425,16 +425,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
-    @Override
-    public Mono<ActionDTO> validateCreatorId(ActionDTO action) {
+    protected Mono<ActionDTO> validateCreatorId(ActionDTO action) {
         if (action.getPageId() == null || action.getPageId().isBlank()) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID);
         }
         return Mono.just(action);
     }
 
-    @Override
-    public void setGitSyncIdInNewAction(NewAction newAction) {
+    protected void setGitSyncIdInNewAction(NewAction newAction) {
         if (newAction.getGitSyncId() == null) {
             newAction.setGitSyncId(newAction.getApplicationId() + "_" + new ObjectId());
         }
