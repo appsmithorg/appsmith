@@ -263,4 +263,10 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
                 .collectList();
     }
+
+    @Override
+    public Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
+        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
+        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+    }
 }
