@@ -76,10 +76,13 @@ function ExternalComponent(props: any) {
 
   const srcDoc = `
     <html>
+      <head>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+      </head>
       <body>
         <script type="text/javascript">${script}</script>
         ${props.srcDoc.html}
-        <script type="text/javascript">
+        <script type="text/babel"  data-presets="env,react">
           appsmith.onReady(() => {
             ${props.srcDoc.js}
           });
