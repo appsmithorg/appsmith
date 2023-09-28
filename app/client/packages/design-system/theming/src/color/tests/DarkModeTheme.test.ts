@@ -717,47 +717,47 @@ describe("bd color", () => {
 
 describe("bdAccent color", () => {
   it("should return correct color when chroma < 0.04", () => {
-    const { bd } = new DarkModeTheme("oklch(0.45 0.03 60)").getColors();
-    expect(bd).toEqual("rgb(28.06% 28.06% 28.06%)");
+    const { bdAccent } = new DarkModeTheme("oklch(0.45 0.03 60)").getColors();
+    expect(bdAccent).toEqual("rgb(76.823% 76.823% 76.823%)");
   });
 
   it("should return correct color when chroma > 0.04", () => {
-    const { bd } = new DarkModeTheme("oklch(0.45 0.1 60)").getColors();
-    expect(bd).toEqual("rgb(32.033% 27.005% 23.081%)");
+    const { bdAccent } = new DarkModeTheme("oklch(0.45 0.1 60)").getColors();
+    expect(bdAccent).toEqual("rgb(94.8% 58.165% 23.581%)");
   });
 });
 
 describe("bdFocus color", () => {
   it("should return correct color when lightness < 0.4", () => {
-    const { bd } = new DarkModeTheme("oklch(0.3 0.4 60)").getColors();
-    expect(bd).toEqual("rgb(32.033% 27.005% 23.081%)");
+    const { bdFocus } = new DarkModeTheme("oklch(0.3 0.4 60)").getColors();
+    expect(bdFocus).toEqual("rgb(94.8% 58.165% 23.581%)");
   });
 
   it("should return correct color when lightness > 0.65", () => {
-    const { bd } = new DarkModeTheme("oklch(0.85 0.03 60)").getColors();
-    expect(bd).toEqual("rgb(28.06% 28.06% 28.06%)");
+    const { bdFocus } = new DarkModeTheme("oklch(0.85 0.03 60)").getColors();
+    expect(bdFocus).toEqual("rgb(100% 73.208% 48.082%)");
   });
 
   it("should return correct color when chroma < 0.12", () => {
-    const { bd } = new DarkModeTheme("oklch(0.85 0.1 60)").getColors();
-    expect(bd).toEqual("rgb(32.033% 27.005% 23.081%)");
+    const { bdFocus } = new DarkModeTheme("oklch(0.85 0.1 60)").getColors();
+    expect(bdFocus).toEqual("rgb(100% 73.208% 48.082%)");
   });
 
   it("should return correct color when hue is between 0 and 55", () => {
-    const { bd } = new DarkModeTheme("oklch(0.85 0.1 30)").getColors();
-    expect(bd).toEqual("rgb(32.929% 26.308% 25.118%)");
+    const { bdFocus } = new DarkModeTheme("oklch(0.85 0.1 30)").getColors();
+    expect(bdFocus).toEqual("rgb(100% 70.589% 64.779%)");
   });
 
   it("should return correct color when hue > 340", () => {
-    const { bd } = new DarkModeTheme("oklch(0.85 0.1 350)").getColors();
-    expect(bd).toEqual("rgb(32.237% 26.106% 28.799%)");
+    const { bdFocus } = new DarkModeTheme("oklch(0.85 0.1 350)").getColors();
+    expect(bdFocus).toEqual("rgb(100% 67.801% 85.002%)");
   });
 });
 
 describe("bdNeutral color", () => {
   it("should return correct color when chroma < 0.04", () => {
-    const { bd } = new DarkModeTheme("oklch(0.45 0.03 60)").getColors();
-    expect(bd).toEqual("rgb(28.06% 28.06% 28.06%)");
+    const { bdNeutral } = new DarkModeTheme("oklch(0.45 0.03 60)").getColors();
+    expect(bdNeutral).toEqual("rgb(76.823% 76.823% 76.823%)");
   });
 });
 

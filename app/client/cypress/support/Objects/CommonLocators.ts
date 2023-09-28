@@ -302,4 +302,9 @@ export class CommonLocators {
   _callbackAddBtn = ".action-callback-add .ads-v2-button";
   _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
   _listText = "//span[text()='Blue']/../..";
+  _fileUploadDashboardClose = ".uppy-Dashboard-close";
+  _fileUploadErrorContains = (msg: string) =>
+    `.uppy-Informer p:contains('${msg}')`;
+  _fileUploadAddMore = ".uppy-DashboardContent-addMore";
+  _buttonText = ".bp3-button-text";
 }
