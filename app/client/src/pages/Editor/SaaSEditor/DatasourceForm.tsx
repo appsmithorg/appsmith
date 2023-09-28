@@ -45,7 +45,6 @@ import {
 import type { PluginType } from "entities/Action";
 import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
 import { isDatasourceInViewMode } from "selectors/ui";
-import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
   createTempDatasourceFromForm,
@@ -86,6 +85,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import {
+  getHasCreateDatasourceActionPermission,
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
@@ -733,10 +733,10 @@ const mapStateToProps = (state: AppState, props: any) => {
   );
 
   const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    [...datasourcePermissions, ...pagePermissions],
+  );
 
   const gsheetToken = getGsheetToken(state);
   const gsheetProjectID = getGsheetProjectID(state);

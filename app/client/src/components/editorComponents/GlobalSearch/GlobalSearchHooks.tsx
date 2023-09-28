@@ -26,17 +26,17 @@ import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "RouteBuilder";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewQueryAction } from "actions/apiPaneActions";
-import {
-  hasCreateActionPermission,
-  hasCreateDatasourceActionPermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { importRemixIcon } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import {
+  getHasCreateDatasourceActionPermission,
+  getHasCreateDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 const AddLineIcon = importRemixIcon(
   () => import("remixicon-react/AddLineIcon"),
 );
@@ -114,6 +114,7 @@ export const getFilteredAndSortedFileOperations = (
   canCreateActions = true,
   canCreateDatasource = true,
   pagePermissions: string[] = [],
+  isFeatureEnabled = false,
 ) => {
   const fileOperations: ActionOperation[] = [];
   if (!canCreateActions) return fileOperations;
@@ -123,7 +124,7 @@ export const getFilteredAndSortedFileOperations = (
   // Add app datasources
   if (appWideDS.length > 0 || otherDS.length > 0) {
     const showCreateQuery = [...appWideDS, ...otherDS].some((ds: Datasource) =>
-      hasCreateDatasourceActionPermission([
+      getHasCreateDatasourceActionPermission(isFeatureEnabled, [
         ...(ds.userPermissions ?? []),
         ...pagePermissions,
       ]),
@@ -140,7 +141,7 @@ export const getFilteredAndSortedFileOperations = (
 
   // get all datasources, app ds listed first
   const datasources = [...appWideDS, ...otherDS].filter((ds) =>
-    hasCreateDatasourceActionPermission([
+    getHasCreateDatasourceActionPermission(isFeatureEnabled, [
       ...(ds.userPermissions ?? []),
       ...pagePermissions,
     ]),

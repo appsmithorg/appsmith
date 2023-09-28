@@ -59,7 +59,6 @@ import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
-import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 
 import { toast, Callout } from "design-system";
 import styled from "styled-components";
@@ -102,6 +101,7 @@ import { setCurrentEditingEnvironmentID } from "@appsmith/actions/environmentAct
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import {
+  getHasCreateDatasourceActionPermission,
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
@@ -1040,23 +1040,23 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const datasourcePermissions = datasource?.userPermissions || [];
 
   const featureFlags = selectFeatureFlags(state);
-  const isGACFeatureEnabled = isGACEnabled(featureFlags);
+  const isFeatureEnabled = isGACEnabled(featureFlags);
 
   const canManageDatasource = getHasManageDatasourcePermission(
-    isGACFeatureEnabled,
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
   const canDeleteDatasource = getHasDeleteDatasourcePermission(
-    isGACFeatureEnabled,
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
   const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    [...datasourcePermissions, ...pagePermissions],
+  );
   // Debugger render flag
   const showDebugger = showDebuggerFlag(state);
   const pluginPackageName = plugin?.packageName ?? "";

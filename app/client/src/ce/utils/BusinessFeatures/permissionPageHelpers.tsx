@@ -11,6 +11,9 @@ import { hasManageDatasourcePermission as hasManageDatasourcePermission_EE } fro
 import { hasDeleteDatasourcePermission as hasDeleteDatasourcePermission_CE } from "ce/utils/permissionHelpers";
 import { hasDeleteDatasourcePermission as hasDeleteDatasourcePermission_EE } from "@appsmith/utils/permissionHelpers";
 
+import { hasCreateDatasourceActionPermission as hasCreateDatasourceActionPermission_CE } from "ce/utils/permissionHelpers";
+import { hasCreateDatasourceActionPermission as hasCreateDatasourceActionPermission_EE } from "@appsmith/utils/permissionHelpers";
+
 export const getHasCreateWorkspacePermission = (
   isEnabled: boolean,
   permissions?: string[],
@@ -41,4 +44,12 @@ export const getHasDeleteDatasourcePermission = (
 ) => {
   if (isEnabled) return hasDeleteDatasourcePermission_EE(permissions);
   else return hasDeleteDatasourcePermission_CE(permissions);
+};
+
+export const getHasCreateDatasourceActionPermission = (
+  isEnabled: boolean,
+  permissions?: string[],
+) => {
+  if (isEnabled) return hasCreateDatasourceActionPermission_EE(permissions);
+  else return hasCreateDatasourceActionPermission_CE(permissions);
 };

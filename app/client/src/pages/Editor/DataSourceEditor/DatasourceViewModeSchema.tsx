@@ -34,12 +34,12 @@ import type {
   QueryTemplate,
 } from "entities/Datasource";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import {
-  hasCreateDatasourceActionPermission,
-  hasCreatePagePermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreatePagePermission } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateDatasourceActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const ViewModeSchemaContainer = styled.div`
   height: 100%;
@@ -111,10 +111,12 @@ const DatasourceViewModeSchema = (props: Props) => {
   );
   const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    [...datasourcePermissions, ...pagePermissions],
+  );
 
   const applicationId: string = useSelector(getCurrentApplicationId);
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();

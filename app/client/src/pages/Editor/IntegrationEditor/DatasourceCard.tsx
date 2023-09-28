@@ -37,10 +37,7 @@ import {
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import {
-  hasCreateDatasourceActionPermission,
-  hasCreatePagePermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreatePagePermission } from "@appsmith/utils/permissionHelpers";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
@@ -54,6 +51,7 @@ import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelector
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
+  getHasCreateDatasourceActionPermission,
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
@@ -173,12 +171,12 @@ function DatasourceCard(props: DatasourceCardProps) {
   );
   const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
-
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    [...datasourcePermissions, ...pagePermissions],
+  );
 
   const canEditDatasource = getHasManageDatasourcePermission(
     isFeatureEnabled,
