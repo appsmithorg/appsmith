@@ -354,4 +354,42 @@ public class GitServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void protectBranch_branchListEmpty_success() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_unlimited_repo_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Workspace workspace = new Workspace();
+        workspace.setName(UUID.randomUUID().toString());
+        String limitPrivateRepoTestWorkspaceId =
+                workspaceService.create(workspace).map(Workspace::getId).block();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void protectBranch_branchListNotEmpty_success() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Workspace workspace = new Workspace();
+        workspace.setName(UUID.randomUUID().toString());
+        String limitPrivateRepoTestWorkspaceId =
+                workspaceService.create(workspace).map(Workspace::getId).block();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void unProtectBranch_branchListEmpty_success() {}
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void unProtectBranch_branchListNotEmpty_success() {}
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getProtectBranch_branchListEmpty_success() {}
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getProtectBranch_branchListNotEmpty_success() {}
 }
