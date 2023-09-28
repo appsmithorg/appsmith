@@ -36,7 +36,7 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
       srcDoc: {
         html: "<!-- no need to write html, head, body tags, it is handled by the widget -->",
         js: "// no need to write window onLoad, it is handled by the widget",
-        css: "",
+        css: "/* you can access your string properties of your model using `var(--appsmith-model-<property-name>)`*/",
       },
     };
   }

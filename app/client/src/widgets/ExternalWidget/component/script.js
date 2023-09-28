@@ -14,6 +14,12 @@
     switch (event.data.type) {
       case "READY_ACK":
         onReady && onReady();
+        global.appsmith.modelProvider.subscribe(
+          generateAppsmithCssVariables("model"),
+        );
+        global.appsmith.UIProvider.subscribe(
+          generateAppsmithCssVariables("ui"),
+        );
         break;
       case "MODEL_UPDATE":
         modelSubscribers.forEach((fn) => {
@@ -99,4 +105,27 @@
       "*",
     );
   });
+
+  const generateAppsmithCssVariables = (provider) => (source) => {
+    let cssTokens = document.getElementById(`appsmith-${provider}-css-tokens`);
+
+    if (!cssTokens) {
+      cssTokens = document.createElement("style");
+      cssTokens.id = `appsmith-${provider}-css-tokens`;
+      global.document.head.appendChild(cssTokens);
+    }
+
+    const cssTokensContent = Object.keys(source).reduce((acc, key) => {
+      if (typeof source[key] === "string" || typeof source[key] === "number") {
+        return `
+      ${acc}
+      --appsmith-${provider}-${key}: ${source[key]};
+      `;
+      } else {
+        return acc;
+      }
+    }, "");
+
+    cssTokens.innerHTML = `:root {${cssTokensContent}}`;
+  };
 })(window);
