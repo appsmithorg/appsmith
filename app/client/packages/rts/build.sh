@@ -16,5 +16,5 @@ exec "$root/app/client/node_modules/.bin/esbuild" src/server.ts \
   --sourcemap \
   --platform=node \
   --target="$(node --version | sed s/v/node/)" \
-  --outdir=dist \
+  --outdir=dist/bundle \
   --external:dtrace-provider
