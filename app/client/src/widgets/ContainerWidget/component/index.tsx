@@ -131,7 +131,6 @@ function ContainerComponentWrapper(
           ? "auto-layout"
           : ""
       }`}
-      data-widgetId={props.widgetId}
       dropDisabled={props.dropDisabled}
       onClick={props.onClick}
       onClickCapture={props.onClickCapture}
