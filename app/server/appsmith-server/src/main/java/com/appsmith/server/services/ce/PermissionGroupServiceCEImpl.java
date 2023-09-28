@@ -411,4 +411,9 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 })
                 .map(tuple -> TRUE);
     }
+
+    @Override
+    public Mono<Set<String>> getSessionUserPermissionGroupIds() {
+        return sessionUserService.getCurrentUser().flatMap(repository::getAllPermissionGroupsIdsForUser);
+    }
 }

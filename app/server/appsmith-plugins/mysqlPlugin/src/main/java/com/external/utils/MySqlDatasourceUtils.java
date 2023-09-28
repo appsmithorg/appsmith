@@ -30,6 +30,7 @@ import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorM
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_USERNAME_ERROR_MSG;
 import static com.appsmith.external.helpers.SSHUtils.isSSHEnabled;
 import static com.external.plugins.MySqlPlugin.CONNECTION_METHOD_INDEX;
+import static com.external.plugins.MySqlPlugin.MYSQL_DEFAULT_PORT;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -81,7 +82,7 @@ public class MySqlDatasourceUtils {
 
             if (!isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
                 for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                    hosts.add(endpoint.getHost() + ":" + defaultIfNull(endpoint.getPort(), 3306L));
+                    hosts.add(endpoint.getHost() + ":" + defaultIfNull(endpoint.getPort(), MYSQL_DEFAULT_PORT));
                 }
             } else {
                 hosts.add(LOCALHOST + ":"

@@ -116,7 +116,6 @@ import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
 import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
 import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
-import { KBEditorNavButton } from "@appsmith/pages/Editor/KnowledgeBase/KBEditorNavButton";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
@@ -615,7 +614,6 @@ export function EditorHeader() {
               setShowModal={setShowPublishCommunityTemplateModal}
               showModal={showPublishCommunityTemplateModal}
             />
-            <KBEditorNavButton />
             <div className="flex items-center">
               <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
