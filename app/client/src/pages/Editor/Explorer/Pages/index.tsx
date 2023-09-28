@@ -36,13 +36,15 @@ import AddPageContextMenu from "./AddPageContextMenu";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
-import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith//selectors/tenantSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreatePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import {
+  getHasCreatePagePermission,
+  getHasManagePagePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -185,7 +187,10 @@ function Pages() {
         const icon = page.isDefault ? defaultPageIcon : pageIcon;
         const isCurrentPage = currentPageId === page.pageId;
         const pagePermissions = page.userPermissions;
-        const canManagePages = hasManagePagePermission(pagePermissions);
+        const canManagePages = getHasManagePagePermission(
+          isFeatureEnabled,
+          pagePermissions,
+        );
         const contextMenu = (
           <PageContextMenu
             applicationId={applicationId as string}

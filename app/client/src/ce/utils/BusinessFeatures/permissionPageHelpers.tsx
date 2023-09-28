@@ -17,6 +17,9 @@ import { hasCreateDatasourceActionPermission as hasCreateDatasourceActionPermiss
 import { hasCreatePagePermission as hasCreatePagePermission_CE } from "ce/utils/permissionHelpers";
 import { hasCreatePagePermission as hasCreatePagePermission_EE } from "@appsmith/utils/permissionHelpers";
 
+import { hasManagePagePermission as hasManagePagePermission_CE } from "ce/utils/permissionHelpers";
+import { hasManagePagePermission as hasManagePagePermission_EE } from "@appsmith/utils/permissionHelpers";
+
 export const getHasCreateWorkspacePermission = (
   isEnabled: boolean,
   permissions?: string[],
@@ -63,4 +66,12 @@ export const getHasCreatePagePermission = (
 ) => {
   if (isEnabled) return hasCreatePagePermission_EE(permissions);
   else return hasCreatePagePermission_CE(permissions);
+};
+
+export const getHasManagePagePermission = (
+  isEnabled: boolean,
+  permissions?: string[],
+) => {
+  if (isEnabled) return hasManagePagePermission_EE(permissions);
+  else return hasManagePagePermission_CE(permissions);
 };
