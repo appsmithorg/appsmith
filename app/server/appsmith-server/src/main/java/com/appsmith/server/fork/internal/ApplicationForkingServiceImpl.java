@@ -60,19 +60,19 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
             ResponseUtils responseUtils,
             WorkspacePermission workspacePermission,
             ApplicationPermission applicationPermission,
-            PermissionGroupService permissionGroupService,
             NewPageRepository newPageRepository,
-            NewActionRepository newActionRepository,
-            ActionCollectionRepository actionCollectionRepository,
-            WorkspaceRepository workspaceRepository,
-            PagePermission pagePermission,
-            ActionPermission actionPermission,
             ImportExportApplicationService importExportApplicationService,
             ApplicationPageService applicationPageService,
             NewActionService newActionService,
             LayoutActionService layoutActionService,
             ActionCollectionService actionCollectionService,
             ThemeService themeService,
+            PagePermission pagePermission,
+            ActionPermission actionPermission,
+            PermissionGroupService permissionGroupService,
+            ActionCollectionRepository actionCollectionRepository,
+            NewActionRepository newActionRepository,
+            WorkspaceRepository workspaceRepository,
             ForkableService<Datasource> datasourceForkableService) {
 
         super(
@@ -91,6 +91,11 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                 actionCollectionService,
                 themeService,
                 pagePermission,
+                actionPermission,
+                permissionGroupService,
+                actionCollectionRepository,
+                newActionRepository,
+                workspaceRepository,
                 datasourceForkableService);
 
         this.applicationService = applicationService;

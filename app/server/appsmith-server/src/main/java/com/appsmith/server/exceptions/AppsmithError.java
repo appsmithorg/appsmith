@@ -987,7 +987,14 @@ public enum AppsmithError {
             ErrorType.INTERNAL_ERROR,
             null),
 
-    // EE-only errors below this line:
+    UNABLE_TO_DEPLOY_MISSING_PERMISSION(
+            403,
+            AppsmithErrorCode.UNABLE_TO_DEPLOY_MISSING_PERMISSION.getCode(),
+            "Unable to deploy the Application. You don''t have required permissions for {0}: {1}",
+            AppsmithErrorAction.DEFAULT,
+            "Unable to deploy",
+            ErrorType.INTERNAL_ERROR,
+            null),
     APPLICATION_NOT_CLONED_MISSING_PERMISSIONS(
             403,
             AppsmithErrorCode.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS.getCode(),
@@ -1006,6 +1013,7 @@ public enum AppsmithError {
             ErrorType.INTERNAL_ERROR,
             null),
 
+    // EE-only errors below this line:
     ASSIGN_UNASSIGN_MISSING_PERMISSION(
             403,
             AppsmithErrorCode.ASSIGN_UNASSIGN_MISSING_PERMISSION.getCode(),
@@ -1137,7 +1145,8 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "No implementation error",
             ErrorType.INTERNAL_ERROR,
-            null);
+            null),
+    ;
 
     private final Integer httpErrorCode;
     private final String appErrorCode;
