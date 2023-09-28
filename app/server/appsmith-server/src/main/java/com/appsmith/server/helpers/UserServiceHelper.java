@@ -1,5 +1,5 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.helpers.ce_compatible.UserServiceHelperCECompatible;
+import com.appsmith.server.helpers.ce.UserServiceHelperCE;
 
-public interface UserServiceHelper extends UserServiceHelperCECompatible {}
+public interface UserServiceHelper extends UserServiceHelperCE {}
