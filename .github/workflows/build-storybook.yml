@@ -1,21 +1,22 @@
 name: 'Build Storybook - Docs with Chromatic'
 
 on:
-  push:
-    branches:
-      - release
-    paths:
-      - 'app/client/packages/design-system/**'
-      - 'app/client/packages/storybook/**'
-  pull_request:
-    paths:
-      - 'app/client/packages/design-system/**'
-      - 'app/client/packages/storybook/**'
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - release
+  #   paths:
+  #     - 'app/client/packages/design-system/**'
+  #     - 'app/client/packages/storybook/**'
+  # pull_request:
+  #   paths:
+  #     - 'app/client/packages/design-system/**'
+  #     - 'app/client/packages/storybook/**'
 
 jobs:
   chromatic-deployment:
     runs-on: ubuntu-latest
-   
+
     steps:
       - name: Checkout PR if pull_request event
         if: github.event_name == 'pull_request'
@@ -39,7 +40,7 @@ jobs:
       - name: Install Dependencies
         working-directory: ./app/client/packages/storybook
         run: yarn install --immutable
-        
+
       - name: Publish to Chromatic
         id: chromatic-publish
         uses: chromaui/action@v1
