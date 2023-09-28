@@ -195,7 +195,7 @@ describe("Validate Oracle DS", () => {
     TO_DATE('2020-01-15', 'YYYY-MM-DD'),
     TO_DATE('{{DatePicker1.formattedDate}}', 'YYYY-MM-DD'),
     'This aircraft is used for domestic flights.')`;
-    entityExplorer.ActionTemplateMenuByEntityName(guid.toUpperCase(), "SELECT");
+    entityExplorer.ActionTemplateMenuByEntityName(guid.toUpperCase(), "Select");
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
