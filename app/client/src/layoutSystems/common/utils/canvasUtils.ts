@@ -1,7 +1,14 @@
 import type { RenderModes } from "constants/WidgetConstants";
+import type { AdditionalAutoLayoutProperties } from "layoutSystems/autolayout/canvas/types";
+import type { AdditionalFixedLayoutProperties } from "layoutSystems/fixedlayout/canvas/types";
 import { map } from "lodash";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
+
+type LayoutSystemProps =
+  | AdditionalFixedLayoutProperties
+  | AdditionalAutoLayoutProperties;
+
 /**
  * This utility function renders a child widget based on the widget data passed to it.
  * when enhancing a child widget properties
@@ -21,7 +28,7 @@ function renderChildWidget({
   childWidgetData: WidgetProps;
   widgetId: string;
   renderMode: RenderModes;
-  layoutSystemProps: Record<string, any>;
+  layoutSystemProps: LayoutSystemProps;
   defaultWidgetProps: Record<string, any>;
   noPad: boolean;
 }): React.ReactNode {
@@ -52,11 +59,11 @@ function renderChildWidget({
  * @returns array of child widgets.
  */
 export const renderChildren = (
-  children: any,
+  children: WidgetProps[],
   widgetId: string,
   renderMode: RenderModes,
-  defaultWidgetProps = {},
-  layoutSystemProps = {},
+  defaultWidgetProps: Partial<WidgetProps> = {},
+  layoutSystemProps: LayoutSystemProps,
   noPad = false,
 ): React.ReactNode[] => {
   return map(children, (childWidgetData: WidgetProps) =>

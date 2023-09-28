@@ -9,14 +9,13 @@ import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import ContainerComponent from "widgets/ContainerWidget/component";
-import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { DropTargetComponentWrapper } from "../../common/dropTarget/DropTargetComponentWrapper";
 import { FixedCanvasDraggingArena } from "../editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
 import { compact, sortBy } from "lodash";
 import { Positioning } from "layoutSystems/autolayout/utils/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 
-export type CanvasProps = ContainerWidgetProps<WidgetProps>;
-
+export type CanvasProps = DSLWidget;
 /**
  * This component implements the Canvas for Fixed Layout System in Edit mode.
  * This component adds layers like CanvasDraggingArena, CanvasSelectionArena, etc which are responsible for
@@ -53,7 +52,7 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
     parentColumnSpace: snapColumnSpace,
     parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   };
-  const defaultWidgetProps = {
+  const defaultWidgetProps: Partial<WidgetProps> = {
     positioning: props.positioning,
   };
   // ToDO(#27617): Remove sorting of children on the view, ideally the model should be sorted, coz they are less frequently happening

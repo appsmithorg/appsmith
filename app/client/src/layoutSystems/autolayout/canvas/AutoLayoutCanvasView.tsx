@@ -5,6 +5,8 @@ import React, { useMemo } from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import FlexBoxComponent from "../common/flexCanvas/FlexBoxComponent";
 import type { LayoutDirection } from "../utils/constants";
+import type { AdditionalAutoLayoutProperties } from "./types";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 /**
  * This is the view component used by Canvas of Auto Layout both in Edit/View mode.
@@ -23,15 +25,26 @@ export const AutoLayoutCanvasView = ({
   snapColumnSpace: number;
   direction: LayoutDirection;
 }) => {
+  // setting stretchFlexBox to true would stretch the canvas to 100% of the container widgets height when there are no children in it.
+  // else its set to auto height.
   const stretchFlexBox = !widgetProps.children || !widgetProps.children?.length;
+  const layoutSystemProps: AdditionalAutoLayoutProperties = {
+    parentColumnSpace: snapColumnSpace,
+    parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  };
+  const defaultWidgetProps: Partial<WidgetProps> = {
+    isFlexChild: true,
+    direction,
+  };
   const canvasChildren = useMemo(
     () =>
-      renderChildren(widgetProps.children, widgetProps.widgetId, renderMode, {
-        parentColumnSpace: snapColumnSpace,
-        parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        isFlexChild: true,
-        direction,
-      }),
+      renderChildren(
+        widgetProps.children,
+        widgetProps.widgetId,
+        renderMode,
+        defaultWidgetProps,
+        layoutSystemProps,
+      ),
     [
       widgetProps.children,
       widgetProps.widgetId,

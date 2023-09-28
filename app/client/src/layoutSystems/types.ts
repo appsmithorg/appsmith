@@ -9,7 +9,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
  */
 
 export type WidgetLayoutSystem = {
-  WidgetWrapper: (props: WidgetProps) => any;
+  WidgetWrapper: (props: WidgetProps) => JSX.Element;
   propertyEnhancer: (props: WidgetProps) => WidgetProps;
 };
 
@@ -22,7 +22,7 @@ export type WidgetLayoutSystem = {
  */
 
 export type CanvasLayoutSystem = {
-  Canvas: (props: WidgetProps) => any;
+  Canvas: (props: WidgetProps) => JSX.Element;
   propertyEnhancer: (props: WidgetProps) => WidgetProps;
 };
 

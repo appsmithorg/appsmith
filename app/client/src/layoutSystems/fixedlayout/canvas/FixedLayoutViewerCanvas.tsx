@@ -10,6 +10,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import ContainerComponent from "widgets/ContainerWidget/component";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import type { AdditionalFixedLayoutProperties } from "./types";
 
 export type CanvasProps = ContainerWidgetProps<WidgetProps>;
 
@@ -22,11 +23,11 @@ export type CanvasProps = ContainerWidgetProps<WidgetProps>;
 export const FixedLayoutViewerCanvas = (props: BaseWidgetProps) => {
   const { snapGrid } = getSnappedGrid(props, props.componentWidth);
   const { snapColumnSpace } = snapGrid;
-  const layoutSystemProps = {
+  const layoutSystemProps: AdditionalFixedLayoutProperties = {
     parentColumnSpace: snapColumnSpace,
     parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   };
-  const defaultWidgetProps = {
+  const defaultWidgetProps: Partial<WidgetProps> = {
     positioning: props.positioning,
   };
 

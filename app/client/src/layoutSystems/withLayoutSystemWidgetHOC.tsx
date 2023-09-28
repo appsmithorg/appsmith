@@ -36,7 +36,7 @@ const LayoutSystemWrapper = ({
   widgetProps,
 }: {
   widgetProps: WidgetProps;
-  Widget: (props: WidgetProps) => any;
+  Widget: (props: WidgetProps) => JSX.Element;
 }) => {
   const renderMode = useSelector(getRenderMode);
   const appPositioningType = useSelector(getAppPositioningType);
