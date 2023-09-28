@@ -22,7 +22,6 @@ import {
 } from "@appsmith/constants/messages";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
-import { hasDeletePagePermission } from "@appsmith/utils/permissionHelpers";
 import { getPageById } from "selectors/editorSelectors";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
@@ -32,6 +31,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
   getHasCreatePagePermission,
+  getHasDeletePagePermission,
   getHasManagePagePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
@@ -137,7 +137,10 @@ export function PageContextMenu(props: {
     pagePermissions,
   );
 
-  const canDeletePages = hasDeletePagePermission(pagePermissions);
+  const canDeletePages = getHasDeletePagePermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   const optionsTree = [
     canManagePages && {
