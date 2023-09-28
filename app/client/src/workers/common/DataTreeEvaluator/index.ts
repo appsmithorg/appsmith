@@ -790,12 +790,8 @@ export default class DataTreeEvaluator {
          * Store fullPath in nonDynamicFieldValidationOrderSet,
          * if the non dynamic value changes to trigger revalidation.
          */
-        if (this.inverseValidationDependencies[fullPath]) {
-          nonDynamicFieldValidationOrderSet = new Set([
-            ...nonDynamicFieldValidationOrderSet,
-            fullPath,
-          ]);
-        }
+        if (this.inverseValidationDependencies[fullPath])
+          nonDynamicFieldValidationOrderSet.add(fullPath)
         continue;
       }
 
