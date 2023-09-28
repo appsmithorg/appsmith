@@ -344,7 +344,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   }
 
   getWidgetView() {
-    this.makeAPICalls()
+    // this.makeAPICalls()
     // const myconfig = {}
     //   const key = "rajat.agrawal.agrawal"
     //   const val = () => {}

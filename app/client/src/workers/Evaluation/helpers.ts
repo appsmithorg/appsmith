@@ -14,8 +14,9 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { array } from "toposort";
 import { isValid } from "redux-form";
 import type { ValidateResult } from "react-hook-form";
-import { parse } from "json5";
+// import { parse } from "json5";
 import { klona } from "klona";
+import { parse }  from "acorn"
 const detect = require('acorn-globals');
 
 export const fn_keys : string = "__fn_keys__"
@@ -327,7 +328,8 @@ const sandboxedFn = (fn: any) => {
 export const isValidFunction = (fn : any, whitelistedGlobals: string[]) : ValidationResponse=> {
   // const myFunc = (new Function("return " + fn.toString()))()
 
-  const fnString = fn.toString().replace(/\n|\r|\t/g, ""); 
+  // const fnString = fn.toString().replace(/\n|\r|\t/g, ""); 
+  const fnString = fn.toString().replace(/\n|\r|\t/g, "");
   console.log("*********", "fn string is ", fnString)
 
   // let globals : Record<string, unknown>[] = []
@@ -358,10 +360,81 @@ export const isValidFunction = (fn : any, whitelistedGlobals: string[]) : Valida
   // if (blacklistedGlobals.length > 0) {
   //   return { isValid: false, parsed: "", messages: messages} ;
   // } else {
-    const newFn = sandboxedFn(fn)
-    console.log("returning function ", newFn.toString())
+    // const newFn = sandboxedFn(fn)
+    // console.log("returning function ", newFn.toString())
+    try {
+      const astTree = parse(fn.toString(), { ecmaVersion: 11 })
+    console.log('astparsing', "ast tree is ", JSON.stringify(astTree))
+    // const result : any = validFn(astTree, ["eval", "fetch", "constructor"])
+    // console.log("astparsing", "result from ast parsing is ", result, fnString)
+    // if (result.status == false) {
+    //   return { isValid: false, parsed: "", messages: [new Error(result.message)] }
+    // }
+    } catch(error) {
+      console.log("astparsing", "coming in outer catch", error)
+    }
+    
     return { isValid: true, parsed: fnString, messages: messages };
   // }
+}
+
+const validFn = (obj : any, blacklistedGlobals : string[]) => {
+  // console.log("astparsing", "valid fn called ", obj, " type is ", typeof(obj))
+  try {
+    console.log("astparsing", "coming in try")
+    if (typeof(obj) == "object") {
+      console.log("astparsing", "coming in first if for obj ", obj)
+      if(obj == null || obj == undefined) {
+        console.log("astparsing", "obj is null", obj)
+          return { status: true, message: ""};
+      }
+      if (Array.isArray(obj)) {
+        console.log("astparsing", "obj is array ", obj)
+          for (const val of obj) {
+              console.log("astparsing", "valid fn called with obj ", obj, typeof(obj))
+              const nestedResult : any = validFn(val, blacklistedGlobals)
+              if (nestedResult.status == false) {
+                return nestedResult
+              }
+          }
+          return { status: true, message: ""}
+      } else {
+        console.log("astparsing", "coming in first else for obj ", obj)
+        if (obj["type"] == "Identifier") {
+              console.log("astparsing", "found an identifier ", JSON.stringify(obj))
+              const result = !blacklistedGlobals.includes(obj.name)
+              let message = ""
+              if (!result) {
+                message = `found blacklisted identifier ${obj.name}`; 
+                console.log(message)
+              }
+              return { status: result, message: message}
+          } else {
+              let result = { status: true, message: ""};
+              console.log("astparsing", "coming in else for obj ", obj)
+              const values = Object.values(obj)
+              for (const value of values) {
+                  console.log("astparsing", "iterating over value ", value)
+                  if (typeof(value) == "object") {
+                      console.log("astparsing", "going to call validfn for nested object ", value)
+                      const nestedResult : any = validFn(value, blacklistedGlobals)
+                      if (nestedResult.status == false) {
+                          result = nestedResult;
+                          break;
+                      }
+                  }
+              }
+
+              return result;
+          }
+      }
+  } else {
+    console.log("astparsing", "coming in last else", obj)
+    return { status: true, message: ""}
+  }
+  } catch (error) {
+    console.log("astparsing", "coming in catch ", error)
+  }
 }
 
 const isLargeCollection = (val: any) => {
