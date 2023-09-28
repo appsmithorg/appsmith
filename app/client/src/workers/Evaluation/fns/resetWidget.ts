@@ -7,7 +7,6 @@ import {
 import _ from "lodash";
 import type {
   DataTree,
-  UnEvalTree,
   UnEvalTreeEntity,
   WidgetEntityConfig,
   WidgetEntity,
@@ -17,9 +16,8 @@ import {
   overrideWidgetProperties,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { klona } from "klona";
-import type { PropertyOverrideDependency } from "entities/DataTree/types";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
-import { evaluateAsync } from "../evaluate";
+import evaluateSync from "../evaluate";
 import type { DescendantWidgetMap } from "sagas/WidgetOperationUtils";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -54,131 +52,125 @@ async function resetWidgetMetaProperty(
     Object.values(canvasWidgets),
     (widget) => widget.widgetName === widgetName,
   );
-  const evalTree = dataTreeEvaluator?.getEvalTree() || {};
-  const oldUnEvalTree = dataTreeEvaluator?.getOldUnevalTree() || {};
-  const configTree = dataTreeEvaluator?.getConfigTree() || {};
 
-  if (widget) {
-    const evaluatedEntity = evalTree[widget.widgetName];
-    const evaluatedEntityConfig = configTree[
-      widget.widgetName
-    ] as WidgetEntityConfig;
+  if (!dataTreeEvaluator) return;
+  if (!widget) return;
 
-    const unEvalEntity = oldUnEvalTree[widget.widgetName] as UnEvalTree;
+  const evalTree = dataTreeEvaluator.getEvalTree();
+  const oldUnEvalTree = dataTreeEvaluator.getOldUnevalTree();
+  const configTree = dataTreeEvaluator.getConfigTree();
 
-    if (isWidget(evaluatedEntity)) {
-      if (evaluatedEntity) {
-        const { defaultMetaProps, propertyOverrideDependency } =
-          evaluatedEntityConfig;
+  const evaluatedEntity = evalTree[widget.widgetName];
+  const evaluatedEntityConfig = configTree[
+    widget.widgetName
+  ] as WidgetEntityConfig;
 
-        // propertyOverrideDependency has defaultProperty name for each meta property of widget
-        const propertyOverrideDependencyEntries = Object.entries(
-          propertyOverrideDependency as PropertyOverrideDependency,
-        );
+  if (isWidget(evaluatedEntity) && evaluatedEntity) {
+    const metaObj = evaluatedEntity.meta;
+    const currentMetaProperties = Object.keys(metaObj);
+    const { propertyOverrideDependency } = evaluatedEntityConfig;
+    /**
+     * - Updates all the meta values which does not have a DEFAULT path for example, PhoneInput1.value.
+     *
+     * - When we set the value to undefined, the evalTreeWithChanges will update the meta value to the
+     * default value during evaluations
+     */
+    for (const propertyPath of currentMetaProperties) {
+      const defaultPropertyPath =
+        propertyOverrideDependency[propertyPath]?.DEFAULT;
+      if (defaultPropertyPath) {
+        const unEvalEntity = oldUnEvalTree[widget.widgetName] as WidgetEntity;
+        const expressionToEvaluate: string | UnEvalTreeEntity | undefined =
+          defaultPropertyPath && unEvalEntity[defaultPropertyPath];
 
-        /**
-         * - Updates all the meta values which does not have a DEFAULT path for example, PhoneInput1.value.
-         *
-         * - When we set the value to undefined, the evalTreeWithChanges will update the meta value to the
-         * default value during evaluations
-         */
-        for (let i = 0; i < defaultMetaProps.length; i++) {
-          const propPath = defaultMetaProps[i];
-
-          if (!!propertyOverrideDependency[propPath]?.DEFAULT) {
-            continue;
-          }
-
-          updatedProperties.push([widgetName, `meta.${propPath}`]);
-          updatedProperties.push([widgetName, `${propPath}`]);
-
-          evalMetaUpdates.push({
-            widgetId: evaluatedEntity.widgetId,
-            metaPropertyPath: propPath.split("."),
-            value: undefined,
-          });
-
-          _.set(evalTree, `${widgetName}.meta.${propPath}`, undefined);
-          _.set(evalTree, `${widgetName}.${propPath}`, undefined);
-        }
-
-        /**
-         * - Updates all the meta values which HAVE a DEFAULT path for example, PhoneInput1.text has DEFAULT as PhoneInput1.defaultText
-         *
-         * - We recalculate the default value mapped to the meta value and set all the values to that. We need to recalculate as,
-         * setters can be used to set the defaultValue and to retrieve the original value, we need to rely on the binding in the
-         * unevalTree and recompute the value
-         *
-         */
-        for (let i = 0; i < propertyOverrideDependencyEntries.length; i++) {
-          const [propertyPath, dependency] =
-            propertyOverrideDependencyEntries[i];
-          const defaultPropertyPath = dependency.DEFAULT;
-
-          if (!defaultPropertyPath) continue;
-
-          const expressionToEvaluate: string | UnEvalTreeEntity | undefined =
-            defaultPropertyPath && unEvalEntity[defaultPropertyPath];
-
-          let finalValue: unknown;
-          if (
-            expressionToEvaluate &&
-            typeof expressionToEvaluate === "string" &&
-            isDynamicValue(expressionToEvaluate)
-          ) {
-            const { jsSnippets } = getDynamicBindings(expressionToEvaluate);
-            const { result } = await evaluateAsync(
-              jsSnippets[0] || expressionToEvaluate,
-              evalTree,
-              configTree,
-              {},
-              undefined,
-            );
-
-            finalValue = klona(result);
-          } else {
-            finalValue = klona(expressionToEvaluate);
-          }
-
-          const overriddenProperties: string[] = [];
-
-          /**
-           * Updates the values of the properties that are overriden by the `defaultPropertyPath`
-           */
-          overrideWidgetProperties({
-            entity: evaluatedEntity,
-            propertyPath: defaultPropertyPath,
-            value: finalValue,
-            currentTree: evalTree,
+        let finalValue: unknown;
+        if (
+          expressionToEvaluate &&
+          typeof expressionToEvaluate === "string" &&
+          isDynamicValue(expressionToEvaluate)
+        ) {
+          const { jsSnippets } = getDynamicBindings(expressionToEvaluate);
+          const { result } = evaluateSync(
+            jsSnippets[0] || expressionToEvaluate,
+            evalTree,
+            false,
+            {},
+            undefined,
             configTree,
-            evalMetaUpdates,
-            fullPropertyPath: `${widgetName}.${propertyPath}`,
-            isNewWidget: false,
-            shouldUpdateGlobalContext: true,
-            overriddenProperties,
-          });
+          );
 
-          overriddenProperties.forEach((propPath) => {
-            updatedProperties.push([widgetName, propPath]);
-          });
-
-          updatedProperties.push([widgetName, defaultPropertyPath]);
-          evalMetaUpdates.push({
-            widgetId: evaluatedEntity.widgetId,
-            metaPropertyPath: propertyPath.split("."),
-            value: finalValue,
-          });
+          finalValue = klona(result);
+        } else {
+          finalValue = klona(expressionToEvaluate);
         }
+
+        const overriddenProperties: string[] = [];
+
+        /**
+         * Updates the values of the properties that are overridden by the `defaultPropertyPath`
+         */
+        overrideWidgetProperties({
+          entity: evaluatedEntity,
+          propertyPath: defaultPropertyPath,
+          value: finalValue,
+          currentTree: evalTree,
+          configTree,
+          evalMetaUpdates,
+          fullPropertyPath: `${widgetName}.${propertyPath}`,
+          isNewWidget: false,
+          shouldUpdateGlobalContext: true,
+          overriddenProperties,
+        });
+
+        overriddenProperties.forEach((propPath) => {
+          updatedProperties.push([widgetName, propPath]);
+        });
+
+        updatedProperties.push([widgetName, defaultPropertyPath]);
+        evalMetaUpdates.push({
+          widgetId: evaluatedEntity.widgetId,
+          metaPropertyPath: propertyPath.split("."),
+          value: finalValue,
+        });
+
+        continue;
       }
 
-      if (resetChildren) {
-        await resetChildrenMetaProperty(
-          widget.widgetId,
-          evalTree,
-          evalMetaUpdates,
-          updatedProperties,
-        );
-      }
+      /**
+       * if no defaultPropertyPath then clear the meta value and send updates to main thread using evalMetaUpdates
+       */
+
+      const metaPropertyFullPathArray = [widgetName, `meta.${propertyPath}`];
+      const propertyFullPathArray = [widgetName, `${propertyPath}`];
+      updatedProperties.push(metaPropertyFullPathArray);
+      updatedProperties.push(propertyFullPathArray);
+
+      evalMetaUpdates.push({
+        widgetId: evaluatedEntity.widgetId,
+        metaPropertyPath: propertyPath.split("."),
+        value: undefined,
+      });
+
+      _.set(evalTree, metaPropertyFullPathArray.join("."), undefined);
+      _.set(evalTree, propertyFullPathArray.join("."), undefined);
+    }
+
+    /**
+     * - Updates all the meta values which HAVE a DEFAULT path for example, PhoneInput1.text has DEFAULT as PhoneInput1.defaultText
+     *
+     * - We recalculate the default value mapped to the meta value and set all the values to that. We need to recalculate as,
+     * setters can be used to set the defaultValue and to retrieve the original value, we need to rely on the binding in the
+     * unevalTree and recompute the value
+     *
+     */
+
+    if (resetChildren) {
+      await resetChildrenMetaProperty(
+        widget.widgetId,
+        evalTree,
+        evalMetaUpdates,
+        updatedProperties,
+      );
     }
   }
 }
