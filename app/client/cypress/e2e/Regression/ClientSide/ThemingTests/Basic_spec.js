@@ -744,8 +744,7 @@ describe("App Theming funtionality", function () {
       "none",
     );
 
-    agHelper.assertPageSave();
-    agHelper.Sleep();
+    agHelper.AssertAutoSave();
     deployMode.DeployApp();
 
     //Verify Background color
